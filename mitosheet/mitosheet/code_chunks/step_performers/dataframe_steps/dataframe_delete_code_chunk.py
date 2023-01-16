@@ -68,6 +68,7 @@ class DataframeDeleteCodeChunk(CodeChunk):
         deleted_sheet_indexes = self.get_param('sheet_indexes')
         created_sheet_indexes = other_code_chunk.get_created_sheet_indexes()
 
+
         if created_sheet_indexes is not None and set(deleted_sheet_indexes) == set(created_sheet_indexes):
             # If all we did was create the dfs we deleted, we can just return a no op
             return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state, {}, {})

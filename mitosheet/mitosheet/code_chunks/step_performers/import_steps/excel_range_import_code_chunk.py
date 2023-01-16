@@ -46,17 +46,11 @@ class ExcelRangeImportCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         return list(self.sheet_index_to_df_name_and_range.keys())
 
-    def get_edited_sheet_indexes(self) -> List[int]:
-        return []
-
     def _combine_right_with_dataframe_rename_code_chunk(self, dataframe_rename_code_chunk: DataframeRenameCodeChunk) -> Optional[CodeChunk]:
         sheet_index = dataframe_rename_code_chunk.get_param('sheet_index')
         new_dataframe_name = dataframe_rename_code_chunk.get_param('new_dataframe_name')
 
-        print(sheet_index, self.sheet_index_to_df_name_and_range)
-
         if sheet_index in self.sheet_index_to_df_name_and_range:
-            print("123")
             new_sheet_index_to_df_name_and_range = copy(self.sheet_index_to_df_name_and_range)
             new_sheet_index_to_df_name_and_range[sheet_index] = (new_dataframe_name, self.sheet_index_to_df_name_and_range[sheet_index][1])
             return ExcelRangeImportCodeChunk(
@@ -69,11 +63,27 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
         return None
 
-    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
-        print("HERE123")
-        if isinstance(other_code_chunk, DataframeRenameCodeChunk):
-            print("AND MORE")
-            return self._combine_right_with_dataframe_rename_code_chunk(other_code_chunk)
+    def _combine_right_with_excel_range_import_code_chunk(self, excel_range_import_code_chunk: "ExcelRangeImportCodeChunk") -> Optional[CodeChunk]:
+        if excel_range_import_code_chunk.file_path == self.file_path and excel_range_import_code_chunk.sheet_name == self.sheet_name:
+            new_sheet_index_to_df_name_and_range = copy(self.sheet_index_to_df_name_and_range)
+            new_sheet_index_to_df_name_and_range.update(excel_range_import_code_chunk.sheet_index_to_df_name_and_range)
 
-        return super().combine_right(other_code_chunk)
+            return ExcelRangeImportCodeChunk(
+                self.prev_state,
+                excel_range_import_code_chunk.post_state,
+                self.file_path,
+                self.sheet_name,
+                new_sheet_index_to_df_name_and_range
+            )
+
+        return None
+
+
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, DataframeRenameCodeChunk):
+            return self._combine_right_with_dataframe_rename_code_chunk(other_code_chunk)
+        elif isinstance(other_code_chunk, ExcelRangeImportCodeChunk):
+            return self._combine_right_with_excel_range_import_code_chunk(other_code_chunk)
+
+        return None
     
