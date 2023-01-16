@@ -21,9 +21,6 @@ from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ExcelRangeImport
 from mitosheet.utils import get_valid_dataframe_name
 
-EXCEL_RANGE_IMPORT_TYPE_RANGE = 'range'
-EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT = 'upper left corner value'
-
 
 class ExcelRangeImportStepPerformer(StepPerformer):
     """
