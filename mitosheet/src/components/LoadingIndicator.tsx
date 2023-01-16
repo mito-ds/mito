@@ -121,6 +121,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.ExcelRangeImport: {
             return 'Excel Range Import'
         }
+        case StepType.ExportToFile: {
+            return 'Export to File'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }

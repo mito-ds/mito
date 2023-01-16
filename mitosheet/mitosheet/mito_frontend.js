@@ -2461,11 +2461,11 @@
       if (true) {
         (function() {
           "use strict";
-          var React208 = require_react();
+          var React210 = require_react();
           var _assign = require_object_assign();
           var Scheduler = require_scheduler();
           var tracing = require_tracing();
-          var ReactSharedInternals = React208.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React210.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           function warn(format) {
             {
               for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2497,7 +2497,7 @@
               Function.prototype.apply.call(console[level], console, argsWithFormat);
             }
           }
-          if (!React208) {
+          if (!React210) {
             {
               throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
             }
@@ -3833,7 +3833,7 @@
           var didWarnInvalidChild = false;
           function flattenChildren(children) {
             var content = "";
-            React208.Children.forEach(children, function(child) {
+            React210.Children.forEach(children, function(child) {
               if (child == null) {
                 return;
               }
@@ -3844,7 +3844,7 @@
           function validateProps(element, props) {
             {
               if (typeof props.children === "object" && props.children !== null) {
-                React208.Children.forEach(props.children, function(child) {
+                React210.Children.forEach(props.children, function(child) {
                   if (child == null) {
                     return;
                   }
@@ -11047,7 +11047,7 @@
           }
           var fakeInternalInstance = {};
           var isArray = Array.isArray;
-          var emptyRefsObject = new React208.Component().refs;
+          var emptyRefsObject = new React210.Component().refs;
           var didWarnAboutStateAssignmentForComponent;
           var didWarnAboutUninitializedState;
           var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -20644,11 +20644,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   });
 
   // src/jupyterRender.tsx
-  var React207 = __toESM(require_react());
+  var React209 = __toESM(require_react());
   var import_react_dom2 = __toESM(require_react_dom());
 
   // src/components/Mito.tsx
-  var import_react215 = __toESM(require_react());
+  var import_react217 = __toESM(require_react());
 
   // src/components/taskpanes/Graph/graphUtils.tsx
   var import_react23 = __toESM(require_react());
@@ -24489,7 +24489,8 @@ ${finalCode}`;
     "fill_na" /* FILL_NA */,
     "melt" /* MELT */,
     "set_dataframe_format" /* SET_DATAFRAME_FORMAT */,
-    "Excel Range Import" /* EXCEL_RANGE_IMPORT */
+    "Excel Range Import" /* EXCEL_RANGE_IMPORT */,
+    "Export To File" /* EXPORT_TO_FILE */
   ];
   var ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     "pivot" /* PIVOT */,
@@ -30722,6 +30723,25 @@ ${finalCode}`;
         searchTerms: ["CodeSnippets"],
         tooltip: "CodeSnippets"
       },
+      ["Export_To_File" /* EXPORT_TO_FILE */]: {
+        type: "Export_To_File" /* EXPORT_TO_FILE */,
+        shortTitle: "Export To File",
+        longTitle: "Export To File",
+        actionFunction: () => {
+          setEditorState(void 0);
+          setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "Export To File" /* EXPORT_TO_FILE */ },
+              selectedTabType: "data"
+            });
+          });
+        },
+        isDisabled: () => {
+          return void 0;
+        },
+        searchTerms: ["Export To File"],
+        tooltip: "Export To File"
+      },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
         getFuncDocObjFromFuncName("abs"),
@@ -33249,10 +33269,10 @@ ${finalCode}`;
   var DataframeImportTaskpane_default = DataframeImportTaskpane;
 
   // src/components/taskpanes/Download/DownloadTaskpane.tsx
-  var import_react114 = __toESM(require_react());
+  var import_react115 = __toESM(require_react());
 
   // src/components/taskpanes/Download/ExcelDownloadConfigSection.tsx
-  var import_react112 = __toESM(require_react());
+  var import_react113 = __toESM(require_react());
 
   // src/pro/download/ExcelFormatSection.tsx
   var import_react111 = __toESM(require_react());
@@ -33262,52 +33282,67 @@ ${finalCode}`;
   };
   var ExcelFormatSection_default = ExcelFormatSection;
 
-  // src/components/taskpanes/Download/ExcelDownloadConfigSection.tsx
-  var ExcelDownloadConfigSection = (props) => {
-    return /* @__PURE__ */ import_react112.default.createElement(import_react112.default.Fragment, null, /* @__PURE__ */ import_react112.default.createElement("p", { className: "text-header-3" }, "Dataframes to Export"), /* @__PURE__ */ import_react112.default.createElement(
+  // src/components/elements/DataframeMultiSelect.tsx
+  var import_react112 = __toESM(require_react());
+  var DataframeMultiSelect = (props) => {
+    const selectedSheetIndexes = [...props.selectedSheetIndexes].sort();
+    return /* @__PURE__ */ import_react112.default.createElement(
       MultiToggleBox_default,
       {
         width: "block",
         height: "small",
         toggleAllIndexes: (indexesToToggle, newToggle) => {
-          props.setUIState((prevUiState) => {
-            const newSelectedSheetIndexes = [...props.exportState.sheetIndexes];
-            indexesToToggle.forEach((sheetIndex) => {
-              if (newToggle) {
-                addIfAbsent(newSelectedSheetIndexes, sheetIndex);
-              } else {
-                removeIfPresent(newSelectedSheetIndexes, sheetIndex);
-              }
-            });
-            newSelectedSheetIndexes.sort();
-            return __spreadProps(__spreadValues({}, prevUiState), {
-              exportConfiguration: { exportType: "excel", sheetIndexes: newSelectedSheetIndexes }
-            });
+          const newSelectedSheetIndexes = [...selectedSheetIndexes];
+          indexesToToggle.forEach((sheetIndex) => {
+            if (newToggle) {
+              addIfAbsent(newSelectedSheetIndexes, sheetIndex);
+            } else {
+              removeIfPresent(newSelectedSheetIndexes, sheetIndex);
+            }
           });
+          newSelectedSheetIndexes.sort();
+          props.onChange(newSelectedSheetIndexes);
         }
       },
-      props.dfNames.map((dfName, index) => {
+      props.sheetDataArray.map((sheetData, index) => {
+        const dfName = sheetData.dfName;
         return /* @__PURE__ */ import_react112.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
             title: dfName,
-            toggled: props.exportState.sheetIndexes.includes(index),
+            toggled: selectedSheetIndexes.includes(index),
             index,
             onToggle: () => {
-              props.setUIState((prevUIState) => {
-                const newSheetIndexes = [...props.exportState.sheetIndexes];
-                toggleInArray(newSheetIndexes, index);
-                newSheetIndexes.sort();
-                return __spreadProps(__spreadValues({}, prevUIState), {
-                  exportConfiguration: { exportType: "excel", sheetIndexes: newSheetIndexes }
-                });
-              });
+              const newSheetIndexes = [...selectedSheetIndexes];
+              toggleInArray(newSheetIndexes, index);
+              newSheetIndexes.sort();
+              props.onChange(newSheetIndexes);
             }
           }
         );
       })
-    ), props.userProfile.isPro && /* @__PURE__ */ import_react112.default.createElement(
+    );
+  };
+  var DataframeMultiSelect_default = DataframeMultiSelect;
+
+  // src/components/taskpanes/Download/ExcelDownloadConfigSection.tsx
+  var ExcelDownloadConfigSection = (props) => {
+    return /* @__PURE__ */ import_react113.default.createElement(import_react113.default.Fragment, null, /* @__PURE__ */ import_react113.default.createElement("p", { className: "text-header-3" }, "Dataframes to Export"), /* @__PURE__ */ import_react113.default.createElement(
+      DataframeMultiSelect_default,
+      {
+        sheetDataArray: props.sheetDataArray,
+        selectedSheetIndexes: props.exportState.sheetIndexes,
+        setUIState: props.setUIState,
+        onChange: (newSelectedSheetIndexes) => {
+          props.setUIState((prevUiState) => {
+            return __spreadProps(__spreadValues({}, prevUiState), {
+              exportConfiguration: { exportType: "excel", sheetIndexes: newSelectedSheetIndexes }
+            });
+          });
+        }
+      }
+    ), props.userProfile.isPro && /* @__PURE__ */ import_react113.default.createElement(
       ExcelFormatSection_default,
       {
         dfNames: props.dfNames,
@@ -33317,7 +33352,7 @@ ${finalCode}`;
         newlyFormattedColumns: props.newlyFormattedColumns,
         setNewlyFormattedColumns: props.setNewlyFormattedColumns
       }
-    ), !props.userProfile.isPro && /* @__PURE__ */ import_react112.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react112.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to preserving your formatting when exporting to Excel? Consider upgrading to\xA0", /* @__PURE__ */ import_react112.default.createElement(
+    ), !props.userProfile.isPro && /* @__PURE__ */ import_react113.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react113.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to preserving your formatting when exporting to Excel? Consider upgrading to\xA0", /* @__PURE__ */ import_react113.default.createElement(
       "a",
       {
         onClick: () => void props.mitoAPI.log(
@@ -33337,9 +33372,9 @@ ${finalCode}`;
   var ExcelDownloadConfigSection_default = ExcelDownloadConfigSection;
 
   // src/components/taskpanes/Download/CSVDownloadConfigSection.tsx
-  var import_react113 = __toESM(require_react());
+  var import_react114 = __toESM(require_react());
   var CSVDownloadConfigSection = (props) => {
-    return /* @__PURE__ */ import_react113.default.createElement(import_react113.default.Fragment, null, /* @__PURE__ */ import_react113.default.createElement(
+    return /* @__PURE__ */ import_react114.default.createElement(import_react114.default.Fragment, null, /* @__PURE__ */ import_react114.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to Export",
@@ -33354,21 +33389,21 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react113.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react113.default.createElement("p", { className: "ma-25px text-align-center" }, "CSV exports will not reflect any formatting changes made in Mito.")));
+    ), /* @__PURE__ */ import_react114.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react114.default.createElement("p", { className: "ma-25px text-align-center" }, "CSV exports will not reflect any formatting changes made in Mito.")));
   };
   var CSVDownloadConfigSection_default = CSVDownloadConfigSection;
 
   // src/components/taskpanes/Download/DownloadTaskpane.tsx
   var DownloadTaskpane = (props) => {
     var _a;
-    const [newlyFormattedColumns, setNewlyFormattedColumns] = (0, import_react114.useState)(() => {
+    const [newlyFormattedColumns, setNewlyFormattedColumns] = (0, import_react115.useState)(() => {
       const newlyFormattedColumnsInitial = {};
       props.sheetDataArray.forEach((_, idx) => {
         newlyFormattedColumnsInitial[idx] = [];
       });
       return newlyFormattedColumnsInitial;
     });
-    const [exportString, setExportString] = (0, import_react114.useState)("");
+    const [exportString, setExportString] = (0, import_react115.useState)("");
     const emptySheet = props.sheetDataArray.length === 0;
     const numRows = (_a = props.sheetDataArray[props.selectedSheetIndex]) == null ? void 0 : _a.numRows;
     const loadExport = async () => {
@@ -33397,7 +33432,7 @@ ${finalCode}`;
       );
     };
     if (emptySheet) {
-      return /* @__PURE__ */ import_react114.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react115.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     let exportHRef = "";
     let exportName = "";
@@ -33414,13 +33449,13 @@ ${finalCode}`;
       ));
       exportName = "MitoExport.xlsx";
     }
-    return /* @__PURE__ */ import_react114.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react114.default.createElement(
+    return /* @__PURE__ */ import_react115.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react115.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Download",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react114.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react114.default.createElement("div", null, /* @__PURE__ */ import_react114.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react114.default.createElement("p", { className: "text-header-3" }, "Export Type"), /* @__PURE__ */ import_react114.default.createElement(
+    ), /* @__PURE__ */ import_react115.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react115.default.createElement("div", null, /* @__PURE__ */ import_react115.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react115.default.createElement("p", { className: "text-header-3" }, "Export Type"), /* @__PURE__ */ import_react115.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -33440,20 +33475,20 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react114.default.createElement(
+      /* @__PURE__ */ import_react115.default.createElement(
         DropdownItem_default,
         {
           title: "csv"
         }
       ),
-      /* @__PURE__ */ import_react114.default.createElement(
+      /* @__PURE__ */ import_react115.default.createElement(
         DropdownItem_default,
         {
           title: "excel",
           subtext: numRows > 1048576 ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.` : `Due to Python limitations, Excel export can be slower than CSV export.`
         }
       )
-    )), props.uiState.exportConfiguration.exportType === "excel" && /* @__PURE__ */ import_react114.default.createElement(
+    )), props.uiState.exportConfiguration.exportType === "excel" && /* @__PURE__ */ import_react115.default.createElement(
       ExcelDownloadConfigSection_default,
       {
         dfNames: props.dfNames,
@@ -33465,7 +33500,7 @@ ${finalCode}`;
         newlyFormattedColumns,
         setNewlyFormattedColumns
       }
-    ), props.uiState.exportConfiguration.exportType === "csv" && /* @__PURE__ */ import_react114.default.createElement(
+    ), props.uiState.exportConfiguration.exportType === "csv" && /* @__PURE__ */ import_react115.default.createElement(
       CSVDownloadConfigSection_default,
       {
         sheetDataArray: props.sheetDataArray,
@@ -33473,7 +33508,7 @@ ${finalCode}`;
         selectedSheetIndex: props.selectedSheetIndex,
         setUIState: props.setUIState
       }
-    ))), /* @__PURE__ */ import_react114.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react114.default.createElement(
+    ))), /* @__PURE__ */ import_react115.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react115.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33483,13 +33518,13 @@ ${finalCode}`;
         download: exportName,
         onClick: onDownload
       },
-      exportString === "" ? /* @__PURE__ */ import_react114.default.createElement(import_react114.default.Fragment, null, "Preparing data for download ", /* @__PURE__ */ import_react114.default.createElement(LoadingDots_default, null)) : `Download ${props.uiState.exportConfiguration.exportType === "csv" ? "CSV file" : "Excel workbook"}`
+      exportString === "" ? /* @__PURE__ */ import_react115.default.createElement(import_react115.default.Fragment, null, "Preparing data for download ", /* @__PURE__ */ import_react115.default.createElement(LoadingDots_default, null)) : `Download ${props.uiState.exportConfiguration.exportType === "csv" ? "CSV file" : "Excel workbook"}`
     )));
   };
   var DownloadTaskpane_default = DownloadTaskpane;
 
   // src/components/taskpanes/DropDuplicates/DropDuplicates.tsx
-  var import_react115 = __toESM(require_react());
+  var import_react116 = __toESM(require_react());
   var getDefaultParams3 = (selectedSheetIndex, sheetDataArray2) => {
     var _a;
     if (sheetDataArray2.length === 0) {
@@ -33510,7 +33545,7 @@ ${finalCode}`;
       props.analysisData
     );
     if (props.sheetDataArray.length === 0 || params === void 0) {
-      return /* @__PURE__ */ import_react115.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react116.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     if (props.sheetDataArray[params.sheet_index] === void 0) {
       props.setUIState((prevUIState) => {
@@ -33518,16 +33553,16 @@ ${finalCode}`;
           currOpenTaskpane: { type: "none" /* NONE */ }
         });
       });
-      return /* @__PURE__ */ import_react115.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react116.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const columnIDsAndHeaders = ((_a = props.sheetDataArray[params.sheet_index]) == null ? void 0 : _a.data.map((c) => [c.columnID, c.columnHeader])) || [];
-    return /* @__PURE__ */ import_react115.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react115.default.createElement(
+    return /* @__PURE__ */ import_react116.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react116.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Drop Duplicates",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react115.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react115.default.createElement(
+    ), /* @__PURE__ */ import_react116.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react116.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to drop duplicates within.",
@@ -33547,7 +33582,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react115.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react115.default.createElement(Col_default, null, /* @__PURE__ */ import_react115.default.createElement("p", { className: "text-header-3" }, "Duplicates to Keep")), /* @__PURE__ */ import_react115.default.createElement(Col_default, null, /* @__PURE__ */ import_react115.default.createElement(
+    ), /* @__PURE__ */ import_react116.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react116.default.createElement(Col_default, null, /* @__PURE__ */ import_react116.default.createElement("p", { className: "text-header-3" }, "Duplicates to Keep")), /* @__PURE__ */ import_react116.default.createElement(Col_default, null, /* @__PURE__ */ import_react116.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -33563,21 +33598,21 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react115.default.createElement(
+      /* @__PURE__ */ import_react116.default.createElement(
         DropdownItem_default,
         {
           title: "first",
           subtext: "Keep the first instance of the duplicated row."
         }
       ),
-      /* @__PURE__ */ import_react115.default.createElement(
+      /* @__PURE__ */ import_react116.default.createElement(
         DropdownItem_default,
         {
           title: "last",
           subtext: "Keep the last instance of the duplicated row."
         }
       ),
-      /* @__PURE__ */ import_react115.default.createElement(
+      /* @__PURE__ */ import_react116.default.createElement(
         DropdownItem_default,
         {
           id: "false",
@@ -33585,7 +33620,7 @@ ${finalCode}`;
           subtext: "Keep none of the duplicated rows."
         }
       )
-    ))), /* @__PURE__ */ import_react115.default.createElement("p", { className: "text-header-3 mt-10px" }, "Columns to Deduplicate On"), /* @__PURE__ */ import_react115.default.createElement(
+    ))), /* @__PURE__ */ import_react116.default.createElement("p", { className: "text-header-3 mt-10px" }, "Columns to Deduplicate On"), /* @__PURE__ */ import_react116.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -33612,7 +33647,7 @@ ${finalCode}`;
         height: "large"
       },
       columnIDsAndHeaders.map(([columnID, columnHeader], index) => {
-        return /* @__PURE__ */ import_react115.default.createElement(
+        return /* @__PURE__ */ import_react116.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -33635,7 +33670,7 @@ ${finalCode}`;
           }
         );
       })
-    ), /* @__PURE__ */ import_react115.default.createElement(Spacer_default, { px: 25 }), /* @__PURE__ */ import_react115.default.createElement(
+    ), /* @__PURE__ */ import_react116.default.createElement(Spacer_default, { px: 25 }), /* @__PURE__ */ import_react116.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33644,15 +33679,15 @@ ${finalCode}`;
         disabled: false
       },
       !loading ? `Drop duplicates in ${params.column_ids.length} columns` : "Dropping duplicates..."
-    ), editApplied && !loading && /* @__PURE__ */ import_react115.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react115.default.createElement("p", { className: "text-subtext-1" }, "Removed ", /* @__PURE__ */ import_react115.default.createElement("span", { className: "text-color-gray-important" }, !attemptedEditWithTheseParamsMultipleTimes ? (result == null ? void 0 : result.num_rows_dropped) || 0 : 0), " rows."))));
+    ), editApplied && !loading && /* @__PURE__ */ import_react116.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react116.default.createElement("p", { className: "text-subtext-1" }, "Removed ", /* @__PURE__ */ import_react116.default.createElement("span", { className: "text-color-gray-important" }, !attemptedEditWithTheseParamsMultipleTimes ? (result == null ? void 0 : result.num_rows_dropped) || 0 : 0), " rows."))));
   };
   var DropDuplicates_default = DropDuplicatesTaskpane;
 
   // src/components/taskpanes/FileImport/FileImportTaskpane.tsx
-  var import_react132 = __toESM(require_react());
+  var import_react133 = __toESM(require_react());
 
   // src/components/import/FileBrowser/FileBrowser.tsx
-  var import_react125 = __toESM(require_react());
+  var import_react126 = __toESM(require_react());
 
   // src/utils/packageVersion.tsx
   var isAtLeastBenchmarkVersion = (currentVersion, benchmarkVersion) => {
@@ -33679,9 +33714,9 @@ ${finalCode}`;
   };
 
   // src/components/icons/ConfigureIcon.tsx
-  var import_react116 = __toESM(require_react());
+  var import_react117 = __toESM(require_react());
   var ConfigureIcon = () => {
-    return /* @__PURE__ */ import_react116.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react116.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
+    return /* @__PURE__ */ import_react117.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react117.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
   };
   var ConfigureIcon_default = ConfigureIcon;
 
@@ -33802,48 +33837,48 @@ ${finalCode}`;
   };
 
   // src/components/import/FileBrowser/FileBrowserBody.tsx
-  var import_react124 = __toESM(require_react());
+  var import_react125 = __toESM(require_react());
 
   // src/components/icons/SortArrowIcon.tsx
-  var import_react117 = __toESM(require_react());
+  var import_react118 = __toESM(require_react());
   var SortArrowIcon = (props) => {
     if (props.direction === "ascending") {
-      return /* @__PURE__ */ import_react117.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react117.default.createElement("path", { d: "M4.00073 4L0.536631 0.25H7.46483L4.00073 4Z", fill: "#C4C4C4" }));
+      return /* @__PURE__ */ import_react118.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react118.default.createElement("path", { d: "M4.00073 4L0.536631 0.25H7.46483L4.00073 4Z", fill: "#C4C4C4" }));
     } else {
-      return /* @__PURE__ */ import_react117.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react117.default.createElement("path", { d: "M4.00073 0L0.536631 3.75H7.46483L4.00073 0Z", fill: "#C4C4C4" }));
+      return /* @__PURE__ */ import_react118.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react118.default.createElement("path", { d: "M4.00073 0L0.536631 3.75H7.46483L4.00073 0Z", fill: "#C4C4C4" }));
     }
   };
   var SortArrowIcon_default = SortArrowIcon;
 
   // src/components/import/FileBrowser/FileBrowserElement.tsx
-  var import_react121 = __toESM(require_react());
+  var import_react122 = __toESM(require_react());
 
   // src/components/icons/CSVFileIcon.tsx
-  var import_react118 = __toESM(require_react());
+  var import_react119 = __toESM(require_react());
   var CSVFileIcon = () => {
-    return /* @__PURE__ */ import_react118.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react118.default.createElement("path", { d: "M1 3.75V6C1 6.13807 1.11193 6.25 1.25 6.25H4M1 3.75V1.5C1 1.36193 1.11193 1.25 1.25 1.25H4M1 3.75H7M7 3.75V1.5C7 1.36193 6.88807 1.25 6.75 1.25H4M7 3.75V6C7 6.13807 6.88807 6.25 6.75 6.25H4M4 1.25V6.25", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react119.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react119.default.createElement("path", { d: "M1 3.75V6C1 6.13807 1.11193 6.25 1.25 6.25H4M1 3.75V1.5C1 1.36193 1.11193 1.25 1.25 1.25H4M1 3.75H7M7 3.75V1.5C7 1.36193 6.88807 1.25 6.75 1.25H4M7 3.75V6C7 6.13807 6.88807 6.25 6.75 6.25H4M4 1.25V6.25", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var CSVFileIcon_default = CSVFileIcon;
 
   // src/components/icons/DirectoryIcon.tsx
-  var import_react119 = __toESM(require_react());
+  var import_react120 = __toESM(require_react());
   var DirectoryIcon = () => {
-    return /* @__PURE__ */ import_react119.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react119.default.createElement("path", { d: "M3.86144 1H1.25C1.11193 1 1 1.11193 1 1.25V4.75C1 4.88807 1.11193 5 1.25 5H6.75C6.88807 5 7 4.88807 7 4.75V2.05C7 1.91193 6.88807 1.8 6.75 1.8H4.63856C4.55236 1.8 4.47225 1.75559 4.42656 1.6825L4.07344 1.1175C4.02775 1.0444 3.94764 1 3.86144 1Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M3.86144 1H1.25C1.11193 1 1 1.11193 1 1.25V4.75C1 4.88807 1.11193 5 1.25 5H6.75C6.88807 5 7 4.88807 7 4.75V2.05C7 1.91193 6.88807 1.8 6.75 1.8H4.63856C4.55236 1.8 4.47225 1.75559 4.42656 1.6825L4.07344 1.1175C4.02775 1.0444 3.94764 1 3.86144 1Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var DirectoryIcon_default = DirectoryIcon;
 
   // src/components/icons/FileIcon.tsx
-  var import_react120 = __toESM(require_react());
+  var import_react121 = __toESM(require_react());
   var FileIcon = () => {
-    return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M1 1.25V5.75C1 5.88807 1.11193 6 1.25 6H6.75C6.88807 6 7 5.88807 7 5.75V2.94244C7 2.89827 6.9883 2.85489 6.96609 2.81671L5.9814 1.12428C5.93663 1.04733 5.85433 1 5.76531 1H1.25C1.11193 1 1 1.11193 1 1.25Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react120.default.createElement("path", { d: "M2.63647 2.71875H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react120.default.createElement("path", { d: "M2.63647 4.28125H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react121.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react121.default.createElement("path", { d: "M1 1.25V5.75C1 5.88807 1.11193 6 1.25 6H6.75C6.88807 6 7 5.88807 7 5.75V2.94244C7 2.89827 6.9883 2.85489 6.96609 2.81671L5.9814 1.12428C5.93663 1.04733 5.85433 1 5.76531 1H1.25C1.11193 1 1 1.11193 1 1.25Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react121.default.createElement("path", { d: "M2.63647 2.71875H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react121.default.createElement("path", { d: "M2.63647 4.28125H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var FileIcon_default = FileIcon;
 
   // src/components/import/FileBrowser/FileBrowserElement.tsx
   function FileBrowserElement(props) {
-    const elementRef = (0, import_react121.useRef)(null);
+    const elementRef = (0, import_react122.useRef)(null);
     const isSelected = props.index === props.fileBrowserState.selectedElementIndex;
-    (0, import_react121.useEffect)(() => {
+    (0, import_react122.useEffect)(() => {
       var _a;
       const element = elementRef.current;
       const parent = (_a = elementRef.current) == null ? void 0 : _a.parentElement;
@@ -33852,7 +33887,7 @@ ${finalCode}`;
       }
     }, [isSelected]);
     const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
-    return /* @__PURE__ */ import_react121.default.createElement(
+    return /* @__PURE__ */ import_react122.default.createElement(
       "div",
       {
         ref: elementRef,
@@ -33906,19 +33941,19 @@ ${finalCode}`;
           }
         }
       },
-      /* @__PURE__ */ import_react121.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between" }, /* @__PURE__ */ import_react121.default.createElement(Col_default, { span: 17, offsetRight: 1 }, /* @__PURE__ */ import_react121.default.createElement("div", { className: "flexbox-row" }, /* @__PURE__ */ import_react121.default.createElement("div", { className: "mr-5px mt-2px" }, props.element.isDirectory && props.element.isParentDirectory && /* @__PURE__ */ import_react121.default.createElement(BackArrowIcon_default, { width: "14px" }), props.element.isDirectory && !props.element.isParentDirectory && /* @__PURE__ */ import_react121.default.createElement(DirectoryIcon_default, null), !props.element.isDirectory && invalidFileError === void 0 && /* @__PURE__ */ import_react121.default.createElement(CSVFileIcon_default, null), !props.element.isDirectory && invalidFileError !== void 0 && /* @__PURE__ */ import_react121.default.createElement(FileIcon_default, null)), /* @__PURE__ */ import_react121.default.createElement("div", null, props.element.name))), /* @__PURE__ */ import_react121.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react121.default.createElement("p", { className: "text-align-right" }, props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)))),
-      isSelected && invalidFileError !== void 0 && /* @__PURE__ */ import_react121.default.createElement("div", { className: "pl-5px pr-5px" }, /* @__PURE__ */ import_react121.default.createElement("span", null, " ", invalidFileError, " "))
+      /* @__PURE__ */ import_react122.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between" }, /* @__PURE__ */ import_react122.default.createElement(Col_default, { span: 17, offsetRight: 1 }, /* @__PURE__ */ import_react122.default.createElement("div", { className: "flexbox-row" }, /* @__PURE__ */ import_react122.default.createElement("div", { className: "mr-5px mt-2px" }, props.element.isDirectory && props.element.isParentDirectory && /* @__PURE__ */ import_react122.default.createElement(BackArrowIcon_default, { width: "14px" }), props.element.isDirectory && !props.element.isParentDirectory && /* @__PURE__ */ import_react122.default.createElement(DirectoryIcon_default, null), !props.element.isDirectory && invalidFileError === void 0 && /* @__PURE__ */ import_react122.default.createElement(CSVFileIcon_default, null), !props.element.isDirectory && invalidFileError !== void 0 && /* @__PURE__ */ import_react122.default.createElement(FileIcon_default, null)), /* @__PURE__ */ import_react122.default.createElement("div", null, props.element.name))), /* @__PURE__ */ import_react122.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react122.default.createElement("p", { className: "text-align-right" }, props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)))),
+      isSelected && invalidFileError !== void 0 && /* @__PURE__ */ import_react122.default.createElement("div", { className: "pl-5px pr-5px" }, /* @__PURE__ */ import_react122.default.createElement("span", null, " ", invalidFileError, " "))
     );
   }
   var FileBrowserElement_default = FileBrowserElement;
 
   // src/components/import/FileBrowser/FileBrowserPathSelector.tsx
-  var import_react123 = __toESM(require_react());
+  var import_react124 = __toESM(require_react());
 
   // src/components/icons/DriveIcon.tsx
-  var import_react122 = __toESM(require_react());
+  var import_react123 = __toESM(require_react());
   var DriveIcon = () => {
-    return /* @__PURE__ */ import_react122.default.createElement("svg", { width: "17", height: "13", viewBox: "0 0 17 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react122.default.createElement("path", { d: "M15.6711 7.6579V11.5C15.6711 11.9142 15.3353 12.25 14.9211 12.25H1.5C1.08579 12.25 0.75 11.9142 0.75 11.5V7.6579C0.75 7.24368 1.08579 6.9079 1.5 6.9079H4.10526H14.9211C15.3353 6.9079 15.6711 7.24368 15.6711 7.6579Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react122.default.createElement("path", { d: "M14.5503 2.63128L15.4318 6.43421H0.989295L1.87037 2.63151C2.08764 1.69377 2.16023 1.44349 2.28529 1.26975C2.42019 1.08234 2.60436 0.935958 2.81738 0.846842C3.01487 0.764224 3.27508 0.75 4.23766 0.75H8.21021H12.183C13.1455 0.75 13.4057 0.764222 13.6032 0.846828C13.8162 0.935931 14.0003 1.08229 14.1352 1.26968C14.2603 1.4434 14.3329 1.69365 14.5503 2.63128Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react122.default.createElement("circle", { cx: "10.6052", cy: "9.23683", r: "1.02632", fill: "#494650" }), /* @__PURE__ */ import_react122.default.createElement("path", { d: "M14.3683 9.23683C14.3683 9.80364 13.9088 10.2631 13.342 10.2631C12.7752 10.2631 12.3157 9.80364 12.3157 9.23683C12.3157 8.67001 12.7752 8.21051 13.342 8.21051C13.9088 8.21051 14.3683 8.67001 14.3683 9.23683Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react123.default.createElement("svg", { width: "17", height: "13", viewBox: "0 0 17 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react123.default.createElement("path", { d: "M15.6711 7.6579V11.5C15.6711 11.9142 15.3353 12.25 14.9211 12.25H1.5C1.08579 12.25 0.75 11.9142 0.75 11.5V7.6579C0.75 7.24368 1.08579 6.9079 1.5 6.9079H4.10526H14.9211C15.3353 6.9079 15.6711 7.24368 15.6711 7.6579Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react123.default.createElement("path", { d: "M14.5503 2.63128L15.4318 6.43421H0.989295L1.87037 2.63151C2.08764 1.69377 2.16023 1.44349 2.28529 1.26975C2.42019 1.08234 2.60436 0.935958 2.81738 0.846842C3.01487 0.764224 3.27508 0.75 4.23766 0.75H8.21021H12.183C13.1455 0.75 13.4057 0.764222 13.6032 0.846828C13.8162 0.935931 14.0003 1.08229 14.1352 1.26968C14.2603 1.4434 14.3329 1.69365 14.5503 2.63128Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react123.default.createElement("circle", { cx: "10.6052", cy: "9.23683", r: "1.02632", fill: "#494650" }), /* @__PURE__ */ import_react123.default.createElement("path", { d: "M14.3683 9.23683C14.3683 9.80364 13.9088 10.2631 13.342 10.2631C12.7752 10.2631 12.3157 9.80364 12.3157 9.23683C12.3157 8.67001 12.7752 8.21051 13.342 8.21051C13.9088 8.21051 14.3683 8.67001 14.3683 9.23683Z", fill: "#494650" }));
   };
   var DriveIcon_default = DriveIcon;
 
@@ -33932,20 +33967,20 @@ ${finalCode}`;
       const subPathParts = props.pathParts.slice(0, i + 1);
       props.setCurrPathParts(subPathParts);
     };
-    return /* @__PURE__ */ import_react123.default.createElement("div", { className: "file-browser-path-selector" }, (_a = props.pathParts) == null ? void 0 : _a.map((pathPart, i) => {
-      return /* @__PURE__ */ import_react123.default.createElement(import_react123.default.Fragment, { key: i }, /* @__PURE__ */ import_react123.default.createElement("div", { className: "file-browser-path-part", key: i, onClick: () => {
+    return /* @__PURE__ */ import_react124.default.createElement("div", { className: "file-browser-path-selector" }, (_a = props.pathParts) == null ? void 0 : _a.map((pathPart, i) => {
+      return /* @__PURE__ */ import_react124.default.createElement(import_react124.default.Fragment, { key: i }, /* @__PURE__ */ import_react124.default.createElement("div", { className: "file-browser-path-part", key: i, onClick: () => {
         updateSelectedPath(i);
-      } }, i === 0 ? /* @__PURE__ */ import_react123.default.createElement(DriveIcon_default, null) : pathPart), /* @__PURE__ */ import_react123.default.createElement("div", { className: "file-browser-path-seperator" }, ">"));
+      } }, i === 0 ? /* @__PURE__ */ import_react124.default.createElement(DriveIcon_default, null) : pathPart), /* @__PURE__ */ import_react124.default.createElement("div", { className: "file-browser-path-seperator" }, ">"));
     }));
   }
   var FileBrowserPathSelector_default = FileBrowserPathSelector;
 
   // src/components/import/FileBrowser/FileBrowserBody.tsx
   function FileBrowserBody(props) {
-    const inputRef = (0, import_react124.useRef)(null);
+    const inputRef = (0, import_react125.useRef)(null);
     const elementsToDisplay = getElementsToDisplay(props.fileBrowserState);
     const selectedFile = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
-    (0, import_react124.useEffect)(() => {
+    (0, import_react125.useEffect)(() => {
       var _a;
       props.setFileBrowserState((prevImportState) => {
         return __spreadProps(__spreadValues({}, prevImportState), {
@@ -33954,18 +33989,18 @@ ${finalCode}`;
       });
       (_a = inputRef.current) == null ? void 0 : _a.focus();
     }, [props.fileBrowserState.pathContents.path_parts]);
-    (0, import_react124.useEffect)(() => {
+    (0, import_react125.useEffect)(() => {
       var _a;
       (_a = inputRef.current) == null ? void 0 : _a.focus();
     }, [props.fileBrowserState.selectedElementIndex, props.fileBrowserState.sort]);
     const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
-    return /* @__PURE__ */ import_react124.default.createElement("div", { className: "file-browser flexbox-column" }, /* @__PURE__ */ import_react124.default.createElement("div", null, /* @__PURE__ */ import_react124.default.createElement(
+    return /* @__PURE__ */ import_react125.default.createElement("div", { className: "file-browser flexbox-column" }, /* @__PURE__ */ import_react125.default.createElement("div", null, /* @__PURE__ */ import_react125.default.createElement(
       FileBrowserPathSelector_default,
       {
         setCurrPathParts: props.setCurrPathParts,
         pathParts: props.fileBrowserState.pathContents.path_parts
       }
-    )), /* @__PURE__ */ import_react124.default.createElement(Row_default, { className: "border-t-light-gray border-b-light-gray", justify: "space-between" }, /* @__PURE__ */ import_react124.default.createElement(
+    )), /* @__PURE__ */ import_react125.default.createElement(Row_default, { className: "border-t-light-gray border-b-light-gray", justify: "space-between" }, /* @__PURE__ */ import_react125.default.createElement(
       Col_default,
       {
         span: 18,
@@ -33978,9 +34013,9 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react124.default.createElement("p", { className: "text-body-2 pt-5px pb-5px" }, "Name"),
-      props.fileBrowserState.sort.startsWith("name") && /* @__PURE__ */ import_react124.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react124.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" }))
-    ), /* @__PURE__ */ import_react124.default.createElement(
+      /* @__PURE__ */ import_react125.default.createElement("p", { className: "text-body-2 pt-5px pb-5px" }, "Name"),
+      props.fileBrowserState.sort.startsWith("name") && /* @__PURE__ */ import_react125.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react125.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" }))
+    ), /* @__PURE__ */ import_react125.default.createElement(
       Col_default,
       {
         span: 6,
@@ -33993,15 +34028,15 @@ ${finalCode}`;
           });
         }
       },
-      props.fileBrowserState.sort.startsWith("last_modified") && /* @__PURE__ */ import_react124.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react124.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" })),
-      /* @__PURE__ */ import_react124.default.createElement(
+      props.fileBrowserState.sort.startsWith("last_modified") && /* @__PURE__ */ import_react125.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react125.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" })),
+      /* @__PURE__ */ import_react125.default.createElement(
         "p",
         {
           className: "text-body-2 pt-5px pb-5px"
         },
         "Last Modified"
       )
-    )), /* @__PURE__ */ import_react124.default.createElement("div", { className: "mt-5px mb-5px" }, /* @__PURE__ */ import_react124.default.createElement(
+    )), /* @__PURE__ */ import_react125.default.createElement("div", { className: "mt-5px mb-5px" }, /* @__PURE__ */ import_react125.default.createElement(
       "input",
       {
         className: classNames("mito-input", "text-body-2", "element-width-block"),
@@ -34066,7 +34101,7 @@ ${finalCode}`;
         width: "block",
         autoFocus: true
       }
-    )), /* @__PURE__ */ import_react124.default.createElement("div", { className: "file-browser-element-list" }, displayUpgradeToPro && /* @__PURE__ */ import_react124.default.createElement(import_react124.default.Fragment, null, /* @__PURE__ */ import_react124.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react124.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to import from a different drive? Consider\xA0", /* @__PURE__ */ import_react124.default.createElement(
+    )), /* @__PURE__ */ import_react125.default.createElement("div", { className: "file-browser-element-list" }, displayUpgradeToPro && /* @__PURE__ */ import_react125.default.createElement(import_react125.default.Fragment, null, /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react125.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to import from a different drive? Consider\xA0", /* @__PURE__ */ import_react125.default.createElement(
       "a",
       {
         onClick: () => {
@@ -34083,7 +34118,7 @@ ${finalCode}`;
         className: "text-body-1-link"
       },
       "upgrading to Mito Pro"
-    ), " or\xA0", /* @__PURE__ */ import_react124.default.createElement(
+    ), " or\xA0", /* @__PURE__ */ import_react125.default.createElement(
       "a",
       {
         onClick: () => {
@@ -34092,8 +34127,8 @@ ${finalCode}`;
         className: "text-body-1-link"
       },
       "go back to current directory."
-    )))), !displayUpgradeToPro && /* @__PURE__ */ import_react124.default.createElement(import_react124.default.Fragment, null, !props.fileBrowserState.loadingFolder && (elementsToDisplay == null ? void 0 : elementsToDisplay.map((element, i) => {
-      return /* @__PURE__ */ import_react124.default.createElement(
+    )))), !displayUpgradeToPro && /* @__PURE__ */ import_react125.default.createElement(import_react125.default.Fragment, null, !props.fileBrowserState.loadingFolder && (elementsToDisplay == null ? void 0 : elementsToDisplay.map((element, i) => {
+      return /* @__PURE__ */ import_react125.default.createElement(
         FileBrowserElement_default,
         {
           key: i,
@@ -34109,13 +34144,13 @@ ${finalCode}`;
           importCSVFile: props.importCSVFile
         }
       );
-    })), props.fileBrowserState.loadingFolder && /* @__PURE__ */ import_react124.default.createElement("p", null, "Loading folder contents..."))));
+    })), props.fileBrowserState.loadingFolder && /* @__PURE__ */ import_react125.default.createElement("p", null, "Loading folder contents..."))));
   }
   var FileBrowserBody_default = FileBrowserBody;
 
   // src/components/import/FileBrowser/FileBrowser.tsx
   function FileBrowser(props) {
-    const [fileBrowserState, setFileBrowserState] = (0, import_react125.useState)({
+    const [fileBrowserState, setFileBrowserState] = (0, import_react126.useState)({
       pathContents: {
         path_parts: props.currPathParts,
         elements: []
@@ -34127,7 +34162,7 @@ ${finalCode}`;
       loadingImport: false
     });
     const selectedFile = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
-    (0, import_react125.useEffect)(() => {
+    (0, import_react126.useEffect)(() => {
       void loadPathContents(props.currPathParts);
       setFileBrowserState((prevImportState) => {
         return __spreadProps(__spreadValues({}, prevImportState), {
@@ -34136,7 +34171,7 @@ ${finalCode}`;
       });
       void props.mitoAPI.log("curr_path_changed", { "path_parts_length": props.currPathParts.length });
     }, [props.currPathParts]);
-    (0, import_react125.useEffect)(() => {
+    (0, import_react126.useEffect)(() => {
       let selectedElementName = "";
       if (selectedFile === void 0) {
         selectedElementName = "undefined";
@@ -34183,7 +34218,7 @@ ${finalCode}`;
       fileBrowserState.loadingImport,
       props.isUpdate
     );
-    return /* @__PURE__ */ import_react125.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react125.default.createElement(
+    return /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react126.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? "Import Files" : "Update Import",
@@ -34191,7 +34226,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react125.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, /* @__PURE__ */ import_react125.default.createElement(
+    ), /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, /* @__PURE__ */ import_react126.default.createElement(
       FileBrowserBody_default,
       {
         mitoAPI: props.mitoAPI,
@@ -34204,7 +34239,7 @@ ${finalCode}`;
         importCSVFile: props.importCSVFile,
         setImportState: props.setImportState
       }
-    )), /* @__PURE__ */ import_react125.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react125.default.createElement(Row_default, { justify: "space-between" }, !importButtonStatus.disabled && !isExcelFile(selectedFile) && /* @__PURE__ */ import_react125.default.createElement(Col_default, null, /* @__PURE__ */ import_react125.default.createElement(
+    )), /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between" }, !importButtonStatus.disabled && !isExcelFile(selectedFile) && /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -34225,8 +34260,8 @@ ${finalCode}`;
         },
         disabled: importButtonStatus.disabled
       },
-      /* @__PURE__ */ import_react125.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react125.default.createElement(ConfigureIcon_default, null), /* @__PURE__ */ import_react125.default.createElement("p", { className: "ml-2px" }, "Configure"))
-    )), /* @__PURE__ */ import_react125.default.createElement(Col_default, { span: !importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24 }, /* @__PURE__ */ import_react125.default.createElement(
+      /* @__PURE__ */ import_react126.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react126.default.createElement(ConfigureIcon_default, null), /* @__PURE__ */ import_react126.default.createElement("p", { className: "ml-2px" }, "Configure"))
+    )), /* @__PURE__ */ import_react126.default.createElement(Col_default, { span: !importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24 }, /* @__PURE__ */ import_react126.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34257,10 +34292,10 @@ ${finalCode}`;
   var FileBrowser_default = FileBrowser;
 
   // src/components/taskpanes/FileImport/CSVImportConfigTaskpane.tsx
-  var import_react127 = __toESM(require_react());
+  var import_react128 = __toESM(require_react());
 
   // src/components/import/CSVImportConfigScreen.tsx
-  var import_react126 = __toESM(require_react());
+  var import_react127 = __toESM(require_react());
   var ENCODINGS = [
     "utf_8",
     "ascii",
@@ -34416,7 +34451,7 @@ ${finalCode}`;
       });
     };
     if (props.params === void 0 || props.fileName === void 0 || props.filePath === void 0) {
-      return /* @__PURE__ */ import_react126.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your CSV file encodings. Please try again, or contact support.");
+      return /* @__PURE__ */ import_react127.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your CSV file encodings. Please try again, or contact support.");
     }
     const delimeters = props.params.delimeters;
     const encodings = props.params.encodings;
@@ -34428,7 +34463,7 @@ ${finalCode}`;
     const currentDecimal = decimals !== void 0 ? decimals[0] : DEFAULT_DECIMAL;
     const currentSkiprows = skiprows !== void 0 ? skiprows[0] : DEFAULT_SKIPROWS;
     const currentErrorBadLines = error_bad_lines !== void 0 ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
-    return /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react126.default.createElement(
+    return /* @__PURE__ */ import_react127.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react127.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`,
@@ -34436,7 +34471,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, props.error !== void 0 && /* @__PURE__ */ import_react126.default.createElement("p", { className: "text-color-error" }, " ", props.error, " "), /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between", align: "center", title: DELIMETER_TOOLTIP }, /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(LabelAndTooltip_default, { tooltip: DELIMETER_TOOLTIP }, "Delimeter")), /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(
+    ), /* @__PURE__ */ import_react127.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, props.error !== void 0 && /* @__PURE__ */ import_react127.default.createElement("p", { className: "text-color-error" }, " ", props.error, " "), /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-between", align: "center", title: DELIMETER_TOOLTIP }, /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(LabelAndTooltip_default, { tooltip: DELIMETER_TOOLTIP }, "Delimeter")), /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(
       Input_default,
       {
         width: "medium",
@@ -34462,7 +34497,7 @@ ${finalCode}`;
         },
         selectTextOnFocus: true
       }
-    ))), /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(
+    ))), /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(
       Select_default,
       {
         searchable: true,
@@ -34477,9 +34512,9 @@ ${finalCode}`;
         }
       },
       ENCODINGS.map((encoding) => {
-        return /* @__PURE__ */ import_react126.default.createElement(DropdownItem_default, { key: encoding, title: encoding });
+        return /* @__PURE__ */ import_react127.default.createElement(DropdownItem_default, { key: encoding, title: encoding });
       })
-    ))), /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(
+    ))), /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(
       Select_default,
       {
         searchable: true,
@@ -34495,9 +34530,9 @@ ${finalCode}`;
       },
       Object.keys(decimalCharToTitle).map((decimalCharacter) => {
         const decimalTitle = decimalCharToTitle[decimalCharacter];
-        return /* @__PURE__ */ import_react126.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
+        return /* @__PURE__ */ import_react127.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
       })
-    ))), /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(
+    ))), /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(
       Input_default,
       {
         value: "" + currentSkiprows,
@@ -34514,14 +34549,14 @@ ${finalCode}`;
         },
         selectTextOnFocus: true
       }
-    ))), /* @__PURE__ */ import_react126.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react126.default.createElement(Col_default, null, /* @__PURE__ */ import_react126.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
+    ))), /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react127.default.createElement(Col_default, null, /* @__PURE__ */ import_react127.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
       props.setParams((prevParams) => {
         const error_bad_lines2 = prevParams.error_bad_lines;
         return __spreadProps(__spreadValues({}, prevParams), {
           error_bad_lines: [error_bad_lines2 !== void 0 ? !error_bad_lines2[0] : DEFAULT_ERROR_BAD_LINES]
         });
       });
-    } })))), /* @__PURE__ */ import_react126.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react126.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react126.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react126.default.createElement(
+    } })))), /* @__PURE__ */ import_react127.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react127.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react127.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react127.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34532,7 +34567,7 @@ ${finalCode}`;
         autoFocus: true
       },
       getButtonMessage2(props.fileName, props.loading, props.isUpdate)
-    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react126.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage(props.fileName)), !props.editApplied && /* @__PURE__ */ import_react126.default.createElement(Spacer_default, { px: 16 })));
+    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react127.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage(props.fileName)), !props.editApplied && /* @__PURE__ */ import_react127.default.createElement(Spacer_default, { px: 16 })));
   }
   var CSVImportConfigScreen_default = CSVImportConfigScreen;
 
@@ -34553,7 +34588,7 @@ ${finalCode}`;
       props.analysisData,
       { allowSameParamsToReapplyTwice: true }
     );
-    return /* @__PURE__ */ import_react127.default.createElement(
+    return /* @__PURE__ */ import_react128.default.createElement(
       CSVImportConfigScreen_default,
       {
         mitoAPI: props.mitoAPI,
@@ -34577,18 +34612,18 @@ ${finalCode}`;
   var CSVImportConfigTaskpane_default = CSVImportConfigTaskpane;
 
   // src/components/taskpanes/FileImport/XLSXImportConfigTaskpane.tsx
-  var import_react131 = __toESM(require_react());
+  var import_react132 = __toESM(require_react());
 
   // src/components/import/XLSXImportConfigScreen.tsx
-  var import_react130 = __toESM(require_react());
+  var import_react131 = __toESM(require_react());
 
   // src/components/elements/RadioButtonBox.tsx
-  var import_react129 = __toESM(require_react());
+  var import_react130 = __toESM(require_react());
 
   // src/components/elements/RadioButtonItem.tsx
-  var import_react128 = __toESM(require_react());
+  var import_react129 = __toESM(require_react());
   var RadioButtonItem = (props) => {
-    return /* @__PURE__ */ import_react128.default.createElement(
+    return /* @__PURE__ */ import_react129.default.createElement(
       "div",
       {
         key: props.value,
@@ -34597,8 +34632,8 @@ ${finalCode}`;
         },
         className: classNames("radio-button-box-row", { "radio-button-box-row-selected": props.checked })
       },
-      /* @__PURE__ */ import_react128.default.createElement("input", { type: "radio", name: props.value, value: props.value, checked: props.checked }),
-      /* @__PURE__ */ import_react128.default.createElement("label", { htmlFor: props.value }, props.value)
+      /* @__PURE__ */ import_react129.default.createElement("input", { type: "radio", name: props.value, value: props.value, checked: props.checked }),
+      /* @__PURE__ */ import_react129.default.createElement("label", { htmlFor: props.value }, props.value)
     );
   };
   var RadioButtonItem_default = RadioButtonItem;
@@ -34606,9 +34641,9 @@ ${finalCode}`;
   // src/components/elements/RadioButtonBox.tsx
   var RadioButtonBoxMessage = (props) => {
     if (props.loading) {
-      return /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react129.default.createElement("p", { className: "text-body-1" }, "Loading..."));
+      return /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-1" }, "Loading..."));
     } else if (props.values.length === 0) {
-      return /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react129.default.createElement("p", { className: "text-body-1" }, "No items to display."));
+      return /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-1" }, "No items to display."));
     }
     return null;
   };
@@ -34617,12 +34652,12 @@ ${finalCode}`;
     const width = props.width || "block";
     const heightClass = `element-height-${height}`;
     const widthClass = `element-width-${width}`;
-    return /* @__PURE__ */ import_react129.default.createElement(
+    return /* @__PURE__ */ import_react130.default.createElement(
       "div",
       {
         className: classNames("text-body-2", "radio-button-box", heightClass, widthClass, props.className)
       },
-      /* @__PURE__ */ import_react129.default.createElement(
+      /* @__PURE__ */ import_react130.default.createElement(
         RadioButtonBoxMessage,
         {
           values: props.values,
@@ -34630,7 +34665,7 @@ ${finalCode}`;
         }
       ),
       props.values.map((value) => {
-        return /* @__PURE__ */ import_react129.default.createElement(
+        return /* @__PURE__ */ import_react130.default.createElement(
           RadioButtonItem_default,
           {
             key: value,
@@ -34680,10 +34715,10 @@ ${finalCode}`;
     );
     const params = props.params;
     if (params === void 0) {
-      return /* @__PURE__ */ import_react130.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your Excel file metadata. Please try again, or contact support.");
+      return /* @__PURE__ */ import_react131.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your Excel file metadata. Please try again, or contact support.");
     }
     const numSelectedSheets = params.sheet_names.length;
-    return /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    return /* @__PURE__ */ import_react131.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react131.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`,
@@ -34691,7 +34726,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react130.default.createElement("div", null, !props.isUpdate && /* @__PURE__ */ import_react130.default.createElement(
+    ), /* @__PURE__ */ import_react131.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react131.default.createElement("div", null, !props.isUpdate && /* @__PURE__ */ import_react131.default.createElement(
       MultiToggleBox_default,
       {
         loading,
@@ -34711,7 +34746,7 @@ ${finalCode}`;
         }
       },
       fileMetadata.sheet_names.map((sheetName, idx) => {
-        return /* @__PURE__ */ import_react130.default.createElement(
+        return /* @__PURE__ */ import_react131.default.createElement(
           MultiToggleItem_default,
           {
             key: idx,
@@ -34730,7 +34765,7 @@ ${finalCode}`;
           }
         );
       })
-    ), props.isUpdate && /* @__PURE__ */ import_react130.default.createElement(
+    ), props.isUpdate && /* @__PURE__ */ import_react131.default.createElement(
       RadioButtonBox_default,
       {
         values: fileMetadata.sheet_names,
@@ -34743,7 +34778,7 @@ ${finalCode}`;
         }),
         loading
       }
-    ), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: HAS_HEADER_ROW_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: HAS_HEADER_ROW_TOOLTIP }, "Has Header Row")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ), /* @__PURE__ */ import_react131.default.createElement(Row_default, { justify: "space-between", align: "center", title: HAS_HEADER_ROW_TOOLTIP }, /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(LabelAndTooltip_default, { tooltip: HAS_HEADER_ROW_TOOLTIP }, "Has Header Row")), /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(
       Select_default,
       {
         value: params.has_headers ? "Yes" : "No",
@@ -34754,19 +34789,19 @@ ${finalCode}`;
           });
         })
       },
-      /* @__PURE__ */ import_react130.default.createElement(
+      /* @__PURE__ */ import_react131.default.createElement(
         DropdownItem_default,
         {
           title: "Yes"
         }
       ),
-      /* @__PURE__ */ import_react130.default.createElement(
+      /* @__PURE__ */ import_react131.default.createElement(
         DropdownItem_default,
         {
           title: "No"
         }
       )
-    ))), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ))), /* @__PURE__ */ import_react131.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(
       Input_default,
       {
         value: "" + params.skiprows,
@@ -34781,7 +34816,7 @@ ${finalCode}`;
           });
         }
       }
-    ))), isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, "1.4.0") && /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ))), isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, "1.4.0") && /* @__PURE__ */ import_react131.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react131.default.createElement(Col_default, null, /* @__PURE__ */ import_react131.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -34796,9 +34831,9 @@ ${finalCode}`;
       },
       Object.keys(decimalCharToTitle).map((decimalCharacter) => {
         const decimalTitle = decimalCharToTitle[decimalCharacter];
-        return /* @__PURE__ */ import_react130.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
+        return /* @__PURE__ */ import_react131.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
       })
-    ))), !props.isUpdate && params.sheet_names.length === 1 && /* @__PURE__ */ import_react130.default.createElement(
+    ))), !props.isUpdate && params.sheet_names.length === 1 && /* @__PURE__ */ import_react131.default.createElement(
       "p",
       {
         onClick: () => {
@@ -34816,8 +34851,8 @@ ${finalCode}`;
       "Want to import multiple ranges from ",
       params.sheet_names[0],
       "? ",
-      /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-underline" }, "Click here.")
-    ), fileMetadata.size >= 1e5 && fileMetadata.size < 1e7 && /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, large Excel files take minutes to import."), fileMetadata.size >= 1e7 && /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing."))), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react130.default.createElement(
+      /* @__PURE__ */ import_react131.default.createElement("span", { className: "text-underline" }, "Click here.")
+    ), fileMetadata.size >= 1e5 && fileMetadata.size < 1e7 && /* @__PURE__ */ import_react131.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, large Excel files take minutes to import."), fileMetadata.size >= 1e7 && /* @__PURE__ */ import_react131.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing."))), /* @__PURE__ */ import_react131.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react131.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34832,7 +34867,7 @@ ${finalCode}`;
         autoFocus: true
       },
       getButtonMessage3(params, props.loading, props.isUpdate)
-    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage2(params)), !props.editApplied && /* @__PURE__ */ import_react130.default.createElement(Spacer_default, { px: 18 })));
+    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react131.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage2(params)), !props.editApplied && /* @__PURE__ */ import_react131.default.createElement(Spacer_default, { px: 18 })));
   }
   var XLSXImportConfigScreen_default = XLSXImportConfigScreen;
 
@@ -34856,7 +34891,7 @@ ${finalCode}`;
       props.analysisData,
       { allowSameParamsToReapplyTwice: true }
     );
-    return /* @__PURE__ */ import_react131.default.createElement(
+    return /* @__PURE__ */ import_react132.default.createElement(
       XLSXImportConfigScreen_default,
       {
         mitoAPI: props.mitoAPI,
@@ -34881,9 +34916,9 @@ ${finalCode}`;
 
   // src/components/taskpanes/FileImport/FileImportTaskpane.tsx
   function FileImportTaskpane(props) {
-    const [importState, setImportState] = (0, import_react132.useState)({ screen: "file_browser" });
+    const [importState, setImportState] = (0, import_react133.useState)({ screen: "file_browser" });
     if (importState.screen === "file_browser") {
-      return /* @__PURE__ */ import_react132.default.createElement(
+      return /* @__PURE__ */ import_react133.default.createElement(
         FileBrowser_default,
         {
           mitoAPI: props.mitoAPI,
@@ -34912,7 +34947,7 @@ ${finalCode}`;
         }
       );
     } else if (importState.screen == "csv_import_config") {
-      return /* @__PURE__ */ import_react132.default.createElement(
+      return /* @__PURE__ */ import_react133.default.createElement(
         CSVImportConfigTaskpane_default,
         {
           mitoAPI: props.mitoAPI,
@@ -34925,7 +34960,7 @@ ${finalCode}`;
         }
       );
     } else if (importState.screen == "xlsx_import_config") {
-      return /* @__PURE__ */ import_react132.default.createElement(
+      return /* @__PURE__ */ import_react133.default.createElement(
         XLSXImportConfigTaskpane_default,
         {
           mitoAPI: props.mitoAPI,
@@ -34938,13 +34973,13 @@ ${finalCode}`;
         }
       );
     } else {
-      return /* @__PURE__ */ import_react132.default.createElement(import_react132.default.Fragment, null);
+      return /* @__PURE__ */ import_react133.default.createElement(import_react133.default.Fragment, null);
     }
   }
   var FileImportTaskpane_default = FileImportTaskpane;
 
   // src/components/taskpanes/FillNa/FillNaTaskpane.tsx
-  var import_react133 = __toESM(require_react());
+  var import_react134 = __toESM(require_react());
   var BOOLEAN_STRINGS = ["True", "true", "False", "false"];
   var getDefaultParams4 = (sheetDataArray2, sheetIndex, defaultFillMethod, startingColumnIDs) => {
     if (sheetDataArray2.length === 0 || sheetDataArray2[sheetIndex] === void 0) {
@@ -34981,9 +35016,9 @@ ${finalCode}`;
     const columnHeaders = columnIDs.map((columnID) => sheetData == null ? void 0 : sheetData.columnIDsMap[columnID]).filter((columnHeader) => columnHeader !== void 0);
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25);
     if (numOtherColumnHeaders === 0) {
-      return /* @__PURE__ */ import_react133.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react133.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
+      return /* @__PURE__ */ import_react134.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react134.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
     } else {
-      return /* @__PURE__ */ import_react133.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react133.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react133.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " other columns.");
+      return /* @__PURE__ */ import_react134.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react134.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react134.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " other columns.");
     }
   };
   var FillNaTaskpane = (props) => {
@@ -34993,7 +35028,7 @@ ${finalCode}`;
       props.mitoAPI,
       props.analysisData
     );
-    (0, import_react133.useEffect)(() => {
+    (0, import_react134.useEffect)(() => {
       setParams((prevParams) => {
         const newParams = getDefaultParams4(props.sheetDataArray, props.selectedSheetIndex, prevParams.fill_method, props.startingColumnIDs);
         if (newParams) {
@@ -35003,7 +35038,7 @@ ${finalCode}`;
       });
     }, [props.startingColumnIDs]);
     if (params === void 0) {
-      return /* @__PURE__ */ import_react133.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import a dataset before filling NaN values." });
+      return /* @__PURE__ */ import_react134.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import a dataset before filling NaN values." });
     }
     const sheetData = props.sheetDataArray[params.sheet_index];
     const columnIDsMap = (sheetData == null ? void 0 : sheetData.columnIDsMap) || {};
@@ -35027,13 +35062,13 @@ ${finalCode}`;
         });
       });
     };
-    return /* @__PURE__ */ import_react133.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react133.default.createElement(
+    return /* @__PURE__ */ import_react134.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react134.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Fill NaN Values",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react133.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react133.default.createElement(
+    ), /* @__PURE__ */ import_react134.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react134.default.createElement(
       DataframeSelect_default,
       {
         title: "Select the dataframe to fill nan values in.",
@@ -35051,7 +35086,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react133.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the columns to fill nan values in." }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-header-3" }, "Columns to Fill NaN Values In"))), /* @__PURE__ */ import_react133.default.createElement(
+    ), /* @__PURE__ */ import_react134.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the columns to fill nan values in." }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-header-3" }, "Columns to Fill NaN Values In"))), /* @__PURE__ */ import_react134.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -35062,7 +35097,7 @@ ${finalCode}`;
         const columnHeader = columnIDsMap[columnID];
         const toggle = params.column_ids.includes(columnID);
         const disabled = (params.fill_method.type === "mean" || params.fill_method.type === "median") && !(isNumberDtype(columnDtype) || isTimedeltaDtype(columnDtype) || isDatetimeDtype(columnDtype));
-        return /* @__PURE__ */ import_react133.default.createElement(
+        return /* @__PURE__ */ import_react134.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -35077,7 +35112,7 @@ ${finalCode}`;
           }
         );
       })
-    ), /* @__PURE__ */ import_react133.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the method for filling nan values" }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-header-3" }, "Fill Method")), /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(
+    ), /* @__PURE__ */ import_react134.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the method for filling nan values" }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-header-3" }, "Fill Method")), /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(
       Select_default,
       {
         value: params.fill_method.type,
@@ -35096,7 +35131,7 @@ ${finalCode}`;
         },
         width: "medium"
       },
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react134.default.createElement(
         DropdownItem_default,
         {
           id: "value",
@@ -35104,7 +35139,7 @@ ${finalCode}`;
           subtext: "Replaces NaN values with a specific value that you input."
         }
       ),
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react134.default.createElement(
         DropdownItem_default,
         {
           id: "ffill",
@@ -35112,7 +35147,7 @@ ${finalCode}`;
           subtext: "Replaces NaNs in the column with the value in the row before."
         }
       ),
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react134.default.createElement(
         DropdownItem_default,
         {
           id: "bfill",
@@ -35120,7 +35155,7 @@ ${finalCode}`;
           subtext: "Replaces NaNs in the column with the value in the row after."
         }
       ),
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react134.default.createElement(
         DropdownItem_default,
         {
           id: "mean",
@@ -35129,7 +35164,7 @@ ${finalCode}`;
           disabled: !onlyMeanAndMedianColumnSelected
         }
       ),
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react134.default.createElement(
         DropdownItem_default,
         {
           id: "median",
@@ -35138,7 +35173,7 @@ ${finalCode}`;
           disabled: !onlyMeanAndMedianColumnSelected
         }
       )
-    ))), params.fill_method.type === "value" && /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the dataframe to fill nan values in." }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-header-3" }, "Fill Value")), /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(
+    ))), params.fill_method.type === "value" && /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the dataframe to fill nan values in." }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-header-3" }, "Fill Value")), /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(
       Input_default,
       {
         autoFocus: true,
@@ -35156,7 +35191,7 @@ ${finalCode}`;
           });
         }
       }
-    ))), /* @__PURE__ */ import_react133.default.createElement(Spacer_default, { px: 10 + (params.fill_method.type === "value" ? 0 : 38) }), /* @__PURE__ */ import_react133.default.createElement(
+    ))), /* @__PURE__ */ import_react134.default.createElement(Spacer_default, { px: 10 + (params.fill_method.type === "value" ? 0 : 38) }), /* @__PURE__ */ import_react134.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35181,56 +35216,56 @@ ${finalCode}`;
         disabledTooltip: "Select at least one column to fill NaN values in"
       },
       getButtonMessage4(sheetData, params.column_ids)
-    ), editApplied && !loading && /* @__PURE__ */ import_react133.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage3(sheetData, params.column_ids)))));
+    ), editApplied && !loading && /* @__PURE__ */ import_react134.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage3(sheetData, params.column_ids)))));
   };
   var FillNaTaskpane_default = FillNaTaskpane;
 
   // src/components/taskpanes/Graph/GraphSidebar.tsx
-  var import_react140 = __toESM(require_react());
+  var import_react141 = __toESM(require_react());
 
   // src/components/taskpanes/Graph/GraphSidebarTabs.tsx
-  var import_react134 = __toESM(require_react());
+  var import_react135 = __toESM(require_react());
   function GraphSidebarTabs(props) {
     const changeTab = (tab) => {
       props.setSelectedGraphSidebarTab(tab);
       void props.mitoAPI.log("clicked_graph_" + tab + "_tab");
     };
-    return /* @__PURE__ */ import_react134.default.createElement("div", { className: "graph-sidebar-tab-container" }, /* @__PURE__ */ import_react134.default.createElement(
+    return /* @__PURE__ */ import_react135.default.createElement("div", { className: "graph-sidebar-tab-container" }, /* @__PURE__ */ import_react135.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "setup" /* Setup */ ? "selected" : "unselected"),
         onClick: () => changeTab("setup" /* Setup */)
       },
-      /* @__PURE__ */ import_react134.default.createElement("p", null, "Setup")
-    ), /* @__PURE__ */ import_react134.default.createElement(
+      /* @__PURE__ */ import_react135.default.createElement("p", null, "Setup")
+    ), /* @__PURE__ */ import_react135.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "style" /* Style */ ? "selected" : "unselected"),
         onClick: () => changeTab("style" /* Style */)
       },
-      /* @__PURE__ */ import_react134.default.createElement("p", null, "Style")
-    ), /* @__PURE__ */ import_react134.default.createElement(
+      /* @__PURE__ */ import_react135.default.createElement("p", null, "Style")
+    ), /* @__PURE__ */ import_react135.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "export" /* Export */ ? "selected" : "unselected"),
         onClick: () => changeTab("export" /* Export */)
       },
-      /* @__PURE__ */ import_react134.default.createElement("p", null, "Export")
+      /* @__PURE__ */ import_react135.default.createElement("p", null, "Export")
     ));
   }
   var GraphSidebarTabs_default = GraphSidebarTabs;
 
   // src/components/taskpanes/Graph/LoadingSpinner.tsx
-  var import_react135 = __toESM(require_react());
+  var import_react136 = __toESM(require_react());
   function LoadingSpinner() {
     const circles = [...Array(12)].map((_, index) => {
-      return /* @__PURE__ */ import_react135.default.createElement("div", { key: index }, /* @__PURE__ */ import_react135.default.createElement("div", { className: "div-after", style: { background: "#7f58af" } }));
+      return /* @__PURE__ */ import_react136.default.createElement("div", { key: index }, /* @__PURE__ */ import_react136.default.createElement("div", { className: "div-after", style: { background: "#7f58af" } }));
     });
-    return /* @__PURE__ */ import_react135.default.createElement("div", { className: "lds-spinner" }, circles);
+    return /* @__PURE__ */ import_react136.default.createElement("div", { className: "lds-spinner" }, circles);
   }
 
   // src/components/taskpanes/Graph/GraphStyleTab.tsx
-  var import_react136 = __toESM(require_react());
+  var import_react137 = __toESM(require_react());
   function GraphStyleTab(props) {
     var _a;
     const graphCreationParams = props.graphParams.graphCreation;
@@ -35241,7 +35276,7 @@ ${finalCode}`;
       });
       props.setGraphUpdatedNumber((old) => old + 1);
     }
-    return /* @__PURE__ */ import_react136.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react136.default.createElement(
+    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.title.title || "",
@@ -35251,7 +35286,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "X Axis Title")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.xaxis.title || "",
@@ -35261,7 +35296,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Y Axis Title")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Y Axis Title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.yaxis.title || "",
@@ -35271,7 +35306,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Display Title")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Title")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.title.visible,
@@ -35279,7 +35314,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { visible: !graphStylingParams.title.visible } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Display X Axis Title")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display X Axis Title")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.visible,
@@ -35287,7 +35322,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { visible: !graphStylingParams.xaxis.visible } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Display Y Axis Title")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Y Axis Title")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.yaxis.visible,
@@ -35295,7 +35330,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { visible: !graphStylingParams.yaxis.visible } } });
         }
       }
-    ))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react136.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.xaxis.type || "default",
@@ -35306,37 +35341,37 @@ ${finalCode}`;
         width: "small",
         dropdownWidth: "medium"
       },
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "default" /* DEFAULT */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "linear" /* LINEAR */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "log" /* LOG */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "date" /* DATE */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "category" /* CATEGORY */
         }
       )
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Y Axis Transform")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Y Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.yaxis.type || "default",
@@ -35347,37 +35382,37 @@ ${finalCode}`;
         width: "small",
         dropdownWidth: "medium"
       },
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "default" /* DEFAULT */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "linear" /* LINEAR */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "log" /* LOG */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "date" /* DATE */
         }
       ),
-      /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(
         DropdownItem_default,
         {
           title: "category" /* CATEGORY */
         }
       )
-    ))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react136.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(import_react136.default.Fragment, null, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react136.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.showlegend,
@@ -35385,7 +35420,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { showlegend: !graphStylingParams.showlegend } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display the legend vertically or horizontally" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Orientation")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display the legend vertically or horizontally" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Orientation")), /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         value: graphStylingParams.legend.orientation === "v" ? "vertical" : "horiztonal",
@@ -35394,9 +35429,9 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { orientation: newOrientation } } });
         }
       },
-      /* @__PURE__ */ import_react136.default.createElement(DropdownItem_default, { title: "vertical", id: "v" }),
-      /* @__PURE__ */ import_react136.default.createElement(DropdownItem_default, { title: "horizontal", id: "h" })
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Legend title")), /* @__PURE__ */ import_react136.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement(DropdownItem_default, { title: "vertical", id: "v" }),
+      /* @__PURE__ */ import_react137.default.createElement(DropdownItem_default, { title: "horizontal", id: "h" })
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Legend title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: ((_a = graphStylingParams.legend.title) == null ? void 0 : _a.text) ? graphStylingParams.legend.title.text : "",
@@ -35407,7 +35442,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { title: { text: newLegendTitle } } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The x position of the legend" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "X position (-2 to 3)")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The x position of the legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X position (-2 to 3)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.legend.x ? graphStylingParams.legend.x.toString() : "",
@@ -35419,7 +35454,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { x: newX } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The y position of the legend" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Y position (-2 to 3)")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The y position of the legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Y position (-2 to 3)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.legend.y ? graphStylingParams.legend.y.toString() : "",
@@ -35431,7 +35466,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { y: newY } } });
         }
       }
-    )))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react136.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(import_react136.default.Fragment, null, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react136.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.showgrid,
@@ -35439,7 +35474,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { showgrid: !graphStylingParams.xaxis.showgrid } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off horiztonal grid lines" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Show horizontal grid")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off horiztonal grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show horizontal grid")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.yaxis.showgrid,
@@ -35447,7 +35482,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { showgrid: !graphStylingParams.yaxis.showgrid } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the vertical grid lines" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Vertical grid width")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Vertical grid width")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.xaxis.gridwidth ? graphStylingParams.xaxis.gridwidth.toString() : "",
@@ -35459,7 +35494,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { gridwidth: newVerticalGridWidth } } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the horizontal grid lines" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Horizontal grid width")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the horizontal grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Horizontal grid width")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.yaxis.gridwidth ? graphStylingParams.yaxis.gridwidth.toString() : "",
@@ -35471,7 +35506,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { gridwidth: newHoriztonalGridWidth } } });
         }
       }
-    )))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react136.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(import_react136.default.Fragment, null, /* @__PURE__ */ import_react136.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Plot Background Color",
@@ -35480,7 +35515,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { plot_bgcolor: newColor } });
         }
       }
-    ), /* @__PURE__ */ import_react136.default.createElement(
+    ), /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Paper Background Color",
@@ -35489,7 +35524,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { paper_bgcolor: newColor } });
         }
       }
-    ), /* @__PURE__ */ import_react136.default.createElement(
+    ), /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Title color",
@@ -35498,7 +35533,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { title_font_color: newColor } } });
         }
       }
-    ), /* @__PURE__ */ import_react136.default.createElement(
+    ), /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "X axis title color",
@@ -35507,7 +35542,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { title_font_color: newColor } } });
         }
       }
-    ), /* @__PURE__ */ import_react136.default.createElement(
+    ), /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Y axis title color",
@@ -35516,7 +35551,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title_font_color: newColor } } });
         }
       }
-    ))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react136.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react136.default.createElement(import_react136.default.Fragment, null, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react136.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : "",
@@ -35528,7 +35563,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_col_wrap: newNumCols } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between columns of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Column spacing (0 to 1)")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between columns of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Column spacing (0 to 1)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : "",
@@ -35540,7 +35575,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_col_spacing: newColSpacing } });
         }
       }
-    )), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between rows of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Row spacing (0 to 1)")), /* @__PURE__ */ import_react136.default.createElement(
+    )), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between rows of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Row spacing (0 to 1)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : "",
@@ -35552,7 +35587,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_row_spacing: newRowSpacing } });
         }
       }
-    )))), /* @__PURE__ */ import_react136.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react136.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.rangeslider.visible,
@@ -35567,13 +35602,13 @@ ${finalCode}`;
   var GraphStyleTab_default = GraphStyleTab;
 
   // src/components/taskpanes/Graph/GraphExportTab.tsx
-  var import_react138 = __toESM(require_react());
+  var import_react139 = __toESM(require_react());
 
   // src/hooks/useCopyToClipboard.tsx
-  var import_react137 = __toESM(require_react());
+  var import_react138 = __toESM(require_react());
   var useCopyToClipboard = (text, resetTimeout = 2500) => {
-    const [copyStatus, setCopyStatus] = (0, import_react137.useState)(false);
-    const copy = (0, import_react137.useCallback)(() => {
+    const [copyStatus, setCopyStatus] = (0, import_react138.useState)(false);
+    const copy = (0, import_react138.useCallback)(() => {
       if (text == void 0) {
         return;
       }
@@ -35586,7 +35621,7 @@ ${finalCode}`;
         }
       );
     }, [text]);
-    (0, import_react137.useEffect)(() => {
+    (0, import_react138.useEffect)(() => {
       if (!copyStatus) {
         return;
       }
@@ -35621,7 +35656,7 @@ fig.write_html("${props.graphTabName}.html")`
         "graph_type": props.graphParams.graphCreation.graph_type
       });
     };
-    return /* @__PURE__ */ import_react138.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react138.default.createElement("div", null, /* @__PURE__ */ import_react138.default.createElement(
+    return /* @__PURE__ */ import_react139.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react139.default.createElement("div", null, /* @__PURE__ */ import_react139.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35630,7 +35665,7 @@ fig.write_html("${props.graphTabName}.html")`
         tooltip: "Click to copy code that creates graph and displays it in the notebook"
       },
       !showGraphCodeCopied ? "Copy code that displays graph" : "Copied to Clipboard!"
-    ), showGraphCodeCopied ? /* @__PURE__ */ import_react138.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react138.default.createElement(import_react138.default.Fragment, null)), /* @__PURE__ */ import_react138.default.createElement("div", null, /* @__PURE__ */ import_react138.default.createElement(
+    ), showGraphCodeCopied ? /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null)), /* @__PURE__ */ import_react139.default.createElement("div", null, /* @__PURE__ */ import_react139.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35639,7 +35674,7 @@ fig.write_html("${props.graphTabName}.html")`
         tooltip: "Click to copy code that creates graph and exports it as an html file"
       },
       !exportHTMLGraphCodeCopied ? "Copy code to create graph HTML file" : "Copied to Clipboard!"
-    ), exportHTMLGraphCodeCopied ? /* @__PURE__ */ import_react138.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react138.default.createElement(import_react138.default.Fragment, null)), /* @__PURE__ */ import_react138.default.createElement("div", null, /* @__PURE__ */ import_react138.default.createElement(
+    ), exportHTMLGraphCodeCopied ? /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null)), /* @__PURE__ */ import_react139.default.createElement("div", null, /* @__PURE__ */ import_react139.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35657,9 +35692,9 @@ fig.write_html("${props.graphTabName}.html")`
   var GraphExportTab_default = GraphExportTab;
 
   // src/hooks/useEffectOnElementResize.tsx
-  var import_react139 = __toESM(require_react());
+  var import_react140 = __toESM(require_react());
   var useEffectOnResizeElement = (effect, deps, id) => {
-    (0, import_react139.useEffect)(() => {
+    (0, import_react140.useEffect)(() => {
       const resizeObserver = new ResizeObserver(() => {
         effect();
       });
@@ -35678,20 +35713,20 @@ fig.write_html("${props.graphTabName}.html")`
   var GraphSidebar = (props) => {
     var _a, _b, _c;
     const graphID = props.graphID;
-    const [stepID, setStepID] = (0, import_react140.useState)(void 0);
-    const [graphParams, setGraphParams] = (0, import_react140.useState)(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray));
+    const [stepID, setStepID] = (0, import_react141.useState)(void 0);
+    const [graphParams, setGraphParams] = (0, import_react141.useState)(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray));
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index;
     const graphOutput = (_a = props.graphDataDict[graphID]) == null ? void 0 : _a.graphOutput;
     const graphTabName = (_b = props.graphDataDict[graphID]) == null ? void 0 : _b.graphTabName;
-    const [loading, setLoading] = (0, import_react140.useState)(false);
-    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = (0, import_react140.useState)("setup" /* Setup */);
-    (0, import_react140.useEffect)(() => {
+    const [loading, setLoading] = (0, import_react141.useState)(false);
+    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = (0, import_react141.useState)("setup" /* Setup */);
+    (0, import_react141.useEffect)(() => {
       if (props.graphSidebarTab === "export" /* Export */) {
         setSelectedGraphSidebarTab(props.graphSidebarTab);
       }
     }, [props.graphSidebarTab]);
-    const [graphUpdatedNumber, setGraphUpdatedNumber] = (0, import_react140.useState)(0);
-    (0, import_react140.useEffect)(() => {
+    const [graphUpdatedNumber, setGraphUpdatedNumber] = (0, import_react141.useState)(0);
+    (0, import_react141.useEffect)(() => {
       if (!window.Plotly) {
         void props.mitoAPI.log("plotly_define_failed");
       }
@@ -35702,7 +35737,7 @@ fig.write_html("${props.graphTabName}.html")`
     useEffectOnUpdateEvent(() => {
       void refreshParams();
     }, props.analysisData);
-    (0, import_react140.useEffect)(() => {
+    (0, import_react141.useEffect)(() => {
       setStepID(void 0);
       setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray));
       setGraphUpdatedNumber((old) => old + 1);
@@ -35711,7 +35746,7 @@ fig.write_html("${props.graphTabName}.html")`
       setLoading(true);
       void getGraphAsync();
     }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT);
-    (0, import_react140.useEffect)(() => {
+    (0, import_react141.useEffect)(() => {
       try {
         if (graphOutput === void 0) {
           return;
@@ -35747,9 +35782,9 @@ fig.write_html("${props.graphTabName}.html")`
           currOpenTaskpane: { type: "none" /* NONE */ }
         });
       });
-      return /* @__PURE__ */ import_react140.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react141.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     } else {
-      return /* @__PURE__ */ import_react140.default.createElement("div", { className: "graph-sidebar-div" }, /* @__PURE__ */ import_react140.default.createElement(
+      return /* @__PURE__ */ import_react141.default.createElement("div", { className: "graph-sidebar-div" }, /* @__PURE__ */ import_react141.default.createElement(
         "div",
         {
           className: "graph-sidebar-graph-div",
@@ -35758,9 +35793,9 @@ fig.write_html("${props.graphTabName}.html")`
             backgroundColor: graphParams.graphStyling.paper_bgcolor
           }
         },
-        graphOutput === void 0 && /* @__PURE__ */ import_react140.default.createElement("p", { className: "graph-sidebar-welcome-text text-align-center-important" }, "To generate a graph, select an axis."),
-        graphOutput !== void 0 && /* @__PURE__ */ import_react140.default.createElement("div", { dangerouslySetInnerHTML: { __html: graphOutput.graphHTML } })
-      ), /* @__PURE__ */ import_react140.default.createElement("div", { className: "graph-sidebar-toolbar-container" }, /* @__PURE__ */ import_react140.default.createElement("div", { className: "graph-sidebar-toolbar-content-container" }, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", { className: "text-header-2" }, selectedGraphSidebarTab === "setup" /* Setup */ && "Setup Graph", selectedGraphSidebarTab === "style" /* Style */ && "Style Graph", selectedGraphSidebarTab === "export" /* Export */ && "Export Graph")), /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement(
+        graphOutput === void 0 && /* @__PURE__ */ import_react141.default.createElement("p", { className: "graph-sidebar-welcome-text text-align-center-important" }, "To generate a graph, select an axis."),
+        graphOutput !== void 0 && /* @__PURE__ */ import_react141.default.createElement("div", { dangerouslySetInnerHTML: { __html: graphOutput.graphHTML } })
+      ), /* @__PURE__ */ import_react141.default.createElement("div", { className: "graph-sidebar-toolbar-container" }, /* @__PURE__ */ import_react141.default.createElement("div", { className: "graph-sidebar-toolbar-content-container" }, /* @__PURE__ */ import_react141.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react141.default.createElement(Col_default, null, /* @__PURE__ */ import_react141.default.createElement("p", { className: "text-header-2" }, selectedGraphSidebarTab === "setup" /* Setup */ && "Setup Graph", selectedGraphSidebarTab === "style" /* Style */ && "Style Graph", selectedGraphSidebarTab === "export" /* Export */ && "Export Graph")), /* @__PURE__ */ import_react141.default.createElement(Col_default, null, /* @__PURE__ */ import_react141.default.createElement(
         XIcon_default,
         {
           onClick: () => {
@@ -35772,7 +35807,7 @@ fig.write_html("${props.graphTabName}.html")`
             });
           }
         }
-      ))), selectedGraphSidebarTab === "setup" /* Setup */ && /* @__PURE__ */ import_react140.default.createElement(
+      ))), selectedGraphSidebarTab === "setup" /* Setup */ && /* @__PURE__ */ import_react141.default.createElement(
         GraphSetupTab_default,
         {
           graphParams,
@@ -35786,7 +35821,7 @@ fig.write_html("${props.graphTabName}.html")`
           columnIDsMapArray: props.columnIDsMapArray,
           setUIState: props.setUIState
         }
-      ), selectedGraphSidebarTab === "style" /* Style */ && /* @__PURE__ */ import_react140.default.createElement(
+      ), selectedGraphSidebarTab === "style" /* Style */ && /* @__PURE__ */ import_react141.default.createElement(
         GraphStyleTab_default,
         {
           graphParams,
@@ -35794,7 +35829,7 @@ fig.write_html("${props.graphTabName}.html")`
           setGraphUpdatedNumber,
           userProfile: props.userProfile
         }
-      ), selectedGraphSidebarTab === "export" /* Export */ && /* @__PURE__ */ import_react140.default.createElement(
+      ), selectedGraphSidebarTab === "export" /* Export */ && /* @__PURE__ */ import_react141.default.createElement(
         GraphExportTab_default,
         {
           graphTabName,
@@ -35804,20 +35839,20 @@ fig.write_html("${props.graphTabName}.html")`
           graphOutput,
           mitoContainerRef: props.mitoContainerRef
         }
-      )), /* @__PURE__ */ import_react140.default.createElement(
+      )), /* @__PURE__ */ import_react141.default.createElement(
         GraphSidebarTabs_default,
         {
           selectedTab: selectedGraphSidebarTab,
           setSelectedGraphSidebarTab,
           mitoAPI: props.mitoAPI
         }
-      )), loading && /* @__PURE__ */ import_react140.default.createElement("div", { className: "popup-div" }, /* @__PURE__ */ import_react140.default.createElement(LoadingSpinner, null), /* @__PURE__ */ import_react140.default.createElement("p", { className: "popup-text-div" }, "loading")));
+      )), loading && /* @__PURE__ */ import_react141.default.createElement("div", { className: "popup-div" }, /* @__PURE__ */ import_react141.default.createElement(LoadingSpinner, null), /* @__PURE__ */ import_react141.default.createElement("p", { className: "popup-text-div" }, "loading")));
     }
   };
   var GraphSidebar_default = GraphSidebar;
 
   // src/components/taskpanes/Melt/MeltTaskpane.tsx
-  var import_react141 = __toESM(require_react());
+  var import_react142 = __toESM(require_react());
   var getDefaultParams5 = (sheetDataArray2, sheetIndex) => {
     if (sheetDataArray2.length === 0 || sheetDataArray2[sheetIndex] === void 0) {
       return void 0;
@@ -35837,7 +35872,7 @@ fig.write_html("${props.graphTabName}.html")`
       50
     );
     if (params === void 0) {
-      return /* @__PURE__ */ import_react141.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react142.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const sheetData = props.sheetDataArray[params.sheet_index];
     const toggleIndexes = (param_name, indexes, newToggle) => {
@@ -35858,13 +35893,13 @@ fig.write_html("${props.graphTabName}.html")`
         });
       });
     };
-    return /* @__PURE__ */ import_react141.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react141.default.createElement(
+    return /* @__PURE__ */ import_react142.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react142.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Unpivot Dataframe",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react141.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react141.default.createElement(
+    ), /* @__PURE__ */ import_react142.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react142.default.createElement(
       DataframeSelect_default,
       {
         title: "Select a dataframe to unpivot.",
@@ -35882,7 +35917,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ), /* @__PURE__ */ import_react141.default.createElement(Row_default, { justify: "start", align: "center", title: "Column to use as identifier variables." }, /* @__PURE__ */ import_react141.default.createElement(LabelAndTooltip_default, { tooltip: "Column to use as identifier variables. These columns will be present in the unpivoted dataframe." }, "ID Variables")), /* @__PURE__ */ import_react141.default.createElement(
+    ), /* @__PURE__ */ import_react142.default.createElement(Row_default, { justify: "start", align: "center", title: "Column to use as identifier variables." }, /* @__PURE__ */ import_react142.default.createElement(LabelAndTooltip_default, { tooltip: "Column to use as identifier variables. These columns will be present in the unpivoted dataframe." }, "ID Variables")), /* @__PURE__ */ import_react142.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -35895,7 +35930,7 @@ fig.write_html("${props.graphTabName}.html")`
         const columnIDsMap = (sheetData == null ? void 0 : sheetData.columnIDsMap) || {};
         const columnHeader = columnIDsMap[columnID];
         const toggle = params.id_var_column_ids.includes(columnID);
-        return /* @__PURE__ */ import_react141.default.createElement(
+        return /* @__PURE__ */ import_react142.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -35909,7 +35944,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ), /* @__PURE__ */ import_react141.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react141.default.createElement(Row_default, { justify: "start", align: "center", title: "Columns to unpivot." }, /* @__PURE__ */ import_react141.default.createElement(LabelAndTooltip_default, { tooltip: "Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column." }, "Values")), /* @__PURE__ */ import_react141.default.createElement(
+    ), /* @__PURE__ */ import_react142.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react142.default.createElement(Row_default, { justify: "start", align: "center", title: "Columns to unpivot." }, /* @__PURE__ */ import_react142.default.createElement(LabelAndTooltip_default, { tooltip: "Column to unpivot. Each column header will go in the variables column, and the column values will go in the values column." }, "Values")), /* @__PURE__ */ import_react142.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -35923,7 +35958,7 @@ fig.write_html("${props.graphTabName}.html")`
         const columnHeader = columnIDsMap[columnID];
         const toggle = params.id_var_column_ids.includes(columnID) ? false : params.value_var_column_ids.includes(columnID);
         const disabled = params.id_var_column_ids.includes(columnID);
-        return /* @__PURE__ */ import_react141.default.createElement(
+        return /* @__PURE__ */ import_react142.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -35943,7 +35978,7 @@ fig.write_html("${props.graphTabName}.html")`
   var MeltTaskpane_default = MeltTaskpane;
 
   // src/components/taskpanes/Merge/MergeTaskpane.tsx
-  var import_react144 = __toESM(require_react());
+  var import_react145 = __toESM(require_react());
 
   // src/components/taskpanes/Merge/mergeUtils.ts
   var getFirstSuggestedMergeKeys = (sheetDataArray2, sheetOneIndex, sheetTwoIndex, existingMergeKeys) => {
@@ -35989,10 +36024,10 @@ fig.write_html("${props.graphTabName}.html")`
   };
 
   // src/components/taskpanes/Merge/MergeSheetSelection.tsx
-  var import_react142 = __toESM(require_react());
+  var import_react143 = __toESM(require_react());
   var MergeSheetSection = (props) => {
-    const [dfNames] = (0, import_react142.useState)(props.sheetDataArray.map((sheetData) => sheetData.dfName));
-    return /* @__PURE__ */ import_react142.default.createElement("div", null, /* @__PURE__ */ import_react142.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react142.default.createElement(Col_default, null, /* @__PURE__ */ import_react142.default.createElement("p", { className: "text-header-3" }, "First Dataframe"), /* @__PURE__ */ import_react142.default.createElement(
+    const [dfNames] = (0, import_react143.useState)(props.sheetDataArray.map((sheetData) => sheetData.dfName));
+    return /* @__PURE__ */ import_react143.default.createElement("div", null, /* @__PURE__ */ import_react143.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "First Dataframe"), /* @__PURE__ */ import_react143.default.createElement(
       Select_default,
       {
         value: dfNames[props.params.sheet_index_one] || "",
@@ -36006,7 +36041,7 @@ fig.write_html("${props.graphTabName}.html")`
         className: "merge-sheet-selection-first-dataframe-select"
       },
       dfNames.map((dfName) => {
-        return /* @__PURE__ */ import_react142.default.createElement(
+        return /* @__PURE__ */ import_react143.default.createElement(
           DropdownItem_default,
           {
             key: dfName,
@@ -36014,7 +36049,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    )), /* @__PURE__ */ import_react142.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react142.default.createElement("p", { className: "text-header-3" }, "Second Dataframe"), /* @__PURE__ */ import_react142.default.createElement(
+    )), /* @__PURE__ */ import_react143.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "Second Dataframe"), /* @__PURE__ */ import_react143.default.createElement(
       Select_default,
       {
         value: dfNames[props.params.sheet_index_two] || "",
@@ -36028,7 +36063,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium"
       },
       dfNames.map((dfName) => {
-        return /* @__PURE__ */ import_react142.default.createElement(
+        return /* @__PURE__ */ import_react143.default.createElement(
           DropdownItem_default,
           {
             key: dfName,
@@ -36041,13 +36076,13 @@ fig.write_html("${props.graphTabName}.html")`
   var MergeSheetSelection_default = MergeSheetSection;
 
   // src/components/taskpanes/Merge/MergeKeysSelection.tsx
-  var import_react143 = __toESM(require_react());
+  var import_react144 = __toESM(require_react());
   var MergeKeysSelectionSection = (props) => {
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
     const noPossibleMergeKeys = Object.keys((sheetDataOne == null ? void 0 : sheetDataOne.columnDtypeMap) || {}).length === 0 || Object.keys((sheetDataTwo == null ? void 0 : sheetDataTwo.columnDtypeMap) || {}).length === 0;
-    return /* @__PURE__ */ import_react143.default.createElement("div", { className: "light-gray-container" }, /* @__PURE__ */ import_react143.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "Match rows where:"))), props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
-      return /* @__PURE__ */ import_react143.default.createElement(Row_default, { key: index, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
+    return /* @__PURE__ */ import_react144.default.createElement("div", { className: "light-gray-container" }, /* @__PURE__ */ import_react144.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Match rows where:"))), props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
+      return /* @__PURE__ */ import_react144.default.createElement(Row_default, { key: index, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
         Select_default,
         {
           value: mergeKeyColumnIDOne,
@@ -36064,7 +36099,7 @@ fig.write_html("${props.graphTabName}.html")`
           searchable: true
         },
         Object.entries((sheetDataOne == null ? void 0 : sheetDataOne.columnIDsMap) || {}).map(([columnID, columnHeader]) => {
-          return /* @__PURE__ */ import_react143.default.createElement(
+          return /* @__PURE__ */ import_react144.default.createElement(
             DropdownItem_default,
             {
               key: columnID,
@@ -36073,7 +36108,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         })
-      )), /* @__PURE__ */ import_react143.default.createElement(Col_default, { className: "text-header-3" }, "="), /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
+      )), /* @__PURE__ */ import_react144.default.createElement(Col_default, { className: "text-header-3" }, "="), /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
         Select_default,
         {
           value: mergeKeyColumnIDTwo,
@@ -36090,7 +36125,7 @@ fig.write_html("${props.graphTabName}.html")`
           searchable: true
         },
         Object.entries((sheetDataTwo == null ? void 0 : sheetDataTwo.columnIDsMap) || {}).map(([columnID, columnHeader]) => {
-          return /* @__PURE__ */ import_react143.default.createElement(
+          return /* @__PURE__ */ import_react144.default.createElement(
             DropdownItem_default,
             {
               key: columnID,
@@ -36099,7 +36134,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         })
-      )), /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
+      )), /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
         XIcon_default,
         {
           onClick: () => {
@@ -36113,7 +36148,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       )));
-    }), props.error !== void 0 && /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react143.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react143.default.createElement(
+    }), props.error !== void 0 && /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react144.default.createElement(
       TextButton_default,
       {
         width: "medium",
@@ -36180,17 +36215,17 @@ fig.write_html("${props.graphTabName}.html")`
       50
     );
     if (params === void 0) {
-      return /* @__PURE__ */ import_react144.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "You need two dataframes before you can merge them." });
+      return /* @__PURE__ */ import_react145.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "You need two dataframes before you can merge them." });
     }
     const sheetDataOne = props.sheetDataArray[params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[params.sheet_index_two];
-    return /* @__PURE__ */ import_react144.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react144.default.createElement(
+    return /* @__PURE__ */ import_react145.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react145.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Merge Dataframes",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react144.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react144.default.createElement(Row_default, { justify: "space-between", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react144.default.createElement(Col_default, { offsetRight: 1 }, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Merge Type")), /* @__PURE__ */ import_react144.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react144.default.createElement(
+    ), /* @__PURE__ */ import_react145.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react145.default.createElement(Row_default, { justify: "space-between", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react145.default.createElement(Col_default, { offsetRight: 1 }, /* @__PURE__ */ import_react145.default.createElement("p", { className: "text-header-3" }, "Merge Type")), /* @__PURE__ */ import_react145.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react145.default.createElement(
       Select_default,
       {
         value: params.how,
@@ -36204,63 +36239,63 @@ fig.write_html("${props.graphTabName}.html")`
         },
         width: "medium-large"
       },
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "lookup" /* LOOKUP */,
           subtext: "Includes all rows from the first sheet and only matching rows from the second sheet. If there are mulitple matches in the second sheet, only takes the first."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "left" /* LEFT */,
           subtext: "Includes all rows from the first sheet and only matching rows from the second sheet. Includes all matches."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "right" /* RIGHT */,
           subtext: "Includes all rows from the second sheet and only matching rows from the  first sheet. Includes all matches."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "inner" /* INNER */,
           subtext: "Only includes rows that have matches in both sheets."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "outer" /* OUTER */,
           subtext: "Includes all rows from both sheets, regardless of whether there is a match in the other sheet."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "unique in left" /* UNIQUE_IN_LEFT */,
           subtext: "Includes each row from the first sheet that doesn't have a match in the second sheet."
         }
       ),
-      /* @__PURE__ */ import_react144.default.createElement(
+      /* @__PURE__ */ import_react145.default.createElement(
         DropdownItem_default,
         {
           title: "unique in right" /* UNIQUE_IN_RIGHT */,
           subtext: "Includes each row from second sheet that doesn't have a match in the first sheet."
         }
       )
-    ))), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react144.default.createElement(
+    ))), /* @__PURE__ */ import_react145.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react145.default.createElement(
       MergeSheetSelection_default,
       {
         params,
         setParams,
         sheetDataArray: props.sheetDataArray
       }
-    ), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react144.default.createElement(
+    ), /* @__PURE__ */ import_react145.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react145.default.createElement(
       MergeKeysSelection_default,
       {
         params,
@@ -36268,7 +36303,7 @@ fig.write_html("${props.graphTabName}.html")`
         sheetDataArray: props.sheetDataArray,
         error
       }
-    ), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Columns to Keep from First Dataframe"), params.how !== "unique in right" /* UNIQUE_IN_RIGHT */ && /* @__PURE__ */ import_react144.default.createElement(
+    ), /* @__PURE__ */ import_react145.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react145.default.createElement("p", { className: "text-header-3" }, "Columns to Keep from First Dataframe"), params.how !== "unique in right" /* UNIQUE_IN_RIGHT */ && /* @__PURE__ */ import_react145.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -36302,7 +36337,7 @@ fig.write_html("${props.graphTabName}.html")`
         const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne]) => {
           return mergeKeyOne;
         }).includes(columnID);
-        return /* @__PURE__ */ import_react144.default.createElement(
+        return /* @__PURE__ */ import_react145.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -36323,7 +36358,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ), params.how === "unique in right" /* UNIQUE_IN_RIGHT */ && /* @__PURE__ */ import_react144.default.createElement("p", null, "Finding the unique values in the second sheet doesn't keep any columns from the first sheet."), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react144.default.createElement("div", null, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Columns to Keep from Second Dataframe"), params.how !== "unique in left" /* UNIQUE_IN_LEFT */ && /* @__PURE__ */ import_react144.default.createElement(
+    ), params.how === "unique in right" /* UNIQUE_IN_RIGHT */ && /* @__PURE__ */ import_react145.default.createElement("p", null, "Finding the unique values in the second sheet doesn't keep any columns from the first sheet."), /* @__PURE__ */ import_react145.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react145.default.createElement("div", null, /* @__PURE__ */ import_react145.default.createElement("p", { className: "text-header-3" }, "Columns to Keep from Second Dataframe"), params.how !== "unique in left" /* UNIQUE_IN_LEFT */ && /* @__PURE__ */ import_react145.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -36357,7 +36392,7 @@ fig.write_html("${props.graphTabName}.html")`
         const isMergeKey = params.merge_key_column_ids.map(([, mergeKeyTwo]) => {
           return mergeKeyTwo;
         }).includes(columnID);
-        return /* @__PURE__ */ import_react144.default.createElement(
+        return /* @__PURE__ */ import_react145.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -36378,23 +36413,23 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ), params.how === "unique in left" /* UNIQUE_IN_LEFT */ && /* @__PURE__ */ import_react144.default.createElement("p", null, "Finding the unique values in the first sheet doesn't keep any columns from the second sheet."))));
+    ), params.how === "unique in left" /* UNIQUE_IN_LEFT */ && /* @__PURE__ */ import_react145.default.createElement("p", null, "Finding the unique values in the first sheet doesn't keep any columns from the second sheet."))));
   };
   var MergeTaskpane_default = MergeTaskpane;
 
   // src/components/taskpanes/PivotTable/PivotTaskpane.tsx
-  var import_react150 = __toESM(require_react());
+  var import_react151 = __toESM(require_react());
 
   // src/components/taskpanes/PivotTable/PivotTableKeySelection.tsx
-  var import_react146 = __toESM(require_react());
+  var import_react147 = __toESM(require_react());
 
   // src/components/taskpanes/PivotTable/PivotInvalidSelectedColumnsError.tsx
-  var import_react145 = __toESM(require_react());
+  var import_react146 = __toESM(require_react());
   var PivotInvalidSelectedColumnsError = (props) => {
     const invalidSelectedColumnIDs = props.selectedColumnIDs.filter(
       (columnID) => props.columnIDsMap[columnID] === void 0
     );
-    (0, import_react145.useEffect)(() => {
+    (0, import_react146.useEffect)(() => {
       if (invalidSelectedColumnIDs.length > 0) {
         void props.mitoAPI.log("pivot_invalid_selected_columns", {
           "pivot_section": props.pivotSection,
@@ -36402,7 +36437,7 @@ fig.write_html("${props.graphTabName}.html")`
         });
       }
     }, []);
-    return /* @__PURE__ */ import_react145.default.createElement(import_react145.default.Fragment, null, invalidSelectedColumnIDs.length > 0 && /* @__PURE__ */ import_react145.default.createElement("div", { className: "text-color-error", style: { overflowX: "hidden" } }, "The ", invalidSelectedColumnIDs.length === 1 ? "column" : "columns", " ", invalidSelectedColumnIDs.length === 1 ? invalidSelectedColumnIDs[0] : invalidSelectedColumnIDs.join(", "), " ", invalidSelectedColumnIDs.length === 1 ? "does" : "do", " not exist in this sheet anymore. Delete ", invalidSelectedColumnIDs.length === 1 ? "it" : "them", " to make this pivot valid."));
+    return /* @__PURE__ */ import_react146.default.createElement(import_react146.default.Fragment, null, invalidSelectedColumnIDs.length > 0 && /* @__PURE__ */ import_react146.default.createElement("div", { className: "text-color-error", style: { overflowX: "hidden" } }, "The ", invalidSelectedColumnIDs.length === 1 ? "column" : "columns", " ", invalidSelectedColumnIDs.length === 1 ? invalidSelectedColumnIDs[0] : invalidSelectedColumnIDs.join(", "), " ", invalidSelectedColumnIDs.length === 1 ? "does" : "do", " not exist in this sheet anymore. Delete ", invalidSelectedColumnIDs.length === 1 ? "it" : "them", " to make this pivot valid."));
   };
   var PivotInvalidSelectedColumnsError_default = PivotInvalidSelectedColumnsError;
 
@@ -36437,7 +36472,7 @@ fig.write_html("${props.graphTabName}.html")`
     const columnIdsWithTransforms = props.rowOrColumn === "pivotRowColumnIDsWithTransforms" ? [...props.params.pivotRowColumnIDsWithTransforms] : [...props.params.pivotColumnsColumnIDsWithTransforms];
     const pivotTableKeyCards = columnIdsWithTransforms.map(({ column_id, transformation }, keyIndex) => {
       const columnID = columnDtypeMap[column_id];
-      const selectAndXIcon = /* @__PURE__ */ import_react146.default.createElement(
+      const selectAndXIcon = /* @__PURE__ */ import_react147.default.createElement(
         SelectAndXIconCard_default,
         {
           key: keyIndex,
@@ -36465,7 +36500,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       );
       if (columnID !== void 0 && isDatetimeDtype(columnID)) {
-        return /* @__PURE__ */ import_react146.default.createElement("div", { className: "mito-blue-container mt-4px mb-4px", key: keyIndex }, selectAndXIcon, /* @__PURE__ */ import_react146.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react146.default.createElement(Col_default, { offset: 0.25 }, /* @__PURE__ */ import_react146.default.createElement(LabelAndTooltip_default, { tooltip: GROUP_DATE_BY_TOOLTIP }, "group date by")), /* @__PURE__ */ import_react146.default.createElement(Col_default, { offsetRight: 3 }, /* @__PURE__ */ import_react146.default.createElement(
+        return /* @__PURE__ */ import_react147.default.createElement("div", { className: "mito-blue-container mt-4px mb-4px", key: keyIndex }, selectAndXIcon, /* @__PURE__ */ import_react147.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react147.default.createElement(Col_default, { offset: 0.25 }, /* @__PURE__ */ import_react147.default.createElement(LabelAndTooltip_default, { tooltip: GROUP_DATE_BY_TOOLTIP }, "group date by")), /* @__PURE__ */ import_react147.default.createElement(Col_default, { offsetRight: 3 }, /* @__PURE__ */ import_react147.default.createElement(
           Select_default,
           {
             value: transformation,
@@ -36482,7 +36517,7 @@ fig.write_html("${props.graphTabName}.html")`
             width: "medium"
           },
           Object.entries(PIVOT_COLUMN_TRANSFORM_TITLES).map(([key2, value]) => {
-            return /* @__PURE__ */ import_react146.default.createElement(
+            return /* @__PURE__ */ import_react147.default.createElement(
               DropdownItem_default,
               {
                 key: key2,
@@ -36495,7 +36530,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
       return selectAndXIcon;
     });
-    return /* @__PURE__ */ import_react146.default.createElement("div", null, /* @__PURE__ */ import_react146.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react146.default.createElement(Col_default, null, /* @__PURE__ */ import_react146.default.createElement(LabelAndTooltip_default, { tooltip: props.rowOrColumn === "pivotRowColumnIDsWithTransforms" ? ROWS_TOOLTIP : COLUMNS_TOOLTIP }, props.sectionTitle)), /* @__PURE__ */ import_react146.default.createElement(Col_default, null, /* @__PURE__ */ import_react146.default.createElement(
+    return /* @__PURE__ */ import_react147.default.createElement("div", null, /* @__PURE__ */ import_react147.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react147.default.createElement(Col_default, null, /* @__PURE__ */ import_react147.default.createElement(LabelAndTooltip_default, { tooltip: props.rowOrColumn === "pivotRowColumnIDsWithTransforms" ? ROWS_TOOLTIP : COLUMNS_TOOLTIP }, props.sectionTitle)), /* @__PURE__ */ import_react147.default.createElement(Col_default, null, /* @__PURE__ */ import_react147.default.createElement(
       DropdownButton_default,
       {
         text: "+ Add",
@@ -36503,7 +36538,7 @@ fig.write_html("${props.graphTabName}.html")`
         searchable: true
       },
       Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
-        return /* @__PURE__ */ import_react146.default.createElement(
+        return /* @__PURE__ */ import_react147.default.createElement(
           DropdownItem_default,
           {
             key: columnID,
@@ -36523,7 +36558,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react146.default.createElement(
+    ))), /* @__PURE__ */ import_react147.default.createElement(
       PivotInvalidSelectedColumnsError_default,
       {
         columnIDsMap,
@@ -36536,10 +36571,10 @@ fig.write_html("${props.graphTabName}.html")`
   var PivotTableKeySelection_default = PivotTableKeySelection;
 
   // src/components/taskpanes/PivotTable/PivotTableValueSelection.tsx
-  var import_react148 = __toESM(require_react());
+  var import_react149 = __toESM(require_react());
 
   // src/components/taskpanes/PivotTable/PivotTableValueAggregationCard.tsx
-  var import_react147 = __toESM(require_react());
+  var import_react148 = __toESM(require_react());
 
   // src/components/taskpanes/PivotTable/pivotUtils.tsx
   var STRING_AGGREGATIONS = [
@@ -36655,7 +36690,7 @@ fig.write_html("${props.graphTabName}.html")`
         props.editPivotValueAggregation(aggregationTypeCast, props.columnID);
       }
     };
-    return /* @__PURE__ */ import_react147.default.createElement(Row_default, { align: "center" }, /* @__PURE__ */ import_react147.default.createElement(Col_default, null, /* @__PURE__ */ import_react147.default.createElement(
+    return /* @__PURE__ */ import_react148.default.createElement(Row_default, { align: "center" }, /* @__PURE__ */ import_react148.default.createElement(Col_default, null, /* @__PURE__ */ import_react148.default.createElement(
       Select_default,
       {
         value: props.aggregationType,
@@ -36665,7 +36700,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       aggregationTypeList.map((aggregationType) => {
         const disabledMessage = getPivotAggregationDisabledMessage(aggregationType, props.columnDtype);
-        return /* @__PURE__ */ import_react147.default.createElement(
+        return /* @__PURE__ */ import_react148.default.createElement(
           DropdownItem_default,
           {
             key: aggregationType,
@@ -36677,7 +36712,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    )), /* @__PURE__ */ import_react147.default.createElement(Col_default, { offset: 1, flex: "1" }, /* @__PURE__ */ import_react147.default.createElement(
+    )), /* @__PURE__ */ import_react148.default.createElement(Col_default, { offset: 1, flex: "1" }, /* @__PURE__ */ import_react148.default.createElement(
       Select_default,
       {
         value: props.columnID,
@@ -36691,7 +36726,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       Object.keys(props.columnIDsMap).map((columnID) => {
         const columnHeader = props.columnIDsMap[columnID];
-        return /* @__PURE__ */ import_react147.default.createElement(
+        return /* @__PURE__ */ import_react148.default.createElement(
           DropdownItem_default,
           {
             key: columnID,
@@ -36700,7 +36735,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    )), /* @__PURE__ */ import_react147.default.createElement(Col_default, { offset: 1, offsetRight: 1 }, /* @__PURE__ */ import_react147.default.createElement(
+    )), /* @__PURE__ */ import_react148.default.createElement(Col_default, { offset: 1, offsetRight: 1 }, /* @__PURE__ */ import_react148.default.createElement(
       XIcon_default,
       {
         onClick: () => props.removePivotValueAggregation()
@@ -36715,7 +36750,7 @@ fig.write_html("${props.graphTabName}.html")`
     var _a, _b;
     const columnIDsMap = ((_a = props.sheetData) == null ? void 0 : _a.columnIDsMap) || {};
     const columnDtypeMap = ((_b = props.sheetData) == null ? void 0 : _b.columnDtypeMap) || {};
-    return /* @__PURE__ */ import_react148.default.createElement("div", null, /* @__PURE__ */ import_react148.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react148.default.createElement(Col_default, null, /* @__PURE__ */ import_react148.default.createElement(LabelAndTooltip_default, { tooltip: VALUES_TOOLTIP }, "Values")), /* @__PURE__ */ import_react148.default.createElement(Col_default, null, /* @__PURE__ */ import_react148.default.createElement(
+    return /* @__PURE__ */ import_react149.default.createElement("div", null, /* @__PURE__ */ import_react149.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react149.default.createElement(Col_default, null, /* @__PURE__ */ import_react149.default.createElement(LabelAndTooltip_default, { tooltip: VALUES_TOOLTIP }, "Values")), /* @__PURE__ */ import_react149.default.createElement(Col_default, null, /* @__PURE__ */ import_react149.default.createElement(
       DropdownButton_default,
       {
         text: "+ Add",
@@ -36723,7 +36758,7 @@ fig.write_html("${props.graphTabName}.html")`
         searchable: true
       },
       Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
-        return /* @__PURE__ */ import_react148.default.createElement(
+        return /* @__PURE__ */ import_react149.default.createElement(
           DropdownItem_default,
           {
             key: columnID,
@@ -36740,7 +36775,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react148.default.createElement(
+    ))), /* @__PURE__ */ import_react149.default.createElement(
       PivotInvalidSelectedColumnsError_default,
       {
         columnIDsMap,
@@ -36751,7 +36786,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), props.params.pivotValuesColumnIDsArray.map(([columnID, aggregationType], valueIndex) => {
       var _a2;
       const columnDtype = ((_a2 = props.sheetData) == null ? void 0 : _a2.columnDtypeMap[columnID]) || "";
-      return /* @__PURE__ */ import_react148.default.createElement(
+      return /* @__PURE__ */ import_react149.default.createElement(
         PivotTableValueAggregationCard_default,
         {
           key: columnID + valueIndex + aggregationType,
@@ -36789,7 +36824,7 @@ fig.write_html("${props.graphTabName}.html")`
   var PivotTableValueSelection_default = PivotTableValueSelection;
 
   // src/components/taskpanes/PivotTable/PivotTableFilterSection.tsx
-  var import_react149 = __toESM(require_react());
+  var import_react150 = __toESM(require_react());
   var FILTERS_TOOLTIP = "Filters are used to only include a subset of the source data in the pivot table.";
   var PivotTableFilterSection = (props) => {
     var _a;
@@ -36799,7 +36834,7 @@ fig.write_html("${props.graphTabName}.html")`
     Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
       columnIDsToDisplayHeaders[columnID] = getDisplayColumnHeader(columnHeader);
     });
-    return /* @__PURE__ */ import_react149.default.createElement("div", null, /* @__PURE__ */ import_react149.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react149.default.createElement(Col_default, null, /* @__PURE__ */ import_react149.default.createElement(LabelAndTooltip_default, { tooltip: FILTERS_TOOLTIP }, "Filters")), /* @__PURE__ */ import_react149.default.createElement(Col_default, null, /* @__PURE__ */ import_react149.default.createElement(
+    return /* @__PURE__ */ import_react150.default.createElement("div", null, /* @__PURE__ */ import_react150.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react150.default.createElement(Col_default, null, /* @__PURE__ */ import_react150.default.createElement(LabelAndTooltip_default, { tooltip: FILTERS_TOOLTIP }, "Filters")), /* @__PURE__ */ import_react150.default.createElement(Col_default, null, /* @__PURE__ */ import_react150.default.createElement(
       DropdownButton_default,
       {
         text: "+ Add",
@@ -36807,7 +36842,7 @@ fig.write_html("${props.graphTabName}.html")`
         searchable: true
       },
       Object.entries(columnIDsMap).map(([columnID, columnHeader]) => {
-        return /* @__PURE__ */ import_react149.default.createElement(
+        return /* @__PURE__ */ import_react150.default.createElement(
           DropdownItem_default,
           {
             key: columnID,
@@ -36830,7 +36865,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react149.default.createElement(
+    ))), /* @__PURE__ */ import_react150.default.createElement(
       PivotInvalidSelectedColumnsError_default,
       {
         columnIDsMap,
@@ -36841,7 +36876,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), props.params.pivotFilters.map(({ column_id, filter }, index) => {
       var _a2;
       const columnDtype = ((_a2 = props.sheetData) == null ? void 0 : _a2.columnDtypeMap[column_id]) || "";
-      return /* @__PURE__ */ import_react149.default.createElement("div", { className: "mito-blue-container mb-5px", key: index }, /* @__PURE__ */ import_react149.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react149.default.createElement(
+      return /* @__PURE__ */ import_react150.default.createElement("div", { className: "mito-blue-container mb-5px", key: index }, /* @__PURE__ */ import_react150.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react150.default.createElement(
         SelectAndXIconCard_default,
         {
           value: column_id,
@@ -36866,7 +36901,7 @@ fig.write_html("${props.graphTabName}.html")`
           },
           selectableValues: allColumnIDs
         }
-      )), /* @__PURE__ */ import_react149.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react149.default.createElement(
+      )), /* @__PURE__ */ import_react150.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react150.default.createElement(
         Filter,
         {
           filter,
@@ -36885,7 +36920,7 @@ fig.write_html("${props.graphTabName}.html")`
           nameLength: "short_name",
           suppressTopBottomMargin: true
         }
-      ), /* @__PURE__ */ import_react149.default.createElement(Col_default, { span: 3.5 })));
+      ), /* @__PURE__ */ import_react150.default.createElement(Col_default, { span: 3.5 })));
     }));
   };
   var PivotTableFilterSection_default = PivotTableFilterSection;
@@ -36908,16 +36943,16 @@ fig.write_html("${props.graphTabName}.html")`
       props.sheetDataArray
     );
     if (params === void 0) {
-      return /* @__PURE__ */ import_react150.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react151.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const sheetData = props.sheetDataArray[params.sourceSheetIndex];
-    return /* @__PURE__ */ import_react150.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react150.default.createElement(
+    return /* @__PURE__ */ import_react151.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react151.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: props.destinationSheetIndex ? `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`,
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react150.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react150.default.createElement(
+    ), /* @__PURE__ */ import_react151.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react151.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to pivot",
@@ -36931,7 +36966,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         sheetIndexToIgnore: props.destinationSheetIndex
       }
-    ), /* @__PURE__ */ import_react150.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react150.default.createElement(
+    ), /* @__PURE__ */ import_react151.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react151.default.createElement(
       PivotTableKeySelection_default,
       {
         mitoAPI: props.mitoAPI,
@@ -36941,7 +36976,7 @@ fig.write_html("${props.graphTabName}.html")`
         setParams,
         rowOrColumn: "pivotRowColumnIDsWithTransforms"
       }
-    )), /* @__PURE__ */ import_react150.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react150.default.createElement(
+    )), /* @__PURE__ */ import_react151.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react151.default.createElement(
       PivotTableKeySelection_default,
       {
         mitoAPI: props.mitoAPI,
@@ -36951,7 +36986,7 @@ fig.write_html("${props.graphTabName}.html")`
         setParams,
         rowOrColumn: "pivotColumnsColumnIDsWithTransforms"
       }
-    )), /* @__PURE__ */ import_react150.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react150.default.createElement(
+    )), /* @__PURE__ */ import_react151.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react151.default.createElement(
       PivotTableValueSelection_default,
       {
         mitoAPI: props.mitoAPI,
@@ -36959,7 +36994,7 @@ fig.write_html("${props.graphTabName}.html")`
         params,
         setParams
       }
-    )), /* @__PURE__ */ import_react150.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react150.default.createElement(
+    )), /* @__PURE__ */ import_react151.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react151.default.createElement(
       PivotTableFilterSection_default,
       {
         sheetData,
@@ -36972,12 +37007,12 @@ fig.write_html("${props.graphTabName}.html")`
   var PivotTaskpane_default = PivotTaskpane;
 
   // src/components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane.tsx
-  var import_react152 = __toESM(require_react());
+  var import_react153 = __toESM(require_react());
 
   // src/components/elements/MulitSelectButtonItem.tsx
-  var import_react151 = __toESM(require_react());
+  var import_react152 = __toESM(require_react());
   var MultiSelectButtonItem = (props) => {
-    return /* @__PURE__ */ import_react151.default.createElement(
+    return /* @__PURE__ */ import_react152.default.createElement(
       "div",
       {
         key: props.title,
@@ -36986,8 +37021,8 @@ fig.write_html("${props.graphTabName}.html")`
         },
         className: "text-body-2"
       },
-      /* @__PURE__ */ import_react151.default.createElement("input", { type: "checkbox", name: props.title, value: props.id ? props.id : props.title, checked: props.checked }),
-      /* @__PURE__ */ import_react151.default.createElement("label", { style: { marginRight: "3px" }, htmlFor: props.title }, props.title)
+      /* @__PURE__ */ import_react152.default.createElement("input", { type: "checkbox", name: props.title, value: props.id ? props.id : props.title, checked: props.checked }),
+      /* @__PURE__ */ import_react152.default.createElement("label", { style: { marginRight: "3px" }, htmlFor: props.title }, props.title)
     );
   };
   var MulitSelectButtonItem_default = MultiSelectButtonItem;
@@ -37020,8 +37055,8 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
-    const [preview, setPreview] = (0, import_react152.useState)([]);
-    (0, import_react152.useEffect)(() => {
+    const [preview, setPreview] = (0, import_react153.useState)([]);
+    (0, import_react153.useEffect)(() => {
       setParams((prevParams) => {
         const newParams = getDefaultParams6(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex);
         if (newParams) {
@@ -37030,7 +37065,7 @@ fig.write_html("${props.graphTabName}.html")`
         return prevParams;
       });
     }, [props.startingColumnID]);
-    (0, import_react152.useEffect)(() => {
+    (0, import_react153.useEffect)(() => {
       void loadSplitTextToColumnsPreview();
     }, [params]);
     async function loadSplitTextToColumnsPreview() {
@@ -37046,15 +37081,15 @@ fig.write_html("${props.graphTabName}.html")`
       }
     }
     if (params === void 0 || params.column_id === void 0) {
-      return /* @__PURE__ */ import_react152.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react153.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
-    return /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    return /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react153.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Split Text to Columns",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    ), /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react153.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to select a column to split text within",
@@ -37072,7 +37107,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ), /* @__PURE__ */ import_react152.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react152.default.createElement(Col_default, null, /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-header-3" }, "Column")), /* @__PURE__ */ import_react152.default.createElement(Col_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    ), /* @__PURE__ */ import_react153.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react153.default.createElement(Col_default, null, /* @__PURE__ */ import_react153.default.createElement("p", { className: "text-header-3" }, "Column")), /* @__PURE__ */ import_react153.default.createElement(Col_default, null, /* @__PURE__ */ import_react153.default.createElement(
       Select_default,
       {
         width: "medium-large",
@@ -37080,7 +37115,7 @@ fig.write_html("${props.graphTabName}.html")`
         searchable: true
       },
       Object.entries(((_b = props.sheetDataArray[params.sheet_index]) == null ? void 0 : _b.columnIDsMap) || {}).map(([columnID, columnHeader]) => {
-        return /* @__PURE__ */ import_react152.default.createElement(
+        return /* @__PURE__ */ import_react153.default.createElement(
           DropdownItem_default,
           {
             key: columnID,
@@ -37095,8 +37130,8 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react152.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react152.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-header-3" }, "Delimiters")), /* @__PURE__ */ import_react152.default.createElement(Col_default, { className: "light-gray-container element-width-medium-large" }, Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
-      return /* @__PURE__ */ import_react152.default.createElement(
+    ))), /* @__PURE__ */ import_react153.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react153.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react153.default.createElement("p", { className: "text-header-3" }, "Delimiters")), /* @__PURE__ */ import_react153.default.createElement(Col_default, { className: "light-gray-container element-width-medium-large" }, Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
+      return /* @__PURE__ */ import_react153.default.createElement(
         MulitSelectButtonItem_default,
         {
           key: delimiterTitle,
@@ -37114,7 +37149,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       );
-    }), /* @__PURE__ */ import_react152.default.createElement(
+    }), /* @__PURE__ */ import_react153.default.createElement(
       Input_default,
       {
         value: params.delimiters.filter((params_delimiter) => !Object.keys(delimiters).includes(params_delimiter))[0],
@@ -37133,11 +37168,11 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ))), /* @__PURE__ */ import_react152.default.createElement("div", null, /* @__PURE__ */ import_react152.default.createElement(Row_default, null, /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-header-3" }, "Columns Preview")), preview.length > 0 && /* @__PURE__ */ import_react152.default.createElement(Row_default, { style: { width: "100%", overflowX: "auto" }, suppressTopBottomMargin: true }, /* @__PURE__ */ import_react152.default.createElement("table", { className: "preview-table", cellSpacing: "0" }, /* @__PURE__ */ import_react152.default.createElement("tbody", null, preview.map((rowData, idx) => {
-      return /* @__PURE__ */ import_react152.default.createElement("tr", { className: "preview-table-table-row", key: idx }, rowData.map((cellData, idx2) => {
-        return /* @__PURE__ */ import_react152.default.createElement("td", { className: "preview-table-table-data", key: idx2 }, "" + cellData);
+    ))), /* @__PURE__ */ import_react153.default.createElement("div", null, /* @__PURE__ */ import_react153.default.createElement(Row_default, null, /* @__PURE__ */ import_react153.default.createElement("p", { className: "text-header-3" }, "Columns Preview")), preview.length > 0 && /* @__PURE__ */ import_react153.default.createElement(Row_default, { style: { width: "100%", overflowX: "auto" }, suppressTopBottomMargin: true }, /* @__PURE__ */ import_react153.default.createElement("table", { className: "preview-table", cellSpacing: "0" }, /* @__PURE__ */ import_react153.default.createElement("tbody", null, preview.map((rowData, idx) => {
+      return /* @__PURE__ */ import_react153.default.createElement("tr", { className: "preview-table-table-row", key: idx }, rowData.map((cellData, idx2) => {
+        return /* @__PURE__ */ import_react153.default.createElement("td", { className: "preview-table-table-data", key: idx2 }, "" + cellData);
       }));
-    })))), preview.length === 0 && /* @__PURE__ */ import_react152.default.createElement(Row_default, { style: { width: "100%" }, justify: "center" }, /* @__PURE__ */ import_react152.default.createElement("p", { className: "mt-10px" }, "Select a delimiter to preview the split")))), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    })))), preview.length === 0 && /* @__PURE__ */ import_react153.default.createElement(Row_default, { style: { width: "100%" }, justify: "center" }, /* @__PURE__ */ import_react153.default.createElement("p", { className: "mt-10px" }, "Select a delimiter to preview the split")))), /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react153.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -37151,15 +37186,15 @@ fig.write_html("${props.graphTabName}.html")`
         disabledTooltip: "Select at least one delimiter"
       },
       !editApplied ? `Split on delimiter${params.delimiters.length > 1 ? "s" : ""}` : loading ? "Splitting column ..." : `Split on delimiter${params.delimiters.length > 1 ? "s" : ""}`
-    ), editApplied && /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-subtext-1" }, "Created ", result == null ? void 0 : result.num_cols_created, " new columns"), !editApplied && /* @__PURE__ */ import_react152.default.createElement(Spacer_default, { px: 18 })));
+    ), editApplied && /* @__PURE__ */ import_react153.default.createElement("p", { className: "text-subtext-1" }, "Created ", result == null ? void 0 : result.num_cols_created, " new columns"), !editApplied && /* @__PURE__ */ import_react153.default.createElement(Spacer_default, { px: 18 })));
   };
   var SplitTextToColumnsTaskpane_default = SplitTextToColumnsTaskpane;
 
   // src/components/taskpanes/UpdateImports/UpdateImportsTaskpane.tsx
-  var import_react158 = __toESM(require_react());
+  var import_react159 = __toESM(require_react());
 
   // src/components/taskpanes/UpdateImports/UpdateDataframeImportTaskpane.tsx
-  var import_react153 = __toESM(require_react());
+  var import_react154 = __toESM(require_react());
   var getButtonMessage5 = (params) => {
     if (params.df_names.length === 0) {
       return `Select dataframe to update`;
@@ -37176,7 +37211,7 @@ fig.write_html("${props.graphTabName}.html")`
       void 0,
       []
     );
-    const radioButtonBox = /* @__PURE__ */ import_react153.default.createElement(
+    const radioButtonBox = /* @__PURE__ */ import_react154.default.createElement(
       RadioButtonBox_default,
       {
         values: dfNamesInNotebook,
@@ -37190,9 +37225,9 @@ fig.write_html("${props.graphTabName}.html")`
       }
     );
     if (props.params === void 0) {
-      return /* @__PURE__ */ import_react153.default.createElement("div", { className: "text-body-1" }, "There has been an error loading dataframes to import. Please try again, or ", /* @__PURE__ */ import_react153.default.createElement("a", { className: "text-body-1-link", href: "https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg", target: "_blank", rel: "noreferrer" }, "contact support"), ".");
+      return /* @__PURE__ */ import_react154.default.createElement("div", { className: "text-body-1" }, "There has been an error loading dataframes to import. Please try again, or ", /* @__PURE__ */ import_react154.default.createElement("a", { className: "text-body-1-link", href: "https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg", target: "_blank", rel: "noreferrer" }, "contact support"), ".");
     }
-    return /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react153.default.createElement(
+    return /* @__PURE__ */ import_react154.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react154.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: props.isUpdate ? "Import Dataframes" : "Update Import",
@@ -37200,7 +37235,7 @@ fig.write_html("${props.graphTabName}.html")`
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react153.default.createElement(Row_default, { justify: "start", align: "center" }, /* @__PURE__ */ import_react153.default.createElement(Col_default, null, /* @__PURE__ */ import_react153.default.createElement(LabelAndTooltip_default, { tooltip: "Dataframes that have been created elsewhere in this notebook can be imported through this taskpane." }, "Dataframes to Import"))), radioButtonBox, /* @__PURE__ */ import_react153.default.createElement(Spacer_default, { px: 10 })), /* @__PURE__ */ import_react153.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react153.default.createElement(
+    ), /* @__PURE__ */ import_react154.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react154.default.createElement(Row_default, { justify: "start", align: "center" }, /* @__PURE__ */ import_react154.default.createElement(Col_default, null, /* @__PURE__ */ import_react154.default.createElement(LabelAndTooltip_default, { tooltip: "Dataframes that have been created elsewhere in this notebook can be imported through this taskpane." }, "Dataframes to Import"))), radioButtonBox, /* @__PURE__ */ import_react154.default.createElement(Spacer_default, { px: 10 })), /* @__PURE__ */ import_react154.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react154.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -37216,15 +37251,15 @@ fig.write_html("${props.graphTabName}.html")`
   var UpdateDataframeImportTaskpane_default = UpdateDataframeImportScreen;
 
   // src/components/taskpanes/UpdateImports/UpdateImportsPostReplayTaskpane.tsx
-  var import_react156 = __toESM(require_react());
+  var import_react157 = __toESM(require_react());
 
   // src/components/taskpanes/UpdateImports/UpdateImportCard.tsx
-  var import_react155 = __toESM(require_react());
+  var import_react156 = __toESM(require_react());
 
   // src/components/icons/RightPointerIcon.tsx
-  var import_react154 = __toESM(require_react());
+  var import_react155 = __toESM(require_react());
   var RightPointerIcon = () => {
-    return /* @__PURE__ */ import_react154.default.createElement("svg", { width: "10", height: "15", viewBox: "0 0 10 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react154.default.createElement("path", { d: "M1.36401 1.13672L7.72797 7.50068L1.36401 13.8646", stroke: "#494650", strokeWidth: "2", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react155.default.createElement("svg", { width: "10", height: "15", viewBox: "0 0 10 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react155.default.createElement("path", { d: "M1.36401 1.13672L7.72797 7.50068L1.36401 13.8646", stroke: "#494650", strokeWidth: "2", strokeLinecap: "round" }));
   };
   var RightPointerIcon_default = RightPointerIcon;
 
@@ -37302,37 +37337,37 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/taskpanes/UpdateImports/UpdateImportCard.tsx
   var getFileNameSpanFromFilePath = (filePath) => {
     const fileName = getBaseOfPath(filePath);
-    return /* @__PURE__ */ import_react155.default.createElement("span", { title: filePath }, fileName);
+    return /* @__PURE__ */ import_react156.default.createElement("span", { title: filePath }, fileName);
   };
   var getSimpleNameSpan = (name) => {
-    return /* @__PURE__ */ import_react155.default.createElement("span", { title: name }, name);
+    return /* @__PURE__ */ import_react156.default.createElement("span", { title: name }, name);
   };
   var getUpdateImportCardTitle = (dataframeCreationData) => {
     if (dataframeCreationData.step_type === "excel_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_name));
+      return /* @__PURE__ */ import_react156.default.createElement("div", null, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_name));
     } else if (dataframeCreationData.step_type === "simple_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0]));
+      return /* @__PURE__ */ import_react156.default.createElement("div", null, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0]));
     } else if (dataframeCreationData.step_type === "dataframe_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.df_names[0]));
+      return /* @__PURE__ */ import_react156.default.createElement("div", null, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.df_names[0]));
     } else {
-      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_path));
+      return /* @__PURE__ */ import_react156.default.createElement("div", null, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_path));
     }
   };
   var getUpdateImportCardSubtitle = (updatedDataframeCreationData, invalidImportMessage, isUpdated) => {
     if (!isUpdated) {
       if (invalidImportMessage !== void 0) {
-        return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-error-important text-overflow-wrap" }, invalidImportMessage));
+        return /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-error-important text-overflow-wrap" }, invalidImportMessage));
       }
       return null;
     }
     if (updatedDataframeCreationData.step_type === "excel_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name));
+      return /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0]), " ", /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name));
     } else if (updatedDataframeCreationData.step_type === "simple_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0]));
+      return /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0]));
     } else if (updatedDataframeCreationData.step_type === "dataframe_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0]));
+      return /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0]));
     } else {
-      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path));
+      return /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path));
     }
   };
   var UpdateImportCard = (props) => {
@@ -37348,16 +37383,16 @@ fig.write_html("${props.graphTabName}.html")`
         return void 0;
       });
     };
-    return /* @__PURE__ */ import_react155.default.createElement(Row_default, { justify: "space-between", align: "top", onClick: () => {
+    return /* @__PURE__ */ import_react156.default.createElement(Row_default, { justify: "space-between", align: "top", onClick: () => {
       openDropdown();
-    } }, /* @__PURE__ */ import_react155.default.createElement(Col_default, { span: 22 }, /* @__PURE__ */ import_react155.default.createElement(Row_default, { align: "top" }, /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-1px" }, /* @__PURE__ */ import_react155.default.createElement(CSVFileIcon_default, null)), /* @__PURE__ */ import_react155.default.createElement(Col_default, { span: 22, offset: 0.25 }, getUpdateImportCardTitle(props.dataframeCreationData), getUpdateImportCardSubtitle(props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated))), props.postUpdateInvalidImportMessage && /* @__PURE__ */ import_react155.default.createElement(Row_default, { align: "top" }, /* @__PURE__ */ import_react155.default.createElement(Col_default, { span: 22, offset: 1.2 }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-error-important text-overflow-wrap" }, props.postUpdateInvalidImportMessage)))), /* @__PURE__ */ import_react155.default.createElement(Col_default, { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement(RightPointerIcon_default, null), /* @__PURE__ */ import_react155.default.createElement(
+    } }, /* @__PURE__ */ import_react156.default.createElement(Col_default, { span: 22 }, /* @__PURE__ */ import_react156.default.createElement(Row_default, { align: "top" }, /* @__PURE__ */ import_react156.default.createElement("div", { className: "mt-1px" }, /* @__PURE__ */ import_react156.default.createElement(CSVFileIcon_default, null)), /* @__PURE__ */ import_react156.default.createElement(Col_default, { span: 22, offset: 0.25 }, getUpdateImportCardTitle(props.dataframeCreationData), getUpdateImportCardSubtitle(props.updatedDataframeCreationData, props.preUpdateInvalidImportMessage, props.isUpdated))), props.postUpdateInvalidImportMessage && /* @__PURE__ */ import_react156.default.createElement(Row_default, { align: "top" }, /* @__PURE__ */ import_react156.default.createElement(Col_default, { span: 22, offset: 1.2 }, /* @__PURE__ */ import_react156.default.createElement("span", { className: "text-color-error-important text-overflow-wrap" }, props.postUpdateInvalidImportMessage)))), /* @__PURE__ */ import_react156.default.createElement(Col_default, { className: "mt-3px" }, /* @__PURE__ */ import_react156.default.createElement("div", null, /* @__PURE__ */ import_react156.default.createElement(RightPointerIcon_default, null), /* @__PURE__ */ import_react156.default.createElement(
       Dropdown_default,
       {
         display: displayDropdown,
         closeDropdown: () => closeDropdown(),
         width: "medium"
       },
-      /* @__PURE__ */ import_react155.default.createElement(
+      /* @__PURE__ */ import_react156.default.createElement(
         DropdownItem_default,
         {
           title: "Replace with file",
@@ -37370,7 +37405,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       ),
-      /* @__PURE__ */ import_react155.default.createElement(
+      /* @__PURE__ */ import_react156.default.createElement(
         DropdownItem_default,
         {
           title: "Replace with dataframe",
@@ -37390,19 +37425,19 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/taskpanes/UpdateImports/UpdateImportsPostReplayTaskpane.tsx
   var UpdateImportsPostReplayTaskpane = (props) => {
     var _a, _b, _c;
-    const [loadingUpdate, setLoadingUpdate] = (0, import_react156.useState)(false);
+    const [loadingUpdate, setLoadingUpdate] = (0, import_react157.useState)(false);
     let updateImportBody = null;
     if (props.importDataAndErrors === void 0) {
-      updateImportBody = /* @__PURE__ */ import_react156.default.createElement("p", null, "Loading previously imported data...");
+      updateImportBody = /* @__PURE__ */ import_react157.default.createElement("p", null, "Loading previously imported data...");
     } else {
       if ((((_a = props.importDataAndErrors) == null ? void 0 : _a.importData.length) || 0) === 0 && props.sheetDataArray.length === 0) {
-        return /* @__PURE__ */ import_react156.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Before changing imports, you need to import something." });
+        return /* @__PURE__ */ import_react157.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Before changing imports, you need to import something." });
       } else if ((((_b = props.importDataAndErrors) == null ? void 0 : _b.importData.length) || 0) === 0) {
-        return /* @__PURE__ */ import_react156.default.createElement(DefaultEmptyTaskpane_default, { header: "Update passed dataframes", setUIState: props.setUIState, message: "You can change imports by changing the data passed to the mitosheet.sheet call above.", suppressImportLink: true });
+        return /* @__PURE__ */ import_react157.default.createElement(DefaultEmptyTaskpane_default, { header: "Update passed dataframes", setUIState: props.setUIState, message: "You can change imports by changing the data passed to the mitosheet.sheet call above.", suppressImportLink: true });
       }
       const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(((_c = props.importDataAndErrors) == null ? void 0 : _c.importData) || [], props.updatedStepImportData);
       updateImportBody = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
-        return /* @__PURE__ */ import_react156.default.createElement(
+        return /* @__PURE__ */ import_react157.default.createElement(
           UpdateImportCard_default,
           {
             key: index,
@@ -37422,13 +37457,13 @@ fig.write_html("${props.graphTabName}.html")`
     const anyUpdated = props.updatedIndexes.length > 0;
     const invalidPostUpdate = Object.keys(props.invalidImportMessages).length > 0;
     const retryButtonDisabled = !anyUpdated || invalidPostUpdate || loadingUpdate;
-    return /* @__PURE__ */ import_react156.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react156.default.createElement(
+    return /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react157.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Change Imports",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react156.default.createElement(DefaultTaskpaneBody_default, null, props.invalidReplayError && /* @__PURE__ */ import_react156.default.createElement("p", { className: "text-color-error" }, props.invalidReplayError), updateImportBody), /* @__PURE__ */ import_react156.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react156.default.createElement(
+    ), /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpaneBody_default, null, props.invalidReplayError && /* @__PURE__ */ import_react157.default.createElement("p", { className: "text-color-error" }, props.invalidReplayError), updateImportBody), /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react157.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -37473,26 +37508,26 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: retryButtonDisabled,
         disabledTooltip: retryButtonDisabled ? "Please resolve all errors with above imports." : void 0
       },
-      /* @__PURE__ */ import_react156.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Change Imports" : "Changing Imports...")
+      /* @__PURE__ */ import_react157.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Change Imports" : "Changing Imports...")
     )));
   };
   var UpdateImportsPostReplayTaskpane_default = UpdateImportsPostReplayTaskpane;
 
   // src/components/taskpanes/UpdateImports/UpdateImportsPreReplayTaskpane.tsx
-  var import_react157 = __toESM(require_react());
+  var import_react158 = __toESM(require_react());
   var PRE_REPLAY_IMPORT_ERROR_TEXT = "Please fix failed data imports to replay analysis.";
   var UpdateImportsPreReplayTaskpane = (props) => {
     var _a;
-    const [loadingUpdate, setLoadingUpdate] = (0, import_react157.useState)(false);
+    const [loadingUpdate, setLoadingUpdate] = (0, import_react158.useState)(false);
     let updateImportBody = null;
     const loadingImportDataAndErrors = props.importDataAndErrors === void 0;
     if (props.importDataAndErrors === void 0) {
-      updateImportBody = /* @__PURE__ */ import_react157.default.createElement("p", null, "Loading previously imported data...");
+      updateImportBody = /* @__PURE__ */ import_react158.default.createElement("p", null, "Loading previously imported data...");
     } else {
       const originalAndUpdatedDataframeCreationPairs = getOriginalAndUpdatedDataframeCreationDataPairs(props.importDataAndErrors.importData, props.updatedStepImportData);
       updateImportBody = originalAndUpdatedDataframeCreationPairs.map(([originalDfCreationData, updatedDfCreationData], index) => {
         var _a2;
-        return /* @__PURE__ */ import_react157.default.createElement(
+        return /* @__PURE__ */ import_react158.default.createElement(
           UpdateImportCard_default,
           {
             key: index,
@@ -37512,14 +37547,14 @@ fig.write_html("${props.graphTabName}.html")`
     const allErrorsUpdated = Object.keys(((_a = props.importDataAndErrors) == null ? void 0 : _a.invalidImportMessages) || {}).filter((index) => !props.updatedIndexes.includes(parseInt(index))).length === 0;
     const invalidPostUpdate = Object.keys(props.postUpdateInvalidImportMessages).length > 0;
     const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors || loadingUpdate;
-    return /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react157.default.createElement(
+    return /* @__PURE__ */ import_react158.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react158.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Change Imports to Replay Analysis",
         setUIState: props.setUIState,
         notCloseable: true
       }
-    ), /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpaneBody_default, null, (props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated || props.invalidReplayError !== void 0 && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT) && /* @__PURE__ */ import_react157.default.createElement("p", { className: "text-color-error" }, props.invalidReplayError), updateImportBody), /* @__PURE__ */ import_react157.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react157.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react157.default.createElement(Col_default, null, /* @__PURE__ */ import_react157.default.createElement(
+    ), /* @__PURE__ */ import_react158.default.createElement(DefaultTaskpaneBody_default, null, (props.invalidReplayError === PRE_REPLAY_IMPORT_ERROR_TEXT && !allErrorsUpdated || props.invalidReplayError !== void 0 && props.invalidReplayError !== PRE_REPLAY_IMPORT_ERROR_TEXT) && /* @__PURE__ */ import_react158.default.createElement("p", { className: "text-color-error" }, props.invalidReplayError), updateImportBody), /* @__PURE__ */ import_react158.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react158.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react158.default.createElement(Col_default, null, /* @__PURE__ */ import_react158.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -37540,7 +37575,7 @@ fig.write_html("${props.graphTabName}.html")`
         tooltip: "This will start a new analysis with no steps in this mitosheet."
       },
       "Start New Analysis"
-    )), /* @__PURE__ */ import_react157.default.createElement(Col_default, { span: 12 }, /* @__PURE__ */ import_react157.default.createElement(
+    )), /* @__PURE__ */ import_react158.default.createElement(Col_default, { span: 12 }, /* @__PURE__ */ import_react158.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -37586,7 +37621,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: retryButtonDisabled,
         disabledTooltip: retryButtonDisabled ? "Please resolve all errors with above imports." : void 0
       },
-      /* @__PURE__ */ import_react157.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Retry With Updated Imports" : "Updating Imports...")
+      /* @__PURE__ */ import_react158.default.createElement("p", { className: "text-align-center-important" }, !loadingUpdate ? "Retry With Updated Imports" : "Updating Imports...")
     )))));
   };
   var UpdateImportsPreReplayTaskpane_default = UpdateImportsPreReplayTaskpane;
@@ -37595,11 +37630,11 @@ fig.write_html("${props.graphTabName}.html")`
   var UpdateImportsTaskpane = (props) => {
     const failedReplayData = props.failedReplayData;
     const updatePreReplay = failedReplayData !== void 0;
-    const [updatedStepImportData, setUpdatedStepImportData] = (0, import_react158.useState)(void 0);
-    const [updatedIndexes, setUpdatedIndexes] = (0, import_react158.useState)([]);
-    const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = (0, import_react158.useState)(void 0);
-    const [replacingDataframeState, setReplacingDataframeState] = (0, import_react158.useState)(void 0);
-    const [postUpdateInvalidImportMessages, setPostUpdateInvalidImportMessages] = (0, import_react158.useState)({});
+    const [updatedStepImportData, setUpdatedStepImportData] = (0, import_react159.useState)(void 0);
+    const [updatedIndexes, setUpdatedIndexes] = (0, import_react159.useState)([]);
+    const [displayedImportCardDropdown, setDisplayedImportCardDropdown] = (0, import_react159.useState)(void 0);
+    const [replacingDataframeState, setReplacingDataframeState] = (0, import_react159.useState)(void 0);
+    const [postUpdateInvalidImportMessages, setPostUpdateInvalidImportMessages] = (0, import_react159.useState)({});
     const [importDataAndErrors] = useStateFromAPIAsync(
       void 0,
       async () => {
@@ -37640,8 +37675,8 @@ fig.write_html("${props.graphTabName}.html")`
       },
       []
     );
-    const [invalidReplayError, setInvalidReplayError] = (0, import_react158.useState)(void 0);
-    (0, import_react158.useEffect)(() => {
+    const [invalidReplayError, setInvalidReplayError] = (0, import_react159.useState)(void 0);
+    (0, import_react159.useEffect)(() => {
       void props.mitoAPI.log("opened_update_imports_taskpane", {
         "open_due_to_replay_error": updatePreReplay,
         "num_invalid_imports": (importDataAndErrors == null ? void 0 : importDataAndErrors.invalidImportMessages) === void 0 ? 0 : Object.keys(importDataAndErrors.invalidImportMessages).length,
@@ -37650,7 +37685,7 @@ fig.write_html("${props.graphTabName}.html")`
     }, [importDataAndErrors]);
     if (replacingDataframeState === void 0) {
       if (props.failedReplayData !== void 0) {
-        return /* @__PURE__ */ import_react158.default.createElement(
+        return /* @__PURE__ */ import_react159.default.createElement(
           UpdateImportsPreReplayTaskpane_default,
           {
             mitoAPI: props.mitoAPI,
@@ -37672,7 +37707,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       } else {
-        return /* @__PURE__ */ import_react158.default.createElement(
+        return /* @__PURE__ */ import_react159.default.createElement(
           UpdateImportsPostReplayTaskpane_default,
           {
             mitoAPI: props.mitoAPI,
@@ -37696,7 +37731,7 @@ fig.write_html("${props.graphTabName}.html")`
     }
     const importState = replacingDataframeState.importState;
     if (importState.screen === "file_browser") {
-      return /* @__PURE__ */ import_react158.default.createElement(
+      return /* @__PURE__ */ import_react159.default.createElement(
         FileBrowser_default,
         {
           mitoAPI: props.mitoAPI,
@@ -37760,7 +37795,7 @@ fig.write_html("${props.graphTabName}.html")`
       );
     } else if (importState.screen === "csv_import_config") {
       const params = isCSVImportParams(replacingDataframeState.params) ? replacingDataframeState.params : getDefaultCSVParams(importState.filePath);
-      return /* @__PURE__ */ import_react158.default.createElement(
+      return /* @__PURE__ */ import_react159.default.createElement(
         CSVImportConfigScreen_default,
         {
           mitoAPI: props.mitoAPI,
@@ -37825,7 +37860,7 @@ fig.write_html("${props.graphTabName}.html")`
       );
     } else if (replacingDataframeState.importState.screen === "xlsx_import_config") {
       const params = isExcelImportParams(replacingDataframeState.params) ? replacingDataframeState.params : getDefaultXLSXParams(replacingDataframeState.importState.filePath);
-      return /* @__PURE__ */ import_react158.default.createElement(
+      return /* @__PURE__ */ import_react159.default.createElement(
         XLSXImportConfigScreen_default,
         {
           mitoAPI: props.mitoAPI,
@@ -37869,7 +37904,7 @@ fig.write_html("${props.graphTabName}.html")`
       );
     } else {
       const params = isDataframeImportParams(replacingDataframeState.params) ? replacingDataframeState.params : { df_names: [] };
-      return /* @__PURE__ */ import_react158.default.createElement(
+      return /* @__PURE__ */ import_react159.default.createElement(
         UpdateDataframeImportTaskpane_default,
         {
           mitoAPI: props.mitoAPI,
@@ -37911,7 +37946,7 @@ fig.write_html("${props.graphTabName}.html")`
   var UpdateImportsTaskpane_default = UpdateImportsTaskpane;
 
   // src/components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane.tsx
-  var import_react159 = __toESM(require_react());
+  var import_react160 = __toESM(require_react());
   var CannotCreateCommTaskpane = (props) => {
     let header = "";
     let firstLine = "";
@@ -37919,41 +37954,41 @@ fig.write_html("${props.graphTabName}.html")`
     if (props.commCreationErrorStatus === "no_backend_comm_registered_error") {
       header = "Rerun Cell Above";
       firstLine = "Looks like you restarted your kernel.";
-      secondLine = /* @__PURE__ */ import_react159.default.createElement(import_react159.default.Fragment, null, "Rerun the ", /* @__PURE__ */ import_react159.default.createElement("code", null, "mitosheet.sheet()"), " call above to refresh this mitosheet.");
+      secondLine = /* @__PURE__ */ import_react160.default.createElement(import_react160.default.Fragment, null, "Rerun the ", /* @__PURE__ */ import_react160.default.createElement("code", null, "mitosheet.sheet()"), " call above to refresh this mitosheet.");
     } else if (props.commCreationErrorStatus === "non_valid_location_error") {
       header = "Unsupported Enviornment";
       firstLine = "Mito only supports JupyterLab and Jupyter Notebook, not wherever this is.";
-      secondLine = /* @__PURE__ */ import_react159.default.createElement(import_react159.default.Fragment, null, "To install Mito in JupyterLab and Jupyter Notebook, follow our ", /* @__PURE__ */ import_react159.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react159.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
+      secondLine = /* @__PURE__ */ import_react160.default.createElement(import_react160.default.Fragment, null, "To install Mito in JupyterLab and Jupyter Notebook, follow our ", /* @__PURE__ */ import_react160.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react160.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
     } else if (props.commCreationErrorStatus === "non_working_extension_error") {
       header = "Invalid installation";
       firstLine = "Try restarting your JupyterLab. Mito was unable to connect to your Python kernel.";
-      secondLine = /* @__PURE__ */ import_react159.default.createElement(import_react159.default.Fragment, null, "If this does not resolve this error, please ensure you have followed our ", /* @__PURE__ */ import_react159.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react159.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
+      secondLine = /* @__PURE__ */ import_react160.default.createElement(import_react160.default.Fragment, null, "If this does not resolve this error, please ensure you have followed our ", /* @__PURE__ */ import_react160.default.createElement("a", { href: DOCUMENTATION_LINK_INSTALL, target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react160.default.createElement("span", { className: "text-body-1-link" }, "installation instructions.")));
     }
-    return /* @__PURE__ */ import_react159.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react159.default.createElement(
+    return /* @__PURE__ */ import_react160.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react160.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header,
         setUIState: props.setUIState,
         notCloseable: true
       }
-    ), /* @__PURE__ */ import_react159.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react159.default.createElement("p", null, firstLine), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement("p", null, secondLine), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement("p", null, "If you are still receiving this error message, join our slack to get support!"), /* @__PURE__ */ import_react159.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react159.default.createElement(GetSupportButton_default, { userProfile: props.userProfile, setUIState: props.setUIState, width: "block" })));
+    ), /* @__PURE__ */ import_react160.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react160.default.createElement("p", null, firstLine), /* @__PURE__ */ import_react160.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react160.default.createElement("p", null, secondLine), /* @__PURE__ */ import_react160.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react160.default.createElement("p", null, "If you are still receiving this error message, join our slack to get support!"), /* @__PURE__ */ import_react160.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react160.default.createElement(GetSupportButton_default, { userProfile: props.userProfile, setUIState: props.setUIState, width: "block" })));
   };
   var CannotCreateCommTaskpane_default = CannotCreateCommTaskpane;
 
   // src/components/taskpanes/CodeSnippets/CodeSnippetsTaskpane.tsx
-  var import_react162 = __toESM(require_react());
+  var import_react163 = __toESM(require_react());
 
   // src/components/icons/DropdownIcon.tsx
-  var import_react160 = __toESM(require_react());
+  var import_react161 = __toESM(require_react());
   var DropdownIcon = () => {
-    return /* @__PURE__ */ import_react160.default.createElement("svg", { width: "20", height: "16", viewBox: "0 0 4 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react160.default.createElement("circle", { cx: "2", cy: "2", r: "2", fill: "#343434" }), /* @__PURE__ */ import_react160.default.createElement("circle", { cx: "2", cy: "8", r: "2", fill: "#343434" }), /* @__PURE__ */ import_react160.default.createElement("circle", { cx: "2", cy: "14", r: "2", fill: "#343434" }));
+    return /* @__PURE__ */ import_react161.default.createElement("svg", { width: "20", height: "16", viewBox: "0 0 4 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react161.default.createElement("circle", { cx: "2", cy: "2", r: "2", fill: "#343434" }), /* @__PURE__ */ import_react161.default.createElement("circle", { cx: "2", cy: "8", r: "2", fill: "#343434" }), /* @__PURE__ */ import_react161.default.createElement("circle", { cx: "2", cy: "14", r: "2", fill: "#343434" }));
   };
   var DropdownIcon_default = DropdownIcon;
 
   // src/components/icons/CodeSnippetIcon.tsx
-  var import_react161 = __toESM(require_react());
+  var import_react162 = __toESM(require_react());
   var CodeSnippetIcon = () => {
-    return /* @__PURE__ */ import_react161.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react161.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react161.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react161.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }), /* @__PURE__ */ import_react161.default.createElement("line", { y1: "13", x2: "13", y2: "13", stroke: "#494650" }));
+    return /* @__PURE__ */ import_react162.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react162.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react162.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react162.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }), /* @__PURE__ */ import_react162.default.createElement("line", { y1: "13", x2: "13", y2: "13", stroke: "#494650" }));
   };
   var CodeSnippetIcon_default = CodeSnippetIcon;
 
@@ -37964,16 +37999,16 @@ fig.write_html("${props.graphTabName}.html")`
     const [codeSnippetAPIResult] = useStateFromAPIAsync(void 0, () => {
       return props.mitoAPI.getCodeSnippets();
     }, void 0, []);
-    const [searchString, setSearchString] = (0, import_react162.useState)("");
-    const [openDropdownIndex, setOpenDropdownIndex] = (0, import_react162.useState)(void 0);
-    const [confirmationText, setConfirmationText] = (0, import_react162.useState)(void 0);
+    const [searchString, setSearchString] = (0, import_react163.useState)("");
+    const [openDropdownIndex, setOpenDropdownIndex] = (0, import_react163.useState)(void 0);
+    const [confirmationText, setConfirmationText] = (0, import_react163.useState)(void 0);
     useDebouncedEffect(() => {
       if (confirmationText !== void 0) {
         setConfirmationText(void 0);
       }
     }, [confirmationText], 3e3);
     if ((codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.status) === "error") {
-      return /* @__PURE__ */ import_react162.default.createElement(
+      return /* @__PURE__ */ import_react163.default.createElement(
         DefaultEmptyTaskpane_default,
         {
           setUIState: props.setUIState,
@@ -37987,13 +38022,13 @@ fig.write_html("${props.graphTabName}.html")`
     const codeSnippetsToDisplay = codeSnippetAPIResult == null ? void 0 : codeSnippetAPIResult.code_snippets.filter((codeSnippet) => {
       return fuzzyMatch(codeSnippet.Name, searchString) > 0.75 || fuzzyMatch(codeSnippet.Description, searchString) > 0.75 || fuzzyMatch(codeSnippet.Code.join(" "), searchString) > 0.75;
     });
-    return /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react162.default.createElement(
+    return /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react163.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Code Snippets",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react162.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react162.default.createElement(
+    ), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react163.default.createElement(
       Input_default,
       {
         value: searchString,
@@ -38002,7 +38037,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         placeholder: "Search for a code snippet by name or content"
       }
-    ), confirmationText !== void 0 && /* @__PURE__ */ import_react162.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay == null ? void 0 : codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
+    ), confirmationText !== void 0 && /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-color-success" }, confirmationText), codeSnippetsToDisplay == null ? void 0 : codeSnippetsToDisplay.map((codeSnippet, codeSnippetIndex) => {
       var _a;
       const copyToClipboard = () => {
         setConfirmationText(CONFIRMATION_TEXT_COPIED);
@@ -38019,7 +38054,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (codeSnippetSupportEmail !== void 0 && codeSnippetSupportEmail !== null) {
         openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
       }
-      return /* @__PURE__ */ import_react162.default.createElement(
+      return /* @__PURE__ */ import_react163.default.createElement(
         Row_default,
         {
           key: codeSnippetIndex,
@@ -38035,16 +38070,16 @@ fig.write_html("${props.graphTabName}.html")`
             });
           }
         },
-        /* @__PURE__ */ import_react162.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react162.default.createElement(CodeSnippetIcon_default, null)),
-        /* @__PURE__ */ import_react162.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react162.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react162.default.createElement("div", { className: "text-overflow-wrap pb-5px" }, codeSnippet.Description)),
-        /* @__PURE__ */ import_react162.default.createElement(
+        /* @__PURE__ */ import_react163.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react163.default.createElement(CodeSnippetIcon_default, null)),
+        /* @__PURE__ */ import_react163.default.createElement(Col_default, { span: 20 }, /* @__PURE__ */ import_react163.default.createElement("div", { className: "text-bold" }, codeSnippet.Name), /* @__PURE__ */ import_react163.default.createElement("div", { className: "text-overflow-wrap pb-5px" }, codeSnippet.Description)),
+        /* @__PURE__ */ import_react163.default.createElement(
           Col_default,
           {
             offset: 2
           },
-          /* @__PURE__ */ import_react162.default.createElement(DropdownIcon_default, null)
+          /* @__PURE__ */ import_react163.default.createElement(DropdownIcon_default, null)
         ),
-        /* @__PURE__ */ import_react162.default.createElement(Col_default, null, /* @__PURE__ */ import_react162.default.createElement(
+        /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Dropdown_default,
           {
             display: codeSnippetIndex === openDropdownIndex,
@@ -38053,21 +38088,21 @@ fig.write_html("${props.graphTabName}.html")`
               setOpenDropdownIndex(void 0);
             }
           },
-          /* @__PURE__ */ import_react162.default.createElement(
+          /* @__PURE__ */ import_react163.default.createElement(
             DropdownItem_default,
             {
               title: "Copy Code Snippet",
               onClick: copyToClipboard
             }
           ),
-          /* @__PURE__ */ import_react162.default.createElement(
+          /* @__PURE__ */ import_react163.default.createElement(
             DropdownItem_default,
             {
               title: "Write to Notebook",
               onClick: writeToCell2
             }
           ),
-          /* @__PURE__ */ import_react162.default.createElement(
+          /* @__PURE__ */ import_react163.default.createElement(
             DropdownItem_default,
             {
               title: "Get Support",
@@ -38080,12 +38115,12 @@ fig.write_html("${props.graphTabName}.html")`
           )
         ))
       );
-    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react162.default.createElement("p", { className: "mt-20px" }, "Loading code snippets ", /* @__PURE__ */ import_react162.default.createElement(LoadingDots_default, null))));
+    }), codeSnippetAPIResult === void 0 && /* @__PURE__ */ import_react163.default.createElement("p", { className: "mt-20px" }, "Loading code snippets ", /* @__PURE__ */ import_react163.default.createElement(LoadingDots_default, null))));
   };
   var CodeSnippetsTaskpane_default = CodeSnippetsTaskpane;
 
   // src/components/taskpanes/ExcelRangeImport/ExcelRangeImportTaskpane.tsx
-  var import_react163 = __toESM(require_react());
+  var import_react164 = __toESM(require_react());
   var getDefaultParams7 = (file_path, sheet_name) => {
     return {
       file_path,
@@ -38100,17 +38135,17 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
-    const [expandedIndex, setExpandedIndex] = (0, import_react163.useState)(0);
+    const [expandedIndex, setExpandedIndex] = (0, import_react164.useState)(0);
     if (params === void 0) {
-      return /* @__PURE__ */ import_react163.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react164.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
-    return /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react163.default.createElement(
+    return /* @__PURE__ */ import_react164.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react164.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Excel Range Import",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-body-3 text-overflow-wrap" }, "Import ranges from ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, props.sheet_name), " in ", /* @__PURE__ */ import_react163.default.createElement("span", { className: "text-bold" }, getBaseOfPath(props.file_path)), "."), /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-header-3" }, "Range Imports")), /* @__PURE__ */ import_react163.default.createElement(Col_default, { span: 4 }, /* @__PURE__ */ import_react163.default.createElement(
+    ), /* @__PURE__ */ import_react164.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react164.default.createElement("p", { className: "text-body-3 text-overflow-wrap" }, "Import ranges from ", /* @__PURE__ */ import_react164.default.createElement("span", { className: "text-bold" }, props.sheet_name), " in ", /* @__PURE__ */ import_react164.default.createElement("span", { className: "text-bold" }, getBaseOfPath(props.file_path)), "."), /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement("p", { className: "text-header-3" }, "Range Imports")), /* @__PURE__ */ import_react164.default.createElement(Col_default, { span: 4 }, /* @__PURE__ */ import_react164.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -38128,8 +38163,8 @@ fig.write_html("${props.graphTabName}.html")`
         width: "block"
       },
       "+ Add"
-    ))), error !== void 0 && /* @__PURE__ */ import_react163.default.createElement("p", { className: "text-color-error" }, error), params.range_imports.map((range_import, index) => {
-      return /* @__PURE__ */ import_react163.default.createElement(
+    ))), error !== void 0 && /* @__PURE__ */ import_react164.default.createElement("p", { className: "text-color-error" }, error), params.range_imports.map((range_import, index) => {
+      return /* @__PURE__ */ import_react164.default.createElement(
         ExpandableContentCard_default,
         {
           key: index,
@@ -38157,7 +38192,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         },
-        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+        /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
           Input_default,
           {
             width: "medium",
@@ -38176,7 +38211,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+        /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38191,7 +38226,7 @@ fig.write_html("${props.graphTabName}.html")`
               });
             }
           },
-          /* @__PURE__ */ import_react163.default.createElement(
+          /* @__PURE__ */ import_react164.default.createElement(
             DropdownItem_default,
             {
               title: "Exact Range",
@@ -38199,7 +38234,7 @@ fig.write_html("${props.graphTabName}.html")`
               subtext: "Specify the exact range to import as a sheet."
             }
           ),
-          /* @__PURE__ */ import_react163.default.createElement(
+          /* @__PURE__ */ import_react164.default.createElement(
             DropdownItem_default,
             {
               title: "Upper Left Corner",
@@ -38208,7 +38243,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           )
         ))),
-        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, range_import.type === "range" ? "Excel Range" : "Upper Left Value")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+        /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement("p", null, range_import.type === "range" ? "Excel Range" : "Upper Left Value")), /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
           Input_default,
           {
             width: "medium",
@@ -38228,7 +38263,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         )))
       );
-    })), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react163.default.createElement(
+    })), /* @__PURE__ */ import_react164.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react164.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -38243,16 +38278,102 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var ExcelRangeImportTaskpane_default = ExcelRangeImportTaskpane;
 
+  // src/components/taskpanes/ExportToFile/ExportToFileTaskpane.tsx
+  var import_react165 = __toESM(require_react());
+  var getDefaultParams8 = (sheetDataArray2, sheetIndex) => {
+    if (sheetDataArray2.length === 0 || sheetDataArray2[sheetIndex] === void 0) {
+      return void 0;
+    }
+    return {
+      type: "csv",
+      sheet_indexes: [sheetIndex],
+      file_name: "export.csv"
+    };
+  };
+  var ExportToFileTaskpane = (props) => {
+    const { params, setParams, edit } = useSendEditOnClick_default(
+      () => getDefaultParams8(props.sheetDataArray, props.selectedSheetIndex),
+      "export_to_file" /* ExportToFile */,
+      props.mitoAPI,
+      props.analysisData
+    );
+    if (params === void 0) {
+      return /* @__PURE__ */ import_react165.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Please import a dataframe before attempting to export it" });
+    }
+    return /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react165.default.createElement(
+      DefaultTaskpaneHeader_default,
+      {
+        header: "Export To File",
+        setUIState: props.setUIState
+      }
+    ), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center", title: "TODO" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "type")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
+      Select_default,
+      {
+        value: params.type,
+        onChange: (newType) => {
+          setParams((prevParams) => {
+            return __spreadProps(__spreadValues({}, prevParams), {
+              type: newType
+            });
+          });
+        }
+      },
+      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "csv" }),
+      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "excel" })
+    ))), /* @__PURE__ */ import_react165.default.createElement(
+      DataframeMultiSelect_default,
+      {
+        sheetDataArray: props.sheetDataArray,
+        selectedSheetIndexes: params.sheet_indexes,
+        setUIState: props.setUIState,
+        onChange: (newSelectedSheetIndexes) => {
+          setParams((prevParams) => {
+            return __spreadProps(__spreadValues({}, prevParams), {
+              sheet_indexes: newSelectedSheetIndexes
+            });
+          });
+        }
+      }
+    ), /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center", title: "TODO" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "file_name")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
+      Input_default,
+      {
+        autoFocus: true,
+        width: "medium",
+        value: "" + params.file_name,
+        onChange: (e) => {
+          const newValue = e.target.value;
+          setParams((prevParams) => {
+            return __spreadProps(__spreadValues({}, prevParams), {
+              file_name: newValue
+            });
+          });
+        }
+      }
+    )))), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react165.default.createElement(
+      TextButton_default,
+      {
+        variant: "dark",
+        width: "block",
+        onClick: () => {
+          edit();
+        },
+        disabled: params.sheet_indexes.length === 0
+      },
+      "Generate Export Code"
+    )));
+  };
+  var ExportToFileTaskpane_default = ExportToFileTaskpane;
+
   // src/components/elements/BottomLeftPopup.tsx
-  var import_react185 = __toESM(require_react());
+  var import_react187 = __toESM(require_react());
 
   // src/components/LoadingIndicator.tsx
-  var import_react184 = __toESM(require_react());
+  var import_react186 = __toESM(require_react());
 
   // src/components/icons/LoadingCircle.tsx
-  var import_react164 = __toESM(require_react());
+  var import_react166 = __toESM(require_react());
   var LoadingCircle = () => {
-    return /* @__PURE__ */ import_react164.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react164.default.createElement("circle", { cx: "8", cy: "8", r: "7.25", fill: "#F5F5F5", stroke: "#9D6CFF", strokeWidth: "0.5" }), /* @__PURE__ */ import_react164.default.createElement("path", { d: "M15 8C15 7.0256 14.7966 6.06193 14.4027 5.17067C14.0089 4.27941 13.4333 3.48019 12.7128 2.82416L8 8H15Z", fill: "#9D6CFF" }, /* @__PURE__ */ import_react164.default.createElement(
+    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("circle", { cx: "8", cy: "8", r: "7.25", fill: "#F5F5F5", stroke: "#9D6CFF", strokeWidth: "0.5" }), /* @__PURE__ */ import_react166.default.createElement("path", { d: "M15 8C15 7.0256 14.7966 6.06193 14.4027 5.17067C14.0089 4.27941 13.4333 3.48019 12.7128 2.82416L8 8H15Z", fill: "#9D6CFF" }, /* @__PURE__ */ import_react166.default.createElement(
       "animateTransform",
       {
         attributeName: "transform",
@@ -38263,136 +38384,136 @@ fig.write_html("${props.graphTabName}.html")`
         dur: "1s",
         repeatCount: "indefinite"
       }
-    )), /* @__PURE__ */ import_react164.default.createElement("circle", { cx: "8", cy: "8", r: "5", fill: "white", stroke: "#9D6CFF", strokeWidth: "0.5" }));
+    )), /* @__PURE__ */ import_react166.default.createElement("circle", { cx: "8", cy: "8", r: "5", fill: "white", stroke: "#9D6CFF", strokeWidth: "0.5" }));
   };
   var LoadingCircle_default = LoadingCircle;
 
   // src/components/icons/NonLoadingCircle.tsx
-  var import_react165 = __toESM(require_react());
+  var import_react167 = __toESM(require_react());
   var NonLoadingCircle = () => {
-    return /* @__PURE__ */ import_react165.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react165.default.createElement("path", { d: "M8 15.25C12.0041 15.25 15.25 12.0041 15.25 8C15.25 3.99594 12.0041 0.75 8 0.75C3.99593 0.75 0.75 3.99594 0.75 8C0.75 12.0041 3.99593 15.25 8 15.25Z", fill: "#E8EBF8", stroke: "#ACACAD", strokeWidth: "0.5" }));
+    return /* @__PURE__ */ import_react167.default.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react167.default.createElement("path", { d: "M8 15.25C12.0041 15.25 15.25 12.0041 15.25 8C15.25 3.99594 12.0041 0.75 8 0.75C3.99593 0.75 0.75 3.99594 0.75 8C0.75 12.0041 3.99593 15.25 8 15.25Z", fill: "#E8EBF8", stroke: "#ACACAD", strokeWidth: "0.5" }));
   };
   var NonLoadingCircle_default = NonLoadingCircle;
 
   // src/components/taskpanes/Steps/StepDataElement.tsx
-  var import_react183 = __toESM(require_react());
+  var import_react185 = __toESM(require_react());
 
   // src/components/icons/ImportIcon.tsx
-  var import_react166 = __toESM(require_react());
+  var import_react168 = __toESM(require_react());
   var ImportIcon = () => {
-    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "14", height: "15", viewBox: "0 0 14 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("path", { d: "M3.58008 6.88696L6.87312 10.1738L10.16 6.88696", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react166.default.createElement("path", { d: "M12.7458 9.68372L12.7334 12.1209C12.7272 13.1628 11.8838 14 10.8482 14H2.88532C1.84345 14 0.993832 13.1566 1.00003 12.1085V9.68372", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react166.default.createElement("path", { d: "M6.87305 0.741211V9.11335", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react168.default.createElement("svg", { width: "14", height: "15", viewBox: "0 0 14 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react168.default.createElement("path", { d: "M3.58008 6.88696L6.87312 10.1738L10.16 6.88696", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M12.7458 9.68372L12.7334 12.1209C12.7272 13.1628 11.8838 14 10.8482 14H2.88532C1.84345 14 0.993832 13.1566 1.00003 12.1085V9.68372", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M6.87305 0.741211V9.11335", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var ImportIcon_default = ImportIcon;
 
   // src/components/icons/MergeIcon.tsx
-  var import_react167 = __toESM(require_react());
+  var import_react169 = __toESM(require_react());
   var MergeIcon = () => {
-    return /* @__PURE__ */ import_react167.default.createElement("svg", { width: "19", height: "15", viewBox: "0 0 19 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react167.default.createElement("path", { d: "M7.17099 14.267C10.7582 14.267 13.6662 11.359 13.6662 7.77182C13.6662 4.18462 10.7582 1.27661 7.17099 1.27661C3.58378 1.27661 0.675781 4.18462 0.675781 7.77182C0.675781 11.359 3.58378 14.267 7.17099 14.267Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react167.default.createElement("path", { d: "M11.6671 14.267C15.2543 14.267 18.1623 11.359 18.1623 7.77182C18.1623 4.18462 15.2543 1.27661 11.6671 1.27661C8.07988 1.27661 5.17188 4.18462 5.17188 7.77182C5.17188 11.359 8.07988 14.267 11.6671 14.267Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react169.default.createElement("svg", { width: "19", height: "15", viewBox: "0 0 19 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react169.default.createElement("path", { d: "M7.17099 14.267C10.7582 14.267 13.6662 11.359 13.6662 7.77182C13.6662 4.18462 10.7582 1.27661 7.17099 1.27661C3.58378 1.27661 0.675781 4.18462 0.675781 7.77182C0.675781 11.359 3.58378 14.267 7.17099 14.267Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react169.default.createElement("path", { d: "M11.6671 14.267C15.2543 14.267 18.1623 11.359 18.1623 7.77182C18.1623 4.18462 15.2543 1.27661 11.6671 1.27661C8.07988 1.27661 5.17188 4.18462 5.17188 7.77182C5.17188 11.359 8.07988 14.267 11.6671 14.267Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var MergeIcon_default = MergeIcon;
 
   // src/components/icons/PivotIcon.tsx
-  var import_react168 = __toESM(require_react());
+  var import_react170 = __toESM(require_react());
   var PivotIcon = () => {
-    return /* @__PURE__ */ import_react168.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react168.default.createElement("path", { d: "M14 1.39062H1V14.3906H14V1.39062Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M4.56445 1.71179V14.2353", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M1.24023 5.02649H13.7741", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M10.7165 7.89587V10.962H7.75391", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M9.74219 8.81775L10.747 7.80261L11.731 8.77632", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react168.default.createElement("path", { d: "M8.01123 11.9564L6.99609 10.9412L7.9698 9.96753", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react170.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react170.default.createElement("path", { d: "M14 1.39062H1V14.3906H14V1.39062Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M4.56445 1.71179V14.2353", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M1.24023 5.02649H13.7741", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M10.7165 7.89587V10.962H7.75391", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M9.74219 8.81775L10.747 7.80261L11.731 8.77632", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M8.01123 11.9564L6.99609 10.9412L7.9698 9.96753", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var PivotIcon_default = PivotIcon;
 
   // src/components/icons/DeleteColumnIcon.tsx
-  var import_react169 = __toESM(require_react());
+  var import_react171 = __toESM(require_react());
   var DeleteColumnIcon = () => {
-    return /* @__PURE__ */ import_react169.default.createElement("svg", { width: "14", height: "15", viewBox: "0 0 14 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react169.default.createElement("path", { d: "M9.27408 14.3835H4.67924C3.65951 14.3835 2.82795 13.558 2.83402 12.5322L2.84009 3.94946H11.1618L11.1193 12.5443C11.1193 13.564 10.2938 14.3835 9.27408 14.3835Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react169.default.createElement("path", { d: "M1 3.94946H13", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react169.default.createElement("path", { d: "M8.35669 1.4126H5.63742C5.21861 1.4126 4.88477 1.75251 4.88477 2.16525V3.94977H9.11542V2.16525C9.11542 1.75251 8.77551 1.4126 8.35669 1.4126Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react169.default.createElement("path", { d: "M5.43164 6.69983V11.3796", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react169.default.createElement("path", { d: "M8.38477 6.69983V11.3796", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react171.default.createElement("svg", { width: "14", height: "15", viewBox: "0 0 14 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react171.default.createElement("path", { d: "M9.27408 14.3835H4.67924C3.65951 14.3835 2.82795 13.558 2.83402 12.5322L2.84009 3.94946H11.1618L11.1193 12.5443C11.1193 13.564 10.2938 14.3835 9.27408 14.3835Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react171.default.createElement("path", { d: "M1 3.94946H13", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react171.default.createElement("path", { d: "M8.35669 1.4126H5.63742C5.21861 1.4126 4.88477 1.75251 4.88477 2.16525V3.94977H9.11542V2.16525C9.11542 1.75251 8.77551 1.4126 8.35669 1.4126Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react171.default.createElement("path", { d: "M5.43164 6.69983V11.3796", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react171.default.createElement("path", { d: "M8.38477 6.69983V11.3796", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var DeleteColumnIcon_default = DeleteColumnIcon;
 
   // src/components/icons/AddColumnIcon.tsx
-  var import_react170 = __toESM(require_react());
+  var import_react172 = __toESM(require_react());
   var AddColumnIcon = () => {
-    return /* @__PURE__ */ import_react170.default.createElement("svg", { width: "11", height: "15", viewBox: "0 0 11 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react170.default.createElement("path", { d: "M7.44262 12.3725V13.6741C7.44262 14.0686 7.12049 14.3907 6.72604 14.3907H1.71657C1.32213 14.3907 1 14.0686 1 13.6741V2.07742C1 1.68297 1.32213 1.36084 1.71657 1.36084H6.72604C7.12049 1.36084 7.44262 1.68297 7.44262 2.07742V3.24103", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M7.44141 5.41052V10.3411", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react170.default.createElement("path", { d: "M9.91371 7.87573H4.97656", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react172.default.createElement("svg", { width: "11", height: "15", viewBox: "0 0 11 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react172.default.createElement("path", { d: "M7.44262 12.3725V13.6741C7.44262 14.0686 7.12049 14.3907 6.72604 14.3907H1.71657C1.32213 14.3907 1 14.0686 1 13.6741V2.07742C1 1.68297 1.32213 1.36084 1.71657 1.36084H6.72604C7.12049 1.36084 7.44262 1.68297 7.44262 2.07742V3.24103", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react172.default.createElement("path", { d: "M7.44141 5.41052V10.3411", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react172.default.createElement("path", { d: "M9.91371 7.87573H4.97656", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var AddColumnIcon_default = AddColumnIcon;
 
   // src/components/icons/EditIcon.tsx
-  var import_react171 = __toESM(require_react());
+  var import_react173 = __toESM(require_react());
   var EditIcon = (props) => {
-    return /* @__PURE__ */ import_react171.default.createElement("svg", { width: props.width || "25", height: props.height || "25", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react171.default.createElement("rect", { x: "8.67323", y: "2.56851", width: "2.27778", height: "9.93478", transform: "rotate(36.5296 8.67323 2.56851)", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react171.default.createElement("rect", { x: "0.349697", y: "-0.0520781", width: "2.27778", height: "2.1087", transform: "matrix(0.80355 0.595237 0.595237 -0.80355 8.33261 2.44081)", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react171.default.createElement("path", { d: "M1.9732 13.5266L4.22513 12.7599L2.05046 11.149L1.9732 13.5266Z", fill: "black" }));
+    return /* @__PURE__ */ import_react173.default.createElement("svg", { width: props.width || "25", height: props.height || "25", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react173.default.createElement("rect", { x: "8.67323", y: "2.56851", width: "2.27778", height: "9.93478", transform: "rotate(36.5296 8.67323 2.56851)", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react173.default.createElement("rect", { x: "0.349697", y: "-0.0520781", width: "2.27778", height: "2.1087", transform: "matrix(0.80355 0.595237 0.595237 -0.80355 8.33261 2.44081)", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M1.9732 13.5266L4.22513 12.7599L2.05046 11.149L1.9732 13.5266Z", fill: "black" }));
   };
   var EditIcon_default = EditIcon;
 
   // src/components/icons/MitoIcon.tsx
-  var import_react172 = __toESM(require_react());
+  var import_react174 = __toESM(require_react());
   var MitoIcon = (props) => {
-    return /* @__PURE__ */ import_react172.default.createElement("svg", { width: props.width || "25", height: props.height || "25", viewBox: "0 0 36 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react172.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", fill: "#00090F" }), /* @__PURE__ */ import_react172.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react172.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react172.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react172.default.createElement("path", { d: "M22.5916 16.1028C18.6195 19.3058 16.0425 23.2075 11.7956 23.2075C7.55216 22.6146 4.79526 18.7684 4 14.3321C4 8.89088 15.1567 0.495911 20.9111 0.495911C29.6603 -3.03026 39.906 13.3076 22.5916 16.1028Z", fill: "#4FBFE8" }), /* @__PURE__ */ import_react172.default.createElement("path", { d: "M22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5046 19.4603 18.5655C18.663 19.3171 17.9036 20.0329 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.73525 22.3784 5.03904 18.6732 4.25006 14.3102C4.25756 13.0333 4.91743 11.5494 6.03489 10.0223C7.15426 8.49265 8.71139 6.94887 10.4529 5.56953C12.1938 4.19062 14.1116 2.98186 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727787C23.1081 -0.119971 25.3091 0.221693 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C32.0133 7.95094 31.9406 10.0545 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react172.default.createElement("defs", null, /* @__PURE__ */ import_react172.default.createElement("filter", { id: "filter0_d", x: "0", y: "0", width: "36", height: "31.2075", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react172.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react172.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react172.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react172.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react172.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react172.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react172.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react172.default.createElement("linearGradient", { id: "paint0_linear", x1: "24.6767", y1: "23.0067", x2: "-1.7759", y2: "-21.8983", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react172.default.createElement("stop", { stopColor: "#D17485" }), /* @__PURE__ */ import_react172.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
+    return /* @__PURE__ */ import_react174.default.createElement("svg", { width: props.width || "25", height: props.height || "25", viewBox: "0 0 36 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react174.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", fill: "#00090F" }), /* @__PURE__ */ import_react174.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react174.default.createElement("path", { d: "M4.27806 14.4605C4.41192 13.3117 5.01895 12.0216 5.97434 10.7002C7.05826 9.20103 8.57046 7.68957 10.2741 6.33985C11.9773 4.99054 13.8647 3.80854 15.6941 2.96488C17.5272 2.11946 19.2841 1.62217 20.731 1.62217H20.8262L20.8973 1.55886C22.3577 0.258248 24.1677 0.253529 25.9155 1.11776C27.6712 1.98588 29.3356 3.7235 30.4197 5.84055C31.0401 7.05223 31.4658 8.37926 31.6121 9.72767C31.4497 10.4602 31.1397 11.1739 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5047 19.4603 18.5656C18.6629 19.3172 17.9036 20.033 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.78218 22.385 5.10127 18.758 4.27806 14.4605ZM8.07142 22.403C6.88109 21.2513 5.86085 19.9151 5.17471 18.5227C6.56859 21.1106 8.80658 23.0423 11.761 23.4551L11.7783 23.4575H11.7956C14.0044 23.4575 15.7662 22.4397 17.4555 21.0493C18.235 20.4078 19.0063 19.6806 19.8006 18.9319C19.8661 18.8701 19.9318 18.8082 19.9976 18.7462C20.8491 17.9441 21.7325 17.1207 22.6972 16.339C27.0236 15.6292 29.6835 14.0688 31.0672 12.1346C31.3017 11.8069 31.4986 11.4697 31.6603 11.1258C31.6376 11.6681 31.5653 12.2087 31.4378 12.7414C30.8855 15.0491 29.2908 17.2422 26.141 18.8137C25.1942 19.2071 24.2969 19.8633 23.4233 20.6105C22.8835 21.0722 22.3406 21.5797 21.7977 22.0873C21.4643 22.399 21.131 22.7107 20.7983 23.0118C19.0215 24.6198 17.2161 25.9694 15.1112 25.9694C12.9939 25.9694 10.2755 24.5356 8.07142 22.403ZM31.7045 7.69414C31.4887 6.97391 31.204 6.27528 30.8647 5.61267C29.932 3.7912 28.5772 2.22312 27.0733 1.21431C27.108 1.23321 27.1426 1.25235 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C31.4961 6.56563 31.6371 7.12861 31.7045 7.69414ZM10.479 5.54883C12.213 4.17852 14.1208 2.97754 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727788C21.1373 0.67428 21.2705 0.625511 21.4039 0.58136C21.1408 0.730055 20.8844 0.909881 20.6364 1.12282C19.1081 1.14374 17.3123 1.66796 15.4847 2.51083C13.799 3.28822 12.0713 4.34354 10.479 5.54883Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react174.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react174.default.createElement("path", { d: "M22.5916 16.1028C18.6195 19.3058 16.0425 23.2075 11.7956 23.2075C7.55216 22.6146 4.79526 18.7684 4 14.3321C4 8.89088 15.1567 0.495911 20.9111 0.495911C29.6603 -3.03026 39.906 13.3076 22.5916 16.1028Z", fill: "#4FBFE8" }), /* @__PURE__ */ import_react174.default.createElement("path", { d: "M22.5518 15.856L22.4863 15.8666L22.4347 15.9082C21.4334 16.7156 20.5213 17.566 19.6548 18.3822C19.5897 18.4435 19.5249 18.5046 19.4603 18.5655C18.663 19.3171 17.9036 20.0329 17.1378 20.6632C15.4886 22.0206 13.8431 22.9522 11.813 22.9575C7.73525 22.3784 5.03904 18.6732 4.25006 14.3102C4.25756 13.0333 4.91743 11.5494 6.03489 10.0223C7.15426 8.49265 8.71139 6.94887 10.4529 5.56953C12.1938 4.19062 14.1116 2.98186 15.9474 2.1189C17.788 1.25371 19.5255 0.745911 20.9111 0.745911H20.9596L21.0046 0.727787C23.1081 -0.119971 25.3091 0.221693 27.1771 1.27174C29.0479 2.32337 30.567 4.0771 31.291 6.01628C32.0133 7.95094 31.9406 10.0545 30.6606 11.8437C29.3761 13.639 26.8438 15.1631 22.5518 15.856Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react174.default.createElement("defs", null, /* @__PURE__ */ import_react174.default.createElement("filter", { id: "filter0_d", x: "0", y: "0", width: "36", height: "31.2075", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react174.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react174.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react174.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react174.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react174.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react174.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react174.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react174.default.createElement("linearGradient", { id: "paint0_linear", x1: "24.6767", y1: "23.0067", x2: "-1.7759", y2: "-21.8983", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react174.default.createElement("stop", { stopColor: "#D17485" }), /* @__PURE__ */ import_react174.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
   };
   var MitoIcon_default = MitoIcon;
 
   // src/components/icons/DropDuplicatesIcon.tsx
-  var import_react173 = __toESM(require_react());
+  var import_react175 = __toESM(require_react());
   var DropDuplicatesIcon = () => {
-    return /* @__PURE__ */ import_react173.default.createElement("svg", { width: "20", height: "14", viewBox: "0 0 20 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react173.default.createElement("rect", { x: "0.5", y: "0.5", width: "6", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react173.default.createElement("rect", { x: "13.5", y: "0.5", width: "6", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M18 3.5L15 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M10.3675 5.83334L11 7.00559L10.3934 8.15366", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react173.default.createElement("path", { d: "M10.9103 7.01642H9", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react175.default.createElement("svg", { width: "20", height: "14", viewBox: "0 0 20 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react175.default.createElement("rect", { x: "0.5", y: "0.5", width: "6", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react175.default.createElement("rect", { x: "13.5", y: "0.5", width: "6", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M18 3.5L15 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M10.3675 5.83334L11 7.00559L10.3934 8.15366", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react175.default.createElement("path", { d: "M10.9103 7.01642H9", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var DropDuplicatesIcon_default = DropDuplicatesIcon;
 
   // src/components/icons/UnpivotIcon.tsx
-  var import_react174 = __toESM(require_react());
+  var import_react176 = __toESM(require_react());
   var UnpivotIcon = () => {
-    return /* @__PURE__ */ import_react174.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 10 10", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react174.default.createElement("path", { d: "M3.13939 1.29046V8.80908M1.14394 3.28045H8.66878M4.7103 5.28418H5.6307L6.90303 5.26621V7.04481M5.26378 5.86944L4.65433 5.26621L5.2389 4.67542M7.5 6.89055L6.89055 7.5L6.30598 6.91543M1 1.09766H8.80469V8.90234H1V1.09766Z", stroke: "#494650", strokeWidth: "0.600361", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react176.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 10 10", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react176.default.createElement("path", { d: "M3.13939 1.29046V8.80908M1.14394 3.28045H8.66878M4.7103 5.28418H5.6307L6.90303 5.26621V7.04481M5.26378 5.86944L4.65433 5.26621L5.2389 4.67542M7.5 6.89055L6.89055 7.5L6.30598 6.91543M1 1.09766H8.80469V8.90234H1V1.09766Z", stroke: "#494650", strokeWidth: "0.600361", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var UnpivotIcon_default = UnpivotIcon;
 
   // src/components/icons/DtypeIcon.tsx
-  var import_react175 = __toESM(require_react());
+  var import_react177 = __toESM(require_react());
   var DtypeIcon = () => {
-    return /* @__PURE__ */ import_react175.default.createElement("svg", { width: "33", height: "15", viewBox: "0 0 14 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react175.default.createElement("path", { d: "M2.83203 1.3125V7H2.08984V1.3125H2.83203ZM4.66016 1.3125V1.92969H0.265625V1.3125H4.66016ZM10.3039 7L13.5199 1.424H7.07988L10.3039 7Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react177.default.createElement("svg", { width: "33", height: "15", viewBox: "0 0 14 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react177.default.createElement("path", { d: "M2.83203 1.3125V7H2.08984V1.3125H2.83203ZM4.66016 1.3125V1.92969H0.265625V1.3125H4.66016ZM10.3039 7L13.5199 1.424H7.07988L10.3039 7Z", fill: "#494650" }));
   };
   var DtypeIcon_default = DtypeIcon;
 
   // src/components/icons/SplitTextToColumnsIcon.tsx
-  var import_react176 = __toESM(require_react());
+  var import_react178 = __toESM(require_react());
   var SplitTextToColumnsIcon = () => {
-    return /* @__PURE__ */ import_react176.default.createElement("svg", { width: "12", height: "14", viewBox: "0 0 12 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react176.default.createElement("rect", { x: "0.5", y: "0.5", width: "11", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M10 3.5L7 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M10 7L7 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react176.default.createElement("path", { d: "M10 10.5L7 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react178.default.createElement("svg", { width: "12", height: "14", viewBox: "0 0 12 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react178.default.createElement("rect", { x: "0.5", y: "0.5", width: "11", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 3.5L2 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 7L2 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M5 10.5L2 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M10 3.5L7 3.49999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M10 7L7 6.99999", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M10 10.5L7 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var SplitTextToColumnsIcon_default = SplitTextToColumnsIcon;
 
   // src/components/icons/TransposeIcon.tsx
-  var import_react177 = __toESM(require_react());
+  var import_react179 = __toESM(require_react());
   var TranposeIcon = () => {
-    return /* @__PURE__ */ import_react177.default.createElement("svg", { width: "17", height: "16", viewBox: "0 0 17 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react177.default.createElement("rect", { x: "0.5", y: "15.5", width: "5", height: "9", rx: "0.5", transform: "rotate(-90 0.5 15.5)", stroke: "#494650" }), /* @__PURE__ */ import_react177.default.createElement("path", { d: "M3.44 11.74L3.43999 14.26", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react177.default.createElement("path", { d: "M6.94 11.74L6.93999 14.26", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react177.default.createElement("rect", { x: "16.5", y: "9.5", width: "5", height: "9", rx: "0.5", transform: "rotate(-180 16.5 9.5)", stroke: "#494650" }), /* @__PURE__ */ import_react177.default.createElement("path", { d: "M12.74 6.56L15.26 6.56001", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react177.default.createElement("path", { d: "M12.74 3.06L15.26 3.06001", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react177.default.createElement("path", { d: "M8.02263 3.5L8.02263 3.25L8.02263 3.25L8.02263 3.5ZM9.17677 3.67678C9.27441 3.57914 9.27441 3.42085 9.17678 3.32322L7.58578 1.73223C7.48815 1.6346 7.32986 1.6346 7.23223 1.73223C7.1346 1.82986 7.1346 1.98815 7.23223 2.08579L8.64644 3.5L7.23223 4.91421C7.1346 5.01184 7.1346 5.17013 7.23223 5.26777C7.32986 5.3654 7.48815 5.3654 7.58578 5.26777L9.17677 3.67678ZM8.02263 3.75L9 3.75L9 3.25L8.02263 3.25L8.02263 3.75ZM3.24897 8.97731C2.99378 6.17025 5.20399 3.75 8.02263 3.75L8.02263 3.25C4.90997 3.25 2.46922 5.92271 2.75103 9.02258L3.24897 8.97731Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react179.default.createElement("svg", { width: "17", height: "16", viewBox: "0 0 17 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react179.default.createElement("rect", { x: "0.5", y: "15.5", width: "5", height: "9", rx: "0.5", transform: "rotate(-90 0.5 15.5)", stroke: "#494650" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M3.44 11.74L3.43999 14.26", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M6.94 11.74L6.93999 14.26", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react179.default.createElement("rect", { x: "16.5", y: "9.5", width: "5", height: "9", rx: "0.5", transform: "rotate(-180 16.5 9.5)", stroke: "#494650" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M12.74 6.56L15.26 6.56001", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M12.74 3.06L15.26 3.06001", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M8.02263 3.5L8.02263 3.25L8.02263 3.25L8.02263 3.5ZM9.17677 3.67678C9.27441 3.57914 9.27441 3.42085 9.17678 3.32322L7.58578 1.73223C7.48815 1.6346 7.32986 1.6346 7.23223 1.73223C7.1346 1.82986 7.1346 1.98815 7.23223 2.08579L8.64644 3.5L7.23223 4.91421C7.1346 5.01184 7.1346 5.17013 7.23223 5.26777C7.32986 5.3654 7.48815 5.3654 7.58578 5.26777L9.17677 3.67678ZM8.02263 3.75L9 3.75L9 3.25L8.02263 3.25L8.02263 3.75ZM3.24897 8.97731C2.99378 6.17025 5.20399 3.75 8.02263 3.75L8.02263 3.25C4.90997 3.25 2.46922 5.92271 2.75103 9.02258L3.24897 8.97731Z", fill: "#494650" }));
   };
   var TransposeIcon_default = TranposeIcon;
 
   // src/components/icons/PromoteRowToHeaderIcon.tsx
-  var import_react178 = __toESM(require_react());
+  var import_react180 = __toESM(require_react());
   var PromoteRowToHeaderIcon = () => {
-    return /* @__PURE__ */ import_react178.default.createElement("svg", { width: "17", height: "14", viewBox: "0 0 17 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react178.default.createElement("rect", { x: "7.5", y: "0.499969", width: "9", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 3.49997L8.66667 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 6.99997L8.66667 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 10.5L8.66667 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 3.49997L8.66667 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 6.99997L8.66667 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M11.1667 10.5L8.66667 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M15.3333 3.49997L12.8333 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M15.3333 6.99997L12.8333 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M15.3333 10.5L12.8333 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M3.82844 2.24857L5.59653 3.83479L4.01031 5.60288", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react178.default.createElement("path", { d: "M6 10C4 10 6 10 4.09629 9.94194C2.38551 9.70294 1.19356 8.12387 1.43256 6.41309C1.67156 4.70232 3.25063 3.51036 4.96141 3.74936", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react180.default.createElement("svg", { width: "17", height: "14", viewBox: "0 0 17 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react180.default.createElement("rect", { x: "7.5", y: "0.499969", width: "9", height: "13", rx: "0.5", stroke: "#494650" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 3.49997L8.66667 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 6.99997L8.66667 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 10.5L8.66667 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 3.49997L8.66667 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 6.99997L8.66667 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M11.1667 10.5L8.66667 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M15.3333 3.49997L12.8333 3.49996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M15.3333 6.99997L12.8333 6.99996", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M15.3333 10.5L12.8333 10.5", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M3.82844 2.24857L5.59653 3.83479L4.01031 5.60288", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M6 10C4 10 6 10 4.09629 9.94194C2.38551 9.70294 1.19356 8.12387 1.43256 6.41309C1.67156 4.70232 3.25063 3.51036 4.96141 3.74936", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var PromoteRowToHeaderIcon_default = PromoteRowToHeaderIcon;
 
   // src/components/icons/UndoIcon.tsx
-  var import_react179 = __toESM(require_react());
+  var import_react181 = __toESM(require_react());
   var UndoIcon = () => {
-    return /* @__PURE__ */ import_react179.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react179.default.createElement("path", { d: "M1.32422 4.71448L4.08798 8.82064L8.19415 6.05688", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react179.default.createElement("path", { d: "M10.6103 13.9999C14.2098 13.9999 17.1249 11.0848 17.1249 7.48529C17.1249 3.88582 14.2098 0.970703 10.6103 0.970703C7.01082 0.970703 4.0957 3.88582 4.0957 7.48529", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react181.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react181.default.createElement("path", { d: "M1.32422 4.71448L4.08798 8.82064L8.19415 6.05688", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react181.default.createElement("path", { d: "M10.6103 13.9999C14.2098 13.9999 17.1249 11.0848 17.1249 7.48529C17.1249 3.88582 14.2098 0.970703 10.6103 0.970703C7.01082 0.970703 4.0957 3.88582 4.0957 7.48529", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var UndoIcon_default = UndoIcon;
 
   // src/components/icons/RedoIcon.tsx
-  var import_react180 = __toESM(require_react());
+  var import_react182 = __toESM(require_react());
   var RedoIcon = () => {
-    return /* @__PURE__ */ import_react180.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react180.default.createElement("path", { d: "M17.1239 4.71448L14.3602 8.82064L10.254 6.05688", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react180.default.createElement("path", { d: "M7.83881 13.9999C4.23933 13.9999 1.32422 11.0848 1.32422 7.48529C1.32422 3.88582 4.23933 0.970703 7.83881 0.970703C11.4383 0.970703 14.3534 3.88582 14.3534 7.48529", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react182.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react182.default.createElement("path", { d: "M17.1239 4.71448L14.3602 8.82064L10.254 6.05688", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M7.83881 13.9999C4.23933 13.9999 1.32422 11.0848 1.32422 7.48529C1.32422 3.88582 4.23933 0.970703 7.83881 0.970703C11.4383 0.970703 14.3534 3.88582 14.3534 7.48529", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var RedoIcon_default = RedoIcon;
 
   // src/components/icons/ClearIcon.tsx
-  var import_react181 = __toESM(require_react());
+  var import_react183 = __toESM(require_react());
   var ClearIcon = () => {
-    return /* @__PURE__ */ import_react181.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react181.default.createElement("path", { d: "M14.0287 10.0429C14.2915 10.1349 14.581 9.99671 14.6538 9.72797C14.9938 8.47296 14.9784 7.14441 14.6041 5.89227C14.1814 4.47868 13.323 3.23478 12.1512 2.33818C10.9795 1.44158 9.55445 0.938138 8.07954 0.89974C6.60464 0.861343 5.15531 1.28996 3.93852 2.12437C2.72173 2.95879 1.7997 4.15634 1.3041 5.54602C0.808504 6.9357 0.764674 8.44644 1.17887 9.86252C1.59307 11.2786 2.44412 12.5276 3.61049 13.4311C4.64364 14.2315 5.87741 14.7246 7.17065 14.8595C7.44758 14.8885 7.68076 14.6682 7.68967 14.3899V14.3899C7.69857 14.1116 7.47971 13.881 7.20315 13.8487C6.12249 13.7227 5.09307 13.3042 4.22798 12.634C3.22961 11.8606 2.50115 10.7916 2.14662 9.57945C1.79208 8.36735 1.8296 7.07422 2.25381 5.88471C2.67802 4.69521 3.46724 3.67015 4.50876 2.95593C5.55028 2.2417 6.79084 1.87483 8.0533 1.90769C9.31576 1.94056 10.5356 2.37149 11.5385 3.13894C12.5415 3.90639 13.2763 4.97112 13.638 6.18109C13.9515 7.22955 13.9709 8.3406 13.6991 9.39409C13.6296 9.66369 13.7659 9.95095 14.0287 10.0429V10.0429Z", fill: "#494650" }), /* @__PURE__ */ import_react181.default.createElement("path", { d: "M11.0684 10.9853C10.8453 11.2084 10.4835 11.2084 10.2603 10.9853L8.23999 8.96498L6.21968 10.9853C5.99653 11.2084 5.63472 11.2084 5.41156 10.9853V10.9853C5.18841 10.7621 5.18841 10.4003 5.41156 10.1772L7.43187 8.15685L5.41156 6.13655C5.18841 5.91339 5.18841 5.55158 5.41156 5.32843V5.32843C5.63472 5.10527 5.99653 5.10527 6.21969 5.32843L8.23999 7.34873L10.2603 5.32843C10.4835 5.10527 10.8453 5.10527 11.0684 5.32843V5.32843C11.2916 5.55158 11.2916 5.91339 11.0684 6.13655L9.04811 8.15685L11.0684 10.1772C11.2916 10.4003 11.2916 10.7621 11.0684 10.9853V10.9853Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react183.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react183.default.createElement("path", { d: "M14.0287 10.0429C14.2915 10.1349 14.581 9.99671 14.6538 9.72797C14.9938 8.47296 14.9784 7.14441 14.6041 5.89227C14.1814 4.47868 13.323 3.23478 12.1512 2.33818C10.9795 1.44158 9.55445 0.938138 8.07954 0.89974C6.60464 0.861343 5.15531 1.28996 3.93852 2.12437C2.72173 2.95879 1.7997 4.15634 1.3041 5.54602C0.808504 6.9357 0.764674 8.44644 1.17887 9.86252C1.59307 11.2786 2.44412 12.5276 3.61049 13.4311C4.64364 14.2315 5.87741 14.7246 7.17065 14.8595C7.44758 14.8885 7.68076 14.6682 7.68967 14.3899V14.3899C7.69857 14.1116 7.47971 13.881 7.20315 13.8487C6.12249 13.7227 5.09307 13.3042 4.22798 12.634C3.22961 11.8606 2.50115 10.7916 2.14662 9.57945C1.79208 8.36735 1.8296 7.07422 2.25381 5.88471C2.67802 4.69521 3.46724 3.67015 4.50876 2.95593C5.55028 2.2417 6.79084 1.87483 8.0533 1.90769C9.31576 1.94056 10.5356 2.37149 11.5385 3.13894C12.5415 3.90639 13.2763 4.97112 13.638 6.18109C13.9515 7.22955 13.9709 8.3406 13.6991 9.39409C13.6296 9.66369 13.7659 9.95095 14.0287 10.0429V10.0429Z", fill: "#494650" }), /* @__PURE__ */ import_react183.default.createElement("path", { d: "M11.0684 10.9853C10.8453 11.2084 10.4835 11.2084 10.2603 10.9853L8.23999 8.96498L6.21968 10.9853C5.99653 11.2084 5.63472 11.2084 5.41156 10.9853V10.9853C5.18841 10.7621 5.18841 10.4003 5.41156 10.1772L7.43187 8.15685L5.41156 6.13655C5.18841 5.91339 5.18841 5.55158 5.41156 5.32843V5.32843C5.63472 5.10527 5.99653 5.10527 6.21969 5.32843L8.23999 7.34873L10.2603 5.32843C10.4835 5.10527 10.8453 5.10527 11.0684 5.32843V5.32843C11.2916 5.55158 11.2916 5.91339 11.0684 6.13655L9.04811 8.15685L11.0684 10.1772C11.2916 10.4003 11.2916 10.7621 11.0684 10.9853V10.9853Z", fill: "#494650" }));
   };
   var ClearIcon_default = ClearIcon;
 
   // src/components/icons/OneHotEncodingIcon.tsx
-  var import_react182 = __toESM(require_react());
+  var import_react184 = __toESM(require_react());
   var OneHotEncodingIcon = () => {
-    return /* @__PURE__ */ import_react182.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 11", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react182.default.createElement("path", { d: "M3 2.29869V9.50504C3 9.7775 2.9 10 2.77755 10H1.22245C1.1 10 1 9.7775 1 9.50504V1.49495C1 1.2225 1.1 1 1.22245 1H2.77755C2.9 1 3 1.2225 3 1.49495V2.29869Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M5.2886 1L6.89001 1C6.95055 1 7 1.1 7 1.22245V2.77755C7 2.9 6.95055 3 6.89001 3H5.10999C5.04944 3 5 2.9 5 2.77755V1.22245C5 1.1 5.04944 1 5.10999 1H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M5.2886 4.5H6.89001C6.95055 4.5 7 4.6 7 4.72245V6.27755C7 6.4 6.95055 6.5 6.89001 6.5H5.10999C5.04944 6.5 5 6.4 5 6.27755V4.72245C5 4.6 5.04944 4.5 5.10999 4.5H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M5.2886 8H6.89001C6.95055 8 7 8.1 7 8.22245V9.77755C7 9.9 6.95055 10 6.89001 10H5.10999C5.04944 10 5 9.9 5 9.77755V8.22245C5 8.1 5.04944 8 5.10999 8H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M9.2886 1L10.89 1C10.9506 1 11 1.1 11 1.22245V2.77755C11 2.9 10.9506 3 10.89 3H9.10999C9.04944 3 9 2.9 9 2.77755V1.22245C9 1.1 9.04944 1 9.10999 1H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M9.2886 4.5H10.89C10.9506 4.5 11 4.6 11 4.72245V6.27755C11 6.4 10.9506 6.5 10.89 6.5H9.10999C9.04944 6.5 9 6.4 9 6.27755V4.72245C9 4.6 9.04944 4.5 9.10999 4.5H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react182.default.createElement("path", { d: "M9.2886 8H10.89C10.9506 8 11 8.1 11 8.22245V9.77755C11 9.9 10.9506 10 10.89 10H9.10999C9.04944 10 9 9.9 9 9.77755V8.22245C9 8.1 9.04944 8 9.10999 8H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react184.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 11", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react184.default.createElement("path", { d: "M3 2.29869V9.50504C3 9.7775 2.9 10 2.77755 10H1.22245C1.1 10 1 9.7775 1 9.50504V1.49495C1 1.2225 1.1 1 1.22245 1H2.77755C2.9 1 3 1.2225 3 1.49495V2.29869Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M5.2886 1L6.89001 1C6.95055 1 7 1.1 7 1.22245V2.77755C7 2.9 6.95055 3 6.89001 3H5.10999C5.04944 3 5 2.9 5 2.77755V1.22245C5 1.1 5.04944 1 5.10999 1H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M5.2886 4.5H6.89001C6.95055 4.5 7 4.6 7 4.72245V6.27755C7 6.4 6.95055 6.5 6.89001 6.5H5.10999C5.04944 6.5 5 6.4 5 6.27755V4.72245C5 4.6 5.04944 4.5 5.10999 4.5H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M5.2886 8H6.89001C6.95055 8 7 8.1 7 8.22245V9.77755C7 9.9 6.95055 10 6.89001 10H5.10999C5.04944 10 5 9.9 5 9.77755V8.22245C5 8.1 5.04944 8 5.10999 8H5.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M9.2886 1L10.89 1C10.9506 1 11 1.1 11 1.22245V2.77755C11 2.9 10.9506 3 10.89 3H9.10999C9.04944 3 9 2.9 9 2.77755V1.22245C9 1.1 9.04944 1 9.10999 1H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M9.2886 4.5H10.89C10.9506 4.5 11 4.6 11 4.72245V6.27755C11 6.4 10.9506 6.5 10.89 6.5H9.10999C9.04944 6.5 9 6.4 9 6.27755V4.72245C9 4.6 9.04944 4.5 9.10999 4.5H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react184.default.createElement("path", { d: "M9.2886 8H10.89C10.9506 8 11 8.1 11 8.22245V9.77755C11 9.9 10.9506 10 10.89 10H9.10999C9.04944 10 9 9.9 9 9.77755V8.22245C9 8.1 9.04944 8 9.10999 8H9.2886Z", stroke: "#494650", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var OneHotEncodingIcon_default = OneHotEncodingIcon;
 
@@ -38400,63 +38521,63 @@ fig.write_html("${props.graphTabName}.html")`
   function getIcon(stepType, height, width) {
     switch (stepType) {
       case "initialize" /* Initialize */:
-        return /* @__PURE__ */ import_react183.default.createElement(MitoIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(MitoIcon_default, null);
       case "add_column" /* AddColumn */:
-        return /* @__PURE__ */ import_react183.default.createElement(AddColumnIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(AddColumnIcon_default, null);
       case "delete_column" /* DeleteColumn */:
-        return /* @__PURE__ */ import_react183.default.createElement(DeleteColumnIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(DeleteColumnIcon_default, null);
       case "rename_column" /* RenameColumn */:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
       case "reorder_column" /* ReorderColumn */:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
       case "filter_column" /* FilterColumn */:
-        return /* @__PURE__ */ import_react183.default.createElement(FilterIcon, { purpleOrDark: "dark" });
+        return /* @__PURE__ */ import_react185.default.createElement(FilterIcon, { purpleOrDark: "dark" });
       case "set_column_formula" /* SetColumnFormula */:
-        return /* @__PURE__ */ import_react183.default.createElement("div", { className: "step-taskpane-missing-icon" }, "Fx");
+        return /* @__PURE__ */ import_react185.default.createElement("div", { className: "step-taskpane-missing-icon" }, "Fx");
       case "dataframe_delete" /* DataframeDelete */:
-        return /* @__PURE__ */ import_react183.default.createElement(DeleteColumnIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(DeleteColumnIcon_default, null);
       case "dataframe_duplicate" /* DataframeDuplicate */:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
       case "dataframe_rename" /* DataframeRename */:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
       case "simple_import" /* SimpleImport */:
-        return /* @__PURE__ */ import_react183.default.createElement(ImportIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(ImportIcon_default, null);
       case "dataframe_import" /* DataframeImport */:
-        return /* @__PURE__ */ import_react183.default.createElement(ImportIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(ImportIcon_default, null);
       case "excel_import" /* ExcelImport */:
-        return /* @__PURE__ */ import_react183.default.createElement(ImportIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(ImportIcon_default, null);
       case "sort" /* Sort */:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
       case "pivot" /* Pivot */:
-        return /* @__PURE__ */ import_react183.default.createElement(PivotIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(PivotIcon_default, null);
       case "melt" /* Melt */:
-        return /* @__PURE__ */ import_react183.default.createElement(UnpivotIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(UnpivotIcon_default, null);
       case "merge" /* Merge */:
-        return /* @__PURE__ */ import_react183.default.createElement(MergeIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(MergeIcon_default, null);
       case "drop_duplicates" /* DropDuplicates */:
-        return /* @__PURE__ */ import_react183.default.createElement(DropDuplicatesIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(DropDuplicatesIcon_default, null);
       case "graph" /* Graph */:
-        return /* @__PURE__ */ import_react183.default.createElement(GraphIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(GraphIcon_default, null);
       case "change_column_dtype" /* ChangeColumnDtype */:
-        return /* @__PURE__ */ import_react183.default.createElement(DtypeIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(DtypeIcon_default, null);
       case "delete_row" /* DeleteRow */:
-        return /* @__PURE__ */ import_react183.default.createElement(DeleteColumnIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(DeleteColumnIcon_default, null);
       case "split_text_to_columns" /* SplitTextToColumns */:
-        return /* @__PURE__ */ import_react183.default.createElement(SplitTextToColumnsIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(SplitTextToColumnsIcon_default, null);
       case "transpose" /* Transpose */:
-        return /* @__PURE__ */ import_react183.default.createElement(TransposeIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(TransposeIcon_default, null);
       case "promote_row_to_header" /* PromoteRowToHeader */:
-        return /* @__PURE__ */ import_react183.default.createElement(PromoteRowToHeaderIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(PromoteRowToHeaderIcon_default, null);
       case "one_hot_encoding" /* OneHotEncoding */:
-        return /* @__PURE__ */ import_react183.default.createElement(OneHotEncodingIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(OneHotEncodingIcon_default, null);
       case "undo" /* Undo */:
-        return /* @__PURE__ */ import_react183.default.createElement(UndoIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(UndoIcon_default, null);
       case "redo" /* Redo */:
-        return /* @__PURE__ */ import_react183.default.createElement(RedoIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(RedoIcon_default, null);
       case "clear" /* Clear */:
-        return /* @__PURE__ */ import_react183.default.createElement(ClearIcon_default, null);
+        return /* @__PURE__ */ import_react185.default.createElement(ClearIcon_default, null);
       default:
-        return /* @__PURE__ */ import_react183.default.createElement(EditIcon_default, { height, width });
+        return /* @__PURE__ */ import_react185.default.createElement(EditIcon_default, { height, width });
     }
   }
   function StepDataElement(props) {
@@ -38469,15 +38590,15 @@ fig.write_html("${props.graphTabName}.html")`
     };
     {
     }
-    return /* @__PURE__ */ import_react183.default.createElement(
+    return /* @__PURE__ */ import_react185.default.createElement(
       "div",
       {
         className: "step-taskpane-step-container",
         style: { opacity: props.beforeCurrIdx ? "1" : ".5" },
         onClick: toggleStepRollBack
       },
-      /* @__PURE__ */ import_react183.default.createElement("div", { className: "step-taskpane-step-icon" }, getIcon(props.stepData.step_type)),
-      /* @__PURE__ */ import_react183.default.createElement("div", { className: "element-width-block hide-scrollbar" }, /* @__PURE__ */ import_react183.default.createElement("div", { className: "text-header-3" }, props.stepData.step_display_name), /* @__PURE__ */ import_react183.default.createElement("div", { className: "text-body-2 text-overflow-scroll hide-scrollbar" }, props.stepData.step_description))
+      /* @__PURE__ */ import_react185.default.createElement("div", { className: "step-taskpane-step-icon" }, getIcon(props.stepData.step_type)),
+      /* @__PURE__ */ import_react185.default.createElement("div", { className: "element-width-block hide-scrollbar" }, /* @__PURE__ */ import_react185.default.createElement("div", { className: "text-header-3" }, props.stepData.step_display_name), /* @__PURE__ */ import_react185.default.createElement("div", { className: "text-body-2 text-overflow-scroll hide-scrollbar" }, props.stepData.step_description))
     );
   }
   var StepDataElement_default = StepDataElement;
@@ -38593,6 +38714,9 @@ fig.write_html("${props.graphTabName}.html")`
       case "excel_range_import" /* ExcelRangeImport */: {
         return "Excel Range Import";
       }
+      case "export_to_file" /* ExportToFile */: {
+        return "Export to File";
+      }
       case "undo" /* Undo */: {
         return "Undoing previous edit";
       }
@@ -38684,8 +38808,8 @@ fig.write_html("${props.graphTabName}.html")`
     return void 0;
   };
   var LoadingIndicator = (props) => {
-    const [currentLoadingMessage, setCurrentLoadingMessage] = (0, import_react184.useState)(void 0);
-    (0, import_react184.useEffect)(() => {
+    const [currentLoadingMessage, setCurrentLoadingMessage] = (0, import_react186.useState)(void 0);
+    (0, import_react186.useEffect)(() => {
       const interval = setInterval(() => {
         const messagesToDisplay2 = getMessageTypesToDisplay(props.loading);
         if (messagesToDisplay2.length === 0) {
@@ -38711,19 +38835,19 @@ fig.write_html("${props.graphTabName}.html")`
     }, [props.loading]);
     const messagesToDisplay = getMessageTypesToDisplay(props.loading);
     if (messagesToDisplay.length === 0) {
-      return /* @__PURE__ */ import_react184.default.createElement(import_react184.default.Fragment, null);
+      return /* @__PURE__ */ import_react186.default.createElement(import_react186.default.Fragment, null);
     }
-    return /* @__PURE__ */ import_react184.default.createElement(import_react184.default.Fragment, null, /* @__PURE__ */ import_react184.default.createElement("p", { className: "loading-indicator-header text-header-3 text-color-white-important" }, "Processing ", messagesToDisplay.length, " edit", messagesToDisplay.length <= 1 ? "" : "s"), /* @__PURE__ */ import_react184.default.createElement("div", { className: "loading-indicator-content" }, messagesToDisplay.map(([messageType, message_id], index) => {
+    return /* @__PURE__ */ import_react186.default.createElement(import_react186.default.Fragment, null, /* @__PURE__ */ import_react186.default.createElement("p", { className: "loading-indicator-header text-header-3 text-color-white-important" }, "Processing ", messagesToDisplay.length, " edit", messagesToDisplay.length <= 1 ? "" : "s"), /* @__PURE__ */ import_react186.default.createElement("div", { className: "loading-indicator-content" }, messagesToDisplay.map(([messageType, message_id], index) => {
       const slowLoadingMessage = getSlowLoadingMessage(currentLoadingMessage, message_id);
-      return messageType !== void 0 && /* @__PURE__ */ import_react184.default.createElement("div", { key: index, className: classNames("mb-5px", "mt-5px", { "text-color-medium-gray-important": index !== 0 }) }, /* @__PURE__ */ import_react184.default.createElement(
+      return messageType !== void 0 && /* @__PURE__ */ import_react186.default.createElement("div", { key: index, className: classNames("mb-5px", "mt-5px", { "text-color-medium-gray-important": index !== 0 }) }, /* @__PURE__ */ import_react186.default.createElement(
         "div",
         {
           key: index,
           className: classNames("loading-indicator-item")
         },
-        /* @__PURE__ */ import_react184.default.createElement("div", { className: "loading-indicator-icon", style: { opacity: index !== 0 ? "50%" : void 0 } }, getIcon(messageType, "15", "15")),
-        /* @__PURE__ */ import_react184.default.createElement("div", { className: "ml-5px" }, /* @__PURE__ */ import_react184.default.createElement("div", { className: "text-body-1" }, getDisplayMessageForMessageType(messageType)), slowLoadingMessage !== void 0 && /* @__PURE__ */ import_react184.default.createElement("div", { className: "text-subtext-1" }, slowLoadingMessage)),
-        /* @__PURE__ */ import_react184.default.createElement("div", { className: "loading-indicator-loader" }, index === 0 && /* @__PURE__ */ import_react184.default.createElement(LoadingCircle_default, null), index !== 0 && /* @__PURE__ */ import_react184.default.createElement(NonLoadingCircle_default, null))
+        /* @__PURE__ */ import_react186.default.createElement("div", { className: "loading-indicator-icon", style: { opacity: index !== 0 ? "50%" : void 0 } }, getIcon(messageType, "15", "15")),
+        /* @__PURE__ */ import_react186.default.createElement("div", { className: "ml-5px" }, /* @__PURE__ */ import_react186.default.createElement("div", { className: "text-body-1" }, getDisplayMessageForMessageType(messageType)), slowLoadingMessage !== void 0 && /* @__PURE__ */ import_react186.default.createElement("div", { className: "text-subtext-1" }, slowLoadingMessage)),
+        /* @__PURE__ */ import_react186.default.createElement("div", { className: "loading-indicator-loader" }, index === 0 && /* @__PURE__ */ import_react186.default.createElement(LoadingCircle_default, null), index !== 0 && /* @__PURE__ */ import_react186.default.createElement(NonLoadingCircle_default, null))
       ));
     })));
   };
@@ -38731,8 +38855,8 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/elements/BottomLeftPopup.tsx
   var BottomLeftPopup = (props) => {
-    const [displayLoadingIndicator, setDisplayLoadingIndicator] = (0, import_react185.useState)(false);
-    (0, import_react185.useEffect)(() => {
+    const [displayLoadingIndicator, setDisplayLoadingIndicator] = (0, import_react187.useState)(false);
+    (0, import_react187.useEffect)(() => {
       if (props.loading.length === 0) {
         setDisplayLoadingIndicator(false);
       } else if (props.loading.length > 0) {
@@ -38744,22 +38868,22 @@ fig.write_html("${props.graphTabName}.html")`
         };
       }
     }, [props.loading.length]);
-    return /* @__PURE__ */ import_react185.default.createElement(import_react185.default.Fragment, null, displayLoadingIndicator && /* @__PURE__ */ import_react185.default.createElement("div", { className: "bottom-left-popup-container" }, /* @__PURE__ */ import_react185.default.createElement(LoadingIndicator_default, { loading: props.loading })));
+    return /* @__PURE__ */ import_react187.default.createElement(import_react187.default.Fragment, null, displayLoadingIndicator && /* @__PURE__ */ import_react187.default.createElement("div", { className: "bottom-left-popup-container" }, /* @__PURE__ */ import_react187.default.createElement(LoadingIndicator_default, { loading: props.loading })));
   };
   var BottomLeftPopup_default = BottomLeftPopup;
 
   // src/components/popups/EphemeralMessage.tsx
-  var import_react187 = __toESM(require_react());
+  var import_react189 = __toESM(require_react());
 
   // src/components/elements/DefaultPopup.tsx
-  var import_react186 = __toESM(require_react());
+  var import_react188 = __toESM(require_react());
   var DefaultPopup = (props) => {
     let popupLocationClass = void 0;
     switch (props.popupLocation) {
       case "top_right" /* TopRight */:
         popupLocationClass = "top-right-popup-container";
     }
-    return /* @__PURE__ */ import_react186.default.createElement("div", { className: classNames("popup-container", popupLocationClass, props.className) }, props.children);
+    return /* @__PURE__ */ import_react188.default.createElement("div", { className: classNames("popup-container", popupLocationClass, props.className) }, props.children);
   };
   var DefaultPopup_default = DefaultPopup;
 
@@ -38774,7 +38898,7 @@ fig.write_html("${props.graphTabName}.html")`
         });
       });
     };
-    (0, import_react187.useEffect)(() => {
+    (0, import_react189.useEffect)(() => {
       const interval = setInterval(() => {
         closePopup();
       }, 6e3);
@@ -38782,28 +38906,28 @@ fig.write_html("${props.graphTabName}.html")`
         clearInterval(interval);
       };
     }, [props.message]);
-    return /* @__PURE__ */ import_react187.default.createElement(DefaultPopup_default, { popupLocation: props.popupLocation, className: "ephemeral-message-animation" }, /* @__PURE__ */ import_react187.default.createElement(Row_default, { className: classNames("ephemeral-message-container"), align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react187.default.createElement("p", { className: classNames("text-body-1", "text-color-white-important", "mr-10px") }, props.message), /* @__PURE__ */ import_react187.default.createElement(
+    return /* @__PURE__ */ import_react189.default.createElement(DefaultPopup_default, { popupLocation: props.popupLocation, className: "ephemeral-message-animation" }, /* @__PURE__ */ import_react189.default.createElement(Row_default, { className: classNames("ephemeral-message-container"), align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react189.default.createElement("p", { className: classNames("text-body-1", "text-color-white-important", "mr-10px") }, props.message), /* @__PURE__ */ import_react189.default.createElement(
       "div",
       {
         className: "mt-5px ml-5px",
         onClick: () => closePopup()
       },
-      /* @__PURE__ */ import_react187.default.createElement(XIcon_default, { variant: "light" })
+      /* @__PURE__ */ import_react189.default.createElement(XIcon_default, { variant: "light" })
     )));
   };
   var EphemeralMessage_default = EphemeralMessage;
 
   // src/components/taskpanes/Steps/StepsTaskpane.tsx
-  var import_react188 = __toESM(require_react());
+  var import_react190 = __toESM(require_react());
   function StepTaskpane(props) {
-    return /* @__PURE__ */ import_react188.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react188.default.createElement(
+    return /* @__PURE__ */ import_react190.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react190.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Step History",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react188.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react188.default.createElement("div", { className: "step-takspane-container" }, props.stepSummaryList.map((stepSummary) => {
-      return /* @__PURE__ */ import_react188.default.createElement(
+    ), /* @__PURE__ */ import_react190.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react190.default.createElement("div", { className: "step-takspane-container" }, props.stepSummaryList.map((stepSummary) => {
+      return /* @__PURE__ */ import_react190.default.createElement(
         StepDataElement_default,
         {
           key: stepSummary.step_id,
@@ -38819,12 +38943,12 @@ fig.write_html("${props.graphTabName}.html")`
   var StepsTaskpane_default = StepTaskpane;
 
   // src/components/taskpanes/UpgradeToPro/UpgradeToProTaskpane.tsx
-  var import_react191 = __toESM(require_react());
+  var import_react193 = __toESM(require_react());
 
   // src/hooks/useInputValue.tsx
-  var import_react189 = __toESM(require_react());
+  var import_react191 = __toESM(require_react());
   var useInputValue = (value = "", placeholder = "") => {
-    const [_value, _setValue] = (0, import_react189.useState)(value);
+    const [_value, _setValue] = (0, import_react191.useState)(value);
     const onChange = (e) => {
       const newValue = e.target.value;
       _setValue(newValue);
@@ -38837,32 +38961,32 @@ fig.write_html("${props.graphTabName}.html")`
   };
 
   // src/components/icons/PurpleCheckMark.tsx
-  var import_react190 = __toESM(require_react());
+  var import_react192 = __toESM(require_react());
   var PurpleCheckMark = () => {
-    return /* @__PURE__ */ import_react190.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react190.default.createElement("path", { d: "M2 8.88525L6.15622 12.4914C6.57338 12.8534 7.20496 12.8086 7.5669 12.3914L16.3562 2.26144", stroke: "#9D6CFF", strokeWidth: "4" }));
+    return /* @__PURE__ */ import_react192.default.createElement("svg", { width: "18", height: "15", viewBox: "0 0 18 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react192.default.createElement("path", { d: "M2 8.88525L6.15622 12.4914C6.57338 12.8534 7.20496 12.8086 7.5669 12.3914L16.3562 2.26144", stroke: "#9D6CFF", strokeWidth: "4" }));
   };
   var PurpleCheckMark_default = PurpleCheckMark;
 
   // src/components/taskpanes/UpgradeToPro/UpgradeToProTaskpane.tsx
   var ProListElement = (props) => {
-    return /* @__PURE__ */ import_react191.default.createElement(Row_default, null, /* @__PURE__ */ import_react191.default.createElement(Col_default, { span: 2 }, /* @__PURE__ */ import_react191.default.createElement(PurpleCheckMark_default, null)), /* @__PURE__ */ import_react191.default.createElement("p", { className: "text-body-1" }, props.text));
+    return /* @__PURE__ */ import_react193.default.createElement(Row_default, null, /* @__PURE__ */ import_react193.default.createElement(Col_default, { span: 2 }, /* @__PURE__ */ import_react193.default.createElement(PurpleCheckMark_default, null)), /* @__PURE__ */ import_react193.default.createElement("p", { className: "text-body-1" }, props.text));
   };
   var UpgradeToProTaskpane = (props) => {
-    const [isEnteringAccessCode, setIsEnteringAccessCode] = (0, import_react191.useState)(false);
+    const [isEnteringAccessCode, setIsEnteringAccessCode] = (0, import_react193.useState)(false);
     const accessCodeInput = useInputValue("", "mito-pro-access-code-ASKDJQWDKQWDLL");
-    const [invalidAccessCode, setInvalidAccessCode] = (0, import_react191.useState)(false);
+    const [invalidAccessCode, setInvalidAccessCode] = (0, import_react193.useState)(false);
     const isPro = props.userProfile.isPro;
-    (0, import_react191.useEffect)(() => {
+    (0, import_react193.useEffect)(() => {
       void props.mitoAPI.log("opened_upgrade_to_pro_taskpane");
     }, []);
     if (!isPro && !isEnteringAccessCode) {
-      return /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react191.default.createElement(
+      return /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react193.default.createElement(
         DefaultTaskpaneHeader_default,
         {
           header: "Upgrade to Mito Pro",
           setUIState: props.setUIState
         }
-      ), /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react191.default.createElement("p", { className: "text-body-1 mb-10px" }, /* @__PURE__ */ import_react191.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react191.default.createElement("span", { className: "text-body-1-link" }, "Mito Pro")), " gives you extra features to super charge your analysis:"), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Turn off all telemetry" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Generated code optimization" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Import from external drives" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Format datframes" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Priority support" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "All future pro functionality!" }), /* @__PURE__ */ import_react191.default.createElement("div", { className: "mt-25px" }, /* @__PURE__ */ import_react191.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react191.default.createElement("form", { className: "element-width-block", action: "https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/", method: "POST", target: "_blank" }, /* @__PURE__ */ import_react191.default.createElement(
+      ), /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react193.default.createElement("p", { className: "text-body-1 mb-10px" }, /* @__PURE__ */ import_react193.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react193.default.createElement("span", { className: "text-body-1-link" }, "Mito Pro")), " gives you extra features to super charge your analysis:"), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Turn off all telemetry" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Generated code optimization" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Import from external drives" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Format datframes" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Priority support" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "All future pro functionality!" }), /* @__PURE__ */ import_react193.default.createElement("div", { className: "mt-25px" }, /* @__PURE__ */ import_react193.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react193.default.createElement("form", { className: "element-width-block", action: "https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/", method: "POST", target: "_blank" }, /* @__PURE__ */ import_react193.default.createElement(
         "button",
         {
           className: classNames("text-button", "text-header-3", "text-overflow-wrap", "element-width-block", "text-button-variant-dark"),
@@ -38873,19 +38997,19 @@ fig.write_html("${props.graphTabName}.html")`
           }
         },
         "Purchase Mito Pro"
-      ))), /* @__PURE__ */ import_react191.default.createElement(Row_default, { justify: "space-around", className: "mb-5px mt-5px" }, /* @__PURE__ */ import_react191.default.createElement("p", { className: "text-body-1" }, "Or")), /* @__PURE__ */ import_react191.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react191.default.createElement(TextButton_default, { variant: "dark", onClick: () => {
+      ))), /* @__PURE__ */ import_react193.default.createElement(Row_default, { justify: "space-around", className: "mb-5px mt-5px" }, /* @__PURE__ */ import_react193.default.createElement("p", { className: "text-body-1" }, "Or")), /* @__PURE__ */ import_react193.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react193.default.createElement(TextButton_default, { variant: "dark", onClick: () => {
         setIsEnteringAccessCode(true);
       } }, "Enter Access Code")))));
     } else if (!isPro && isEnteringAccessCode) {
-      return /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react191.default.createElement(
+      return /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react193.default.createElement(
         DefaultTaskpaneHeader_default,
         {
           header: "Enter Access Code",
           setUIState: props.setUIState
         }
-      ), /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react191.default.createElement(Row_default, { align: "center" }, /* @__PURE__ */ import_react191.default.createElement(Col_default, { span: 5 }, /* @__PURE__ */ import_react191.default.createElement("p", { className: "text-heading-2" }, "Access Code:")), /* @__PURE__ */ import_react191.default.createElement(Col_default, { span: 2 }, /* @__PURE__ */ import_react191.default.createElement(Tooltip_default, { title: "Get an access code by purchasing a Pro license on the previous page." }))), /* @__PURE__ */ import_react191.default.createElement(Input_default, __spreadValues({}, accessCodeInput)), invalidAccessCode && /* @__PURE__ */ import_react191.default.createElement("div", { className: "text-color-error" }, "Sorry, that access code is invalid. Purchase Mito Pro from the previous page and then enter the access code here."), /* @__PURE__ */ import_react191.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react191.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react191.default.createElement(Col_default, null, /* @__PURE__ */ import_react191.default.createElement(TextButton_default, { variant: "light", onClick: () => {
+      ), /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react193.default.createElement(Row_default, { align: "center" }, /* @__PURE__ */ import_react193.default.createElement(Col_default, { span: 5 }, /* @__PURE__ */ import_react193.default.createElement("p", { className: "text-heading-2" }, "Access Code:")), /* @__PURE__ */ import_react193.default.createElement(Col_default, { span: 2 }, /* @__PURE__ */ import_react193.default.createElement(Tooltip_default, { title: "Get an access code by purchasing a Pro license on the previous page." }))), /* @__PURE__ */ import_react193.default.createElement(Input_default, __spreadValues({}, accessCodeInput)), invalidAccessCode && /* @__PURE__ */ import_react193.default.createElement("div", { className: "text-color-error" }, "Sorry, that access code is invalid. Purchase Mito Pro from the previous page and then enter the access code here."), /* @__PURE__ */ import_react193.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react193.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react193.default.createElement(Col_default, null, /* @__PURE__ */ import_react193.default.createElement(TextButton_default, { variant: "light", onClick: () => {
         setIsEnteringAccessCode(false);
-      } }, "Back")), /* @__PURE__ */ import_react191.default.createElement(Col_default, null, /* @__PURE__ */ import_react191.default.createElement(
+      } }, "Back")), /* @__PURE__ */ import_react193.default.createElement(Col_default, null, /* @__PURE__ */ import_react193.default.createElement(
         TextButton_default,
         {
           variant: "dark",
@@ -38903,25 +39027,25 @@ fig.write_html("${props.graphTabName}.html")`
         "Submit Access Code"
       )))));
     } else {
-      return /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react191.default.createElement(
+      return /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react193.default.createElement(
         DefaultTaskpaneHeader_default,
         {
           header: "Welcome to Mito Pro!",
           setUIState: props.setUIState
         }
-      ), /* @__PURE__ */ import_react191.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react191.default.createElement("p", { className: "text-heading-4 mb-10px" }, "You've successfully upgraded to Mito Pro. You can cancel any time by sending us an email."), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react191.default.createElement(ProListElement, { text: "All future pro functionality!" })));
+      ), /* @__PURE__ */ import_react193.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react193.default.createElement("p", { className: "text-heading-4 mb-10px" }, "You've successfully upgraded to Mito Pro. You can cancel any time by sending us an email."), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react193.default.createElement(ProListElement, { text: "All future pro functionality!" })));
     }
   };
   var UpgradeToProTaskpane_default = UpgradeToProTaskpane;
 
   // src/components/toolbar/Toolbar.tsx
-  var import_react211 = __toESM(require_react());
+  var import_react213 = __toESM(require_react());
 
   // src/components/toolbar/PlanButton.tsx
-  var import_react192 = __toESM(require_react());
+  var import_react194 = __toESM(require_react());
   var PlanButton = (props) => {
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0;
-    return /* @__PURE__ */ import_react192.default.createElement(
+    return /* @__PURE__ */ import_react194.default.createElement(
       "div",
       {
         className: classNames("text-button", "text-button-variant-dark", "plan-button", "cursor-pointer"),
@@ -38946,52 +39070,52 @@ fig.write_html("${props.graphTabName}.html")`
   var PlanButton_default = PlanButton;
 
   // src/components/toolbar/ToolbarButton.tsx
-  var import_react200 = __toESM(require_react());
+  var import_react202 = __toESM(require_react());
 
   // src/components/toolbar/utils.tsx
-  var import_react199 = __toESM(require_react());
+  var import_react201 = __toESM(require_react());
 
   // src/components/icons/ExportIcon.tsx
-  var import_react193 = __toESM(require_react());
+  var import_react195 = __toESM(require_react());
   var ExportIcon = () => {
-    return /* @__PURE__ */ import_react193.default.createElement("svg", { width: "13", height: "14", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react193.default.createElement("path", { d: "M9.58016 3.81644L6.50004 0.734863L3.41992 3.81644", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react193.default.createElement("path", { d: "M12 9.10571L11.9883 11.3851C11.9839 12.3571 11.1934 13.1447 10.2213 13.1447H2.76697C1.79052 13.1432 1 12.3513 1 11.3748L1.00146 9.10571", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react193.default.createElement("path", { d: "M6.5 9.56679V1.73181", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react195.default.createElement("svg", { width: "13", height: "14", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react195.default.createElement("path", { d: "M9.58016 3.81644L6.50004 0.734863L3.41992 3.81644", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react195.default.createElement("path", { d: "M12 9.10571L11.9883 11.3851C11.9839 12.3571 11.1934 13.1447 10.2213 13.1447H2.76697C1.79052 13.1432 1 12.3513 1 11.3748L1.00146 9.10571", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react195.default.createElement("path", { d: "M6.5 9.56679V1.73181", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var ExportIcon_default = ExportIcon;
 
   // src/components/icons/FullscreenIcons.tsx
-  var import_react194 = __toESM(require_react());
+  var import_react196 = __toESM(require_react());
   var OpenFullscreenIcon = () => {
-    return /* @__PURE__ */ import_react194.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react194.default.createElement("path", { d: "M6.05571 9.08911L1 14.1448", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M14.001 1.14478L8.94531 6.20048", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M1 9.08911V14.1448H6.05571", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M14.001 6.20048V1.14478H8.94531", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react196.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react196.default.createElement("path", { d: "M6.05571 9.08911L1 14.1448", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M14.001 1.14478L8.94531 6.20048", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M1 9.08911V14.1448H6.05571", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M14.001 6.20048V1.14478H8.94531", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var CloseFullscreenIcon = () => {
-    return /* @__PURE__ */ import_react194.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react194.default.createElement("path", { d: "M6.05555 8.94434L1 13.9999", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M8.94445 6.05566L14 1.00011", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M6.05469 13.9998V8.9442H0.999135", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react194.default.createElement("path", { d: "M8.94445 1.00011V6.05566H14", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react196.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react196.default.createElement("path", { d: "M6.05555 8.94434L1 13.9999", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M8.94445 6.05566L14 1.00011", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M6.05469 13.9998V8.9442H0.999135", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react196.default.createElement("path", { d: "M8.94445 1.00011V6.05566H14", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
 
   // src/components/icons/StepsIcon.tsx
-  var import_react195 = __toESM(require_react());
+  var import_react197 = __toESM(require_react());
   var StepsIcon = () => {
-    return /* @__PURE__ */ import_react195.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react195.default.createElement("path", { d: "M12.6916 13.5156H2.30835C1.58458 13.5156 1 12.9881 1 12.335V12.0963C1 11.4432 1.58458 10.9156 2.30835 10.9156H12.6916C13.4154 10.9156 14 11.4432 14 12.0963V12.335C14 12.9881 13.4154 13.5156 12.6916 13.5156Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react195.default.createElement("path", { d: "M12.6916 8.31558H2.30835C1.58458 8.31558 1 7.79058 1 7.14058V6.89058C1 6.24058 1.58458 5.71558 2.30835 5.71558H12.6916C13.4154 5.71558 14 6.24058 14 6.89058V7.12808C14 7.79058 13.4154 8.31558 12.6916 8.31558Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react195.default.createElement("path", { d: "M12.6916 3.11563H2.30835C1.58458 3.11563 1 2.58809 1 1.93495V1.6963C1 1.04316 1.58458 0.515625 2.30835 0.515625H12.6916C13.4154 0.515625 14 1.04316 14 1.6963V1.93495C14 2.58809 13.4154 3.11563 12.6916 3.11563Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react197.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react197.default.createElement("path", { d: "M12.6916 13.5156H2.30835C1.58458 13.5156 1 12.9881 1 12.335V12.0963C1 11.4432 1.58458 10.9156 2.30835 10.9156H12.6916C13.4154 10.9156 14 11.4432 14 12.0963V12.335C14 12.9881 13.4154 13.5156 12.6916 13.5156Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react197.default.createElement("path", { d: "M12.6916 8.31558H2.30835C1.58458 8.31558 1 7.79058 1 7.14058V6.89058C1 6.24058 1.58458 5.71558 2.30835 5.71558H12.6916C13.4154 5.71558 14 6.24058 14 6.89058V7.12808C14 7.79058 13.4154 8.31558 12.6916 8.31558Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react197.default.createElement("path", { d: "M12.6916 3.11563H2.30835C1.58458 3.11563 1 2.58809 1 1.93495V1.6963C1 1.04316 1.58458 0.515625 2.30835 0.515625H12.6916C13.4154 0.515625 14 1.04316 14 1.6963V1.93495C14 2.58809 13.4154 3.11563 12.6916 3.11563Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var StepsIcon_default = StepsIcon;
 
   // src/components/icons/FormatIcon.tsx
-  var import_react196 = __toESM(require_react());
+  var import_react198 = __toESM(require_react());
   var FormatIcon = () => {
-    return /* @__PURE__ */ import_react196.default.createElement("svg", { width: "33", height: "15", viewBox: "0 0 33 10", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react196.default.createElement("path", { d: "M3.73236 9.3125H2.64252V2.08789L0.45697 2.89062V1.90625L3.56244 0.740234H3.73236V9.3125ZM12.498 9.3125H6.90814V8.5332L9.86127 5.25195C10.2988 4.75586 10.5995 4.35352 10.7636 4.04492C10.9316 3.73242 11.0156 3.41016 11.0156 3.07812C11.0156 2.63281 10.8808 2.26758 10.6113 1.98242C10.3417 1.69727 9.98236 1.55469 9.53314 1.55469C8.99408 1.55469 8.57416 1.70898 8.27338 2.01758C7.9765 2.32227 7.82806 2.74805 7.82806 3.29492H6.74408C6.74408 2.50977 6.99603 1.875 7.49994 1.39062C8.00775 0.90625 8.68549 0.664062 9.53314 0.664062C10.3261 0.664062 10.9531 0.873047 11.414 1.29102C11.8749 1.70508 12.1054 2.25781 12.1054 2.94922C12.1054 3.78906 11.5703 4.78906 10.4999 5.94922L8.21478 8.42773H12.498V9.3125ZM15.2226 4.51953H16.037C16.5488 4.51172 16.9511 4.37695 17.2441 4.11523C17.537 3.85352 17.6835 3.5 17.6835 3.05469C17.6835 2.05469 17.1855 1.55469 16.1894 1.55469C15.7206 1.55469 15.3456 1.68945 15.0644 1.95898C14.787 2.22461 14.6484 2.57813 14.6484 3.01953H13.5644C13.5644 2.34375 13.8105 1.7832 14.3027 1.33789C14.7988 0.888672 15.4277 0.664062 16.1894 0.664062C16.9941 0.664062 17.6249 0.876953 18.082 1.30273C18.539 1.72852 18.7675 2.32031 18.7675 3.07812C18.7675 3.44922 18.6464 3.80859 18.4042 4.15625C18.166 4.50391 17.8398 4.76367 17.4257 4.93555C17.8945 5.08398 18.2558 5.33008 18.5097 5.67383C18.7675 6.01758 18.8964 6.4375 18.8964 6.93359C18.8964 7.69922 18.6464 8.30664 18.1464 8.75586C17.6464 9.20508 16.996 9.42969 16.1953 9.42969C15.3945 9.42969 14.7421 9.21289 14.2382 8.7793C13.7382 8.3457 13.4882 7.77344 13.4882 7.0625H14.5781C14.5781 7.51172 14.7245 7.87109 15.0175 8.14062C15.3105 8.41016 15.7031 8.54492 16.1953 8.54492C16.7187 8.54492 17.1191 8.4082 17.3964 8.13477C17.6738 7.86133 17.8124 7.46875 17.8124 6.95703C17.8124 6.46094 17.6601 6.08008 17.3554 5.81445C17.0507 5.54883 16.6113 5.41211 16.037 5.4043H15.2226V4.51953ZM28.1003 9.3125L23.2643 0.9485H32.9243L28.1003 9.3125Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react198.default.createElement("svg", { width: "33", height: "15", viewBox: "0 0 33 10", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react198.default.createElement("path", { d: "M3.73236 9.3125H2.64252V2.08789L0.45697 2.89062V1.90625L3.56244 0.740234H3.73236V9.3125ZM12.498 9.3125H6.90814V8.5332L9.86127 5.25195C10.2988 4.75586 10.5995 4.35352 10.7636 4.04492C10.9316 3.73242 11.0156 3.41016 11.0156 3.07812C11.0156 2.63281 10.8808 2.26758 10.6113 1.98242C10.3417 1.69727 9.98236 1.55469 9.53314 1.55469C8.99408 1.55469 8.57416 1.70898 8.27338 2.01758C7.9765 2.32227 7.82806 2.74805 7.82806 3.29492H6.74408C6.74408 2.50977 6.99603 1.875 7.49994 1.39062C8.00775 0.90625 8.68549 0.664062 9.53314 0.664062C10.3261 0.664062 10.9531 0.873047 11.414 1.29102C11.8749 1.70508 12.1054 2.25781 12.1054 2.94922C12.1054 3.78906 11.5703 4.78906 10.4999 5.94922L8.21478 8.42773H12.498V9.3125ZM15.2226 4.51953H16.037C16.5488 4.51172 16.9511 4.37695 17.2441 4.11523C17.537 3.85352 17.6835 3.5 17.6835 3.05469C17.6835 2.05469 17.1855 1.55469 16.1894 1.55469C15.7206 1.55469 15.3456 1.68945 15.0644 1.95898C14.787 2.22461 14.6484 2.57813 14.6484 3.01953H13.5644C13.5644 2.34375 13.8105 1.7832 14.3027 1.33789C14.7988 0.888672 15.4277 0.664062 16.1894 0.664062C16.9941 0.664062 17.6249 0.876953 18.082 1.30273C18.539 1.72852 18.7675 2.32031 18.7675 3.07812C18.7675 3.44922 18.6464 3.80859 18.4042 4.15625C18.166 4.50391 17.8398 4.76367 17.4257 4.93555C17.8945 5.08398 18.2558 5.33008 18.5097 5.67383C18.7675 6.01758 18.8964 6.4375 18.8964 6.93359C18.8964 7.69922 18.6464 8.30664 18.1464 8.75586C17.6464 9.20508 16.996 9.42969 16.1953 9.42969C15.3945 9.42969 14.7421 9.21289 14.2382 8.7793C13.7382 8.3457 13.4882 7.77344 13.4882 7.0625H14.5781C14.5781 7.51172 14.7245 7.87109 15.0175 8.14062C15.3105 8.41016 15.7031 8.54492 16.1953 8.54492C16.7187 8.54492 17.1191 8.4082 17.3964 8.13477C17.6738 7.86133 17.8124 7.46875 17.8124 6.95703C17.8124 6.46094 17.6601 6.08008 17.3554 5.81445C17.0507 5.54883 16.6113 5.41211 16.037 5.4043H15.2226V4.51953ZM28.1003 9.3125L23.2643 0.9485H32.9243L28.1003 9.3125Z", fill: "#494650" }));
   };
   var FormatIcon_default = FormatIcon;
 
   // src/components/icons/MoreIcon.tsx
-  var import_react197 = __toESM(require_react());
+  var import_react199 = __toESM(require_react());
   var MoreIcon = () => {
-    return /* @__PURE__ */ import_react197.default.createElement("svg", { width: "22", height: "15", viewBox: "0 0 13 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react197.default.createElement("path", { d: "M1.50781 6.61719C1.50781 6.49479 1.54557 6.39193 1.62109 6.30859C1.69922 6.22266 1.8112 6.17969 1.95703 6.17969C2.10286 6.17969 2.21354 6.22266 2.28906 6.30859C2.36719 6.39193 2.40625 6.49479 2.40625 6.61719C2.40625 6.73698 2.36719 6.83854 2.28906 6.92188C2.21354 7.00521 2.10286 7.04688 1.95703 7.04688C1.8112 7.04688 1.69922 7.00521 1.62109 6.92188C1.54557 6.83854 1.50781 6.73698 1.50781 6.61719ZM7.09766 3.70312V4.57031C7.09766 5.03646 7.05599 5.42969 6.97266 5.75C6.88932 6.07031 6.76953 6.32812 6.61328 6.52344C6.45703 6.71875 6.26823 6.86068 6.04688 6.94922C5.82812 7.03516 5.58073 7.07812 5.30469 7.07812C5.08594 7.07812 4.88411 7.05078 4.69922 6.99609C4.51432 6.94141 4.34766 6.85417 4.19922 6.73438C4.05339 6.61198 3.92839 6.45312 3.82422 6.25781C3.72005 6.0625 3.64062 5.82552 3.58594 5.54688C3.53125 5.26823 3.50391 4.94271 3.50391 4.57031V3.70312C3.50391 3.23698 3.54557 2.84635 3.62891 2.53125C3.71484 2.21615 3.83594 1.96354 3.99219 1.77344C4.14844 1.58073 4.33594 1.44271 4.55469 1.35938C4.77604 1.27604 5.02344 1.23438 5.29688 1.23438C5.51823 1.23438 5.72135 1.26172 5.90625 1.31641C6.09375 1.36849 6.26042 1.45312 6.40625 1.57031C6.55208 1.6849 6.67578 1.83854 6.77734 2.03125C6.88151 2.22135 6.96094 2.45443 7.01562 2.73047C7.07031 3.00651 7.09766 3.33073 7.09766 3.70312ZM6.37109 4.6875V3.58203C6.37109 3.32682 6.35547 3.10286 6.32422 2.91016C6.29557 2.71484 6.2526 2.54818 6.19531 2.41016C6.13802 2.27214 6.0651 2.16016 5.97656 2.07422C5.89062 1.98828 5.79036 1.92578 5.67578 1.88672C5.5638 1.84505 5.4375 1.82422 5.29688 1.82422C5.125 1.82422 4.97266 1.85677 4.83984 1.92188C4.70703 1.98438 4.59505 2.08464 4.50391 2.22266C4.41536 2.36068 4.34766 2.54167 4.30078 2.76562C4.25391 2.98958 4.23047 3.26172 4.23047 3.58203V4.6875C4.23047 4.94271 4.24479 5.16797 4.27344 5.36328C4.30469 5.55859 4.35026 5.72786 4.41016 5.87109C4.47005 6.01172 4.54297 6.1276 4.62891 6.21875C4.71484 6.3099 4.8138 6.3776 4.92578 6.42188C5.04036 6.46354 5.16667 6.48438 5.30469 6.48438C5.48177 6.48438 5.63672 6.45052 5.76953 6.38281C5.90234 6.3151 6.01302 6.20964 6.10156 6.06641C6.19271 5.92057 6.26042 5.73438 6.30469 5.50781C6.34896 5.27865 6.37109 5.00521 6.37109 4.6875ZM11.5977 3.70312V4.57031C11.5977 5.03646 11.556 5.42969 11.4727 5.75C11.3893 6.07031 11.2695 6.32812 11.1133 6.52344C10.957 6.71875 10.7682 6.86068 10.5469 6.94922C10.3281 7.03516 10.0807 7.07812 9.80469 7.07812C9.58594 7.07812 9.38411 7.05078 9.19922 6.99609C9.01432 6.94141 8.84766 6.85417 8.69922 6.73438C8.55339 6.61198 8.42839 6.45312 8.32422 6.25781C8.22005 6.0625 8.14062 5.82552 8.08594 5.54688C8.03125 5.26823 8.00391 4.94271 8.00391 4.57031V3.70312C8.00391 3.23698 8.04557 2.84635 8.12891 2.53125C8.21484 2.21615 8.33594 1.96354 8.49219 1.77344C8.64844 1.58073 8.83594 1.44271 9.05469 1.35938C9.27604 1.27604 9.52344 1.23438 9.79688 1.23438C10.0182 1.23438 10.2214 1.26172 10.4062 1.31641C10.5938 1.36849 10.7604 1.45312 10.9062 1.57031C11.0521 1.6849 11.1758 1.83854 11.2773 2.03125C11.3815 2.22135 11.4609 2.45443 11.5156 2.73047C11.5703 3.00651 11.5977 3.33073 11.5977 3.70312ZM10.8711 4.6875V3.58203C10.8711 3.32682 10.8555 3.10286 10.8242 2.91016C10.7956 2.71484 10.7526 2.54818 10.6953 2.41016C10.638 2.27214 10.5651 2.16016 10.4766 2.07422C10.3906 1.98828 10.2904 1.92578 10.1758 1.88672C10.0638 1.84505 9.9375 1.82422 9.79688 1.82422C9.625 1.82422 9.47266 1.85677 9.33984 1.92188C9.20703 1.98438 9.09505 2.08464 9.00391 2.22266C8.91536 2.36068 8.84766 2.54167 8.80078 2.76562C8.75391 2.98958 8.73047 3.26172 8.73047 3.58203V4.6875C8.73047 4.94271 8.74479 5.16797 8.77344 5.36328C8.80469 5.55859 8.85026 5.72786 8.91016 5.87109C8.97005 6.01172 9.04297 6.1276 9.12891 6.21875C9.21484 6.3099 9.3138 6.3776 9.42578 6.42188C9.54036 6.46354 9.66667 6.48438 9.80469 6.48438C9.98177 6.48438 10.1367 6.45052 10.2695 6.38281C10.4023 6.3151 10.513 6.20964 10.6016 6.06641C10.6927 5.92057 10.7604 5.73438 10.8047 5.50781C10.849 5.27865 10.8711 5.00521 10.8711 4.6875Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react199.default.createElement("svg", { width: "22", height: "15", viewBox: "0 0 13 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react199.default.createElement("path", { d: "M1.50781 6.61719C1.50781 6.49479 1.54557 6.39193 1.62109 6.30859C1.69922 6.22266 1.8112 6.17969 1.95703 6.17969C2.10286 6.17969 2.21354 6.22266 2.28906 6.30859C2.36719 6.39193 2.40625 6.49479 2.40625 6.61719C2.40625 6.73698 2.36719 6.83854 2.28906 6.92188C2.21354 7.00521 2.10286 7.04688 1.95703 7.04688C1.8112 7.04688 1.69922 7.00521 1.62109 6.92188C1.54557 6.83854 1.50781 6.73698 1.50781 6.61719ZM7.09766 3.70312V4.57031C7.09766 5.03646 7.05599 5.42969 6.97266 5.75C6.88932 6.07031 6.76953 6.32812 6.61328 6.52344C6.45703 6.71875 6.26823 6.86068 6.04688 6.94922C5.82812 7.03516 5.58073 7.07812 5.30469 7.07812C5.08594 7.07812 4.88411 7.05078 4.69922 6.99609C4.51432 6.94141 4.34766 6.85417 4.19922 6.73438C4.05339 6.61198 3.92839 6.45312 3.82422 6.25781C3.72005 6.0625 3.64062 5.82552 3.58594 5.54688C3.53125 5.26823 3.50391 4.94271 3.50391 4.57031V3.70312C3.50391 3.23698 3.54557 2.84635 3.62891 2.53125C3.71484 2.21615 3.83594 1.96354 3.99219 1.77344C4.14844 1.58073 4.33594 1.44271 4.55469 1.35938C4.77604 1.27604 5.02344 1.23438 5.29688 1.23438C5.51823 1.23438 5.72135 1.26172 5.90625 1.31641C6.09375 1.36849 6.26042 1.45312 6.40625 1.57031C6.55208 1.6849 6.67578 1.83854 6.77734 2.03125C6.88151 2.22135 6.96094 2.45443 7.01562 2.73047C7.07031 3.00651 7.09766 3.33073 7.09766 3.70312ZM6.37109 4.6875V3.58203C6.37109 3.32682 6.35547 3.10286 6.32422 2.91016C6.29557 2.71484 6.2526 2.54818 6.19531 2.41016C6.13802 2.27214 6.0651 2.16016 5.97656 2.07422C5.89062 1.98828 5.79036 1.92578 5.67578 1.88672C5.5638 1.84505 5.4375 1.82422 5.29688 1.82422C5.125 1.82422 4.97266 1.85677 4.83984 1.92188C4.70703 1.98438 4.59505 2.08464 4.50391 2.22266C4.41536 2.36068 4.34766 2.54167 4.30078 2.76562C4.25391 2.98958 4.23047 3.26172 4.23047 3.58203V4.6875C4.23047 4.94271 4.24479 5.16797 4.27344 5.36328C4.30469 5.55859 4.35026 5.72786 4.41016 5.87109C4.47005 6.01172 4.54297 6.1276 4.62891 6.21875C4.71484 6.3099 4.8138 6.3776 4.92578 6.42188C5.04036 6.46354 5.16667 6.48438 5.30469 6.48438C5.48177 6.48438 5.63672 6.45052 5.76953 6.38281C5.90234 6.3151 6.01302 6.20964 6.10156 6.06641C6.19271 5.92057 6.26042 5.73438 6.30469 5.50781C6.34896 5.27865 6.37109 5.00521 6.37109 4.6875ZM11.5977 3.70312V4.57031C11.5977 5.03646 11.556 5.42969 11.4727 5.75C11.3893 6.07031 11.2695 6.32812 11.1133 6.52344C10.957 6.71875 10.7682 6.86068 10.5469 6.94922C10.3281 7.03516 10.0807 7.07812 9.80469 7.07812C9.58594 7.07812 9.38411 7.05078 9.19922 6.99609C9.01432 6.94141 8.84766 6.85417 8.69922 6.73438C8.55339 6.61198 8.42839 6.45312 8.32422 6.25781C8.22005 6.0625 8.14062 5.82552 8.08594 5.54688C8.03125 5.26823 8.00391 4.94271 8.00391 4.57031V3.70312C8.00391 3.23698 8.04557 2.84635 8.12891 2.53125C8.21484 2.21615 8.33594 1.96354 8.49219 1.77344C8.64844 1.58073 8.83594 1.44271 9.05469 1.35938C9.27604 1.27604 9.52344 1.23438 9.79688 1.23438C10.0182 1.23438 10.2214 1.26172 10.4062 1.31641C10.5938 1.36849 10.7604 1.45312 10.9062 1.57031C11.0521 1.6849 11.1758 1.83854 11.2773 2.03125C11.3815 2.22135 11.4609 2.45443 11.5156 2.73047C11.5703 3.00651 11.5977 3.33073 11.5977 3.70312ZM10.8711 4.6875V3.58203C10.8711 3.32682 10.8555 3.10286 10.8242 2.91016C10.7956 2.71484 10.7526 2.54818 10.6953 2.41016C10.638 2.27214 10.5651 2.16016 10.4766 2.07422C10.3906 1.98828 10.2904 1.92578 10.1758 1.88672C10.0638 1.84505 9.9375 1.82422 9.79688 1.82422C9.625 1.82422 9.47266 1.85677 9.33984 1.92188C9.20703 1.98438 9.09505 2.08464 9.00391 2.22266C8.91536 2.36068 8.84766 2.54167 8.80078 2.76562C8.75391 2.98958 8.73047 3.26172 8.73047 3.58203V4.6875C8.73047 4.94271 8.74479 5.16797 8.77344 5.36328C8.80469 5.55859 8.85026 5.72786 8.91016 5.87109C8.97005 6.01172 9.04297 6.1276 9.12891 6.21875C9.21484 6.3099 9.3138 6.3776 9.42578 6.42188C9.54036 6.46354 9.66667 6.48438 9.80469 6.48438C9.98177 6.48438 10.1367 6.45052 10.2695 6.38281C10.4023 6.3151 10.513 6.20964 10.6016 6.06641C10.6927 5.92057 10.7604 5.73438 10.8047 5.50781C10.849 5.27865 10.8711 5.00521 10.8711 4.6875Z", fill: "#494650" }));
   };
   var MoreIcon_default = MoreIcon;
 
   // src/components/icons/LessIcon.tsx
-  var import_react198 = __toESM(require_react());
+  var import_react200 = __toESM(require_react());
   var LessIcon = () => {
-    return /* @__PURE__ */ import_react198.default.createElement("svg", { width: "22", height: "15", viewBox: "0 0 7 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react198.default.createElement("path", { d: "M0.757812 6.61719C0.757812 6.49479 0.795573 6.39193 0.871094 6.30859C0.949219 6.22266 1.0612 6.17969 1.20703 6.17969C1.35286 6.17969 1.46354 6.22266 1.53906 6.30859C1.61719 6.39193 1.65625 6.49479 1.65625 6.61719C1.65625 6.73698 1.61719 6.83854 1.53906 6.92188C1.46354 7.00521 1.35286 7.04688 1.20703 7.04688C1.0612 7.04688 0.949219 7.00521 0.871094 6.92188C0.795573 6.83854 0.757812 6.73698 0.757812 6.61719ZM6.34766 3.70312V4.57031C6.34766 5.03646 6.30599 5.42969 6.22266 5.75C6.13932 6.07031 6.01953 6.32812 5.86328 6.52344C5.70703 6.71875 5.51823 6.86068 5.29688 6.94922C5.07812 7.03516 4.83073 7.07812 4.55469 7.07812C4.33594 7.07812 4.13411 7.05078 3.94922 6.99609C3.76432 6.94141 3.59766 6.85417 3.44922 6.73438C3.30339 6.61198 3.17839 6.45312 3.07422 6.25781C2.97005 6.0625 2.89062 5.82552 2.83594 5.54688C2.78125 5.26823 2.75391 4.94271 2.75391 4.57031V3.70312C2.75391 3.23698 2.79557 2.84635 2.87891 2.53125C2.96484 2.21615 3.08594 1.96354 3.24219 1.77344C3.39844 1.58073 3.58594 1.44271 3.80469 1.35938C4.02604 1.27604 4.27344 1.23438 4.54688 1.23438C4.76823 1.23438 4.97135 1.26172 5.15625 1.31641C5.34375 1.36849 5.51042 1.45312 5.65625 1.57031C5.80208 1.6849 5.92578 1.83854 6.02734 2.03125C6.13151 2.22135 6.21094 2.45443 6.26562 2.73047C6.32031 3.00651 6.34766 3.33073 6.34766 3.70312ZM5.62109 4.6875V3.58203C5.62109 3.32682 5.60547 3.10286 5.57422 2.91016C5.54557 2.71484 5.5026 2.54818 5.44531 2.41016C5.38802 2.27214 5.3151 2.16016 5.22656 2.07422C5.14062 1.98828 5.04036 1.92578 4.92578 1.88672C4.8138 1.84505 4.6875 1.82422 4.54688 1.82422C4.375 1.82422 4.22266 1.85677 4.08984 1.92188C3.95703 1.98438 3.84505 2.08464 3.75391 2.22266C3.66536 2.36068 3.59766 2.54167 3.55078 2.76562C3.50391 2.98958 3.48047 3.26172 3.48047 3.58203V4.6875C3.48047 4.94271 3.49479 5.16797 3.52344 5.36328C3.55469 5.55859 3.60026 5.72786 3.66016 5.87109C3.72005 6.01172 3.79297 6.1276 3.87891 6.21875C3.96484 6.3099 4.0638 6.3776 4.17578 6.42188C4.29036 6.46354 4.41667 6.48438 4.55469 6.48438C4.73177 6.48438 4.88672 6.45052 5.01953 6.38281C5.15234 6.3151 5.26302 6.20964 5.35156 6.06641C5.44271 5.92057 5.51042 5.73438 5.55469 5.50781C5.59896 5.27865 5.62109 5.00521 5.62109 4.6875Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react200.default.createElement("svg", { width: "22", height: "15", viewBox: "0 0 7 9", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react200.default.createElement("path", { d: "M0.757812 6.61719C0.757812 6.49479 0.795573 6.39193 0.871094 6.30859C0.949219 6.22266 1.0612 6.17969 1.20703 6.17969C1.35286 6.17969 1.46354 6.22266 1.53906 6.30859C1.61719 6.39193 1.65625 6.49479 1.65625 6.61719C1.65625 6.73698 1.61719 6.83854 1.53906 6.92188C1.46354 7.00521 1.35286 7.04688 1.20703 7.04688C1.0612 7.04688 0.949219 7.00521 0.871094 6.92188C0.795573 6.83854 0.757812 6.73698 0.757812 6.61719ZM6.34766 3.70312V4.57031C6.34766 5.03646 6.30599 5.42969 6.22266 5.75C6.13932 6.07031 6.01953 6.32812 5.86328 6.52344C5.70703 6.71875 5.51823 6.86068 5.29688 6.94922C5.07812 7.03516 4.83073 7.07812 4.55469 7.07812C4.33594 7.07812 4.13411 7.05078 3.94922 6.99609C3.76432 6.94141 3.59766 6.85417 3.44922 6.73438C3.30339 6.61198 3.17839 6.45312 3.07422 6.25781C2.97005 6.0625 2.89062 5.82552 2.83594 5.54688C2.78125 5.26823 2.75391 4.94271 2.75391 4.57031V3.70312C2.75391 3.23698 2.79557 2.84635 2.87891 2.53125C2.96484 2.21615 3.08594 1.96354 3.24219 1.77344C3.39844 1.58073 3.58594 1.44271 3.80469 1.35938C4.02604 1.27604 4.27344 1.23438 4.54688 1.23438C4.76823 1.23438 4.97135 1.26172 5.15625 1.31641C5.34375 1.36849 5.51042 1.45312 5.65625 1.57031C5.80208 1.6849 5.92578 1.83854 6.02734 2.03125C6.13151 2.22135 6.21094 2.45443 6.26562 2.73047C6.32031 3.00651 6.34766 3.33073 6.34766 3.70312ZM5.62109 4.6875V3.58203C5.62109 3.32682 5.60547 3.10286 5.57422 2.91016C5.54557 2.71484 5.5026 2.54818 5.44531 2.41016C5.38802 2.27214 5.3151 2.16016 5.22656 2.07422C5.14062 1.98828 5.04036 1.92578 4.92578 1.88672C4.8138 1.84505 4.6875 1.82422 4.54688 1.82422C4.375 1.82422 4.22266 1.85677 4.08984 1.92188C3.95703 1.98438 3.84505 2.08464 3.75391 2.22266C3.66536 2.36068 3.59766 2.54167 3.55078 2.76562C3.50391 2.98958 3.48047 3.26172 3.48047 3.58203V4.6875C3.48047 4.94271 3.49479 5.16797 3.52344 5.36328C3.55469 5.55859 3.60026 5.72786 3.66016 5.87109C3.72005 6.01172 3.79297 6.1276 3.87891 6.21875C3.96484 6.3099 4.0638 6.3776 4.17578 6.42188C4.29036 6.46354 4.41667 6.48438 4.55469 6.48438C4.73177 6.48438 4.88672 6.45052 5.01953 6.38281C5.15234 6.3151 5.26302 6.20964 5.35156 6.06641C5.44271 5.92057 5.51042 5.73438 5.55469 5.50781C5.59896 5.27865 5.62109 5.00521 5.62109 4.6875Z", fill: "#494650" }));
   };
   var LessIcon_default = LessIcon;
 
@@ -38999,61 +39123,61 @@ fig.write_html("${props.graphTabName}.html")`
   var getToolbarItemIcon = (toolbarButtonType) => {
     switch (toolbarButtonType) {
       case "UNDO" /* UNDO */: {
-        return /* @__PURE__ */ import_react199.default.createElement(UndoIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(UndoIcon_default, null);
       }
       case "REDO" /* REDO */: {
-        return /* @__PURE__ */ import_react199.default.createElement(RedoIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(RedoIcon_default, null);
       }
       case "CLEAR" /* CLEAR */: {
-        return /* @__PURE__ */ import_react199.default.createElement(ClearIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(ClearIcon_default, null);
       }
       case "IMPORT" /* IMPORT */: {
-        return /* @__PURE__ */ import_react199.default.createElement(ImportIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(ImportIcon_default, null);
       }
       case "EXPORT" /* EXPORT */: {
-        return /* @__PURE__ */ import_react199.default.createElement(ExportIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(ExportIcon_default, null);
       }
       case "ADD COL" /* ADD_COL */: {
-        return /* @__PURE__ */ import_react199.default.createElement(AddColumnIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(AddColumnIcon_default, null);
       }
       case "DEL COL" /* DEL_COL */: {
-        return /* @__PURE__ */ import_react199.default.createElement(DeleteColumnIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(DeleteColumnIcon_default, null);
       }
       case "DTYPE" /* DTYPE */: {
-        return /* @__PURE__ */ import_react199.default.createElement(DtypeIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(DtypeIcon_default, null);
       }
       case "LESS" /* LESS */: {
-        return /* @__PURE__ */ import_react199.default.createElement(LessIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(LessIcon_default, null);
       }
       case "MORE" /* MORE */: {
-        return /* @__PURE__ */ import_react199.default.createElement(MoreIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(MoreIcon_default, null);
       }
       case "FORMAT" /* FORMAT */: {
-        return /* @__PURE__ */ import_react199.default.createElement(FormatIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(FormatIcon_default, null);
       }
       case "PIVOT" /* PIVOT */: {
-        return /* @__PURE__ */ import_react199.default.createElement(PivotIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(PivotIcon_default, null);
       }
       case "GRAPH" /* GRAPH */: {
-        return /* @__PURE__ */ import_react199.default.createElement(GraphIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(GraphIcon_default, null);
       }
       case "CATCH UP" /* CATCH_UP */: {
-        return /* @__PURE__ */ import_react199.default.createElement(CatchUpIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(CatchUpIcon_default, null);
       }
       case "STEPS" /* STEPS */: {
-        return /* @__PURE__ */ import_react199.default.createElement(StepsIcon_default, null);
+        return /* @__PURE__ */ import_react201.default.createElement(StepsIcon_default, null);
       }
       case "OPEN FULLSCREEN" /* OPEN_FULLSCREEN */: {
-        return /* @__PURE__ */ import_react199.default.createElement(OpenFullscreenIcon, null);
+        return /* @__PURE__ */ import_react201.default.createElement(OpenFullscreenIcon, null);
       }
       case "CLOSE FULLSCREEN" /* CLOSE_FULLSCREEN */: {
-        return /* @__PURE__ */ import_react199.default.createElement(CloseFullscreenIcon, null);
+        return /* @__PURE__ */ import_react201.default.createElement(CloseFullscreenIcon, null);
       }
     }
   };
   var makeToolbarDropdownItem = (action, supressFocusSettingOnClose) => {
     var _a, _b;
-    return /* @__PURE__ */ import_react199.default.createElement(
+    return /* @__PURE__ */ import_react201.default.createElement(
       DropdownItem_default,
       {
         key: action.longTitle,
@@ -39071,7 +39195,7 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarButton = (props) => {
     const disabled = props.disabledTooltip !== void 0;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? "toolbar-button-draw-attention" : "";
-    return /* @__PURE__ */ import_react200.default.createElement(
+    return /* @__PURE__ */ import_react202.default.createElement(
       "div",
       {
         className: classNames("toolbar-button-container", disabled ? "toolbar-button-container-disabled" : "toolbar-button-container-enabled"),
@@ -39086,13 +39210,13 @@ fig.write_html("${props.graphTabName}.html")`
           props.action.actionFunction();
         }
       },
-      /* @__PURE__ */ import_react200.default.createElement(
+      /* @__PURE__ */ import_react202.default.createElement(
         "button",
         {
           className: classNames("toolbar-button", "vertical-align-content", highlightToobarItemClass),
           type: "button"
         },
-        /* @__PURE__ */ import_react200.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react200.default.createElement("div", { className: "toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react200.default.createElement("p", { className: "toolbar-button-label" }, props.action.shortTitle))
+        /* @__PURE__ */ import_react202.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react202.default.createElement("div", { className: "toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react202.default.createElement("p", { className: "toolbar-button-label" }, props.action.shortTitle))
       ),
       props.children !== void 0 && props.children
     );
@@ -39100,9 +39224,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarButton_default = ToolbarButton;
 
   // src/components/toolbar/ToolbarColumnsDropdown.tsx
-  var import_react201 = __toESM(require_react());
+  var import_react203 = __toESM(require_react());
   var ToolbarColumnsDropdown = (props) => {
-    return /* @__PURE__ */ import_react201.default.createElement(import_react201.default.Fragment, null, /* @__PURE__ */ import_react201.default.createElement(
+    return /* @__PURE__ */ import_react203.default.createElement(import_react203.default.Fragment, null, /* @__PURE__ */ import_react203.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Columns",
@@ -39120,18 +39244,18 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["add column" /* Add_Column */]),
       makeToolbarDropdownItem(props.actions["rename column" /* Rename_Column */], true),
       makeToolbarDropdownItem(props.actions["delete column" /* Delete_Column */]),
-      /* @__PURE__ */ import_react201.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react203.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["set column formula" /* Set_Column_Formula */], true),
       makeToolbarDropdownItem(props.actions["set cell value" /* Set_Cell_Value */], true),
       makeToolbarDropdownItem(props.actions["split text to column" /* Split_Text_To_Column */]),
-      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */]) : /* @__PURE__ */ import_react201.default.createElement(import_react201.default.Fragment, null),
+      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */]) : /* @__PURE__ */ import_react203.default.createElement(import_react203.default.Fragment, null),
       makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */]),
-      /* @__PURE__ */ import_react201.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react203.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["filter" /* Filter */]),
       makeToolbarDropdownItem(props.actions["sort" /* Sort */]),
       makeToolbarDropdownItem(props.actions["change dtype" /* Change_Dtype */]),
       makeToolbarDropdownItem(props.actions["fill na" /* Fill_Na */]),
-      /* @__PURE__ */ import_react201.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react203.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["unique values" /* Unique_Values */]),
       makeToolbarDropdownItem(props.actions["column summary" /* Column_Summary */])
     ));
@@ -39139,9 +39263,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarColumnsDropdown_default = ToolbarColumnsDropdown;
 
   // src/components/toolbar/ToolbarDataframesDropdown.tsx
-  var import_react202 = __toESM(require_react());
+  var import_react204 = __toESM(require_react());
   var ToolbarDataframesDropdown = (props) => {
-    return /* @__PURE__ */ import_react202.default.createElement(import_react202.default.Fragment, null, /* @__PURE__ */ import_react202.default.createElement(
+    return /* @__PURE__ */ import_react204.default.createElement(import_react204.default.Fragment, null, /* @__PURE__ */ import_react204.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Dataframes",
@@ -39158,16 +39282,16 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["import files" /* Import_Files */]),
       makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */]),
       makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */]),
-      /* @__PURE__ */ import_react202.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react204.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["export" /* Export */]),
-      /* @__PURE__ */ import_react202.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react204.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["pivot" /* Pivot */]),
       makeToolbarDropdownItem(props.actions["melt" /* Melt */]),
       makeToolbarDropdownItem(props.actions["drop duplicates" /* Drop_Duplicates */]),
       makeToolbarDropdownItem(props.actions["merge" /* Merge */]),
       makeToolbarDropdownItem(props.actions["concat_dataframes" /* Concat_Dataframes */]),
       makeToolbarDropdownItem(props.actions["transpose" /* Transpose */]),
-      /* @__PURE__ */ import_react202.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react204.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["duplicate dataframe" /* Duplicate_Dataframe */]),
       makeToolbarDropdownItem(props.actions["rename dataframe" /* Rename_Dataframe */], true),
       makeToolbarDropdownItem(props.actions["delete dataframe" /* Delete_Dataframe */])
@@ -39176,10 +39300,10 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarDataframesDropdown_default = ToolbarDataframesDropdown;
 
   // src/components/toolbar/ToolbarDropdownSelector.tsx
-  var import_react203 = __toESM(require_react());
+  var import_react205 = __toESM(require_react());
   var ToolbarDropdownSelector = (props) => {
     const selected = props.uiState.currOpenToolbarDropdown === props.type;
-    return /* @__PURE__ */ import_react203.default.createElement("div", null, /* @__PURE__ */ import_react203.default.createElement(
+    return /* @__PURE__ */ import_react205.default.createElement("div", null, /* @__PURE__ */ import_react205.default.createElement(
       "p",
       {
         className: classNames("toolbar-dropdown-selector", "text-unselectable", { "toolbar-dropdown-selector-selected": selected }),
@@ -39203,9 +39327,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarDropdownSelector_default = ToolbarDropdownSelector;
 
   // src/components/toolbar/ToolbarEditDropdown.tsx
-  var import_react204 = __toESM(require_react());
+  var import_react206 = __toESM(require_react());
   var ToolbarEditDropdown = (props) => {
-    return /* @__PURE__ */ import_react204.default.createElement(import_react204.default.Fragment, null, /* @__PURE__ */ import_react204.default.createElement(
+    return /* @__PURE__ */ import_react206.default.createElement(import_react206.default.Fragment, null, /* @__PURE__ */ import_react206.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Edit",
@@ -39222,16 +39346,16 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["undo" /* Undo */]),
       makeToolbarDropdownItem(props.actions["redo" /* Redo */]),
       makeToolbarDropdownItem(props.actions["clear" /* Clear */]),
-      /* @__PURE__ */ import_react204.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react206.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["copy" /* Copy */])
     ));
   };
   var ToolbarEditDropdown_default = ToolbarEditDropdown;
 
   // src/components/toolbar/ToolbarFormatDropdown.tsx
-  var import_react205 = __toESM(require_react());
+  var import_react207 = __toESM(require_react());
   var ToolbarFormatDropdown = (props) => {
-    return /* @__PURE__ */ import_react205.default.createElement(import_react205.default.Fragment, null, /* @__PURE__ */ import_react205.default.createElement(
+    return /* @__PURE__ */ import_react207.default.createElement(import_react207.default.Fragment, null, /* @__PURE__ */ import_react207.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Format",
@@ -39247,7 +39371,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       makeToolbarDropdownItem(props.actions["set_dataframe_format" /* Set_Dataframe_Format */]),
       makeToolbarDropdownItem(props.actions["ConditionalFormatting" /* Conditional_Formatting */]),
-      /* @__PURE__ */ import_react205.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react207.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */]),
       makeToolbarDropdownItem(props.actions["precision decrease" /* Precision_Decrease */]),
       makeToolbarDropdownItem(props.actions["precision increase" /* Precision_Increase */])
@@ -39256,9 +39380,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarFormatDropdown_default = ToolbarFormatDropdown;
 
   // src/components/toolbar/ToolbarGraphsDropdown.tsx
-  var import_react206 = __toESM(require_react());
+  var import_react208 = __toESM(require_react());
   var ToolbarGraphsDropdown = (props) => {
-    return /* @__PURE__ */ import_react206.default.createElement(import_react206.default.Fragment, null, /* @__PURE__ */ import_react206.default.createElement(
+    return /* @__PURE__ */ import_react208.default.createElement(import_react208.default.Fragment, null, /* @__PURE__ */ import_react208.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Graphs",
@@ -39273,7 +39397,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium"
       },
       makeToolbarDropdownItem(props.actions["graph" /* Graph */]),
-      /* @__PURE__ */ import_react206.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react208.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["duplicate graph" /* Duplicate_Graph */]),
       makeToolbarDropdownItem(props.actions["rename graph" /* Rename_Graph */]),
       makeToolbarDropdownItem(props.actions["delete graph" /* Delete_Graph */])
@@ -39282,10 +39406,10 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarGraphsDropdown_default = ToolbarGraphsDropdown;
 
   // src/components/toolbar/ToolbarHelpDropdown.tsx
-  var import_react207 = __toESM(require_react());
+  var import_react209 = __toESM(require_react());
   var ToolbarHelpDropdown = (props) => {
     const allActions = getSortedActions(props.actions);
-    return /* @__PURE__ */ import_react207.default.createElement(import_react207.default.Fragment, null, /* @__PURE__ */ import_react207.default.createElement(
+    return /* @__PURE__ */ import_react209.default.createElement(import_react209.default.Fragment, null, /* @__PURE__ */ import_react209.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Help",
@@ -39308,9 +39432,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarHelpDropdown_default = ToolbarHelpDropdown;
 
   // src/components/toolbar/ToolbarRowsDropdown.tsx.tsx
-  var import_react208 = __toESM(require_react());
+  var import_react210 = __toESM(require_react());
   var ToolbarRowsDropdown = (props) => {
-    return /* @__PURE__ */ import_react208.default.createElement(import_react208.default.Fragment, null, /* @__PURE__ */ import_react208.default.createElement(
+    return /* @__PURE__ */ import_react210.default.createElement(import_react210.default.Fragment, null, /* @__PURE__ */ import_react210.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Rows",
@@ -39331,9 +39455,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarRowsDropdown_tsx_default = ToolbarRowsDropdown;
 
   // src/components/toolbar/ToolbarViewDropdown.tsx
-  var import_react209 = __toESM(require_react());
+  var import_react211 = __toESM(require_react());
   var ToolbarViewDropdown = (props) => {
-    return /* @__PURE__ */ import_react209.default.createElement(import_react209.default.Fragment, null, /* @__PURE__ */ import_react209.default.createElement(
+    return /* @__PURE__ */ import_react211.default.createElement(import_react211.default.Fragment, null, /* @__PURE__ */ import_react211.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "View",
@@ -39353,9 +39477,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarViewDropdown_default = ToolbarViewDropdown;
 
   // src/components/toolbar/ToolbarCodeDropdown.tsx
-  var import_react210 = __toESM(require_react());
+  var import_react212 = __toESM(require_react());
   var ToolbarCodeDropdown = (props) => {
-    return /* @__PURE__ */ import_react210.default.createElement(import_react210.default.Fragment, null, /* @__PURE__ */ import_react210.default.createElement(
+    return /* @__PURE__ */ import_react212.default.createElement(import_react212.default.Fragment, null, /* @__PURE__ */ import_react212.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Code",
@@ -39376,21 +39500,21 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
-    return /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    return /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarEditDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Dataframes", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Dataframes", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarDataframesDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Columns", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Columns", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarColumnsDropdown_default,
       {
         actions: props.actions,
@@ -39398,49 +39522,49 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Rows", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Rows", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarRowsDropdown_tsx_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Graphs", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Graphs", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarGraphsDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Format", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Format", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarFormatDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Code", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Code", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarCodeDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "View", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "View", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarViewDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    )), /* @__PURE__ */ import_react211.default.createElement(ToolbarDropdownSelector_default, { type: "Help", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement(ToolbarDropdownSelector_default, { type: "Help", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarHelpDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
         setUIState: props.setUIState
       }
-    ))), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react211.default.createElement(
+    ))), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react213.default.createElement(
       GetSupportButton_default,
       {
         userProfile: props.userProfile,
@@ -39449,7 +39573,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "small",
         className: "plan-button"
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       PlanButton_default,
       {
         uiState: props.uiState,
@@ -39457,7 +39581,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         mitoAPI: props.mitoAPI
       }
-    ))), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-bottom" }, /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-bottom-left-half" }, /* @__PURE__ */ import_react211.default.createElement(
+    ))), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-bottom" }, /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-bottom-left-half" }, /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         id: "mito-undo-button",
@@ -39465,7 +39589,7 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["undo" /* Undo */],
         disabledTooltip: props.actions["undo" /* Undo */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         id: "mito-redo-button",
@@ -39473,14 +39597,14 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["redo" /* Redo */],
         disabledTooltip: props.actions["redo" /* Redo */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "CLEAR" /* CLEAR */,
         action: props.actions["clear" /* Clear */],
         disabledTooltip: props.actions["clear" /* Clear */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "IMPORT" /* IMPORT */,
@@ -39488,7 +39612,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["import dropdown" /* Import_Dropdown */].isDisabled()
       },
-      /* @__PURE__ */ import_react211.default.createElement(
+      /* @__PURE__ */ import_react213.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "import",
@@ -39502,14 +39626,14 @@ fig.write_html("${props.graphTabName}.html")`
           }),
           width: "medium"
         },
-        /* @__PURE__ */ import_react211.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
+        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "import files" /* IMPORT_FILES */ }
             });
           });
         } }),
-        /* @__PURE__ */ import_react211.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
+        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
@@ -39517,7 +39641,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         } })
       )
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "EXPORT" /* EXPORT */,
@@ -39525,7 +39649,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["export" /* Export */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "ADD COL" /* ADD_COL */,
@@ -39534,7 +39658,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["add column" /* Add_Column */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "DEL COL" /* DEL_COL */,
@@ -39542,7 +39666,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["delete column" /* Delete_Column */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "DTYPE" /* DTYPE */,
@@ -39550,7 +39674,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["change dtype" /* Change_Dtype */].isDisabled()
       },
-      /* @__PURE__ */ import_react211.default.createElement(
+      /* @__PURE__ */ import_react213.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "dtype",
@@ -39573,7 +39697,7 @@ fig.write_html("${props.graphTabName}.html")`
           );
         })
       )
-    ), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "LESS" /* LESS */,
@@ -39581,7 +39705,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["precision decrease" /* Precision_Decrease */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "MORE" /* MORE */,
@@ -39589,7 +39713,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["precision increase" /* Precision_Increase */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "FORMAT" /* FORMAT */,
@@ -39597,7 +39721,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["format number columns" /* Format_Number_Columns */].isDisabled()
       },
-      /* @__PURE__ */ import_react211.default.createElement(
+      /* @__PURE__ */ import_react213.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "format",
@@ -39612,7 +39736,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI)
       )
-    ), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "PIVOT" /* PIVOT */,
@@ -39621,7 +39745,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["pivot" /* Pivot */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "GRAPH" /* GRAPH */,
@@ -39629,20 +39753,20 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["graph" /* Graph */].isDisabled()
       }
-    )), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react211.default.createElement(
+    )), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "CATCH UP" /* CATCH_UP */,
         action: props.actions["catch up" /* Catch_Up */]
       }
-    ), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "STEPS" /* STEPS */,
         action: props.actions["steps" /* Steps */],
         disabledTooltip: props.actions["steps" /* Steps */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react211.default.createElement(
+    ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: fscreen_esm_default.fullscreenElement ? "CLOSE FULLSCREEN" /* CLOSE_FULLSCREEN */ : "OPEN FULLSCREEN" /* OPEN_FULLSCREEN */,
@@ -39653,17 +39777,17 @@ fig.write_html("${props.graphTabName}.html")`
   var Toolbar_default = Toolbar;
 
   // src/components/tour/Tour.tsx
-  var import_react213 = __toESM(require_react());
+  var import_react215 = __toESM(require_react());
 
   // src/components/tour/Tours.tsx
-  var import_react212 = __toESM(require_react());
+  var import_react214 = __toESM(require_react());
   var introTourSteps = [
     {
       tourName: "Intro" /* INTRO */,
       stepNumber: 1,
       stepHeader: "Seeing your data",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " Your data is visible in the sheet. Each dataframe is represented by a different tab. "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " Your data is visible in the sheet. Each dataframe is represented by a different tab. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: false,
@@ -39674,7 +39798,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Find functionality",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " All functionality can be found through the toolbar. Explore the toolbar to see what is possible. "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " All functionality can be found through the toolbar. Explore the toolbar to see what is possible. "),
       location: "top_left" /* TOP_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true,
@@ -39685,7 +39809,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Use the generated code",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, "Each time you make an edit, Mito generates equivalent Python code in the cell below. Running this generated code edits the dataframes in your notebook directly."),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, "Each time you make an edit, Mito generates equivalent Python code in the cell below. Running this generated code edits the dataframes in your notebook directly."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39697,7 +39821,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Creating a pivot table",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " ", /* @__PURE__ */ import_react212.default.createElement("b", null, " Click on the Pivot button"), " to get started. Mito\u2019s pivot tables make it easy to slice and dice your data into different categories. "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " ", /* @__PURE__ */ import_react214.default.createElement("b", null, " Click on the Pivot button"), " to get started. Mito\u2019s pivot tables make it easy to slice and dice your data into different categories. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39707,7 +39831,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Configure your pivot table",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " In the open sidebar, ", /* @__PURE__ */ import_react212.default.createElement("b", null, "select a row and value "), " to create your pivot table."),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " In the open sidebar, ", /* @__PURE__ */ import_react214.default.createElement("b", null, "select a row and value "), " to create your pivot table."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39717,7 +39841,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "That was easy!",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, /* @__PURE__ */ import_react212.default.createElement("b", null, "Checkout the pivot table code below"), ". Each time you create a pivot table, a new dataframe is created in both the Mito sheet and the generated code. We just saved our first few trips to stack overflow :) "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, /* @__PURE__ */ import_react214.default.createElement("b", null, "Checkout the pivot table code below"), ". Each time you create a pivot table, a new dataframe is created in both the Mito sheet and the generated code. We just saved our first few trips to stack overflow :) "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39729,7 +39853,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Our Formulas are Different",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " Edit a column by updating its formula. If you want to uppercase the column ", /* @__PURE__ */ import_react212.default.createElement("b", null, "Name"), ", set its formula to ", /* @__PURE__ */ import_react212.default.createElement("b", null, "UPPER(Name)"), ". No extra columns necessary. "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " Edit a column by updating its formula. If you want to uppercase the column ", /* @__PURE__ */ import_react214.default.createElement("b", null, "Name"), ", set its formula to ", /* @__PURE__ */ import_react214.default.createElement("b", null, "UPPER(Name)"), ". No extra columns necessary. "),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39739,7 +39863,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Manually Reapply Formulas",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " Mito differs from other spreadsheets because formulas do not automatically update when the input data changes. If you want to update a specific formula, simply resubmit it!  "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " Mito differs from other spreadsheets because formulas do not automatically update when the input data changes. If you want to update a specific formula, simply resubmit it!  "),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39749,7 +39873,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Become a Formula Expert",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " Want to learn more about how Mito's formulas are different? ", /* @__PURE__ */ import_react212.default.createElement("a", { className: "text-body-1-link text-color-white-important", href: DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, target: "_blank", rel: "noreferrer" }, "Check out our detailed formula documentation.")),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " Want to learn more about how Mito's formulas are different? ", /* @__PURE__ */ import_react214.default.createElement("a", { className: "text-body-1-link text-color-white-important", href: DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, target: "_blank", rel: "noreferrer" }, "Check out our detailed formula documentation.")),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39761,7 +39885,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Exploring data with Mito",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " Mito makes it easy to build intuition for your data by automatically generating summary information about each column. To get started, ", /* @__PURE__ */ import_react212.default.createElement("b", null, "click on the filter button in the column header"), " of one of your columns."),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " Mito makes it easy to build intuition for your data by automatically generating summary information about each column. To get started, ", /* @__PURE__ */ import_react214.default.createElement("b", null, "click on the filter button in the column header"), " of one of your columns."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39771,7 +39895,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "View summary stats",
       stepHeaderBackgroundColor: "#CAD1FF",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, " ", /* @__PURE__ */ import_react212.default.createElement("b", null, "Click on the Summary Stats tab "), " at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there\u2019s more specific summary information down below. Check it out!"),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, " ", /* @__PURE__ */ import_react214.default.createElement("b", null, "Click on the Summary Stats tab "), " at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there\u2019s more specific summary information down below. Check it out!"),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39781,7 +39905,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Add a filter",
       stepHeaderBackgroundColor: "#FFDAAE",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, /* @__PURE__ */ import_react212.default.createElement("b", null, "Switch over to the Filter/Sort Tab "), " to clean up your data now that you've built up some intuition.  "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, /* @__PURE__ */ import_react214.default.createElement("b", null, "Switch over to the Filter/Sort Tab "), " to clean up your data now that you've built up some intuition.  "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39791,7 +39915,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 4,
       stepHeader: "Create a filter",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, /* @__PURE__ */ import_react212.default.createElement("b", null, "Click on the Add Filter button "), ", and then set the filter ", /* @__PURE__ */ import_react212.default.createElement("b", null, "condition and value"), ". "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, /* @__PURE__ */ import_react214.default.createElement("b", null, "Click on the Add Filter button "), ", and then set the filter ", /* @__PURE__ */ import_react214.default.createElement("b", null, "condition and value"), ". "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39801,7 +39925,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 5,
       stepHeader: "Enjoy your cleaned data",
       stepHeaderBackgroundColor: "#FFCBDE",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, "Nice work! In just a few clicks, we\u2019ve built some intuition for our data and removed the values we're not interested in. "),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, "Nice work! In just a few clicks, we\u2019ve built some intuition for our data and removed the values we're not interested in. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -39813,7 +39937,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Before you go!",
       stepHeaderBackgroundColor: "#FFDAAE",
-      stepText: /* @__PURE__ */ import_react212.default.createElement("div", null, "If you want more information on how to clean and analyze your data by writing spreadsheet formulas, visualizing your data, and adding filters, checkout our more detailed tutorial ", /* @__PURE__ */ import_react212.default.createElement("a", { href: DOCUMENTATION_LINK_TUTORIAL, target: "_blank", rel: "noreferrer", style: { color: "#0081DE" } }, "here"), "."),
+      stepText: /* @__PURE__ */ import_react214.default.createElement("div", null, "If you want more information on how to clean and analyze your data by writing spreadsheet formulas, visualizing your data, and adding filters, checkout our more detailed tutorial ", /* @__PURE__ */ import_react214.default.createElement("a", { href: DOCUMENTATION_LINK_TUTORIAL, target: "_blank", rel: "noreferrer", style: { color: "#0081DE" } }, "here"), "."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Close",
       displayBackButton: true
@@ -39836,13 +39960,13 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var Tour = (props) => {
     var _a;
-    const [stepNumber, setStepNumber] = (0, import_react213.useState)(0);
-    const [skippedTour, setSkippedTour] = (0, import_react213.useState)(false);
+    const [stepNumber, setStepNumber] = (0, import_react215.useState)(0);
+    const [skippedTour, setSkippedTour] = (0, import_react215.useState)(false);
     const steps = [];
     props.tourNames.forEach((tourName) => {
       steps.push(...tours[tourName]);
     });
-    (0, import_react213.useEffect)(() => {
+    (0, import_react215.useEffect)(() => {
       void props.mitoAPI.log(
         "begin_tour",
         {
@@ -39851,7 +39975,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       );
     }, []);
-    (0, import_react213.useEffect)(() => {
+    (0, import_react215.useEffect)(() => {
       if (steps[stepNumber].tourName === "Pivot" /* PIVOT */ && steps[stepNumber].stepNumber === 1) {
         props.setHighlightPivotTableButton(true);
       } else {
@@ -39913,7 +40037,7 @@ fig.write_html("${props.graphTabName}.html")`
     const stepTextFunction = steps[stepNumber].stepTextFunction;
     const finalStepText = stepText || stepTextFunction && stepTextFunction(((_a = props.sheetData) == null ? void 0 : _a.data[0].columnID) || "");
     const hideXIcon = steps[stepNumber].hideXIcon === true;
-    return /* @__PURE__ */ import_react213.default.createElement("div", { className: classNames("tour-container", locationToClassNamesMapping[steps[stepNumber].location]), key: stepNumber }, /* @__PURE__ */ import_react213.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react213.default.createElement(Col_default, null, /* @__PURE__ */ import_react213.default.createElement("p", { className: "text-header-2" }, stepNumber + 1, "/", steps.length)), !hideXIcon && /* @__PURE__ */ import_react213.default.createElement(Col_default, null, /* @__PURE__ */ import_react213.default.createElement(
+    return /* @__PURE__ */ import_react215.default.createElement("div", { className: classNames("tour-container", locationToClassNamesMapping[steps[stepNumber].location]), key: stepNumber }, /* @__PURE__ */ import_react215.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react215.default.createElement(Col_default, null, /* @__PURE__ */ import_react215.default.createElement("p", { className: "text-header-2" }, stepNumber + 1, "/", steps.length)), !hideXIcon && /* @__PURE__ */ import_react215.default.createElement(Col_default, null, /* @__PURE__ */ import_react215.default.createElement(
       XIcon_default,
       {
         variant: "light",
@@ -39925,7 +40049,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       }
-    ))), /* @__PURE__ */ import_react213.default.createElement(Row_default, null, /* @__PURE__ */ import_react213.default.createElement(Col_default, null, /* @__PURE__ */ import_react213.default.createElement("p", { className: "text-header-2 text-color-white-important" }, steps[stepNumber].stepHeader))), /* @__PURE__ */ import_react213.default.createElement("div", { className: "text-overflow-wrap mb-20px" }, finalStepText), /* @__PURE__ */ import_react213.default.createElement(Row_default, { justify: "space-between" }, stepNumber - 1 >= 0 && /* @__PURE__ */ import_react213.default.createElement(Col_default, null, /* @__PURE__ */ import_react213.default.createElement(
+    ))), /* @__PURE__ */ import_react215.default.createElement(Row_default, null, /* @__PURE__ */ import_react215.default.createElement(Col_default, null, /* @__PURE__ */ import_react215.default.createElement("p", { className: "text-header-2 text-color-white-important" }, steps[stepNumber].stepHeader))), /* @__PURE__ */ import_react215.default.createElement("div", { className: "text-overflow-wrap mb-20px" }, finalStepText), /* @__PURE__ */ import_react215.default.createElement(Row_default, { justify: "space-between" }, stepNumber - 1 >= 0 && /* @__PURE__ */ import_react215.default.createElement(Col_default, null, /* @__PURE__ */ import_react215.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -39933,7 +40057,7 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => goToStep(stepNumber - 1)
       },
       "Back"
-    )), stepNumber - 1 <= 0 && /* @__PURE__ */ import_react213.default.createElement(Col_default, null), /* @__PURE__ */ import_react213.default.createElement(Col_default, null, /* @__PURE__ */ import_react213.default.createElement(
+    )), stepNumber - 1 <= 0 && /* @__PURE__ */ import_react215.default.createElement(Col_default, null), /* @__PURE__ */ import_react215.default.createElement(Col_default, null, /* @__PURE__ */ import_react215.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -39946,9 +40070,9 @@ fig.write_html("${props.graphTabName}.html")`
   var Tour_default = Tour;
 
   // src/hooks/useMitoAPI.tsx
-  var import_react214 = __toESM(require_react());
+  var import_react216 = __toESM(require_react());
   var useMitoAPI = (kernelID2, commTargetID2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
-    const [mitoAPI] = (0, import_react214.useState)(
+    const [mitoAPI] = (0, import_react216.useState)(
       () => {
         return new MitoAPI(
           setSheetDataArray,
@@ -39958,8 +40082,8 @@ fig.write_html("${props.graphTabName}.html")`
         );
       }
     );
-    const [commCreationStatus, setCommCreationStatus] = (0, import_react214.useState)("loading");
-    (0, import_react214.useEffect)(() => {
+    const [commCreationStatus, setCommCreationStatus] = (0, import_react216.useState)("loading");
+    (0, import_react216.useEffect)(() => {
       const init = async () => {
         const commContainerOrError = await getCommContainer(kernelID2, commTargetID2);
         if (typeof commContainerOrError === "string") {
@@ -39979,12 +40103,12 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/Mito.tsx
   var Mito = (props) => {
-    const mitoContainerRef = (0, import_react215.useRef)(null);
-    const [sheetDataArray2, setSheetDataArray] = (0, import_react215.useState)(props.sheetDataArray);
-    const [analysisData2, setAnalysisData] = (0, import_react215.useState)(props.analysisData);
-    const [userProfile2, setUserProfile] = (0, import_react215.useState)(props.userProfile);
-    const [gridState, setGridState] = (0, import_react215.useState)(() => getDefaultGridState(sheetDataArray2, 0));
-    const [uiState, setUIState] = (0, import_react215.useState)({
+    const mitoContainerRef = (0, import_react217.useRef)(null);
+    const [sheetDataArray2, setSheetDataArray] = (0, import_react217.useState)(props.sheetDataArray);
+    const [analysisData2, setAnalysisData] = (0, import_react217.useState)(props.analysisData);
+    const [userProfile2, setUserProfile] = (0, import_react217.useState)(props.userProfile);
+    const [gridState, setGridState] = (0, import_react217.useState)(() => getDefaultGridState(sheetDataArray2, 0));
+    const [uiState, setUIState] = (0, import_react217.useState)({
       loading: [],
       currOpenModal: userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
       currOpenTaskpane: { type: "none" /* NONE */ },
@@ -39999,12 +40123,12 @@ fig.write_html("${props.graphTabName}.html")`
         ["top_right" /* TopRight */]: { type: "none" /* None */ }
       }
     });
-    const [editorState, setEditorState] = (0, import_react215.useState)(void 0);
-    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react215.useState)(false);
-    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react215.useState)(false);
-    const [currPathParts, setCurrPathParts] = (0, import_react215.useState)(["."]);
+    const [editorState, setEditorState] = (0, import_react217.useState)(void 0);
+    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react217.useState)(false);
+    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react217.useState)(false);
+    const [currPathParts, setCurrPathParts] = (0, import_react217.useState)(["."]);
     const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -40016,10 +40140,10 @@ fig.write_html("${props.graphTabName}.html")`
         });
       }
     }, [commCreationStatus]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, [mitoAPI]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
@@ -40069,16 +40193,16 @@ fig.write_html("${props.graphTabName}.html")`
       };
       void handleRender();
     }, [mitoAPI, commCreationStatus]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       if (analysisData2.renderCount >= 1) {
         writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled);
       }
     }, [analysisData2]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       plotly_default();
     }, []);
-    const previousNumSheetsRef = (0, import_react215.useRef)(sheetDataArray2.length);
-    (0, import_react215.useEffect)(() => {
+    const previousNumSheetsRef = (0, import_react217.useRef)(sheetDataArray2.length);
+    (0, import_react217.useEffect)(() => {
       const previousNumSheets = previousNumSheetsRef.current;
       setUIState((prevUIState) => {
         const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
@@ -40094,12 +40218,12 @@ fig.write_html("${props.graphTabName}.html")`
       });
       previousNumSheetsRef.current = sheetDataArray2.length;
     }, [sheetDataArray2]);
-    const previousNumGraphsRef = (0, import_react215.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
-    const previousGraphIndex = (0, import_react215.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
-    (0, import_react215.useEffect)(() => {
+    const previousNumGraphsRef = (0, import_react217.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
+    const previousGraphIndex = (0, import_react217.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
+    (0, import_react217.useEffect)(() => {
       previousGraphIndex.current = uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1;
     }, [uiState.selectedGraphID]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       const graphIDs = Object.keys(analysisData2.graphDataDict || {});
       const previousNumGraphs = previousNumGraphsRef.current;
       const newNumGraphs = Object.keys(analysisData2.graphDataDict || {}).length;
@@ -40122,7 +40246,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
       previousNumGraphsRef.current = newNumGraphs;
     }, [Object.keys(analysisData2.graphDataDict || {}).length]);
-    (0, import_react215.useEffect)(() => {
+    (0, import_react217.useEffect)(() => {
       const openEditedPivot = async () => {
         const existingPivotParams = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
         if (existingPivotParams !== void 0) {
@@ -40148,8 +40272,8 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState(void 0);
       }
     }, [uiState.selectedSheetIndex]);
-    const prevOpenTaskpaneRef = (0, import_react215.useRef)(uiState.currOpenTaskpane.type);
-    (0, import_react215.useEffect)(() => {
+    const prevOpenTaskpaneRef = (0, import_react217.useRef)(uiState.currOpenTaskpane.type);
+    (0, import_react217.useEffect)(() => {
       var _a;
       if (prevOpenTaskpaneRef.current !== "none" /* NONE */ && uiState.currOpenTaskpane.type === "none" /* NONE */) {
         const endoGridContainer = (_a = mitoContainerRef.current) == null ? void 0 : _a.querySelector(".endo-grid-container");
@@ -40166,7 +40290,7 @@ fig.write_html("${props.graphTabName}.html")`
       gridState.selections[gridState.selections.length - 1].startingRowIndex,
       gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
-    const closeOpenEditingPopups = (0, import_react215.useCallback)((taskpanesToKeepIfOpen) => {
+    const closeOpenEditingPopups = (0, import_react217.useCallback)((taskpanesToKeepIfOpen) => {
       if (EDITING_TASKPANES.includes(uiState.currOpenTaskpane.type) && (taskpanesToKeepIfOpen === void 0 || !taskpanesToKeepIfOpen.includes(uiState.currOpenTaskpane.type))) {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -40184,9 +40308,9 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrentModalComponent = () => {
       switch (uiState.currOpenModal.type) {
         case "None" /* None */:
-          return /* @__PURE__ */ import_react215.default.createElement("div", null);
+          return /* @__PURE__ */ import_react217.default.createElement("div", null);
         case "Error" /* Error */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ErrorModal_default,
             {
               error: uiState.currOpenModal.error,
@@ -40196,7 +40320,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ClearAnalysis" /* ClearAnalysis */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ClearAnalysisModal_default,
             {
               setUIState,
@@ -40204,7 +40328,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "SignUp" /* SignUp */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             SignupModal_default,
             {
               setUIState,
@@ -40216,7 +40340,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Upgrade" /* Upgrade */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             UpgradeModal_default,
             {
               setUIState,
@@ -40224,7 +40348,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ErrorReplayAnalysis" /* ErrorReplayedAnalysis */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ReplayAnalysisModals_default,
             {
               setUIState,
@@ -40238,7 +40362,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DeleteGraphs" /* DeleteGraphs */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             DeleteGraphsModal_default,
             {
               setUIState,
@@ -40253,7 +40377,7 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrOpenTaskpane = () => {
       switch (uiState.currOpenTaskpane.type) {
         case "control_panel" /* CONTROL_PANEL */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ControlPanelTaskpane_default,
             {
               key: "" + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab,
@@ -40273,7 +40397,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "upgrade_to_pro" /* UPGRADE_TO_PRO */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             UpgradeToProTaskpane_default,
             {
               mitoAPI,
@@ -40282,7 +40406,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "download" /* DOWNLOAD */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             DownloadTaskpane_default,
             {
               dfNames,
@@ -40295,7 +40419,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "drop_duplicates" /* DROP_DUPLICATES */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             DropDuplicates_default,
             {
               dfNames,
@@ -40307,7 +40431,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "graph" /* GRAPH */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             GraphSidebar_default,
             {
               graphID: uiState.currOpenTaskpane.graphID,
@@ -40325,7 +40449,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import files" /* IMPORT_FILES */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             FileImportTaskpane_default,
             {
               mitoAPI,
@@ -40337,7 +40461,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "merge" /* MERGE */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             MergeTaskpane_default,
             {
               selectedSheetIndex: uiState.selectedSheetIndex,
@@ -40348,7 +40472,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "concat" /* CONCAT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ConcatTaskpane_default,
             {
               analysisData: analysisData2,
@@ -40358,9 +40482,9 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* NONE */:
-          return /* @__PURE__ */ import_react215.default.createElement(import_react215.Fragment, null);
+          return /* @__PURE__ */ import_react217.default.createElement(import_react217.Fragment, null);
         case "pivot" /* PIVOT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             PivotTaskpane_default,
             {
               dfNames,
@@ -40375,7 +40499,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             SplitTextToColumnsTaskpane_default,
             {
               mitoAPI,
@@ -40388,7 +40512,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "steps" /* STEPS */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             StepsTaskpane_default,
             {
               stepSummaryList: analysisData2.stepSummaryList,
@@ -40398,7 +40522,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import_first" /* IMPORT_FIRST */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             DefaultEmptyTaskpane_default,
             {
               setUIState,
@@ -40406,7 +40530,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "fill_na" /* FILL_NA */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             FillNaTaskpane_default,
             {
               setUIState,
@@ -40419,7 +40543,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "melt" /* MELT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             MeltTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40431,7 +40555,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "set_dataframe_format" /* SET_DATAFRAME_FORMAT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             SetDataframeFormatTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40443,7 +40567,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ConditionalFormatting" /* CONDITIONALFORMATTING */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ConditionalFormattingTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40455,7 +40579,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DataframeImport" /* DATAFRAMEIMPORT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             DataframeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40467,7 +40591,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "UpdateImports" /* UPDATEIMPORTS */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             UpdateImportsTaskpane_default,
             {
               mitoAPI,
@@ -40481,7 +40605,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "CannotCreateComm" /* CANNOTCREATECOMM */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             CannotCreateCommTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40490,7 +40614,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "CodeSnippets" /* CODESNIPPETS */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             CodeSnippetsTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40502,7 +40626,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Excel Range Import" /* EXCEL_RANGE_IMPORT */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             ExcelRangeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -40514,13 +40638,25 @@ fig.write_html("${props.graphTabName}.html")`
               sheet_name: uiState.currOpenTaskpane.sheet_name
             }
           );
+        case "Export To File" /* EXPORT_TO_FILE */:
+          return /* @__PURE__ */ import_react217.default.createElement(
+            ExportToFileTaskpane_default,
+            {
+              userProfile: userProfile2,
+              analysisData: analysisData2,
+              sheetDataArray: sheetDataArray2,
+              setUIState,
+              mitoAPI,
+              selectedSheetIndex: uiState.selectedSheetIndex
+            }
+          );
       }
     };
     const getCurrOpenPopup = (popupLocation) => {
       const popupLocationInfo = uiState.currOpenPopups[popupLocation];
       switch (popupLocationInfo.type) {
         case "ephemeral_message" /* EphemeralMessage */:
-          return /* @__PURE__ */ import_react215.default.createElement(
+          return /* @__PURE__ */ import_react217.default.createElement(
             EphemeralMessage_default,
             {
               message: popupLocationInfo.message,
@@ -40529,7 +40665,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* None */:
-          return /* @__PURE__ */ import_react215.default.createElement(import_react215.Fragment, null);
+          return /* @__PURE__ */ import_react217.default.createElement(import_react217.Fragment, null);
       }
     };
     const actions = createActions(
@@ -40550,7 +40686,7 @@ fig.write_html("${props.graphTabName}.html")`
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
     const getCurrTour = () => {
       if (analysisData2.dataTypeInTool === "none" /* NONE */ || analysisData2.dataTypeInTool === "tutorial" /* TUTORIAL */) {
-        return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null);
+        return /* @__PURE__ */ import_react217.default.createElement(import_react217.default.Fragment, null);
       }
       const toursToDisplay = [];
       if (!userProfile2.receivedTours.includes("Intro" /* INTRO */)) {
@@ -40559,7 +40695,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (editorState !== void 0 && editorState.rowIndex >= 0 && !userProfile2.receivedTours.includes("Column_Formulas" /* COLUMN_FORMULAS */)) {
         toursToDisplay.push("Column_Formulas" /* COLUMN_FORMULAS */);
       }
-      return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react215.default.createElement(
+      return /* @__PURE__ */ import_react217.default.createElement(import_react217.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react217.default.createElement(
         Tour_default,
         {
           sheetData: sheetDataArray2[uiState.selectedSheetIndex],
@@ -40582,7 +40718,7 @@ fig.write_html("${props.graphTabName}.html")`
       "mito-default-fullscreen-taskpane-open": graphTaskpaneOpen,
       "mito-default-narrow-taskpane-open": narrowTaskpaneOpen
     });
-    return /* @__PURE__ */ import_react215.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react215.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react215.default.createElement(
+    return /* @__PURE__ */ import_react217.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react217.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react217.default.createElement(
       Toolbar_default,
       {
         mitoAPI,
@@ -40602,7 +40738,7 @@ fig.write_html("${props.graphTabName}.html")`
         analysisData: analysisData2,
         sheetIndex: uiState.selectedSheetIndex
       }
-    ), /* @__PURE__ */ import_react215.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react215.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react215.default.createElement(
+    ), /* @__PURE__ */ import_react217.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react217.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react217.default.createElement(
       EndoGrid_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -40618,7 +40754,7 @@ fig.write_html("${props.graphTabName}.html")`
         closeOpenEditingPopups,
         commCreationStatus
       }
-    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react215.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react215.default.createElement(
+    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react217.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react217.default.createElement(
       Footer_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -40632,7 +40768,7 @@ fig.write_html("${props.graphTabName}.html")`
         mitoContainerRef,
         setEditorState
       }
-    ), getCurrentModalComponent(), /* @__PURE__ */ import_react215.default.createElement(
+    ), getCurrentModalComponent(), /* @__PURE__ */ import_react217.default.createElement(
       BottomLeftPopup_default,
       {
         loading: uiState.loading,
@@ -40644,7 +40780,7 @@ fig.write_html("${props.graphTabName}.html")`
         actions,
         setUIState
       }
-    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react215.default.createElement(
+    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react217.default.createElement(
       CatchUpPopup_default,
       {
         fastForward: () => {
@@ -40672,7 +40808,7 @@ fig.write_html("${props.graphTabName}.html")`
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
   import_react_dom2.default.render(
-    /* @__PURE__ */ React207.createElement(
+    /* @__PURE__ */ React209.createElement(
       Mito_default,
       {
         kernelID,
