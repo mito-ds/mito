@@ -49,6 +49,7 @@ const EmptyGridMessages = (props: {
                             }}
                             disabled={
                                 props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT_FILES ||
+                                props.uiState.currOpenTaskpane.type === TaskpaneType.EXCEL_RANGE_IMPORT ||
                                 (props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined) ||
                                 props.commCreationStatus !== 'finished'
                             }

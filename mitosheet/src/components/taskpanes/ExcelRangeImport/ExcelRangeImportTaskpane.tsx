@@ -89,7 +89,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             onClick={() => {
                                 setParams((prevParams) => {
                                     const newRangeImports = [...prevParams.range_imports];
-                                    newRangeImports.unshift({'type': 'range', 'df_name': '', 'value': ''}) // add to the start
+                                    const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : 'range'; // add whatever the previous range is
+                                    newRangeImports.unshift({'type': previousType, 'df_name': '', 'value': ''}) // add to the start
                                     return {
                                         ...prevParams,
                                         range_imports: newRangeImports
