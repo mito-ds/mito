@@ -159,11 +159,13 @@ class PivotCodeChunk(CodeChunk):
             full_filter_string = combine_filter_strings('And', filter_strings)
             transpiled_code.append(f'tmp_df = {self.old_df_name}[{full_filter_string}]')
             old_df_name = 'tmp_df' # update the old_df name, for the step below
+        else:
+            old_df_name = self.old_df_name
 
         # Drop any columns we don't need, to avoid issues where pandas freaks out
         # and says there is a non-1-dimensional grouper
         column_headers_list = column_header_list_to_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
-        transpiled_code.append(f'tmp_df = {self.old_df_name}[{column_headers_list}].copy()')
+        transpiled_code.append(f'tmp_df = {old_df_name}[{column_headers_list}].copy()')
 
         # Create any new temporary columns that are formed by the pivot transforms
         transpiled_code = transpiled_code + get_code_for_transform_columns('tmp_df', pivot_rows_with_transforms) + get_code_for_transform_columns('tmp_df', pivot_columns_with_transforms)
