@@ -203,7 +203,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             <Row justify="space-between">
                                 <Col>
                                     <p>
-                                        Excel Range
+                                        {range_import.type === 'range' ? "Excel Range" : 'Upper Left Value'}
                                     </p>
                                 </Col>
                                 <Col>

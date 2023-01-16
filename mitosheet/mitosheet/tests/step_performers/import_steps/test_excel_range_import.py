@@ -35,7 +35,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     (
         ['A1:B2'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1]
     ),
     (   
@@ -45,12 +45,12 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     (
         ['AA100:AB101'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1]
     ),
     (
         ['A1:E3'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_5.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
         [TEST_DF_5]
     ),
     (
@@ -60,7 +60,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     (
         ['A1:G100'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1]
     ),
     (   
@@ -75,7 +75,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     (
         ['A1:B4'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_3.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
         [TEST_DF_3]
     ),
     (
@@ -85,17 +85,17 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.iloc[0, 0]}, {'type': 'upper left corner value', 'df_name': 'dataframe_2', 'value': TEST_DF_2.iloc[0, 0]}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'upper left corner value', 'df_name': 'dataframe_2', 'value': TEST_DF_2.columns[0]}],
         [TEST_DF_1, TEST_DF_2]
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.iloc[0, 0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
+        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2]
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.iloc[0, 0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
+        [{'type': 'upper left corner value', 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2]
     ),
     (
@@ -121,6 +121,8 @@ def test_excel_range_import(range, imports, dfs):
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
     os.remove(TEST_FILE_PATH)
@@ -207,7 +209,7 @@ def test_excel_range_upper_left_detection_works(ranges, dfs):
 
 
     for r, df in zip(ranges, dfs):
-        upper_left_value = df.iloc[0, 0]
+        upper_left_value = df.columns[0]
         assert r == get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value)
 
     os.remove(TEST_FILE_PATH)

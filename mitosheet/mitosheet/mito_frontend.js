@@ -38206,7 +38206,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           )
         ))),
-        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Excel Range")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, range_import.type === "range" ? "Excel Range" : "Upper Left Value")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
             width: "medium",

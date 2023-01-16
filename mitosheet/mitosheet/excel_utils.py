@@ -74,14 +74,15 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
     # We get the last defined rows, so we don't waste time searching data we don't need
     dimension = sheet.calculate_dimension()
     (min_search_col, min_search_row), (max_search_col, max_search_row) = get_col_and_row_indexes_from_range(dimension)
+    # Unfortunately, openpyxl indexes from 1, so we add one to treat everything in that range
+    (min_search_col, min_search_row), (max_search_col, max_search_row) = (min_search_col + 1, min_search_row + 1), (max_search_col + 1, max_search_row + 1)
 
-    # Loop over the columns one by one (note that openpyxl is 1 indexed) to find
-    # where this value is set
+    # Loop over the columns one by one to find where this value is set
     min_found_col_index, min_found_row_index = None, None
-    for col in sheet.iter_cols(min_row=min_search_row + 1, max_row=max_search_row + 1, min_col=min_search_col + 1, max_col=max_search_col + 1):
+    for col in sheet.iter_cols(min_row=min_search_row, max_row=max_search_row, min_col=min_search_col, max_col=max_search_col):
         for cell in col:
             if cell.value == value:
-                min_found_col_index, min_found_row_index = cell.column - 1, cell.row - 1
+                min_found_col_index, min_found_row_index = cell.column, cell.row
         
         # As soon as we find something, stop looking
         if min_found_col_index is not None or min_found_row_index is not None:
@@ -90,14 +91,14 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
     if min_found_col_index is None or min_found_row_index is None:
         return None
 
-    column = sheet[get_column_from_column_index(min_found_col_index)]
+    column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 1 index
     max_found_row_index = None
-    for row_index, cell in enumerate(column):
-        if row_index < min_found_row_index:
+    for cell in column:
+        if cell.row < min_found_row_index:
             continue
         
         if cell.value is None:
-            max_found_row_index = row_index
+            max_found_row_index = cell.row - 1 # minus b/c this is one past the end
             break
 
     # If we looped over the entire column without ending, then we set the max row index
@@ -107,12 +108,10 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
 
     # Then we find find where the rows are defined to
     max_found_col_index = None
-    for row in sheet.iter_rows(min_row=max_found_row_index, max_row=max_found_row_index, min_col=min_found_col_index + 1):
-        print(row)
+    for row in sheet.iter_rows(min_row=max_found_row_index - 1, max_row=max_found_row_index - 1, min_col=min_found_col_index):
         for cell in row:
-            print("cell", cell, cell.value)
             if cell.value is None:
-                max_found_col_index = cell.column - 2 # one b/c it is one indexes, and one b/c this is one past the end
+                max_found_col_index = cell.column - 1 # minus b/c this is one past the end
                 break
     
     # Similarly, if we don't find any empty value in the defined cells, we set the max_col index
@@ -120,4 +119,4 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
     if max_found_col_index is None:
         max_found_col_index = max_search_col
 
-    return f'{get_column_from_column_index(min_found_col_index)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index)}{max_found_row_index}'
+    return f'{get_column_from_column_index(min_found_col_index - 1)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index - 1)}{max_found_row_index}'
