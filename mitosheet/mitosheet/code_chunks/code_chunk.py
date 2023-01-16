@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from mitosheet.state import State
@@ -42,7 +42,7 @@ class CodeChunk:
         """Returns a detailed comment explaing what happened in this CodeChunk"""
         raise NotImplementedError('Implement in subclass')
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         """Returns a the list of code strings that this code chunk executes"""
         raise NotImplementedError('Implement in subclass')
 

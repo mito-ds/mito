@@ -4,7 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
@@ -25,7 +25,7 @@ class OneHotEncodingCodeChunk(CodeChunk):
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'One-hot Encoded {column_header}'
         
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         df_name = self.post_state.df_names[self.sheet_index]
         column_index = self.post_state.dfs[self.sheet_index].columns.tolist().index(column_header)
@@ -37,10 +37,9 @@ class OneHotEncodingCodeChunk(CodeChunk):
         reorder_columns_line = f'{df_name} = {df_name}[{df_name}.columns[:{column_index + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_index + 1}:-{len(self.new_column_headers)}].tolist()]'
 
         return [
-            'import pandas as pd',
             encode_line,
             reorder_columns_line   
-        ]
+        ], ['import pandas as pd']
 
     
     def get_edited_sheet_indexes(self) -> List[int]:

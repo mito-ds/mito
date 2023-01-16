@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
@@ -397,18 +397,18 @@ class FilterCodeChunk(CodeChunk):
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Filtered {column_header}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         entire_filter_string = get_entire_filter_string(
             self.post_state, self.sheet_index, self.operator, self.filters, self.column_id
         )
 
         if entire_filter_string is None:
-            return []
+            return [], []
         else:
             return [
                 f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
-            ]
+            ], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

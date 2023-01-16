@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
-from typing import Any, Collection, Dict, List, Optional
+from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -120,7 +120,7 @@ class PivotCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Pivoted {self.old_df_name} into {self.new_df_name}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
     
         # Get just the column headers in a list, for convenience
         pivot_rows = [self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, cit['column_id']) for cit in self.pivot_rows_column_ids_with_transforms]
@@ -146,7 +146,7 @@ class PivotCodeChunk(CodeChunk):
 
         # If there are no keys or values to aggregate on we return an empty dataframe. 
         if len(pivot_rows_with_transforms) == 0 and len(pivot_columns_with_transforms) == 0 or len(values) == 0:
-            return [f'{self.new_df_name} = pd.DataFrame(data={{}})']
+            return [f'{self.new_df_name} = pd.DataFrame(data={{}})'], ['import pandas as pd']
 
         transpiled_code = []
 
@@ -183,7 +183,7 @@ class PivotCodeChunk(CodeChunk):
         # Finially, reset the column name, and the indexes!
         transpiled_code.append(f'{self.new_df_name} = pivot_table.reset_index()')
 
-        return transpiled_code
+        return transpiled_code, [] # TODO: we might actually need pd to be defined!
 
     def _combine_right_with_pivot_code_chunk(self, pivot_code_chunk: "PivotCodeChunk") -> Optional["CodeChunk"]:
         """

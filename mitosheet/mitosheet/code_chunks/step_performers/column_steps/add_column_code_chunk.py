@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.add_column_set_formula_code_chunk import \
     AddColumnSetFormulaCodeChunk
@@ -40,11 +40,11 @@ class AddColumnCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Added column {self.column_header}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         transpiled_column_header = column_header_to_transpiled_code(self.column_header)
         return [
             f'{self.df_name}.insert({self.column_header_index}, {transpiled_column_header}, 0)'
-        ]
+        ], []
 
     
     def get_edited_sheet_indexes(self) -> List[int]:

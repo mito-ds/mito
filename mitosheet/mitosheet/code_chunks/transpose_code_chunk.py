@@ -4,7 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.types import ColumnID
@@ -24,8 +24,8 @@ class TransposeCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f"Transposed {self.df_name} into {self.transposed_df_name}"
 
-    def get_code(self) -> List[str]:
-        return [f'{self.transposed_df_name} = {self.df_name}.T']
+    def get_code(self) -> Tuple[List[str], List[str]]:
+        return [f'{self.transposed_df_name} = {self.df_name}.T'], []
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.post_state.dfs) - 1]

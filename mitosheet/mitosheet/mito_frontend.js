@@ -22571,6 +22571,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (code.length == 0) {
       return "";
     }
+    console.log("Code", code);
     let finalCode = "";
     const isCommentLine = (codeLine) => {
       return codeLine.startsWith("#") && codeLine.indexOf("\n") === -1;
@@ -22585,10 +22586,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     if (telemetryEnabled) {
       return `from mitosheet import *; register_analysis("${analysisName}");
-    ${finalCode}`;
+${finalCode}`;
     } else {
       return `from mitosheet import *; # Analysis Name:${analysisName};
-    ${finalCode}`;
+${finalCode}`;
     }
   }
   function getLastNonEmptyLine(codeText) {

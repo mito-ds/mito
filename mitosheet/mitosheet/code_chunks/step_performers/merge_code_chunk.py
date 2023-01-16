@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -40,7 +40,7 @@ class MergeCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Merged {self.df_one_name} and {self.df_two_name} into {self.df_new_name}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         merge_keys_one: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_one, list(map(lambda x: x[0], self.merge_key_column_ids)))
         merge_keys_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_two, list(map(lambda x: x[1], self.merge_key_column_ids)))
 
@@ -48,7 +48,7 @@ class MergeCodeChunk(CodeChunk):
         selected_column_headers_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_two, self.selected_column_ids_two)
 
         if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
-            return [f'{self.df_new_name} = pd.DataFrame()']
+            return [f'{self.df_new_name} = pd.DataFrame()'], ['import pandas as pd']
 
         # Now, we build the merge code 
         merge_code = []
@@ -111,7 +111,7 @@ class MergeCodeChunk(CodeChunk):
             )
 
         # And then return it
-        return merge_code
+        return merge_code, []
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.post_state.dfs) - 1]

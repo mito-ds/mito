@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -28,7 +28,7 @@ class FillNaCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Filled NaN values in {len(self.column_ids)} columns in {self.df_name}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         fill_method_type = self.fill_method['type']
 
         df = self.post_state.dfs[self.sheet_index]
@@ -40,11 +40,11 @@ class FillNaCodeChunk(CodeChunk):
         if fill_method_type == 'value':
             if full_dataframe:
                 
-                return [f"{self.df_name}.fillna({column_header_to_transpiled_code(self.fill_method['value'])}, inplace=True)"]
+                return [f"{self.df_name}.fillna({column_header_to_transpiled_code(self.fill_method['value'])}, inplace=True)"], []
             else:
                 values = {column_header: self.fill_method['value'] for column_header in column_headers}
                 values_string = column_header_map_to_string(values) # this function is misnamed, but works for us
-                return [f"{self.df_name}.fillna({values_string}, inplace=True)"]
+                return [f"{self.df_name}.fillna({values_string}, inplace=True)"], []
         else:
             if fill_method_type == 'ffill':
                 param_string = "method='ffill'"
@@ -62,16 +62,15 @@ class FillNaCodeChunk(CodeChunk):
                     param_string = f"{self.df_name}[columns_to_fill_nan].median(numeric_only=False)"
 
             if full_dataframe:
-                return [f"{self.df_name}.fillna({param_string}, inplace=True)"]
+                return [f"{self.df_name}.fillna({param_string}, inplace=True)"], []
             else:
                 column_headers_list_str = column_header_list_to_transpiled_code(column_headers)
                 return [
                     f"columns_to_fill_nan = {column_headers_list_str}",
                     f"{self.df_name}[columns_to_fill_nan] = {self.df_name}[columns_to_fill_nan].fillna({param_string})"
-                ]
+                ], []
 
-
-        return []
+        return [], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

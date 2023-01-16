@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -28,13 +28,13 @@ class SortCodeChunk(CodeChunk):
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Sorted {column_header} in {self.sort_direction} order'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 
         # If there is no sort applied in this step, then bail with no code
         from mitosheet.step_performers.sort import SORT_DIRECTION_NONE
         if self.sort_direction == SORT_DIRECTION_NONE:
-            return []
+            return [], []
 
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
@@ -43,7 +43,7 @@ class SortCodeChunk(CodeChunk):
         
         return [
             f'{self.df_name} = {self.df_name}.sort_values(by={transpiled_column_header}, ascending={self.sort_direction == SORT_DIRECTION_ASCENDING}, na_position=\'{na_position_string}\')', 
-        ]
+        ], []
     
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

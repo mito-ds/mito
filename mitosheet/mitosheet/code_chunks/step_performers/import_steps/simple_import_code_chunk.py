@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -72,9 +72,9 @@ class SimpleImportCodeChunk(CodeChunk):
         base_names = [os.path.basename(path) for path in self.file_names]
         return f'Imported {", ".join(base_names)}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
-        code = ['import pandas as pd']
+        code = []
 
         index = 0
         for file_name, df_name in zip(self.file_names, self.post_state.df_names[len(self.post_state.df_names) - len(self.file_names):]):
@@ -91,7 +91,7 @@ class SimpleImportCodeChunk(CodeChunk):
             
             index += 1
 
-        return code
+        return code, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.post_state.dfs) - len(self.file_names), len(self.post_state.dfs))]
