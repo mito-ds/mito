@@ -25814,7 +25814,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           });
           void props.mitoAPI.log("clicked_empty_grid_import_button");
         },
-        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
+        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "Excel Range Import" /* EXCEL_RANGE_IMPORT */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
       },
       "Import Files"
     )), /* @__PURE__ */ import_react42.default.createElement("p", { className: "mt-5px text-body-1", style: { textAlign: "center" } }, "Or import dataframes using the syntax ", /* @__PURE__ */ import_react42.default.createElement("code", null, "mitosheet.sheet(df1, df2)"), " in the code above.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No data in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No columns in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No rows in dataframe.")));
@@ -38116,7 +38116,8 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => {
           setParams((prevParams) => {
             const newRangeImports = [...prevParams.range_imports];
-            newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
+            const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : "range";
+            newRangeImports.unshift({ "type": previousType, "df_name": "", "value": "" });
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
             });

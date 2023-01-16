@@ -213,3 +213,40 @@ def test_excel_range_upper_left_detection_works(ranges, dfs):
         assert r == get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value)
 
     os.remove(TEST_FILE_PATH)
+
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_excel_range_import_followed_by_rename_optimizes():
+    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
+
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
+    mito.rename_dataframe(1, 'new_df2')
+
+    assert len(mito.dfs) == 2
+    assert TEST_DF_1.equals(mito.dfs[0])
+    assert TEST_DF_2.equals(mito.dfs[1])
+
+    assert mito.df_names[-1] == 'new_df2'
+    assert len(mito.optimized_code_chunks) == 1
+
+    os.remove(TEST_FILE_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_excel_range_import_followed_by_rename_other_does_not_optimize():
+    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
+
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
+    mito.rename_dataframe(0, 'new_df1')
+
+    assert len(mito.dfs) == 2
+    assert TEST_DF_1.equals(mito.dfs[0])
+    assert TEST_DF_2.equals(mito.dfs[1])
+
+    assert mito.df_names[0] == 'new_df1'
+    assert len(mito.optimized_code_chunks) == 2
+
+    os.remove(TEST_FILE_PATH)

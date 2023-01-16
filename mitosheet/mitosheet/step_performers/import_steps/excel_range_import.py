@@ -48,7 +48,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
         pandas_start_time = perf_counter()
 
-        df_name_to_ranges: Dict[str, str] = {}
+        sheet_index_to_df_name_and_range: Dict[int, Tuple[str, str]] = {}
         for range_import in range_imports:
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
                 _range = range_import['value']
@@ -70,13 +70,13 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 df_name=final_df_name
             )
 
-            df_name_to_ranges[final_df_name] = _range
+            sheet_index_to_df_name_and_range[len(post_state.dfs) - 1] = (final_df_name, _range)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'df_name_to_ranges': df_name_to_ranges,
+            'sheet_index_to_df_name_and_range': sheet_index_to_df_name_and_range,
             'result': {
                 # TODO: fill in the result, when we make the frontend
             }
@@ -96,7 +96,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'file_path'),
                 get_param(params, 'sheet_name'),
-                (execution_data if execution_data is not None else dict()).get('df_name_to_ranges', {})
+                (execution_data if execution_data is not None else dict()).get('sheet_index_to_df_name_and_range', {})
             )
         ]
 
