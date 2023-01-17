@@ -55,7 +55,7 @@ const getDefaultParams = (
 */
 const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, edit} = useSendEditOnClick<ExportToFileParams, undefined>(
+    const {params, setParams, edit, editApplied, loading} = useSendEditOnClick<ExportToFileParams, undefined>(
             () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
             StepType.ExportToFile, 
             props.mitoAPI,
@@ -142,15 +142,16 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
+                {editApplied && <p className='text-body-3'>Files and code written.</p>}
                 <TextButton
                     variant='dark'
                     width='block'
                     onClick={() => {
                         edit();
                     }}
-                    disabled={params.sheet_indexes.length === 0}
+                    disabled={params.sheet_indexes.length === 0 || loading}
                 >
-                    Generate Export Code
+                    {loading ? 'Generating...' : 'Generate Export Code'}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

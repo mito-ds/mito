@@ -34,7 +34,7 @@ class ExportToFileCodeChunk(CodeChunk):
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self._type == 'excel':
-            # If there is only one sheet being exported, we generate code that is as nice as we can manage
+            # If there is only one sheet being exported, we can avoid creating the pd.ExcelWriter
             if len(self.sheet_index_to_export_location) == 1:
                 for sheet_index, export_location in self.sheet_index_to_export_location.items():
                     return [f'{self.post_state.df_names[sheet_index]}.to_excel("{self.file_name}", sheet_name="{export_location}", index={False})'], []

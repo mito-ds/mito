@@ -212,7 +212,7 @@ const Toolbar = (
                             }
                             width='medium'
                         >
-                            <DropdownItem title='Download as File' onClick={() => {props.setUIState(prevUIState => {
+                            <DropdownItem title='Download File' onClick={() => {props.setUIState(prevUIState => {
                                 return {
                                     ...prevUIState,
                                     currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}

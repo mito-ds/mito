@@ -7,10 +7,12 @@
 Contains tests for Export To File
 """
 
+import glob
 import os
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper_dfs
+from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 
 EXPORT_TO_FILE_TESTS_CSV = [
     (
@@ -52,6 +54,8 @@ EXPORT_TO_FILE_TESTS_CSV = [
         ['out.txt']
     ),
 ]
+@pandas_post_1_2_only
+@python_post_3_6_only
 @pytest.mark.parametrize("input_dfs, type, sheet_indexes, file_name, final_file_names", EXPORT_TO_FILE_TESTS_CSV)
 def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name, final_file_names):
     file_name = str(tmp_path / file_name)
@@ -65,7 +69,19 @@ def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name,
         assert os.path.exists(final_file_name)
         assert pd.read_csv(final_file_name).equals(input_dfs[sheet_index])
 
+    # Remove the files, run generated code, and check that things are still equal
+    files = glob.glob(str(tmp_path / '*'))
+    for f in files:
+        os.remove(f)
+    assert len(os.listdir(tmp_path)) == 0
+
     check_dataframes_equal(mito)
+
+    for sheet_index, final_file_name in zip(sheet_indexes, final_file_names):
+        final_file_name = str(tmp_path / final_file_name)
+        assert os.path.exists(final_file_name)
+        assert pd.read_csv(final_file_name).equals(input_dfs[sheet_index])
+    
 
 EXPORT_TO_FILE_TESTS_EXCEL = [
     (
@@ -109,6 +125,8 @@ EXPORT_TO_FILE_TESTS_EXCEL = [
         'out.xlsx', ['an_even_longer_name_that_is_ove', 'final']
     ),
 ]
+@pandas_post_1_2_only
+@python_post_3_6_only
 @pytest.mark.parametrize("input_dfs, type, sheet_indexes, file_name, df_names, final_file_name, final_sheet_names", EXPORT_TO_FILE_TESTS_EXCEL)
 def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_name, df_names, final_file_name, final_sheet_names):
     file_name = str(tmp_path / file_name)
@@ -122,8 +140,17 @@ def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_nam
     final_file_name = str(tmp_path / final_file_name)
     assert os.path.exists(final_file_name)
     for sheet_index, sheet_name in zip(sheet_indexes, final_sheet_names):
-        print(pd.read_excel(final_file_name, sheet_name=sheet_name))
-        print(input_dfs[sheet_index])
         assert pd.read_excel(final_file_name, sheet_name=sheet_name).equals(input_dfs[sheet_index])
 
+    # Remove the files, run generated code, and check that things are still equal
+    files = glob.glob(str(tmp_path / '*'))
+    for f in files:
+        os.remove(f)
+    assert len(os.listdir(tmp_path)) == 0
+
     check_dataframes_equal(mito)
+
+    assert os.path.exists(final_file_name)
+    for sheet_index, sheet_name in zip(sheet_indexes, final_sheet_names):
+        assert pd.read_excel(final_file_name, sheet_name=sheet_name).equals(input_dfs[sheet_index])
+

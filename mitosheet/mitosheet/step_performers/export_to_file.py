@@ -83,9 +83,7 @@ class ExportToFileStepPerformer(StepPerformer):
             'pandas_processing_time': pandas_processing_time,
             'sheet_index_to_export_location': sheet_index_to_export_location,
             'file_name': file_name,
-            'result': {
-                # TODO: fill in the result
-            }
+            'result': {}
         }
 
     @classmethod

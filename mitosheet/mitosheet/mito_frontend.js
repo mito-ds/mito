@@ -38150,6 +38150,22 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react164.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
+    let disabledTooltip = void 0;
+    if (params.range_imports.length === 0) {
+      disabledTooltip = "Please add range imports above before importing them.";
+    } else {
+      params.range_imports.forEach((rangeImport) => {
+        if (rangeImport.df_name === "") {
+          disabledTooltip = "Please ensure all range imports have a defined dataframe name.";
+        } else if (rangeImport.value === "") {
+          if (rangeImport.type === "range") {
+            disabledTooltip = "Please ensure all range imports have a defined range.";
+          } else {
+            disabledTooltip = "Please ensure all range imports have a defined Exact Cell Value.";
+          }
+        }
+      });
+    }
     return /* @__PURE__ */ import_react164.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react164.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -38331,7 +38347,7 @@ fig.write_html("${props.graphTabName}.html")`
     };
   };
   var ExportToFileTaskpane = (props) => {
-    const { params, setParams, edit } = useSendEditOnClick_default(
+    const { params, setParams, edit, editApplied, loading } = useSendEditOnClick_default(
       () => getDefaultParams8(props.sheetDataArray, props.selectedSheetIndex),
       "export_to_file" /* ExportToFile */,
       props.mitoAPI,
@@ -38390,7 +38406,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    )), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react165.default.createElement(
+    )), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneFooter_default, null, editApplied && /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-body-3" }, "Files and code written."), /* @__PURE__ */ import_react165.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -38398,9 +38414,9 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => {
           edit();
         },
-        disabled: params.sheet_indexes.length === 0
+        disabled: params.sheet_indexes.length === 0 || loading
       },
-      "Generate Export Code"
+      loading ? "Generating..." : "Generate Export Code"
     )));
   };
   var ExportToFileTaskpane_default = ExportToFileTaskpane;
@@ -39704,7 +39720,7 @@ fig.write_html("${props.graphTabName}.html")`
           }),
           width: "medium"
         },
-        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Download as File", onClick: () => {
+        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Download File", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "download" /* DOWNLOAD */ }
