@@ -17,6 +17,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import { getBaseOfPath } from "../UpdateImports/updateImportsUtils";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 
 
 interface ExcelRangeImportTaskpaneProps {
@@ -30,7 +31,7 @@ interface ExcelRangeImportTaskpaneProps {
 }
 
 export type ExcelRangeImportType = 'range' | 'upper left corner value';
-export type ExcelRangeImport = {type: ExcelRangeImportType, df_name: string, value: string};
+export type ExcelRangeImport = {type: ExcelRangeImportType, df_name: string, value: string | number};
 
 export interface ExcelRangeImportParams {
     file_path: string,
@@ -61,12 +62,31 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
         StepType.ExcelRangeImport, 
         props.mitoAPI,
         props.analysisData,
+        {overwiteStepIfClickedMultipleTimes: true}
     )
     const [expandedIndex, setExpandedIndex] = useState(0);
 
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
+    }
+
+
+    let disabledTooltip: undefined | string = undefined;
+    if (params.range_imports.length === 0) {
+        disabledTooltip = 'Please add range imports above before importing them.';
+    } else {
+        params.range_imports.forEach(rangeImport => {
+            if (rangeImport.df_name === '') {
+                disabledTooltip = 'Please ensure all range imports have a defined dataframe name.';
+            } else if (rangeImport.value === '') {
+                if (rangeImport.type === 'range') {
+                    disabledTooltip = 'Please ensure all range imports have a defined range.';
+                } else {
+                    disabledTooltip = 'Please ensure all range imports have a defined Exact Cell Value.';
+                }
+            }
+        })
     }
     
     return (
@@ -88,7 +108,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             variant="dark"
                             onClick={() => {
                                 setParams((prevParams) => {
-                                    const newRangeImports = [...prevParams.range_imports];
+                                    const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                                     const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : 'range'; // add whatever the previous range is
                                     newRangeImports.unshift({'type': previousType, 'df_name': '', 'value': ''}) // add to the start
                                     return {
@@ -127,7 +147,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                             onDelete={() => {
                                 setParams((prevParams) => {
-                                    const newRangeImports = [...prevParams.range_imports];
+                                    const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                                     newRangeImports.splice(index, 1);
                                     return {
                                         ...prevParams,
@@ -155,7 +175,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         onChange={(e) => {
                                             const newDfName = e.target.value;
                                             setParams((prevParams) => {
-                                                const newRangeImports = [...prevParams.range_imports];
+                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                                                 newRangeImports[index].df_name = newDfName;
                                                 return {
                                                     ...prevParams,
@@ -178,11 +198,16 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         value={range_import.type}
                                         onChange={(newType) => {
                                             setParams((prevParams) => {
-                                                const newRangeImports = [...prevParams.range_imports];
+                                                const isNew = prevParams.range_imports[index].type !== newType;
+                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                                                 newRangeImports[index].type = newType as ExcelRangeImportType;
+
+                                                if (isNew) {
+                                                    newRangeImports[index].value = ''
+                                                }
                                                 return {
                                                     ...prevParams,
-                                                    range_imports: newRangeImports
+                                                    range_imports: newRangeImports,
                                                 }
                                             })
                                         }}
@@ -201,21 +226,28 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     </Select>
                                 </Col>
                             </Row>
-                            <Row justify="space-between">
+                            <Row justify="space-between" align="center">
                                 <Col>
-                                    <p>
-                                        {range_import.type === 'range' ? "Excel Range" : 'Upper Left Value'}
-                                    </p>
+                                    <LabelAndTooltip 
+                                        textBody
+                                        tooltip={
+                                            range_import.type === 'range' 
+                                            ? "The proper format is COLUMNROW:COLUMNROW. For example, A1:B10, C10:G1000." 
+                                            : 'Mito will attempt to find the cell with this exact value. Only strings and numbers are supported currently.'
+                                        }
+                                    >
+                                        {range_import.type === 'range' ? "Excel Range" : 'Exact Cell Value'}
+                                    </LabelAndTooltip>
                                 </Col>
                                 <Col>
                                     <Input
                                         width="medium"
-                                        placeholder={range_import.type === 'range' ? "A10:C100" : 'cell value'}
-                                        value={range_import.value}
+                                        placeholder={range_import.type === 'range' ? "A10:C100" : 'id_abc123'}
+                                        value={'' + range_import.value}
                                         onChange={(e) => {
                                             const newValue = e.target.value;
                                             setParams((prevParams) => {
-                                                const newRangeImports = [...prevParams.range_imports];
+                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                                                 const newRangeImport = newRangeImports[index];
                                                 newRangeImport.value = newValue;
                                                 return {
@@ -237,9 +269,36 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                     variant='dark'
                     width='block'
                     onClick={() => {
-                        edit();
+                        edit((params) => {
+                            // Before we edit, we turn any values that are numbers directly into numbers. This ensures
+                            // that we find the values when we search through the Excel sheet, if we can
+
+                            const finalRangeImports: ExcelRangeImport[] = params.range_imports.map((rangeImport) => {
+
+                                if (rangeImport.type === 'upper left corner value' && typeof rangeImport.value === 'string') {
+                                    const parsedValue = parseFloat(rangeImport.value);
+                                    if (!isNaN(parsedValue)) {
+                                        return {
+                                            ...rangeImport,
+                                            value: parsedValue
+                                        }
+                                    }
+                                }
+
+                                return rangeImport;
+                            });
+
+                            // We then reverse the range imports, so they appear in the order that they were added
+                            finalRangeImports.reverse()
+
+                            return {
+                                ...params,
+                                range_imports: finalRangeImports
+                            }
+                        });
                     }}
-                    disabled={params.range_imports.length === 0}
+                    disabled={disabledTooltip !== undefined}
+                    disabledTooltip={disabledTooltip}
                 >
                     Import Ranges
                 </TextButton>

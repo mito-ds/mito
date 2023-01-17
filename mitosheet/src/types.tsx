@@ -676,6 +676,8 @@ export enum MitoEnterpriseConfigKey {
  * @param dataTypeInTool - the type of data in the tool in this analysis
  * @param graphDataDict - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
+ * @param undoCount - the number of undos
+ * @param redoCount - the number of redos
  * @param renderCount - the number of times this sheet has rendered. Note that this is per instance of the backend object, 
  *        so it increments by one when the page the sheet is rendered on is refreshed, but resets to zero if a new
  *        mitosheet.sheet() call is made (even if it replays the analysis), as this is a new backend object.
@@ -695,6 +697,8 @@ export interface AnalysisData {
     dataTypeInTool: DataTypeInMito;
     graphDataDict: GraphDataDict;
     updateEventCount: number;
+    undoCount: number,
+    redoCount: number,
     renderCount: number;
     lastResult: any;
     experiment: Experiment | undefined;

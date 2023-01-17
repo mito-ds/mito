@@ -1073,7 +1073,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef13(initialValue) {
+          function useRef11(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1652,7 +1652,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
           exports.useReducer = useReducer;
-          exports.useRef = useRef13;
+          exports.useRef = useRef11;
           exports.useState = useState49;
           exports.version = ReactVersion;
         })();
@@ -22576,7 +22576,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (code.length == 0) {
       return "";
     }
-    console.log("Code", code);
     let finalCode = "";
     const isCommentLine = (codeLine) => {
       return codeLine.startsWith("#") && codeLine.indexOf("\n") === -1;
@@ -33014,33 +33013,21 @@ ${finalCode}`;
   // src/hooks/useEffectOnRedo.tsx
   var import_react105 = __toESM(require_react());
   var useEffectOnRedo = (effect, analysisData2) => {
-    const numSteps = (0, import_react105.useRef)(analysisData2.stepSummaryList.length);
-    const updateEventCount = (0, import_react105.useRef)(analysisData2.updateEventCount);
     (0, import_react105.useEffect)(() => {
-      const prevNumberSteps = numSteps.current;
-      const newNumberSteps = analysisData2.stepSummaryList.length;
-      numSteps.current = newNumberSteps;
-      const prevUpdateEventCount = updateEventCount.current;
-      const newUpdateEventCount = analysisData2.updateEventCount;
-      updateEventCount.current = newUpdateEventCount;
-      if (newNumberSteps > prevNumberSteps && prevUpdateEventCount < newUpdateEventCount) {
+      if (analysisData2.redoCount > 0) {
         effect();
       }
-    }, [analysisData2.stepSummaryList.length]);
+    }, [analysisData2.redoCount]);
   };
 
   // src/hooks/useEffectOnUndo.tsx
   var import_react106 = __toESM(require_react());
   var useEffectOnUndo = (effect, analysisData2) => {
-    const numSteps = (0, import_react106.useRef)(analysisData2.stepSummaryList.length);
     (0, import_react106.useEffect)(() => {
-      const prevNumberSteps = numSteps.current;
-      const newNumberSteps = analysisData2.stepSummaryList.length;
-      numSteps.current = newNumberSteps;
-      if (newNumberSteps < prevNumberSteps) {
+      if (analysisData2.undoCount > 0) {
         effect();
       }
-    }, [analysisData2.stepSummaryList.length]);
+    }, [analysisData2.undoCount]);
   };
 
   // src/hooks/useSendEditOnClick.tsx
@@ -33078,7 +33065,10 @@ ${finalCode}`;
       }
       const finalParams = finalTransform ? finalTransform(params) : params;
       setLoading(true);
-      const newStepID = getRandomId();
+      let newStepID = getRandomId();
+      if ((options == null ? void 0 : options.overwiteStepIfClickedMultipleTimes) && stepIDData.stepIDs.length > 0) {
+        newStepID = stepIDData.stepIDs[stepIDData.stepIDs.length - 1];
+      }
       const possibleError = await mitoAPI._edit(editEvent, finalParams, newStepID);
       setLoading(false);
       if (isMitoError(possibleError)) {
@@ -33103,6 +33093,7 @@ ${finalCode}`;
         return newStepIDData;
       });
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
+      console.log("NEW params", newParams);
       if (newParams !== void 0) {
         _setParams(newParams);
       } else {
@@ -38152,7 +38143,8 @@ fig.write_html("${props.graphTabName}.html")`
       () => getDefaultParams7(props.file_path, props.sheet_name),
       "excel_range_import" /* ExcelRangeImport */,
       props.mitoAPI,
-      props.analysisData
+      props.analysisData,
+      { overwiteStepIfClickedMultipleTimes: true }
     );
     const [expandedIndex, setExpandedIndex] = (0, import_react164.useState)(0);
     if (params === void 0) {
@@ -38170,7 +38162,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark",
         onClick: () => {
           setParams((prevParams) => {
-            const newRangeImports = [...prevParams.range_imports];
+            const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
             const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : "range";
             newRangeImports.unshift({ "type": previousType, "df_name": "", "value": "" });
             return __spreadProps(__spreadValues({}, prevParams), {
@@ -38200,7 +38192,7 @@ fig.write_html("${props.graphTabName}.html")`
           },
           onDelete: () => {
             setParams((prevParams) => {
-              const newRangeImports = [...prevParams.range_imports];
+              const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
               newRangeImports.splice(index, 1);
               return __spreadProps(__spreadValues({}, prevParams), {
                 range_imports: newRangeImports
@@ -38221,7 +38213,7 @@ fig.write_html("${props.graphTabName}.html")`
             onChange: (e) => {
               const newDfName = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = [...prevParams.range_imports];
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                 newRangeImports[index].df_name = newDfName;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
@@ -38237,8 +38229,12 @@ fig.write_html("${props.graphTabName}.html")`
             value: range_import.type,
             onChange: (newType) => {
               setParams((prevParams) => {
-                const newRangeImports = [...prevParams.range_imports];
+                const isNew = prevParams.range_imports[index].type !== newType;
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                 newRangeImports[index].type = newType;
+                if (isNew) {
+                  newRangeImports[index].value = "";
+                }
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
                 });
@@ -38262,16 +38258,23 @@ fig.write_html("${props.graphTabName}.html")`
             }
           )
         ))),
-        /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement("p", null, range_import.type === "range" ? "Excel Range" : "Upper Left Value")), /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
+        /* @__PURE__ */ import_react164.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
+          LabelAndTooltip_default,
+          {
+            textBody: true,
+            tooltip: range_import.type === "range" ? "The proper format is COLUMNROW:COLUMNROW. For example, A1:B10, C10:G1000." : "Mito will attempt to find the cell with this exact value. Only strings and numbers are supported currently."
+          },
+          range_import.type === "range" ? "Excel Range" : "Exact Cell Value"
+        )), /* @__PURE__ */ import_react164.default.createElement(Col_default, null, /* @__PURE__ */ import_react164.default.createElement(
           Input_default,
           {
             width: "medium",
-            placeholder: range_import.type === "range" ? "A10:C100" : "cell value",
-            value: range_import.value,
+            placeholder: range_import.type === "range" ? "A10:C100" : "id_abc123",
+            value: "" + range_import.value,
             onChange: (e) => {
               const newValue = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = [...prevParams.range_imports];
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                 const newRangeImport = newRangeImports[index];
                 newRangeImport.value = newValue;
                 return __spreadProps(__spreadValues({}, prevParams), {
@@ -38288,9 +38291,26 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark",
         width: "block",
         onClick: () => {
-          edit();
+          edit((params2) => {
+            const finalRangeImports = params2.range_imports.map((rangeImport) => {
+              if (rangeImport.type === "upper left corner value" && typeof rangeImport.value === "string") {
+                const parsedValue = parseFloat(rangeImport.value);
+                if (!isNaN(parsedValue)) {
+                  return __spreadProps(__spreadValues({}, rangeImport), {
+                    value: parsedValue
+                  });
+                }
+              }
+              return rangeImport;
+            });
+            finalRangeImports.reverse();
+            return __spreadProps(__spreadValues({}, params2), {
+              range_imports: finalRangeImports
+            });
+          });
         },
-        disabled: params.range_imports.length === 0
+        disabled: disabledTooltip !== void 0,
+        disabledTooltip
       },
       "Import Ranges"
     )));

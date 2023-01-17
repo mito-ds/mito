@@ -59,7 +59,7 @@ def get_index_from_column(col: str) -> int:
 
 def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str, value: Union[str, int, float, bool]) -> Optional[str]:
     """
-    Given a string, this fu ction will look through the excel tab sheet_name at the given
+    Given a string, this function will look through the excel tab sheet_name at the given
     file_path, and find the first instance of the value (look through column A first, then B, etc).
 
     If this value does not exist in the tab, will return None. 
@@ -83,6 +83,7 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
         for cell in col:
             if cell.value == value:
                 min_found_col_index, min_found_row_index = cell.column, cell.row
+                break
         
         # As soon as we find something, stop looking
         if min_found_col_index is not None or min_found_row_index is not None:
@@ -91,7 +92,7 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
     if min_found_col_index is None or min_found_row_index is None:
         return None
 
-    column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 1 index
+    column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
     for cell in column:
         if cell.row < min_found_row_index:
