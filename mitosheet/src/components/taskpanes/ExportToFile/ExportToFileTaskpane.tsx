@@ -40,10 +40,12 @@ const getDefaultParams = (
         return undefined;
     }
 
+    const sheetName = sheetDataArray[sheetIndex].dfName;
+
     return {
         type: "csv",
         sheet_indexes: [sheetIndex],
-        file_name: "export.csv", // TODO: append the date and time for the random file name
+        file_name: `${sheetName}_export`
     }
 }
 
@@ -75,43 +77,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 <Row justify='space-between' align='center' title='TODO'>
                     <Col>
                         <p className='text-header-3'>
-                            type
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select 
-                            value={params.type}
-                            onChange={(newType) => {
-                                setParams(prevParams => {
-                                    return {
-                                        ...prevParams,
-                                        type: newType as 'csv' | 'excel'
-                                    }
-                                })
-                            }}
-                        >
-                            <DropdownItem title="csv"/>
-                            <DropdownItem title="excel"/>
-                        </Select>
-                    </Col>
-                </Row>
-                <DataframeMultiSelect
-                    sheetDataArray={props.sheetDataArray}
-                    selectedSheetIndexes={params.sheet_indexes}
-                    setUIState={props.setUIState}
-                    onChange={(newSelectedSheetIndexes) => {
-                        setParams(prevParams => {
-                            return {
-                                ...prevParams,
-                                sheet_indexes: newSelectedSheetIndexes
-                            }
-                        })
-                    }}
-                />
-                <Row justify='space-between' align='center' title='TODO'>
-                    <Col>
-                        <p className='text-header-3'>
-                            file_name
+                            File Name
                         </p>
                     </Col>
                     <Col>
@@ -132,6 +98,48 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         />
                     </Col>
                 </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className='text-header-3'>
+                            File Type
+                        </p>
+                    </Col>
+                    <Col>
+                        <Select 
+                            width="medium"
+                            value={params.type}
+                            onChange={(newType) => {
+                                setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        type: newType as 'csv' | 'excel'
+                                    }
+                                })
+                            }}
+                        >
+                            <DropdownItem title="CSV" id='csv' subtext="Each exported dataframe will be exported as a seperate CSV file."/>
+                            <DropdownItem title="Excel" id='excel' subtext="Each exported dataframe will be exported as a seperate sheet."/>
+                        </Select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <p className="text-header-3">Dataframes to Export</p>
+                    </Col>
+                </Row>
+                <DataframeMultiSelect
+                    sheetDataArray={props.sheetDataArray}
+                    selectedSheetIndexes={params.sheet_indexes}
+                    setUIState={props.setUIState}
+                    onChange={(newSelectedSheetIndexes) => {
+                        setParams(prevParams => {
+                            return {
+                                ...prevParams,
+                                sheet_indexes: newSelectedSheetIndexes
+                            }
+                        })
+                    }}
+                />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton

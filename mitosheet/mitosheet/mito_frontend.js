@@ -29980,6 +29980,25 @@ ${finalCode}`;
         searchTerms: ["export", "download", "excel", "csv"],
         tooltip: "Download dataframes as a .csv or .xlsx file."
       },
+      ["export dropdown" /* Export_Dropdown */]: {
+        type: "export dropdown" /* Export_Dropdown */,
+        shortTitle: "Export",
+        longTitle: "Export",
+        actionFunction: () => {
+          setEditorState(void 0);
+          closeOpenEditingPopups();
+          setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              toolbarDropdown: "export"
+            });
+          });
+        },
+        isDisabled: () => {
+          return doesAnySheetExist(sheetDataArray2) ? defaultActionDisabledMessage : "There are no dataframes to export. Import data.";
+        },
+        searchTerms: ["export", "download", "excel", "csv"],
+        tooltip: "Download dataframes as a .csv or .xlsx file."
+      },
       ["fill na" /* Fill_Na */]: {
         type: "fill na" /* Fill_Na */,
         shortTitle: "Fill NaN",
@@ -38284,10 +38303,11 @@ fig.write_html("${props.graphTabName}.html")`
     if (sheetDataArray2.length === 0 || sheetDataArray2[sheetIndex] === void 0) {
       return void 0;
     }
+    const sheetName = sheetDataArray2[sheetIndex].dfName;
     return {
       type: "csv",
       sheet_indexes: [sheetIndex],
-      file_name: "export.csv"
+      file_name: `${sheetName}_export`
     };
   };
   var ExportToFileTaskpane = (props) => {
@@ -38306,35 +38326,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: "Export To File",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center", title: "TODO" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "type")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
-      Select_default,
-      {
-        value: params.type,
-        onChange: (newType) => {
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              type: newType
-            });
-          });
-        }
-      },
-      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "csv" }),
-      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "excel" })
-    ))), /* @__PURE__ */ import_react165.default.createElement(
-      DataframeMultiSelect_default,
-      {
-        sheetDataArray: props.sheetDataArray,
-        selectedSheetIndexes: params.sheet_indexes,
-        setUIState: props.setUIState,
-        onChange: (newSelectedSheetIndexes) => {
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              sheet_indexes: newSelectedSheetIndexes
-            });
-          });
-        }
-      }
-    ), /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center", title: "TODO" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "file_name")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
+    ), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center", title: "TODO" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "File Name")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
       Input_default,
       {
         autoFocus: true,
@@ -38349,7 +38341,36 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    )))), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react165.default.createElement(
+    ))), /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "File Type")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
+      Select_default,
+      {
+        width: "medium",
+        value: params.type,
+        onChange: (newType) => {
+          setParams((prevParams) => {
+            return __spreadProps(__spreadValues({}, prevParams), {
+              type: newType
+            });
+          });
+        }
+      },
+      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "CSV", id: "csv", subtext: "Each exported dataframe will be exported as a seperate CSV file." }),
+      /* @__PURE__ */ import_react165.default.createElement(DropdownItem_default, { title: "Excel", id: "excel", subtext: "Each exported dataframe will be exported as a seperate sheet." })
+    ))), /* @__PURE__ */ import_react165.default.createElement(Row_default, null, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "Dataframes to Export"))), /* @__PURE__ */ import_react165.default.createElement(
+      DataframeMultiSelect_default,
+      {
+        sheetDataArray: props.sheetDataArray,
+        selectedSheetIndexes: params.sheet_indexes,
+        setUIState: props.setUIState,
+        onChange: (newSelectedSheetIndexes) => {
+          setParams((prevParams) => {
+            return __spreadProps(__spreadValues({}, prevParams), {
+              sheet_indexes: newSelectedSheetIndexes
+            });
+          });
+        }
+      }
+    )), /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react165.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -39645,10 +39666,39 @@ fig.write_html("${props.graphTabName}.html")`
       ToolbarButton_default,
       {
         toolbarButtonType: "EXPORT" /* EXPORT */,
-        action: props.actions["export" /* Export */],
+        action: props.actions["export dropdown" /* Export_Dropdown */],
         setEditorState: props.setEditorState,
-        disabledTooltip: props.actions["export" /* Export */].isDisabled()
-      }
+        disabledTooltip: props.actions["export dropdown" /* Export_Dropdown */].isDisabled()
+      },
+      /* @__PURE__ */ import_react213.default.createElement(
+        Dropdown_default,
+        {
+          display: props.uiState.toolbarDropdown === "export",
+          closeDropdown: () => props.setUIState((prevUIState) => {
+            if (prevUIState.toolbarDropdown !== "export") {
+              return prevUIState;
+            }
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              toolbarDropdown: void 0
+            });
+          }),
+          width: "medium"
+        },
+        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Download as File", onClick: () => {
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "download" /* DOWNLOAD */ }
+            });
+          });
+        } }),
+        /* @__PURE__ */ import_react213.default.createElement(DropdownItem_default, { title: "Generate Export Code", onClick: () => {
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "Export To File" /* EXPORT_TO_FILE */ }
+            });
+          });
+        } })
+      )
     ), /* @__PURE__ */ import_react213.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react213.default.createElement(
       ToolbarButton_default,
       {

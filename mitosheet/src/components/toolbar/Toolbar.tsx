@@ -192,10 +192,40 @@ const Toolbar = (
                     </ToolbarButton>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.EXPORT}
-                        action={props.actions[ActionEnum.Export]}
+                        action={props.actions[ActionEnum.Export_Dropdown]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Export].isDisabled()}
-                    />
+                        disabledTooltip={props.actions[ActionEnum.Export_Dropdown].isDisabled()}
+                    >
+                        <Dropdown
+                            display={props.uiState.toolbarDropdown === 'export'}
+                            closeDropdown={() => 
+                                props.setUIState(prevUIState => {
+                                    if (prevUIState.toolbarDropdown !== 'export') {
+                                        return prevUIState;
+                                    }
+
+                                    return {
+                                        ...prevUIState,
+                                        toolbarDropdown: undefined
+                                    }
+                                })
+                            }
+                            width='medium'
+                        >
+                            <DropdownItem title='Download as File' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
+                                }
+                            })}}/>
+                            <DropdownItem title='Generate Export Code' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
+                                }
+                            })}}/>
+                        </Dropdown>
+                    </ToolbarButton>
 
                     <div className="toolbar-vertical-line"/>
 

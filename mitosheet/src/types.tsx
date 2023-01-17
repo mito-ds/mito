@@ -783,7 +783,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -824,6 +824,7 @@ export enum ActionEnum {
     Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
+    Export_Dropdown = 'export dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
     Format_Number_Columns = 'format number columns',

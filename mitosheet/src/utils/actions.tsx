@@ -441,6 +441,27 @@ export const createActions = (
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
         },
+        [ActionEnum.Export_Dropdown]: {
+            type: ActionEnum.Export_Dropdown,
+            shortTitle: 'Export',
+            longTitle: 'Export',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'export'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Download dataframes as a .csv or .xlsx file."
+        },
         [ActionEnum.Fill_Na]: {
             type: ActionEnum.Fill_Na,
             shortTitle: 'Fill NaN',
