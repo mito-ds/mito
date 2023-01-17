@@ -9,17 +9,14 @@ Contains tests for Excel Range Import
 
 import os
 
-import pandas
 import pandas as pd
 import pytest
-from openpyxl import load_workbook
 
 from mitosheet.errors import MitoError
 from mitosheet.excel_utils import get_row_and_col_indexes_from_range
 from mitosheet.tests.decorators import (pandas_post_1_2_only,
                                         python_post_3_6_only)
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.utils import get_new_id
 
 TEST_FILE_PATH = "test_file.xlsx"
 TEST_SHEET_NAME = 'sheet1'

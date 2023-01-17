@@ -576,7 +576,7 @@ def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
     return MitoError(
         'invalid_range_error',
         'Invalid Range',
-        f'{range} is not in the format A1:B3. Please update the range to this format.',
+        f'Range {range} is not in the format A1:B3. Please update to COLUMNROW:COLUMNROW.',
         error_modal=error_modal
     )
 

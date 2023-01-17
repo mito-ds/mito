@@ -1,26 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { AnalysisData } from "../types";
 
 /* 
     This schedules an effect to run whenever there is a 
     successful redo.
 */
-export const useEffectOnRedo = (effect: () => void, analysisData: AnalysisData): void => {
-    const numSteps = useRef(analysisData.stepSummaryList.length);
-    const updateEventCount = useRef(analysisData.updateEventCount);
-   
+export const useEffectOnRedo = (effect: () => void, analysisData: AnalysisData): void => {   
     useEffect(() => {
-        const prevNumberSteps = numSteps.current;
-        const newNumberSteps = analysisData.stepSummaryList.length;
-        numSteps.current = newNumberSteps;
-
-        const prevUpdateEventCount = updateEventCount.current;
-        const newUpdateEventCount = analysisData.updateEventCount;
-        updateEventCount.current = newUpdateEventCount;
-
-        if (newNumberSteps > prevNumberSteps && prevUpdateEventCount < newUpdateEventCount) {
+        if (analysisData.redoCount > 0) {
             effect();
         }
-    }, [analysisData.stepSummaryList.length])
+    }, [analysisData.redoCount])
 
 }
