@@ -116,7 +116,7 @@ def test_success_return_type(mocker):
                 'tables': [T_1, T_2],
                 'columns': [C_1, C_2]
         },
-        'default_connection_values': {
+        'default_values': {
                 'warehouse': WH_1,
                 'database': DB_1,
                 'schema': S_1,
@@ -153,7 +153,7 @@ def test_integration_success(mocker):
                 'tables': ['SIMPLE_PYTEST_TABLE'],
                 'columns': ['COLUMNA', 'COLUMNB']
         },
-        'default_connection_values': connection
+        'default_values': connection
     })
 
     assert expected_return == response

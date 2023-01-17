@@ -67,7 +67,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                         'tables': tables,
                         'columns': columns
                 },
-                'default_connection_values': {
+                'default_values': {
                         'warehouse': warehouse,
                         'database': database,
                         'schema': schema,

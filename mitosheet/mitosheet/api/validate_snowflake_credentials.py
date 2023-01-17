@@ -7,8 +7,6 @@
 import json
 from typing import Any
 from mitosheet.types import SnowflakeCredentials, StepsManagerType
-import os
-from dotenv import load_dotenv
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 

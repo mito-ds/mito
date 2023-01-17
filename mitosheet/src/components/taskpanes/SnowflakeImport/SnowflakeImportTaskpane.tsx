@@ -71,7 +71,7 @@ const getDefaultParams = (): SnowflakeImportParams | undefined => {
 export type AvailableSnowflakeOptionsAndDefaults = {
     type: 'success',
     config_options: SnowflakeConfigOptions,
-    default_connection_values: SnowflakeTableLocationAndWarehouse
+    default_values: SnowflakeTableLocationAndWarehouse
 } | {
     type: 'error',
     error_message: string
@@ -83,7 +83,6 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 */
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
-    //loading, edit, editApplied
     const {params, setParams, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
             () => getDefaultParams(),
             StepType.SnowflakeImport, 
@@ -91,24 +90,24 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
     
-    const [openCredentialsSection, setOpenCredentialsSection] = useState(true);
+    const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
-    const [liveUpdateNumber, setLiveUpdateNumber] = useState(0) 
+    const [refreshDefaultsNumber, setRefreshDefaultsNumber] = useState(0) 
 
-    const getAvailableOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
+    const refreshAvailableOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
         setParams(newParams)
-        setLiveUpdateNumber(old => old + 1)
+        setRefreshDefaultsNumber(old => old + 1)
     }
 
     useEffect(() => {
-        if (liveUpdateNumber === 0) {
+        if (refreshDefaultsNumber === 0) {
             // Don't run on first render
             return
         }
-        void _getAvailableOptionsAndDefaults()
-    }, [liveUpdateNumber])
+        void _updateAvailableOptionsAndDefaults()
+    }, [refreshDefaultsNumber])
 
-    const _getAvailableOptionsAndDefaults = async () => {
+    const _updateAvailableOptionsAndDefaults = async () => {
         if (params === undefined) {
             // We don't expect this to ever happen because of the UI restrictions
             return 
@@ -119,23 +118,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
 
         if (availableSnowflakeOptionsAndDefaults?.type === 'success') {
             setParams((prevParams) => {
-                const defaultConnectionValues = availableSnowflakeOptionsAndDefaults.default_connection_values
                 return {
                     ...prevParams,
-                    connection: {
-                        // The backend returns null values instead of undefined, so convert them!
-                        'warehouse': defaultConnectionValues.warehouse === null ? undefined : defaultConnectionValues.warehouse,
-                        'database': defaultConnectionValues.database === null ? undefined : defaultConnectionValues.database,
-                        'schema': defaultConnectionValues.schema === null ? undefined : defaultConnectionValues.schema,
-                        'table': defaultConnectionValues.table === null ? undefined : defaultConnectionValues.table,
-                    },
+                    table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults.default_values
                 }
             })
 
-            console.log(7)
-
             // If the user connects successful, we close the connection window
-            setOpenCredentialsSection(false);
+            setCredentialsSectionIsOpen(false);
         }
     }
 
@@ -154,6 +144,25 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         return await props.mitoAPI.validateSnowflakeCredentials(params.credentials)
     }
 
+    const getNewParams = (database?: string | null, schema?: string | null, table?: string | null) => {
+        const paramsCopy: SnowflakeImportParams = {...params}
+        const newParams = {
+            ...paramsCopy, 
+            'table_loc_and_warehouse': {
+                ...paramsCopy.table_loc_and_warehouse,
+                'database': database,
+                'schema': schema,
+                'table': table,
+            },
+            'query_params': {
+                'columns': [],
+                'limit': undefined
+            }
+        }
+
+        return newParams
+    }
+
     
     return (
         <DefaultTaskpane>
@@ -162,7 +171,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <CollapsibleSection title='Connection' open={openCredentialsSection}>
+                <CollapsibleSection title='Connection' open={credentialsSectionIsOpen}>
                     <Row justify="space-between">
                         <Col>
                             Username
@@ -232,10 +241,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={async () => {
-                            console.log(1)
-                            const validateSnowflakeCredentialsResult = await validateSnowflakeCredentials()
-                            console.log(validateSnowflakeCredentialsResult)
-                            await _getAvailableOptionsAndDefaults()
+                            await validateSnowflakeCredentials()
+                            await _updateAvailableOptionsAndDefaults()
                         }}
                         variant='dark'
                     >
@@ -290,23 +297,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     if (newDatabase === params['table_loc_and_warehouse']['database']) {
                                         return 
                                     }
-                                    
-                                    const paramsCopy: SnowflakeImportParams = {...params}
-                                    const newParams = {
-                                        ...paramsCopy, 
-                                        'connection': {
-                                            ...paramsCopy.table_loc_and_warehouse,
-                                            'database': newDatabase,
-                                            'schema': undefined,
-                                            'table': undefined,
-                                        },
-                                        'query_params': {
-                                            'columns': [],
-                                            'limit': undefined
-                                        }
-                                    }
-                                    
-                                    getAvailableOptionsAndDefaults(newParams)
+
+                                    const newParams = getNewParams(newDatabase)
+                                    refreshAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
@@ -329,22 +322,11 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     if (newSchema === params['table_loc_and_warehouse']['schema']) {
                                         return 
                                     }
-                                    
+
                                     const paramsCopy: SnowflakeImportParams = {...params}
-                                    const newParams = {
-                                        ...paramsCopy, 
-                                        'table_loc_and_warehouse': {
-                                            ...paramsCopy.table_loc_and_warehouse,
-                                            'schema': newSchema,
-                                            'table': undefined,
-                                        },
-                                        'query_params': {
-                                            'columns': [],
-                                            'limit': undefined // TODO: Maybe don't reset the limit??
-                                        }
-                                    }
+                                    const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, newSchema)
                                     
-                                    getAvailableOptionsAndDefaults(newParams)
+                                    refreshAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
@@ -369,19 +351,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     }
                                     
                                     const paramsCopy: SnowflakeImportParams = {...params}
-                                    const newParams = {
-                                        ...paramsCopy, 
-                                        'table_loc_and_warehouse': {
-                                            ...paramsCopy.table_loc_and_warehouse,
-                                            'table': newTable,
-                                        },
-                                        'query_params': {
-                                            'columns': [],
-                                            'limit': undefined // TODO: Maybe don't reset the limit??
-                                        }
-                                    }
-                                    
-                                    getAvailableOptionsAndDefaults(newParams)
+                                    const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, paramsCopy.table_loc_and_warehouse.schema, newTable)
+                                    refreshAvailableOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
