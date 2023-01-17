@@ -12,7 +12,6 @@ import { useEffectOnUndo } from "./useEffectOnUndo";
     If an edit event edits an existing sheet:
     1. It should be *opt in* when a user opens a taskpane. It should not automatically be applied. 
     2. If you perform an action, you can press undo to undo it. 
-    3. If you perform a new action, **it does not overwrite the previous action.**
 */
 function useSendEditOnClick<ParamType, ResultType>(
     defaultParams: ParamType | undefined | (() => ParamType | undefined),
@@ -20,7 +19,8 @@ function useSendEditOnClick<ParamType, ResultType>(
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     options?: {
-        allowSameParamsToReapplyTwice: boolean
+        allowSameParamsToReapplyTwice?: boolean,
+        overwiteStepIfClickedMultipleTimes?: boolean
     }
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
@@ -91,7 +91,13 @@ function useSendEditOnClick<ParamType, ResultType>(
         const finalParams = finalTransform ? finalTransform(params) : params;
 
         setLoading(true);
-        const newStepID = getRandomId(); // always use a new step id
+
+        // We use the same step ID if this is an overwrite type -- otherwise 
+        // we create a new step id
+        let newStepID = getRandomId();
+        if (options?.overwiteStepIfClickedMultipleTimes && stepIDData.stepIDs.length > 0) {
+            newStepID = stepIDData.stepIDs[stepIDData.stepIDs.length - 1];
+        }
 
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
         setLoading(false);
@@ -136,6 +142,7 @@ function useSendEditOnClick<ParamType, ResultType>(
 
 
         const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
+        console.log("NEW params", newParams);
         if (newParams !== undefined) {
             _setParams(newParams);
         } else {

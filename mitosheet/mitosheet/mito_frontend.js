@@ -1073,7 +1073,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef13(initialValue) {
+          function useRef11(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1652,7 +1652,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
           exports.useReducer = useReducer;
-          exports.useRef = useRef13;
+          exports.useRef = useRef11;
           exports.useState = useState49;
           exports.version = ReactVersion;
         })();
@@ -32974,33 +32974,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // src/hooks/useEffectOnRedo.tsx
   var import_react105 = __toESM(require_react());
   var useEffectOnRedo = (effect, analysisData2) => {
-    const numSteps = (0, import_react105.useRef)(analysisData2.stepSummaryList.length);
-    const updateEventCount = (0, import_react105.useRef)(analysisData2.updateEventCount);
     (0, import_react105.useEffect)(() => {
-      const prevNumberSteps = numSteps.current;
-      const newNumberSteps = analysisData2.stepSummaryList.length;
-      numSteps.current = newNumberSteps;
-      const prevUpdateEventCount = updateEventCount.current;
-      const newUpdateEventCount = analysisData2.updateEventCount;
-      updateEventCount.current = newUpdateEventCount;
-      if (newNumberSteps > prevNumberSteps && prevUpdateEventCount < newUpdateEventCount) {
+      if (analysisData2.redoCount > 0) {
         effect();
       }
-    }, [analysisData2.stepSummaryList.length]);
+    }, [analysisData2.redoCount]);
   };
 
   // src/hooks/useEffectOnUndo.tsx
   var import_react106 = __toESM(require_react());
   var useEffectOnUndo = (effect, analysisData2) => {
-    const numSteps = (0, import_react106.useRef)(analysisData2.stepSummaryList.length);
     (0, import_react106.useEffect)(() => {
-      const prevNumberSteps = numSteps.current;
-      const newNumberSteps = analysisData2.stepSummaryList.length;
-      numSteps.current = newNumberSteps;
-      if (newNumberSteps < prevNumberSteps) {
+      if (analysisData2.undoCount > 0) {
         effect();
       }
-    }, [analysisData2.stepSummaryList.length]);
+    }, [analysisData2.undoCount]);
   };
 
   // src/hooks/useSendEditOnClick.tsx
@@ -33038,7 +33026,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       const finalParams = finalTransform ? finalTransform(params) : params;
       setLoading(true);
-      const newStepID = getRandomId();
+      let newStepID = getRandomId();
+      if ((options == null ? void 0 : options.overwiteStepIfClickedMultipleTimes) && stepIDData.stepIDs.length > 0) {
+        newStepID = stepIDData.stepIDs[stepIDData.stepIDs.length - 1];
+      }
       const possibleError = await mitoAPI._edit(editEvent, finalParams, newStepID);
       setLoading(false);
       if (isMitoError(possibleError)) {
@@ -33063,6 +33054,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         return newStepIDData;
       });
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
+      console.log("NEW params", newParams);
       if (newParams !== void 0) {
         _setParams(newParams);
       } else {
@@ -38097,7 +38089,8 @@ fig.write_html("${props.graphTabName}.html")`
       () => getDefaultParams7(props.file_path, props.sheet_name),
       "excel_range_import" /* ExcelRangeImport */,
       props.mitoAPI,
-      props.analysisData
+      props.analysisData,
+      { overwiteStepIfClickedMultipleTimes: true }
     );
     const [expandedIndex, setExpandedIndex] = (0, import_react163.useState)(0);
     if (params === void 0) {
