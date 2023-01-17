@@ -58,6 +58,8 @@ def get_params_getter_code(params: Dict[str, str], on_self: bool=False, just_get
     for param_name, param_type in params.items():
         if just_getter:
             params_code += f'                get_param(params, \'{param_name}\'),\n'
+            break
+        
         if not on_self:
             params_code += f'{param_name}: {param_type} = get_param(params, \'{param_name}\')\n        '
         else:
@@ -164,7 +166,7 @@ def get_code_chunk_code(original_step_name: str, params: Dict[str, str]) -> str:
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import List
+from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.state import State
@@ -182,9 +184,9 @@ class {code_chunk_name}(CodeChunk):
     def get_description_comment(self) -> str:
         return "TODO"
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         # TODO: actually generate the code here!
-        return []
+        return [], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [] # TODO: return this here!
