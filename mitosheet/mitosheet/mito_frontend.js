@@ -22571,7 +22571,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (code.length == 0) {
       return "";
     }
-    console.log("Code", code);
     let finalCode = "";
     const isCommentLine = (codeLine) => {
       return codeLine.startsWith("#") && codeLine.indexOf("\n") === -1;

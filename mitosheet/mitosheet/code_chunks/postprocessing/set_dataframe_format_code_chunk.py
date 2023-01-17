@@ -282,9 +282,6 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         if line is None:
             continue
         dataframe_format_string += f"\\\n{TAB}{line}"
-
-    if 'np.where' in dataframe_format_string:
-        dataframe_format_string = 'import numpy as np\n' + dataframe_format_string
     
     return dataframe_format_string
 
@@ -306,5 +303,6 @@ class SetDataframeFormatCodeChunk(CodeChunk):
             dataframe_format_code = get_dataframe_format_code(self.post_state, sheet_index)
             if dataframe_format_code is not None:
                 code.append(dataframe_format_code)
-        
-        return code, []
+
+        # Make sure to import numpy if we use it
+        return code, ['import numpy as np'] if any([True for format_code in code if 'np.where' in format_code]) else []

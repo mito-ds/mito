@@ -10,8 +10,6 @@ export function getCodeString(
         return '';
     }
 
-    console.log("Code", code);
-
     let finalCode = '';
 
     // When joining code, we do not add blank line between comments
