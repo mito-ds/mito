@@ -18,7 +18,7 @@ from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code
 class ExcelRangeImportCodeChunk(CodeChunk):
 
     def __init__(self, prev_state: State, post_state: State, file_path: str, sheet_name: str, sheet_index_to_df_name_and_range: Dict[int, Tuple[str, str]]):
-        super().__init__(prev_state, post_state, {}, {})
+        super().__init__(prev_state, post_state)
         self.file_path = file_path
         self.sheet_name = sheet_name
         self.sheet_index_to_df_name_and_range = sheet_index_to_df_name_and_range
@@ -30,8 +30,8 @@ class ExcelRangeImportCodeChunk(CodeChunk):
         
         return f"Imported {len(self.sheet_index_to_df_name_and_range)} dataframes from {self.sheet_name} in {self.file_path}"
 
-    def get_code(self) -> List[str]:
-        code = ['import pandas as pd']
+    def get_code(self) -> Tuple[List[str], List[str]]:
+        code = []
         for df_name, _range in self.sheet_index_to_df_name_and_range.values():
             ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(_range)
             nrows = end_row_index - start_row_index
@@ -41,14 +41,14 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows={start_row_index}, nrows={nrows}, usecols=\'{usecols}\')'
             )
 
-        return code
+        return code, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         return list(self.sheet_index_to_df_name_and_range.keys())
 
     def _combine_right_with_dataframe_rename_code_chunk(self, dataframe_rename_code_chunk: DataframeRenameCodeChunk) -> Optional[CodeChunk]:
-        sheet_index = dataframe_rename_code_chunk.get_param('sheet_index')
-        new_dataframe_name = dataframe_rename_code_chunk.get_param('new_dataframe_name')
+        sheet_index = dataframe_rename_code_chunk.sheet_index
+        new_dataframe_name = dataframe_rename_code_chunk.new_dataframe_name
 
         if sheet_index in self.sheet_index_to_df_name_and_range:
             new_sheet_index_to_df_name_and_range = copy(self.sheet_index_to_df_name_and_range)

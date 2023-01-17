@@ -50,6 +50,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
         sheet_index_to_df_name_and_range: Dict[int, Tuple[str, str]] = {}
         for range_import in range_imports:
+            _range: Optional[str]
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
                 _range = range_import['value']
             else:
