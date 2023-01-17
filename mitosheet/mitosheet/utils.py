@@ -54,7 +54,7 @@ def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_na
 
     # A valid variable name cannot be empty, or start with a number
     if len(dataframe_name) == 0 or dataframe_name[0].isdecimal():
-        return 'df_' + dataframe_name
+        return get_first_unused_dataframe_name(existing_df_names, 'df_' + dataframe_name)
 
     return get_first_unused_dataframe_name(existing_df_names, dataframe_name)
 

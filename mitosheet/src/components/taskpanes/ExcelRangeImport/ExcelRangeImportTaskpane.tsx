@@ -61,6 +61,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
         StepType.ExcelRangeImport, 
         props.mitoAPI,
         props.analysisData,
+        {overwiteStepIfClickedMultipleTimes: true}
     )
     const [expandedIndex, setExpandedIndex] = useState(0);
 
