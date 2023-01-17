@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
@@ -31,8 +31,8 @@ class EmptyCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return self.description_comment
 
-    def get_code(self) -> List[str]:
-        return []
+    def get_code(self) -> Tuple[List[str], List[str]]:
+        return [], []
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
         # We just return the other code chunk, while also updating the prev_state. To avoid

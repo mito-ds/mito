@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.state import State
@@ -154,7 +154,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.changed_column_ids)
         return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {self.new_dtype}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         # Note: we can't actually group all the headers together in one conversion, and not every dtype can be converted
         # to the target dtype in the same way. Even if they have the same old_dtype, this still might not work in the case
@@ -169,11 +169,8 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
             if conversion_code is not None:
                 code.append(conversion_code)
         
-        # If we have pandas included, then add pandas to the transpiled code
-        if any('pd.to_datetime' in line for line in code):
-            code.insert(0, 'import pandas as pd')
-
-        return code
+        # If we have pandas included, then add pandas as an import
+        return code, ['import pandas as pd'] if any('pd.to_datetime' in line for line in code) else []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

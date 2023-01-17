@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
@@ -29,7 +29,7 @@ class ReorderColumnCodeChunk(CodeChunk):
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Reordered column {column_header}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.column_steps.reorder_column import get_valid_index
 
         column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
@@ -46,7 +46,7 @@ class ReorderColumnCodeChunk(CodeChunk):
         # Apply reorder line
         apply_reorder_line = f'{self.df_name} = {self.df_name}[{self.df_name}_columns]'
 
-        return [columns_list_line, insert_line, apply_reorder_line]
+        return [columns_list_line, insert_line, apply_reorder_line], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

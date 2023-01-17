@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
@@ -28,7 +28,7 @@ class RenameColumnsCodeChunk(CodeChunk):
         new_column_headers = self.column_ids_to_new_column_headers.values()
         return f'Renamed columns {", ".join(new_column_headers)}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         old_column_header_to_new_column_header_map: Dict[ColumnHeader, ColumnHeader] = dict()
         df_name = self.post_state.df_names[self.sheet_index]
@@ -37,7 +37,7 @@ class RenameColumnsCodeChunk(CodeChunk):
 
         rename_dict = column_header_map_to_string(old_column_header_to_new_column_header_map)
         rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
-        return [rename_string]
+        return [rename_string], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

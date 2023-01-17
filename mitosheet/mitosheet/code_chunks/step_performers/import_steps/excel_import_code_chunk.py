@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
@@ -29,7 +29,7 @@ class ExcelImportCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Imported {", ".join(self.sheet_names)} from {self.file_name}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         read_excel_params = build_read_excel_params(
             self.sheet_names,
             self.has_headers,
@@ -51,9 +51,8 @@ class ExcelImportCodeChunk(CodeChunk):
             )
 
         return [
-            'import pandas as pd',
             read_excel_line
-        ] + df_definitions
+        ] + df_definitions, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.post_state.dfs) - len(self.sheet_names), len(self.post_state.dfs))]

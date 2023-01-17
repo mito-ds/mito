@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy, deepcopy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
@@ -24,11 +24,11 @@ class DataframeDeleteCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Deleted {", ".join(self.old_dataframe_names)}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         # NOTE: We do not actually delete the dataframes, as it serves no purpose, but 
         # makes things confusing if you're importing dataframes from outside the sheet
         # However, we still use this code chunk as it optimizes out other code chunks
-        return []
+        return [], []
 
     def _combine_right_dataframe_delete(self, other_code_chunk: "DataframeDeleteCodeChunk") -> CodeChunk:
         first_sheet_indexes = deepcopy(self.sheet_indexes)

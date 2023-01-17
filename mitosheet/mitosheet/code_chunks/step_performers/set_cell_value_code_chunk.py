@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
@@ -39,13 +39,13 @@ class SetCellValueCodeChunk(CodeChunk):
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Set a cell value in {column_header}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         code: List[str] = []
 
         # If nothings changed, we don't write any code
         if self.old_value == self.new_value:
-            return code
+            return code, []
 
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         transpiled_column_header = column_header_to_transpiled_code(column_header)
@@ -66,7 +66,7 @@ class SetCellValueCodeChunk(CodeChunk):
         else:
             code.append(f'{self.df_name}.at[{self.row_index}, {transpiled_column_header}] = \"{self.type_corrected_new_value}\"')
 
-        return code
+        return code, [] # TODO: we might need pandas here as well!
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

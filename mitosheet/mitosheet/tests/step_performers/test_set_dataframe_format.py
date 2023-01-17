@@ -133,6 +133,9 @@ def test_set_dataframe_format(df_format, included_formatting_code):
                     one_found = True
             assert one_found
         else:
+            if code == 'import numpy as np':
+                assert code in mito.transpiled_code[-2]
+                continue
             assert code in mito.transpiled_code[-1]
 
 
@@ -213,4 +216,7 @@ def test_set_dataframe_format_different_indexes(df_format, included_formatting_c
                     one_found = True
             assert one_found
         else:
+            if code == 'import numpy as np':
+                assert code in mito.transpiled_code[-2]
+                continue
             assert code in mito.transpiled_code[-1]

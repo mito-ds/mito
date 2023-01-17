@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
@@ -27,5 +27,5 @@ class DataframeImportCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return self.description_comment
 
-    def get_code(self) -> List[str]:
-        return []
+    def get_code(self) -> Tuple[List[str], List[str]]:
+        return [], []

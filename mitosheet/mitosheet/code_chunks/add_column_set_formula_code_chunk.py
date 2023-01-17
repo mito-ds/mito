@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
@@ -35,7 +35,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Added column {column_header_to_transpiled_code(self.column_header)}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         column_headers = self.post_state.dfs[self.sheet_index].keys().tolist()
 
         python_code, _, _ = parse_formula(
@@ -50,7 +50,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         column_header_index = self.column_header_index
         return [
             f'{self.df_name}.insert({column_header_index}, {transpiled_column_header}, {python_code})'
-        ]
+        ], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

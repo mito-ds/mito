@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.state import State
@@ -54,7 +54,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         delimiters_string = (', ').join(map(lambda x: f'"{x}"', self.delimiters))
         return f'Split {column_header} on {delimiters_string}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         delimiter_string = repr('|'.join(self.delimiters))
         
         column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
@@ -81,7 +81,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         # Reorder columns 
         reorder_columns_line = f'{self.df_name} = {self.df_name}[{self.df_name}.columns[:{column_idx + 1}].tolist() + {new_transpiled_column_headers} + {self.df_name}.columns[{column_idx + 1}:-{len(self.new_column_headers)}].tolist()]'
 
-        return [split_column_line, reorder_columns_line]
+        return [split_column_line, reorder_columns_line], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

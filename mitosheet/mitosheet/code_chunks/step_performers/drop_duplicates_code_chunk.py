@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
@@ -27,7 +27,7 @@ class DropDuplicatesCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         return f'Dropped duplicates in {self.df_name}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
         column_headers = [
             self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id)
             for column_id in self.column_ids
@@ -36,7 +36,7 @@ class DropDuplicatesCodeChunk(CodeChunk):
         # If the subset is none, then we don't actually do the drop, as there are no
         # duplicates between 0 columns
         if len(column_headers) == 0:
-            return []
+            return [], []
         
         # We leave subset and keep empty if they are not used
         param_string = ''
@@ -47,7 +47,7 @@ class DropDuplicatesCodeChunk(CodeChunk):
 
         return [
             f'{self.df_name} = {self.df_name}.drop_duplicates({param_string})'
-        ]
+        ], []
     
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

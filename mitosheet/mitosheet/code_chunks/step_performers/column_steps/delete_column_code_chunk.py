@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import List, Optional, TYPE_CHECKING, Any, Dict
+from typing import List, Optional, TYPE_CHECKING, Any, Dict, Tuple
 from mitosheet.state import State
 
 from mitosheet.types import ColumnID, ColumnHeader
@@ -38,13 +38,13 @@ class DeleteColumnsCodeChunk(CodeChunk):
         column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.column_ids)
         return f'Deleted columns {", ".join([str(ch) for ch in column_headers])}'
 
-    def get_code(self) -> List[str]:
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         column_headers_list_string = column_header_list_to_transpiled_code(
             [self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id) for column_id in self.column_ids]
         )
 
-        return [f'{self.df_name}.drop({column_headers_list_string}, axis=1, inplace=True)']
+        return [f'{self.df_name}.drop({column_headers_list_string}, axis=1, inplace=True)'], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]
