@@ -27,6 +27,7 @@ TEST_DF_2 = pd.DataFrame({'header 100': [3], 'header 200': [4]})
 TEST_DF_3 = pd.DataFrame({'header 101': [100, 200, 300], 'header 201': [200, 300, 400]})
 TEST_DF_4 = pd.DataFrame({'header 102': ['abc', 'def'], 'header 202': ['hig', 'jkl']})
 TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc', 'dev'], 'D': ['abc', 'dev'], 'E': ['abc', 'dev'], })
+TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
 
 
 EXCEL_RANGE_IMPORT_TESTS = [
@@ -207,12 +208,28 @@ def test_excel_range_upper_left_detection_works(ranges, dfs):
             ((startcol, startrow), _) = get_col_and_row_indexes_from_range(r)
             df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
-
     for r, df in zip(ranges, dfs):
         upper_left_value = df.columns[0]
         assert r == get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value)
 
     os.remove(TEST_FILE_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_excel_range_upper_left_detection_finds_first_match():
+    ranges = ['A1:B4']
+    dfs = [TEST_DF_6]
+
+    # Write an Excel file
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        for r, df in zip(ranges, dfs):
+            ((startcol, startrow), _) = get_col_and_row_indexes_from_range(r)
+            df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)
+
+    mito = create_mito_wrapper_dfs()
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'df_name': 'df1', 'value': 1}])
+
+    assert mito.dfs[0].equals(TEST_DF_6)
 
 
 @pandas_post_1_2_only
