@@ -176,7 +176,7 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
     return None
 
 
-def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional[List[str]]:
+def get_conditional_format_code_list(state: State, sheet_index: int) -> Tuple[Optional[List[str]], Optional[bool]]:
     """Returns all the code to set the conditional formats"""
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
@@ -192,6 +192,7 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
     )
 
     all_code = []
+    uses_numpy = False
     for conditional_format in conditional_formats:
         formatUUID = conditional_format['format_uuid']
         filters = conditional_format['filters']
@@ -226,12 +227,13 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Optional
             color_string += f'background-color: {background_color}'
 
         if len(color_string) > 0:
+            uses_numpy = True
             all_code.append(f".apply(lambda series: np.where({entire_filter_string}, '{color_string}', None), subset={transpiled_column_headers})")
 
     if len(all_code) > 0:
-        return all_code
+        return all_code, uses_numpy
 
-    return None
+    return None, None
 
 def check_conditional_filters_have_filter_condition_that_requires_whole_dataframe(state: State, sheet_index: int) -> bool:
     """
@@ -249,7 +251,7 @@ def check_conditional_filters_have_filter_condition_that_requires_whole_datafram
     return False
 
 
-def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
+def get_dataframe_format_code(state: State, sheet_index: int) -> Tuple[Optional[str], Optional[bool]]:
     """Returns all the code to set the df_formatting on the dataframe from the state."""
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
@@ -270,20 +272,20 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Optional[str]:
         get_all_columns_format_code(state, sheet_index),
         get_table_styles_code(state, sheet_index),
     ]
-    conditional_format_code = get_conditional_format_code_list(state, sheet_index)
+    conditional_format_code, uses_numpy = get_conditional_format_code_list(state, sheet_index)
     if conditional_format_code:
         format_code += conditional_format_code
 
     # If all the format code is None, then we write nothing
     if all(map(lambda x: x is None, format_code)):
-        return None
+        return None, None
     
     for line in format_code:
         if line is None:
             continue
         dataframe_format_string += f"\\\n{TAB}{line}"
     
-    return dataframe_format_string
+    return dataframe_format_string, uses_numpy
 
 class SetDataframeFormatCodeChunk(CodeChunk):
     """
@@ -299,10 +301,15 @@ class SetDataframeFormatCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         code = []
+        uses_numpy = False
         for sheet_index in range(len(self.post_state.df_formats)):
-            dataframe_format_code = get_dataframe_format_code(self.post_state, sheet_index)
+            dataframe_format_code, _uses_numpy = get_dataframe_format_code(self.post_state, sheet_index)
             if dataframe_format_code is not None:
                 code.append(dataframe_format_code)
+            if _uses_numpy:
+                uses_numpy = True
+
+        imports = ['import numpy as np'] if uses_numpy else []
 
         # Make sure to import numpy if we use it
-        return code, ['import numpy as np'] if any([True for format_code in code if 'np.where' in format_code]) else []
+        return code, imports
