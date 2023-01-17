@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
@@ -380,33 +380,35 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
 
 class FilterCodeChunk(CodeChunk):
 
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, operator: str, filters: List[Dict[str, Any]]):
+        super().__init__(prev_state, post_state)
+        self.sheet_index: int = sheet_index
+        self.column_id: ColumnID = column_id
+        self.operator: str = operator
+        self.filters: List[Dict[str, Any]] = filters
+
+        self.df_name = self.post_state.df_names[self.sheet_index]
+
+
     def get_display_name(self) -> str:
         return 'Filtered'
     
     def get_description_comment(self) -> str:
-        sheet_index = self.get_param('sheet_index')
-        column_id = self.get_param('column_id')
-        column_header = self.post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         return f'Filtered {column_header}'
 
-    def get_code(self) -> List[str]:
-        sheet_index: int = self.get_param('sheet_index')
-        column_id: ColumnID = self.get_param('column_id')
-        operator: str = self.get_param('operator')
-        filters: List[Dict[str, Any]] = self.get_param('filters')
-
-        df_name = self.post_state.df_names[sheet_index]
+    def get_code(self) -> Tuple[List[str], List[str]]:
 
         entire_filter_string = get_entire_filter_string(
-            self.post_state, sheet_index, operator, filters, column_id
+            self.post_state, self.sheet_index, self.operator, self.filters, self.column_id
         )
 
         if entire_filter_string is None:
-            return []
+            return [], []
         else:
             return [
-                f"{df_name} = {df_name}[{entire_filter_string}]",
-            ]
+                f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
+            ], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
-        return [self.get_param('sheet_index')]
+        return [self.sheet_index]

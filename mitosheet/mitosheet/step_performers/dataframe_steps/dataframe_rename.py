@@ -63,7 +63,13 @@ class DataframeRenameStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DataframeRenameCodeChunk(prev_state, post_state, params, execution_data)
+            DataframeRenameCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(params, 'old_dataframe_name'),
+                get_param(params, 'new_dataframe_name')
+            )
         ]
 
     @classmethod

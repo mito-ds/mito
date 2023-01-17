@@ -118,7 +118,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         Transpiles an set_column_formula step to python code!
         """
         return [
-            SetColumnFormulaCodeChunk(prev_state, post_state, params, execution_data)
+            SetColumnFormulaCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'column_id'),
+                get_param(params, 'new_formula'),
+            )
         ]
 
     @classmethod

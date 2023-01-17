@@ -22590,10 +22590,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     }
     if (telemetryEnabled) {
       return `from mitosheet import *; register_analysis("${analysisName}");
-    ${finalCode}`;
+${finalCode}`;
     } else {
       return `from mitosheet import *; # Analysis Name:${analysisName};
-    ${finalCode}`;
+${finalCode}`;
     }
   }
   function getLastNonEmptyLine(codeText) {

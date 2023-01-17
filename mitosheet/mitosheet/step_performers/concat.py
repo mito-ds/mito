@@ -33,8 +33,8 @@ class ConcatStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
 
         join = get_param(params, 'join') # inner | outter
-        ignore_index = get_param(params, 'ignore_index') # inner | outter
-        sheet_indexes = get_param(params, 'sheet_indexes') # inner | outter
+        ignore_index: bool = get_param(params, 'ignore_index')
+        sheet_indexes: List[int] = get_param(params, 'sheet_indexes')
 
         post_state = prev_state.copy()
 
@@ -64,7 +64,13 @@ class ConcatStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            ConcatCodeChunk(prev_state, post_state, params, execution_data)
+            ConcatCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'join'),
+                get_param(params, 'ignore_index'),
+                get_param(params, 'sheet_indexes'),
+            )
         ]
     
     @classmethod

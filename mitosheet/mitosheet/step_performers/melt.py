@@ -76,7 +76,14 @@ class MeltStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            MeltCodeChunk(prev_state, post_state, params, execution_data)
+            MeltCodeChunk(
+                prev_state,
+                post_state,
+                get_param(params, 'sheet_index'),
+                get_param(params, 'id_var_column_ids'),
+                get_param(params, 'value_var_column_ids'),
+                get_param(execution_data if execution_data is not None else {}, 'include_value_vars'),
+            )
         ]
 
     @classmethod

@@ -6,7 +6,6 @@ on:
     paths:
       - 'mitosheet/**'
   pull_request:
-    branches: [ dev ]
     paths:
       - 'mitosheet/**'
       - 'tests/**'
