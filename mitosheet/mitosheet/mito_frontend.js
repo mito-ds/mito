@@ -23523,13 +23523,13 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       return void 0;
     }
-    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials, snowflakeConnection) {
+    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials, table_loc_and_warehouse) {
       const resultString = await this.send({
         "event": "api_call",
         "type": "get_available_snowflake_options_and_defaults",
         "params": {
           "credentials": snowflakeCredentials,
-          "connection": snowflakeConnection
+          "table_loc_and_warehouse": table_loc_and_warehouse
         }
       }, {});
       if (resultString !== void 0 && resultString !== "") {
@@ -38084,7 +38084,7 @@ fig.write_html("${props.graphTabName}.html")`
   var getDefaultParams7 = () => {
     return {
       credentials: { type: "username/password", username: "", password: "", account: "" },
-      connection: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
+      table_loc_and_warehouse: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
       query_params: { columns: [], limit: void 0 }
     };
   };
@@ -38112,7 +38112,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (params === void 0) {
         return;
       }
-      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.connection);
+      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.table_loc_and_warehouse);
       setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
       if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
         setParams((prevParams) => {
@@ -38209,11 +38209,11 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.warehouse || "None available",
+        value: params.table_loc_and_warehouse.warehouse || "None available",
         onChange: (newWarehouse) => {
           setParams((prevParams) => {
             return __spreadProps(__spreadValues({}, prevParams), {
-              connection: __spreadProps(__spreadValues({}, prevParams.connection), {
+              connection: __spreadProps(__spreadValues({}, prevParams.table_loc_and_warehouse), {
                 warehouse: newWarehouse
               })
             });
@@ -38227,14 +38227,14 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.database || "None available",
+        value: params.table_loc_and_warehouse.database || "None available",
         onChange: (newDatabase) => {
-          if (newDatabase === params["connection"]["database"]) {
+          if (newDatabase === params["table_loc_and_warehouse"]["database"]) {
             return;
           }
           const paramsCopy = __spreadValues({}, params);
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
-            "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+            "connection": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
               "database": newDatabase,
               "schema": void 0,
               "table": void 0
@@ -38254,14 +38254,14 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.schema || "None available",
+        value: params.table_loc_and_warehouse.schema || "None available",
         onChange: (newSchema) => {
-          if (newSchema === params["connection"]["schema"]) {
+          if (newSchema === params["table_loc_and_warehouse"]["schema"]) {
             return;
           }
           const paramsCopy = __spreadValues({}, params);
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
-            "connection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+            "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
               "schema": newSchema,
               "table": void 0
             }),
@@ -38280,14 +38280,14 @@ fig.write_html("${props.graphTabName}.html")`
       Select_default,
       {
         width: "medium",
-        value: params.connection.table || "None available",
+        value: params.table_loc_and_warehouse.table || "None available",
         onChange: (newTable) => {
-          if (newTable === params["connection"]["table"]) {
+          if (newTable === params["table_loc_and_warehouse"]["table"]) {
             return;
           }
           const paramsCopy = __spreadValues({}, params);
           const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
-            "conection": __spreadProps(__spreadValues({}, paramsCopy.connection), {
+            "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
               "table": newTable
             }),
             "query_params": {
@@ -38345,7 +38345,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react162.default.createElement(
       TextButton_default,
       {
-        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0 || params.connection.warehouse === void 0 || params.connection.database === void 0 || params.connection.schema === void 0 || params.connection.table === void 0,
+        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0 || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
         disabledTooltip: "Fields missing from the query. TODO: Cleanup",
         onClick: () => edit(),
         variant: "dark"

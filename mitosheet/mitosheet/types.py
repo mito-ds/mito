@@ -108,7 +108,7 @@ if sys.version_info[:3] > (3, 8, 0):
         password: str 
         account: str
 
-    class SnowflakeConnection(TypedDict):
+    class SnowflakeTableLocationAndWarehouse(TypedDict):
         warehouse: Optional[str] 
         database: Optional[str]
         schema: Optional[str]
@@ -120,7 +120,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class SnowflakeImportParams(TypedDict):
         credentials: SnowflakeCredentials
-        connection: SnowflakeConnection
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse
         query_params: SnowflakeQueryParams
         
     class CodeSnippetEnvVars(TypedDict):
@@ -136,7 +136,7 @@ else:
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
-    SnowflakeConnection = Any # type:ignore
+    SnowflakeTableLocationAndWarehouse = Any # type:ignore
     SnowflakeQueryParams = Any # type:ignore
     SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore

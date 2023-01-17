@@ -34,18 +34,11 @@ export type SnowflakeCredentialsValidityCheckResult = {type: 'success'} | {type:
 
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
-export type SnowflakeConnection = {
-    warehouse: string | undefined, 
-    database: string | undefined, 
-    schema: string | undefined,
-    table: string | undefined
-}
-
-export type SnowflakeConnectionAPIReturn = {
-    warehouse: string | null, 
-    database: string | null, 
-    schema: string | null,
-    table: string | null
+export type SnowflakeTableLocationAndWarehouse = {
+    warehouse: string | undefined | null, 
+    database: string | undefined | null, 
+    schema: string | undefined | null,
+    table: string | undefined | null
 }
 
 export type SnowflakeQueryParams = {
@@ -63,14 +56,14 @@ export type SnowflakeConfigOptions = {
 
 export interface SnowflakeImportParams {
     credentials: SnowflakeCredentials,
-    connection: SnowflakeConnection,
+    table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse,
     query_params: SnowflakeQueryParams,
 }
 
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
         credentials: {type: 'username/password', username: '', password: '', account: ''},
-        connection: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
+        table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
         query_params: {columns: [], limit: undefined},
     }
 }
@@ -78,7 +71,7 @@ const getDefaultParams = (): SnowflakeImportParams | undefined => {
 export type AvailableSnowflakeOptionsAndDefaults = {
     type: 'success',
     config_options: SnowflakeConfigOptions,
-    default_connection_values: SnowflakeConnectionAPIReturn
+    default_connection_values: SnowflakeTableLocationAndWarehouse
 } | {
     type: 'error',
     error_message: string
@@ -120,7 +113,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             // We don't expect this to ever happen because of the UI restrictions
             return 
         }
-        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.connection);
+        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.table_loc_and_warehouse);
 
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
@@ -264,13 +257,13 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.warehouse || 'None available'}
+                                value={params.table_loc_and_warehouse.warehouse || 'None available'}
                                 onChange={(newWarehouse) => {
                                     setParams((prevParams) => {
                                         return {
                                             ...prevParams, 
                                             connection: {
-                                                ...prevParams.connection, 
+                                                ...prevParams.table_loc_and_warehouse, 
                                                 warehouse: newWarehouse
                                             }
                                         }
@@ -292,9 +285,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.database || 'None available'}
+                                value={params.table_loc_and_warehouse.database || 'None available'}
                                 onChange={(newDatabase) => {
-                                    if (newDatabase === params['connection']['database']) {
+                                    if (newDatabase === params['table_loc_and_warehouse']['database']) {
                                         return 
                                     }
                                     
@@ -302,7 +295,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     const newParams = {
                                         ...paramsCopy, 
                                         'connection': {
-                                            ...paramsCopy.connection,
+                                            ...paramsCopy.table_loc_and_warehouse,
                                             'database': newDatabase,
                                             'schema': undefined,
                                             'table': undefined,
@@ -331,17 +324,17 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.schema || 'None available'}
+                                value={params.table_loc_and_warehouse.schema || 'None available'}
                                 onChange={(newSchema) => {
-                                    if (newSchema === params['connection']['schema']) {
+                                    if (newSchema === params['table_loc_and_warehouse']['schema']) {
                                         return 
                                     }
                                     
                                     const paramsCopy: SnowflakeImportParams = {...params}
                                     const newParams = {
                                         ...paramsCopy, 
-                                        'connection': {
-                                            ...paramsCopy.connection,
+                                        'table_loc_and_warehouse': {
+                                            ...paramsCopy.table_loc_and_warehouse,
                                             'schema': newSchema,
                                             'table': undefined,
                                         },
@@ -369,17 +362,17 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.connection.table || 'None available'}
+                                value={params.table_loc_and_warehouse.table || 'None available'}
                                 onChange={(newTable) => {
-                                    if (newTable === params['connection']['table']) {
+                                    if (newTable === params['table_loc_and_warehouse']['table']) {
                                         return 
                                     }
                                     
                                     const paramsCopy: SnowflakeImportParams = {...params}
                                     const newParams = {
                                         ...paramsCopy, 
-                                        'conection': {
-                                            ...paramsCopy.connection,
+                                        'table_loc_and_warehouse': {
+                                            ...paramsCopy.table_loc_and_warehouse,
                                             'table': newTable,
                                         },
                                         'query_params': {
@@ -455,10 +448,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 params.credentials.username.length === 0 || 
                                 params.credentials.password.length === 0 || 
                                 params.credentials.account.length === 0 || 
-                                params.connection.warehouse === undefined || 
-                                params.connection.database === undefined || 
-                                params.connection.schema === undefined ||
-                                params.connection.table === undefined 
+                                params.table_loc_and_warehouse.warehouse === undefined || 
+                                params.table_loc_and_warehouse.database === undefined || 
+                                params.table_loc_and_warehouse.schema === undefined ||
+                                params.table_loc_and_warehouse.table === undefined 
                             }
                             disabledTooltip='Fields missing from the query. TODO: Cleanup'
                             onClick={() => edit()}

@@ -21,12 +21,12 @@ except ImportError:
 
 def _validate_snowflake_credentials(username: str, password: str, account: str) -> Any:
         try:
-            ctx = snowflake.connector.connect(
+            con = snowflake.connector.connect(
                     user=username,
                     password=password,
                     account=account,
             )
-            ctx.close() #type: ignore
+            con.close() #type: ignore
             return True
         except:
             return False

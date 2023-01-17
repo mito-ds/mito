@@ -7,7 +7,7 @@
 from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import TAB
-from mitosheet.types import ColumnID, SnowflakeConnection, SnowflakeCredentials, SnowflakeQueryParams
+from mitosheet.types import SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 
 class SnowflakeImportCodeChunk(CodeChunk):
 
@@ -15,23 +15,20 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return 'Import from Snowflake'
     
     def get_description_comment(self) -> str:
-        snowflake_credentials: Any = self.get_param('snowflake_credentials')
-        query_params: Any = self.get_param('query_params')
-        
         return "Imported dataframe from Snowflake"
 
     def get_code(self) -> List[str]:
         credentials: SnowflakeCredentials = self.get_param('credentials')
-        connection: SnowflakeConnection = self.get_param('connection')
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = self.get_param('table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = self.get_param('query_params')
 
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
-        warehouse = connection['warehouse']
-        database = connection['database']
-        schema = connection['schema']
-        table = connection['table']
+        warehouse = table_loc_and_warehouse['warehouse']
+        database = table_loc_and_warehouse['database']
+        schema = table_loc_and_warehouse['schema']
+        table = table_loc_and_warehouse['table']
 
         if warehouse is None or database is None or schema is None or table is None:
             # This is a flaw of the type system. Usually we would just assume that these are 
@@ -43,7 +40,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
 
         return [
             'import snowflake.connector',
-            'ctx = snowflake.connector.connect(',
+            'con = snowflake.connector.connect(',
             f'{TAB}user=\'{username}\',',
             f'{TAB}password=\'{password}\',',
             f'{TAB}account=\'{account}\',',
@@ -52,11 +49,11 @@ class SnowflakeImportCodeChunk(CodeChunk):
             f'{TAB}schema=\'{schema}\',',
             ')',
             '',
-            'cur = ctx.cursor()',
+            'cur = con.cursor()',
             f'cur.execute(\'{sql_query}\')',
             f'{self.post_state.df_names[len(self.post_state.df_names) - 1]} = cur.fetch_pandas_all()',
             '',
-            'ctx.close()'
+            'con.close()'
         ]
 
     def get_created_sheet_indexes(self) -> List[int]:

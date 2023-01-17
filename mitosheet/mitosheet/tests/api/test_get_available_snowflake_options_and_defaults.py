@@ -102,7 +102,7 @@ def test_success_return_type(mocker):
 
     snowflake_import_params = {
         'credentials': TEST_SNOWFLAKE_CREDENTIALS,
-        'connection': TEST_DEFAULT_SNOWFLAKE_CONNECTION
+        'table_loc_and_warehouse': TEST_DEFAULT_SNOWFLAKE_CONNECTION
     }
 
     response = get_available_snowflake_options_and_defaults(snowflake_import_params, mito.mito_backend.steps_manager)
@@ -139,7 +139,7 @@ def test_integration_success(mocker):
 
     params = {
         'credentials': TEST_SNOWFLAKE_CREDENTIALS,
-        'connection': connection
+        'table_loc_and_warehouse': connection
     }
 
     response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)

@@ -17,7 +17,7 @@ from mitosheet.errors import make_invalid_range_error, make_invalid_snowflake_im
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import SnowflakeConnection, SnowflakeCredentials, SnowflakeImportParams, SnowflakeQueryParams
+from mitosheet.types import SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 from mitosheet.utils import get_valid_dataframe_name
 
 # The snowflake-connector-python package is only available in Python > 3.6 
@@ -55,8 +55,11 @@ class SnowflakeImportStepPerformer(StepPerformer):
         # means the step has dependencies on the api call and the order of operations in a way we've never had before. 
         # When the user reruns the analysis, if there is a snowflake_import, we need to have them reautnethicate first (?)
         credentials: SnowflakeCredentials = get_param(params, 'credentials') 
-        connection: SnowflakeConnection = get_param(params, 'connection')
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
+
+        print("HERE")
+        print("table loc: ", table_loc_and_warehouse['warehouse'])
 
         # We make a new state to modify it
         post_state = prev_state.copy()
@@ -66,17 +69,17 @@ class SnowflakeImportStepPerformer(StepPerformer):
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
-        warehouse = connection['warehouse']
-        database = connection['database']
-        schema = connection['schema']
-        table = connection['table']
+        warehouse = table_loc_and_warehouse['warehouse']
+        database = table_loc_and_warehouse['database']
+        schema = table_loc_and_warehouse['schema']
+        table = table_loc_and_warehouse['table']
 
         if warehouse is None or database is None or schema is None or table is None:
             raise make_invalid_snowflake_import_error()
         
         try: 
             # First try to establish the connection
-            ctx = snowflake.connector.connect(
+            con = snowflake.connector.connect(
                 user=username,
                 password=password,
                 account=account,
@@ -90,7 +93,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         
         try:
             # Second execute the query
-            cur = ctx.cursor()
+            cur = con.cursor()
             sql_query = create_query(table, query_params)
             cur.execute(sql_query)
             df = cur.fetch_pandas_all()
@@ -98,7 +101,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
             raise make_invalid_snowflake_import_error()
         finally:
            # If we've created the connection, then make sure to close it
-           ctx.close() # type: ignore
+           con.close() # type: ignore
 
         new_df_name = get_valid_dataframe_name(post_state.df_names, table)
         post_state.add_df_to_state(
