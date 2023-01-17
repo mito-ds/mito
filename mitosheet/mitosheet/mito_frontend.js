@@ -25814,7 +25814,7 @@ ${finalCode}`;
           });
           void props.mitoAPI.log("clicked_empty_grid_import_button");
         },
-        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
+        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "Excel Range Import" /* EXCEL_RANGE_IMPORT */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
       },
       "Import Files"
     )), /* @__PURE__ */ import_react42.default.createElement("p", { className: "mt-5px text-body-1", style: { textAlign: "center" } }, "Or import dataframes using the syntax ", /* @__PURE__ */ import_react42.default.createElement("code", null, "mitosheet.sheet(df1, df2)"), " in the code above.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No data in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No columns in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react42.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No rows in dataframe.")));
@@ -38081,7 +38081,7 @@ fig.write_html("${props.graphTabName}.html")`
     return {
       file_path,
       sheet_name,
-      range_imports: [{ "type": "range", "df_name": "", "range": "" }]
+      range_imports: [{ "type": "range", "df_name": "", "value": "" }]
     };
   };
   var ExcelRangeImportTaskpane = (props) => {
@@ -38096,6 +38096,22 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react163.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
+    let disabledTooltip = void 0;
+    if (params.range_imports.length === 0) {
+      disabledTooltip = "Please add range imports above before importing them.";
+    } else {
+      params.range_imports.forEach((rangeImport) => {
+        if (rangeImport.df_name === "") {
+          disabledTooltip = "Please ensure all range imports have a defined dataframe name.";
+        } else if (rangeImport.value === "") {
+          if (rangeImport.type === "range") {
+            disabledTooltip = "Please ensure all range imports have a defined range.";
+          } else {
+            disabledTooltip = "Please ensure all range imports have a defined Exact Cell Value.";
+          }
+        }
+      });
+    }
     return /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react163.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -38108,8 +38124,9 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark",
         onClick: () => {
           setParams((prevParams) => {
-            const newRangeImports = [...prevParams.range_imports];
-            newRangeImports.unshift({ "type": "range", "df_name": "", "range": "" });
+            const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+            const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : "range";
+            newRangeImports.unshift({ "type": previousType, "df_name": "", "value": "" });
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
             });
@@ -38125,7 +38142,7 @@ fig.write_html("${props.graphTabName}.html")`
         {
           key: index,
           title: range_import.df_name === "" ? "Unnamed dataframe" : `Importing ${range_import.df_name}`,
-          subtitle: range_import.range === "" ? "Unselected Range" : `Range ${range_import.range}`,
+          subtitle: range_import.value === "" ? "Unselected Range" : `Range ${range_import.value}`,
           expandedTitle: "Edit Range Import",
           isExpanded: index === expandedIndex,
           setExpanded: (newIsExpanded) => {
@@ -38137,7 +38154,7 @@ fig.write_html("${props.graphTabName}.html")`
           },
           onDelete: () => {
             setParams((prevParams) => {
-              const newRangeImports = [...prevParams.range_imports];
+              const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
               newRangeImports.splice(index, 1);
               return __spreadProps(__spreadValues({}, prevParams), {
                 range_imports: newRangeImports
@@ -38151,13 +38168,14 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
+            width: "medium",
             autoFocus: true,
             placeholder: "company_ids",
             value: range_import.df_name,
             onChange: (e) => {
               const newDfName = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = [...prevParams.range_imports];
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
                 newRangeImports[index].df_name = newDfName;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
@@ -38166,16 +38184,61 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Excel Range")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: range_import.type,
+            onChange: (newType) => {
+              setParams((prevParams) => {
+                const isNew = prevParams.range_imports[index].type !== newType;
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                newRangeImports[index].type = newType;
+                if (isNew) {
+                  newRangeImports[index].value = "";
+                }
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          },
+          /* @__PURE__ */ import_react163.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Exact Range",
+              id: "range",
+              subtext: "Specify the exact range to import as a sheet."
+            }
+          ),
+          /* @__PURE__ */ import_react163.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Upper Left Corner",
+              id: "upper left corner value",
+              subtext: "Give the value in the upper left corner of the table to import, and Mito will automatically determine the bounds of the table."
+            }
+          )
+        ))),
+        /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
+          LabelAndTooltip_default,
+          {
+            textBody: true,
+            tooltip: range_import.type === "range" ? "The proper format is COLUMNROW:COLUMNROW. For example, A1:B10, C10:G1000." : "Mito will attempt to find the cell with this exact value. Only strings and numbers are supported currently."
+          },
+          range_import.type === "range" ? "Excel Range" : "Exact Cell Value"
+        )), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
           Input_default,
           {
-            placeholder: "A10:C100",
-            value: range_import.range,
+            width: "medium",
+            placeholder: range_import.type === "range" ? "A10:C100" : "id_abc123",
+            value: "" + range_import.value,
             onChange: (e) => {
-              const newRange = e.target.value;
+              const newValue = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = [...prevParams.range_imports];
-                newRangeImports[index].range = newRange;
+                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                const newRangeImport = newRangeImports[index];
+                newRangeImport.value = newValue;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
                 });
@@ -38190,9 +38253,26 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark",
         width: "block",
         onClick: () => {
-          edit();
+          edit((params2) => {
+            const finalRangeImports = params2.range_imports.map((rangeImport) => {
+              if (rangeImport.type === "upper left corner value" && typeof rangeImport.value === "string") {
+                const parsedValue = parseFloat(rangeImport.value);
+                if (!isNaN(parsedValue)) {
+                  return __spreadProps(__spreadValues({}, rangeImport), {
+                    value: parsedValue
+                  });
+                }
+              }
+              return rangeImport;
+            });
+            finalRangeImports.reverse();
+            return __spreadProps(__spreadValues({}, params2), {
+              range_imports: finalRangeImports
+            });
+          });
         },
-        disabled: params.range_imports.length === 0
+        disabled: disabledTooltip !== void 0,
+        disabledTooltip
       },
       "Import Ranges"
     )));

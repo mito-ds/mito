@@ -93,7 +93,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class ExcelRangeImport(TypedDict):
         type: str
         df_name: str
-        range: str
+        value: str
 
     class CodeSnippet(TypedDict):
         Id: str
