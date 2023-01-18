@@ -253,7 +253,16 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            ChangeColumnDtypeCodeChunk(prev_state, post_state, params, execution_data)
+            ChangeColumnDtypeCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'column_ids'),
+                get_param(params, 'old_dtypes'),
+                get_param(params, 'new_dtype'),
+                get_param(execution_data if execution_data is not None else {}, 'changed_column_ids'),
+                execution_data.get('datetime_formats', None) if execution_data is not None else None
+            )
         ]
 
     @classmethod

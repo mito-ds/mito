@@ -9,6 +9,7 @@ container and generates transpiled Python code.
 """
 
 from typing import Any, Dict, List
+from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
@@ -32,6 +33,7 @@ def transpile(
     describe functions. 
     """
 
+    imports_code = []
     code = []
 
     # First, we transpile all the preprocessing steps
@@ -49,11 +51,11 @@ def transpile(
     # We also make sure to include all the post_processing code chunks, which are those
     # code chunks that are always at the end of the dataframe
     for postprocessing_code_chunk in POSTPROCESSING_CODE_CHUNKS:
-        all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.initial_defined_state, steps_manager.curr_step.final_defined_state, {}, {}))
+        all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.initial_defined_state, steps_manager.curr_step.final_defined_state))
 
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment()
-        gotten_code = code_chunk.get_code()
+        (gotten_code, code_chunk_imports) = code_chunk.get_code()
 
         # Make sure to not generate comments or code for steps with no code 
         if len(gotten_code) > 0:
@@ -61,9 +63,15 @@ def transpile(
                 gotten_code.insert(0, comment)
             code.extend(gotten_code)
 
+        imports_code.extend(code_chunk_imports)
+
     # If we have a historical step checked out, then we add a comment letting
     # the user know this is the case
     if steps_manager.curr_step_idx != len(steps_manager.steps_including_skipped) - 1:
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
-    return code
+    # We then deduplicate the imports, keeping the same order as originally. We then 
+    # put them at the start of the code!
+    final_imports_code = deduplicate_array(imports_code)
+
+    return final_imports_code + code

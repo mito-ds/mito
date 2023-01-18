@@ -96,7 +96,7 @@ def test_can_delete_mulitple_dataframe_more():
     assert mito.transpiled_code == []
 
     # We also check that it adjusted the sheet indexes internally correct
-    assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2]
+    assert mito.optimized_code_chunks[-1].__dict__['sheet_indexes'] == [0, 2]
 
 def test_delete_multi_combines_correctly():
     df = pd.DataFrame({'A': [123]})
@@ -109,4 +109,4 @@ def test_delete_multi_combines_correctly():
     assert mito.transpiled_code == []
 
     # We also check that it adjusted the sheet indexes internally correct
-    assert mito.optimized_code_chunks[-1].get_param('sheet_indexes') == [0, 2, 1, 7]
+    assert mito.optimized_code_chunks[-1].__dict__['sheet_indexes'] == [0, 2, 1, 7]

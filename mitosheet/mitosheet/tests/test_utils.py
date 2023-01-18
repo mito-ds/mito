@@ -34,7 +34,7 @@ def check_transpiled_code_after_call(func):
     return wrapper
 
 
-def check_dataframes_equal(test_wrapper):
+def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     """
     Tests that the dataframes in the widget state container equal
     to those that are the result of the executed code. 
@@ -88,9 +88,11 @@ def check_dataframes_equal(test_wrapper):
         )
     except:
         from mitosheet.errors import get_recent_traceback
-        print("Error executing code")
+        print("\n\nError executing code")
+        print(f'Unoptimized code chunks: {test_wrapper.unoptimized_code_chunks}')
+        print(f'Optimized code chunks: {test_wrapper.optimized_code_chunks}')
         print(get_recent_traceback())
-        print("\nCode:")
+        print("Code:")
         print(code)
         raise
 
@@ -129,6 +131,10 @@ class MitoWidgetTestWrapper:
         # we don't have to change tests if we update comments
         return transpile(self.mito_backend.steps_manager, add_comments=False)
     
+    @property
+    def unoptimized_code_chunks(self):
+        return get_code_chunks(self.mito_backend.steps_manager.steps_including_skipped, optimize=False)
+
     @property
     def optimized_code_chunks(self):
         # NOTE: we don't add comments to this testing functionality, so that 
@@ -508,7 +514,7 @@ class MitoWidgetTestWrapper:
         
     def excel_range_import(
             self, 
-            file_name: str,
+            file_path: str,
             sheet_name: str,
             range_imports: Any,
         ) -> bool:
@@ -520,7 +526,7 @@ class MitoWidgetTestWrapper:
                 'type': 'excel_range_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'file_name': file_name,
+                    'file_path': file_path,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
                 }

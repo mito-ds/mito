@@ -62,11 +62,8 @@ class GraphDuplicateStepPerformer(StepPerformer):
             EmptyCodeChunk(
                 prev_state, 
                 post_state, 
-                {
-                    'display_name': 'Duplicated graph',
-                    'description_comment': 'Duplicated a graph',
-                }, 
-                execution_data
+                'Duplicated graph',
+                'Duplicated a graph',
             )
         ]
     

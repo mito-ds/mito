@@ -23,6 +23,7 @@ import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBod
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
 import { Decimal, decimalCharToTitle, DECIMAL_TOOLTIP, DEFAULT_DECIMAL, SKIP_ROWS_TOOLTIP } from './CSVImportConfigScreen';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 interface XLSXImportConfigScreenProps {
@@ -276,6 +277,31 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 </Select>
                             </Col>
                         </Row>
+                    }
+                    {/** 
+                     * For now, we let users import specific ranges from a sheet if they have a single
+                     * excel sheet selected. This is not a great interface, but it's fine for now.
+                     * 
+                     * We also disable this if this is an update, for now. This is not a concern as no one
+                     * ever uses the update. 
+                     */}
+                    {!props.isUpdate && params.sheet_names.length === 1 && 
+                        <p
+                            onClick={() => {
+                                props.setUIState((prevUIState) => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenTaskpane: {
+                                            type: TaskpaneType.EXCEL_RANGE_IMPORT,
+                                            file_path: props.filePath,
+                                            sheet_name: params.sheet_names[0]
+                                        }
+                                    }
+                                })
+                            }}
+                        >
+                            Want to import multiple ranges from {params.sheet_names[0]}? <span className='text-underline'>Click here.</span>
+                        </p>
                     }
                     {/* 
                         We note that we might have to adjust these size checks, depending

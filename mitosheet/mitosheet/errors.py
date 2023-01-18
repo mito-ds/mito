@@ -589,7 +589,20 @@ def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
     return MitoError(
         'invalid_range_error',
         'Invalid Range',
-        f'{range} is not in the format A1:B3. Please update the range to this format.',
+        f'Range {range} is not in the format A1:B3. Please update to COLUMNROW:COLUMNROW.',
+        error_modal=error_modal
+    )
+
+def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
+    """
+    Helper function for creating a upper_left_corner_value_not_found_error.
+
+    Occurs when the user does not give a value that is found in the sheet.
+    """
+    return MitoError(
+        'upper_left_corner_value_not_found_error',
+        'Value Not Found',
+        f'Value {value} was not found in the specified sheet. Please ensure the passed value is in this sheet.',
         error_modal=error_modal
     )
 

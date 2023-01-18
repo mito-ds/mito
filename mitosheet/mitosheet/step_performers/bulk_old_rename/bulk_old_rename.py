@@ -91,7 +91,11 @@ class BulkOldRenameStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            BulkOldRenameCodeChunk(prev_state, post_state, params, execution_data)
+            BulkOldRenameCodeChunk(
+                prev_state, 
+                post_state, 
+                execution_data.get('column_header_renames_list', []) if execution_data is not None else []
+            )
         ]
 
     @classmethod

@@ -77,7 +77,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            PromoteRowToHeaderCodeChunk(prev_state, post_state, params, execution_data)
+            PromoteRowToHeaderCodeChunk(prev_state, post_state, get_param(params, 'sheet_index'), get_param(params, 'index'))
         ]
 
     @classmethod

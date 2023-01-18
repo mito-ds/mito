@@ -175,7 +175,18 @@ class PivotStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            PivotCodeChunk(prev_state, post_state, params, execution_data)
+            PivotCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'destination_sheet_index'),
+                get_param(params, 'pivot_rows_column_ids_with_transforms'),
+                get_param(params, 'pivot_columns_column_ids_with_transforms'),
+                get_param(params, 'pivot_filters'),
+                get_param(params, 'values_column_ids_map'),
+                get_param(params, 'flatten_column_headers'),
+                get_param(execution_data if execution_data is not None else {}, 'was_series'),
+            )
         ]
 
     @classmethod
