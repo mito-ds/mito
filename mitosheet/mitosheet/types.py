@@ -69,13 +69,21 @@ ConditionalFormattingResult = Dict[str, Union[
 
 PivotColumnTransformation = str
 
+try:
+    from snowflake.connector import SnowflakeConnection
+    SNOWFLAKE_CONNECTOR_IMPORTED = True
+except ImportError:
+    SNOWFLAKE_CONNECTOR_IMPORTED = False
+
+if SNOWFLAKE_CONNECTOR_IMPORTED:
+    MitoSafeSnowflakeConnection = SnowflakeConnection
+else: 
+    MitoSafeSnowflakeConnection = Any # type:ignore
+
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict
-    from snowflake.connector import SnowflakeConnection
-
-    MitoSafeSnowflakeConnection = SnowflakeConnection
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
@@ -143,4 +151,3 @@ else:
     SnowflakeQueryParams = Any # type:ignore
     SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
-    MitoSafeSnowflakeConnection = Any # type:ignore

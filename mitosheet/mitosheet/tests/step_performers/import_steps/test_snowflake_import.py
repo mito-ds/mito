@@ -11,6 +11,7 @@ import json
 import pandas as pd
 import pytest
 import os
+from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.errors import MitoError
 from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python_installed, snowflake_credentials_available
@@ -117,9 +118,17 @@ def test_integration_no_table():
     }
 
     with pytest.raises(MitoError) as e_info:
-        # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
-        # I'm not sure what is going wrong. Ideas?
-        mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, TEST_SNOWFLAKE_QUERY_PARAMS)
+        mito.mito_backend.steps_manager.handle_edit_event({
+            'event': 'edit_event',
+            'id': get_new_id(),
+            'type': 'snowflake_import_edit',
+            'step_id': get_new_id(),
+            'params': {
+                'credentials': TEST_SNOWFLAKE_CREDENTIALS,
+                'table_loc_and_warehouse': table_loc_and_warehouse,
+                'query_params': TEST_SNOWFLAKE_QUERY_PARAMS,
+            }
+        })
     
     assert 'Database' in str(e_info)
     assert len(mito.dfs) == 0
@@ -140,9 +149,17 @@ def test_snowflake_import_invalid_credentials():
     }
 
     with pytest.raises(MitoError) as e_info:
-        # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
-        # I'm not sure what is going wrong. Ideas?
-        mito.snowflake_import(invalid_credentials, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+        mito.mito_backend.steps_manager.handle_edit_event({
+            'event': 'edit_event',
+            'id': get_new_id(),
+            'type': 'snowflake_import_edit',
+            'step_id': get_new_id(),
+            'params': {
+                'credentials': invalid_credentials,
+                'table_loc_and_warehouse': TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE,
+                'query_params': TEST_SNOWFLAKE_QUERY_PARAMS,
+            }
+        })
 
     assert 'Database' in str(e_info)
     assert len(mito.dfs) == 0
@@ -161,9 +178,17 @@ def test_snowflake_import_invalid_column():
     }
 
     with pytest.raises(MitoError) as e_info:
-        # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
-        # I'm not sure what is going wrong. Ideas?
-        mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
+        mito.mito_backend.steps_manager.handle_edit_event({
+            'event': 'edit_event',
+            'id': get_new_id(),
+            'type': 'snowflake_import_edit',
+            'step_id': get_new_id(),
+            'params': {
+                'credentials': TEST_SNOWFLAKE_CREDENTIALS,
+                'table_loc_and_warehouse': TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE,
+                'query_params': query_params,
+            }
+        })
 
     assert 'Database' in str(e_info)
     assert len(mito.dfs) == 0
