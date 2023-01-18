@@ -13,7 +13,6 @@ from mitosheet.types import SnowflakeCredentials, StepsManagerType
 # note assume that the import will succeed. 
 try:
     import snowflake.connector
-    from snowflake.connector import SnowflakeConnection
     SNOWFLAKE_CONNECTOR_IMPORTED = True
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
