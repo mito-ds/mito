@@ -12,7 +12,7 @@ import pytest
 import pandas as pd
 import sys
 
-from mitosheet.utils import is_prev_version
+from mitosheet.utils import is_prev_version, is_snowflake_connector_python_installed
 
 pandas_pre_1_only = pytest.mark.skipif(
     pd.__version__.startswith('1.'), 
@@ -53,4 +53,10 @@ python_post_3_6_only = pytest.mark.skipif(
     sys.version_info.minor <= 6, 
     reason="requires 3.7 or greater"
 )
+
+snowflake_connector_python = pytest.mark.skipif(
+    is_snowflake_connector_python_installed(), 
+    reason="requires snowflake connector python package"
+)
+
 

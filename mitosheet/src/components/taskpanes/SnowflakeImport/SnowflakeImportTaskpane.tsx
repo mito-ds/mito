@@ -77,7 +77,6 @@ export type AvailableSnowflakeOptionsAndDefaults = {
     error_message: string
 }
 
-
 /* 
     This is the SnowflakeImport taskpane.
 */
@@ -408,11 +407,11 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                                     }
                                                 };
                                             });
-                                        } }
-                                        index={index} />
+                                        }}
+                                        index={index} 
+                                    />
                                 );
                             })}
-
                         </MultiToggleBox>
                         <TextButton
                             disabled={

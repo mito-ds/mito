@@ -119,7 +119,6 @@ if name == 'mitosheet2':
         extras_require = {
             'test': [
                 'pytest',
-                'pytest-mock',
                 'flake8',
                 'types-chardet',
                 'python-dotenv',
@@ -232,7 +231,6 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         extras_require = {
             'test': [
                 'pytest',
-                'pytest-mock',
                 'flake8',
                 'types-chardet',
                 'python-dotenv',

@@ -1297,7 +1297,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined}, // TODO: disable this if the user is not on enterprise
+            isDisabled: () => {return undefined}, 
             searchTerms: ['SQL', 'database', 'snowflake', 'import'],
             tooltip: "Import dataframe from a Snowflake data warehouse"
         },

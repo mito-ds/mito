@@ -11,8 +11,7 @@ import pandas as pd
 import pytest
 import os
 from mitosheet.errors import MitoError
-from mitosheet.tests.decorators import python_post_3_6_only
-from unittest.mock import MagicMock
+from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 from dotenv import load_dotenv
@@ -43,7 +42,7 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
     'limit': None,
 }
 
-
+@snowflake_connector_python
 @python_post_3_6_only
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
@@ -55,20 +54,25 @@ def test_snowflake_import_integration():
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
 
+def test_snowflake_import_with_clear_integration():
+    mito = create_mito_wrapper_dfs()
+
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_CONNECTION, TEST_SNOWFLAKE_QUERY_PARAMS)
+
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
     mito.add_column(0, 'new_column')
 
-    new_expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR'], 'new_column': [0, 0, 0]})
-    assert len(mito.dfs) == 1
-    assert mito.dfs[0].equals(new_expected_df)
-
-    # Make sure that clear does not remove the import, but does reset the edits
     mito.clear()
 
+    # Make sure that clear does not remove the import, but does reset the edits
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
 
+
+@snowflake_connector_python
 @python_post_3_6_only
-def test_snowflake_import_error(mocker):
+def test_snowflake_import_error():
     
     mito = create_mito_wrapper_dfs()
     
