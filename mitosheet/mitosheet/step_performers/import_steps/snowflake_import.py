@@ -11,7 +11,7 @@ import os
 
 from dotenv import load_dotenv
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.snowflakeimport_code_chunk import SnowflakeImportCodeChunk, create_query
+from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk, create_query
 from mitosheet.errors import make_invalid_range_error, make_invalid_snowflake_import_error
 
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
@@ -126,7 +126,13 @@ class SnowflakeImportStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            SnowflakeImportCodeChunk(prev_state, post_state, params, execution_data)
+            SnowflakeImportCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'credentials'),
+                get_param(params, 'table_loc_and_warehouse'),
+                get_param(params, 'query_params')
+            )
         ]
 
     @classmethod

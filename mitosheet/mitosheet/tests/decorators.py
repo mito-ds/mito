@@ -54,7 +54,7 @@ python_post_3_6_only = pytest.mark.skipif(
     reason="requires 3.7 or greater"
 )
 
-snowflake_connector_python_intalled = pytest.mark.skipif(
+snowflake_connector_python_installed = pytest.mark.skipif(
     not is_snowflake_connector_python_installed(), 
     reason="requires snowflake connector python package"
 )
