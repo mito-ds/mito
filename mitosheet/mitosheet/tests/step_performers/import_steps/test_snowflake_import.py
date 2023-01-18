@@ -7,9 +7,11 @@
 Contains tests for SnowflakeImport
 """
 
+import json
 import pandas as pd
 import pytest
 import os
+from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.errors import MitoError
 from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
@@ -30,7 +32,7 @@ TEST_SNOWFLAKE_CREDENTIALS = {
     'account': PYTEST_SNOWFLAKE_ACCOUNT
 }
 
-TEST_SNOWFLAKE_CONNECTION = {
+TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE = {
     'warehouse': 'COMPUTE_WH',
     'database': 'PYTESTDATABASE',
     'schema': 'PYTESTSCHEMA',
@@ -47,17 +49,19 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_CONNECTION, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
 
+@snowflake_connector_python
+@python_post_3_6_only
 def test_snowflake_import_with_clear_integration():
     mito = create_mito_wrapper_dfs()
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_CONNECTION, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
@@ -72,7 +76,54 @@ def test_snowflake_import_with_clear_integration():
 
 @snowflake_connector_python
 @python_post_3_6_only
-def test_snowflake_import_error():
+def test_integration_success_empty_table():
+    mito = create_mito_wrapper_dfs()
+
+    table_loc_and_warehouse = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table': 'NOROWS',
+    }
+
+    query_params = {
+        'columns': ['COLUMNA'],
+        'limit': None,
+    }
+
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+
+    expected_df = pd.DataFrame({"COLUMNA": []})
+
+    assert len(mito.dfs) == 1
+    assert len(mito.dfs[0]) == len(expected_df)
+    assert mito.dfs[0].columns == expected_df.columns
+
+
+@snowflake_connector_python
+@python_post_3_6_only
+def test_integration_no_table():
+    mito = create_mito_wrapper_dfs()
+
+    table_loc_and_warehouse = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table': 'nonexistant table',
+    }
+
+    with pytest.raises(MitoError) as e_info:
+        # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
+        # I'm not sure what is going wrong. Ideas?
+        mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, TEST_SNOWFLAKE_QUERY_PARAMS)
+    
+    assert 'Database' in str(e_info)
+    assert len(mito.dfs) == 0
+
+
+@snowflake_connector_python
+@python_post_3_6_only
+def test_snowflake_import_invalid_credentials():
     
     mito = create_mito_wrapper_dfs()
     
@@ -86,7 +137,98 @@ def test_snowflake_import_error():
     with pytest.raises(MitoError) as e_info:
         # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
         # I'm not sure what is going wrong. Ideas?
-        mito.snowflake_import(invalid_credentials, TEST_SNOWFLAKE_CONNECTION, TEST_SNOWFLAKE_QUERY_PARAMS)
+        mito.snowflake_import(invalid_credentials, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
     assert 'Database' in str(e_info)
     assert len(mito.dfs) == 0
+
+
+@snowflake_connector_python
+@python_post_3_6_only
+def test_snowflake_import_invalid_column():
+    
+    mito = create_mito_wrapper_dfs()
+
+    query_params = {
+        'columns': ['DOES_NOT_EXIST'],
+        'limit': None
+    }
+
+    with pytest.raises(MitoError) as e_info:
+        # This test is not passing. It tells me Failed: DID NOT RAISE <class 'mitosheet.errors.MitoError'>. But this is throwing an exception!
+        # I'm not sure what is going wrong. Ideas?
+        mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
+
+    assert 'Database' in str(e_info)
+    assert len(mito.dfs) == 0
+
+
+@snowflake_connector_python
+@python_post_3_6_only
+def test_snowflake_import_integration_type_test_simple():
+    mito = create_mito_wrapper_dfs()
+
+    table_loc_and_warehouse = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table': 'TYPETEST_SIMPLE',
+    }
+
+    query_params = {
+        'columns': ['NUMBER_COL', 'FLOAT_COL', 'VARCHAR_COL', 'BOOLEAN_COL', 'DATE_COL'],
+        'limit': None
+    }
+
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+
+    assert len(mito.dfs) == 1
+    assert mito.get_column(0, 'NUMBER_COL', as_list=True) == [1]
+    assert mito.get_column(0, 'FLOAT_COL', as_list=True) == [1.5]
+    assert mito.get_column(0, 'VARCHAR_COL', as_list=True) == ['ABC']
+    assert mito.get_column(0, 'BOOLEAN_COL', as_list=True) == [True]
+    assert mito.get_column(0, 'DATE_COL', as_list=True) == pd.to_datetime(['2016.07.23'])
+
+
+@snowflake_connector_python
+@python_post_3_6_only
+def test_snowflake_import_integration_column_headers():
+    mito = create_mito_wrapper_dfs()
+
+    table_loc_and_warehouse = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table': 'COLUMNHEADER_TEST',
+    }
+
+    params = {
+        'credentials': TEST_SNOWFLAKE_CREDENTIALS,
+        'table_loc_and_warehouse': table_loc_and_warehouse
+    }
+
+    # Get the column options from Snowflake
+    response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
+    response_json = json.loads(response)
+    columns = response_json['config_options']['columns']
+
+    print(columns)
+    # Select all of the columns
+    query_params = {
+        'columns': columns,
+        'limit': None
+    }
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+
+    assert len(mito.dfs) == 1
+    assert mito.get_column(0, '123', as_list=True) == [1]
+    assert mito.get_column(0, 'A.B.C', as_list=True) == [1]
+    assert mito.get_column(0, 'SPACE SPACE', as_list=True) == [1]
+    assert mito.get_column(0, '$', as_list=True) == [1]
+    assert mito.get_column(0, 'A_B', as_list=True) == [1]
+    assert mito.get_column(0, 'TRUE', as_list=True) == [1]
+    assert mito.get_column(0, 'false', as_list=True) == [1]
+
+
+
+

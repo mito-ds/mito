@@ -6,8 +6,8 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import TAB
-from mitosheet.types import SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
+from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
+from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 
 class SnowflakeImportCodeChunk(CodeChunk):
 
@@ -60,4 +60,9 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return [len(self.post_state.dfs)]
         
 def create_query(table: str, query_params: SnowflakeQueryParams) -> str:
-    return f'SELECT {", ".join(query_params["columns"])} FROM {table}'
+    transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]
+    query = f'SELECT {", ".join(transpiled_column_headers)} FROM {table}'
+    return query
+
+def get_snowflake_column_header(column_header: ColumnHeader) -> str:
+    return f'\"{column_header}\"'
