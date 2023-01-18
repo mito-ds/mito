@@ -65,7 +65,14 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='Please import a dataframe before attempting to export it'/>
     }
-    
+
+    // Warn the user if they have some ending that is invalid
+    let invalidEndingWarning: string | undefined = undefined;
+    if (params.type === 'csv' && params.file_name.endsWith('.xlsx')) {
+        invalidEndingWarning = 'The .xlsx file extension does not match the CSV File Type.'
+    } else if (params.type === 'excel' && (params.file_name.endsWith('.txt') || params.file_name.endsWith('.csv'))) {
+        invalidEndingWarning= 'The file extension ending does not match the Excel file type.'
+    }
 
     return (
         <DefaultTaskpane>
@@ -83,6 +90,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                     <Col>
                         <Input
                             autoFocus
+                            placeholder="MitoExport"
                             width='medium'
                             value={'' + params.file_name}
                             onChange={(e) => {
@@ -98,6 +106,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         />
                     </Col>
                 </Row>
+                {invalidEndingWarning !== undefined && <p className="text-color-error">{invalidEndingWarning}</p>}
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
@@ -117,7 +126,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                                 })
                             }}
                         >
-                            <DropdownItem title="CSV" id='csv' subtext="Each exported dataframe will be exported as a seperate CSV file."/>
+                            <DropdownItem title="CSV" id='csv' subtext="Each dataframe will be exported as a seperate CSV file. If multiple dataframes are exported, their names will be appended to the file name."/>
                             <DropdownItem title="Excel" id='excel' subtext="Each exported dataframe will be exported as a seperate sheet."/>
                         </Select>
                     </Col>
@@ -128,6 +137,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                     </Col>
                 </Row>
                 <DataframeMultiSelect
+                    height="medium"
                     sheetDataArray={props.sheetDataArray}
                     selectedSheetIndexes={params.sheet_indexes}
                     setUIState={props.setUIState}
@@ -142,14 +152,14 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                {editApplied && <p className='text-body-3'>Files and code written.</p>}
+                {editApplied && <p className='text-subtext-1'>Files created. Export code generated.</p>}
                 <TextButton
                     variant='dark'
                     width='block'
                     onClick={() => {
                         edit();
                     }}
-                    disabled={params.sheet_indexes.length === 0 || loading}
+                    disabled={params.file_name === '' || params.sheet_indexes.length === 0 || invalidEndingWarning !== undefined || loading}
                 >
                     {loading ? 'Generating...' : 'Generate Export Code'}
                 </TextButton>

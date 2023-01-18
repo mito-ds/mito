@@ -32,7 +32,7 @@ def get_final_file_name(file_name: str, _type: str) -> str:
     _, extension = os.path.splitext(file_name)
     if extension == '':
         if _type == 'csv':
-            return file_name + '.txt'
+            return file_name + '.csv'
         elif _type == 'excel':
             return file_name + '.xlsx'
     

@@ -4,12 +4,14 @@ import { SheetData, UIState } from '../../types';
 import { addIfAbsent, removeIfPresent, toggleInArray } from '../../utils/arrays';
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
+import { Height } from './sizes.d';
 
 interface DataframeMultiSelectProps {
     sheetDataArray: SheetData[];
     selectedSheetIndexes: number[];
     onChange: (newSelectedSheetIndexes: number[]) => void;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    height?: Height;
 }
 
 /**
@@ -23,7 +25,7 @@ const DataframeMultiSelect = (props: DataframeMultiSelectProps): JSX.Element => 
     return (
         <MultiToggleBox
             width='block'
-            height='small'
+            height={props.height || 'small'}
             toggleAllIndexes={(indexesToToggle, newToggle) => {
                 // We make the assumption that the order of the sheets in the MultiToggleBox
                 // is the same as the order in the sheet. 
