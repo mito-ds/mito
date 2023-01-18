@@ -13,7 +13,7 @@ import pytest
 import os
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.errors import MitoError
-from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python
+from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python_installed, snowflake_credentials_available
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 from dotenv import load_dotenv
@@ -44,7 +44,8 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
     'limit': None,
 }
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
@@ -56,7 +57,8 @@ def test_snowflake_import_integration():
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_with_clear_integration():
     mito = create_mito_wrapper_dfs()
@@ -74,7 +76,8 @@ def test_snowflake_import_with_clear_integration():
     assert mito.dfs[0].equals(expected_df)
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_integration_success_empty_table():
     mito = create_mito_wrapper_dfs()
@@ -100,7 +103,8 @@ def test_integration_success_empty_table():
     assert mito.dfs[0].columns == expected_df.columns
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_integration_no_table():
     mito = create_mito_wrapper_dfs()
@@ -121,7 +125,8 @@ def test_integration_no_table():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_invalid_credentials():
     
@@ -143,7 +148,8 @@ def test_snowflake_import_invalid_credentials():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_invalid_column():
     
@@ -163,7 +169,8 @@ def test_snowflake_import_invalid_column():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_integration_type_test_simple():
     mito = create_mito_wrapper_dfs()
@@ -190,7 +197,8 @@ def test_snowflake_import_integration_type_test_simple():
     assert mito.get_column(0, 'DATE_COL', as_list=True) == pd.to_datetime(['2016.07.23'])
 
 
-@snowflake_connector_python
+@snowflake_connector_python_installed
+@snowflake_credentials_available
 @python_post_3_6_only
 def test_snowflake_import_integration_column_headers():
     mito = create_mito_wrapper_dfs()
@@ -212,7 +220,6 @@ def test_snowflake_import_integration_column_headers():
     response_json = json.loads(response)
     columns = response_json['config_options']['columns']
 
-    print(columns)
     # Select all of the columns
     query_params = {
         'columns': columns,
