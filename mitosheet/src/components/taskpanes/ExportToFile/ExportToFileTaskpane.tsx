@@ -49,6 +49,18 @@ const getDefaultParams = (
     }
 }
 
+const INVALID_CHARACTERS_IN_FILENAME = [
+    '\\',
+    '/',
+    '<',
+    '>',
+    ':',
+    '"',
+    '|',
+    '?',
+    '*',
+]
+
 
 /* 
     This is the Export To File taskpane.
@@ -67,12 +79,19 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
     }
 
     // Warn the user if they have some ending that is invalid
-    let invalidEndingWarning: string | undefined = undefined;
+    let invalidFileNameWarning: string | undefined = undefined;
     if (params.type === 'csv' && params.file_name.endsWith('.xlsx')) {
-        invalidEndingWarning = 'The .xlsx file extension does not match the CSV File Type.'
+        invalidFileNameWarning = 'The .xlsx file extension does not match the CSV File Type.'
     } else if (params.type === 'excel' && (params.file_name.endsWith('.txt') || params.file_name.endsWith('.csv'))) {
-        invalidEndingWarning= 'The file extension ending does not match the Excel file type.'
-    }
+        invalidFileNameWarning = 'The file extension ending does not match the Excel file type.'
+    } 
+
+    INVALID_CHARACTERS_IN_FILENAME.forEach((char) => {
+        if (params.file_name.includes(char)) {
+            invalidFileNameWarning= `The File Name cannot include ${char}`
+        }
+    })
+
 
     return (
         <DefaultTaskpane>
@@ -106,7 +125,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         />
                     </Col>
                 </Row>
-                {invalidEndingWarning !== undefined && <p className="text-color-error">{invalidEndingWarning}</p>}
+                {invalidFileNameWarning !== undefined && <p className="text-color-error">{invalidFileNameWarning}</p>}
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
@@ -159,7 +178,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                     onClick={() => {
                         edit();
                     }}
-                    disabled={params.file_name === '' || params.sheet_indexes.length === 0 || invalidEndingWarning !== undefined || loading}
+                    disabled={params.file_name === '' || params.sheet_indexes.length === 0 || invalidFileNameWarning !== undefined || loading}
                 >
                     {loading ? 'Generating...' : 'Generate Export Code'}
                 </TextButton>

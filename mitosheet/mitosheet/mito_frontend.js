@@ -29981,7 +29981,7 @@ ${finalCode}`;
       },
       ["export dropdown" /* Export_Dropdown */]: {
         type: "export dropdown" /* Export_Dropdown */,
-        shortTitle: "Open Export Dropdown",
+        shortTitle: "Export",
         longTitle: "Open Export Dropdown",
         actionFunction: () => {
           setEditorState(void 0);
@@ -38346,6 +38346,17 @@ fig.write_html("${props.graphTabName}.html")`
       file_name: `${sheetName}_export`
     };
   };
+  var INVALID_CHARACTERS_IN_FILENAME = [
+    "\\",
+    "/",
+    "<",
+    ">",
+    ":",
+    '"',
+    "|",
+    "?",
+    "*"
+  ];
   var ExportToFileTaskpane = (props) => {
     const { params, setParams, edit, editApplied, loading } = useSendEditOnClick_default(
       () => getDefaultParams8(props.sheetDataArray, props.selectedSheetIndex),
@@ -38356,12 +38367,17 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react165.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Please import a dataframe before attempting to export it" });
     }
-    let invalidEndingWarning = void 0;
+    let invalidFileNameWarning = void 0;
     if (params.type === "csv" && params.file_name.endsWith(".xlsx")) {
-      invalidEndingWarning = "The .xlsx file extension does not match the CSV File Type.";
+      invalidFileNameWarning = "The .xlsx file extension does not match the CSV File Type.";
     } else if (params.type === "excel" && (params.file_name.endsWith(".txt") || params.file_name.endsWith(".csv"))) {
-      invalidEndingWarning = "The file extension ending does not match the Excel file type.";
+      invalidFileNameWarning = "The file extension ending does not match the Excel file type.";
     }
+    INVALID_CHARACTERS_IN_FILENAME.forEach((char) => {
+      if (params.file_name.includes(char)) {
+        invalidFileNameWarning = `The File Name cannot include ${char}`;
+      }
+    });
     return /* @__PURE__ */ import_react165.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react165.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -38384,7 +38400,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ))), invalidEndingWarning !== void 0 && /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-color-error" }, invalidEndingWarning), /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "File Type")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
+    ))), invalidFileNameWarning !== void 0 && /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-color-error" }, invalidFileNameWarning), /* @__PURE__ */ import_react165.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement("p", { className: "text-header-3" }, "File Type")), /* @__PURE__ */ import_react165.default.createElement(Col_default, null, /* @__PURE__ */ import_react165.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -38422,7 +38438,7 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => {
           edit();
         },
-        disabled: params.file_name === "" || params.sheet_indexes.length === 0 || invalidEndingWarning !== void 0 || loading
+        disabled: params.file_name === "" || params.sheet_indexes.length === 0 || invalidFileNameWarning !== void 0 || loading
       },
       loading ? "Generating..." : "Generate Export Code"
     )));

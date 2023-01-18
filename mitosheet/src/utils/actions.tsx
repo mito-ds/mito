@@ -443,7 +443,7 @@ export const createActions = (
         },
         [ActionEnum.Export_Dropdown]: {
             type: ActionEnum.Export_Dropdown,
-            shortTitle: 'Open Export Dropdown',
+            shortTitle: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
                 setEditorState(undefined);
