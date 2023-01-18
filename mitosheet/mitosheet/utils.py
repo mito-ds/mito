@@ -344,7 +344,7 @@ def is_prev_version(curr_version: str, benchmark_version: str) -> bool:
 
     return False
 
-def is_snowflake_connector_python_installed():
+def is_snowflake_connector_python_installed() -> bool:
     try:
         import snowflake.connector
         return True

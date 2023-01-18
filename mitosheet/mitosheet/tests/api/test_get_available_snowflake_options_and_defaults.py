@@ -31,7 +31,7 @@ TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
 def test_integration_success():
     mito = create_mito_wrapper_dfs()
 
-    connection = {
+    table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -40,7 +40,7 @@ def test_integration_success():
 
     params = {
         'credentials': TEST_SNOWFLAKE_CREDENTIALS,
-        'table_loc_and_warehouse': connection
+        'table_loc_and_warehouse': table_loc_and_warehouse
     }
 
     response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
@@ -51,10 +51,10 @@ def test_integration_success():
                 'warehouses': ['COMPUTE_WH'],    
                 'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
                 'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
-                'tables': ['SIMPLE_PYTEST_TABLE'],
+                'tables': ["COLUMNHEADER_TEST", "NOROWS", "SIMPLE_PYTEST_TABLE", "TYPETEST", "TYPETEST_SIMPLE"],
                 'columns': ['COLUMNA', 'COLUMNB']
         },
-        'default_values': connection
+        'default_values': table_loc_and_warehouse
     })
 
     assert expected_return == response

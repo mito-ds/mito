@@ -13,11 +13,12 @@ from mitosheet.types import SnowflakeCredentials, StepsManagerType
 # note assume that the import will succeed. 
 try:
     import snowflake.connector
+    from snowflake.connector import SnowflakeConnection
     SNOWFLAKE_CONNECTOR_IMPORTED = True
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
 
-def _validate_snowflake_credentials(username: str, password: str, account: str) -> Any:
+def _validate_snowflake_credentials(username: str, password: str, account: str) -> bool:
         try:
             con = snowflake.connector.connect(
                     user=username,

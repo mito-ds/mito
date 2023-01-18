@@ -12,13 +12,14 @@ from mitosheet.types import SnowflakeCredentials, SnowflakeTableLocationAndWareh
 # and is not distributed with the mitosheet package, so we make sure to 
 # note assume that the import will succeed. 
 try:
-    import snowflake.connector
-    SNOWFLAKE_CONNECTOR_IMPORTED = True
+        import snowflake.connector
+        from snowflake.connector import SnowflakeConnection
+        SNOWFLAKE_CONNECTOR_IMPORTED = True
 except ImportError:
-    SNOWFLAKE_CONNECTOR_IMPORTED = False
+        SNOWFLAKE_CONNECTOR_IMPORTED = False
 
 
-def _get_snowflake_connection(username: str, password: str, account: str) -> Any:
+def _get_snowflake_connection(username: str, password: str, account: str) -> SnowflakeConnection:
         return snowflake.connector.connect(
                 user=username,
                 password=password,
@@ -76,53 +77,73 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         })
                 
 
-def get_warehouses(con: Any) -> List[str]:
+def get_warehouses(con: SnowflakeConnection) -> List[str]:
         # List all of the warehouses available to the user
         cur = con.cursor().execute('SHOW WAREHOUSES')
+
+        if cur is None:
+                return []
+
         warehouses = cur.fetchall()
         return [wh[0] for wh in warehouses]
 
-def get_databases(con: Any) -> List[str]:
+def get_databases(con: SnowflakeConnection) -> List[str]:
         # List all of the databases available to the user
         cur = con.cursor().execute('SHOW DATABASES')
+
+        if cur is None:
+                return []
+
         databases = cur.fetchall()
         return [db[1] for db in databases]
 
-def get_schemas(con: Any, database: Optional[str]) -> List[str]:
+def get_schemas(con: SnowflakeConnection, database: Optional[str]) -> List[str]:
         # List all of the schemas in a particular database available to the user
         cur = con.cursor().execute(f'SHOW SCHEMAS in {database}')
+        
+        if cur is None:
+                return []
+
         schemas = cur.fetchall()
         return [s[1] for s in schemas]
 
-def get_tables(con: Any, database: Optional[str], schema: Optional[str]) -> List[str]:
+def get_tables(con: SnowflakeConnection, database: Optional[str], schema: Optional[str]) -> List[str]:
         if database is None or schema is None:
                 return []
 
         # List all of the tables in a schema
         cur = con.cursor().execute(f'SHOW TABLES in {database}.{schema}')
+
+        if cur is None:
+                return []
+
         tables = cur.fetchall()
         return [table[1] for table in tables]
 
-def get_columns(con: Any, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
+def get_columns(con: SnowflakeConnection, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
         if database is None or schema is None or table is None:
                 return []
 
         # List all of the columns in a table 
         cur = con.cursor().execute(f'SHOW COLUMNS in {database}.{schema}.{table}')
+
+        if cur is None:
+                return []
+                
         columns = cur.fetchall()
         return [column[2] for column in columns]
 
-def get_default_warehouse(con: Any) -> Optional[str]:
+def get_default_warehouse(con: SnowflakeConnection) -> Optional[str]:
         # TODO: Update this function to check if the user has a default warehouse and use it 
         warehouses = get_warehouses(con)
         return warehouses[0] if warehouses is not None and len(warehouses) > 0 else None 
 
-def get_default_database(con: Any) -> Optional[str]:
+def get_default_database(con: SnowflakeConnection) -> Optional[str]:
         # TODO: Update this function to check if the user has a default database and use it
         databases = get_databases(con)
         return databases[0] if databases is not None and len(databases) > 0 else None 
 
-def get_default_schema(con: Any, database: Optional[str]) -> Optional[str]:
+def get_default_schema(con: SnowflakeConnection, database: Optional[str]) -> Optional[str]:
         # We can't be sure that there will be a database, so we need to take 
         # extra care to handle the None case
         if database is None:
@@ -132,7 +153,7 @@ def get_default_schema(con: Any, database: Optional[str]) -> Optional[str]:
         schemas = get_schemas(con, database)
         return schemas[0] if schemas is not None and len(schemas) > 0 else None 
 
-def get_default_table(con: Any, database: Optional[str], schema: Optional[str]) -> Optional[str]:
+def get_default_table(con: SnowflakeConnection, database: Optional[str], schema: Optional[str]) -> Optional[str]:
         if database is None or schema is None:
                 return None
 
