@@ -75,8 +75,10 @@ PivotColumnTransformation = str
 try:
     from snowflake.connector import SnowflakeConnection 
 except ImportError:
-    # This is prety hacky and errors if we get rid of the #type: ignore,
-    # but I'm unable to create a conditional type otherwise
+    # This is prety hacky and causes the mypy tests to fail if we get 
+    # rid of the #type: ignore, but I'm unable to create a type based on the 
+    # SnowflakeConnection connection otherwise because its conditional 
+    # on whether the package is installed or not.
     SnowflakeConnection = Any #type: ignore
 
 MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]

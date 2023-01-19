@@ -19,7 +19,7 @@ from mitosheet.utils import get_valid_dataframe_name
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
-# note assume that the import will succeed. 
+# not import will succeed. 
 try:
     import snowflake.connector
     SNOWFLAKE_CONNECTOR_IMPORTED = True
