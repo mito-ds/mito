@@ -23771,7 +23771,7 @@ ${finalCode}`;
         }
       }, {});
     }
-    async editSetColumnFormula(sheetIndex, columnID, newFormula, cell_editor_location) {
+    async editSetColumnFormula(sheetIndex, columnID, formula_label, newFormula, cell_editor_location) {
       const stepID = getRandomId();
       return await this.send({
         "event": "edit_event",
@@ -23780,6 +23780,7 @@ ${finalCode}`;
         "params": {
           "sheet_index": sheetIndex,
           "column_id": columnID,
+          "formula_label": formula_label,
           "new_formula": newFormula,
           "cell_editor_location": cell_editor_location
         }
@@ -25464,6 +25465,7 @@ ${finalCode}`;
       const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
       const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
       const formula = getFullFormula(props.editorState.formula, columnHeader2, props.editorState.pendingSelectedColumns);
+      const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
       setLoading(true);
       let errorMessage = void 0;
       if (props.editorState.rowIndex == -1) {
@@ -25474,6 +25476,7 @@ ${finalCode}`;
           errorMessage = await props.mitoAPI.editSetColumnFormula(
             props.sheetIndex,
             columnID2,
+            formulaLabel,
             formula,
             props.editorState.editorLocation
           );

@@ -58,10 +58,12 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
         return anonymize_as_string(formula)
 
     # We just input a random address, as we don't use it
+    # TODO: Check this still works!
     _, _, dependencies = parse_formula(
         formula, 
         'A', 
-        steps_manager.dfs[sheet_index].columns,
+        '0',
+        steps_manager.dfs[sheet_index],
         throw_errors=False
     )
     

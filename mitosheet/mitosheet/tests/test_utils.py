@@ -198,6 +198,7 @@ class MitoWidgetTestWrapper:
             sheet_index: int,
             column_header: str, 
             add_column: bool=False,
+            formula_label: Optional[Any]=None
         ) -> bool:
         """
         Sets the given column to have formula, and optionally
@@ -211,6 +212,9 @@ class MitoWidgetTestWrapper:
             column_header
         )
 
+        if formula_label is None:
+            formula_label = self.mito_backend.steps_manager.dfs[sheet_index].index[0]
+
         return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
@@ -220,6 +224,7 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'column_id': column_id,
+                    'formula_label': formula_label,
                     'new_formula': formula,
                 }
             }
@@ -1247,7 +1252,7 @@ class MitoWidgetTestWrapper:
             return ''
         return self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
 
-    def get_python_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
+    def get_python_formula(self, sheet_index: int, column_header: ColumnHeader, formula_label: Union[str, bool, int, float]=0) -> str:
         """
         Gets the formula for a given column. Returns an empty
         string if nothing exists.
@@ -1258,13 +1263,12 @@ class MitoWidgetTestWrapper:
         if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
             return ''
 
-        column_headers = self.curr_step.post_state.dfs[sheet_index].keys()
-
         # We compile all of their formulas
         python_code, _, _ = parse_formula(
             self.curr_step.post_state.column_spreadsheet_code[sheet_index][column_id], 
             column_header,
-            column_headers
+            formula_label,
+            self.curr_step.dfs[sheet_index]
         )
 
         return python_code

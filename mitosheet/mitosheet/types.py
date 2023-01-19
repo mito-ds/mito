@@ -69,6 +69,9 @@ ConditionalFormattingResult = Dict[str, Union[
 
 PivotColumnTransformation = str
 
+RowOffset = int
+RelativeReference = Tuple[ColumnHeader, RowOffset]
+ParserMatchRange = Tuple[int, int] # start, end
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
@@ -106,6 +109,13 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_URL: str
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
+    class ParserMatch(TypedDict):
+        type: str # 'column header' | 'index label'
+        match_range: ParserMatchRange
+        unparsed: str
+        parsed: Any
+        row_offset: RowOffset
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
@@ -114,3 +124,5 @@ else:
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+    ParserMatch = Any # type:ignore
+    ParserMatchIndexLabel = Any # type:ignore

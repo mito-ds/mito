@@ -8,6 +8,7 @@ Contains tests for set column formula edit events
 """
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import pandas as pd
+import pytest
 
 from mitosheet.utils import get_new_id
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs, create_mito_wrapper
@@ -290,3 +291,95 @@ def test_set_column_formula_then_delete_diff_dataframe_not_optimizes():
     mito.delete_dataframe(1)
 
     assert len(mito.optimized_code_chunks) >= 3
+
+def test_set_column_formula_with_datetime_index():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00'])))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A2007-01-22 00:00:00', 0, 'B', formula_label='2007-01-22 00:00:00')
+
+    assert 'B' in mito.dfs[0]
+    assert mito.dfs[0]['B'].equals(mito.dfs[0]['A'])
+
+
+INDEX_TEST_CASES = [
+    # Range Index, no offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.RangeIndex(0, 2)),
+        '=A0',
+        'C',
+        0,
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [1, 2]}, index=pd.RangeIndex(0, 2)),
+    ),
+    # Range index, negative offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.RangeIndex(0, 2)),
+        '=A1',
+        'C',
+        0,
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [2, 0]}, index=pd.RangeIndex(0, 2)),
+    ),
+    # Range index, positive offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.RangeIndex(0, 2)),
+        '=A0',
+        'C',
+        1,
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [0, 1]}, index=pd.RangeIndex(0, 2)),
+    ),
+    # String Index, no offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(['a', 'b'])),
+        '=Aa',
+        'C',
+        'a',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [1, 2]}, index=pd.Index(['a', 'b'])),
+    ),
+    # String index, negative offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(['a', 'b'])),
+        '=Ab',
+        'C',
+        'a',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [2, 0]}, index=pd.Index(['a', 'b'])),
+    ),
+    # String index, positive offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(['a', 'b'])),
+        '=Aa',
+        'C',
+        'b',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [0, 1]}, index=pd.Index(['a', 'b'])),
+    ),
+    # Datetime Index, no offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+        '=A2007-01-22 00:00:00',
+        'C',
+        '2007-01-22 00:00:00',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [1, 2]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+    ),
+    # Datetime index, negative offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+        '=A2007-01-23 00:00:00',
+        'C',
+        '2007-01-22 00:00:00',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [2, 0]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+    ),
+    # Datetime index, positive offset
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+        '=A2007-01-22 00:00:00',
+        'C',
+        '2007-01-23 00:00:00',
+        pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [0, 1]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
+    ),
+]
+
+@pytest.mark.parametrize("input_df, formula, column_header, formula_label,output_df", INDEX_TEST_CASES)
+def test_different_indexes(input_df, formula, column_header, formula_label, output_df):
+    mito = create_mito_wrapper_dfs(input_df)
+    mito.add_column(0, column_header)
+    mito.set_formula(formula, 0, column_header, formula_label=formula_label)
+
+    assert mito.dfs[0].equals(output_df)

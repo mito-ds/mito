@@ -4,7 +4,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import Any
+import warnings
 import pytest
+import pandas as pd
 
 from mitosheet.errors import MitoError
 from mitosheet.parser import parse_formula, safe_replace, safe_contains
@@ -13,7 +15,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=100',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = 100',
         set([]),
         set([])
@@ -21,7 +24,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=True',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = True',
         set([]),
         set([])
@@ -29,7 +33,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=\'StringSingleQuotes\'',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = \'StringSingleQuotes\'',
         set([]),
         set([])
@@ -37,7 +42,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=\"StringDoubleQuotes\"',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = \"StringDoubleQuotes\"',
         set([]),
         set([])
@@ -45,7 +51,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=\"String Double Quotes\"',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = \"String Double Quotes\"',
         set([]),
         set([])
@@ -53,7 +60,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=FUNC(\"String Double Quotes\")',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = FUNC(\"String Double Quotes\")',
         set(['FUNC']),
         set([])
@@ -61,7 +69,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=FUNC(\"DIFF_FUNC(A)\")',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = FUNC(\"DIFF_FUNC(A)\")',
         set(['FUNC']),
         set([])
@@ -69,7 +78,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=\"String One FUNC(A)\" + \"STRING TWO FUNC(A)\"',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = \"String One FUNC(A)\" + \"STRING TWO FUNC(A)\"',
         set([]),
         set([])
@@ -77,7 +87,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=\'String One FUNC(A)\' + \'STRING TWO FUNC(A)\'',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = \'String One FUNC(A)\' + \'STRING TWO FUNC(A)\'',
         set([]),
         set([])
@@ -85,7 +96,8 @@ CONSTANT_TEST_CASES: Any = [
     (
         '=FUNC1(\'String One FUNC(A)\') + FUNC2(\'STRING TWO FUNC(A)\')',
         'B',
-        ['B'],
+        0,
+        pd.DataFrame(columns=['B']),
         'df[\'B\'] = FUNC1(\'String One FUNC(A)\') + FUNC2(\'STRING TWO FUNC(A)\')',
         set(['FUNC1', 'FUNC2']),
         set([])
@@ -98,7 +110,8 @@ OPERATOR_TEST_CASES = [
     (
         '=A + B',
         'C',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'C\'] = df[\'A\'] + df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -107,7 +120,8 @@ OPERATOR_TEST_CASES = [
     (
         '=A - B',
         'C',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'C\'] = df[\'A\'] - df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -116,7 +130,8 @@ OPERATOR_TEST_CASES = [
     (
         '=A * B',
         'C',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'C\'] = df[\'A\'] * df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -125,7 +140,8 @@ OPERATOR_TEST_CASES = [
     (
         '=A / B',
         'C',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'C\'] = df[\'A\'] / df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -134,7 +150,8 @@ OPERATOR_TEST_CASES = [
     (
         '=AAA + BBB + CCC + DDD',
         'E',
-        ['AAA', 'BBB', 'CCC', 'DDD'],
+        0,
+        pd.DataFrame(columns=['AAA', 'BBB', 'CCC', 'DDD']),
         'df[\'E\'] = df[\'AAA\'] + df[\'BBB\'] + df[\'CCC\'] + df[\'DDD\']',
         set(),
         set(['AAA', 'BBB', 'CCC', 'DDD'])
@@ -143,7 +160,8 @@ OPERATOR_TEST_CASES = [
     (
         '=(A + B) / C + A * 100',
         'D',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'D\'] = (df[\'A\'] + df[\'B\']) / df[\'C\'] + df[\'A\'] * 100',
         set(),
         set(['A', 'B', 'C'])
@@ -152,7 +170,8 @@ OPERATOR_TEST_CASES = [
     (
         '=FUNC(A + B / C + A * 100)',
         'D',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'D\'] = FUNC(df[\'A\'] + df[\'B\'] / df[\'C\'] + df[\'A\'] * 100)',
         set(['FUNC']),
         set(['A', 'B', 'C'])
@@ -165,7 +184,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(A)',
         'B',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'B\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -174,7 +194,8 @@ FUNCTION_TEST_CASES = [
     (
         '=C(A)',
         'B',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'B\'] = C(df[\'A\'])',
         set(['C']),
         set(['A'])
@@ -183,7 +204,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNCA(FUNCB(FUNCC(FUNCD(FUNCE(FUNCF(FUNCG(FUNCH(A))))))))',
         'B',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'B\'] = FUNCA(FUNCB(FUNCC(FUNCD(FUNCE(FUNCF(FUNCG(FUNCH(df[\'A\']))))))))',
         set(['FUNCA', 'FUNCB', 'FUNCC', 'FUNCD', 'FUNCE', 'FUNCF', 'FUNCG', 'FUNCH']),
         set(['A'])
@@ -192,7 +214,8 @@ FUNCTION_TEST_CASES = [
     (
         '=RIGHT(A, LEN(B) - 10)',
         'C',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'C\'] = RIGHT(df[\'A\'], LEN(df[\'B\']) - 10)',
         set(['RIGHT', 'LEN']),
         set(['A', 'B'])
@@ -201,7 +224,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(A, FUNC(B, FUNC(C)))',
         'D',
-        ['A', 'B', 'C'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C']),
         'df[\'D\'] = FUNC(df[\'A\'], FUNC(df[\'B\'], FUNC(df[\'C\'])))',
         set(['FUNC']),
         set(['A', 'B', 'C'])
@@ -210,7 +234,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(A, B, C, D, E, F, G, H, I)',
         'J',
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+        0,
+        pd.DataFrame(columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']),
         'df[\'J\'] = FUNC(df[\'A\'], df[\'B\'], df[\'C\'], df[\'D\'], df[\'E\'], df[\'F\'], df[\'G\'], df[\'H\'], df[\'I\'])',
         set(['FUNC']),
         set(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'])
@@ -219,7 +244,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(column1, column2)',
         'J',
-        ['column1', 'column2', 'J'],
+        0,
+        pd.DataFrame(columns=['column1', 'column2', 'J']),
         'df[\'J\'] = FUNC(df[\'column1\'], df[\'column2\'])',
         set(['FUNC']),
         set(['column1', 'column2'])
@@ -228,7 +254,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(column 1, column 2)',
         'J',
-        ['column 1', 'column 2', 'J'],
+        0,
+        pd.DataFrame(columns=['column 1', 'column 2', 'J']),
         'df[\'J\'] = FUNC(df[\'column 1\'], df[\'column 2\'])',
         set(['FUNC']),
         set(['column 1', 'column 2'])
@@ -237,7 +264,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(123, 456)',
         'J',
-        [123, 456, 'J'],
+        0,
+        pd.DataFrame(columns=[123, 456, 'J']),
         'df[\'J\'] = FUNC(df[123], df[456])',
         set(['FUNC']),
         set([123, 456])
@@ -246,7 +274,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(123, 456, abc)',
         'J',
-        ['abc', 456, 123, "J"],
+        0,
+        pd.DataFrame(columns=['abc', 456, 123, "J"]),
         'df[\'J\'] = FUNC(df[123], df[456], df[\'abc\'])',
         set(['FUNC']),
         set([123, 456, 'abc'])
@@ -255,7 +284,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(this is a string \' that has a quote, 456, abc)',
         'J',
-        ['abc', 456, 'this is a string \' that has a quote', "J"],
+        0,
+        pd.DataFrame(columns=['abc', 456, 'this is a string \' that has a quote', "J"]),
         'df[\'J\'] = FUNC(df[\'this is a string \' that has a quote\'], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \' that has a quote'])
@@ -264,7 +294,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(this is a string \'test\' that has a quote, 456, abc)',
         'J',
-        ['abc', 456, 'this is a string \'test\' that has a quote', "J"],
+        0,
+        pd.DataFrame(columns=['abc', 456, 'this is a string \'test\' that has a quote', "J"]),
         'df[\'J\'] = FUNC(df[\'this is a string \'test\' that has a quote\'], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \'test\' that has a quote'])
@@ -273,7 +304,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC("column")',
         'J',
-        ["\"column\"", "J"],
+        0,
+        pd.DataFrame(columns=["\"column\"", "J"]),
         'df[\'J\'] = FUNC(df[\'"column"\'])',
         set(['FUNC']),
         set(["\"column\""])
@@ -282,7 +314,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC("this is a string")',
         'J',
-        ["string", "J"],
+        0,
+        pd.DataFrame(columns=["string", "J"]),
         'df[\'J\'] = FUNC("this is a string")',
         set(['FUNC']),
         set([])
@@ -291,7 +324,8 @@ FUNCTION_TEST_CASES = [
     (
         '=true + false',
         'A',
-        [True, False],
+        0,
+        pd.DataFrame(columns=[True, False]),
         'df[\'A\'] = df[True] + df[False]',
         set([]),
         set([True, False])
@@ -300,7 +334,8 @@ FUNCTION_TEST_CASES = [
     (
         '=Height, min',
         'Name',
-        [('Name', ''), ('Height', 'min')],
+        0,
+        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
         'df[\'Name\'] = df[(\'Height\', \'min\')]',
         set([]),
         set([('Height', 'min')])
@@ -309,7 +344,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(Height, min)',
         'Name',
-        [('Name', ''), ('Height', 'min')],
+        0,
+        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
         'df[\'Name\'] = FUNC(df[(\'Height\', \'min\')])',
         set(['FUNC']),
         set([('Height', 'min')])
@@ -318,7 +354,8 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(Name)',
         'Name',
-        [('Name', ''), ('Height', 'min')],
+        0,
+        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
         'df[\'Name\'] = FUNC(df[(\'Name\', \'\')])',
         set(['FUNC']),
         set([('Name', '')])
@@ -327,11 +364,374 @@ FUNCTION_TEST_CASES = [
     (
         '=FUNC(C++)',
         'A',
-        ['A', 'C++'],
+        0,
+        pd.DataFrame(columns=['A', 'C++']),
         'df[\'A\'] = FUNC(df[\'C++\'])',
         set(['FUNC']),
         set(['C++'])
     ),
+]
+
+# To supress warnings, we create these variables here
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    unit64_index = pd.UInt64Index(range(10))
+    float64_index = pd.Float64Index(range(10))
+    
+
+INDEX_TEST_CASES = [
+    # Test references a range index with a valid number 0
+    (
+        '=FUNC(A0)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index with a valid number non 0
+    (
+        '=FUNC(A0, A1)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index with a valid number non 0, positive shift
+    (
+        '=FUNC(A0, A1)',
+        'A',
+        1,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0), df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a column header and a range specifically
+    (
+        '=FUNC(A, A1)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index with a number that is NOT part of the index
+    (
+        '=FUNC(A0, A2)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'], A2)',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index that does not start at 0 for proper offset
+    (
+        '=FUNC(A10, A11)',
+        'A',
+        10,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(10, 12)),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index that does not start at 0 for proper offset, positive shift
+    (
+        '=FUNC(A10, A11)',
+        'A',
+        11,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(10, 12)),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0), df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a different number index
+    (
+        '=FUNC(A0, A2)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=unit64_index),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a different number index
+    (
+        '=FUNC(A0.0, A2.0, A7)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=float64_index),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0), df[\'A\'].shift(-7, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references an index with a int dtype
+    (
+        '=FUNC(A0.0, A2.0)',
+        'A',
+        0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0, 1, 2], dtype='int64')),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references an index with a number dtype
+    (
+        '=FUNC(A0.0, A2.2)',
+        'A',
+        0.0,
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references an index with a number dtype, positive shift
+    (
+        '=FUNC(A0.0, A2.2)',
+        'A',
+        2.2,
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(2, fill_value=0), df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index not starting from 0
+    (
+        '=FUNC(A1)',
+        'A',
+        1,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(1, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index not starting from below 0
+    (
+        '=FUNC(A-2)',
+        'A',
+        -2,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(-2, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index not starting from below 0, positive shift
+    (
+        '=FUNC(A1, A-2)',
+        'A',
+        1,
+        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(-2, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(3, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a range index starting with a decimal
+    (
+        '=FUNC(A.1, A.2)',
+        'A',
+        .1,
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index([.1, .2, .3])),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references to a column header that contains the index, and one that is unqualified
+    (
+        '=FUNC(HEADER00, HEADER0HEADER1)',
+        'A',
+        0,
+        pd.DataFrame(columns=['HEADER0', 'HEADER0HEADER1'], index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'HEADER0\'], df[\'HEADER0HEADER1\'])',
+        set(['FUNC']),
+        set(['HEADER0', 'HEADER0HEADER1'])
+    ),
+    # Test a datetime reference no offset
+    (
+        '=FUNC(A2007-01-22 00:00:00)',
+        'A',
+        '2007-01-22 00:00:00',
+        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00')])),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a datetime reference with offset of 1 day
+    (
+        '=FUNC(A2007-01-23 00:00:00)',
+        'A',
+        '2007-01-22 00:00:00',
+        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a datetime reference with offset of 1 day, positive shift
+    (
+        '=FUNC(A2007-01-22 00:00:00)',
+        'A',
+        '2007-01-23 00:00:00',
+        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a datetime reference with offset of 1 month, should still only have offset of 1
+    (
+        '=FUNC(A2007-02-22 00:00:00)',
+        'A',
+        '2007-01-22 00:00:00',
+        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a datetime reference with no offset, and some offset
+    (
+        '=FUNC(A2007-02-22 00:00:00, A2007-01-22 00:00:00)',
+        'A',
+        '2007-01-22 00:00:00',
+        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0), df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index with no offset
+    (
+        '=FUNC(Aa)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a'])),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index with at the end of the formula
+    (
+        '=Aa',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a'])),
+        'df[\'A\'] = df[\'A\']',
+        set([]),
+        set(['A'])
+    ),
+    # Test a string index with 1 offset
+    (
+        '=FUNC(Ab)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index with with 1 offset, positive
+    (
+        '=FUNC(Aa)',
+        'A',
+        'b',
+        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index with column header containing the index
+    (
+        '=FUNC(aaa)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'])',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with column header containing the index, no shift
+    (
+        '=FUNC(aaaa)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'])',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with column header containing the index, no shift
+    (
+        '=FUNC(aaab)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with spaces
+    (
+        '=FUNC(Athis has spaces)',
+        'A',
+        'this has spaces',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['this has spaces', 'this also has spaces'])),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index that contains a column header, no shift
+    (
+        '=FUNC(AthisA)',
+        'A',
+        'thisA',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['thisA', 'also this'])),
+        'df[\'A\'] = FUNC(df[\'A\'])',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index that contains a column header, shift
+    (
+        '=FUNC(AthisA)',
+        'A',
+        'also this',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['also this', 'thisA'])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index that has prefixes
+    (
+        '=FUNC(Aaa)',
+        'A',
+        'b',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['b', 'a', 'aa'])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index that has prefixes with spaces
+    (
+        '=FUNC(Aa aa)',
+        'A',
+        'b',
+        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['b', 'a ', 'a aa'])),
+        'df[\'A\'] = FUNC(df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test a string index with column headers AND indexes that are prefixes, just detects column header
+    (
+        '=FUNC(aaaa)',
+        'A',
+        'a',
+        pd.DataFrame(columns=['aaa', 'aaaa'], index=pd.Index(['a', 'aa'])),
+        'df[\'A\'] = FUNC(df[\'aaaa\'])',
+        set(['FUNC']),
+        set(['aaaa'])
+    ),
+
+    # TODO: test where the types of the column header are same as index for datetime, and more etc
 ]
 
 
@@ -344,10 +744,10 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES
-@pytest.mark.parametrize("formula,column_header,column_headers,python_code,functions,columns", PARSE_TESTS)
-def test_parse(formula, column_header, column_headers, python_code, functions, columns):
-    assert parse_formula(formula, column_header, column_headers) == \
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
+def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
+    assert parse_formula(formula, column_header, formula_label, df) == \
         (
             python_code, 
             functions, 
@@ -366,7 +766,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, ['A', 'B'])
+        parse_formula(formula, address, 0, pd.DataFrame(columns=['A', 'B']))
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix
@@ -388,7 +788,7 @@ SAFE_REPLACE_TESTS = [
 
 @pytest.mark.parametrize('formula,old_column_header,new_column_header,column_headers,new_formula', SAFE_REPLACE_TESTS)
 def test_safe_replace(formula, old_column_header, new_column_header, column_headers, new_formula):
-    assert safe_replace(formula, old_column_header, new_column_header, column_headers) == new_formula
+    assert safe_replace(formula, old_column_header, new_column_header, 0, pd.DataFrame(columns=column_headers)) == new_formula
 
 
 SAFE_CONTAINS_TESTS = [

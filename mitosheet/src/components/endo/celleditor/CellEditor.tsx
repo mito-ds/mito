@@ -388,6 +388,7 @@ const CellEditor = (props: {
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
         const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
+        const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
         setLoading(true);
@@ -405,6 +406,7 @@ const CellEditor = (props: {
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
                     columnID,
+                    formulaLabel,
                     formula,
                     props.editorState.editorLocation
                 )
