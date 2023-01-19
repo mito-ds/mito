@@ -54,14 +54,9 @@ python_post_3_6_only = pytest.mark.skipif(
     reason="requires 3.7 or greater"
 )
 
-snowflake_connector_python_installed = pytest.mark.skipif(
-    not is_snowflake_connector_python_installed(), 
-    reason="requires snowflake connector python package"
-)
-
-snowflake_credentials_available = pytest.mark.skipif(
-    not is_snowflake_credentials_available(), 
-    reason="requires snowflake credentials"
+requires_snowflake_dependencies_and_credentials = pytest.mark.skipif(
+    not is_snowflake_connector_python_installed() or not is_snowflake_credentials_available(),
+    reason='requires snowflake_connecto_python package and snowflake credentials'
 )
 
 

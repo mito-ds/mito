@@ -12,7 +12,6 @@ import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
 import os
-from dotenv import load_dotenv
 
 import numpy as np
 import pandas as pd
@@ -355,11 +354,9 @@ def is_snowflake_connector_python_installed() -> bool:
 
 
 def is_snowflake_credentials_available() -> bool:
-    # Load the .env file so we can access our pytest, read-only snowflake credentials
-    load_dotenv()
-
     PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
     PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
     PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
 
-    return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None
+    return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None and \
+        PYTEST_SNOWFLAKE_USERNAME != 'None' and PYTEST_SNOWFLAKE_PASSWORD != 'None' and PYTEST_SNOWFLAKE_ACCOUNT != 'None'

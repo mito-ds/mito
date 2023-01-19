@@ -1,12 +1,8 @@
 import json
 import os
-from dotenv import load_dotenv
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python_installed, snowflake_credentials_available
-
-# Load the .env file so we can access our pytest, read-only snowflake credentials
-load_dotenv()
+from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
 PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
@@ -26,8 +22,7 @@ TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
     'table': None,
 }
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_success():
     mito = create_mito_wrapper_dfs()

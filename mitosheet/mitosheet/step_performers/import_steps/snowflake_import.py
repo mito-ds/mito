@@ -7,9 +7,6 @@
 
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-import os
-
-from dotenv import load_dotenv
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk
 from mitosheet.errors import make_invalid_snowflake_import_error
@@ -28,12 +25,6 @@ try:
     SNOWFLAKE_CONNECTOR_IMPORTED = True
 except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
-
-# When in development, load the .env file so we can access our pytest snowflake credentials:
-# load_dotenv()
-# PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
-# PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
-# PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
 
 class SnowflakeImportStepPerformer(StepPerformer):
     """

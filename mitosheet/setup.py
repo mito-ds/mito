@@ -121,7 +121,6 @@ if name == 'mitosheet2':
                 'pytest',
                 'flake8',
                 'types-chardet',
-                'python-dotenv',
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'
@@ -235,7 +234,6 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'pytest',
                 'flake8',
                 'types-chardet',
-                'python-dotenv',
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'

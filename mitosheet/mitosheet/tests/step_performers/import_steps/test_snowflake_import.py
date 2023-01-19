@@ -14,13 +14,8 @@ import os
 from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.errors import MitoError
-from mitosheet.tests.decorators import python_post_3_6_only, snowflake_connector_python_installed, snowflake_credentials_available
+from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-
-from dotenv import load_dotenv
-
-# Load the .env file so we can access our pytest, read-only snowflake credentials
-load_dotenv()
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
 PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
@@ -45,8 +40,7 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
     'limit': None,
 }
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
@@ -58,8 +52,7 @@ def test_snowflake_import_integration():
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_clear_integration():
     mito = create_mito_wrapper_dfs()
@@ -77,8 +70,7 @@ def test_snowflake_import_with_clear_integration():
     assert mito.dfs[0].equals(expected_df)
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_success_empty_table():
     mito = create_mito_wrapper_dfs()
@@ -104,8 +96,7 @@ def test_integration_success_empty_table():
     assert mito.dfs[0].columns == expected_df.columns
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_no_table():
     mito = create_mito_wrapper_dfs()
@@ -134,8 +125,7 @@ def test_integration_no_table():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_invalid_credentials():
     
@@ -165,8 +155,7 @@ def test_snowflake_import_invalid_credentials():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_invalid_column():
     
@@ -194,8 +183,7 @@ def test_snowflake_import_invalid_column():
     assert len(mito.dfs) == 0
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration_type_test_simple():
     mito = create_mito_wrapper_dfs()
@@ -222,8 +210,7 @@ def test_snowflake_import_integration_type_test_simple():
     assert mito.get_column(0, 'DATE_COL', as_list=True) == pd.to_datetime(['2016.07.23'])
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration_column_headers():
     mito = create_mito_wrapper_dfs()
@@ -271,8 +258,7 @@ def test_snowflake_import_integration_column_headers():
     assert mito.dfs[0].equals(expected_df)
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_simple_import():
     mito = create_mito_wrapper_dfs()
@@ -304,8 +290,7 @@ def test_snowflake_import_with_simple_import():
     os.remove(TEST_FILE_PATHS[0])
 
 
-@snowflake_connector_python_installed
-@snowflake_credentials_available
+@requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_other_imports_and_deletes():
     mito = create_mito_wrapper_dfs()
