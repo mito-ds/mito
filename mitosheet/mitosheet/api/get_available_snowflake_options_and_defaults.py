@@ -30,7 +30,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         if not SNOWFLAKE_CONNECTOR_IMPORTED: 
                 return json.dumps({
                         'type': 'error',    
-                        'error_message': 'snowflake-connector-python not accessible. Ensure it is installed.'
+                        'error_message': 'The package snowflake-connector-python is required to use this feature, but it is not accessible. Ensure it is installed.'
                 })
 
         credentials: SnowflakeCredentials = params['credentials']
@@ -41,6 +41,12 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         account = credentials['account']
 
         con = _get_snowflake_connection(username, password, account)
+
+        if con is None:
+               return json.dumps({
+                        'type': 'error',    
+                        'error_message': 'Unable to establish connection. Make sure your credentials are valid and you are connected to the internet'
+                }) 
 
         _warehouse = table_loc_and_warehouse.get('warehouse')
         _database = table_loc_and_warehouse.get('database') 
@@ -81,6 +87,9 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                 
 
 def get_warehouses(con: MitoSafeSnowflakeConnection) -> List[str]:
+        if con is None: 
+                return []
+
         # List all of the warehouses available to the user
         cur = con.cursor().execute('SHOW WAREHOUSES')
 
@@ -91,6 +100,9 @@ def get_warehouses(con: MitoSafeSnowflakeConnection) -> List[str]:
         return [wh[0] for wh in warehouses]
 
 def get_databases(con: MitoSafeSnowflakeConnection) -> List[str]:
+        if con is None:
+                return []
+
         # List all of the databases available to the user
         cur = con.cursor().execute('SHOW DATABASES')
 
@@ -101,6 +113,9 @@ def get_databases(con: MitoSafeSnowflakeConnection) -> List[str]:
         return [db[1] for db in databases]
 
 def get_schemas(con: MitoSafeSnowflakeConnection, database: Optional[str]) -> List[str]:
+        if con is None: 
+                return []
+
         # List all of the schemas in a particular database available to the user
         cur = con.cursor().execute(f'SHOW SCHEMAS in {database}')
         
@@ -111,7 +126,7 @@ def get_schemas(con: MitoSafeSnowflakeConnection, database: Optional[str]) -> Li
         return [s[1] for s in schemas]
 
 def get_tables(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str]) -> List[str]:
-        if database is None or schema is None:
+        if con is None or database is None or schema is None:
                 return []
 
         # List all of the tables in a schema
@@ -124,7 +139,7 @@ def get_tables(con: MitoSafeSnowflakeConnection, database: Optional[str], schema
         return [table[1] for table in tables]
 
 def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
-        if database is None or schema is None or table is None:
+        if con is None or database is None or schema is None or table is None:
                 return []
 
         # List all of the columns in a table 

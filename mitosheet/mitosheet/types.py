@@ -13,7 +13,7 @@ continous integration
 """
 
 from collections import namedtuple
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -69,16 +69,17 @@ ConditionalFormattingResult = Dict[str, Union[
 
 PivotColumnTransformation = str
 
+# If the user does not have the snowflake.connector python package installed,
+# we take extra care to make sure that our mypy typing will still pass even though
+# that code is not accessible to the user.
 try:
-    from snowflake.connector import SnowflakeConnection
-    SNOWFLAKE_CONNECTOR_IMPORTED = True
+    from snowflake.connector import SnowflakeConnection 
 except ImportError:
-    SNOWFLAKE_CONNECTOR_IMPORTED = False
+    # This is prety hacky and errors if we get rid of the #type: ignore,
+    # but I'm unable to create a conditional type otherwise
+    SnowflakeConnection = Any #type: ignore
 
-if SNOWFLAKE_CONNECTOR_IMPORTED:
-    MitoSafeSnowflakeConnection = SnowflakeConnection
-else: 
-    MitoSafeSnowflakeConnection = Any # type:ignore
+MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 
 
 import sys
