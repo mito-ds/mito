@@ -119,11 +119,17 @@ if sys.version_info[:3] > (3, 8, 0):
         password: str 
         account: str
 
-    class SnowflakeTableLocationAndWarehouse(TypedDict):
+    class SnowflakeTableLocationAndWarehouseOptional(TypedDict):
         warehouse: Optional[str] 
         database: Optional[str]
         schema: Optional[str]
         table: Optional[str] 
+
+    class SnowflakeTableLocationAndWarehouse(TypedDict):
+        warehouse: str
+        database: str
+        schema: str
+        table: str
 
     class SnowflakeQueryParams(TypedDict):
         columns: List[str]
@@ -148,6 +154,8 @@ else:
     CodeSnippet = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
+    SnowflakeTableLocationAndWarehouseOptional = Any #type:ignore
     SnowflakeQueryParams = Any # type:ignore
     SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+

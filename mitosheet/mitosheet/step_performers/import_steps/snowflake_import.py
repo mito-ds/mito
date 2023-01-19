@@ -11,13 +11,13 @@ import os
 
 from dotenv import load_dotenv
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk, create_query
-from mitosheet.errors import make_invalid_range_error, make_invalid_snowflake_import_error
+from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk
+from mitosheet.errors import make_invalid_snowflake_import_error
 
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
+from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 from mitosheet.utils import get_valid_dataframe_name
 
 # The snowflake-connector-python package is only available in Python > 3.6 
@@ -62,28 +62,13 @@ class SnowflakeImportStepPerformer(StepPerformer):
         post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
-
-        username = credentials['username']
-        password = credentials['password']
-        account = credentials['account']
-        warehouse = table_loc_and_warehouse['warehouse']
-        database = table_loc_and_warehouse['database']
-        schema = table_loc_and_warehouse['schema']
         table = table_loc_and_warehouse['table']
 
-        if warehouse is None or database is None or schema is None or table is None:
-            raise make_invalid_snowflake_import_error()
+        connection_params_dict = get_connection_param_dict(credentials, table_loc_and_warehouse)
         
         try: 
             # First try to establish the connection
-            con = snowflake.connector.connect(
-                user=username,
-                password=password,
-                account=account,
-                warehouse=warehouse,
-                database=database,
-                schema=schema
-            )
+            con = snowflake.connector.connect(**connection_params_dict)
         except Exception as e: 
             print(e)
             # When we do the frontend, we can figure out exactly what we want to raise here
@@ -125,13 +110,20 @@ class SnowflakeImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
+
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
+        connection_params_dict = get_connection_param_dict(get_param(params, 'credentials'), table_loc_and_warehouse)
+
+        query_params: SnowflakeQueryParams = get_param(params, 'query_params')
+        table = table_loc_and_warehouse['table']
+        sql_query = create_query(table, query_params)
+
         return [
             SnowflakeImportCodeChunk(
                 prev_state, 
                 post_state, 
-                get_param(params, 'credentials'),
-                get_param(params, 'table_loc_and_warehouse'),
-                get_param(params, 'query_params')
+                connection_params_dict,
+                sql_query
             )
         ]
 
@@ -139,3 +131,28 @@ class SnowflakeImportStepPerformer(StepPerformer):
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}
     
+
+def get_connection_param_dict (credentials: SnowflakeCredentials, table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse) -> Dict[str, str]:
+    username = credentials['username']
+    password = credentials['password']
+    account = credentials['account']
+    warehouse = table_loc_and_warehouse['warehouse']
+    database = table_loc_and_warehouse['database']
+    schema = table_loc_and_warehouse['schema']
+
+    all_params: Dict[str, str] = {}
+    all_params['user'] = username
+    all_params['password'] = password
+    all_params['account'] = account
+    all_params['warehouse'] = warehouse
+    all_params['database'] = database
+    all_params['schema'] = schema
+
+    return all_params
+
+def create_query(table: Optional[str], query_params: SnowflakeQueryParams) -> str:
+    transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]
+    return f'SELECT {", ".join(transpiled_column_headers)} FROM {table}'
+
+def get_snowflake_column_header(column_header: ColumnHeader) -> str:
+    return f'\"{column_header}\"'

@@ -6,7 +6,7 @@
 
 import json
 from typing import Any, Dict, List, Optional, Tuple
-from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse, StepsManagerType
+from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeCredentials, SnowflakeTableLocationAndWarehouseOptional, StepsManagerType
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
@@ -34,7 +34,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                 })
 
         credentials: SnowflakeCredentials = params['credentials']
-        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = params['table_loc_and_warehouse']
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouseOptional = params['table_loc_and_warehouse']
 
         username = credentials['username']
         password = credentials['password']
