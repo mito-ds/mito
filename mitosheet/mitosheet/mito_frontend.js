@@ -38180,7 +38180,7 @@ fig.write_html("${props.graphTabName}.html")`
       return await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
     };
     const getNewParams = (database, schema, table) => {
-      const paramsCopy = __spreadValues({}, params);
+      const paramsCopy = JSON.parse(JSON.stringify(params));
       const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
         "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
           "database": database,

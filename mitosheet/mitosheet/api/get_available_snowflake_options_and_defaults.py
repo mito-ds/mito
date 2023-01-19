@@ -47,16 +47,20 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         _schema = table_loc_and_warehouse.get('schema')
         _table = table_loc_and_warehouse.get('table')
 
-        warehouse = _warehouse if _warehouse is not None else get_default_warehouse(con)
-        database = _database if _database is not None else get_default_database(con)
-        schema = _schema if _schema is not None else get_default_schema(con, database)
-        table = _table if _table is not None else get_default_table(con, database, schema)
-
         warehouses = get_warehouses(con)
+        warehouse = _warehouse if _warehouse is not None else get_default_warehouse(warehouses)
+
         databases = get_databases(con)
+        database = _database if _database is not None else get_default_database(databases)
+
         schemas = get_schemas(con, database)
+        schema = _schema if _schema is not None else get_default_schema(schemas)
+
         tables = get_tables(con, database, schema)
+        table = _table if _table is not None else get_default_table(tables)
+
         columns = get_columns(con, database, schema, table)
+
 
         return json.dumps({
                 'type': 'success',    
@@ -132,31 +136,15 @@ def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schem
         columns = cur.fetchall()
         return [column[2] for column in columns]
 
-def get_default_warehouse(con: MitoSafeSnowflakeConnection) -> Optional[str]:
-        # TODO: Update this function to check if the user has a default warehouse and use it 
-        warehouses = get_warehouses(con)
-        return warehouses[0] if warehouses is not None and len(warehouses) > 0 else None 
+def get_default_warehouse(warehouses: List[str]) -> Optional[str]:
+        return warehouses[0] if len(warehouses) > 0 else None 
 
-def get_default_database(con: MitoSafeSnowflakeConnection) -> Optional[str]:
-        # TODO: Update this function to check if the user has a default database and use it
-        databases = get_databases(con)
-        return databases[0] if databases is not None and len(databases) > 0 else None 
+def get_default_database(databases: List[str]) -> Optional[str]:
+        return databases[0] if len(databases) > 0 else None 
 
-def get_default_schema(con: MitoSafeSnowflakeConnection, database: Optional[str]) -> Optional[str]:
-        # We can't be sure that there will be a database, so we need to take 
-        # extra care to handle the None case
-        if database is None:
-                return None
+def get_default_schema(schemas: List[str]) -> Optional[str]:
+        return schemas[0] if len(schemas) > 0 else None 
 
-        # TODO: Update this function to check if the user has a default schema and use it
-        schemas = get_schemas(con, database)
-        return schemas[0] if schemas is not None and len(schemas) > 0 else None 
-
-def get_default_table(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str]) -> Optional[str]:
-        if database is None or schema is None:
-                return None
-
-        # TODO: Update this function to check if the user has a default schema and use it
-        tables = get_tables(con, database, schema)
-        return tables[0] if tables is not None and len(tables) > 0 else None
+def get_default_table(tables: List[str]) -> Optional[str]:
+        return tables[0] if len(tables) > 0 else None
 

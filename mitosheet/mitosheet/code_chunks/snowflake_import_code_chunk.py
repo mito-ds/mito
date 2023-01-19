@@ -67,7 +67,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
         ], ['import snowflake.connector']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs)]
+        return [len(self.post_state.dfs) - 1]
         
 def create_query(table: str, query_params: SnowflakeQueryParams) -> str:
     transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]

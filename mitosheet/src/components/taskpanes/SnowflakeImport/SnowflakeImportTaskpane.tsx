@@ -144,7 +144,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     }
 
     const getNewParams = (database?: string | null, schema?: string | null, table?: string | null) => {
-        const paramsCopy: SnowflakeImportParams = {...params}
+        const paramsCopy: SnowflakeImportParams = JSON.parse(JSON.stringify(params))
         const newParams = {
             ...paramsCopy, 
             'table_loc_and_warehouse': {

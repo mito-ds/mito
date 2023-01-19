@@ -252,15 +252,100 @@ def test_snowflake_import_integration_column_headers():
     }
     mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
 
+    expected_df = pd.DataFrame({
+        '123': [1],
+        'A.B.C': [1],
+        'SPACE SPACE': [1],
+        '$': [1],
+        'A_B': [1],
+        'TRUE': [1],
+        'false': [1],
+    })
+
+    # NOTE: This test snowflake table creates a dataframe with int8 series. 
+    # We need to explore this further to understand how it interacts with 
+    # our type system.
+    expected_df = expected_df.astype('int8')
+
     assert len(mito.dfs) == 1
-    assert mito.get_column(0, '123', as_list=True) == [1]
-    assert mito.get_column(0, 'A.B.C', as_list=True) == [1]
-    assert mito.get_column(0, 'SPACE SPACE', as_list=True) == [1]
-    assert mito.get_column(0, '$', as_list=True) == [1]
-    assert mito.get_column(0, 'A_B', as_list=True) == [1]
-    assert mito.get_column(0, 'TRUE', as_list=True) == [1]
-    assert mito.get_column(0, 'false', as_list=True) == [1]
+    assert mito.dfs[0].equals(expected_df)
 
 
+@snowflake_connector_python_installed
+@snowflake_credentials_available
+@python_post_3_6_only
+def test_snowflake_import_with_simple_import():
+    mito = create_mito_wrapper_dfs()
+
+    TEST_FILE_PATHS = [
+        'test_file.csv',
+        'test_file1.csv'
+    ]
+
+    input_df = pd.DataFrame({'A': [1,2,3]})
+    delimeter, encoding, decimal, skiprows, error_bad_lines = ';', 'utf-8', '.',  0, False
+    input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
 
 
+    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(input_df)
+
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+
+    snowflake_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(input_df)
+    assert mito.dfs[1].equals(snowflake_df)
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+
+
+@snowflake_connector_python_installed
+@snowflake_credentials_available
+@python_post_3_6_only
+def test_snowflake_import_with_other_imports_and_deletes():
+    mito = create_mito_wrapper_dfs()
+
+    TEST_FILE_PATHS = [
+        'test_file.csv',
+        'test_file1.csv'
+    ]
+
+    input_df_1 = pd.DataFrame({'A': [1,2,3]})
+    input_df_2 = pd.DataFrame({'B': [1,2,3]})
+
+    delimeter, encoding, decimal, skiprows, error_bad_lines = ';', 'utf-8', '.',  0, False
+    input_df_1.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
+    input_df_2.to_csv(TEST_FILE_PATHS[1], index=False, sep=delimeter, encoding=encoding)
+
+    mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
+    mito.simple_import([TEST_FILE_PATHS[1]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
+
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(input_df_1)
+    assert mito.dfs[1].equals(input_df_2)
+
+    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    snowflake_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
+    assert len(mito.dfs) == 3
+    assert mito.dfs[0].equals(input_df_1)
+    assert mito.dfs[1].equals(input_df_2)
+    assert mito.dfs[2].equals(snowflake_df)
+
+    mito.delete_dataframe(1)
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(input_df_1)
+    assert mito.dfs[1].equals(snowflake_df)
+
+    mito.delete_dataframe(1)
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(input_df_1)
+
+    # Remove the test file
+    os.remove(TEST_FILE_PATHS[0])
+    os.remove(TEST_FILE_PATHS[1])
