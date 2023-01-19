@@ -21,7 +21,7 @@ class ResetIndexCodeChunk(CodeChunk):
         return 'Reset Index'
     
     def get_description_comment(self) -> str:
-        return "Reset dataframe index"
+        return f"Reset {self.df_name} index"
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         return [f'{self.df_name} = {self.df_name}.reset_index({"drop=True" if self.drop else ""})'], []

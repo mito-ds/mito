@@ -520,8 +520,6 @@ class MitoWidgetTestWrapper:
             drop: bool,
         ) -> bool:
 
-        
-
         return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
@@ -531,7 +529,6 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'drop': drop,
-                    
                 }
             }
         )
