@@ -545,7 +545,8 @@ def replace_functions(
         end = match.end() # type:ignore # this is +1 after the last char of the string
 
         # If this is to_datetime or to_timedelta we skip this, as this is us casting to a datetime or 
-        # timedetla for a column header
+        # timedetla for a column header. Similarly, we skip shift, as this is a function call b/c of a
+        # row offset
         if word == 'to_datetime' or word == 'to_timedelta' or word == 'shift':
             return word
 
