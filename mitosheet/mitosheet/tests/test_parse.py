@@ -16,7 +16,7 @@ CONSTANT_TEST_CASES: Any = [
         '=100',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = 100',
         set([]),
         set([])
@@ -25,7 +25,7 @@ CONSTANT_TEST_CASES: Any = [
         '=True',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = True',
         set([]),
         set([])
@@ -34,7 +34,7 @@ CONSTANT_TEST_CASES: Any = [
         '=\'StringSingleQuotes\'',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = \'StringSingleQuotes\'',
         set([]),
         set([])
@@ -43,7 +43,7 @@ CONSTANT_TEST_CASES: Any = [
         '=\"StringDoubleQuotes\"',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = \"StringDoubleQuotes\"',
         set([]),
         set([])
@@ -52,7 +52,7 @@ CONSTANT_TEST_CASES: Any = [
         '=\"String Double Quotes\"',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = \"String Double Quotes\"',
         set([]),
         set([])
@@ -61,7 +61,7 @@ CONSTANT_TEST_CASES: Any = [
         '=FUNC(\"String Double Quotes\")',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = FUNC(\"String Double Quotes\")',
         set(['FUNC']),
         set([])
@@ -70,7 +70,7 @@ CONSTANT_TEST_CASES: Any = [
         '=FUNC(\"DIFF_FUNC(A)\")',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = FUNC(\"DIFF_FUNC(A)\")',
         set(['FUNC']),
         set([])
@@ -79,7 +79,7 @@ CONSTANT_TEST_CASES: Any = [
         '=\"String One FUNC(A)\" + \"STRING TWO FUNC(A)\"',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = \"String One FUNC(A)\" + \"STRING TWO FUNC(A)\"',
         set([]),
         set([])
@@ -88,7 +88,7 @@ CONSTANT_TEST_CASES: Any = [
         '=\'String One FUNC(A)\' + \'STRING TWO FUNC(A)\'',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = \'String One FUNC(A)\' + \'STRING TWO FUNC(A)\'',
         set([]),
         set([])
@@ -97,7 +97,7 @@ CONSTANT_TEST_CASES: Any = [
         '=FUNC1(\'String One FUNC(A)\') + FUNC2(\'STRING TWO FUNC(A)\')',
         'B',
         0,
-        pd.DataFrame(columns=['B']),
+        pd.DataFrame({'B': []}),
         'df[\'B\'] = FUNC1(\'String One FUNC(A)\') + FUNC2(\'STRING TWO FUNC(A)\')',
         set(['FUNC1', 'FUNC2']),
         set([])
@@ -111,7 +111,7 @@ OPERATOR_TEST_CASES = [
         '=A + B',
         'C',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'C\'] = df[\'A\'] + df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -121,7 +121,7 @@ OPERATOR_TEST_CASES = [
         '=A - B',
         'C',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'C\'] = df[\'A\'] - df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -131,7 +131,7 @@ OPERATOR_TEST_CASES = [
         '=A * B',
         'C',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'C\'] = df[\'A\'] * df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -141,7 +141,7 @@ OPERATOR_TEST_CASES = [
         '=A / B',
         'C',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'C\'] = df[\'A\'] / df[\'B\']',
         set(),
         set(['A', 'B'])
@@ -161,7 +161,7 @@ OPERATOR_TEST_CASES = [
         '=(A + B) / C + A * 100',
         'D',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'D\'] = (df[\'A\'] + df[\'B\']) / df[\'C\'] + df[\'A\'] * 100',
         set(),
         set(['A', 'B', 'C'])
@@ -171,7 +171,7 @@ OPERATOR_TEST_CASES = [
         '=FUNC(A + B / C + A * 100)',
         'D',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'D\'] = FUNC(df[\'A\'] + df[\'B\'] / df[\'C\'] + df[\'A\'] * 100)',
         set(['FUNC']),
         set(['A', 'B', 'C'])
@@ -185,7 +185,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(A)',
         'B',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'B\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -195,7 +195,7 @@ FUNCTION_TEST_CASES = [
         '=C(A)',
         'B',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'B\'] = C(df[\'A\'])',
         set(['C']),
         set(['A'])
@@ -205,7 +205,7 @@ FUNCTION_TEST_CASES = [
         '=FUNCA(FUNCB(FUNCC(FUNCD(FUNCE(FUNCF(FUNCG(FUNCH(A))))))))',
         'B',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'B\'] = FUNCA(FUNCB(FUNCC(FUNCD(FUNCE(FUNCF(FUNCG(FUNCH(df[\'A\']))))))))',
         set(['FUNCA', 'FUNCB', 'FUNCC', 'FUNCD', 'FUNCE', 'FUNCF', 'FUNCG', 'FUNCH']),
         set(['A'])
@@ -215,7 +215,7 @@ FUNCTION_TEST_CASES = [
         '=RIGHT(A, LEN(B) - 10)',
         'C',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'C\'] = RIGHT(df[\'A\'], LEN(df[\'B\']) - 10)',
         set(['RIGHT', 'LEN']),
         set(['A', 'B'])
@@ -225,7 +225,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(A, FUNC(B, FUNC(C)))',
         'D',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C']),
+        pd.DataFrame({'A': [], 'B': [], 'C': []}),
         'df[\'D\'] = FUNC(df[\'A\'], FUNC(df[\'B\'], FUNC(df[\'C\'])))',
         set(['FUNC']),
         set(['A', 'B', 'C'])
@@ -235,7 +235,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(A, B, C, D, E, F, G, H, I)',
         'J',
         0,
-        pd.DataFrame(columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']),
+        pd.DataFrame({'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': []}),
         'df[\'J\'] = FUNC(df[\'A\'], df[\'B\'], df[\'C\'], df[\'D\'], df[\'E\'], df[\'F\'], df[\'G\'], df[\'H\'], df[\'I\'])',
         set(['FUNC']),
         set(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'])
@@ -245,7 +245,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(column1, column2)',
         'J',
         0,
-        pd.DataFrame(columns=['column1', 'column2', 'J']),
+        pd.DataFrame({'column1': [], 'column2': [], 'J': []}),
         'df[\'J\'] = FUNC(df[\'column1\'], df[\'column2\'])',
         set(['FUNC']),
         set(['column1', 'column2'])
@@ -255,7 +255,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(column 1, column 2)',
         'J',
         0,
-        pd.DataFrame(columns=['column 1', 'column 2', 'J']),
+        pd.DataFrame({'column 1': [], 'column 2': [], 'J': []}),
         'df[\'J\'] = FUNC(df[\'column 1\'], df[\'column 2\'])',
         set(['FUNC']),
         set(['column 1', 'column 2'])
@@ -265,7 +265,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(123, 456)',
         'J',
         0,
-        pd.DataFrame(columns=[123, 456, 'J']),
+        pd.DataFrame({123: [], 456: [], 'J': []}),
         'df[\'J\'] = FUNC(df[123], df[456])',
         set(['FUNC']),
         set([123, 456])
@@ -275,7 +275,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(123, 456, abc)',
         'J',
         0,
-        pd.DataFrame(columns=['abc', 456, 123, "J"]),
+        pd.DataFrame({'abc': [], 456: [], 123: [], "J": []}),
         'df[\'J\'] = FUNC(df[123], df[456], df[\'abc\'])',
         set(['FUNC']),
         set([123, 456, 'abc'])
@@ -285,7 +285,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(this is a string \' that has a quote, 456, abc)',
         'J',
         0,
-        pd.DataFrame(columns=['abc', 456, 'this is a string \' that has a quote', "J"]),
+        pd.DataFrame({'abc': [], 456: [], 'this is a string \' that has a quote': [], "J": []}),
         'df[\'J\'] = FUNC(df[\'this is a string \' that has a quote\'], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \' that has a quote'])
@@ -295,7 +295,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(this is a string \'test\' that has a quote, 456, abc)',
         'J',
         0,
-        pd.DataFrame(columns=['abc', 456, 'this is a string \'test\' that has a quote', "J"]),
+        pd.DataFrame({'abc': [], 456: [], 'this is a string \'test\' that has a quote': [], "J": []}),
         'df[\'J\'] = FUNC(df[\'this is a string \'test\' that has a quote\'], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \'test\' that has a quote'])
@@ -305,7 +305,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC("column")',
         'J',
         0,
-        pd.DataFrame(columns=["\"column\"", "J"]),
+        pd.DataFrame({"\"column\"": [], "J": []}),
         'df[\'J\'] = FUNC(df[\'"column"\'])',
         set(['FUNC']),
         set(["\"column\""])
@@ -315,7 +315,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC("this is a string")',
         'J',
         0,
-        pd.DataFrame(columns=["string", "J"]),
+        pd.DataFrame({"string": [], "J": []}),
         'df[\'J\'] = FUNC("this is a string")',
         set(['FUNC']),
         set([])
@@ -325,7 +325,7 @@ FUNCTION_TEST_CASES = [
         '=true + false',
         'A',
         0,
-        pd.DataFrame(columns=[True, False]),
+        pd.DataFrame({True: [], False: []}),
         'df[\'A\'] = df[True] + df[False]',
         set([]),
         set([True, False])
@@ -335,7 +335,7 @@ FUNCTION_TEST_CASES = [
         '=Height, min',
         'Name',
         0,
-        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
+        pd.DataFrame({('Name', ''): [], ('Height', 'min'): []}),
         'df[\'Name\'] = df[(\'Height\', \'min\')]',
         set([]),
         set([('Height', 'min')])
@@ -345,7 +345,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(Height, min)',
         'Name',
         0,
-        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
+        pd.DataFrame({('Name', ''): [], ('Height', 'min'): []}),
         'df[\'Name\'] = FUNC(df[(\'Height\', \'min\')])',
         set(['FUNC']),
         set([('Height', 'min')])
@@ -355,7 +355,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(Name)',
         'Name',
         0,
-        pd.DataFrame(columns=[('Name', ''), ('Height', 'min')]),
+        pd.DataFrame({('Name', ''): [], ('Height', 'min'): []}),
         'df[\'Name\'] = FUNC(df[(\'Name\', \'\')])',
         set(['FUNC']),
         set([('Name', '')])
@@ -365,7 +365,7 @@ FUNCTION_TEST_CASES = [
         '=FUNC(C++)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'C++']),
+        pd.DataFrame({'A': [], 'C++': []}),
         'df[\'A\'] = FUNC(df[\'C++\'])',
         set(['FUNC']),
         set(['C++'])
@@ -385,7 +385,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -395,7 +395,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0, A1)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -405,7 +405,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0, A1)',
         'A',
         1,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0), df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -415,7 +415,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A, A1)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -425,7 +425,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0, A2)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'], A2)',
         set(['FUNC']),
         set(['A'])
@@ -435,7 +435,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A10, A11)',
         'A',
         10,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(10, 12)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(10, 12)),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -445,7 +445,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A10, A11)',
         'A',
         11,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(10, 12)),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.RangeIndex(10, 12)),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0), df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -455,7 +455,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0, A2)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=unit64_index),
+        pd.DataFrame({'A': range(10), 'B': range(10)}, index=unit64_index),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -465,7 +465,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0.0, A2.0, A7)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=float64_index),
+        pd.DataFrame({'A': range(10), 'B': range(10)}, index=float64_index),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0), df[\'A\'].shift(-7, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -475,7 +475,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0.0, A2.0)',
         'A',
         0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0, 1, 2], dtype='int64')),
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}, index=pd.Index([0, 1, 2], dtype='int64')),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -485,7 +485,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0.0, A2.2)',
         'A',
         0.0,
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}, index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -495,7 +495,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A0.0, A2.2)',
         'A',
         2.2,
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}, index=pd.Index([0.0, 1.1, 2.2], dtype='float64')),
         'df[\'A\'] = FUNC(df[\'A\'].shift(2, fill_value=0), df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -505,7 +505,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A1)',
         'A',
         1,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(1, 2)),
+        pd.DataFrame({'A': [1], 'B': [1]}, index=pd.RangeIndex(1, 2)),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -515,7 +515,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A-2)',
         'A',
         -2,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(-2, 2)),
+        pd.DataFrame({'A': [1, 2, 3, 4], 'B': [1, 2, 3, 4]}, index=pd.RangeIndex(-2, 2)),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -525,7 +525,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A1, A-2)',
         'A',
         1,
-        pd.DataFrame(columns=['A', 'B'], index=pd.RangeIndex(-2, 2)),
+        pd.DataFrame({'A': [1, 2, 3, 4], 'B': [1, 2, 3, 4]}, index=pd.RangeIndex(-2, 2)),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(3, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -535,7 +535,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A.1, A.2)',
         'A',
         .1,
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index([.1, .2, .3])),
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}, index=pd.Index([.1, .2, .3])),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -545,7 +545,7 @@ INDEX_TEST_CASES = [
         '=FUNC(HEADER00, HEADER0HEADER1)',
         'A',
         0,
-        pd.DataFrame(columns=['HEADER0', 'HEADER0HEADER1'], index=pd.RangeIndex(0, 2)),
+        pd.DataFrame({'HEADER0': [1, 2], 'HEADER0HEADER1':[1, 2]}, index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'HEADER0\'], df[\'HEADER0HEADER1\'])',
         set(['FUNC']),
         set(['HEADER0', 'HEADER0HEADER1'])
@@ -555,7 +555,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A2007-01-22 00:00:00)',
         'A',
         '2007-01-22 00:00:00',
-        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00')])),
+        pd.DataFrame({'A': [1], 'B': [1]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -565,7 +565,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A2007-01-23 00:00:00)',
         'A',
         '2007-01-22 00:00:00',
-        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -575,7 +575,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A2007-01-22 00:00:00)',
         'A',
         '2007-01-23 00:00:00',
-        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -585,7 +585,7 @@ INDEX_TEST_CASES = [
         '=FUNC(A2007-02-22 00:00:00)',
         'A',
         '2007-01-22 00:00:00',
-        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -595,17 +595,27 @@ INDEX_TEST_CASES = [
         '=FUNC(A2007-02-22 00:00:00, A2007-01-22 00:00:00)',
         'A',
         '2007-01-22 00:00:00',
-        pd.DataFrame(columns=['A', 'B'], index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0), df[\'A\'])',
         set(['FUNC']),
         set(['A'])
+    ),
+    # Test a datetime index and column header reference
+    (
+        '=FUNC(2008-02-22 00:00:002007-01-22 00:00:00)',
+        'A',
+        '2007-01-22 00:00:00',
+        pd.DataFrame({pd.to_datetime('2008-02-22 00:00:00'): [1, 2]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
+        'df[\'A\'] = FUNC(df[pd.to_datetime(\'2008-02-22 00:00:00\')])',
+        set(['FUNC']),
+        set([pd.to_datetime('2008-02-22 00:00:00')])
     ),
     # Test a string index with no offset
     (
         '=FUNC(Aa)',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a'])),
+        pd.DataFrame({'A': [1], 'B': [1]}, index=pd.Index(['a'])),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -615,7 +625,7 @@ INDEX_TEST_CASES = [
         '=Aa',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a'])),
+        pd.DataFrame({'A': [1], 'B': [1]}, index=pd.Index(['a'])),
         'df[\'A\'] = df[\'A\']',
         set([]),
         set(['A'])
@@ -625,7 +635,7 @@ INDEX_TEST_CASES = [
         '=FUNC(Ab)',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a', 'b'])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.Index(['a', 'b'])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -635,7 +645,7 @@ INDEX_TEST_CASES = [
         '=FUNC(Aa)',
         'A',
         'b',
-        pd.DataFrame(columns=['A', 'B'], index=pd.Index(['a', 'b'])),
+        pd.DataFrame({'A': [1, 2], 'B': [1, 2]}, index=pd.Index(['a', 'b'])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -645,7 +655,7 @@ INDEX_TEST_CASES = [
         '=FUNC(aaa)',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['a', 'b'])),
         'df[\'A\'] = FUNC(df[\'aaa\'])',
         set(['FUNC']),
         set(['aaa'])
@@ -655,7 +665,7 @@ INDEX_TEST_CASES = [
         '=FUNC(aaaa)',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['a', 'b'])),
         'df[\'A\'] = FUNC(df[\'aaa\'])',
         set(['FUNC']),
         set(['aaa'])
@@ -665,7 +675,7 @@ INDEX_TEST_CASES = [
         '=FUNC(aaab)',
         'A',
         'a',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['a', 'b'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['a', 'b'])),
         'df[\'A\'] = FUNC(df[\'aaa\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['aaa'])
@@ -675,7 +685,7 @@ INDEX_TEST_CASES = [
         '=FUNC(Athis has spaces)',
         'A',
         'this has spaces',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['this has spaces', 'this also has spaces'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['this has spaces', 'this also has spaces'])),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -685,7 +695,7 @@ INDEX_TEST_CASES = [
         '=FUNC(AthisA)',
         'A',
         'thisA',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['thisA', 'also this'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['thisA', 'also this'])),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
         set(['A'])
@@ -695,7 +705,7 @@ INDEX_TEST_CASES = [
         '=FUNC(AthisA)',
         'A',
         'also this',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['also this', 'thisA'])),
+        pd.DataFrame({'A': [1, 2], 'aaa': [1, 2]}, index=pd.Index(['also this', 'thisA'])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -705,7 +715,7 @@ INDEX_TEST_CASES = [
         '=FUNC(Aaa)',
         'A',
         'b',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['b', 'a', 'aa'])),
+        pd.DataFrame({'A': [1, 2, 3], 'aaa': [1, 2, 3]}, index=pd.Index(['b', 'a', 'aa'])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -715,7 +725,7 @@ INDEX_TEST_CASES = [
         '=FUNC(Aa aa)',
         'A',
         'b',
-        pd.DataFrame(columns=['A', 'aaa'], index=pd.Index(['b', 'a ', 'a aa'])),
+        pd.DataFrame({'A': [1, 2, 3], 'aaa': [1, 2, 3]}, index=pd.Index(['b', 'a ', 'a aa'])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -725,13 +735,11 @@ INDEX_TEST_CASES = [
         '=FUNC(aaaa)',
         'A',
         'a',
-        pd.DataFrame(columns=['aaa', 'aaaa'], index=pd.Index(['a', 'aa'])),
+        pd.DataFrame({'aaa': [1, 2], 'aaaa': [1, 2]}, index=pd.Index(['a', 'aa'])),
         'df[\'A\'] = FUNC(df[\'aaaa\'])',
         set(['FUNC']),
         set(['aaaa'])
     ),
-
-    # TODO: test where the types of the column header are same as index for datetime, and more etc
 ]
 
 
@@ -766,7 +774,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, pd.DataFrame(columns=['A', 'B']))
+        parse_formula(formula, address, 0, pd.DataFrame({'A': [], 'B': []}))
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix

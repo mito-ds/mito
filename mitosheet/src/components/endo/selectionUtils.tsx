@@ -343,6 +343,24 @@ export const getColumnHeadersInSelection = (selection: MitoSelection, sheetData:
     return columnHeaders;
 }
 
+export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: SheetData): (ColumnHeader)[] => {
+    const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
+    const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
+
+    const indexLabels: (ColumnHeader)[] = []; // the type is wacky, but it's finme
+    for (let i = min; i < max + 1; i++) {
+        if (sheetData.index[i] === undefined) continue;
+        indexLabels.push(sheetData.index[i])
+    }
+
+    // We make sure to return them in the order of the selection
+    if (min !== selection.startingColumnIndex) {
+        return indexLabels.reverse();
+    }
+
+    return indexLabels;
+}
+
 export const isSelectionsOnlyColumnHeaders = (selections: MitoSelection[]): boolean => {
     let isOnlyColumnHeaders = true
     selections.forEach(selection => {

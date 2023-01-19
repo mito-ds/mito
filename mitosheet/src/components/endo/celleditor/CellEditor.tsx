@@ -1,21 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions, getStartingFormula } from './cellEditorUtils';
-import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
-import { focusGrid } from '../focusUtils';
-import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
-import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { classNames } from '../../../utils/classNames';
-import { ensureCellVisible } from '../visibilityUtils';
-import LoadingDots from '../../elements/LoadingDots';
-import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
-import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { getColumnHeaderParts } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
-import { TaskpaneType } from '../../taskpanes/taskpanes';
+import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
 import Row from '../../layout/Row';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { focusGrid } from '../focusUtils';
+import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
+import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
+import { ensureCellVisible } from '../visibilityUtils';
+import { formulaEndsInColumnHeader, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -84,17 +84,18 @@ const CellEditor = (props: {
             // Focus the input
             cellEditorInputRef.current?.focus();
 
-            // If there is a pendingSelectedColumns, then we set the selection to be 
+            // If there is a pendingSelections, then we set the selection to be 
             // at the _end_ of them!
-            if (props.editorState.pendingSelectedColumns !== undefined) {
-                const index = props.editorState.pendingSelectedColumns.selectionStart + props.editorState.pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ').length;
+            if (props.editorState.pendingSelections !== undefined) {
+                // TODO: use the correct funciton, rather than JSON.stringify
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
             }
             
         })
-    }, [props.editorState.pendingSelectedColumns]);
+    }, [props.editorState.pendingSelections]);
 
     useEffect(() => {
         props.setEditorState(prevEditingState => {
@@ -114,7 +115,7 @@ const CellEditor = (props: {
         return <></>;
     }
 
-    const fullFormula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
 
     const documentationFunction = getDocumentationFunction(fullFormula);
@@ -176,8 +177,8 @@ const CellEditor = (props: {
         // Get the full formula
         let fullFormula = getFullFormula(
             props.editorState.formula, 
-            columnHeader,
-            props.editorState.pendingSelectedColumns
+            props.editorState.pendingSelections, 
+            props.sheetData
         );
 
         // Strip the prefix, and append the suggestion
@@ -188,7 +189,7 @@ const CellEditor = (props: {
         props.setEditorState({
             ...props.editorState,
             formula: fullFormula,
-            pendingSelectedColumns: undefined,
+            pendingSelections: undefined,
             arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
@@ -281,29 +282,28 @@ const CellEditor = (props: {
 
                 props.setGridState((gridState) => {
                     const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
-                    const columnHeaders = getColumnHeadersInSelection(newSelection, props.sheetData);
 
                     // If there is already some suggested column headers, we do not change this selection, 
                     // as we want any future expanded selection of column headers to overwrite the same 
-                    // region. So default to pendingSelectedColumns?.selectionStart, but if this does not
+                    // region. So default to pendingSelections?.selectionStart, but if this does not
                     // exist, than take the selection range in the input currently
-                    const newSelectionStart = firstNonNullOrUndefined(
-                        props.editorState.pendingSelectedColumns?.selectionStart,
+                    const newInputSelectionStart = firstNonNullOrUndefined(
+                        props.editorState.pendingSelections?.inputSelectionStart,
                         cellEditorInputRef.current?.selectionStart,
                         0
                     )
-                    const newSelectionEnd = firstNonNullOrUndefined(
-                        props.editorState.pendingSelectedColumns?.selectionEnd,
+                    const newInputSelectionEnd = firstNonNullOrUndefined(
+                        props.editorState.pendingSelections?.inputSelectionEnd,
                         cellEditorInputRef.current?.selectionEnd,
                         0
                     )
 
                     props.setEditorState({
                         ...props.editorState,
-                        pendingSelectedColumns: {
-                            columnHeaders: columnHeaders,
-                            selectionStart: newSelectionStart,
-                            selectionEnd: newSelectionEnd
+                        pendingSelections: {
+                            selections: [newSelection],
+                            inputSelectionStart: newInputSelectionStart,
+                            inputSelectionEnd: newInputSelectionEnd
                         },
                     })
 
@@ -352,17 +352,17 @@ const CellEditor = (props: {
                 props.editorState.rowIndex, props.editorState.columnIndex
             );
 
-            // Take the pendingSelectedColumns, and clear them
+            // Take the pendingSelections, and clear them
             const fullFormula = getFullFormula(
                 props.editorState.formula, 
-                columnHeader,
-                props.editorState.pendingSelectedColumns
+                props.editorState.pendingSelections,
+                props.sheetData
             );
                 
             props.setEditorState({
                 ...props.editorState,
                 formula: fullFormula,
-                pendingSelectedColumns: undefined
+                pendingSelections: undefined
             })
         }
     }
@@ -387,7 +387,7 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
+        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
         const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
@@ -457,7 +457,7 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: true
                         })
                     }}
-                    value={getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)}
+                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
 

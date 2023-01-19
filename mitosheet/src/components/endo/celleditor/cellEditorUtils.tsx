@@ -1,10 +1,30 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnHeader, ColumnID, EditorState, SheetData } from "../../../types";
+import { ColumnID, EditorState, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
+import { getColumnHeadersInSelection, getIndexLabelsInSelection } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
 
+
+export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
+    // For each of the selections, we bu
+    let finalString = ''
+    selections.forEach(selection => {
+        // We need to get the column 
+        const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
+        const indexLabels = getIndexLabelsInSelection(selection, sheetData);
+
+        // Then, because it's a rectangle, we combine _all_ of them together
+        columnHeaders.forEach(columnHeader => {
+            indexLabels.forEach(indexLabel => {
+                finalString += getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel);
+            })
+        })
+    })
+
+    return finalString;
+}
 
 /* 
     Given a formula and and optional pending columns that are inserted
@@ -13,24 +33,24 @@ import { getCellDataFromCellIndexes } from "../utils";
 */
 export const getFullFormula = (
     formula: string, 
-    columnHeader: ColumnHeader,
-    pendingSelectedColumns: {
-        columnHeaders: (ColumnHeader)[]
-        selectionStart: number,
-        selectionEnd: number,
-    } | undefined
+    pendingSelections: {
+        selections: MitoSelection[],
+        inputSelectionStart: number,
+        inputSelectionEnd: number,
+    } | undefined,
+    sheetData: SheetData
 ): string => {
 
-    if (pendingSelectedColumns === undefined || pendingSelectedColumns.columnHeaders.length === 0) {
+    if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const columnHeaderString = pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ');
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
 
-    const beforeSelection = formula.substring(0, pendingSelectedColumns.selectionStart);
-    const afterSelection = formula.substring(pendingSelectedColumns.selectionEnd);
+    const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
+    const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
     
-    return beforeSelection + columnHeaderString + afterSelection;
+    return beforeSelection + selectionFormulaString + afterSelection;
 }
 
 

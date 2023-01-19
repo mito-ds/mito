@@ -152,6 +152,9 @@ def safe_count_function(formula: str, substring: str) -> int:
     
     return count
 
+COLUMN_HEADER_MATCH_TYPE = 'column header'
+INDEX_LABEL_MATCH_TYPE = 'index_label'
+
 
 def safe_replace(
         formula: str, 
@@ -181,7 +184,7 @@ def safe_replace(
 
     # Then, go through from the end to the start, and actually replace all the column headers
     for parser_match in parser_matches:
-        if parser_match['type'] == 'column header':
+        if parser_match['type'] == COLUMN_HEADER_MATCH_TYPE:
             column_header = parser_match['parsed']
             if column_header == old_column_header:
                 start = parser_match['match_range'][0]
@@ -252,7 +255,6 @@ def is_column_header_without_index(formula: str, index: pd.Index, start: int, en
     part_of_larger_item = word_continues_before or word_continues_after or function_call
     return not part_of_larger_item
 
-
 def get_row_offset(index: pd.Index, formula_label: Union[str, bool, int, float, datetime.datetime], parsed_label: Any) -> Optional[RowOffset]:
 
     if formula_label == parsed_label:
@@ -266,7 +268,6 @@ def get_row_offset(index: pd.Index, formula_label: Union[str, bool, int, float, 
         return row_offset
 
     return None
-
 
 def is_number_index(index: pd.Index) -> bool:
     with warnings.catch_warnings():
@@ -301,7 +302,7 @@ def get_index_match_from_number_index(formula: str, formula_label: Union[str, bo
             row_offset = get_row_offset(index, formula_label, parsed_label)
             if row_offset is not None:
                 return {
-                    'type': 'index label',
+                    'type': INDEX_LABEL_MATCH_TYPE,
                     'match_range': (index_label_start, index_label_start + len(number_chars)),
                     'unparsed': number_chars,
                     'parsed': parsed_label,
@@ -318,7 +319,6 @@ def is_datetime_index(index: pd.Index) -> bool:
 
     return False
 
-
 def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, bool, int, float], index: pd.Index, index_label_start: int) -> Optional[ParserMatch]:
     if is_datetime_index(index):
         # The next characters should have the format '2007-01-22 00:00:00' (length 19 below)
@@ -334,7 +334,7 @@ def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, 
             row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime)
             if row_offset is not None:
                 return {
-                    'type': 'index label',
+                    'type': INDEX_LABEL_MATCH_TYPE,
                     'match_range': (index_label_start, index_label_start + len(str_datetime)),
                     'unparsed': str_datetime,
                     'parsed': parsed_datetime,
@@ -345,7 +345,6 @@ def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, 
             return None
 
     return None
-
 
 def is_string_index(index: pd.Index) -> bool:
     return is_string_dtype(str(index.dtype))
@@ -361,7 +360,7 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
             row_offset = get_row_offset(index, formula_label, potential_index_unparsed)
             if row_offset is not None:
                 return {
-                    'type': 'index label',
+                    'type': INDEX_LABEL_MATCH_TYPE,
                     'match_range': (index_label_start, index_label_start + len(potential_index_unparsed)),
                     'unparsed': potential_index_unparsed,
                     'parsed': potential_index_unparsed, # A parsed string is the same as an unparsed string
@@ -371,7 +370,6 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
     return None
 
 
-
 def get_column_header_and_index_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
@@ -379,10 +377,17 @@ def get_column_header_and_index_matches(
         df: pd.DataFrame
     ) -> List[ParserMatch]:
     """
-    Returns a list of the column header that is matched, as well as the 
-    match object where it was found. Note that the returned matches are
-    sorted from the last match to the first, so you can easily iterate
-    over them and replace.
+    Returns a list of ParserMatch, which are either column header matches
+    or matches on the index. 
+
+    The parsing strategy generally can be described as follows:
+    1. Match columns headers that are not followed by indexes (for backwards compatibility)
+    2. Match column headers that are followed by indexes
+
+    (2) requires doing some reasoning about _what_ sort of index it is, 
+    and therefore what sort of match is possible. Casting from the string
+    to a parsed value is then done, and we can determine the row offset 
+    of the match.
     """
 
     index = df.index
@@ -422,7 +427,7 @@ def get_column_header_and_index_matches(
             # if the characters after the header are 
             if is_column_header_without_index(formula, index, start, end):
                 parser_matches.append({
-                    'type': 'column header',
+                    'type': COLUMN_HEADER_MATCH_TYPE,
                     'match_range': match_range,
                     'parsed': column_header,
                     'unparsed': found_column_header,
@@ -430,7 +435,7 @@ def get_column_header_and_index_matches(
                 })
                 return
 
-            # Second, check if the index matches under any condtions
+            # Second, check if column header is follwed by an index of any variety
             number_index_label_match = get_index_match_from_number_index(formula, formula_label, index, end)
             datetime_index_label_match = get_index_match_from_datetime_index(formula, formula_label, index, end)
             string_index_label_match = get_index_match_from_string_index(formula, formula_label, index, end)
@@ -438,7 +443,7 @@ def get_column_header_and_index_matches(
             index_label_match = number_index_label_match or datetime_index_label_match or string_index_label_match or None
             if index_label_match is not None:
                 parser_matches.append({
-                    'type': 'column header',
+                    'type': COLUMN_HEADER_MATCH_TYPE,
                     'match_range': match_range,
                     'parsed': column_header,
                     'unparsed': found_column_header,
@@ -470,11 +475,13 @@ def replace_column_headers_and_indexes(
         df_name: str
     ) -> Tuple[str, Set[ColumnHeader]]:
     """
-    Returns a modified formula, where the column headers in the string
-    have been replaced with references to the dataframe.
+    Returns a modified formula, where:
+    1. column headers have been replaced with references to the dataframe
+    2. index labels that follow those column headers are entirely removed
 
-    We except that they are _not_ contained within any reference (e.g.
-    not within quotes, or anything else for that matter).
+    If the index label referenced after a column header is not the the same as the
+    formula_label, then we change the column header to have a .shift that shifts
+    it the same relative amount. 
     """
     # We get all the matches first, from end to start order
     parser_matches = get_column_header_and_index_matches(
@@ -493,7 +500,7 @@ def replace_column_headers_and_indexes(
         start = match['match_range'][0]
         end = match['match_range'][1]
 
-        if match_type == 'column header':
+        if match_type == COLUMN_HEADER_MATCH_TYPE:
             column_header = match['parsed']
             column_headers.add(column_header)
 
@@ -512,7 +519,7 @@ def replace_column_headers_and_indexes(
                 replace_string = f'{replace_string}.shift({row_offset}, fill_value=0)'
 
             formula = formula[:start] + replace_string + formula[end:]
-        elif match_type == 'index label':
+        elif match_type == INDEX_LABEL_MATCH_TYPE:
             # Just remove the index label
             formula = formula[:start] + formula[end:]
         

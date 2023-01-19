@@ -561,8 +561,8 @@ export interface ScrollPosition {
  * 
  * @param rowIndex - Row index of the cell being edited
  * @param columnIndex - Column index of the cell being edited
- * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelectedColumns
- * @param pendingSelectedColumns - A list of columns that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
+ * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelections
+ * @param pendingSelection - A list of selections that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
  * @param arrowKeysScrollInFormula - The user can click on the editor to make the arrow keys scroll in the editor rather than in the sheet
  * @param editorLocation -- The location of the cell editor, either a cell or formula bar
  */
@@ -572,11 +572,11 @@ export type EditorState = {
     formula: string;
     editingMode: 'set_column_formula' | 'set_cell_value';
 
-    pendingSelectedColumns?: {
-        columnHeaders: (ColumnHeader)[]
-        selectionStart: number,
-        selectionEnd: number,
-    };
+    pendingSelections?: {
+        selections: MitoSelection[],
+        inputSelectionStart: number,
+        inputSelectionEnd: number,
+    } | undefined
 
     /* 
         Represents where the arrow keys should scroll, if the user

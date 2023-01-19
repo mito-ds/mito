@@ -70,7 +70,6 @@ ConditionalFormattingResult = Dict[str, Union[
 PivotColumnTransformation = str
 
 RowOffset = int
-RelativeReference = Tuple[ColumnHeader, RowOffset]
 ParserMatchRange = Tuple[int, int] # start, end
 
 import sys
@@ -125,4 +124,3 @@ else:
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
     ParserMatch = Any # type:ignore
-    ParserMatchIndexLabel = Any # type:ignore

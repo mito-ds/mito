@@ -242,7 +242,6 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
         formula_label,
         post_state.dfs[sheet_index]
     )
-    print("CDE", python_code)
 
     try:
         # Exec the code, where the df is the original dataframe
