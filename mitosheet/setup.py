@@ -122,9 +122,6 @@ if name == 'mitosheet2':
                 'flake8',
                 'types-chardet',
                 'python-dotenv',
-                # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
-                # snowflake-connect-python requires at least Python 3.7
-                'snowflake-connector-python[pandas]; python_version>="3.7"',
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'
@@ -134,6 +131,11 @@ if name == 'mitosheet2':
                 'twine',
                 "jupyter_packaging<=0.10.6",
                 "setuptools==56.0.0"
+            ],
+            'optional_feature_dependencies': [
+                # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
+                # snowflake-connect-python requires at least Python 3.7
+                'snowflake-connector-python[pandas]; python_version>="3.7"',
             ]
         },
         entry_points = {
@@ -234,9 +236,6 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'flake8',
                 'types-chardet',
                 'python-dotenv',
-                # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
-                # snowflake-connect-python requires at least Python 3.7
-                'snowflake-connector-python[pandas]; python_version>="3.7"',
                 'types-requests',
                 'mypy',
                 'pytest_httpserver'
@@ -246,6 +245,11 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
                 'twine',
                 "jupyter_packaging<=0.10.6",
                 "setuptools==56.0.0"
+            ],
+            'optional_feature_dependencies': [
+                # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
+                # snowflake-connect-python requires at least Python 3.7
+                'snowflake-connector-python[pandas]; python_version>="3.7"',
             ]
         },
         zip_safe                = False,
