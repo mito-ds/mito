@@ -23646,6 +23646,18 @@ ${finalCode}`;
         }
       }, {});
     }
+    async editResetIndex(sheet_index, drop) {
+      const stepID = getRandomId();
+      await this.send({
+        "event": "edit_event",
+        "type": "reset_index_edit",
+        "step_id": stepID,
+        "params": {
+          sheet_index,
+          drop
+        }
+      }, {});
+    }
     async editPromoteRowToHeader(sheetIndex, index) {
       const stepID = getRandomId();
       await this.send({
@@ -26108,6 +26120,25 @@ ${finalCode}`;
           title: "Promote Row to Header",
           onClick: () => {
             void props.mitoAPI.editPromoteRowToHeader(props.sheetIndex, props.index);
+          }
+        }
+      ),
+      /* @__PURE__ */ import_react46.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react46.default.createElement(
+        DropdownItem_default,
+        {
+          title: "Reset and Drop Index",
+          onClick: () => {
+            void props.mitoAPI.editResetIndex(props.sheetIndex, true);
+          }
+        }
+      ),
+      /* @__PURE__ */ import_react46.default.createElement(
+        DropdownItem_default,
+        {
+          title: "Reset Index",
+          onClick: () => {
+            void props.mitoAPI.editResetIndex(props.sheetIndex, false);
           }
         }
       )
@@ -30720,6 +30751,32 @@ ${finalCode}`;
         },
         searchTerms: ["CodeSnippets"],
         tooltip: "CodeSnippets"
+      },
+      ["reset and keep index" /* RESET_AND_KEEP_INDEX */]: {
+        type: "reset and keep index" /* RESET_AND_KEEP_INDEX */,
+        shortTitle: "Reset Index",
+        longTitle: "Reset Index",
+        actionFunction: () => {
+          void mitoAPI.editResetIndex(sheetIndex, false);
+        },
+        isDisabled: () => {
+          return doesAnySheetExist(sheetDataArray2) ? void 0 : "Import data before resetting an index.";
+        },
+        searchTerms: ["reset", "index"],
+        tooltip: "Resets a dataframes index to 0-NUM_ROWS. Will keep the current index as a column in the dataframe."
+      },
+      ["reset and drop index" /* RESET_AND_DROP_INDEX */]: {
+        type: "reset and drop index" /* RESET_AND_DROP_INDEX */,
+        shortTitle: "Reset and Drop Index",
+        longTitle: "Reset and Drop Index",
+        actionFunction: () => {
+          void mitoAPI.editResetIndex(sheetIndex, true);
+        },
+        isDisabled: () => {
+          return doesAnySheetExist(sheetDataArray2) ? void 0 : "Import data before resetting an index.";
+        },
+        searchTerms: ["Reset Index"],
+        tooltip: "Resets a dataframes index to 0-NUM_ROWS. Removes current index entirely."
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
@@ -38628,6 +38685,9 @@ fig.write_html("${props.graphTabName}.html")`
       }
       case "excel_range_import" /* ExcelRangeImport */: {
         return "Excel Range Import";
+      }
+      case "reset_index" /* ResetIndex */: {
+        return "Resetting Index";
       }
       case "undo" /* Undo */: {
         return "Undoing previous edit";

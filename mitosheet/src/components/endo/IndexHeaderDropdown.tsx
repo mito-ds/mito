@@ -5,6 +5,7 @@ import MitoAPI from '../../jupyter/api';
 import { MitoSelection, SheetData } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getSelectedRowLabelsWithEntireSelectedRow } from './selectionUtils';
 
@@ -45,6 +46,19 @@ export default function IndexHeaderDropdown(props: {
                 title='Promote Row to Header'
                 onClick={() => {
                     void props.mitoAPI.editPromoteRowToHeader(props.sheetIndex, props.index);
+                }}
+            />
+            <DropdownSectionSeperator isDropdownSectionSeperator/>
+            <DropdownItem 
+                title='Reset and Drop Index'
+                onClick={() => {
+                    void props.mitoAPI.editResetIndex(props.sheetIndex, true);
+                }}
+            />
+            <DropdownItem 
+                title='Reset Index'
+                onClick={() => {
+                    void props.mitoAPI.editResetIndex(props.sheetIndex, false);
                 }}
             />
         </Dropdown>
