@@ -89,7 +89,7 @@ interface InputProps {
     /** 
         * @param [type] - If this is a specific type of element (e.g. an email) you set that here
     */
-    type?: 'text' | 'email' | 'date' | 'number';
+    type?: 'text' | 'email' | 'date' | 'number' | 'password';
 
     /** 
         * @param [className] - Optional class(es) to apply to this input

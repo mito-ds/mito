@@ -99,7 +99,7 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "@jupyterlab/builder": "^3.0.0",
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.10.2",
+    "@types/node": "^18.11.18",
     "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
@@ -207,7 +207,7 @@ MITOSHEET_PACKAGE_JSON = """{
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^16.10.2",
+    "@types/node": "^18.11.18",
     "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",

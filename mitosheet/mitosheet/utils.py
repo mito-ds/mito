@@ -11,6 +11,7 @@ from random import randint
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
+import os
 
 import numpy as np
 import pandas as pd
@@ -343,3 +344,19 @@ def is_prev_version(curr_version: str, benchmark_version: str) -> bool:
             return True
 
     return False
+
+def is_snowflake_connector_python_installed() -> bool:
+    try:
+        import snowflake.connector
+        return True
+    except ImportError:
+        return False
+
+
+def is_snowflake_credentials_available() -> bool:
+    PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
+    PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
+    PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
+
+    return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None and \
+        PYTEST_SNOWFLAKE_USERNAME != 'None' and PYTEST_SNOWFLAKE_PASSWORD != 'None' and PYTEST_SNOWFLAKE_ACCOUNT != 'None'
