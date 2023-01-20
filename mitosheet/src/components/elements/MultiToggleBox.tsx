@@ -18,11 +18,12 @@ import { Height, Width } from './sizes.d';
 const MAX_DISPLAYED = 10000;
 
 
-const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, message?: string;}): JSX.Element => {
+const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, _emptyMessage?: string, message?: string;}): JSX.Element => {
+    const emptyMessage = props._emptyMessage !== undefined ? props. _emptyMessage : "No items to display."
     if (props.loading) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     Loading items<LoadingDots/>
                 </p>
             </Row>
@@ -30,7 +31,7 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     } else if (props.maxDisplayed || props.isSubset) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     There are too many items to display. Search to filter down to the items you care about.
                 </p>
             </Row>
@@ -38,15 +39,15 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     } else if (props.numDisplayed === 0) {
         return (
             <Row justify='center'>
-                <p className='text-body-1'> 
-                    No items to display.
+                <p className='text-body-1 text-align-center-important'> 
+                    {emptyMessage}
                 </p>
             </Row>
         )
     } else if (props.message !== undefined) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     {props.message}
                 </p>
             </Row>
@@ -129,6 +130,11 @@ const MultiToggleBox = (props: {
         * message at the top of the box
     */
     message?: string;
+
+    /** 
+        * @param [emptyMessage] - Display this message if there are no items in the MultiToggleBox.
+    */
+    emptyMessage?: string;
 
     /** 
         * @param [disabled] - Optionally make none of the buttons clickable here
@@ -242,6 +248,7 @@ const MultiToggleBox = (props: {
                     loading={props.loading}
                     isSubset={props.isSubset}
                     message={props.message}
+                    _emptyMessage={props.emptyMessage}
                     maxDisplayed={maxDisplayed}
                     numDisplayed={numDisplayed}
                 />}
