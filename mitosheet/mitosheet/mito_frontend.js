@@ -30753,25 +30753,6 @@ ${finalCode}`;
         searchTerms: ["CodeSnippets"],
         tooltip: "CodeSnippets"
       },
-      ["SnowflakeImport" /* SNOWFLAKEIMPORT */]: {
-        type: "SnowflakeImport" /* SNOWFLAKEIMPORT */,
-        shortTitle: "Snowflake Import",
-        longTitle: "Snowflake Import",
-        actionFunction: () => {
-          setEditorState(void 0);
-          setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ },
-              selectedTabType: "data"
-            });
-          });
-        },
-        isDisabled: () => {
-          return void 0;
-        },
-        searchTerms: ["SQL", "database", "snowflake", "import"],
-        tooltip: "Import dataframe from a Snowflake data warehouse"
-      },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
         getFuncDocObjFromFuncName("abs"),

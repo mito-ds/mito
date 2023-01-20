@@ -10,7 +10,7 @@ from mitosheet.types import SnowflakeCredentials, StepsManagerType
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
-# note assume that the import will succeed. 
+# not assume that the import will succeed. 
 try:
     import snowflake.connector
     SNOWFLAKE_CONNECTOR_IMPORTED = True
