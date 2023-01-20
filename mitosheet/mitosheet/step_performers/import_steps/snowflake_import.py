@@ -88,6 +88,8 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
+            'connection_params_dict': connection_params_dict,
+            'sql_query': sql_query,
             'result': {
                 # TODO: fill in the result
             }
@@ -101,20 +103,12 @@ class SnowflakeImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-
-        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
-        connection_params_dict = get_connection_param_dict(get_param(params, 'credentials'), table_loc_and_warehouse)
-
-        query_params: SnowflakeQueryParams = get_param(params, 'query_params')
-        table = table_loc_and_warehouse['table']
-        sql_query = create_query(table, query_params)
-
         return [
             SnowflakeImportCodeChunk(
                 prev_state, 
                 post_state, 
-                connection_params_dict,
-                sql_query
+                get_param(execution_data if execution_data is not None else {}, 'connection_params_dict'),
+                get_param(execution_data if execution_data is not None else {}, 'sql_query'),
             )
         ]
 
@@ -124,22 +118,14 @@ class SnowflakeImportStepPerformer(StepPerformer):
     
 
 def get_connection_param_dict (credentials: SnowflakeCredentials, table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse) -> Dict[str, str]:
-    username = credentials['username']
-    password = credentials['password']
-    account = credentials['account']
-    warehouse = table_loc_and_warehouse['warehouse']
-    database = table_loc_and_warehouse['database']
-    schema = table_loc_and_warehouse['schema']
-
-    all_params: Dict[str, str] = {}
-    all_params['user'] = username
-    all_params['password'] = password
-    all_params['account'] = account
-    all_params['warehouse'] = warehouse
-    all_params['database'] = database
-    all_params['schema'] = schema
-
-    return all_params
+    return {
+        'user': credentials['username'],
+        'password': credentials['password'],
+        'account': credentials['account'],
+        'warehouse': table_loc_and_warehouse['warehouse'],
+        'database': table_loc_and_warehouse['database'],
+        'schema': table_loc_and_warehouse['schema'],
+    }
 
 def create_query(table: Optional[str], query_params: SnowflakeQueryParams) -> str:
     transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]

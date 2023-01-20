@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect42(create, deps) {
+          function useEffect41(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect42;
+          exports.useEffect = useEffect41;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -38135,8 +38135,26 @@ fig.write_html("${props.graphTabName}.html")`
       query_params: { columns: [], limit: void 0 }
     };
   };
+  var getNewParams = (prevParams, database, schema, table) => {
+    const paramsCopy = JSON.parse(JSON.stringify(prevParams));
+    const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
+      "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
+        "database": database,
+        "schema": schema,
+        "table": table
+      }),
+      "query_params": {
+        "columns": [],
+        "limit": void 0
+      }
+    });
+    if (JSON.stringify(newParams) === JSON.stringify(prevParams)) {
+      return prevParams;
+    }
+    return newParams;
+  };
   var SnowflakeImportTaskpane = (props) => {
-    const { params, setParams, edit } = useSendEditOnClick_default(
+    const { params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit } = useSendEditOnClick_default(
       () => getDefaultParams7(),
       "snowflake_import" /* SnowflakeImport */,
       props.mitoAPI,
@@ -38144,55 +38162,29 @@ fig.write_html("${props.graphTabName}.html")`
     );
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react163.useState)(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react163.useState)(void 0);
-    const [refreshDefaultsNumber, setRefreshDefaultsNumber] = (0, import_react163.useState)(0);
-    const refreshAvailableOptionsAndDefaults = (newParams) => {
-      setParams(newParams);
-      setRefreshDefaultsNumber((old) => old + 1);
-    };
-    (0, import_react163.useEffect)(() => {
-      if (refreshDefaultsNumber === 0) {
-        return;
-      }
-      void _getAndSetAvailableOptionsAndDefaults();
-    }, [refreshDefaultsNumber]);
-    const _getAndSetAvailableOptionsAndDefaults = async () => {
-      if (params === void 0) {
-        return;
-      }
-      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.table_loc_and_warehouse);
-      setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
-      if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
-        setParams((prevParams) => {
-          return __spreadProps(__spreadValues({}, prevParams), {
-            table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults2.default_values
-          });
-        });
-        setCredentialsSectionIsOpen(false);
-      }
+    const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
+      setParamsWithoutRefreshOptionsAndDefaults(newParams);
+      void loadAndSetOptionsAndDefaults(newParams);
     };
     if (params === void 0) {
       return /* @__PURE__ */ import_react163.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
-    const validateSnowflakeCredentials = async () => {
-      if (params === void 0) {
-        return;
+    const loadAndSetOptionsAndDefaults = async (newParams) => {
+      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.credentials, newParams.table_loc_and_warehouse);
+      setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
+      if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
+        setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+          return __spreadProps(__spreadValues({}, prevParams), {
+            table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults2.default_values
+          });
+        });
       }
-      return await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
     };
-    const getNewParams = (database, schema, table) => {
-      const paramsCopy = JSON.parse(JSON.stringify(params));
-      const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
-        "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
-          "database": database,
-          "schema": schema,
-          "table": table
-        }),
-        "query_params": {
-          "columns": [],
-          "limit": void 0
-        }
-      });
-      return newParams;
+    const validateSnowflakeCredentials = async () => {
+      const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
+      if ((validityCheckResult == null ? void 0 : validityCheckResult.type) === "success") {
+        setCredentialsSectionIsOpen(false);
+      }
     };
     return /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react163.default.createElement(
       DefaultTaskpaneHeader_default,
@@ -38206,12 +38198,8 @@ fig.write_html("${props.graphTabName}.html")`
         value: params.credentials.username,
         onChange: (e) => {
           const newUsername = e.target.value;
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
-                username: newUsername
-              })
-            });
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+            return updateObjectWithPartialObject(prevParams, { credentials: { username: newUsername } });
           });
         }
       }
@@ -38222,12 +38210,8 @@ fig.write_html("${props.graphTabName}.html")`
         type: "password",
         onChange: (e) => {
           const newPassword = e.target.value;
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
-                password: newPassword
-              })
-            });
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+            return updateObjectWithPartialObject(prevParams, { credentials: { password: newPassword } });
           });
         }
       }
@@ -38237,12 +38221,8 @@ fig.write_html("${props.graphTabName}.html")`
         value: params.credentials.account,
         onChange: (e) => {
           const newAccount = e.target.value;
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              credentials: __spreadProps(__spreadValues({}, prevParams.credentials), {
-                account: newAccount
-              })
-            });
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+            return updateObjectWithPartialObject(prevParams, { credentials: { account: newAccount } });
           });
         }
       }
@@ -38253,7 +38233,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabledTooltip: "Please fill out the username, password, and account fields below.",
         onClick: async () => {
           await validateSnowflakeCredentials();
-          await _getAndSetAvailableOptionsAndDefaults();
+          await loadAndSetOptionsAndDefaults(params);
         },
         variant: "dark"
       },
@@ -38264,12 +38244,8 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.table_loc_and_warehouse.warehouse || "None available",
         onChange: (newWarehouse) => {
-          setParams((prevParams) => {
-            return __spreadProps(__spreadValues({}, prevParams), {
-              connection: __spreadProps(__spreadValues({}, prevParams.table_loc_and_warehouse), {
-                warehouse: newWarehouse
-              })
-            });
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+            return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
           });
         }
       },
@@ -38282,11 +38258,8 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.table_loc_and_warehouse.database || "None available",
         onChange: (newDatabase) => {
-          if (newDatabase === params["table_loc_and_warehouse"]["database"]) {
-            return;
-          }
-          const newParams = getNewParams(newDatabase);
-          refreshAvailableOptionsAndDefaults(newParams);
+          const newParams = getNewParams(params, newDatabase);
+          setParamsAndRefreshOptionsAndDefaults(newParams);
         }
       },
       (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
@@ -38298,12 +38271,8 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.table_loc_and_warehouse.schema || "None available",
         onChange: (newSchema) => {
-          if (newSchema === params["table_loc_and_warehouse"]["schema"]) {
-            return;
-          }
-          const paramsCopy = __spreadValues({}, params);
-          const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, newSchema);
-          refreshAvailableOptionsAndDefaults(newParams);
+          const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+          setParamsAndRefreshOptionsAndDefaults(newParams);
         }
       },
       (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
@@ -38315,12 +38284,8 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: params.table_loc_and_warehouse.table || "None available",
         onChange: (newTable) => {
-          if (newTable === params["table_loc_and_warehouse"]["table"]) {
-            return;
-          }
-          const paramsCopy = __spreadValues({}, params);
-          const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, paramsCopy.table_loc_and_warehouse.schema, newTable);
-          refreshAvailableOptionsAndDefaults(newParams);
+          const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
+          setParamsAndRefreshOptionsAndDefaults(newParams);
         }
       },
       (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
@@ -38330,17 +38295,13 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         toggleAllIndexes: (indexesToToggle) => {
-          setParams((prevParams) => {
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
             const columnsToToggle = indexesToToggle.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
             columnsToToggle.forEach((sheetName) => {
               toggleInArray(newColumns, sheetName);
             });
-            return __spreadProps(__spreadValues({}, prevParams), {
-              query_params: __spreadProps(__spreadValues({}, prevParams.query_params), {
-                columns: newColumns
-              })
-            });
+            return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
           });
         }
       },
@@ -38353,14 +38314,10 @@ fig.write_html("${props.graphTabName}.html")`
             title: column,
             toggled: isToggled,
             onToggle: () => {
-              setParams((prevParams) => {
+              setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
                 const newColumns = [...prevParams.query_params.columns];
                 toggleInArray(newColumns, column);
-                return __spreadProps(__spreadValues({}, prevParams), {
-                  query_params: __spreadProps(__spreadValues({}, prevParams.query_params), {
-                    columns: newColumns
-                  })
-                });
+                return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
               });
             },
             index

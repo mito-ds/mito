@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 
 import { classNames } from "../../../utils/classNames";
+import { updateObjectWithPartialObject } from "../../../utils/objects";
 import DropdownItem from "../../elements/DropdownItem";
 import Input from "../../elements/Input";
 import MultiToggleBox from "../../elements/MultiToggleBox";
@@ -77,12 +78,38 @@ export type AvailableSnowflakeOptionsAndDefaults = {
     error_message: string
 }
 
+
+const getNewParams = (prevParams: SnowflakeImportParams, database?: string | null, schema?: string | null, table?: string | null) => {
+    const paramsCopy: SnowflakeImportParams = JSON.parse(JSON.stringify(prevParams))
+    const newParams = {
+        ...paramsCopy, 
+        'table_loc_and_warehouse': {
+            ...paramsCopy.table_loc_and_warehouse,
+            'database': database,
+            'schema': schema,
+            'table': table,
+        },
+        'query_params': {
+            'columns': [],
+            'limit': undefined
+        }
+    }
+
+    // If we didn't change anything, we just return the original params. This way, we can not 
+    // trigger a react refresh -- which is nice
+    if (JSON.stringify(newParams) === JSON.stringify(prevParams)) {
+        return prevParams;
+    }
+
+    return newParams
+}
+
 /* 
     This is the SnowflakeImport taskpane.
 */
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
+    const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
             () => getDefaultParams(),
             StepType.SnowflakeImport, 
             props.mitoAPI,
@@ -91,77 +118,40 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
-    const [refreshDefaultsNumber, setRefreshDefaultsNumber] = useState(0) 
 
-    const refreshAvailableOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
-        setParams(newParams)
-        setRefreshDefaultsNumber(old => old + 1)
-    }
-
-    useEffect(() => {
-        if (refreshDefaultsNumber === 0) {
-            // Don't run on first render
-            return
-        }
-        void _getAndSetAvailableOptionsAndDefaults()
-    }, [refreshDefaultsNumber])
-
-    const _getAndSetAvailableOptionsAndDefaults = async () => {
-        if (params === undefined) {
-            // We don't expect this to ever happen because of the UI restrictions
-            return 
-        }
-        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(params.credentials, params.table_loc_and_warehouse);
-
-        setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
-
-        if (availableSnowflakeOptionsAndDefaults?.type === 'success') {
-            setParams((prevParams) => {
-                return {
-                    ...prevParams,
-                    table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults.default_values
-                }
-            })
-
-            // If the user connects successful, we close the connection window
-            setCredentialsSectionIsOpen(false);
-        }
+    // Because we don't always want to refresh defaults, we have an setParamsWithoutDefaultRefresh functions that will
+    // set params without doing so. This will both set the params and refresh the defaults, doh
+    const setParamsAndRefreshOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
+        setParamsWithoutRefreshOptionsAndDefaults(newParams);
+        void loadAndSetOptionsAndDefaults(newParams);
     }
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
+    const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
+        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.credentials, newParams.table_loc_and_warehouse);
+        setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
+
+        if (availableSnowflakeOptionsAndDefaults?.type === 'success') {
+            setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                return {
+                    ...prevParams,
+                    table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults.default_values
+                }
+            })
+        }
+    }
 
     // TODO: Wrap this in a function to handle a loading indicator and actually waiting for results properly
     const validateSnowflakeCredentials = async () => {
-        if (params === undefined) {
-            // We don't expect this to ever happen because of the UI restrictions
-            return 
+        const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
+        if (validityCheckResult?.type === 'success') {
+            // If the user connects successful, we close the connection window
+            setCredentialsSectionIsOpen(false);
         }
-        
-        return await props.mitoAPI.validateSnowflakeCredentials(params.credentials)
     }
-
-    const getNewParams = (database?: string | null, schema?: string | null, table?: string | null) => {
-        const paramsCopy: SnowflakeImportParams = JSON.parse(JSON.stringify(params))
-        const newParams = {
-            ...paramsCopy, 
-            'table_loc_and_warehouse': {
-                ...paramsCopy.table_loc_and_warehouse,
-                'database': database,
-                'schema': schema,
-                'table': table,
-            },
-            'query_params': {
-                'columns': [],
-                'limit': undefined
-            }
-        }
-
-        return newParams
-    }
-
     
     return (
         <DefaultTaskpane>
@@ -180,14 +170,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 value={params.credentials.username} 
                                 onChange={(e) => {
                                     const newUsername = e.target.value;
-                                    setParams((prevParams) => {
-                                        return {
-                                            ...prevParams, 
-                                            credentials: {
-                                                ...prevParams.credentials, 
-                                                username: newUsername
-                                            }
-                                        }
+                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                                        return updateObjectWithPartialObject(prevParams, {credentials: {username: newUsername}});
                                     })
                                 }}/>
                         </Col>
@@ -202,14 +186,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 type='password'
                                 onChange={(e) => {
                                     const newPassword = e.target.value;
-                                    setParams((prevParams) => {
-                                        return {
-                                            ...prevParams, 
-                                            credentials: {
-                                                ...prevParams.credentials, 
-                                                password: newPassword
-                                            }
-                                        }
+                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                                        return updateObjectWithPartialObject(prevParams, {credentials: {password: newPassword}});
                                     })
                                 }}/>
                         </Col>
@@ -223,14 +201,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 value={params.credentials.account} 
                                 onChange={(e) => {
                                     const newAccount = e.target.value;
-                                    setParams((prevParams) => {
-                                        return {
-                                            ...prevParams, 
-                                            credentials: {
-                                                ...prevParams.credentials, 
-                                                account: newAccount
-                                            }
-                                        }
+                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                                        return updateObjectWithPartialObject(prevParams, {credentials: {account: newAccount}});
                                     })
                                 }}/>
                         </Col>
@@ -240,8 +212,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={async () => {
-                            await validateSnowflakeCredentials()
-                            await _getAndSetAvailableOptionsAndDefaults()
+                            await validateSnowflakeCredentials();
+                            await loadAndSetOptionsAndDefaults(params);
                         }}
                         variant='dark'
                     >
@@ -265,14 +237,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.table_loc_and_warehouse.warehouse || 'None available'}
                                 onChange={(newWarehouse) => {
-                                    setParams((prevParams) => {
-                                        return {
-                                            ...prevParams, 
-                                            connection: {
-                                                ...prevParams.table_loc_and_warehouse, 
-                                                warehouse: newWarehouse
-                                            }
-                                        }
+                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                                        return updateObjectWithPartialObject(prevParams, {table_loc_and_warehouse: {warehouse: newWarehouse}});
                                     })
                                 }}
                             >
@@ -293,12 +259,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.table_loc_and_warehouse.database || 'None available'}
                                 onChange={(newDatabase) => {
-                                    if (newDatabase === params['table_loc_and_warehouse']['database']) {
-                                        return 
-                                    }
-
-                                    const newParams = getNewParams(newDatabase)
-                                    refreshAvailableOptionsAndDefaults(newParams)
+                                    const newParams = getNewParams(params, newDatabase)
+                                    setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
@@ -318,14 +280,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.table_loc_and_warehouse.schema || 'None available'}
                                 onChange={(newSchema) => {
-                                    if (newSchema === params['table_loc_and_warehouse']['schema']) {
-                                        return 
-                                    }
-
-                                    const paramsCopy: SnowflakeImportParams = {...params}
-                                    const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, newSchema)
-                                    
-                                    refreshAvailableOptionsAndDefaults(newParams)
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+                                    setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
@@ -345,13 +301,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 width="medium"
                                 value={params.table_loc_and_warehouse.table || 'None available'}
                                 onChange={(newTable) => {
-                                    if (newTable === params['table_loc_and_warehouse']['table']) {
-                                        return 
-                                    }
-                                    
-                                    const paramsCopy: SnowflakeImportParams = {...params}
-                                    const newParams = getNewParams(paramsCopy.table_loc_and_warehouse.database, paramsCopy.table_loc_and_warehouse.schema, newTable)
-                                    refreshAvailableOptionsAndDefaults(newParams)
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable)
+                                    setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
                                 {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
@@ -370,20 +321,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <>
                         <MultiToggleBox
                             toggleAllIndexes={(indexesToToggle) => {
-                                setParams(prevParams => {
+                                setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
                                     const newColumns = [...prevParams.query_params.columns];
                                     const columnsToToggle = indexesToToggle.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
                                     columnsToToggle.forEach(sheetName => {
                                         toggleInArray(newColumns, sheetName);
                                     });
 
-                                    return {
-                                        ...prevParams,
-                                        query_params: {
-                                            ...prevParams.query_params,
-                                            columns: newColumns
-                                        }
-                                    };
+                                    return updateObjectWithPartialObject(prevParams, {query_params: {columns: newColumns}});
                                 });
                             } }
                         >
@@ -395,17 +340,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                         title={column}
                                         toggled={isToggled}
                                         onToggle={() => {
-                                            setParams((prevParams) => {
+                                            setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
                                                 const newColumns = [...prevParams.query_params.columns];
                                                 toggleInArray(newColumns, column);
-
-                                                return {
-                                                    ...prevParams,
-                                                    query_params: {
-                                                        ...prevParams.query_params,
-                                                        columns: newColumns
-                                                    }
-                                                };
+                                                return updateObjectWithPartialObject(prevParams, {query_params: {columns: newColumns}});
                                             });
                                         }}
                                         index={index} 
@@ -430,9 +368,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </TextButton>
                     </>
                 }
-                
-                {/* TODO: add the user input for query_params of type Any */}
-
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )
