@@ -785,6 +785,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
             return <></>;
         }
 
+        // If the user has turned off tours via the enviornment variable, don't display the tour
+        if (!userProfile.mitoConfig.MITO_CONFIG_DISPLAY_TOURS) {
+            return <></>;
+        }
+
         const toursToDisplay: TourName[] = []
 
         // We display the INTRO to users if they have not received it

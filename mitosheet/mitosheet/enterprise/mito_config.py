@@ -16,6 +16,7 @@ MITO_CONFIG_SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
 MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL' 
 MITO_CONFIG_CODE_SNIPPETS_VERSION  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION' 
 MITO_CONFIG_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
+MITO_CONFIG_DISPLAY_TOURS = 'MITO_CONFIG_DISPLAY_TOURS'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -39,7 +40,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         'MITO_CONFIG_SUPPORT_EMAIL': 'support@mito.com',
         'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': None,
         'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
-        'MITO_CONFIG_CODE_SNIPPETS_URL': None
+        'MITO_CONFIG_CODE_SNIPPETS_URL': None,
+        'MITO_CONFIG_DISPLAY_TOURS': None
     }
     """
     return {
@@ -47,7 +49,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_SUPPORT_EMAIL: mec[MITO_CONFIG_SUPPORT_EMAIL],
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None,
         MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
-        MITO_CONFIG_CODE_SNIPPETS_URL: None
+        MITO_CONFIG_CODE_SNIPPETS_URL: None,
+        MITO_CONFIG_DISPLAY_TOURS: None
     }
 
 """
@@ -86,7 +89,8 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_SUPPORT_EMAIL, 
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
         MITO_CONFIG_CODE_SNIPPETS_VERSION,
-        MITO_CONFIG_CODE_SNIPPETS_URL
+        MITO_CONFIG_CODE_SNIPPETS_URL, 
+        MITO_CONFIG_DISPLAY_TOURS
     ]
 }
 
@@ -130,6 +134,11 @@ class MitoConfig:
         if self.mec is None or self.mec[MITO_CONFIG_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_SUPPORT_EMAIL]
+
+    def get_display_tours(self) -> bool:
+        if self.mec is None or self.mec[MITO_CONFIG_DISPLAY_TOURS] is None:
+            return True
+        return False if self.mec[MITO_CONFIG_DISPLAY_TOURS] == 'False' else True
 
     def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_VERSION] is None:
@@ -179,6 +188,7 @@ class MitoConfig:
         return {
             MITO_CONFIG_VERSION: self.get_version(),
             MITO_CONFIG_SUPPORT_EMAIL: self.get_support_email(),
+            MITO_CONFIG_DISPLAY_TOURS: self.get_display_tours(),
             MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets()
         }
 
