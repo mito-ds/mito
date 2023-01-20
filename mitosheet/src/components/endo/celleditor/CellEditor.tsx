@@ -595,10 +595,10 @@ const CellEditor = (props: {
                             <p className='text-subtext-1'>
                                 Examples
                             </p>
-                            {documentationFunction.examples?.map(example => {
+                            {documentationFunction.examples?.map((example, index) => {
                                 return (
                                     <p 
-                                        key={example}
+                                        key={index}
                                         className='cell-editor-function-documentation-example'
                                     >
                                         {example}

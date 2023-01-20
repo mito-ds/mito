@@ -55,13 +55,17 @@ const Toggle = (props: ToggleProps): JSX.Element => {
                 when the label is clicked, it also triggers the input's onClick event. If the onClick was registered
                 on the label, this would cause it to be fired twice each time the user clicks.  
             */}
-            <input type="checkbox" checked={props.value} onClick={() => {
-                if (disabled) {
-                    return
-                }
-                props.onChange()
-            }
-            } />
+            <input 
+                type="checkbox" 
+                checked={props.value} 
+                onClick={() => {
+                    if (disabled) {
+                        return
+                    }
+                    props.onChange()
+                }} 
+                onChange={() => {}} // We define this just to avoid warnings from React. We use the onClick instead
+            />
             <div className={classNames("toggle", { 'toggle-disabled': disabled })}></div>
         </label>
     )

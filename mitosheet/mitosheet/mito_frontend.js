@@ -21563,12 +21563,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var Toggle = (props) => {
     const disabled = props.disabled === true;
     const className = props.className !== void 0 ? props.className : "";
-    return /* @__PURE__ */ import_react13.default.createElement("label", { className: classNames("toggle-label", className), style: props.height ? { "--toggle-height": props.height } : {} }, /* @__PURE__ */ import_react13.default.createElement("input", { type: "checkbox", checked: props.value, onClick: () => {
-      if (disabled) {
-        return;
+    return /* @__PURE__ */ import_react13.default.createElement("label", { className: classNames("toggle-label", className), style: props.height ? { "--toggle-height": props.height } : {} }, /* @__PURE__ */ import_react13.default.createElement(
+      "input",
+      {
+        type: "checkbox",
+        checked: props.value,
+        onClick: () => {
+          if (disabled) {
+            return;
+          }
+          props.onChange();
+        },
+        onChange: () => {
+        }
       }
-      props.onChange();
-    } }), /* @__PURE__ */ import_react13.default.createElement("div", { className: classNames("toggle", { "toggle-disabled": disabled }) }));
+    ), /* @__PURE__ */ import_react13.default.createElement("div", { className: classNames("toggle", { "toggle-disabled": disabled }) }));
   };
   var Toggle_default = Toggle;
 
@@ -24832,17 +24841,17 @@ ${finalCode}`;
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData) => {
-    let finalString = "";
+    let columnHeadersAndIndexLabels = [];
     selections.forEach((selection) => {
       const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
       const indexLabels = getIndexLabelsInSelection(selection, sheetData);
       columnHeaders.forEach((columnHeader) => {
         indexLabels.forEach((indexLabel) => {
-          finalString += getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel);
+          columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel));
         });
       });
     });
-    return finalString;
+    return columnHeadersAndIndexLabels.join(", ");
   };
   var getFullFormula = (formula, pendingSelections, sheetData) => {
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
@@ -25599,11 +25608,11 @@ ${finalCode}`;
         /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
         selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
       );
-    })), cellEditorError === void 0 && !loading && props.editorState.editingMode === "set_column_formula" && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example) => {
+    })), cellEditorError === void 0 && !loading && props.editorState.editingMode === "set_column_formula" && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
       return /* @__PURE__ */ import_react39.default.createElement(
         "p",
         {
-          key: example,
+          key: index,
           className: "cell-editor-function-documentation-example"
         },
         example
@@ -27011,9 +27020,6 @@ ${finalCode}`;
       if (sheetData.index[i] === void 0)
         continue;
       indexLabels.push(sheetData.index[i]);
-    }
-    if (min !== selection.startingColumnIndex) {
-      return indexLabels.reverse();
     }
     return indexLabels;
   };
