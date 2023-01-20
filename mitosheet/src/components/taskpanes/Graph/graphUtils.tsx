@@ -106,7 +106,7 @@ export const getGraphParams = (
     sheetDataArray: SheetData[],
 ): GraphParamsFrontend => {
 
-    const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(graphDataDict[graphID]?.graphParams)); 
+    const graphParamsCopy: GraphParamsFrontend = window.structuredClone(graphDataDict[graphID]?.graphParams); 
 
     // If the graph already exists, get the data source sheet index from the graph params.
     // Otherwise create a new graph of the selectedSheetIndex

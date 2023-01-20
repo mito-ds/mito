@@ -108,7 +108,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             variant="dark"
                             onClick={() => {
                                 setParams((prevParams) => {
-                                    const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                                    const newRangeImports = window.structuredClone(prevParams.range_imports);
                                     const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : 'range'; // add whatever the previous range is
                                     newRangeImports.unshift({'type': previousType, 'df_name': '', 'value': ''}) // add to the start
                                     return {
@@ -147,7 +147,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                             onDelete={() => {
                                 setParams((prevParams) => {
-                                    const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                                    const newRangeImports = window.structuredClone(prevParams.range_imports);
                                     newRangeImports.splice(index, 1);
                                     return {
                                         ...prevParams,
@@ -175,7 +175,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         onChange={(e) => {
                                             const newDfName = e.target.value;
                                             setParams((prevParams) => {
-                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                                                const newRangeImports = window.structuredClone(prevParams.range_imports);
                                                 newRangeImports[index].df_name = newDfName;
                                                 return {
                                                     ...prevParams,
@@ -199,7 +199,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         onChange={(newType) => {
                                             setParams((prevParams) => {
                                                 const isNew = prevParams.range_imports[index].type !== newType;
-                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                                                const newRangeImports = window.structuredClone(prevParams.range_imports);
                                                 newRangeImports[index].type = newType as ExcelRangeImportType;
 
                                                 if (isNew) {
@@ -247,7 +247,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         onChange={(e) => {
                                             const newValue = e.target.value;
                                             setParams((prevParams) => {
-                                                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                                                const newRangeImports = window.structuredClone(prevParams.range_imports);
                                                 const newRangeImport = newRangeImports[index];
                                                 newRangeImport.value = newValue;
                                                 return {

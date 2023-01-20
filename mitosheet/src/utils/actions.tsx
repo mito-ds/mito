@@ -766,7 +766,7 @@ export const createActions = (
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
                     const columnDtype = sheetData.columnDtypeMap[columnID];
                     const newColumnFormat = decreasePrecision({...newDfFormat.columns[columnID]}, columnDtype)
@@ -791,7 +791,7 @@ export const createActions = (
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-                const newDfFormat: DataframeFormat = JSON.parse(JSON.stringify(dfFormat));
+                const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
                     const columnDtype = sheetData.columnDtypeMap[columnID];
                     const newColumnFormat = increasePrecision({...newDfFormat.columns[columnID]}, columnDtype)

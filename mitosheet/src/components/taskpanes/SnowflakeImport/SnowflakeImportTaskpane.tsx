@@ -80,7 +80,7 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 
 
 const getNewParams = (prevParams: SnowflakeImportParams, database?: string | null, schema?: string | null, table?: string | null) => {
-    const paramsCopy: SnowflakeImportParams = JSON.parse(JSON.stringify(prevParams))
+    const paramsCopy: SnowflakeImportParams = window.structuredClone(prevParams);
     const newParams = {
         ...paramsCopy, 
         'table_loc_and_warehouse': {

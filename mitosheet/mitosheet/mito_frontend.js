@@ -21387,7 +21387,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return target;
   }
   function updateObjectWithPartialObject(obj, update) {
-    const newParams = JSON.parse(JSON.stringify(obj));
+    const newParams = window.structuredClone(obj);
     recurseObjectAssign(newParams, update);
     return newParams;
   }
@@ -21816,7 +21816,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
       if (graphAxis === "X axis" /* X_AXIS */) {
         props.setGraphParams((prevGraphParams) => {
-          const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams));
+          const graphParamsCopy = window.structuredClone(prevGraphParams);
           return __spreadProps(__spreadValues({}, graphParamsCopy), {
             graphCreation: __spreadProps(__spreadValues({}, graphParamsCopy.graphCreation), {
               x_axis_column_ids: axisColumnIDsCopy
@@ -21825,7 +21825,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         });
       } else {
         props.setGraphParams((prevGraphParams) => {
-          const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams));
+          const graphParamsCopy = window.structuredClone(prevGraphParams);
           return __spreadProps(__spreadValues({}, graphParamsCopy), {
             graphCreation: __spreadProps(__spreadValues({}, graphParamsCopy.graphCreation), {
               y_axis_column_ids: axisColumnIDsCopy
@@ -21839,7 +21839,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       const xAxisColumnIDsCopy = [...props.graphParams.graphCreation.x_axis_column_ids];
       const yAxisColumnIDsCopy = [...props.graphParams.graphCreation.y_axis_column_ids];
       props.setGraphParams((prevGraphParams) => {
-        const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams));
+        const graphParamsCopy = window.structuredClone(prevGraphParams);
         return __spreadProps(__spreadValues({}, graphParamsCopy), {
           graphCreation: __spreadProps(__spreadValues({}, graphParamsCopy.graphCreation), {
             graph_type: graphType,
@@ -21862,7 +21862,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     };
     const setColor = (newColorColumnID) => {
       props.setGraphParams((prevGraphParams) => {
-        const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams));
+        const graphParamsCopy = window.structuredClone(prevGraphParams);
         return __spreadProps(__spreadValues({}, graphParamsCopy), {
           graphCreation: __spreadProps(__spreadValues({}, graphParamsCopy.graphCreation), {
             color: newColorColumnID
@@ -22452,7 +22452,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   };
   var getGraphParams = (graphDataDict, graphID, selectedSheetIndex, sheetDataArray2) => {
     var _a;
-    const graphParamsCopy = JSON.parse(JSON.stringify((_a = graphDataDict[graphID]) == null ? void 0 : _a.graphParams));
+    const graphParamsCopy = window.structuredClone((_a = graphDataDict[graphID]) == null ? void 0 : _a.graphParams);
     const graphDataSourceSheetIndex = graphParamsCopy !== void 0 ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex;
     if (graphParamsCopy !== void 0) {
       const validColumnIDs = sheetDataArray2[graphDataSourceSheetIndex] !== void 0 ? sheetDataArray2[graphDataSourceSheetIndex].data.map((c) => c.columnID) : [];
@@ -30279,7 +30279,7 @@ ${finalCode}`;
         longTitle: "Decrease decimal places displayed",
         actionFunction: async () => {
           const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-          const newDfFormat = JSON.parse(JSON.stringify(dfFormat));
+          const newDfFormat = window.structuredClone(dfFormat);
           selectedNumberSeriesColumnIDs.forEach((columnID2) => {
             const columnDtype = sheetData.columnDtypeMap[columnID2];
             const newColumnFormat = decreasePrecision(__spreadValues({}, newDfFormat.columns[columnID2]), columnDtype);
@@ -30302,7 +30302,7 @@ ${finalCode}`;
         longTitle: "Increase decimal places displayed",
         actionFunction: async () => {
           const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-          const newDfFormat = JSON.parse(JSON.stringify(dfFormat));
+          const newDfFormat = window.structuredClone(dfFormat);
           selectedNumberSeriesColumnIDs.forEach((columnID2) => {
             const columnDtype = sheetData.columnDtypeMap[columnID2];
             const newColumnFormat = increasePrecision(__spreadValues({}, newDfFormat.columns[columnID2]), columnDtype);
@@ -33160,7 +33160,7 @@ ${finalCode}`;
         if (loadedData !== void 0) {
           setState(loadedData);
           if (onLoad !== void 0) {
-            const loadedDataCopy = JSON.parse(JSON.stringify(loadedData));
+            const loadedDataCopy = window.structuredClone(loadedData);
             onLoad(loadedDataCopy);
           }
         }
@@ -37668,7 +37668,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
         setUpdatedStepImportData((prevUpdatedStepImportData) => {
           if (prevUpdatedStepImportData === void 0) {
-            return JSON.parse(JSON.stringify(loadedData.importData));
+            return window.structuredClone(loadedData.importData);
           }
           return prevUpdatedStepImportData;
         });
@@ -38136,7 +38136,7 @@ fig.write_html("${props.graphTabName}.html")`
     };
   };
   var getNewParams = (prevParams, database, schema, table) => {
-    const paramsCopy = JSON.parse(JSON.stringify(prevParams));
+    const paramsCopy = window.structuredClone(prevParams);
     const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
       "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
         "database": database,
@@ -38385,7 +38385,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark",
         onClick: () => {
           setParams((prevParams) => {
-            const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+            const newRangeImports = window.structuredClone(prevParams.range_imports);
             const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : "range";
             newRangeImports.unshift({ "type": previousType, "df_name": "", "value": "" });
             return __spreadProps(__spreadValues({}, prevParams), {
@@ -38415,7 +38415,7 @@ fig.write_html("${props.graphTabName}.html")`
           },
           onDelete: () => {
             setParams((prevParams) => {
-              const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+              const newRangeImports = window.structuredClone(prevParams.range_imports);
               newRangeImports.splice(index, 1);
               return __spreadProps(__spreadValues({}, prevParams), {
                 range_imports: newRangeImports
@@ -38436,7 +38436,7 @@ fig.write_html("${props.graphTabName}.html")`
             onChange: (e) => {
               const newDfName = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
                 newRangeImports[index].df_name = newDfName;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
@@ -38453,7 +38453,7 @@ fig.write_html("${props.graphTabName}.html")`
             onChange: (newType) => {
               setParams((prevParams) => {
                 const isNew = prevParams.range_imports[index].type !== newType;
-                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
                 newRangeImports[index].type = newType;
                 if (isNew) {
                   newRangeImports[index].value = "";
@@ -38497,7 +38497,7 @@ fig.write_html("${props.graphTabName}.html")`
             onChange: (e) => {
               const newValue = e.target.value;
               setParams((prevParams) => {
-                const newRangeImports = JSON.parse(JSON.stringify(prevParams.range_imports));
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
                 const newRangeImport = newRangeImports[index];
                 newRangeImport.value = newValue;
                 return __spreadProps(__spreadValues({}, prevParams), {
