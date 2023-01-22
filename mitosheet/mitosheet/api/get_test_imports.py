@@ -21,7 +21,7 @@ DATAFRAME_IMPORT_ERROR = 'There was an error importing this dataframe. Make sure
 def get_import_error_for_step_type(step_type: str) -> str:
     if step_type == SimpleImportStepPerformer.step_type():
         return CSV_IMPORT_ERROR
-    if step_type == ExcelImportStepPerformer.step_type() or ExcelRangeImportStepPerformer.step_type():
+    if step_type == ExcelImportStepPerformer.step_type() or step_type == ExcelRangeImportStepPerformer.step_type():
         return EXCEL_IMPORT_ERROR
     return DATAFRAME_IMPORT_ERROR
 
