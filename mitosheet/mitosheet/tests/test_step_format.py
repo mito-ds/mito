@@ -282,15 +282,15 @@ def test_params_static():
     )
 
     check_step(
-<<<<<<< HEAD
         ExportToFileStepPerformer,
         1,
         'export_to_file'
-=======
+    )
+
+    check_step(
         SnowflakeImportStepPerformer,
         1,
         'snowflake_import'
->>>>>>> dev
     )
 
-    assert len(STEP_PERFORMERS) == 34
+    assert len(STEP_PERFORMERS) == 35
