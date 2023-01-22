@@ -23540,7 +23540,7 @@ ${finalCode}`;
     async validateSnowflakeCredentials(params) {
       const resultString = await this.send({
         "event": "api_call",
-        "type": "validate_snowflake_credentials",
+        "type": "get_validate_snowflake_credentials",
         "params": params
       }, {});
       if (resultString !== void 0 && resultString !== "") {
@@ -39794,13 +39794,6 @@ fig.write_html("${props.graphTabName}.html")`
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
-            });
-          });
-        } }),
-        /* @__PURE__ */ import_react212.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
             });
           });
         } })

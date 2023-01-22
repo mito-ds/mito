@@ -714,7 +714,7 @@ export default class MitoAPI {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
-            'type': 'validate_snowflake_credentials',
+            'type': 'get_validate_snowflake_credentials',
             'params': params
         }, {})
 

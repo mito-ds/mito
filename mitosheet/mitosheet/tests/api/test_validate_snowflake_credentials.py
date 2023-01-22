@@ -1,5 +1,5 @@
 import json
-from mitosheet.api.validate_snowflake_credentials import validate_snowflake_credentials
+from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 import os
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
@@ -20,7 +20,7 @@ TEST_SNOWFLAKE_CREDENTIALS = {
 def test_valid_credentials_integration_test(): 
     mito = create_mito_wrapper_dfs()
 
-    response = validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    response = get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     expected_return = json.dumps({
         'type': 'success',    
@@ -41,7 +41,7 @@ def test_invalid_credentials_integration_test():
         'account': PYTEST_SNOWFLAKE_ACCOUNT
     }
 
-    response = validate_snowflake_credentials(credentials, mito.mito_backend.steps_manager)
+    response = get_validate_snowflake_credentials(credentials, mito.mito_backend.steps_manager)
     response_obj = json.loads(response)
 
     assert 'error' == response_obj['type']
