@@ -151,7 +151,7 @@ OPERATOR_TEST_CASES = [
         '=AAA + BBB + CCC + DDD',
         'E',
         0,
-        pd.DataFrame(columns=['AAA', 'BBB', 'CCC', 'DDD']),
+        pd.DataFrame({'AAA': [], 'BBB': [], 'CCC': [], 'DDD': []}),
         'df[\'E\'] = df[\'AAA\'] + df[\'BBB\'] + df[\'CCC\'] + df[\'DDD\']',
         set(),
         set(['AAA', 'BBB', 'CCC', 'DDD'])

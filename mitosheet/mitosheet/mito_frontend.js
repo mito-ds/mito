@@ -24841,7 +24841,7 @@ ${finalCode}`;
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData) => {
-    let columnHeadersAndIndexLabels = [];
+    const columnHeadersAndIndexLabels = [];
     selections.forEach((selection) => {
       const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
       const indexLabels = getIndexLabelsInSelection(selection, sheetData);
