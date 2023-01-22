@@ -9,7 +9,7 @@ import { getCellDataFromCellIndexes } from "../utils";
 
 export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
     // For each of the selections, we bu
-    let columnHeadersAndIndexLabels: string[] = []
+    const columnHeadersAndIndexLabels: string[] = []
     selections.forEach(selection => {
         // We need to get the column 
         const columnHeaders = getColumnHeadersInSelection(selection, sheetData);

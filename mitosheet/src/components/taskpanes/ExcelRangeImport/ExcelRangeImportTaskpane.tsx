@@ -232,8 +232,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         textBody
                                         tooltip={
                                             range_import.type === 'range' 
-                                            ? "The proper format is COLUMNROW:COLUMNROW. For example, A1:B10, C10:G1000." 
-                                            : 'Mito will attempt to find the cell with this exact value. Only strings and numbers are supported currently.'
+                                                ? "The proper format is COLUMNROW:COLUMNROW. For example, A1:B10, C10:G1000." 
+                                                : 'Mito will attempt to find the cell with this exact value. Only strings and numbers are supported currently.'
                                         }
                                     >
                                         {range_import.type === 'range' ? "Excel Range" : 'Exact Cell Value'}
