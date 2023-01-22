@@ -18,8 +18,8 @@ import { Height, Width } from './sizes.d';
 const MAX_DISPLAYED = 10000;
 
 
-const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, _emptyMessage?: string, message?: string;}): JSX.Element => {
-    const emptyMessage = props._emptyMessage !== undefined ? props. _emptyMessage : "No items to display."
+const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, emptyMessage?: string, message?: string;}): JSX.Element => {
+    const _emptyMessage = props.emptyMessage !== undefined ? props. emptyMessage : "No items to display."
     if (props.loading) {
         return (
             <Row justify='center'>
@@ -40,7 +40,7 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
         return (
             <Row justify='center'>
                 <p className='text-body-1 text-align-center-important'> 
-                    {emptyMessage}
+                    {_emptyMessage}
                 </p>
             </Row>
         )
@@ -248,7 +248,7 @@ const MultiToggleBox = (props: {
                     loading={props.loading}
                     isSubset={props.isSubset}
                     message={props.message}
-                    _emptyMessage={props.emptyMessage}
+                    emptyMessage={props.emptyMessage}
                     maxDisplayed={maxDisplayed}
                     numDisplayed={numDisplayed}
                 />}

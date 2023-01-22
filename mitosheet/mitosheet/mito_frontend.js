@@ -27847,13 +27847,13 @@ ${finalCode}`;
   var import_react59 = __toESM(require_react());
   var MAX_DISPLAYED = 1e4;
   var MultiToggleBoxMessage = (props) => {
-    const emptyMessage = props._emptyMessage !== void 0 ? props._emptyMessage : "No items to display.";
+    const _emptyMessage = props.emptyMessage !== void 0 ? props.emptyMessage : "No items to display.";
     if (props.loading) {
       return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "Loading items", /* @__PURE__ */ import_react59.default.createElement(LoadingDots_default, null)));
     } else if (props.maxDisplayed || props.isSubset) {
       return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "There are too many items to display. Search to filter down to the items you care about."));
     } else if (props.numDisplayed === 0) {
-      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, emptyMessage));
+      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, _emptyMessage));
     } else if (props.message !== void 0) {
       return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, props.message));
     }
@@ -27945,7 +27945,7 @@ ${finalCode}`;
           loading: props.loading,
           isSubset: props.isSubset,
           message: props.message,
-          _emptyMessage: props.emptyMessage,
+          emptyMessage: props.emptyMessage,
           maxDisplayed,
           numDisplayed
         }
