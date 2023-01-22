@@ -23540,7 +23540,7 @@ ${finalCode}`;
     async validateSnowflakeCredentials(params) {
       const resultString = await this.send({
         "event": "api_call",
-        "type": "validate_snowflake_credentials",
+        "type": "get_validate_snowflake_credentials",
         "params": params
       }, {});
       if (resultString !== void 0 && resultString !== "") {
