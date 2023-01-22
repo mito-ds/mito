@@ -85,7 +85,10 @@ MITOSHEET_TWO_PACKAGE_JSON = """{
     "watch": "npm run watch:all",
 
     "lint:check": "eslint src/ --ext .ts,.tsx",
-    "lint": "eslint src/ --ext .ts,.tsx --fix"
+    "lint": "eslint src/ --ext .ts,.tsx --fix",
+
+    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
   },
   "keywords": [
     "jupyter",
@@ -194,7 +197,10 @@ MITOSHEET_PACKAGE_JSON = """{
     "lint": "eslint src/ --ext .ts,.tsx --fix",
 
     "prepare": "jlpm run clean && jlpm run build:all",
-    "prepack": "npm run build:all"
+    "prepack": "npm run build:all",
+
+    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
   },
   "keywords": [
     "jupyter",
