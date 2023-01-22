@@ -40588,7 +40588,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (analysisData2.dataTypeInTool === "none" /* NONE */ || analysisData2.dataTypeInTool === "tutorial" /* TUTORIAL */) {
         return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null);
       }
-      if (!userProfile2.mitoConfig.MITO_CONFIG_DISPLAY_TOURS) {
+      if (userProfile2.mitoConfig.MITO_CONFIG_DISABLE_TOURS) {
         return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null);
       }
       const toursToDisplay = [];

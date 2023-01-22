@@ -13,7 +13,7 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
     MITO_CONFIG_CODE_SNIPPETS_URL, 
     MITO_CONFIG_CODE_SNIPPETS_VERSION,
-    MITO_CONFIG_DISPLAY_TOURS, 
+    MITO_CONFIG_DISABLE_TOURS, 
     MITO_CONFIG_SUPPORT_EMAIL, 
     MITO_CONFIG_VERSION, 
     MITO_CONFIG_SUPPORT_EMAIL, 
@@ -54,7 +54,7 @@ def test_none_works():
     assert mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_SUPPORT_EMAIL,
-        MITO_CONFIG_DISPLAY_TOURS: True,
+        MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None
     }
 
@@ -72,7 +72,7 @@ def test_version_2_works():
     os.environ[MITO_CONFIG_SUPPORT_EMAIL] = "aaron@sagacollab.com"
     os.environ[MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL] = "jake@sagacollab.com"
     os.environ[MITO_CONFIG_CODE_SNIPPETS_URL] = "url"
-    os.environ[MITO_CONFIG_DISPLAY_TOURS] = "False"
+    os.environ[MITO_CONFIG_DISABLE_TOURS] = "True"
     os.environ[MITO_CONFIG_CODE_SNIPPETS_VERSION] = "1"
 
     # Test reading environment variables works properly
@@ -80,7 +80,7 @@ def test_version_2_works():
     assert mito_config.get_mito_config() == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
-        MITO_CONFIG_DISPLAY_TOURS: False,
+        MITO_CONFIG_DISABLE_TOURS: True,
         MITO_CONFIG_CODE_SNIPPETS: {
             MITO_CONFIG_CODE_SNIPPETS_VERSION : '1',
             MITO_CONFIG_CODE_SNIPPETS_URL: 'url',
@@ -101,7 +101,7 @@ def test_mito_config_update_version_1_to_2():
     assert mito_config.get_mito_config() == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
-        MITO_CONFIG_DISPLAY_TOURS: True,
+        MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None
     }    
 
