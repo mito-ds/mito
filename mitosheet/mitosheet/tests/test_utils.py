@@ -496,6 +496,27 @@ class MitoWidgetTestWrapper:
     
 
     @check_transpiled_code_after_call
+    def snowflake_import(
+            self, 
+            credentials: Any,
+            table_loc_and_warehouse: Any,
+            query_params: Any,
+        ) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'snowflake_import_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'credentials': credentials,
+                    'table_loc_and_warehouse': table_loc_and_warehouse,
+                    'query_params': query_params,
+                }
+            }
+        )
+
+        
     def excel_range_import(
             self, 
             file_path: str,

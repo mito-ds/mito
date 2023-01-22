@@ -116,7 +116,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
             setUpdatedStepImportData(prevUpdatedStepImportData => {
                 if (prevUpdatedStepImportData === undefined) {
-                    return JSON.parse(JSON.stringify(loadedData.importData));
+                    return window.structuredClone(loadedData.importData);
                 }
                 return prevUpdatedStepImportData;
             })

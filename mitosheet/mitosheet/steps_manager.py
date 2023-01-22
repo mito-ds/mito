@@ -26,6 +26,8 @@ from mitosheet.step_performers.import_steps.excel_import import \
     ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import \
     SimpleImportStepPerformer
+from mitosheet.step_performers.import_steps.snowflake_import import \
+    SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
@@ -565,6 +567,7 @@ class StepsManager:
                 or step.step_type == SimpleImportStepPerformer.step_type()
                 or step.step_type == ExcelImportStepPerformer.step_type()
                 or step.step_type == DataframeImportStepPerformer.step_type()
+                or step.step_type == SnowflakeImportStepPerformer.step_type()
             )
         ]
 

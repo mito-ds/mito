@@ -112,7 +112,7 @@ function GraphSetupTab(
         // Update the axis data
         if (graphAxis === GraphAxisType.X_AXIS) {
             props.setGraphParams(prevGraphParams => {
-                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                const graphParamsCopy = window.structuredClone(prevGraphParams) 
                 return {
                     ...graphParamsCopy,
                     graphCreation: {
@@ -123,7 +123,7 @@ function GraphSetupTab(
             })
         } else {
             props.setGraphParams(prevGraphParams => {
-                const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+                const graphParamsCopy = window.structuredClone(prevGraphParams) 
                 return {
                     ...graphParamsCopy,
                     graphCreation: {
@@ -144,7 +144,7 @@ function GraphSetupTab(
 
         // Update the graph type and reset params that are only available for some graph types
         props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy: GraphParamsFrontend = JSON.parse(JSON.stringify(prevGraphParams)); 
+            const graphParamsCopy: GraphParamsFrontend = window.structuredClone(prevGraphParams) 
             return {
                 ...graphParamsCopy,
                 graphCreation: {
@@ -171,7 +171,7 @@ function GraphSetupTab(
 
     const setColor = (newColorColumnID: ColumnID | undefined) => {
         props.setGraphParams(prevGraphParams => {
-            const graphParamsCopy = JSON.parse(JSON.stringify(prevGraphParams)); 
+            const graphParamsCopy = window.structuredClone(prevGraphParams) 
             return {
                 ...graphParamsCopy,
                 graphCreation: {
