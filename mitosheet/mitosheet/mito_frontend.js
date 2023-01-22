@@ -39796,13 +39796,6 @@ fig.write_html("${props.graphTabName}.html")`
               currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
             });
           });
-        } }),
-        /* @__PURE__ */ import_react212.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
-            });
-          });
         } })
       )
     ), /* @__PURE__ */ import_react212.default.createElement(
