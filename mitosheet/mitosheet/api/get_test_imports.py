@@ -12,6 +12,7 @@ from mitosheet.step import Step
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
+from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 
 CSV_IMPORT_ERROR = 'There was an error importing this CSV file. Make sure that the file exists, or select a different file or dataframe.'
 EXCEL_IMPORT_ERROR = 'There was an error importing this sheet. Make sure that the Excel file exists and contains this sheet, or select a different file or dataframe.'
@@ -20,7 +21,7 @@ DATAFRAME_IMPORT_ERROR = 'There was an error importing this dataframe. Make sure
 def get_import_error_for_step_type(step_type: str) -> str:
     if step_type == SimpleImportStepPerformer.step_type():
         return CSV_IMPORT_ERROR
-    if step_type == ExcelImportStepPerformer.step_type():
+    if step_type == ExcelImportStepPerformer.step_type() or ExcelRangeImportStepPerformer.step_type():
         return EXCEL_IMPORT_ERROR
     return DATAFRAME_IMPORT_ERROR
 
