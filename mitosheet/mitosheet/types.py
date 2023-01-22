@@ -13,7 +13,7 @@ continous integration
 """
 
 from collections import namedtuple
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -69,6 +69,20 @@ ConditionalFormattingResult = Dict[str, Union[
 
 PivotColumnTransformation = str
 
+# If the user does not have the snowflake.connector python package installed,
+# we take extra care to make sure that our mypy typing will still pass even though
+# that code is not accessible to the user.
+try:
+    from snowflake.connector import SnowflakeConnection 
+except ImportError:
+    # This is prety hacky and causes the mypy tests to fail if we get 
+    # rid of the #type: ignore, but I'm unable to create a type based on the 
+    # SnowflakeConnection connection otherwise because its conditional 
+    # on whether the package is installed or not.
+    SnowflakeConnection = Any #type: ignore
+
+MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
+
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
@@ -101,6 +115,34 @@ if sys.version_info[:3] > (3, 8, 0):
         Description: str
         Code: List[str]
 
+
+    class SnowflakeCredentials(TypedDict):
+        type: str
+        username: str
+        password: str 
+        account: str
+
+    class SnowflakeTableLocationAndWarehouseOptional(TypedDict):
+        warehouse: Optional[str] 
+        database: Optional[str]
+        schema: Optional[str]
+        table: Optional[str] 
+
+    class SnowflakeTableLocationAndWarehouse(TypedDict):
+        warehouse: str
+        database: str
+        schema: str
+        table: str
+
+    class SnowflakeQueryParams(TypedDict):
+        columns: List[str]
+        limit: Optional[int]
+
+    class SnowflakeImportParams(TypedDict):
+        credentials: SnowflakeCredentials
+        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse
+        query_params: SnowflakeQueryParams
+        
     class CodeSnippetEnvVars(TypedDict):
         MITO_CONFIG_CODE_SNIPPETS_VERSION: str
         MITO_CONFIG_CODE_SNIPPETS_URL: str
@@ -113,4 +155,10 @@ else:
     ColumnHeaderWithPivotTransform = Any # type:ignore
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
+    SnowflakeCredentials = Any # type:ignore
+    SnowflakeTableLocationAndWarehouse = Any # type:ignore
+    SnowflakeTableLocationAndWarehouseOptional = Any #type:ignore
+    SnowflakeQueryParams = Any # type:ignore
+    SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+

@@ -33,7 +33,8 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer,
     ExcelRangeImportStepPerformer,
-    ExportToFileStepPerformer
+    ExportToFileStepPerformer,
+    SnowflakeImportStepPerformer
 )
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
@@ -281,9 +282,15 @@ def test_params_static():
     )
 
     check_step(
+<<<<<<< HEAD
         ExportToFileStepPerformer,
         1,
         'export_to_file'
+=======
+        SnowflakeImportStepPerformer,
+        1,
+        'snowflake_import'
+>>>>>>> dev
     )
 
     assert len(STEP_PERFORMERS) == 34

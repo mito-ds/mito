@@ -1,5 +1,5 @@
 // Copyright (c) Mito
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import '../../../css/layout/CollapsibleSection.css'
 import DownArrowIcon from '../icons/DownArrowIcon';
@@ -28,6 +28,11 @@ interface CollapsibleSectionProps {
         * @param [isPro] - If the user is on pro or not
     */
     isPro?: boolean
+
+    /**
+        * @param [open] - You can optionally override the open state from the outside by passing this variable
+    */
+    open?: boolean
 }
 
 
@@ -36,8 +41,14 @@ interface CollapsibleSectionProps {
  */ 
 const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
 
-    const [open, setOpen] = useState(false); // todo allow you to pass this through
+    const [open, setOpen] = useState(props.open || false); 
     
+    useEffect(() => {
+        if (props.open !== undefined) {
+            setOpen(props.open);
+        }
+    }, [props.open])
+
     if (open) {
         return (
             <div

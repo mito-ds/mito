@@ -143,6 +143,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             searchable
                             height='medium'
                             toggleAllIndexes={(indexesToToggle) => {
+                                // TODO: this is broken. The toggle all is not working properly!
                                 props.setParams(prevParams => {
                                     const newSheetNames = [...prevParams.sheet_names];
                                     const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
