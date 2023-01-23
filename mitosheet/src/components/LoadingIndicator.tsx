@@ -118,6 +118,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.DataframeImport: {
             return 'Dataframe Import'
         }
+        case StepType.SnowflakeImport: {
+            return 'Snowflake Import'
+        }
         case StepType.ExcelRangeImport: {
             return 'Excel Range Import'
         }

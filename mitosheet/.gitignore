@@ -25,3 +25,6 @@ config.yaml
 
 # Build cache info
 tsconfig.tsbuildinfo
+
+# Ignore environment variable file
+.env

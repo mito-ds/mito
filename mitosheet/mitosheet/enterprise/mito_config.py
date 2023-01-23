@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 import os
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
@@ -16,6 +16,7 @@ MITO_CONFIG_SUPPORT_EMAIL = 'MITO_CONFIG_SUPPORT_EMAIL'
 MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL' 
 MITO_CONFIG_CODE_SNIPPETS_VERSION  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION' 
 MITO_CONFIG_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
+MITO_CONFIG_DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -39,7 +40,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         'MITO_CONFIG_SUPPORT_EMAIL': 'support@mito.com',
         'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': None,
         'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
-        'MITO_CONFIG_CODE_SNIPPETS_URL': None
+        'MITO_CONFIG_CODE_SNIPPETS_URL': None,
+        'MITO_CONFIG_DISABLE_TOURS': None
     }
     """
     return {
@@ -47,7 +49,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_SUPPORT_EMAIL: mec[MITO_CONFIG_SUPPORT_EMAIL],
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None,
         MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
-        MITO_CONFIG_CODE_SNIPPETS_URL: None
+        MITO_CONFIG_CODE_SNIPPETS_URL: None,
+        MITO_CONFIG_DISABLE_TOURS: None
     }
 
 """
@@ -76,6 +79,10 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
 
     return _mec
 
+def is_env_variable_set_to_true(env_variable: Union[str, int, bool]) -> bool: 
+    truth_values = ['True', 'true', True, 1, '1', 't', 'T']
+    return env_variable in truth_values
+
 # Since Mito needs to look up individual environment variables, we need to 
 # know the names of the variables associated with each mito config version. 
 # To do so we store them as a list here. 
@@ -86,7 +93,8 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_SUPPORT_EMAIL, 
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
         MITO_CONFIG_CODE_SNIPPETS_VERSION,
-        MITO_CONFIG_CODE_SNIPPETS_URL
+        MITO_CONFIG_CODE_SNIPPETS_URL, 
+        MITO_CONFIG_DISABLE_TOURS
     ]
 }
 
@@ -130,6 +138,13 @@ class MitoConfig:
         if self.mec is None or self.mec[MITO_CONFIG_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_SUPPORT_EMAIL]
+
+    def get_disable_tours(self) -> bool:
+        if self.mec is None or self.mec[MITO_CONFIG_DISABLE_TOURS] is None:
+            return False
+
+        disable_tours = is_env_variable_set_to_true(self.mec[MITO_CONFIG_DISABLE_TOURS])
+        return True if disable_tours else False
 
     def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_VERSION] is None:
@@ -179,6 +194,7 @@ class MitoConfig:
         return {
             MITO_CONFIG_VERSION: self.get_version(),
             MITO_CONFIG_SUPPORT_EMAIL: self.get_support_email(),
+            MITO_CONFIG_DISABLE_TOURS: self.get_disable_tours(),
             MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets()
         }
 

@@ -54,6 +54,9 @@
     "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend",
     "build": "npm run build:all",
 
+    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown",
+
     "watch:lib": "tsc -w",
     "watch:nbextension": "webpack --watch --mode=development",
     "watch:labextension": "jupyter labextension watch .",
@@ -65,7 +68,10 @@
     "lint": "eslint src/ --ext .ts,.tsx --fix",
 
     "prepare": "jlpm run clean && jlpm run build:all",
-    "prepack": "npm run build:all"
+    "prepack": "npm run build:all",
+
+    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
   },
   "keywords": [
     "jupyter",
@@ -78,7 +84,7 @@
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^16.10.2",
+    "@types/node": "^18.11.18",
     "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
