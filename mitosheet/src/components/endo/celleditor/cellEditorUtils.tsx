@@ -3,14 +3,29 @@
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
 import { ColumnID, EditorState, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
-import { getColumnHeadersInSelection, getIndexLabelsInSelection } from "../selectionUtils";
+import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
 
 
-export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
-    // For each of the selections, we bu
+export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, rowIndex: any): string => {
+    // For each of the selections, we turn them into a string that goes into the formula
     const columnHeadersAndIndexLabels: string[] = []
+
+    // If we have any selectiosn that reference the entire column header
+    const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn(selections, sheetData);
+    entireSelectedColumns.forEach((columnID) => {
+        const columnHeader = sheetData.columnIDsMap[columnID];
+        const formulaIndexLabel = sheetData.index[rowIndex];
+        columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+    })
+
+
     selections.forEach(selection => {
+        // Skip these as we handle them above
+        if (isSelectionEntireSelectedColumn(selection)) {
+            return;
+        }
+
         // We need to get the column 
         const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
         const indexLabels = getIndexLabelsInSelection(selection, sheetData);
@@ -38,14 +53,15 @@ export const getFullFormula = (
         inputSelectionStart: number,
         inputSelectionEnd: number,
     } | undefined,
-    sheetData: SheetData
+    sheetData: SheetData,
+    rowIndex: number
 ): string => {
 
     if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);

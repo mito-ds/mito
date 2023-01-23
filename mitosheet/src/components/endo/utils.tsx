@@ -98,6 +98,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnFormat: ColumnFormatType | undefined,
     headerBackgroundColor: string | undefined,
     headerTextColor: string | undefined,
+    indexLabel: any | undefined,
 } => {
     
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
@@ -109,6 +110,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
     const headerBackgroundColor = columnID !== undefined ? sheetData?.dfFormat.headers.backgroundColor : undefined;
     const headerTextColor = columnID !== undefined ? sheetData?.dfFormat.headers.color : undefined;
+    const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
 
     return {
         columnID: columnID,
@@ -120,6 +122,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnFormat: columnFormat,
         headerBackgroundColor: headerBackgroundColor, 
         headerTextColor: headerTextColor,
+        indexLabel: indexLabel
     }
 }
 

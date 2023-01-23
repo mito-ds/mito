@@ -52,7 +52,7 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
 
-    const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
     const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
@@ -88,7 +88,7 @@ const CellEditor = (props: {
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
                 // TODO: use the correct funciton, rather than JSON.stringify
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
@@ -115,7 +115,7 @@ const CellEditor = (props: {
         return <></>;
     }
 
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
     const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
 
     const documentationFunction = getDocumentationFunction(fullFormula);
@@ -178,12 +178,20 @@ const CellEditor = (props: {
         let fullFormula = getFullFormula(
             props.editorState.formula, 
             props.editorState.pendingSelections, 
-            props.sheetData
+            props.sheetData,
+            props.editorState.rowIndex
         );
 
-        // Strip the prefix, and append the suggestion
+        // Strip the prefix, and append the suggestion, and the current index label as well
         fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         fullFormula += suggestion;
+        if (indexLabel !== undefined && indexLabel != null) {
+            // if we are in the formula box, then the index label might be null. So we don't want it then
+            fullFormula += indexLabel;
+        } else if (props.sheetData.index[0] !== undefined){
+            // In this case, we just treat it as if you are writing a formula in the first row
+            fullFormula += props.sheetData.index[0];
+        }
 
         // Update the cell editor state
         props.setEditorState({
@@ -356,7 +364,8 @@ const CellEditor = (props: {
             const fullFormula = getFullFormula(
                 props.editorState.formula, 
                 props.editorState.pendingSelections,
-                props.sheetData
+                props.sheetData,
+                props.editorState.rowIndex
             );
                 
             props.setEditorState({
@@ -387,7 +396,7 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)
         const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
@@ -457,7 +466,7 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: true
                         })
                     }}
-                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)}
+                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
 

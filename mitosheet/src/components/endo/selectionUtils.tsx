@@ -711,6 +711,10 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
     return newSelections
 }
 
+export const isSelectionEntireSelectedColumn = (selection: MitoSelection): boolean => {
+    return (selection.startingRowIndex === -1 && selection.endingRowIndex === -1);
+}
+
 export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
     if (sheetData === undefined) {
         return []
@@ -718,7 +722,7 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
 
     let columnIndexes: number[] = []
     selections.forEach(selection => {
-        if (selection.startingRowIndex === -1 && selection.endingRowIndex === -1) {
+        if (isSelectionEntireSelectedColumn(selection)) {
             columnIndexes = columnIndexes.concat(getColumnIndexesInSingleSelection(selection))
         }
     })

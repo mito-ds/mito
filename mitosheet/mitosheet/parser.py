@@ -24,6 +24,9 @@ from mitosheet.types import (ColumnHeader, ParserMatch, ParserMatchRange,
                              RowOffset)
 
 
+COLUMN_HEADER_MATCH_TYPE = 'column header match type'
+INDEX_LABEL_MATCH_TYPE = 'index label match type'
+
 def is_quote(char: str) -> bool:
     """
     A helper to detect if a character is a quote
@@ -152,9 +155,6 @@ def safe_count_function(formula: str, substring: str) -> int:
     
     return count
 
-COLUMN_HEADER_MATCH_TYPE = 'column header'
-INDEX_LABEL_MATCH_TYPE = 'index_label'
-
 
 def safe_replace(
         formula: str, 
@@ -239,9 +239,10 @@ def check_common_errors(
             error_modal=False
         )
 
-def is_column_header_without_index(formula: str, index: pd.Index, start: int, end: int) -> bool:
-    # First, we check if it's an unqualified column header with no index. This is just 
-    # if the characters after the header are 
+def is_no_index_after_column_header_match(formula: str, index: pd.Index, start: int, end: int) -> bool:
+    # First, we check if it's an unqualified column header with no index. NOTE: this function
+    # should only be called on a range where we already have a match on a column header,
+    # and we're just checking that there's no index
     word_continues_before = (start - 1 >= 0 and formula[start - 1].isalnum())
     word_continues_after = end < len(formula) and formula[end].isalnum() 
     function_call = end < len(formula) and formula[end] == '('
@@ -263,6 +264,7 @@ def get_row_offset(index: pd.Index, formula_label: Union[str, bool, int, float, 
     parsed_label_index = index.get_indexer([parsed_label])[0]
     parsed_formula_label_index = index.get_indexer([formula_label])[0]
 
+    # NOTE: edge case if -1 is a valid index, but not much to do
     if parsed_label_index != -1:
         row_offset: RowOffset = parsed_formula_label_index - parsed_label_index
         return row_offset
@@ -356,7 +358,6 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
         # with index labels that are prefixes of each other
         for index_label_ends in reversed(range(index_label_start, len(formula) + 1)):
             potential_index_unparsed = formula[index_label_start:index_label_ends]
-            print("CHECKING", index_label_start, index_label_ends, potential_index_unparsed)
             row_offset = get_row_offset(index, formula_label, potential_index_unparsed)
             if row_offset is not None:
                 return {
@@ -423,9 +424,8 @@ def get_column_header_and_index_matches(
             if match_covered_by_matches([match['match_range'] for match in parser_matches], match_range):
                 return found_column_header
 
-            # First, we check if it's an unqualified column header with no index. This is just 
-            # if the characters after the header are 
-            if is_column_header_without_index(formula, index, start, end):
+            # First, we check if it's an unqualified column header with no index
+            if is_no_index_after_column_header_match(formula, index, start, end):
                 parser_matches.append({
                     'type': COLUMN_HEADER_MATCH_TYPE,
                     'match_range': match_range,
@@ -513,7 +513,7 @@ def replace_column_headers_and_indexes(
             else:
                 replace_string = f'{df_name}[{column_header}]'
 
-            # If there is a row offset, then we use this to put the column header in an offset function
+            # If there is a row offset, then we use a .shift function on the column header
             row_offset = match['row_offset'] # type: ignore
             if row_offset != 0:
                 dtype = str(df[column_header].dtype)

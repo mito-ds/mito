@@ -49,7 +49,7 @@ const FormulaBar = (props: {
         }
     } else {
         // If we're editing, display the formula
-        formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+        formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
     }
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);

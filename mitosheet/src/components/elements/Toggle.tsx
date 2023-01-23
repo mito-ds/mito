@@ -64,7 +64,7 @@ const Toggle = (props: ToggleProps): JSX.Element => {
                     }
                     props.onChange()
                 }} 
-                // eslint-disable-next-line no-empty-function
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 onChange={() => {}} // We define this just to avoid warnings from React. We use the onClick instead
             />
             <div className={classNames("toggle", { 'toggle-disabled': disabled })}></div>

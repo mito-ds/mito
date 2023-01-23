@@ -24825,6 +24825,7 @@ ${finalCode}`;
     const columnFormat = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.columns[columnID] : void 0;
     const headerBackgroundColor = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.headers.backgroundColor : void 0;
     const headerTextColor = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.headers.color : void 0;
+    const indexLabel = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.index[rowIndex] : void 0;
     return {
       columnID,
       columnHeader,
@@ -24834,7 +24835,8 @@ ${finalCode}`;
       cellValue,
       columnFormat,
       headerBackgroundColor,
-      headerTextColor
+      headerTextColor,
+      indexLabel
     };
   };
   var getColumnIDsArrayFromSheetDataArray = (sheetDataArray2) => {
@@ -24872,9 +24874,18 @@ ${finalCode}`;
   };
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
-  var getSelectionFormulaString = (selections, sheetData) => {
+  var getSelectionFormulaString = (selections, sheetData, rowIndex) => {
     const columnHeadersAndIndexLabels = [];
+    const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn(selections, sheetData);
+    entireSelectedColumns.forEach((columnID) => {
+      const columnHeader = sheetData.columnIDsMap[columnID];
+      const formulaIndexLabel = sheetData.index[rowIndex];
+      columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+    });
     selections.forEach((selection) => {
+      if (isSelectionEntireSelectedColumn(selection)) {
+        return;
+      }
       const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
       const indexLabels = getIndexLabelsInSelection(selection, sheetData);
       columnHeaders.forEach((columnHeader) => {
@@ -24885,11 +24896,11 @@ ${finalCode}`;
     });
     return columnHeadersAndIndexLabels.join(", ");
   };
-  var getFullFormula = (formula, pendingSelections, sheetData) => {
+  var getFullFormula = (formula, pendingSelections, sheetData, rowIndex) => {
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
       return formula;
     }
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
     return beforeSelection + selectionFormulaString + afterSelection;
@@ -25314,7 +25325,7 @@ ${finalCode}`;
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react39.useState)(-1);
     const [loading, setLoading] = (0, import_react39.useState)(false);
     const [cellEditorError, setCellEditorError] = (0, import_react39.useState)(void 0);
-    const { columnID, columnHeader } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const setRef = (0, import_react39.useCallback)((unsavedInputAnchor) => {
       if (unsavedInputAnchor !== null) {
         cellEditorInputRef.current = unsavedInputAnchor;
@@ -25329,7 +25340,7 @@ ${finalCode}`;
         var _a2, _b;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
-          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
+          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
           (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
             index,
             index
@@ -25351,7 +25362,7 @@ ${finalCode}`;
     if (columnID === void 0 || columnHeader === void 0) {
       return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
     }
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
     const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
     const documentationFunction = getDocumentationFunction(fullFormula);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
@@ -25396,10 +25407,16 @@ ${finalCode}`;
       let fullFormula2 = getFullFormula(
         props.editorState.formula,
         props.editorState.pendingSelections,
-        props.sheetData
+        props.sheetData,
+        props.editorState.rowIndex
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
+      if (indexLabel !== void 0 && indexLabel != null) {
+        fullFormula2 += indexLabel;
+      } else if (props.sheetData.index[0] !== void 0) {
+        fullFormula2 += props.sheetData.index[0];
+      }
       props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
         formula: fullFormula2,
         pendingSelections: void 0,
@@ -25500,7 +25517,8 @@ ${finalCode}`;
         const fullFormula2 = getFullFormula(
           props.editorState.formula,
           props.editorState.pendingSelections,
-          props.sheetData
+          props.sheetData,
+          props.editorState.rowIndex
         );
         props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
           formula: fullFormula2,
@@ -25517,7 +25535,7 @@ ${finalCode}`;
       }
       const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
       const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
       const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
       setLoading(true);
       let errorMessage = void 0;
@@ -25570,7 +25588,7 @@ ${finalCode}`;
               arrowKeysScrollInFormula: true
             }));
           },
-          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
+          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex),
           onKeyDown,
           onChange: (e) => {
             const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
@@ -25670,7 +25688,7 @@ ${finalCode}`;
         formulaBarValue = originalFormulaBarValue;
       }
     } else {
-      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
     }
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     return /* @__PURE__ */ import_react40.default.createElement(
@@ -27291,13 +27309,16 @@ ${finalCode}`;
     }
     return newSelections;
   };
+  var isSelectionEntireSelectedColumn = (selection) => {
+    return selection.startingRowIndex === -1 && selection.endingRowIndex === -1;
+  };
   var getSelectedColumnIDsWithEntireSelectedColumn = (selections, sheetData) => {
     if (sheetData === void 0) {
       return [];
     }
     let columnIndexes = [];
     selections.forEach((selection) => {
-      if (selection.startingRowIndex === -1 && selection.endingRowIndex === -1) {
+      if (isSelectionEntireSelectedColumn(selection)) {
         columnIndexes = columnIndexes.concat(getColumnIndexesInSingleSelection(selection));
       }
     });
