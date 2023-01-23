@@ -33,6 +33,7 @@ from mitosheet.step_performers import (
     GraphStepPerformer,
     ConcatStepPerformer,
     ExcelRangeImportStepPerformer,
+    ResetIndexStepPerformer,
     SnowflakeImportStepPerformer
 )
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
@@ -275,6 +276,12 @@ def test_params_static():
     )
 
     check_step(
+        ResetIndexStepPerformer,
+        1,
+        'reset_index'
+    )
+
+    check_step(
         ExcelRangeImportStepPerformer,
         1,
         'excel_range_import'
@@ -286,4 +293,4 @@ def test_params_static():
         'snowflake_import'
     )
 
-    assert len(STEP_PERFORMERS) == 34
+    assert len(STEP_PERFORMERS) == 35
