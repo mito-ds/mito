@@ -1322,6 +1322,28 @@ export const createActions = (
             searchTerms: ['export', 'download', 'file'],
             tooltip: "Generate code that exports dataframes to files."
         },
+        [ActionEnum.RESET_AND_KEEP_INDEX]: {
+            type: ActionEnum.RESET_AND_KEEP_INDEX,
+            shortTitle: 'Reset and Keep Index',
+            longTitle: 'Reset and Keep Index',
+            actionFunction: () => {
+                void mitoAPI.editResetIndex(sheetIndex, false);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before resetting an index.'},
+            searchTerms: ['reset', 'index'],
+            tooltip: "Resets a dataframe's index to 0,1,2,3... Keeps the current index as a column in the dataframe."
+        },
+        [ActionEnum.RESET_AND_DROP_INDEX]: {
+            type: ActionEnum.RESET_AND_DROP_INDEX,
+            shortTitle: 'Reset and Drop Index',
+            longTitle: 'Reset and Drop Index',
+            actionFunction: () => {
+                void mitoAPI.editResetIndex(sheetIndex, true);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before resetting an index.'},
+            searchTerms: ['reset', 'index'],
+            tooltip: "Resets a dataframe's index to 0,1,2,3... Removes current index entirely."
+        },
         // [ActionEnum.SNOWFLAKEIMPORT]: {
         //     type: ActionEnum.SNOWFLAKEIMPORT,
         //     shortTitle: 'Snowflake Import',

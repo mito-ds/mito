@@ -127,6 +127,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.ExportToFile: {
             return 'Generating Export Code'
         }
+        case StepType.ResetIndex: {
+            return 'Resetting Index'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }
