@@ -16,6 +16,7 @@ from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
@@ -41,11 +42,8 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        # TODO: We don't want to send these credentials because then they get saved to the analysis!!
-        # Instead, we can save them in the api call and read them in here. That is a weird flow because it 
-        # means the step has dependencies on the api call and the order of operations in a way we've never had before. 
-        # When the user reruns the analysis, if there is a snowflake_import, we need to have them reautnethicate first (?)
-        credentials: SnowflakeCredentials = get_param(params, 'credentials') 
+
+        credentials = get_cached_snowflake_credentials()
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 

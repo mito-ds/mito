@@ -23523,12 +23523,11 @@ ${finalCode}`;
       }
       return void 0;
     }
-    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials, table_loc_and_warehouse) {
+    async getAvailableSnowflakeOptionsAndDefaults(table_loc_and_warehouse) {
       const resultString = await this.send({
         "event": "api_call",
         "type": "get_available_snowflake_options_and_defaults",
         "params": {
-          "credentials": snowflakeCredentials,
           "table_loc_and_warehouse": table_loc_and_warehouse
         }
       }, {});
@@ -30811,6 +30810,25 @@ ${finalCode}`;
         },
         searchTerms: ["reset", "index"],
         tooltip: "Resets a dataframe's index to 0,1,2,3... Removes current index entirely."
+      },
+      ["SnowflakeImport" /* SNOWFLAKEIMPORT */]: {
+        type: "SnowflakeImport" /* SNOWFLAKEIMPORT */,
+        shortTitle: "Snowflake Import",
+        longTitle: "Snowflake Import",
+        actionFunction: () => {
+          setEditorState(void 0);
+          setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ },
+              selectedTabType: "data"
+            });
+          });
+        },
+        isDisabled: () => {
+          return void 0;
+        },
+        searchTerms: ["SQL", "database", "snowflake", "import"],
+        tooltip: "Import dataframe from a Snowflake data warehouse"
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
@@ -38169,9 +38187,11 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane.tsx
   var import_react163 = __toESM(require_react());
+  var getDefaultCredentials = () => {
+    return { type: "username/password", username: "", password: "", account: "" };
+  };
   var getDefaultParams7 = () => {
     return {
-      credentials: { type: "username/password", username: "", password: "", account: "" },
       table_loc_and_warehouse: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
       query_params: { columns: [], limit: void 0 }
     };
@@ -38201,6 +38221,7 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
+    const [credentials, setCredentials] = (0, import_react163.useState)(() => getDefaultCredentials());
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react163.useState)(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react163.useState)(void 0);
     const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
@@ -38211,7 +38232,7 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react163.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const loadAndSetOptionsAndDefaults = async (newParams) => {
-      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.credentials, newParams.table_loc_and_warehouse);
+      const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
       setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
       if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
         setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
@@ -38222,7 +38243,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
     };
     const validateSnowflakeCredentials = async () => {
-      const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
+      const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
       if ((validityCheckResult == null ? void 0 : validityCheckResult.type) === "success") {
         setCredentialsSectionIsOpen(false);
       }
@@ -38236,41 +38257,41 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react163.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react163.default.createElement(CollapsibleSection_default, { title: "Connection", open: credentialsSectionIsOpen }, /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, "Username"), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
       Input_default,
       {
-        value: params.credentials.username,
+        value: credentials.username,
         onChange: (e) => {
           const newUsername = e.target.value;
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { credentials: { username: newUsername } });
+          setCredentials((prevCredentials) => {
+            return updateObjectWithPartialObject(prevCredentials, { username: newUsername });
           });
         }
       }
     ))), /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, "Password"), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
       Input_default,
       {
-        value: params.credentials.password,
+        value: credentials.password,
         type: "password",
         onChange: (e) => {
           const newPassword = e.target.value;
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { credentials: { password: newPassword } });
+          setCredentials((prevCredentials) => {
+            return updateObjectWithPartialObject(prevCredentials, { password: newPassword });
           });
         }
       }
     ))), /* @__PURE__ */ import_react163.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react163.default.createElement(Col_default, null, "Account"), /* @__PURE__ */ import_react163.default.createElement(Col_default, null, /* @__PURE__ */ import_react163.default.createElement(
       Input_default,
       {
-        value: params.credentials.account,
+        value: credentials.account,
         onChange: (e) => {
           const newAccount = e.target.value;
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { credentials: { account: newAccount } });
+          setCredentials((prevCredentials) => {
+            return updateObjectWithPartialObject(prevCredentials, { account: newAccount });
           });
         }
       }
     ))), /* @__PURE__ */ import_react163.default.createElement(
       TextButton_default,
       {
-        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0,
+        disabled: credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0,
         disabledTooltip: "Please fill out the username, password, and account fields below.",
         onClick: async () => {
           await validateSnowflakeCredentials();
@@ -38368,7 +38389,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react163.default.createElement(
       TextButton_default,
       {
-        disabled: params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0 || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
+        disabled: credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0 || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
         disabledTooltip: "Fields missing from the query. TODO: Cleanup",
         onClick: () => edit(),
         variant: "dark"

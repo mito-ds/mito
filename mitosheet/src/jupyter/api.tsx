@@ -693,13 +693,12 @@ export default class MitoAPI {
     }
 
     
-    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials: SnowflakeCredentials, table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse): Promise<AvailableSnowflakeOptionsAndDefaults | undefined> {
+    async getAvailableSnowflakeOptionsAndDefaults(table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse): Promise<AvailableSnowflakeOptionsAndDefaults | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_available_snowflake_options_and_defaults',
             'params': {
-                'credentials': snowflakeCredentials,
                 'table_loc_and_warehouse': table_loc_and_warehouse
             }
         }, {})

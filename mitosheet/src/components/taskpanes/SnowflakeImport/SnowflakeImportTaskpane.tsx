@@ -56,14 +56,16 @@ export type SnowflakeConfigOptions = {
 }
 
 export interface SnowflakeImportParams {
-    credentials: SnowflakeCredentials,
     table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse,
     query_params: SnowflakeQueryParams,
 }
 
+const getDefaultCredentials = (): SnowflakeCredentials => {
+    return {type: 'username/password', username: '', password: '', account: ''}
+}
+
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
     return {
-        credentials: {type: 'username/password', username: '', password: '', account: ''},
         table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
         query_params: {columns: [], limit: undefined},
     }
@@ -116,6 +118,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
     
+    const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => getDefaultCredentials())
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
 
@@ -131,7 +134,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     }
 
     const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
-        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.credentials, newParams.table_loc_and_warehouse);
+        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
         if (availableSnowflakeOptionsAndDefaults?.type === 'success') {
@@ -146,7 +149,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
 
     // TODO: Wrap this in a function to handle a loading indicator and actually waiting for results properly
     const validateSnowflakeCredentials = async () => {
-        const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(params.credentials);
+        const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
         if (validityCheckResult?.type === 'success') {
             // If the user connects successful, we close the connection window
             setCredentialsSectionIsOpen(false);
@@ -167,12 +170,12 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.credentials.username} 
+                                value={credentials.username} 
                                 onChange={(e) => {
                                     const newUsername = e.target.value;
-                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {credentials: {username: newUsername}});
-                                    })
+                                    setCredentials((prevCredentials) => {
+                                        return updateObjectWithPartialObject(prevCredentials, {username: newUsername});
+                                    }) 
                                 }}/>
                         </Col>
                     </Row>
@@ -182,13 +185,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.credentials.password} 
+                                value={credentials.password} 
                                 type='password'
                                 onChange={(e) => {
                                     const newPassword = e.target.value;
-                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {credentials: {password: newPassword}});
-                                    })
+                                    setCredentials((prevCredentials) => {
+                                        return updateObjectWithPartialObject(prevCredentials, {password: newPassword});
+                                    }) 
+
                                 }}/>
                         </Col>
                     </Row>
@@ -198,18 +202,18 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Col>
                         <Col>
                             <Input 
-                                value={params.credentials.account} 
+                                value={credentials.account} 
                                 onChange={(e) => {
                                     const newAccount = e.target.value;
-                                    setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-                                        return updateObjectWithPartialObject(prevParams, {credentials: {account: newAccount}});
-                                    })
+                                    setCredentials((prevCredentials) => {
+                                        return updateObjectWithPartialObject(prevCredentials, {account: newAccount});
+                                    }) 
                                 }}/>
                         </Col>
                     </Row>
                     {/* TODO: Make pressing enter if they have not yet connected submit this button? */}
                     <TextButton
-                        disabled={params.credentials.username.length === 0 || params.credentials.password.length === 0 || params.credentials.account.length === 0}
+                        disabled={credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0}
                         disabledTooltip='Please fill out the username, password, and account fields below.'
                         onClick={async () => {
                             await validateSnowflakeCredentials();
@@ -353,9 +357,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </MultiToggleBox>
                         <TextButton
                             disabled={
-                                params.credentials.username.length === 0 || 
-                                params.credentials.password.length === 0 || 
-                                params.credentials.account.length === 0 || 
+                                credentials.username.length === 0 || 
+                                credentials.password.length === 0 || 
+                                credentials.account.length === 0 || 
                                 params.table_loc_and_warehouse.warehouse === undefined || 
                                 params.table_loc_and_warehouse.database === undefined || 
                                 params.table_loc_and_warehouse.schema === undefined ||
