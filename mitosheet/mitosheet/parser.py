@@ -516,7 +516,12 @@ def replace_column_headers_and_indexes(
             # If there is a row offset, then we use this to put the column header in an offset function
             row_offset = match['row_offset'] # type: ignore
             if row_offset != 0:
-                replace_string = f'{replace_string}.shift({row_offset}, fill_value=0)'
+                dtype = str(df[column_header].dtype)
+                print("IS TYPE", dtype, df)
+                if is_number_dtype(dtype):
+                    replace_string = f'{replace_string}.shift({row_offset}, fill_value=0)'
+                else:
+                    replace_string = f'{replace_string}.shift({row_offset})'
 
             formula = formula[:start] + replace_string + formula[end:]
         elif match_type == INDEX_LABEL_MATCH_TYPE:
