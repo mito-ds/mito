@@ -102,7 +102,15 @@ class SetCellValueStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
 
         return [
-            SetCellValueCodeChunk(prev_state, post_state, params, execution_data)
+            SetCellValueCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(params, 'column_id'), 
+                get_param(params, 'row_index'), 
+                get_param(params, 'old_value'), 
+                get_param(params, 'new_value'), 
+                execution_data['type_corrected_new_value'] if (execution_data is not None and 'type_corrected_new_value' in execution_data) else None)
         ]
 
 

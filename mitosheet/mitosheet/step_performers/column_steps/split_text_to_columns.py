@@ -92,8 +92,10 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
             SplitTextToColumnsCodeChunk(
                 prev_state, 
                 post_state, 
-                params,
-                execution_data
+                get_param(params, 'sheet_index'),
+                get_param(params, 'column_id'),
+                get_param(params, 'delimiters'),
+                execution_data.get('new_column_headers', []) if execution_data is not None else []
             )
         ]
 

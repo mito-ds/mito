@@ -3,30 +3,31 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import List
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.state import State
 
 
 class DataframeRenameCodeChunk(CodeChunk):
+
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
+        super().__init__(prev_state, post_state)
+        self.sheet_index = sheet_index
+        self.old_dataframe_name = old_dataframe_name
+        self.new_dataframe_name = new_dataframe_name
 
     def get_display_name(self) -> str:
         return 'Renamed Dataframe'
     
     def get_description_comment(self) -> str:
-        old_dataframe_name = self.get_param('old_dataframe_name')
-        new_dataframe_name = self.get_param('new_dataframe_name')
-        return f'Renamed {old_dataframe_name} to {new_dataframe_name}'
+        return f'Renamed {self.old_dataframe_name} to {self.new_dataframe_name}'
 
-    def get_code(self) -> List[str]:
-        sheet_index = self.get_param('sheet_index')
-        old_dataframe_name = self.get_param('old_dataframe_name')
-        new_dataframe_name = self.get_param('new_dataframe_name')
+    def get_code(self) -> Tuple[List[str], List[str]]:
+        if self.old_dataframe_name == self.new_dataframe_name:
+            return [], []
 
-        if old_dataframe_name == new_dataframe_name:
-            return []
-
-        return [f'{self.post_state.df_names[sheet_index]} = {old_dataframe_name}']
+        return [f'{self.post_state.df_names[self.sheet_index]} = {self.old_dataframe_name}'], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
-        return [self.get_param('sheet_index')]
+        return [self.sheet_index]

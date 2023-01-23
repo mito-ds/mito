@@ -229,3 +229,19 @@ def test_transpile_merge_then_sort():
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
     ]
+
+def test_transpile_multiple_pandas_imports_combined(tmp_path):
+    tmp_file = str(tmp_path / 'txt.csv')
+    df1 = pd.DataFrame(data={'Name': ["Aaron", "Nate"], 'Number': [123, 1]})
+    df1.to_csv(tmp_file, index=False)
+    mito = create_mito_wrapper_dfs(df1)
+    mito.simple_import([tmp_file])
+    mito.add_column(0, 'A', -1)
+    mito.simple_import([tmp_file])
+    mito.add_column(1, 'A', -1)
+    mito.simple_import([tmp_file])
+
+    assert len(mito.optimized_code_chunks) == 5
+    assert 'import pandas as pd' in mito.transpiled_code
+    assert len([c for c in mito.transpiled_code if c == 'import pandas as pd']) == 1
+

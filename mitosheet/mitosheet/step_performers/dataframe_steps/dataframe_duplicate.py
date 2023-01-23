@@ -68,7 +68,11 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DataframeDuplicateCodeChunk(prev_state, post_state, params, execution_data)
+            DataframeDuplicateCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index')
+            )
         ]
     
     @classmethod

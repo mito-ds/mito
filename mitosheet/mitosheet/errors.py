@@ -494,7 +494,7 @@ def make_invalid_promote_row_to_header(error_modal: bool=True) -> MitoError:
 
 def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
     """
-    Helper function for creating a invalid_simple_import_error.
+    Helper function for creating an invalid_simple_import_error.
 
     Occurs when a user tries to simple import and it fails
     """
@@ -505,6 +505,19 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
         "Cannot Determine File Data",
         to_fix,
         error_modal=error_modal
+    )
+
+def make_invalid_snowflake_import_error() -> MitoError:
+    """
+    Helper function for creating an invalid_snowflake_import_error.
+
+    Occures when the user tries to simple import and it fails.
+    """
+    return MitoError(
+        'invalid_snowflake_import_error',
+        'Cannot Query Database',
+        'We were unable to execute that query. Reach out to support for help.',
+        False
     )
 
 def make_file_not_found_error(file_name: str) -> MitoError:
@@ -564,6 +577,33 @@ def make_operator_type_error(operator: str, arg_one_type: str, arg_two_type: str
         'operator_type_error',
         f'Error with {operator}',
         to_fix
+    )
+
+
+def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
+    """
+    Helper function for creating a invalid_range_error.
+
+    Occurs when the user does not 
+    """
+    return MitoError(
+        'invalid_range_error',
+        'Invalid Range',
+        f'Range {range} is not in the format A1:B3. Please update to COLUMNROW:COLUMNROW.',
+        error_modal=error_modal
+    )
+
+def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
+    """
+    Helper function for creating a upper_left_corner_value_not_found_error.
+
+    Occurs when the user does not give a value that is found in the sheet.
+    """
+    return MitoError(
+        'upper_left_corner_value_not_found_error',
+        'Value Not Found',
+        f'Value {value} was not found in the specified sheet. Please ensure the passed value is in this sheet.',
+        error_modal=error_modal
     )
 
 def get_recent_traceback() -> str:

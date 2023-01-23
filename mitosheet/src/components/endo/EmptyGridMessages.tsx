@@ -49,6 +49,7 @@ const EmptyGridMessages = (props: {
                             }}
                             disabled={
                                 props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT_FILES ||
+                                props.uiState.currOpenTaskpane.type === TaskpaneType.EXCEL_RANGE_IMPORT ||
                                 (props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined) ||
                                 props.commCreationStatus !== 'finished'
                             }
@@ -57,7 +58,7 @@ const EmptyGridMessages = (props: {
                         </TextButton>
                     </div>
                     <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
-                        Or import dataframes using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
+                        Or import dfs using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                     </p>
                 </GridDataEmptyContainer>
             }

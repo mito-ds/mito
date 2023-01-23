@@ -38,11 +38,18 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
                 <span className='text-color-medium-gray-important'>Imported </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0])}
             </div>
         )
-    } else {
+    } else if (dataframeCreationData.step_type === 'dataframe_import') {
         return (
             <div>
                 <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.df_names[0])}
             </div>
+        )
+    } else {
+        return (
+            <div>
+                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_path)}
+            </div>
+
         )
     }
 }
@@ -73,10 +80,16 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
                 <span className='text-color-medium-gray-important'>Update to </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0])}
             </div>
         )
-    } else {
+    } else if (updatedDataframeCreationData.step_type === 'dataframe_import') {
         return (
             <div className='mt-3px'>
                 <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0])}
+            </div>
+        )
+    } else {
+        return (
+            <div className='mt-3px'>
+                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path)}
             </div>
         )
     }

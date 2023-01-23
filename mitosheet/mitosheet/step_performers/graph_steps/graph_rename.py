@@ -67,11 +67,8 @@ class GraphRenameStepPerformer(StepPerformer):
             EmptyCodeChunk(
                 prev_state, 
                 post_state, 
-                {
-                    'display_name': 'Renamed graph',
-                    'description_comment': 'Renamed a graph',
-                }, 
-                execution_data
+                'Renamed graph',
+                'Renamed a graph',
             )
         ]
     

@@ -28,7 +28,7 @@ export function useStateFromAPIAsync<ResultType, ParamType>(
                 if (onLoad !== undefined) {
                     // We make a copy before sending the loaded data to the callback
                     // so that we don't accidently manipulate the data
-                    const loadedDataCopy = JSON.parse(JSON.stringify(loadedData));
+                    const loadedDataCopy = window.structuredClone(loadedData);
                     onLoad(loadedDataCopy);
                 }
             }

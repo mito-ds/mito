@@ -36,8 +36,12 @@ class ExcelImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_name: str = get_param(params, 'file_name')
+        sheet_names: List[str] = get_param(params, 'sheet_names')
+        has_headers: bool = get_param(params, 'has_headers')
+        skiprows: int = get_param(params, 'skiprows')
+        decimal: str = get_param(params, 'decimal')
 
-        read_excel_params = build_read_excel_params(params)
+        read_excel_params = build_read_excel_params(sheet_names, has_headers, skiprows, decimal)
 
         post_state = prev_state.copy()
         
@@ -68,7 +72,15 @@ class ExcelImportStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            ExcelImportCodeChunk(prev_state, post_state, params, execution_data)
+            ExcelImportCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'file_name'),
+                get_param(params, 'sheet_names'),
+                get_param(params, 'has_headers'),
+                get_param(params, 'skiprows'),
+                get_param(params, 'decimal')
+            )
         ]
 
     @classmethod

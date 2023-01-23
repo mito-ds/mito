@@ -75,7 +75,13 @@ class DropDuplicatesStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            DropDuplicatesCodeChunk(prev_state, post_state, params, execution_data)
+            DropDuplicatesCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'),
+                get_param(params, 'column_ids'),
+                get_param(params, 'keep')
+            )   
         ]
 
     @classmethod

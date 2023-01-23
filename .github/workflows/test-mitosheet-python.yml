@@ -6,7 +6,6 @@ on:
     paths:
       - 'mitosheet/**'
   pull_request:
-    branches: [ dev ]
     paths:
       - 'mitosheet/**'
 
@@ -17,6 +16,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         pandas-version: ['0.24.2', '1.1.5', '1.3.5']
+        optional_feature_dependencies: [False, True] 
         exclude:
           - python-version: 3.6
             pandas-version: '1.3.5'
@@ -41,6 +41,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install "pandas==${{ matrix.pandas-version }}"
         pip install -e ".[test, deploy]"
+    - name: Install optional feature dependencies
+      if: ${{ matrix.optional_feature_installs }}
+      run: |
+        cd mitosheet
+        pip install -e ".[optional_feature_dependencies]"
     - name: Lint with flake8
       run: |
         cd mitosheet
@@ -52,3 +57,7 @@ jobs:
       run: |
         cd mitosheet
         pytest
+      env:
+        PYTEST_SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
+        PYTEST_SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
+        PYTEST_SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}

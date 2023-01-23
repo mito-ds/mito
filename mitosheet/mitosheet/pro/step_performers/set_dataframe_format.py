@@ -1,5 +1,5 @@
-
 #!/usr/bin/env python
+
 # coding: utf-8
 
 # Copyright (c) Saga Inc.
@@ -60,11 +60,8 @@ class SetDataframeFormatStepPerformer(StepPerformer):
             EmptyCodeChunk(
                 prev_state, 
                 post_state, 
-                {
-                    'display_name': 'Set dataframe format',
-                    'description_comment': 'Set a dataframe format',
-                },
-                execution_data
+                'Set dataframe format',
+                'Set a dataframe format'
             )
         ]
 

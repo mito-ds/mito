@@ -33,10 +33,10 @@ export function getCodeString(
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
         return `from mitosheet import *; register_analysis("${analysisName}");
-    ${finalCode}`
+${finalCode}`
     } else {
         return `from mitosheet import *; # Analysis Name:${analysisName};
-    ${finalCode}`
+${finalCode}`
     }
 }
 

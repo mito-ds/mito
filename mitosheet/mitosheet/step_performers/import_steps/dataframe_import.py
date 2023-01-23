@@ -98,17 +98,12 @@ class DataframeImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        # We don't need a code chunk here, as this isn't creating anything new. It's just putting this
-        # dataframe inside the mitosheet state
         return [
             DataframeImportCodeChunk(
                 prev_state, 
                 post_state, 
-                {
-                    'display_name': 'Imported Dataframes',
-                    'description_comment': 'Imported dataframes into the mitosheet',
-                },
-                execution_data
+                'Imported Dataframes',
+                'Imported dataframes into the mitosheet'
             )
         ]
 

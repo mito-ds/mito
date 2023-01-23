@@ -26,6 +26,8 @@ from mitosheet.step_performers.import_steps.excel_import import \
     ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.simple_import import \
     SimpleImportStepPerformer
+from mitosheet.step_performers.import_steps.snowflake_import import \
+    SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
@@ -246,6 +248,8 @@ class StepsManager:
         # We store the number of update events that have been processed successfully,
         # which allows us to have some awareness about undos and redos in the front-end
         self.update_event_count = 0
+        self.redo_count = 0
+        self.undo_count = 0
 
         # This stores the number of times that the sheet renders, and we use it to detect
         # when we are on the first render of a sheet. This is very useful for making
@@ -322,6 +326,8 @@ class StepsManager:
                 "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
+                'undoCount': self.undo_count,
+                'redoCount': self.redo_count,
                 'renderCount': self.render_count,
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
@@ -491,6 +497,8 @@ class StepsManager:
         entire analysis.
         """
 
+        self.undo_count += 1
+
         # When a user's most recent action is a clear analysis or update_existing_imports, then the undone_step_list_store
         # will end in an item that says ('reset', [...]).
         # In this case, if they press undo right after clearing, then we assume they probably
@@ -520,6 +528,8 @@ class StepsManager:
         This will not error if there is nothing to redo, it will
         just return.
         """
+        self.redo_count += 1
+
         if len(self.undone_step_list_store) == 0:
             return
 
@@ -557,6 +567,7 @@ class StepsManager:
                 or step.step_type == SimpleImportStepPerformer.step_type()
                 or step.step_type == ExcelImportStepPerformer.step_type()
                 or step.step_type == DataframeImportStepPerformer.step_type()
+                or step.step_type == SnowflakeImportStepPerformer.step_type()
             )
         ]
 
