@@ -144,7 +144,6 @@ class MitoConfig:
             return False
 
         disable_tours = is_env_variable_set_to_true(self.mec[MITO_CONFIG_DISABLE_TOURS])
-        print(disable_tours)
         return True if disable_tours else False
 
     def _get_code_snippets_version(self) -> Optional[str]:
