@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any
+from typing import Any, Dict
 import warnings
 import pytest
 import pandas as pd
@@ -12,11 +12,11 @@ from mitosheet.errors import MitoError
 from mitosheet.parser import parse_formula, safe_replace, safe_contains
 
 
-def get_number_data_for_df(columns, length):
+def get_number_data_for_df(columns: list[Any], length: int) -> Dict[Any, Any]:
     return {ch: [i for i in range(length)] for ch in columns}
 
 
-def get_string_data_for_df(columns, length):
+def get_string_data_for_df(columns: list[Any], length: int) -> Dict[Any, Any]:
     return {ch: [str(i) for i in range(length)] for ch in columns}
 
 CONSTANT_TEST_CASES: Any = [
