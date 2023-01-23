@@ -27879,14 +27879,15 @@ ${finalCode}`;
   var import_react59 = __toESM(require_react());
   var MAX_DISPLAYED = 1e4;
   var MultiToggleBoxMessage = (props) => {
+    const _emptyMessage = props.emptyMessage !== void 0 ? props.emptyMessage : "No items to display.";
     if (props.loading) {
-      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center" }, "Loading items", /* @__PURE__ */ import_react59.default.createElement(LoadingDots_default, null)));
+      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "Loading items", /* @__PURE__ */ import_react59.default.createElement(LoadingDots_default, null)));
     } else if (props.maxDisplayed || props.isSubset) {
-      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center" }, "There are too many items to display. Search to filter down to the items you care about."));
+      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "There are too many items to display. Search to filter down to the items you care about."));
     } else if (props.numDisplayed === 0) {
-      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1" }, "No items to display."));
+      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, _emptyMessage));
     } else if (props.message !== void 0) {
-      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center" }, props.message));
+      return /* @__PURE__ */ import_react59.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react59.default.createElement("p", { className: "text-body-1 text-align-center-important" }, props.message));
     }
     return /* @__PURE__ */ import_react59.default.createElement(import_react59.default.Fragment, null);
   };
@@ -27976,6 +27977,7 @@ ${finalCode}`;
           loading: props.loading,
           isSubset: props.isSubset,
           message: props.message,
+          emptyMessage: props.emptyMessage,
           maxDisplayed,
           numDisplayed
         }
@@ -34720,6 +34722,7 @@ ${finalCode}`;
         loading,
         searchable: true,
         height: "medium",
+        emptyMessage: "There are no sheets to choose from. Either the workbook is empty or password protected.",
         toggleAllIndexes: (indexesToToggle) => {
           props.setParams((prevParams) => {
             const newSheetNames = [...prevParams.sheet_names];
