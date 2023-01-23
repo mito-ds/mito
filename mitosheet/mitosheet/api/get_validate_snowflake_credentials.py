@@ -29,7 +29,7 @@ def _validate_snowflake_credentials(username: str, password: str, account: str) 
         except:
             return False
 
-def validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
+def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
 
     if not SNOWFLAKE_CONNECTOR_IMPORTED: 
         return json.dumps({

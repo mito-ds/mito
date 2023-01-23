@@ -663,6 +663,7 @@ export enum MitoEnterpriseConfigKey {
     CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL',
     CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
     CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
+    DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
 }
 
 
@@ -734,11 +735,13 @@ export interface UserProfile {
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+        [MitoEnterpriseConfigKey.DISABLE_TOURS]: boolean,
         [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
         } | null | undefined
+
     };
 }
 

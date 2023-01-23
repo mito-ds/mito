@@ -188,12 +188,6 @@ const Toolbar = (
                                     currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
                                 }
                             })}}/>
-                            <DropdownItem title='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT}
-                                }
-                            })}}/>
                         </Dropdown>
                     </ToolbarButton>
                     <ToolbarButton
