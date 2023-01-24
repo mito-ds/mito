@@ -167,6 +167,10 @@ if sys.version_info[:3] > (3, 8, 0):
         display_column_header: str
         row_offset: int
 
+    class IndexLabelsFormulaIsAppledTo(TypedDict):
+        type: str # 'entire_column' | 'specfic_index_labels'
+        index_labels: Optional[List[Any]]
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
@@ -184,6 +188,7 @@ else:
     CodeSnippetEnvVars = Any # type:ignore
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaReference = Any # type:ignore
+    IndexLabelsFormulaIsAppledTo = Any # type:ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]

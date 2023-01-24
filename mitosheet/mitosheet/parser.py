@@ -17,12 +17,14 @@ import pandas as pd
 
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
-from mitosheet.sheet_functions.types.utils import is_number_dtype, is_datetime_dtype, is_string_dtype
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
-from mitosheet.types import (ColumnHeader, FrontendFormula, ParserMatch, ParserMatchRange,
-                             RowOffset)
-
+from mitosheet.sheet_functions.types.utils import (is_datetime_dtype,
+                                                   is_number_dtype,
+                                                   is_string_dtype)
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import (ColumnHeader, FrontendFormula,
+                             IndexLabelsFormulaIsAppledTo, ParserMatch,
+                             ParserMatchRange, RowOffset)
 
 COLUMN_HEADER_MATCH_TYPE = 'column header match type'
 INDEX_LABEL_MATCH_TYPE = 'index label match type'
@@ -577,6 +579,7 @@ def parse_formula(
         formula: Optional[str], 
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
+        index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo,
         df: pd.DataFrame,
         df_name: str='df',
         throw_errors: bool=True,
@@ -621,7 +624,12 @@ def parse_formula(
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
     if include_df_set:
-        final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
+        if index_labels_formula_is_applied_to['type'] == 'entire_column':
+            final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
+        else:
+            loc_statement = f'.loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}]'
+            final_code = f'{df_name}[{transpiled_column_header}]{loc_statement} = ({code_with_functions}){loc_statement}'
+
     else:
         final_code = f'{code_with_functions}'
     return final_code, functions, column_header_dependencies

@@ -15,17 +15,18 @@ from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, IndexLabelsFormulaIsAppledTo
 
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], column_header: ColumnHeader, column_header_index: int, new_formula: str):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo, column_header: ColumnHeader, column_header_index: int, new_formula: str):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.column_header = column_header
         self.formula_label = formula_label
+        self.index_labels_formula_is_applied_to = index_labels_formula_is_applied_to
         self.column_header_index = column_header_index
         self.new_formula = new_formula
 
@@ -42,6 +43,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             self.new_formula, 
             self.column_header,
             self.formula_label,
+            self.index_labels_formula_is_applied_to,
             self.post_state.dfs[self.sheet_index],
             df_name=self.post_state.df_names[self.sheet_index],
             include_df_set=False
@@ -97,6 +99,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
                 self.sheet_index,
                 self.column_id,
                 self.formula_label,
+                self.index_labels_formula_is_applied_to,
                 column_ids_to_new_column_headers[added_column_id],
                 self.column_header_index,
                 self.new_formula

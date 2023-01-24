@@ -79,3 +79,30 @@ def upgrade_set_column_formula_2_to_3(step: Dict[str, Any], later_steps: List[Di
         "step_type": "set_column_formula", 
         "params": params
     }] + later_steps
+
+def upgrade_set_column_formula_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Adds in the index_labels_formula_is_applied_to, which specifies how the formula is applied. This defaults
+    to {'type': 'entire_column'}.
+
+    OLD: {
+        'step_version': 3, 
+        'step_type': "set_column_formula",
+        'params': {
+            sheet_index: 0,
+            column_id: _column id_,
+            formula_label: 0,
+            index_labels_formula_is_applied_to: {'type': 'entire_column'}
+            old_formula: '=A',
+            new_formula: '=B',
+        }
+    }
+    """
+    params = step['params']
+    params['index_labels_formula_is_applied_to'] = {'type': 'entire_column'}
+
+    return [{
+        "step_version": 4, 
+        "step_type": "set_column_formula", 
+        "params": params
+    }] + later_steps

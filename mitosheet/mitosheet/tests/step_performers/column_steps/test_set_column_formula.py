@@ -76,6 +76,8 @@ def test_edit_to_same_formula_no_error():
         'params': {
             'sheet_index': 0,
             'column_id': get_column_header_id('B'),
+            'formula_label': 0,
+            'index_labels_formula_is_applied_to': {'type': 'entire_column'},
             'new_formula': '=A'
         }
     })
@@ -380,4 +382,79 @@ def test_different_indexes(input_df, formula, column_header, formula_label, outp
     mito.add_column(0, column_header)
     mito.set_formula(formula, 0, column_header, formula_label=formula_label)
 
+    assert mito.dfs[0].equals(output_df)
+
+
+SPECIFIC_INDEX_LABELS_TEST = [
+    # First cell
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [0],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]})
+    ),
+    # Second cell
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A1',
+        1,
+        [1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 2, 0]})
+    ),
+    # Set a different cell than the formula
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        1,
+        [1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 1, 0]})
+    ),
+    # Set multiple labels, includes formula
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [0, 1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 0]})
+    ),
+    # Set multiple labels, does not include formula (this is weird you can do this -- but the frontend can just not do it. it's fine anyways)
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [1, 2],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 2, 3]})
+    ),
+    # Set with a string label
+    (
+        pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']),
+        'B',
+        '=Aa',
+        'a',
+        ['a'],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]}, index=['a', 'b', 'c'])
+    ),
+    # Set with a datetime label
+    (
+        pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00'])),
+        'B',
+        '=A2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
+        ['2007-01-22 00:00:00'],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00']))
+    ),
+]
+@pytest.mark.parametrize("input_df, column_header, formula, formula_label, index_labels, output_df", SPECIFIC_INDEX_LABELS_TEST)
+def test_set_specific_index_labels(input_df, column_header, formula, formula_label, index_labels, output_df):
+    mito = create_mito_wrapper_dfs(input_df)
+    mito.add_column(0, column_header)
+    mito.set_formula(formula, 0, column_header, formula_label=formula_label, index_labels=index_labels)
+
+    print(mito.dfs[0])
     assert mito.dfs[0].equals(output_df)

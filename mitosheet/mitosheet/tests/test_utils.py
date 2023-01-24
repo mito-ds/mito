@@ -198,7 +198,8 @@ class MitoWidgetTestWrapper:
             sheet_index: int,
             column_header: str, 
             add_column: bool=False,
-            formula_label: Optional[Any]=None
+            formula_label: Optional[Any]=None,
+            index_labels: Optional[List[Any]]=None
         ) -> bool:
         """
         Sets the given column to have formula, and optionally
@@ -215,6 +216,13 @@ class MitoWidgetTestWrapper:
         if formula_label is None:
             formula_label = self.mito_backend.steps_manager.dfs[sheet_index].index[0]
 
+        if index_labels is None:
+            index_labels_formula_is_applied_to = {'type': 'entire_column'}
+        else:
+            index_labels_formula_is_applied_to = {'type': 'specfic_index_labels', 'index_labels': index_labels}
+
+        print("HERE", index_labels_formula_is_applied_to)
+
         return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
@@ -225,6 +233,7 @@ class MitoWidgetTestWrapper:
                     'sheet_index': sheet_index,
                     'column_id': column_id,
                     'formula_label': formula_label,
+                    'index_labels_formula_is_applied_to': index_labels_formula_is_applied_to,
                     'new_formula': formula,
                 }
             }

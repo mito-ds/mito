@@ -796,7 +796,7 @@ See documentation here: https://docs.pytest.org/en/latest/parametrize.html#param
 PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
-    assert parse_formula(formula, column_header, formula_label, df) == \
+    assert parse_formula(formula, column_header, formula_label, {'type': 'entire_column'}, df) == \
         (
             python_code, 
             functions, 
@@ -815,7 +815,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)))
+        parse_formula(formula, address, 0, {'type': 'entire_column'}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)))
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix

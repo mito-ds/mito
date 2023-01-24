@@ -62,6 +62,7 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
         formula, 
         'A', 
         '0',
+        {'type': 'entire_column'},
         steps_manager.dfs[sheet_index],
         throw_errors=False
     )

@@ -107,6 +107,10 @@ class AddColumnCodeChunk(CodeChunk):
         if not self.params_match(other_code_chunk, ['sheet_index']):
             return None
 
+        # If this does not set the entire column, we can't combine -- the insert doesn't work
+        if other_code_chunk.index_labels_formula_is_applied_to['type'] != 'entire_column':
+            return None
+
         sheet_index = self.sheet_index
         added_column_header = self.column_header
         added_column_id = self.post_state.column_ids.get_column_id_by_header(sheet_index, added_column_header)
@@ -120,6 +124,7 @@ class AddColumnCodeChunk(CodeChunk):
             self.sheet_index,
             added_column_id,
             other_code_chunk.formula_label,
+            other_code_chunk.index_labels_formula_is_applied_to,
             self.column_header,
             self.column_header_index,
             other_code_chunk.new_formula

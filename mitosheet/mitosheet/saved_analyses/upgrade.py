@@ -42,7 +42,7 @@ from mitosheet.saved_analyses.step_upgraders.rename_column import \
 from mitosheet.saved_analyses.step_upgraders.reorder_column import \
     upgrade_reorder_column_1_to_2
 from mitosheet.saved_analyses.step_upgraders.set_column_formula import \
-    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3
+    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3, upgrade_set_column_formula_3_to_4
 from mitosheet.saved_analyses.step_upgraders.set_dataframe_format import \
     upgrade_set_dataframe_format_1_to_2
 from mitosheet.saved_analyses.step_upgraders.simple_import import \
@@ -118,7 +118,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     },
     'set_column_formula': {
         1: upgrade_set_column_formula_1_to_2,
-        2: upgrade_set_column_formula_2_to_3
+        2: upgrade_set_column_formula_2_to_3,
+        3: upgrade_set_column_formula_3_to_4
     },
     'sort': {
         1: upgrade_sort_1_to_2

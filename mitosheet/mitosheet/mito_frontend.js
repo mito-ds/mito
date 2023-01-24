@@ -23821,6 +23821,7 @@ ${finalCode}`;
           "column_id": columnID,
           "formula_label": formula_label,
           "new_formula": newFormula,
+          "index_labels_formula_is_applied_to": { "type": "entire_column" },
           "cell_editor_location": cell_editor_location
         }
       }, {});
