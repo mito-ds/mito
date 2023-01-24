@@ -417,8 +417,8 @@ export const createActions = (
         },
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
-            shortTitle: 'Export',
-            longTitle: 'Export to file',
+            shortTitle: 'Download',
+            longTitle: 'Download File',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -432,6 +432,27 @@ export const createActions = (
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {type: TaskpaneType.DOWNLOAD},
                         selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Download dataframes as a .csv or .xlsx file."
+        },
+        [ActionEnum.Export_Dropdown]: {
+            type: ActionEnum.Export_Dropdown,
+            shortTitle: 'Export',
+            longTitle: 'Open Export Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'export'
                     }
                 })
             },
@@ -1280,6 +1301,26 @@ export const createActions = (
             isDisabled: () => {return undefined},
             searchTerms: ['CodeSnippets'],
             tooltip: "CodeSnippets"
+        },
+        [ActionEnum.EXPORT_TO_FILE]: {
+            type: ActionEnum.EXPORT_TO_FILE,
+            shortTitle: 'Generate Export Code',
+            longTitle: 'Generate Export Code',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before exporting it'},
+            searchTerms: ['export', 'download', 'file'],
+            tooltip: "Generate code that exports dataframes to files."
         },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: ActionEnum.RESET_AND_KEEP_INDEX,

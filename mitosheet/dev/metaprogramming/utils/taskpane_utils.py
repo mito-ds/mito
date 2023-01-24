@@ -91,7 +91,7 @@ def get_param_user_input_code(param_name: str, param_type: str) -> Tuple[str, Li
                             <Input
                                 autoFocus
                                 width='medium'
-                                value={OPEN_BRACKET}'' + params.fill_method.value{CLOSE_BRACKET}
+                                value={OPEN_BRACKET}'' + params.{param_name}{CLOSE_BRACKET}
                                 onChange={OPEN_BRACKET}(e) => {OPEN_BRACKET}
                                     const newValue = e.target.value;
                                     
@@ -165,11 +165,9 @@ def get_param_user_input_code(param_name: str, param_type: str) -> Tuple[str, Li
                         ) 
                     {CLOSE_BRACKET}){CLOSE_BRACKET}
                 </MultiToggleBox>""", ['Row', 'Col', 'MultiToggleBox', 'MultiToggleItem'])
-    elif param_type == 'Any':
+    else:
         # TODO: It doesn't do this!
         return (f'{OPEN_BRACKET}/* TODO: add the user input for {param_name} of type {param_type} */{CLOSE_BRACKET}', [])
-    else:
-        raise Exception(f'{param_name} of type {param_type} is an unsupported type')
 
 
 

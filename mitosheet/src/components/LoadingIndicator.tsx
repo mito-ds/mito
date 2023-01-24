@@ -124,6 +124,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.ExcelRangeImport: {
             return 'Excel Range Import'
         }
+        case StepType.ExportToFile: {
+            return 'Generating Export Code'
+        }
         case StepType.ResetIndex: {
             return 'Resetting Index'
         }

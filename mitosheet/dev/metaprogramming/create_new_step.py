@@ -58,6 +58,8 @@ def get_params_getter_code(params: Dict[str, str], on_self: bool=False, just_get
     for param_name, param_type in params.items():
         if just_getter:
             params_code += f'                get_param(params, \'{param_name}\'),\n'
+            break
+        
         if not on_self:
             params_code += f'{param_name}: {param_type} = get_param(params, \'{param_name}\')\n        '
         else:
