@@ -16,7 +16,7 @@ def get_number_data_for_df(columns: List[Any], length: int) -> Dict[Any, Any]:
     return {ch: [i for i in range(length)] for ch in columns}
 
 
-def get_string_data_for_df(columns: list[Any], length: int) -> Dict[Any, Any]:
+def get_string_data_for_df(columns: List[Any], length: int) -> Dict[Any, Any]:
     return {ch: [str(i) for i in range(length)] for ch in columns}
 
 CONSTANT_TEST_CASES: Any = [
