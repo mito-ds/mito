@@ -24975,13 +24975,10 @@ ${finalCode}`;
       arrowKeysScrollInFormula: true
     };
   };
-  var formulaEndsInColumnHeader = (formula, sheetData) => {
-    const columnHeaders = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader));
-    const endingColumnHeaders = columnHeaders.filter((columnHeader) => formula.toLowerCase().endsWith(columnHeader.toLowerCase()));
-    if (endingColumnHeaders.length > 0) {
-      return true;
-    }
-    return false;
+  var formulaEndsInReference = (formula, indexLabel, sheetData) => {
+    const possibleReferences = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
+    const endingReferences = possibleReferences.filter((reference) => formula.toLowerCase().endsWith(reference.toLowerCase()));
+    return endingReferences.length > 0;
   };
   var getSuggestedColumnHeaders = (formula, columnID, sheetData) => {
     const columnHeadersAndIDs = sheetData.data.map((c) => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
@@ -25394,11 +25391,11 @@ ${finalCode}`;
         });
       });
     }, [props.editorState.editingMode]);
-    if (columnID === void 0 || columnHeader === void 0) {
+    if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
       return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
     }
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
-    const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
+    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
     const documentationFunction = getDocumentationFunction(fullFormula);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
@@ -25447,11 +25444,7 @@ ${finalCode}`;
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
-      if (indexLabel && indexLabel != null) {
-        fullFormula2 += indexLabel;
-      } else if (props.sheetData.index[0] !== void 0) {
-        fullFormula2 += props.sheetData.index[0];
-      }
+      fullFormula2 += getDisplayColumnHeader(indexLabel);
       props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
         formula: fullFormula2,
         pendingSelections: void 0,
@@ -25474,7 +25467,7 @@ ${finalCode}`;
       if (isNavigationKeyPressed(e.key) && !altPressed) {
         const arrowUp = e.key === "Up" || e.key === "ArrowUp";
         const arrowDown = e.key === "Down" || e.key === "ArrowDown";
-        if (!endsInColumnHeader && props.editorState.editingMode === "set_column_formula" && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+        if (!endsInReference && props.editorState.editingMode === "set_column_formula" && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
           e.preventDefault();
           if (arrowUp) {
             setSavedSelectedSuggestionIndex((suggestionIndex) => Math.max(suggestionIndex - 1, -1));
@@ -25670,7 +25663,7 @@ ${finalCode}`;
         },
         height: "20px"
       }
-    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInColumnHeader && props.editorState.editingMode === "set_column_formula" && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
+    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && props.editorState.editingMode === "set_column_formula" && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
       if (idx > MAX_SUGGESTIONS) {
         return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
       }

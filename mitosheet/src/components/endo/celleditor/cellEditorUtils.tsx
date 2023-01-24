@@ -192,20 +192,14 @@ export const getStartingFormula = (
 }
 
 /**
- * Returns true iff the formula ends in a column header in the sheet.
+ * Returns true if the formula ends in a refernece to a different column header in the sheet
+ * followed by a reference to the row of the index label. 
  * 
- * @param formula - the formula to check for ending in a column header
- * @param sheetData - the data returned
- * @returns if the formula ends in a column header in the sheet.
  */
-export const formulaEndsInColumnHeader = (formula: string, sheetData: SheetData): boolean => {
-    const columnHeaders = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader));
-    // We don't make any suggestions if it starts with a column headers
-    const endingColumnHeaders = columnHeaders.filter(columnHeader => formula.toLowerCase().endsWith(columnHeader.toLowerCase()));
-    if (endingColumnHeaders.length > 0) {
-        return true;
-    }
-    return false;
+export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, sheetData: SheetData): boolean => {
+    const possibleReferences = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
+    const endingReferences = possibleReferences.filter(reference => formula.toLowerCase().endsWith(reference.toLowerCase()));
+    return endingReferences.length > 0;
 }
 
 
@@ -393,14 +387,12 @@ export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined
                 formulaString += getDisplayColumnHeader(newIndexLabel);
             } else {
                 /**
-                 * TODO: how do we want to handle the case where the newIndexLabel is undefined, which happens in two
-                 * cases:
-                 * 1.   We are in the formulaBox, so the indexLabel is undefined. In this case, we follow our pattern
-                 *      of just treating the formula box like it's in the first row.
-                 * 2.   We are in the cellEditor. In this case, we might have written a formula that references the row before,
-                 *      but now we're editing in the first row. 
+                 * TODO: how do we want to handle the case where the newIndexLabel is undefined? This happens when 
+                 * we might have written a formula that references the row before, but now we're editing in the first row. 
                  * 
-                 * Currently, we handle (2) just by clamping to the first index, but this can be somewhat misleading. Let
+                 * E.g. B1 = A1 + A0, then go to B0. What do you see? B0 = A0 + A(?)
+                 * 
+                 * Currently, we handle this just by clamping to the first index, but this can be somewhat misleading. Let
                  * me know what you think we should do here... we could try putting in the fill_value for the shift function...
                  */
                 const firstIndexLabel = sheetData?.index[0]

@@ -3,7 +3,7 @@ import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
 import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getColumnHeaderParts } from '../../../utils/columnHeaders';
+import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
 import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
@@ -15,7 +15,7 @@ import { focusGrid } from '../focusUtils';
 import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
-import { formulaEndsInColumnHeader, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import { formulaEndsInReference, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -111,12 +111,12 @@ const CellEditor = (props: {
         })
     }, [props.editorState.editingMode])
 
-    if (columnID === undefined || columnHeader === undefined) {
+    if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
         return <></>;
     }
 
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
-    const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
+    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
     const documentationFunction = getDocumentationFunction(fullFormula);
 
@@ -185,13 +185,7 @@ const CellEditor = (props: {
         // Strip the prefix, and append the suggestion, and the current index label as well
         fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         fullFormula += suggestion;
-        if (indexLabel && indexLabel != null) {
-            // if we are in the formula box, then the index label might be null. So we don't want it then
-            fullFormula += indexLabel;
-        } else if (props.sheetData.index[0] !== undefined){
-            // In this case, we just treat it as if you are writing a formula in the first row
-            fullFormula += props.sheetData.index[0];
-        }
+        fullFormula += getDisplayColumnHeader(indexLabel);
 
         // Update the cell editor state
         props.setEditorState({
@@ -245,7 +239,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInReference && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -551,7 +545,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' &&
+                {cellEditorError === undefined && !loading && !endsInReference && props.editorState.editingMode === 'set_column_formula' &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
