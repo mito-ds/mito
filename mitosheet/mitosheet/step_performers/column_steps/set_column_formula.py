@@ -279,9 +279,4 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
             error_modal=True
         )
     except Exception as e:
-        # If this is the same formula as before, then it used to be valid and is not,
-        # and so we let the user know they must have made some other change that made 
-        # in invalid (TODO: broken)
-        #if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
-        #    raise make_invalid_formula_after_update_error()
         raise

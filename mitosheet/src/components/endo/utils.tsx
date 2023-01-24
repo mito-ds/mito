@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, SheetData, UIState } from "../../types";
+import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
@@ -99,7 +99,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnFormat: ColumnFormatType | undefined,
     headerBackgroundColor: string | undefined,
     headerTextColor: string | undefined,
-    indexLabel: any | undefined,
+    indexLabel: IndexLabel | undefined,
 } => {
 
     

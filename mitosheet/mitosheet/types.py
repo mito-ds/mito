@@ -159,10 +159,11 @@ if sys.version_info[:3] > (3, 8, 0):
         row_offset: RowOffset
 
     class FrontendFormulaString(TypedDict):
-        type: str
+        type: str # 'string part'
         string: str
+
     class FrontendFormulaReference(TypedDict):
-        type: str
+        type: str # 'reference part'
         display_column_header: str
         row_offset: int
 

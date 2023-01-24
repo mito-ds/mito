@@ -25065,7 +25065,10 @@ ${finalCode}`;
       return matchingFunctions[0];
     }
   };
-  var getIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData, indexLabel, rowOffset) => {
+  var getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData, indexLabel, rowOffset) => {
+    if (indexLabel === void 0) {
+      return void 0;
+    }
     const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
     if (indexOfIndexLabel === -1) {
       return void 0;
@@ -25083,7 +25086,7 @@ ${finalCode}`;
         formulaString += formulaPart.string;
       } else {
         formulaString += formulaPart.display_column_header;
-        const newIndexLabel = getIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+        const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
         if (newIndexLabel !== void 0) {
           formulaString += getDisplayColumnHeader(newIndexLabel);
         } else {
@@ -25444,7 +25447,7 @@ ${finalCode}`;
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
-      if (indexLabel !== void 0 && indexLabel != null) {
+      if (indexLabel && indexLabel != null) {
         fullFormula2 += indexLabel;
       } else if (props.sheetData.index[0] !== void 0) {
         fullFormula2 += props.sheetData.index[0];

@@ -185,7 +185,7 @@ const CellEditor = (props: {
         // Strip the prefix, and append the suggestion, and the current index label as well
         fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         fullFormula += suggestion;
-        if (indexLabel !== undefined && indexLabel != null) {
+        if (indexLabel && indexLabel != null) {
             // if we are in the formula box, then the index label might be null. So we don't want it then
             fullFormula += indexLabel;
         } else if (props.sheetData.index[0] !== undefined){

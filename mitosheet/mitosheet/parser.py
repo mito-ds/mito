@@ -632,6 +632,8 @@ def get_frontend_formula(
     formula_label: Union[str, bool, int, float],
     df: pd.DataFrame,
 ) -> FrontendFormula:
+    # Returns a formula string in a representation that the frontend can correctly update
+    # when the user views it in a different cell
 
     # If the column doesn't have a formula, then there are no dependencies, duh!
     if formula is None or formula == '':
@@ -662,7 +664,7 @@ def get_frontend_formula(
                 })
 
             frontend_formula.append({
-                'type': 'reference',
+                'type': 'reference part',
                 'display_column_header': parser_match['unparsed'],
                 'row_offset': parser_match['row_offset']
             })
@@ -685,7 +687,9 @@ def get_backend_formula_from_frontend_formula(
     formula_label: Union[str, bool, int, float],
     df: pd.DataFrame,
 ) -> str:
-    # TODO: write this as a testing utility
+    # This function is useful on the backend as a testing utility, so that we can make sure
+    # the FrontendFormula can reconstruct the backend formula properly
+
     formula = ''
     for formula_part in frontend_formula:
         if formula_part['type'] == 'string part':

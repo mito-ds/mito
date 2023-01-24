@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, Formula, MitoSelection, SheetData } from "../../../types";
+import { ColumnID, EditorState, Formula, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
@@ -357,7 +357,11 @@ export const getDocumentationFunction = (formula: string): FunctionDocumentation
     }
 }
 
-export const getIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData, indexLabel: any, rowOffset: number): any | undefined => {
+export const getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData, indexLabel: IndexLabel | undefined, rowOffset: number): IndexLabel | undefined => {
+    if (indexLabel === undefined) {
+        return undefined;
+    }
+    
     const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
     if (indexOfIndexLabel === -1) {
         return undefined;
@@ -368,7 +372,7 @@ export const getIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData
 }
 
 
-export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined, indexLabel: any, sheetData: SheetData | undefined): string | undefined => {
+export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined, indexLabel: IndexLabel | undefined, sheetData: SheetData | undefined): string | undefined => {
     let formulaString = '';
     if (!formula || !sheetData) {
         return formulaString;
@@ -384,19 +388,20 @@ export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined
              * After adding the reference to the column header, we need to add the correct index label.
              * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
              */
-            const newIndexLabel = getIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+            const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {
                 formulaString += getDisplayColumnHeader(newIndexLabel);
             } else {
                 /**
-                 * TODO: what to do if the index is out of bounds here? In the formula bar, we want to handle this
-                 * fine -- it's actually not a problem.
+                 * TODO: how do we want to handle the case where the newIndexLabel is undefined, which happens in two
+                 * cases:
+                 * 1.   We are in the formulaBox, so the indexLabel is undefined. In this case, we follow our pattern
+                 *      of just treating the formula box like it's in the first row.
+                 * 2.   We are in the cellEditor. In this case, we might have written a formula that references the row before,
+                 *      but now we're editing in the first row. 
                  * 
-                 * But in a normal cell editor, it's weird that this is just capped at 0. Maybe we should put in 
-                 * whatever the fill value is? This requires us to case on the type of column... and and is a bit 
-                 * fragile.
-                 * 
-                 * We could also just leave it as is. It's slightly confusing, but perhaps is fine in practice?
+                 * Currently, we handle (2) just by clamping to the first index, but this can be somewhat misleading. Let
+                 * me know what you think we should do here... we could try putting in the fill_value for the shift function...
                  */
                 const firstIndexLabel = sheetData?.index[0]
                 if (firstIndexLabel !== undefined) {

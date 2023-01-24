@@ -246,8 +246,10 @@ export type ConditionalFormattingResult = {
 }
 
 type FormulaPart = {'type': 'string part', 'string': string} 
-	| {'type': 'reference', 'display_column_header': string, 'row_offset': number} 
+	| {'type': 'reference part', 'display_column_header': string, 'row_offset': number} 
 export type Formula = FormulaPart[]
+
+export type IndexLabel = string | number;
 
 /**
  * Data that will be displayed in the sheet itself.
@@ -278,7 +280,7 @@ export type SheetData = {
     columnFormulasMap: Record<ColumnID, Formula>;
     columnFiltersMap: ColumnFilterMap;
     columnDtypeMap: Record<ColumnID, string>;
-    index: (string | number)[];
+    index: IndexLabel[];
     dfFormat: DataframeFormat;
     conditionalFormattingResult: ConditionalFormattingResult;
 };

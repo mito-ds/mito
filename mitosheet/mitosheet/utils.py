@@ -187,8 +187,6 @@ def df_to_json_dumpsable(
 
     # Import just before we use it to avoid circular imports
     from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
-
-    print("FORMULA", column_formulas)
     
     return {
         "dfName": df_name,
