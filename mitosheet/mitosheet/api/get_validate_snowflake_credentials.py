@@ -23,7 +23,7 @@ except ImportError:
 # to the step performer, which ensures they don't get written into the analysis json.
 cached_snowflake_credentials: Optional[SnowflakeCredentials] = None
 
-def get_cached_snowflake_credentials() -> Optional[SnowflakeCredentials]:
+def get_cached_global_snowflake_credentials() -> Optional[SnowflakeCredentials]:
     global cached_snowflake_credentials
     return cached_snowflake_credentials
 

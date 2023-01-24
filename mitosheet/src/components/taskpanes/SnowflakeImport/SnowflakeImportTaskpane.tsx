@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
@@ -117,7 +117,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.mitoAPI,
             props.analysisData,
     )
-    
+
     const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => getDefaultCredentials())
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
@@ -127,6 +127,20 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     const setParamsAndRefreshOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
         setParamsWithoutRefreshOptionsAndDefaults(newParams);
         void loadAndSetOptionsAndDefaults(newParams);
+    }
+
+    useEffect(() => {
+        console.log('loading cached credentials')
+        // On first render, load the cached credentials
+        loadAndSetCachedCredentials()
+    }, []);
+
+    const loadAndSetCachedCredentials = async () => {
+        const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials()
+        console.log(cachedCredentials)
+        if (cachedCredentials !== undefined) {
+            setCredentials(cachedCredentials)
+        }
     }
 
     if (params === undefined) {

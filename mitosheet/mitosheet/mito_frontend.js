@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect41(create, deps) {
+          function useEffect42(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect41;
+          exports.useEffect = useEffect42;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -23547,6 +23547,18 @@ ${finalCode}`;
       }
       return void 0;
     }
+    async getCachedSnowflakeCredentials() {
+      const resultString = await this.send({
+        "event": "api_call",
+        "type": "get_cached_snowflake_credentials",
+        "params": {}
+      }, {});
+      console.log("result string: ", resultString);
+      if (resultString !== void 0 && resultString !== "null" && resultString !== "") {
+        return JSON.parse(resultString);
+      }
+      return void 0;
+    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -38227,6 +38239,17 @@ fig.write_html("${props.graphTabName}.html")`
     const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
       setParamsWithoutRefreshOptionsAndDefaults(newParams);
       void loadAndSetOptionsAndDefaults(newParams);
+    };
+    (0, import_react163.useEffect)(() => {
+      console.log("loading cached credentials");
+      loadAndSetCachedCredentials();
+    }, []);
+    const loadAndSetCachedCredentials = async () => {
+      const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials();
+      console.log(cachedCredentials);
+      if (cachedCredentials !== void 0) {
+        setCredentials(cachedCredentials);
+      }
     };
     if (params === void 0) {
       return /* @__PURE__ */ import_react163.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });

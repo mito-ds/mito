@@ -16,7 +16,7 @@ from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 from mitosheet.utils import get_valid_dataframe_name
-from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
+from mitosheet.api.get_validate_snowflake_credentials import get_cached_global_snowflake_credentials
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
@@ -43,7 +43,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
 
-        credentials = get_cached_snowflake_credentials()
+        credentials = get_cached_global_snowflake_credentials()
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
