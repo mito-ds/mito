@@ -689,7 +689,6 @@ def get_backend_formula_from_frontend_formula(
 ) -> str:
     # This function is useful on the backend as a testing utility, so that we can make sure
     # the FrontendFormula can reconstruct the backend formula properly
-
     formula = ''
     for formula_part in frontend_formula:
         if formula_part['type'] == 'string part':

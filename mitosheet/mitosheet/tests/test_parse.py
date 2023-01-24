@@ -542,7 +542,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-01-22 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 1), index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'])',
         set(['FUNC']),
@@ -552,7 +552,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-01-23 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
@@ -562,7 +562,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-01-22 00:00:00)',
         'A',
-        '2007-01-23 00:00:00',
+        pd.to_datetime('2007-01-23 00:00:00'),
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0))',
         set(['FUNC']),
@@ -572,7 +572,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-02-22 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
@@ -582,7 +582,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-02-22 00:00:00, A2007-01-22 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-02-22 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1, fill_value=0), df[\'A\'])',
         set(['FUNC']),
@@ -682,7 +682,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-01-23 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame({'A': [pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1))',
         set(['FUNC']),
@@ -692,7 +692,7 @@ INDEX_TEST_CASES = [
     (
         '=FUNC(A2007-01-23 00:00:00)',
         'A',
-        '2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
         pd.DataFrame({'A': [True]}, index=pd.DatetimeIndex([pd.to_datetime('2007-01-22 00:00:00'), pd.to_datetime('2007-01-23 00:00:00')])),
         'df[\'A\'] = FUNC(df[\'A\'].shift(-1))',
         set(['FUNC']),
