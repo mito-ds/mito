@@ -47,6 +47,11 @@ class SnowflakeImportStepPerformer(StepPerformer):
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
+
+        # If the credentials are not defined, then raise an error 
+        if credentials is None:
+            raise make_invalid_snowflake_import_error()
+
         # We make a new state to modify it
         post_state = prev_state.copy()
 

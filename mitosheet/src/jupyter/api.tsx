@@ -731,9 +731,8 @@ export default class MitoAPI {
             'event': 'api_call',
             'type': 'get_cached_snowflake_credentials',
             'params': {}
+            // TODO: Make this a priority API call
         }, {})
-
-        console.log("result string: ", resultString)
 
         if (resultString !== undefined && resultString !== 'null' && resultString !== '') {
             return JSON.parse(resultString);

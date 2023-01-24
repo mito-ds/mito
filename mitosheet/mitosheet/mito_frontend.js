@@ -23553,7 +23553,6 @@ ${finalCode}`;
         "type": "get_cached_snowflake_credentials",
         "params": {}
       }, {});
-      console.log("result string: ", resultString);
       if (resultString !== void 0 && resultString !== "null" && resultString !== "") {
         return JSON.parse(resultString);
       }
@@ -37418,7 +37417,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react155.default.createElement("span", { title: filePath }, fileName);
   };
   var getSimpleNameSpan = (name) => {
-    return /* @__PURE__ */ import_react155.default.createElement("span", { title: name }, name);
+    return /* @__PURE__ */ import_react155.default.createElement("span", { title: name || "not definend" }, name);
   };
   var getUpdateImportCardTitle = (dataframeCreationData) => {
     if (dataframeCreationData.step_type === "excel_import") {
@@ -37427,8 +37426,12 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0]));
     } else if (dataframeCreationData.step_type === "dataframe_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.df_names[0]));
-    } else {
+    } else if (dataframeCreationData.step_type === "excel_range_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_path));
+    } else if (dataframeCreationData.step_type === "snowflake_import") {
+      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from Snowflake "));
+    } else {
+      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement(import_react155.default.Fragment, null));
     }
   };
   var getUpdateImportCardSubtitle = (updatedDataframeCreationData, invalidImportMessage, isUpdated) => {
@@ -37444,8 +37447,12 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0]));
     } else if (updatedDataframeCreationData.step_type === "dataframe_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0]));
-    } else {
+    } else if (updatedDataframeCreationData.step_type === "excel_range_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path));
+    } else if (updatedDataframeCreationData.step_type === "snowflake_import") {
+      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.table_loc_and_warehouse.table), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from Snowflake "));
+    } else {
+      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement(import_react155.default.Fragment, null));
     }
   };
   var UpdateImportCard = (props) => {
@@ -37720,7 +37727,9 @@ fig.write_html("${props.graphTabName}.html")`
         let invalidImportIndexes = void 0;
         if (failedReplayData !== void 0) {
           importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+          console.log("importData: ", importData);
           invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+          console.log("invalidImportIndexes: ", invalidImportIndexes);
         } else {
           importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
           invalidImportIndexes = {};

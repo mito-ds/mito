@@ -13,5 +13,4 @@ from mitosheet.types import StepsManagerType
 def get_cached_snowflake_credentials(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
         credentials = get_cached_global_snowflake_credentials()
-        print(credentials)
         return json.dumps(credentials)

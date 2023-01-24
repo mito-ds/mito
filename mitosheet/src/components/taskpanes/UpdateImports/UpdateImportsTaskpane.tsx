@@ -10,6 +10,7 @@ import { ExcelRangeImportParams } from "../ExcelRangeImport/ExcelRangeImportTask
 import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
+import { SnowflakeImportParams } from "../SnowflakeImport/SnowflakeImportTaskpane";
 import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
@@ -41,6 +42,9 @@ export type DataframeCreationData = {
 } | {
     step_type: 'excel_range_import',
     params: ExcelRangeImportParams
+} | {
+    step_type: 'snowflake_import',
+    params: SnowflakeImportParams
 }
 
 
@@ -95,7 +99,9 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
             if (failedReplayData !== undefined) {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+                console.log('importData: ', importData)
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+                console.log('invalidImportIndexes: ', invalidImportIndexes)
             } else {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
                 invalidImportIndexes = {};
