@@ -3,7 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict
+from typing import Any, Dict, List
 import warnings
 import pytest
 import pandas as pd
@@ -12,7 +12,7 @@ from mitosheet.errors import MitoError
 from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_replace, safe_contains, get_frontend_formula
 
 
-def get_number_data_for_df(columns: list[Any], length: int) -> Dict[Any, Any]:
+def get_number_data_for_df(columns: List[Any], length: int) -> Dict[Any, Any]:
     return {ch: [i for i in range(length)] for ch in columns}
 
 
