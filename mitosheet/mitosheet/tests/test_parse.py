@@ -9,7 +9,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.errors import MitoError
-from mitosheet.parser import parse_formula, safe_replace, safe_contains
+from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_replace, safe_contains, get_frontend_formula
 
 
 def get_number_data_for_df(columns: list[Any], length: int) -> Dict[Any, Any]:
@@ -390,6 +390,26 @@ with warnings.catch_warnings():
 INDEX_TEST_CASES = [
     # Test references a range index with a valid number 0
     (
+        'A0',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = df[\'A\']',
+        set([]),
+        set(['A'])
+    ),
+    # Test references a range index with a valid number 0, with two
+    (
+        'A0 + A0',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = df[\'A\'] + df[\'A\']',
+        set([]),
+        set(['A'])
+    ),
+    # Test references a range index with a valid number 0, function
+    (
         '=FUNC(A0)',
         'A',
         0,
@@ -415,16 +435,6 @@ INDEX_TEST_CASES = [
         1,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
         'df[\'A\'] = FUNC(df[\'A\'].shift(1, fill_value=0), df[\'A\'])',
-        set(['FUNC']),
-        set(['A'])
-    ),
-    # Test references a column header and a range specifically
-    (
-        '=FUNC(A, A1)',
-        'A',
-        0,
-        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
-        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
     ),
@@ -464,26 +474,6 @@ INDEX_TEST_CASES = [
         'A',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 10), index=unit64_index),
-        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
-        set(['FUNC']),
-        set(['A'])
-    ),
-    # Test references a different number index
-    (
-        '=FUNC(A0.0, A2.0, A7)',
-        'A',
-        0,
-        pd.DataFrame(get_number_data_for_df(['A', 'B'], 10), index=float64_index),
-        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0), df[\'A\'].shift(-7, fill_value=0))',
-        set(['FUNC']),
-        set(['A'])
-    ),
-    # Test references an index with a int dtype
-    (
-        '=FUNC(A0.0, A2.0)',
-        'A',
-        0,
-        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.Index([0, 1, 2], dtype='int64')),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
         set(['FUNC']),
         set(['A'])
@@ -540,23 +530,13 @@ INDEX_TEST_CASES = [
     ),
     # Test references a range index starting with a decimal
     (
-        '=FUNC(A.1, A.2)',
+        '=FUNC(A0.1, A0.2)',
         'A',
         .1,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.Index([.1, .2, .3])),
         'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
         set(['FUNC']),
         set(['A'])
-    ),
-    # Test references to a column header that contains the index, and one that is unqualified
-    (
-        '=FUNC(HEADER00, HEADER0HEADER1)',
-        'A',
-        0,
-        pd.DataFrame(get_number_data_for_df(['HEADER0', 'HEADER0HEADER1'], 2), index=pd.RangeIndex(0, 2)),
-        'df[\'A\'] = FUNC(df[\'HEADER0\'], df[\'HEADER0HEADER1\'])',
-        set(['FUNC']),
-        set(['HEADER0', 'HEADER0HEADER1'])
     ),
     # Test a datetime reference no offset
     (
@@ -648,36 +628,6 @@ INDEX_TEST_CASES = [
         set(['FUNC']),
         set(['A'])
     ),
-    # Test a string index with column header containing the index
-    (
-        '=FUNC(aaa)',
-        'A',
-        'a',
-        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
-        'df[\'A\'] = FUNC(df[\'aaa\'])',
-        set(['FUNC']),
-        set(['aaa'])
-    ),
-    # Test a string index with column header containing the index, no shift
-    (
-        '=FUNC(aaaa)',
-        'A',
-        'a',
-        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
-        'df[\'A\'] = FUNC(df[\'aaa\'])',
-        set(['FUNC']),
-        set(['aaa'])
-    ),
-    # Test a string index with column header containing the index, no shift
-    (
-        '=FUNC(aaab)',
-        'A',
-        'a',
-        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
-        'df[\'A\'] = FUNC(df[\'aaa\'].shift(-1, fill_value=0))',
-        set(['FUNC']),
-        set(['aaa'])
-    ),
     # Test a string index with spaces
     (
         '=FUNC(Athis has spaces)',
@@ -728,16 +678,6 @@ INDEX_TEST_CASES = [
         set(['FUNC']),
         set(['A'])
     ),
-    # Test a string index with column headers AND indexes that are prefixes, just detects column header
-    (
-        '=FUNC(aaaa)',
-        'A',
-        'a',
-        pd.DataFrame(get_number_data_for_df(['aaa', 'aaaa'], 2), index=pd.Index(['a', 'aa'])),
-        'df[\'A\'] = FUNC(df[\'aaaa\'])',
-        set(['FUNC']),
-        set(['aaaa'])
-    ),
     # Test a datetime column has no fill value
     (
         '=FUNC(A2007-01-23 00:00:00)',
@@ -760,6 +700,89 @@ INDEX_TEST_CASES = [
     ),
 ]
 
+INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY = [
+    # Test references a column header and a range specifically
+    (
+        '=FUNC(A, A1)',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references a different number index
+    (
+        '=FUNC(A0.0, A2.0, A7)',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 10), index=float64_index),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0), df[\'A\'].shift(-7, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references an index with a int dtype
+    (
+        '=FUNC(A0.0, A2.0)',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.Index([0, 1, 2], dtype='int64')),
+        'df[\'A\'] = FUNC(df[\'A\'], df[\'A\'].shift(-2, fill_value=0))',
+        set(['FUNC']),
+        set(['A'])
+    ),
+    # Test references to a column header that contains the index, and one that is unqualified
+    (
+        '=FUNC(HEADER00, HEADER0HEADER1)',
+        'A',
+        0,
+        pd.DataFrame(get_number_data_for_df(['HEADER0', 'HEADER0HEADER1'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'A\'] = FUNC(df[\'HEADER0\'], df[\'HEADER0HEADER1\'])',
+        set(['FUNC']),
+        set(['HEADER0', 'HEADER0HEADER1'])
+    ),
+    # Test a string index with column header containing the index
+    (
+        '=FUNC(aaa)',
+        'A',
+        'a',
+        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'])',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with column header containing the index, no shift
+    (
+        '=FUNC(aaaa)',
+        'A',
+        'a',
+        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'])',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with column header containing the index, no shift
+    (
+        '=FUNC(aaab)',
+        'A',
+        'a',
+        pd.DataFrame(get_number_data_for_df(['A', 'aaa'], 2), index=pd.Index(['a', 'b'])),
+        'df[\'A\'] = FUNC(df[\'aaa\'].shift(-1, fill_value=0))',
+        set(['FUNC']),
+        set(['aaa'])
+    ),
+    # Test a string index with column headers AND indexes that are prefixes, just detects column header
+    (
+        '=FUNC(aaaa)',
+        'A',
+        'a',
+        pd.DataFrame(get_number_data_for_df(['aaa', 'aaaa'], 2), index=pd.Index(['a', 'aa'])),
+        'df[\'A\'] = FUNC(df[\'aaaa\'])',
+        set(['FUNC']),
+        set(['aaaa'])
+    ),
+]
+
 
 """
 PARSE_TESTS contains a variety of tests that make sure
@@ -770,7 +793,7 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
     assert parse_formula(formula, column_header, formula_label, df) == \
@@ -826,3 +849,10 @@ SAFE_CONTAINS_TESTS = [
 @pytest.mark.parametrize('formula,substring,contains', SAFE_CONTAINS_TESTS)
 def test_safe_contains(formula, substring, contains):
     assert safe_contains(formula, substring, ['A', 'B']) == contains
+
+
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES)
+def test_get_frontend_formula(formula,column_header,formula_label,df,python_code,functions,columns):
+    frontend_formula = get_frontend_formula(formula, formula_label, df)
+    print(frontend_formula)
+    assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula

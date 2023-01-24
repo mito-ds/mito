@@ -245,6 +245,10 @@ export type ConditionalFormattingResult = {
     'results': Record<ColumnID, Record<number | string, {color: string | undefined, backgroundColor: string | undefined} | undefined> | undefined>
 }
 
+type FormulaPart = {'type': 'string part', 'string': string} 
+	| {'type': 'reference', 'display_column_header': string, 'row_offset': number} 
+export type Formula = FormulaPart[]
+
 /**
  * Data that will be displayed in the sheet itself.
  * 
@@ -254,7 +258,7 @@ export type ConditionalFormattingResult = {
  * @param numColumns - the number of columns in the data. Should be equal to data.length
  * @param data - a list of the columns to display in the sheet, including their id and header, their dtype, as well as a list of columnData (which is the actual data in this column)
  * @param columnIDsMap - for this dataframe, a map from column id -> column headers
- * @param columnSpreadsheetCodeMap - for this dataframe, a map from column id -> spreadsheet formula
+ * @param columnFormulasMap - for this dataframe, a map from column id -> spreadsheet formula
  * @param columnFiltersMap - for this dataframe, a map from column id -> filter objects
  * @param columnDtypeMap - for this dataframe, a map from column id -> column dtype
  * @param index - the indexes in this dataframe
@@ -271,7 +275,7 @@ export type SheetData = {
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnSpreadsheetCodeMap: Record<ColumnID, string>;
+    columnFormulasMap: Record<ColumnID, Formula>;
     columnFiltersMap: ColumnFilterMap;
     columnDtypeMap: Record<ColumnID, string>;
     index: (string | number)[];

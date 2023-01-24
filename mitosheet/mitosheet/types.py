@@ -158,6 +158,14 @@ if sys.version_info[:3] > (3, 8, 0):
         parsed: Any
         row_offset: RowOffset
 
+    class FrontendFormulaString(TypedDict):
+        type: str
+        string: str
+    class FrontendFormulaReference(TypedDict):
+        type: str
+        display_column_header: str
+        row_offset: int
+
 else:
     ColumnIDWithFilter = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
@@ -173,4 +181,10 @@ else:
     SnowflakeQueryParams = Any # type:ignore
     SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+    FrontendFormulaString = Any # type:ignore
+    FrontendFormulaReference = Any # type:ignore
+
+
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
+FrontendFormula = List[FrontendFormulaPart]
 

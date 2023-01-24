@@ -20,12 +20,13 @@ from mitosheet.errors import make_invalid_formula_error
 from mitosheet.sheet_functions.types.utils import is_number_dtype, is_datetime_dtype, is_string_dtype
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
-from mitosheet.types import (ColumnHeader, ParserMatch, ParserMatchRange,
+from mitosheet.types import (ColumnHeader, FrontendFormula, ParserMatch, ParserMatchRange,
                              RowOffset)
 
 
 COLUMN_HEADER_MATCH_TYPE = 'column header match type'
 INDEX_LABEL_MATCH_TYPE = 'index label match type'
+
 
 def is_quote(char: str) -> bool:
     """
@@ -517,7 +518,6 @@ def replace_column_headers_and_indexes(
             row_offset = match['row_offset'] # type: ignore
             if row_offset != 0:
                 dtype = str(df[column_header].dtype)
-                print("IS TYPE", dtype, df)
                 if is_number_dtype(dtype):
                     replace_string = f'{replace_string}.shift({row_offset}, fill_value=0)'
                 else:
@@ -594,7 +594,6 @@ def parse_formula(
     if formula is None or formula == '':
         return '', set(), set()
 
-
     if throw_errors:
         check_common_errors(formula, df)
 
@@ -626,3 +625,72 @@ def parse_formula(
     else:
         final_code = f'{code_with_functions}'
     return final_code, functions, column_header_dependencies
+
+
+def get_frontend_formula(
+    formula: Optional[str], 
+    formula_label: Union[str, bool, int, float],
+    df: pd.DataFrame,
+) -> FrontendFormula:
+
+    # If the column doesn't have a formula, then there are no dependencies, duh!
+    if formula is None or formula == '':
+        return []
+
+    # First, we get the parser matches, which are notably in reverse order, and put them back in order
+    parser_matches = get_column_header_and_index_matches(
+        formula,
+        formula_label,
+        get_string_matches(formula),
+        df
+    )
+    parser_matches.reverse()
+        
+    frontend_formula: FrontendFormula = []
+    start = 0
+    for parser_match in parser_matches:
+        parser_match_start = parser_match['match_range'][0]
+        parser_match_end = parser_match['match_range'][1]
+
+        frontend_string_part = formula[start: parser_match_start]
+        
+        if parser_match['type'] == COLUMN_HEADER_MATCH_TYPE:
+            if len(frontend_string_part) > 0:
+                frontend_formula.append({
+                    'type': 'string part',
+                    'string': frontend_string_part
+                })
+
+            frontend_formula.append({
+                'type': 'reference',
+                'display_column_header': parser_match['unparsed'],
+                'row_offset': parser_match['row_offset']
+            })
+
+        start = parser_match_end 
+
+    # Make sure we get the rest of the formula
+    frontend_string_part = formula[start: len(formula)]
+    if len(frontend_string_part) > 0:
+        frontend_formula.append({
+            'type': 'string part',
+            'string': frontend_string_part
+        })
+
+    return frontend_formula
+
+
+def get_backend_formula_from_frontend_formula(
+    frontend_formula: FrontendFormula,
+    formula_label: Union[str, bool, int, float],
+    df: pd.DataFrame,
+) -> str:
+    # TODO: write this as a testing utility
+    formula = ''
+    for formula_part in frontend_formula:
+        if formula_part['type'] == 'string part':
+            formula += formula_part['string'] # type: ignore
+        else:
+            formula += formula_part['display_column_header'] # type: ignore
+            formula += get_column_header_display(df.index[df.index.get_indexer([formula_label])[0] - formula_part['row_offset']]) # type: ignore
+    return formula

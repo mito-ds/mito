@@ -134,7 +134,7 @@ def test_sheet_json_holds_all_columns():
     sheet_data = json.loads(mito.sheet_data_json)[0]
     for i in range(MAX_COLUMNS, MAX_COLUMNS + 100):
         assert sheet_data['columnIDsMap'][str(i)] is not None
-        assert sheet_data['columnSpreadsheetCodeMap'][str(i)] is not None
+        assert sheet_data['columnFormulasMap'][str(i)] is not None
         assert sheet_data['columnFiltersMap'][str(i)] is not None
         assert sheet_data['columnIDsMap'][str(i)] is not None
         assert sheet_data['columnDtypeMap'][str(i)] is not None

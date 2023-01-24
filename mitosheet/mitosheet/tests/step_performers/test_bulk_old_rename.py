@@ -68,7 +68,7 @@ def test_move_to_old_id_algorithm_updates_state_variables_properly():
     assert columns_ids.get_column_header_by_id(0, 'B_B') == 'B_B'
     
     assert list(mito.curr_step.column_filters[0].keys()) == ['A_A', 'B_B', 'C_C']
-    assert list(mito.curr_step.column_spreadsheet_code[0].keys()) == ['A_A', 'B_B', 'C_C']
+    assert list(mito.curr_step.column_formulas[0].keys()) == ['A_A', 'B_B', 'C_C']
 
     # Then, try making some change
     mito.set_formula('=A_A + C_C', 0, 'D_D', add_column=True)

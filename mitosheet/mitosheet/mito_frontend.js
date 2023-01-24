@@ -24818,14 +24818,15 @@ ${finalCode}`;
     var _a, _b;
     const columnID = (_a = sheetData == null ? void 0 : sheetData.data[columnIndex]) == null ? void 0 : _a.columnID;
     const columnHeader = (_b = sheetData == null ? void 0 : sheetData.data[columnIndex]) == null ? void 0 : _b.columnHeader;
-    const columnFormula = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.columnSpreadsheetCodeMap[columnID] : void 0;
+    const indexLabel = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.index[rowIndex] : void 0;
     const columnDtype = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnDtype : void 0;
+    const columnFormulaRaw = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.columnFormulasMap[columnID] : void 0;
+    const columnFormula = getFormulaStringFromFrontendFormula(columnFormulaRaw, indexLabel, sheetData);
     const columnFilters = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.columnFiltersMap[columnID] : void 0;
     const cellValue = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnData[rowIndex] : void 0;
     const columnFormat = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.columns[columnID] : void 0;
     const headerBackgroundColor = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.headers.backgroundColor : void 0;
     const headerTextColor = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.headers.color : void 0;
-    const indexLabel = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.index[rowIndex] : void 0;
     return {
       columnID,
       columnHeader,
@@ -25063,6 +25064,37 @@ ${finalCode}`;
     } else {
       return matchingFunctions[0];
     }
+  };
+  var getIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData, indexLabel, rowOffset) => {
+    const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
+    if (indexOfIndexLabel === -1) {
+      return void 0;
+    }
+    const indexOfNewLabel = indexOfIndexLabel - rowOffset;
+    return sheetData.index[indexOfNewLabel];
+  };
+  var getFormulaStringFromFrontendFormula = (formula, indexLabel, sheetData) => {
+    let formulaString = "";
+    if (!formula || !sheetData) {
+      return formulaString;
+    }
+    formula.forEach((formulaPart) => {
+      if (formulaPart.type === "string part") {
+        formulaString += formulaPart.string;
+      } else {
+        formulaString += formulaPart.display_column_header;
+        const newIndexLabel = getIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+        if (newIndexLabel !== void 0) {
+          formulaString += getDisplayColumnHeader(newIndexLabel);
+        } else {
+          const firstIndexLabel = sheetData == null ? void 0 : sheetData.index[0];
+          if (firstIndexLabel !== void 0) {
+            formulaString += getDisplayColumnHeader(firstIndexLabel);
+          }
+        }
+      }
+    });
+    return formulaString;
   };
 
   // src/components/endo/domUtils.tsx

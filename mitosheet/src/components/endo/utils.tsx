@@ -2,6 +2,7 @@ import React from "react";
 import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
+import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
 
 
@@ -100,17 +101,20 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     headerTextColor: string | undefined,
     indexLabel: any | undefined,
 } => {
+
     
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
-    const columnFormula = columnID !== undefined ? sheetData?.columnSpreadsheetCodeMap[columnID] : undefined;
+    const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
+    const columnFormulaRaw = columnID !== undefined ? sheetData?.columnFormulasMap[columnID] : undefined;
+    const columnFormula = getFormulaStringFromFrontendFormula(columnFormulaRaw, indexLabel, sheetData);
+
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
     const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
     const headerBackgroundColor = columnID !== undefined ? sheetData?.dfFormat.headers.backgroundColor : undefined;
     const headerTextColor = columnID !== undefined ? sheetData?.dfFormat.headers.color : undefined;
-    const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
 
     return {
         columnID: columnID,

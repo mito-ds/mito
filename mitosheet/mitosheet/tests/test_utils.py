@@ -106,7 +106,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         test_wrapper.mito_backend.steps_manager.curr_step.dfs,
         test_wrapper.mito_backend.steps_manager.curr_step.df_names,
         test_wrapper.mito_backend.steps_manager.curr_step.df_sources,
-        test_wrapper.mito_backend.steps_manager.curr_step.column_spreadsheet_code,
+        test_wrapper.mito_backend.steps_manager.curr_step.column_formulas,
         test_wrapper.mito_backend.steps_manager.curr_step.column_filters,
         test_wrapper.mito_backend.steps_manager.curr_step.column_ids,
         test_wrapper.mito_backend.steps_manager.curr_step.df_formats
@@ -1269,30 +1269,10 @@ class MitoWidgetTestWrapper:
         column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
-        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
+        if column_id not in self.mito_backend.steps_manager.curr_step.column_formulas[sheet_index]:
             return ''
-        return self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
+        return self.mito_backend.steps_manager.curr_step.column_formulas[sheet_index][column_id]
 
-    def get_python_formula(self, sheet_index: int, column_header: ColumnHeader, formula_label: Union[str, bool, int, float]=0) -> str:
-        """
-        Gets the formula for a given column. Returns an empty
-        string if nothing exists.
-        """
-        column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
-            sheet_index, column_header
-        )
-        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
-            return ''
-
-        # We compile all of their formulas
-        python_code, _, _ = parse_formula(
-            self.curr_step.post_state.column_spreadsheet_code[sheet_index][column_id], 
-            column_header,
-            formula_label,
-            self.curr_step.dfs[sheet_index]
-        )
-
-        return python_code
 
     def get_value(self, sheet_index: int, column_header: ColumnHeader, row: int) -> Any:
         """

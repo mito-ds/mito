@@ -60,7 +60,7 @@ def test_edit_cell_formula_mulitple_msg_receives():
     mito.set_formula('=1', 0, 'B')
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=1'
+    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=1', 'type': 'string part'}]
 
 
 def test_edit_to_same_formula_no_error():
@@ -81,7 +81,7 @@ def test_edit_to_same_formula_no_error():
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=A'
+    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference'}]
 
 
 def test_formulas_fill_missing_parens():
@@ -119,10 +119,8 @@ def test_multi_sheet_edits_edit_correct_dfs():
     mito.set_formula('=A + 1', 0, 'B')
     mito.set_formula('=A + 100', 1, 'B')
 
-    assert 'B' in mito.dfs[0]
-    assert 'B' in mito.dfs[1]
-    assert mito.curr_step.column_spreadsheet_code[0]['B'] == '=A + 1'
-    assert mito.curr_step.column_spreadsheet_code[1]['B'] == '=A + 100'
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [2]}))
+    assert mito.dfs[1].equals(pd.DataFrame({'A': [2], 'B': [102]}))
 
 
 def test_only_writes_single_code():

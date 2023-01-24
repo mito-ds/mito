@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, MitoSelection, SheetData } from "../../../types";
+import { ColumnID, EditorState, Formula, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
@@ -355,4 +355,56 @@ export const getDocumentationFunction = (formula: string): FunctionDocumentation
     } else {
         return matchingFunctions[0];
     }
+}
+
+export const getIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData, indexLabel: any, rowOffset: number): any | undefined => {
+    const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
+    if (indexOfIndexLabel === -1) {
+        return undefined;
+    }
+
+    const indexOfNewLabel = indexOfIndexLabel - rowOffset;
+    return sheetData.index[indexOfNewLabel];
+}
+
+
+export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined, indexLabel: any, sheetData: SheetData | undefined): string | undefined => {
+    let formulaString = '';
+    if (!formula || !sheetData) {
+        return formulaString;
+    }
+
+    formula.forEach(formulaPart => {
+        if (formulaPart.type === 'string part') {
+            formulaString += formulaPart.string
+        } else {
+            formulaString += formulaPart.display_column_header
+
+            /**
+             * After adding the reference to the column header, we need to add the correct index label.
+             * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
+             */
+            const newIndexLabel = getIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+            if (newIndexLabel !== undefined) {
+                formulaString += getDisplayColumnHeader(newIndexLabel);
+            } else {
+                /**
+                 * TODO: what to do if the index is out of bounds here? In the formula bar, we want to handle this
+                 * fine -- it's actually not a problem.
+                 * 
+                 * But in a normal cell editor, it's weird that this is just capped at 0. Maybe we should put in 
+                 * whatever the fill value is? This requires us to case on the type of column... and and is a bit 
+                 * fragile.
+                 * 
+                 * We could also just leave it as is. It's slightly confusing, but perhaps is fine in practice?
+                 */
+                const firstIndexLabel = sheetData?.index[0]
+                if (firstIndexLabel !== undefined) {
+                    formulaString += getDisplayColumnHeader(firstIndexLabel);
+                }
+            }
+        }
+
+    })
+    return formulaString;
 }

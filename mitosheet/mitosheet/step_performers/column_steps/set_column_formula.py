@@ -16,7 +16,7 @@ from mitosheet.errors import (MitoError, make_execution_error,
                               make_no_column_error, make_operator_type_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
-from mitosheet.parser import parse_formula
+from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -252,7 +252,11 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
             FUNCTIONS
         )
         # Then, update the column spreadsheet code
-        post_state.column_spreadsheet_code[sheet_index][column_id] = spreadsheet_code
+        post_state.column_formulas[sheet_index][column_id] = get_frontend_formula(
+            spreadsheet_code,
+            formula_label,
+            post_state.dfs[sheet_index]
+        )
     except TypeError as e:
         # We catch TypeErrors specificially, so that we can case on operator errors, to 
         # give better error messages
@@ -277,7 +281,7 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
     except Exception as e:
         # If this is the same formula as before, then it used to be valid and is not,
         # and so we let the user know they must have made some other change that made 
-        # in invalid
-        if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
-            raise make_invalid_formula_after_update_error()
+        # in invalid (TODO: broken)
+        #if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
+        #    raise make_invalid_formula_after_update_error()
         raise

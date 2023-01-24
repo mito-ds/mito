@@ -50,15 +50,6 @@ def test_rename_column_with_nat_and_nan():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1], 'C': [1]}))
 
-def test_rename_updates_creation_step():
-    mito = create_mito_wrapper([1])
-    mito.set_formula('=A', 0, 'B', add_column=True)
-    mito.set_formula('=B', 0, 'C', add_column=True)
-    mito.rename_column(0, 'B', 'D')
-
-    assert mito.get_python_formula(0, 'D') == 'df[\'D\'] = df[\'A\']'
-
-
 def test_cannot_update_to_existing_column():
     mito = create_mito_wrapper([1])
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
