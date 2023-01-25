@@ -6,7 +6,7 @@ from typing import Dict, Optional
 VALID_PARAMETER_TYPES = [
     'int', 'float', 'str', 'bool',
     'ColumnID', 'List[ColumnID]', 
-    'List[str]',
+    'List[str]', 'List[int]',
     'Any'
 ]
 

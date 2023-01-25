@@ -8,6 +8,7 @@ import io
 from typing import Any, Dict
 
 import pandas as pd
+from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 from mitosheet.pro.download.formatting import add_formatting_to_excel_sheet
 from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
@@ -27,10 +28,10 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
         for sheet_index in sheet_indexes:
             # First, write the tab in the Excel file
             df = steps_manager.dfs[sheet_index]
-            sheet_name = steps_manager.curr_step.df_names[sheet_index]
+            df_name = steps_manager.curr_step.df_names[sheet_index]
             df.to_excel(
                 writer, 
-                sheet_name=sheet_name[:31], # Make sure we don't pass more than 31 characters, it's not a valid sheet name 
+                sheet_name=get_df_name_as_valid_sheet_name(df_name),
                 index=False
             )
 

@@ -533,6 +533,29 @@ class MitoWidgetTestWrapper:
             }
         )
     
+    # NOTE: we don't automatically run the code for testing reasons, so that we can
+    # test the step performer to make sure that it works properly without the generated
+    # code overwriting the files
+    def export_to_file(
+            self, 
+            type: str,
+            sheet_indexes: List[int],
+            file_name: str,
+        ) -> bool:
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'export_to_file_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'type': type,
+                    'sheet_indexes': sheet_indexes,
+                    'file_name': file_name
+                }
+            }
+        )
 
     @check_transpiled_code_after_call
     def reset_index(
