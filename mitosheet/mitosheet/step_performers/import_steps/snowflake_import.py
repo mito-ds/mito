@@ -9,7 +9,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk
-from mitosheet.errors import make_invalid_snowflake_import_error
+from mitosheet.errors import make_invalid_snowflake_credentials_error, make_invalid_snowflake_import_error
 
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -50,7 +50,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
         # If the credentials are not defined, then raise an error 
         if credentials is None:
-            raise make_invalid_snowflake_import_error()
+            raise make_invalid_snowflake_credentials_error()
 
         # We make a new state to modify it
         post_state = prev_state.copy()

@@ -511,12 +511,25 @@ def make_invalid_snowflake_import_error() -> MitoError:
     """
     Helper function for creating an invalid_snowflake_import_error.
 
-    Occures when the user tries to simple import and it fails.
+    Occures when the user tries to snowflake import and it fails.
     """
     return MitoError(
         'invalid_snowflake_import_error',
         'Cannot Query Database',
         'We were unable to execute that query. Reach out to support for help.',
+        False
+    )
+
+def make_invalid_snowflake_credentials_error() -> MitoError:
+    """
+    Helper function for creating an invalid_snowflake_credentials_error.
+
+    Occures when the user tries to snowflake imports, but their credentials are invalid.
+    """
+    return MitoError(
+        'invalid_snowflake_credentials_error',
+        'Invalid Snowflake Credentials',
+        'Your Snowflake connection credentials are invalid. Please enter valid Snowflake credentials and try again.',
         False
     )
 

@@ -22,22 +22,12 @@ TEST_SNOWFLAKE_CREDENTIALS = {
 def test_integration_get_cached_credentials():
     mito = create_mito_wrapper_dfs()
 
-    response = get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
-
+    # Test that the cached credentials are accessible by the mitosheet that cached them
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
     credentials = get_cached_snowflake_credentials({}, mito.mito_backend.steps_manager)
-
     assert json.loads(credentials) == TEST_SNOWFLAKE_CREDENTIALS
 
-
-@requires_snowflake_dependencies_and_credentials
-@python_post_3_6_only
-def test_integration_get_cached_credentials():
-    mito = create_mito_wrapper_dfs()
-
-    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
-
+    # Check that the cached credentials are accessible by other mitosheets running in the same kernel
     mito_2 = create_mito_wrapper_dfs()
-
-    credentials = get_cached_snowflake_credentials({}, mito_2.mito_backend.steps_manager)
-
-    assert credentials == 'null'
+    credentials_2 = get_cached_snowflake_credentials({}, mito_2.mito_backend.steps_manager)
+    assert json.loads(credentials_2) == TEST_SNOWFLAKE_CREDENTIALS

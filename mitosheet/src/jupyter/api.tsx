@@ -731,8 +731,8 @@ export default class MitoAPI {
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_cached_snowflake_credentials',
-            'params': {}
-            // TODO: Make this a priority API call
+            'params': {},
+            'priority': true // Make this event a priority so it always gets executed
         }, {})
 
         if (resultString !== undefined && resultString !== 'null' && resultString !== '') {

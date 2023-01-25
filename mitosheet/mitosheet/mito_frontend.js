@@ -23551,7 +23551,8 @@ ${finalCode}`;
       const resultString = await this.send({
         "event": "api_call",
         "type": "get_cached_snowflake_credentials",
-        "params": {}
+        "params": {},
+        "priority": true
       }, {});
       if (resultString !== void 0 && resultString !== "null" && resultString !== "") {
         return JSON.parse(resultString);
@@ -37467,7 +37468,7 @@ fig.write_html("${props.graphTabName}.html")`
     } else if (updatedDataframeCreationData.step_type === "excel_range_import") {
       return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path));
     } else if (updatedDataframeCreationData.step_type === "snowflake_import") {
-      return /* @__PURE__ */ import_react155.default.createElement("div", { className: "mt-3px" }, /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "Update to "), " ", getSimpleNameSpan(updatedDataframeCreationData.params.table_loc_and_warehouse.table), " ", /* @__PURE__ */ import_react155.default.createElement("span", { className: "text-color-medium-gray-important" }, "from Snowflake "));
+      return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement(import_react155.default.Fragment, null));
     } else {
       return /* @__PURE__ */ import_react155.default.createElement("div", null, /* @__PURE__ */ import_react155.default.createElement(import_react155.default.Fragment, null));
     }
@@ -37490,7 +37491,7 @@ fig.write_html("${props.graphTabName}.html")`
         return /* @__PURE__ */ import_react155.default.createElement(
           DropdownItem_default,
           {
-            title: "Enter Snowflake Credentials",
+            title: "Connect to Snowflake",
             onClick: () => {
               props.setReplacingDataframeState({
                 dataframeCreationIndex: props.dataframeCreationIndex,
@@ -37865,9 +37866,7 @@ fig.write_html("${props.graphTabName}.html")`
         let invalidImportIndexes = void 0;
         if (failedReplayData !== void 0) {
           importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
-          console.log("importData: ", importData);
           invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
-          console.log("invalidImportIndexes: ", invalidImportIndexes);
         } else {
           importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
           invalidImportIndexes = {};
@@ -38398,6 +38397,7 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
+    const [credentialsValidated, setCredentialsValidated] = (0, import_react165.useState)(false);
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react165.useState)(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react165.useState)(void 0);
     const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
@@ -38430,6 +38430,7 @@ fig.write_html("${props.graphTabName}.html")`
         mitoAPI: props.mitoAPI,
         onCredentialsValidated: () => {
           setCredentialsSectionIsOpen(false);
+          setCredentialsValidated(true);
           loadAndSetOptionsAndDefaults(params);
         },
         isOpen: credentialsSectionIsOpen
@@ -38523,7 +38524,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react165.default.createElement(
       TextButton_default,
       {
-        disabled: params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
+        disabled: !credentialsValidated || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
         disabledTooltip: "Fields missing from the query. TODO: Cleanup",
         onClick: () => edit(),
         variant: "dark"

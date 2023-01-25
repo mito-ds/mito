@@ -111,7 +111,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
 
-
+    const [credentialsValidated, setCredentialsValidated] = useState(false)
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
 
@@ -151,6 +151,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     mitoAPI={props.mitoAPI}
                     onCredentialsValidated={() => {
                         setCredentialsSectionIsOpen(false)
+                        setCredentialsValidated(true)
                         loadAndSetOptionsAndDefaults(params)
                     }}      
                     isOpen={credentialsSectionIsOpen}          
@@ -282,9 +283,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </MultiToggleBox>
                         <TextButton
                             disabled={
-                                // credentials.username.length === 0 || 
-                                // credentials.password.length === 0 || 
-                                // credentials.account.length === 0 || 
+                                !credentialsValidated || // Activated when user first validates credentials. Its possible they've since invalidated their credentials.
                                 params.table_loc_and_warehouse.warehouse === undefined || 
                                 params.table_loc_and_warehouse.database === undefined || 
                                 params.table_loc_and_warehouse.schema === undefined ||

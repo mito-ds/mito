@@ -18,9 +18,10 @@ except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
 
 # Global variable used to cache the snowflake credentials so that when users
-# open the snowflake taskpane multiple times in the same mito instantiation, 
-# we can save their credentials. It also allows us to not pass the snowflake credentials
-# to the step performer, which ensures they don't get written into the analysis json.
+# open the snowflake taskpane multiple times before restarting their kernel, 
+# we can save their credentials. This global variable is accessed by all mitosheets in the notebook! 
+# Caching the credentials also allows us to not pass the snowflake credentials to the step performer, 
+# which ensures they don't get written into the analysis json.
 cached_snowflake_credentials: Optional[SnowflakeCredentials] = None
 
 def get_cached_global_snowflake_credentials() -> Optional[SnowflakeCredentials]:
@@ -62,7 +63,6 @@ def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manag
     # cache the snowflake credentials 
     global cached_snowflake_credentials
     cached_snowflake_credentials = params
-    print(cached_snowflake_credentials)
         
     return json.dumps({
         'type': 'success'

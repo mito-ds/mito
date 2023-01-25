@@ -105,8 +105,10 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
         )
     } else if (updatedDataframeCreationData.step_type === 'snowflake_import') {
         return (
-            <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.table_loc_and_warehouse.table)} <span className='text-color-medium-gray-important'>from Snowflake </span>
+            // If the user validates their snowlfake credentials, we just remove the error, but don't add
+            // an update message since the query did not change.
+            <div>
+                <></>
             </div>
         )
     } else {
@@ -156,7 +158,7 @@ const UpdateImportCard = (props: {
         if (props.dataframeCreationData.step_type === 'snowflake_import') {
             return (
                 <DropdownItem
-                    title='Enter Snowflake Credentials'
+                    title='Connect to Snowflake'
                     onClick={() => {
                         props.setReplacingDataframeState({
                             dataframeCreationIndex: props.dataframeCreationIndex,
