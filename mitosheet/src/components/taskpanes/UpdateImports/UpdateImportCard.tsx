@@ -152,6 +152,25 @@ const UpdateImportCard = (props: {
         })
     }
 
+    const getSnowflakeDropddownItemOrEmptyElement = (): JSX.Element =>  {
+        if (props.dataframeCreationData.step_type === 'snowflake_import') {
+            return (
+                <DropdownItem
+                    title='Enter Snowflake Credentials'
+                    onClick={() => {
+                        props.setReplacingDataframeState({
+                            dataframeCreationIndex: props.dataframeCreationIndex,
+                            importState: {screen: 'authenticate_to_snowflake'},
+                            params: undefined
+                        });
+                    }}
+                />
+            )
+        } else {
+           return (<></>)
+        }
+    }
+
     return (
         <Row justify='space-between' align='top' onClick={() => {openDropdown()}}>
             <Col span={22}>
@@ -180,6 +199,7 @@ const UpdateImportCard = (props: {
                         closeDropdown={() => closeDropdown()}
                         width='medium'
                     >
+                        {getSnowflakeDropddownItemOrEmptyElement()}
                         <DropdownItem
                             title='Replace with file'
                             onClick={() => {

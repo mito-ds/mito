@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 
-import { classNames } from "../../../utils/classNames";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
+import AuthenticateToSnowflakeCard from "../../elements/AuthenticateToSnowflakeCard";
 import DropdownItem from "../../elements/DropdownItem";
-import Input from "../../elements/Input";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
 import Select from "../../elements/Select";
@@ -30,8 +29,6 @@ interface SnowflakeImportTaskpaneProps {
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
 }
-
-export type SnowflakeCredentialsValidityCheckResult = {type: 'success'} | {type: 'error', 'error_message': string}
 
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
@@ -58,10 +55,6 @@ export type SnowflakeConfigOptions = {
 export interface SnowflakeImportParams {
     table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse,
     query_params: SnowflakeQueryParams,
-}
-
-const getDefaultCredentials = (): SnowflakeCredentials => {
-    return {type: 'username/password', username: '', password: '', account: ''}
 }
 
 const getDefaultParams = (): SnowflakeImportParams | undefined => {
@@ -118,7 +111,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
 
-    const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => getDefaultCredentials())
+
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
 
@@ -127,20 +120,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     const setParamsAndRefreshOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
         setParamsWithoutRefreshOptionsAndDefaults(newParams);
         void loadAndSetOptionsAndDefaults(newParams);
-    }
-
-    useEffect(() => {
-        console.log('loading cached credentials')
-        // On first render, load the cached credentials
-        loadAndSetCachedCredentials()
-    }, []);
-
-    const loadAndSetCachedCredentials = async () => {
-        const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials()
-        console.log(cachedCredentials)
-        if (cachedCredentials !== undefined) {
-            setCredentials(cachedCredentials)
-        }
     }
 
     if (params === undefined) {
@@ -160,15 +139,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             })
         }
     }
-
-    // TODO: Wrap this in a function to handle a loading indicator and actually waiting for results properly
-    const validateSnowflakeCredentials = async () => {
-        const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
-        if (validityCheckResult?.type === 'success') {
-            // If the user connects successful, we close the connection window
-            setCredentialsSectionIsOpen(false);
-        }
-    }
     
     return (
         <DefaultTaskpane>
@@ -178,71 +148,13 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             />
             <DefaultTaskpaneBody>
                 <CollapsibleSection title='Connection' open={credentialsSectionIsOpen}>
-                    <Row justify="space-between">
-                        <Col>
-                            Username
-                        </Col>
-                        <Col>
-                            <Input 
-                                value={credentials.username} 
-                                onChange={(e) => {
-                                    const newUsername = e.target.value;
-                                    setCredentials((prevCredentials) => {
-                                        return updateObjectWithPartialObject(prevCredentials, {username: newUsername});
-                                    }) 
-                                }}/>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between">
-                        <Col>
-                            Password
-                        </Col>
-                        <Col>
-                            <Input 
-                                value={credentials.password} 
-                                type='password'
-                                onChange={(e) => {
-                                    const newPassword = e.target.value;
-                                    setCredentials((prevCredentials) => {
-                                        return updateObjectWithPartialObject(prevCredentials, {password: newPassword});
-                                    }) 
-
-                                }}/>
-                        </Col>
-                    </Row>
-                    <Row justify="space-between">
-                        <Col>
-                            Account
-                        </Col>
-                        <Col>
-                            <Input 
-                                value={credentials.account} 
-                                onChange={(e) => {
-                                    const newAccount = e.target.value;
-                                    setCredentials((prevCredentials) => {
-                                        return updateObjectWithPartialObject(prevCredentials, {account: newAccount});
-                                    }) 
-                                }}/>
-                        </Col>
-                    </Row>
-                    {/* TODO: Make pressing enter if they have not yet connected submit this button? */}
-                    <TextButton
-                        disabled={credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0}
-                        disabledTooltip='Please fill out the username, password, and account fields below.'
-                        onClick={async () => {
-                            await validateSnowflakeCredentials();
-                            await loadAndSetOptionsAndDefaults(params);
-                        }}
-                        variant='dark'
-                    >
-                        Connect to Snowflake
-                    </TextButton>
-                    {availableSnowflakeOptionsAndDefaults !== undefined &&
-                        <div className={(classNames({'text-color-error': availableSnowflakeOptionsAndDefaults.type === 'error', 'text-color-success': availableSnowflakeOptionsAndDefaults.type === 'success'}))}>
-                            {availableSnowflakeOptionsAndDefaults.type === 'success' && "Successfully connected to Snowflake instance."}
-                            {availableSnowflakeOptionsAndDefaults.type === 'error' && availableSnowflakeOptionsAndDefaults.error_message}
-                        </div>
-                    }
+                    <AuthenticateToSnowflakeCard 
+                        mitoAPI={props.mitoAPI}
+                        onCredentialsValidated={() => {
+                            setCredentialsSectionIsOpen(false)
+                            loadAndSetOptionsAndDefaults(params)
+                        }}                
+                    />
                 </CollapsibleSection>
                 <Spacer px={20}/>
                 <CollapsibleSection title="Connection Location" open={availableSnowflakeOptionsAndDefaults?.type === 'success'}>
@@ -371,9 +283,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </MultiToggleBox>
                         <TextButton
                             disabled={
-                                credentials.username.length === 0 || 
-                                credentials.password.length === 0 || 
-                                credentials.account.length === 0 || 
+                                // credentials.username.length === 0 || 
+                                // credentials.password.length === 0 || 
+                                // credentials.account.length === 0 || 
                                 params.table_loc_and_warehouse.warehouse === undefined || 
                                 params.table_loc_and_warehouse.database === undefined || 
                                 params.table_loc_and_warehouse.schema === undefined ||

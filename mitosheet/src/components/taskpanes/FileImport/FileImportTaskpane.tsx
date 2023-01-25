@@ -39,6 +39,8 @@ export type ImportState = {
     filePath: string
 } | {
     screen: 'dataframe_import'
+} | {
+    screen: 'authenticate_to_snowflake'
 }
 
 
@@ -109,6 +111,10 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
             
                 setImportState={setImportState}
             />
+        )
+    } else if (importState.screen == 'authenticate_to_snowflake') {
+        return (
+            <></>
         )
     } else {
         return (<></>)
