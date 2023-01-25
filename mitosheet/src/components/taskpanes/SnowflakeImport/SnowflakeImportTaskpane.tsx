@@ -115,8 +115,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
 
-    // Because we don't always want to refresh defaults, we have an setParamsWithoutDefaultRefresh functions that will
-    // set params without doing so. This will both set the params and refresh the defaults, doh
+    // Because we don't always want to refresh defaults, we have a setParamsWithoutDefaultRefresh function that will
+    // set params without resetting the default values via the api call. This function, however, will both set the params and refresh the defaults.
     const setParamsAndRefreshOptionsAndDefaults = (newParams: SnowflakeImportParams): void => {
         setParamsWithoutRefreshOptionsAndDefaults(newParams);
         void loadAndSetOptionsAndDefaults(newParams);
@@ -147,15 +147,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <CollapsibleSection title='Connection' open={credentialsSectionIsOpen}>
-                    <AuthenticateToSnowflakeCard 
-                        mitoAPI={props.mitoAPI}
-                        onCredentialsValidated={() => {
-                            setCredentialsSectionIsOpen(false)
-                            loadAndSetOptionsAndDefaults(params)
-                        }}                
-                    />
-                </CollapsibleSection>
+                <AuthenticateToSnowflakeCard 
+                    mitoAPI={props.mitoAPI}
+                    onCredentialsValidated={() => {
+                        setCredentialsSectionIsOpen(false)
+                        loadAndSetOptionsAndDefaults(params)
+                    }}      
+                    isOpen={credentialsSectionIsOpen}          
+                />
                 <Spacer px={20}/>
                 <CollapsibleSection title="Connection Location" open={availableSnowflakeOptionsAndDefaults?.type === 'success'}>
                     <Row justify="space-between">
