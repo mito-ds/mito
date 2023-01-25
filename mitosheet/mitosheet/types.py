@@ -87,6 +87,9 @@ except ImportError:
 MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 
 
+FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
+FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
+
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict
@@ -167,9 +170,13 @@ if sys.version_info[:3] > (3, 8, 0):
         display_column_header: str
         row_offset: int
 
-    class IndexLabelsFormulaIsAppledTo(TypedDict):
-        type: str # 'entire_column' | 'specfic_index_labels'
+    class FormulaLocationEntireColumn(TypedDict):
+        type: str
+
+    class FormulaLocationToSpecificIndexLabels(TypedDict):
+        type: str
         index_labels: Optional[List[Any]]
+
 
 else:
     ColumnIDWithFilter = Any # type:ignore
@@ -188,9 +195,22 @@ else:
     CodeSnippetEnvVars = Any # type:ignore
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaReference = Any # type:ignore
-    IndexLabelsFormulaIsAppledTo = Any # type:ignore
+    FormulaLocationEntireColumn = Any # type:ignore
+    FormulaLocationToSpecificIndexLabels = Any # type:ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
 FrontendFormula = List[FrontendFormulaPart]
 
+FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]
+
+
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class FrontendFormulaAndLocation(TypedDict):
+        frontend_formula: FrontendFormula
+        location: FormulaAppliedToType
+
+else:
+    FrontendFormulaAndLocation = Any # type:ignore

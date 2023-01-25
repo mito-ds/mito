@@ -176,7 +176,7 @@ class Step:
         Currently, a step only skips the steps before it if:
         1. This step is a filter step that is trying to replace an older filter step
         2. This step has the same id as any step before it (like for pivot tables)
-        3. This step is a formula step overwriting the step that came just before it
+        3. This step is a formula step overwriting the step that came just before it (and they both set the entire column)
         """
 
         step_indexes_to_skip = set()
@@ -198,6 +198,7 @@ class Step:
             # Check (3)
             if self.step_type == SetColumnFormulaStepPerformer.step_type():
                 if self.step_type == previous_step.step_type \
+                    and self.params['index_labels_formula_is_applied_to']['type'] == 'entire_column' and previous_step.params['index_labels_formula_is_applied_to']['type'] == 'entire_column' \
                     and self.params['sheet_index'] == previous_step.params['sheet_index'] \
                     and self.params['column_id'] == previous_step.params['column_id']:
                     step_indexes_to_skip.add(len(all_steps_before_this_step) - 1)

@@ -21,7 +21,7 @@ from mitosheet.parser import parse_formula
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
+from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, FormulaAppliedToType, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -216,12 +216,11 @@ class MitoWidgetTestWrapper:
         if formula_label is None:
             formula_label = self.mito_backend.steps_manager.dfs[sheet_index].index[0]
 
+        index_labels_formula_is_applied_to: FormulaAppliedToType
         if index_labels is None:
             index_labels_formula_is_applied_to = {'type': 'entire_column'}
         else:
             index_labels_formula_is_applied_to = {'type': 'specfic_index_labels', 'index_labels': index_labels}
-
-        print("HERE", index_labels_formula_is_applied_to)
 
         return self.mito_backend.receive_message(
             {

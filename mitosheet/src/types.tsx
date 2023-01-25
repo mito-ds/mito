@@ -248,8 +248,15 @@ export type ConditionalFormattingResult = {
 type FormulaPart = {'type': 'string part', 'string': string} 
 	| {'type': 'reference part', 'display_column_header': string, 'row_offset': number} 
 export type Formula = FormulaPart[]
-
 export type IndexLabel = string | number;
+
+export type FormulaLocation = {'type': 'entire_column'} | {'type': 'specific_index_labels', 'index_labels': IndexLabel[]}
+
+export type FormulaAndLocation = {
+    'frontend_formula': Formula,
+    'location': FormulaLocation
+}
+
 
 /**
  * Data that will be displayed in the sheet itself.
@@ -277,7 +284,7 @@ export type SheetData = {
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnFormulasMap: Record<ColumnID, Formula>;
+    columnFormulasMap: Record<ColumnID, FormulaAndLocation[]>;
     columnFiltersMap: ColumnFilterMap;
     columnDtypeMap: Record<ColumnID, string>;
     index: IndexLabel[];
@@ -577,7 +584,7 @@ export type EditorState = {
     rowIndex: number;
     columnIndex: number;
     formula: string;
-    editingMode: 'set_column_formula' | 'set_cell_value';
+    editingMode: 'entire_column' | 'specific_index_labels';
 
     pendingSelections?: {
         selections: MitoSelection[],

@@ -12,12 +12,12 @@ from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.state import State
-from mitosheet.types import ColumnID, IndexLabelsFormulaIsAppledTo
+from mitosheet.types import ColumnID, FormulaAppliedToType
 
 
 class SetColumnFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo, new_formula: str):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, new_formula: str):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
@@ -32,7 +32,10 @@ class SetColumnFormulaCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'Set formula of {column_header}'
+        if self.index_labels_formula_is_applied_to['type'] == 'entire_column':
+            return f'Set formula of {column_header}'
+        else:
+            return f'Set formula indexes {self.index_labels_formula_is_applied_to["index_labels"]} of {column_header}' # type: ignore
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)

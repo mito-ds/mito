@@ -137,7 +137,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Set Column Formula'
                 onClick={() => {
-                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(props.sheetData, undefined, rowIndex, columnIndex, 'set_column_formula');
+                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(props.sheetData, undefined, rowIndex, columnIndex, 'entire_column');
 
                     props.setEditorState({
                         rowIndex: 0,
@@ -145,7 +145,7 @@ export default function ColumnHeaderDropdown(props: {
                         formula: startingColumnFormula,
                         arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
-                        editingMode: 'set_column_formula'
+                        editingMode: 'entire_column'
                     })
                 }}
                 supressFocusSettingOnClose

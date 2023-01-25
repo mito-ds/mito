@@ -23,7 +23,7 @@ from mitosheet.sheet_functions.types.utils import (is_datetime_dtype,
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import (ColumnHeader, FrontendFormula,
-                             IndexLabelsFormulaIsAppledTo, ParserMatch,
+                             FormulaAppliedToType, ParserMatch,
                              ParserMatchRange, RowOffset)
 
 COLUMN_HEADER_MATCH_TYPE = 'column header match type'
@@ -579,7 +579,7 @@ def parse_formula(
         formula: Optional[str], 
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
-        index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo,
+        index_labels_formula_is_applied_to: FormulaAppliedToType,
         df: pd.DataFrame,
         df_name: str='df',
         throw_errors: bool=True,
@@ -627,8 +627,7 @@ def parse_formula(
         if index_labels_formula_is_applied_to['type'] == 'entire_column':
             final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
         else:
-            loc_statement = f'.loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}]'
-            final_code = f'{df_name}[{transpiled_column_header}]{loc_statement} = ({code_with_functions}){loc_statement}'
+            final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}, [{transpiled_column_header}]] = ({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}]' # type: ignore
 
     else:
         final_code = f'{code_with_functions}'

@@ -60,7 +60,7 @@ def test_edit_cell_formula_mulitple_msg_receives():
     mito.set_formula('=1', 0, 'B')
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=1', 'type': 'string part'}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=1', 'type': 'string part'}], 'location': {'type': 'entire_column'}}]
 
 
 def test_edit_to_same_formula_no_error():
@@ -83,7 +83,7 @@ def test_edit_to_same_formula_no_error():
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}], 'location': {'type': 'entire_column'}}]
 
 
 def test_formulas_fill_missing_parens():
@@ -456,5 +456,39 @@ def test_set_specific_index_labels(input_df, column_header, formula, formula_lab
     mito.add_column(0, column_header)
     mito.set_formula(formula, 0, column_header, formula_label=formula_label, index_labels=index_labels)
 
-    print(mito.dfs[0])
     assert mito.dfs[0].equals(output_df)
+
+
+def test_set_specific_index_labels_twice():    
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
+
+def test_set_specific_index_labels_then_entire_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 0]}))
+
+
+def test_set_entire_column_then_specific_index_labels():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A1', 0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 3, 0]}))
+
+def test_set_specific_indexes_then_delete_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A1', 0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.delete_columns(0, ['B'])
+
+    assert len(mito.optimized_code_chunks) == 1

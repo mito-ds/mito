@@ -100,7 +100,7 @@ const FormulaBar = (props: {
                                 formula: formulaBarValue,
                                 arrowKeysScrollInFormula: true,
                                 editorLocation: 'formula bar',
-                                editingMode: 'set_column_formula'
+                                editingMode: 'entire_column'
                             })
                         }}
                     >

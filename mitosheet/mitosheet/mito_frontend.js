@@ -23810,7 +23810,7 @@ ${finalCode}`;
         }
       }, {});
     }
-    async editSetColumnFormula(sheetIndex, columnID, formula_label, newFormula, cell_editor_location) {
+    async editSetColumnFormula(sheetIndex, columnID, formula_label, newFormula, index_labels_formula_is_applied_to, cell_editor_location) {
       const stepID = getRandomId();
       return await this.send({
         "event": "edit_event",
@@ -23821,7 +23821,7 @@ ${finalCode}`;
           "column_id": columnID,
           "formula_label": formula_label,
           "new_formula": newFormula,
-          "index_labels_formula_is_applied_to": { "type": "entire_column" },
+          "index_labels_formula_is_applied_to": index_labels_formula_is_applied_to,
           "cell_editor_location": cell_editor_location
         }
       }, {});
@@ -24821,8 +24821,17 @@ ${finalCode}`;
     const columnHeader = (_b = sheetData == null ? void 0 : sheetData.data[columnIndex]) == null ? void 0 : _b.columnHeader;
     const indexLabel = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.index[rowIndex] : void 0;
     const columnDtype = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnDtype : void 0;
-    const columnFormulaRaw = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.columnFormulasMap[columnID] : void 0;
-    const columnFormula = getFormulaStringFromFrontendFormula(columnFormulaRaw, indexLabel, sheetData);
+    const columnFormulaAndLocation = columnID !== void 0 ? sheetData !== void 0 ? sheetData == null ? void 0 : sheetData.columnFormulasMap[columnID] : [] : [];
+    let columnFormula;
+    if (columnFormulaAndLocation.length !== 0) {
+      columnFormulaAndLocation.forEach((cfal) => {
+        if (cfal.location.type === "entire_column") {
+          columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+        } else if (indexLabel && cfal.location.index_labels.includes(indexLabel)) {
+          columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+        }
+      });
+    }
     const columnFilters = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.columnFiltersMap[columnID] : void 0;
     const cellValue = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnData[rowIndex] : void 0;
     const columnFormat = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.dfFormat.columns[columnID] : void 0;
@@ -24948,7 +24957,7 @@ ${finalCode}`;
       } else {
         originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
       }
-    } else if (editingMode === "set_column_formula") {
+    } else if (editingMode === "entire_column") {
       if (columnFormula === void 0 || columnFormula === "") {
         originalValue = "=" + getDisplayColumnHeader(columnHeader);
       } else {
@@ -25468,7 +25477,7 @@ ${finalCode}`;
       if (isNavigationKeyPressed(e.key) && !altPressed) {
         const arrowUp = e.key === "Up" || e.key === "ArrowUp";
         const arrowDown = e.key === "Down" || e.key === "ArrowDown";
-        if (!endsInReference && props.editorState.editingMode === "set_column_formula" && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+        if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
           e.preventDefault();
           if (arrowUp) {
             setSavedSelectedSuggestionIndex((suggestionIndex) => Math.max(suggestionIndex - 1, -1));
@@ -25556,8 +25565,9 @@ ${finalCode}`;
       }
     };
     const onSubmit = async (e) => {
+      console.log("SUBmitting", selectedSuggestionIndex);
       e.preventDefault();
-      if (selectedSuggestionIndex !== -1) {
+      if (selectedSuggestionIndex !== -1 && !endsInReference) {
         takeSuggestion(selectedSuggestionIndex);
         setSavedSelectedSuggestionIndex(-1);
         return;
@@ -25572,21 +25582,23 @@ ${finalCode}`;
         const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
         submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
       } else {
-        if (props.editorState.editingMode === "set_column_formula") {
+        if (props.editorState.editingMode === "entire_column") {
           errorMessage = await props.mitoAPI.editSetColumnFormula(
             props.sheetIndex,
             columnID2,
             formulaLabel,
             formula,
+            { "type": "entire_column" },
             props.editorState.editorLocation
           );
         } else {
-          const rowIndex = props.sheetData.index[props.editorState.rowIndex];
-          errorMessage = await props.mitoAPI.editSetCellValue(
+          const indexLabel2 = props.sheetData.index[props.editorState.rowIndex];
+          errorMessage = await props.mitoAPI.editSetColumnFormula(
             props.sheetIndex,
             columnID2,
-            rowIndex,
+            formulaLabel,
             formula,
+            { "type": "specific_index_labels", "index_labels": [indexLabel2] },
             props.editorState.editorLocation
           );
         }
@@ -25646,11 +25658,11 @@ ${finalCode}`;
           }
         }
       )
-    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: props.editorState.editorLocation === "cell" ? `${CELL_EDITOR_WIDTH}px` : "300px" } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "set_column_formula" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
+    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: props.editorState.editorLocation === "cell" ? `${CELL_EDITOR_WIDTH}px` : "300px" } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
       Toggle_default,
       {
         className: "mr-5px",
-        value: props.editorState.editingMode === "set_column_formula" ? true : false,
+        value: props.editorState.editingMode === "entire_column" ? true : false,
         onChange: () => {
           props.setEditorState((prevEditorState) => {
             if (prevEditorState === void 0) {
@@ -25658,13 +25670,13 @@ ${finalCode}`;
             }
             const prevEditingMode = __spreadValues({}, prevEditorState).editingMode;
             return __spreadProps(__spreadValues({}, prevEditorState), {
-              editingMode: prevEditingMode === "set_column_formula" ? "set_cell_value" : "set_column_formula"
+              editingMode: prevEditingMode === "entire_column" ? "specific_index_labels" : "entire_column"
             });
           });
         },
         height: "20px"
       }
-    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && props.editorState.editingMode === "set_column_formula" && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
+    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
       if (idx > MAX_SUGGESTIONS) {
         return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
       }
@@ -25687,7 +25699,7 @@ ${finalCode}`;
         /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
         selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
       );
-    })), cellEditorError === void 0 && !loading && props.editorState.editingMode === "set_column_formula" && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
+    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
       return /* @__PURE__ */ import_react39.default.createElement(
         "p",
         {
@@ -25760,7 +25772,7 @@ ${finalCode}`;
               formula: formulaBarValue,
               arrowKeysScrollInFormula: true,
               editorLocation: "formula bar",
-              editingMode: "set_column_formula"
+              editingMode: "entire_column"
             });
           }
         },
@@ -26657,14 +26669,14 @@ ${finalCode}`;
       if (rowIndex === void 0 || columnIndex === void 0 || getIsHeader(rowIndex, columnIndex)) {
         return;
       }
-      const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex, "set_column_formula");
+      const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex, "entire_column");
       setEditorState({
         rowIndex,
         columnIndex,
         formula: startingColumnFormula,
         arrowKeysScrollInFormula,
         editorLocation: "cell",
-        editingMode: "set_column_formula"
+        editingMode: "entire_column"
       });
     };
     (0, import_react49.useEffect)(() => {
@@ -26704,14 +26716,14 @@ ${finalCode}`;
           }
           setGridState((gridState2) => {
             const lastSelection = gridState2.selections[gridState2.selections.length - 1];
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, "set_column_formula", e);
+            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, "entire_column", e);
             setEditorState({
               rowIndex: lastSelection.startingRowIndex,
               columnIndex: lastSelection.startingColumnIndex,
               formula: startingColumnFormula,
               arrowKeysScrollInFormula,
               editorLocation: "cell",
-              editingMode: "set_column_formula"
+              editingMode: "entire_column"
             });
             e.preventDefault();
             return __spreadProps(__spreadValues({}, gridState2), {
@@ -28618,14 +28630,14 @@ ${finalCode}`;
         {
           title: "Set Column Formula",
           onClick: () => {
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex, "set_column_formula");
+            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex, "entire_column");
             props.setEditorState({
               rowIndex: 0,
               columnIndex,
               formula: startingColumnFormula,
               arrowKeysScrollInFormula,
               editorLocation: "cell",
-              editingMode: "set_column_formula"
+              editingMode: "entire_column"
             });
           },
           supressFocusSettingOnClose: true
@@ -28703,7 +28715,7 @@ ${finalCode}`;
         columnIndex: props.columnIndex,
         formula: getDisplayColumnHeader(finalColumnHeader),
         editorLocation: "cell",
-        editingMode: "set_cell_value"
+        editingMode: "specific_index_labels"
       });
     };
     const closeColumnHeaderEditor = () => {
@@ -28814,7 +28826,7 @@ ${finalCode}`;
                   columnIndex: props.columnIndex,
                   formula: getDisplayColumnHeader(lowerLevelColumnHeader),
                   editorLocation: "cell",
-                  editingMode: "set_cell_value"
+                  editingMode: "specific_index_labels"
                 });
               }
             },
@@ -28920,7 +28932,7 @@ ${finalCode}`;
                 columnIndex: props.columnIndex,
                 formula: getDisplayColumnHeader(finalColumnHeader),
                 editorLocation: "cell",
-                editingMode: "set_cell_value"
+                editingMode: "specific_index_labels"
               });
             },
             key: props.columnIndex,
@@ -29776,7 +29788,7 @@ ${finalCode}`;
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const { columnID } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex, "set_column_formula");
+    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex, "entire_column");
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
     const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
@@ -30457,7 +30469,7 @@ ${finalCode}`;
             columnIndex: startingColumnIndex,
             formula: getDisplayColumnHeader(finalColumnHeader),
             editorLocation: "cell",
-            editingMode: "set_cell_value"
+            editingMode: "specific_index_labels"
           });
         },
         isDisabled: () => {
@@ -30538,7 +30550,7 @@ ${finalCode}`;
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: true,
             editorLocation: "cell",
-            editingMode: "set_cell_value"
+            editingMode: "specific_index_labels"
           });
         },
         isDisabled: () => {
@@ -30565,7 +30577,7 @@ ${finalCode}`;
             formula: startingColumnFormula,
             arrowKeysScrollInFormula,
             editorLocation: "cell",
-            editingMode: "set_column_formula"
+            editingMode: "entire_column"
           });
         },
         isDisabled: () => {
@@ -31291,7 +31303,7 @@ ${finalCode}`;
           formula: "=" + (spreadsheetAction == null ? void 0 : spreadsheetAction.function) + "(",
           arrowKeysScrollInFormula: false,
           editorLocation: "cell",
-          editingMode: "set_column_formula"
+          editingMode: "entire_column"
         });
       },
       isDisabled: () => {

@@ -121,7 +121,7 @@ export const getStartingFormula = (
     editorState: EditorState | undefined,
     rowIndex: number, 
     columnIndex: number, 
-    editingMode: 'set_column_formula' | 'set_cell_value',
+    editingMode: 'entire_column' | 'specific_index_labels',
     e?: KeyboardEvent
 ): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
@@ -152,7 +152,7 @@ export const getStartingFormula = (
         } else {
             originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
         }
-    } else if (editingMode === 'set_column_formula') {
+    } else if (editingMode === 'entire_column') {
         if (columnFormula === undefined || columnFormula === '') {
             originalValue = '=' + getDisplayColumnHeader(columnHeader);
         } else {

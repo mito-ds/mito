@@ -21,7 +21,7 @@ from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID, IndexLabelsFormulaIsAppledTo
+from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
 
 
 class SetColumnFormulaStepPerformer(StepPerformer):
@@ -33,7 +33,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 2
+        return 4
 
     @classmethod
     def step_type(cls) -> str:
@@ -44,7 +44,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')
-        index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo = get_param(params, 'index_labels_formula_is_applied_to')
+        index_labels_formula_is_applied_to: FormulaAppliedToType = get_param(params, 'index_labels_formula_is_applied_to')
         new_formula: str = get_param(params, 'new_formula')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
@@ -67,7 +67,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')
-        index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo = get_param(params, 'index_labels_formula_is_applied_to')
+        index_labels_formula_is_applied_to: FormulaAppliedToType = get_param(params, 'index_labels_formula_is_applied_to')
         new_formula: str = get_param(params, 'new_formula')
 
         raise_error_if_column_ids_do_not_exist(
@@ -144,7 +144,7 @@ def _get_fixed_invalid_formula(
         new_formula: str, 
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
-        index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo,
+        index_labels_formula_is_applied_to: FormulaAppliedToType,
         df: pd.DataFrame
     ) -> str:
     """
@@ -236,7 +236,7 @@ def exec_column_formula(
     sheet_index: int, 
     column_id: ColumnID, 
     formula_label: Union[str, bool, int, float], 
-    index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo,
+    index_labels_formula_is_applied_to: FormulaAppliedToType,
     spreadsheet_code: str
 ) -> None:
     """
@@ -266,11 +266,17 @@ def exec_column_formula(
             FUNCTIONS
         )
         # Then, update the column spreadsheet code
-        post_state.column_formulas[sheet_index][column_id] = get_frontend_formula(
+        frontend_formula = get_frontend_formula(
             spreadsheet_code,
             formula_label,
             post_state.dfs[sheet_index]
         )
+        
+        if index_labels_formula_is_applied_to['type'] == 'entire_column':
+            post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to}]
+        else:
+            post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to})
+
     except TypeError as e:
         # We catch TypeErrors specificially, so that we can case on operator errors, to 
         # give better error messages

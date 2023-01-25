@@ -239,7 +239,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInReference && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -373,12 +373,14 @@ const CellEditor = (props: {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
+        console.log("SUBmitting", selectedSuggestionIndex)
+
         // Don't refresh the page
         e.preventDefault();
 
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1) {
+        if (selectedSuggestionIndex !== -1 && !endsInReference) {
             takeSuggestion(selectedSuggestionIndex);
 
             // Then, reset the suggestion index that is selected back to -1, 
@@ -404,25 +406,27 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (props.editorState.editingMode === 'set_column_formula') {
+            if (props.editorState.editingMode === 'entire_column') {
                 // Change of formula
                 errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
                     columnID,
                     formulaLabel,
                     formula,
+                    {'type': 'entire_column'},
                     props.editorState.editorLocation
                 )
             } else {
                 // Change of data
                 // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
                 // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
-                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
-                errorMessage = await props.mitoAPI.editSetCellValue(
+                const indexLabel = props.sheetData.index[props.editorState.rowIndex];
+                errorMessage = await props.mitoAPI.editSetColumnFormula(
                     props.sheetIndex,
                     columnID,
-                    rowIndex,
+                    formulaLabel,
                     formula,
+                    {'type': 'specific_index_labels', 'index_labels': [indexLabel]},
                     props.editorState.editorLocation
                 )
             } 
@@ -500,12 +504,12 @@ const CellEditor = (props: {
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
                     <Row justify='space-between' align='center' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
+                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
                             Edit entire column
                         </p>
                         <Toggle
                             className='mr-5px'
-                            value={props.editorState.editingMode === 'set_column_formula' ? true : false}
+                            value={props.editorState.editingMode === 'entire_column' ? true : false}
                             onChange={() => {
                                 props.setEditorState(prevEditorState => {
                                     if (prevEditorState === undefined) {
@@ -514,7 +518,7 @@ const CellEditor = (props: {
                                     const prevEditingMode = {...prevEditorState}.editingMode
                                     return {
                                         ...prevEditorState,
-                                        editingMode: prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                        editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
                                     }
                                 })
                             }}
@@ -545,7 +549,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInReference && props.editorState.editingMode === 'set_column_formula' &&
+                {cellEditorError === undefined && !loading && !endsInReference &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
@@ -584,7 +588,7 @@ const CellEditor = (props: {
                     </>
                 }
                 {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && props.editorState.editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
+                {cellEditorError === undefined && !loading && !hasSuggestions && documentationFunction !== undefined &&
                     <div>
                         <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
                             <p className='text-body-2'>

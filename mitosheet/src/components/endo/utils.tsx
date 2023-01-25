@@ -107,8 +107,18 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
     const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
-    const columnFormulaRaw = columnID !== undefined ? sheetData?.columnFormulasMap[columnID] : undefined;
-    const columnFormula = getFormulaStringFromFrontendFormula(columnFormulaRaw, indexLabel, sheetData);
+    const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
+    let columnFormula: string | undefined;
+    // TODO: explain this
+    if (columnFormulaAndLocation.length !== 0) {
+        columnFormulaAndLocation.forEach(cfal => {
+            if (cfal.location.type === 'entire_column') {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+            } else if (indexLabel && cfal.location.index_labels.includes(indexLabel)) {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+            }
+        })
+    }
 
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;

@@ -15,12 +15,12 @@ from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID, IndexLabelsFormulaIsAppledTo
+from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
 
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: IndexLabelsFormulaIsAppledTo, column_header: ColumnHeader, column_header_index: int, new_formula: str):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, column_header: ColumnHeader, column_header_index: int, new_formula: str):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
