@@ -24934,14 +24934,14 @@ ${finalCode}`;
     "Enter",
     "Backspace"
   ];
-  var getStartingFormula = (sheetData, editorState, rowIndex, columnIndex, editingMode, e) => {
+  var getStartingFormula = (sheetData, editorState, rowIndex, columnIndex, e) => {
     if (editorState !== void 0 && editorState.columnIndex === columnIndex) {
       return {
         startingColumnFormula: editorState.formula,
         arrowKeysScrollInFormula: true
       };
     }
-    const { columnFormula, cellValue, columnHeader } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
+    const { columnFormula, columnHeader } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
     if (columnHeader === void 0) {
       return {
         startingColumnFormula: "",
@@ -24957,14 +24957,12 @@ ${finalCode}`;
       } else {
         originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
       }
-    } else if (editingMode === "entire_column") {
+    } else {
       if (columnFormula === void 0 || columnFormula === "") {
         originalValue = "=" + getDisplayColumnHeader(columnHeader);
       } else {
         originalValue = columnFormula;
       }
-    } else {
-      originalValue = cellValue + "";
     }
     if (e !== void 0) {
       if (e.key === "Backspace") {
@@ -25395,7 +25393,7 @@ ${finalCode}`;
         if (prevEditingState === void 0) {
           return prevEditingState;
         }
-        const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula;
+        const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula;
         return __spreadProps(__spreadValues({}, prevEditingState), {
           formula: startingColumnFormula
         });
@@ -25565,7 +25563,6 @@ ${finalCode}`;
       }
     };
     const onSubmit = async (e) => {
-      console.log("SUBmitting", selectedSuggestionIndex);
       e.preventDefault();
       if (selectedSuggestionIndex !== -1 && !endsInReference) {
         takeSuggestion(selectedSuggestionIndex);
@@ -25582,26 +25579,16 @@ ${finalCode}`;
         const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
         submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
       } else {
-        if (props.editorState.editingMode === "entire_column") {
-          errorMessage = await props.mitoAPI.editSetColumnFormula(
-            props.sheetIndex,
-            columnID2,
-            formulaLabel,
-            formula,
-            { "type": "entire_column" },
-            props.editorState.editorLocation
-          );
-        } else {
-          const indexLabel2 = props.sheetData.index[props.editorState.rowIndex];
-          errorMessage = await props.mitoAPI.editSetColumnFormula(
-            props.sheetIndex,
-            columnID2,
-            formulaLabel,
-            formula,
-            { "type": "specific_index_labels", "index_labels": [indexLabel2] },
-            props.editorState.editorLocation
-          );
-        }
+        const indexLabel2 = props.sheetData.index[props.editorState.rowIndex];
+        let index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel2] };
+        errorMessage = await props.mitoAPI.editSetColumnFormula(
+          props.sheetIndex,
+          columnID2,
+          formulaLabel,
+          formula,
+          index_labels_formula_is_applied_to,
+          props.editorState.editorLocation
+        );
       }
       setLoading(false);
       if (isMitoError(errorMessage)) {
@@ -26669,7 +26656,7 @@ ${finalCode}`;
       if (rowIndex === void 0 || columnIndex === void 0 || getIsHeader(rowIndex, columnIndex)) {
         return;
       }
-      const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex, "entire_column");
+      const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
       setEditorState({
         rowIndex,
         columnIndex,
@@ -26716,7 +26703,7 @@ ${finalCode}`;
           }
           setGridState((gridState2) => {
             const lastSelection = gridState2.selections[gridState2.selections.length - 1];
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, "entire_column", e);
+            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
             setEditorState({
               rowIndex: lastSelection.startingRowIndex,
               columnIndex: lastSelection.startingColumnIndex,
@@ -28630,7 +28617,7 @@ ${finalCode}`;
         {
           title: "Set Column Formula",
           onClick: () => {
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex, "entire_column");
+            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex);
             props.setEditorState({
               rowIndex: 0,
               columnIndex,
@@ -29788,7 +29775,7 @@ ${finalCode}`;
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const { columnID } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex, "entire_column");
+    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
     const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);

@@ -10,18 +10,24 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
-from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
-from mitosheet.step_performers.import_steps.dataframe_import import get_variable_with_name_from_caller
-from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import number
 
 import pandas as pd
+from numpy import number
+
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
-from mitosheet.parser import parse_formula
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
+    DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+    DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, FormulaAppliedToType, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
+                             ColumnHeaderWithPivotTransform, ColumnID,
+                             ColumnIDWithFilter, ColumnIDWithPivotTransform,
+                             DataframeFormat, FormulaAppliedToType, GraphID,
+                             MultiLevelColumnHeader)
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -220,7 +226,7 @@ class MitoWidgetTestWrapper:
         if index_labels is None:
             index_labels_formula_is_applied_to = {'type': 'entire_column'}
         else:
-            index_labels_formula_is_applied_to = {'type': 'specfic_index_labels', 'index_labels': index_labels}
+            index_labels_formula_is_applied_to = {'type': 'specific_index_labels', 'index_labels': index_labels}
 
         return self.mito_backend.receive_message(
             {

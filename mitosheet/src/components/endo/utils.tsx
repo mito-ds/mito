@@ -109,7 +109,9 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
     let columnFormula: string | undefined;
-    // TODO: explain this
+    
+    // To find the column formula, we go through and find the LAST formula that was written that is
+    // applied to this specific index label. Entire column formulas apply to the everything, duh
     if (columnFormulaAndLocation.length !== 0) {
         columnFormulaAndLocation.forEach(cfal => {
             if (cfal.location.type === 'entire_column') {

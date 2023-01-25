@@ -252,7 +252,7 @@ export type IndexLabel = string | number;
 
 export type FormulaLocation = {'type': 'entire_column'} | {'type': 'specific_index_labels', 'index_labels': IndexLabel[]}
 
-export type FormulaAndLocation = {
+export type FrontendFormulaAndLocation = {
     'frontend_formula': Formula,
     'location': FormulaLocation
 }
@@ -284,7 +284,7 @@ export type SheetData = {
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnFormulasMap: Record<ColumnID, FormulaAndLocation[]>;
+    columnFormulasMap: Record<ColumnID, FrontendFormulaAndLocation[]>;
     columnFiltersMap: ColumnFilterMap;
     columnDtypeMap: Record<ColumnID, string>;
     index: IndexLabel[];

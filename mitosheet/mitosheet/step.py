@@ -11,7 +11,7 @@ from mitosheet.step_performers.column_steps.set_column_formula import SetColumnF
 from mitosheet.step_performers.filter import FilterStepPerformer
 from mitosheet.state import State
 from mitosheet.step_performers import STEP_TYPE_TO_STEP_PERFORMER
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, FORMULA_ENTIRE_COLUMN_TYPE
 
 
 class Step:
@@ -198,7 +198,7 @@ class Step:
             # Check (3)
             if self.step_type == SetColumnFormulaStepPerformer.step_type():
                 if self.step_type == previous_step.step_type \
-                    and self.params['index_labels_formula_is_applied_to']['type'] == 'entire_column' and previous_step.params['index_labels_formula_is_applied_to']['type'] == 'entire_column' \
+                    and self.params['index_labels_formula_is_applied_to']['type'] == FORMULA_ENTIRE_COLUMN_TYPE and previous_step.params['index_labels_formula_is_applied_to']['type'] == FORMULA_ENTIRE_COLUMN_TYPE \
                     and self.params['sheet_index'] == previous_step.params['sheet_index'] \
                     and self.params['column_id'] == previous_step.params['column_id']:
                     step_indexes_to_skip.add(len(all_steps_before_this_step) - 1)

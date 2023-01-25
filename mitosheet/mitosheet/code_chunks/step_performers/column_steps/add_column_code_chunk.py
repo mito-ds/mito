@@ -18,6 +18,7 @@ from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chun
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
     SetColumnFormulaCodeChunk
 from mitosheet.state import State
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 
@@ -108,7 +109,7 @@ class AddColumnCodeChunk(CodeChunk):
             return None
 
         # If this does not set the entire column, we can't combine -- the insert doesn't work
-        if other_code_chunk.index_labels_formula_is_applied_to['type'] != 'entire_column':
+        if other_code_chunk.index_labels_formula_is_applied_to['type'] != FORMULA_ENTIRE_COLUMN_TYPE:
             return None
 
         sheet_index = self.sheet_index

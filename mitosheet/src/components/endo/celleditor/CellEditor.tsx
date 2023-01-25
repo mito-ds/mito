@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
@@ -103,7 +103,7 @@ const CellEditor = (props: {
                 return prevEditingState;
             } 
             
-            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
+            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula
@@ -373,8 +373,6 @@ const CellEditor = (props: {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-        console.log("SUBmitting", selectedSuggestionIndex)
-
         // Don't refresh the page
         e.preventDefault();
 
@@ -406,30 +404,20 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (props.editorState.editingMode === 'entire_column') {
-                // Change of formula
-                errorMessage = await props.mitoAPI.editSetColumnFormula(
-                    props.sheetIndex,
-                    columnID,
-                    formulaLabel,
-                    formula,
-                    {'type': 'entire_column'},
-                    props.editorState.editorLocation
-                )
-            } else {
-                // Change of data
-                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
-                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
-                const indexLabel = props.sheetData.index[props.editorState.rowIndex];
-                errorMessage = await props.mitoAPI.editSetColumnFormula(
-                    props.sheetIndex,
-                    columnID,
-                    formulaLabel,
-                    formula,
-                    {'type': 'specific_index_labels', 'index_labels': [indexLabel]},
-                    props.editorState.editorLocation
-                )
-            } 
+            // Otherwise, update the formula for the column (or specific index)
+            const indexLabel = props.sheetData.index[props.editorState.rowIndex];
+            let index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
+                ? {'type': 'entire_column'}
+                : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+
+            errorMessage = await props.mitoAPI.editSetColumnFormula(
+                props.sheetIndex,
+                columnID,
+                formulaLabel,
+                formula,
+                index_labels_formula_is_applied_to,
+                props.editorState.editorLocation
+            )
         }
         
         setLoading(false);

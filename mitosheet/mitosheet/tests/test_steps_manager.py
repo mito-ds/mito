@@ -6,6 +6,7 @@
 import pandas as pd
 import pytest
 from mitosheet.enterprise.mito_config import MitoConfig
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
@@ -20,13 +21,13 @@ def test_create_steps_manager():
 
     mito_config = MitoConfig()
 
-    steps_manager = StepsManager([df1, df2], mito_config.get_mito_config())
+    steps_manager = StepsManager([df1, df2], mito_config)
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
     assert steps_manager.curr_step.column_formulas == [{'A': []}, {'A': []}]
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
-    assert steps_manager.mito_config == mito_config.get_mito_config()
+    assert steps_manager.mito_config.get_mito_config() == mito_config.get_mito_config()
 
 # We assume only column A exists
 CELL_EDIT_ERRORS = [
@@ -55,7 +56,7 @@ def test_steps_manager_cell_edit_errors(formula,error_type):
                 'sheet_index': 0,
                 'column_id': get_column_header_id('B'),
                 'formula_label': 0,
-                'index_labels_formula_is_applied_to': {'type': 'entire_column'},
+                'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE},
                 'old_formula': '=0',
                 'new_formula': formula
             }

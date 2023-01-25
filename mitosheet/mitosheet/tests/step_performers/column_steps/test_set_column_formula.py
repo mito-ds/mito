@@ -6,13 +6,15 @@
 """
 Contains tests for set column formula edit events
 """
-from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import pandas as pd
 import pytest
 
-from mitosheet.utils import get_new_id
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, create_mito_wrapper
 from mitosheet.column_headers import get_column_header_id
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs)
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.utils import get_new_id
 
 
 def test_edit_cell_formula_on_message_receive():
@@ -60,7 +62,7 @@ def test_edit_cell_formula_mulitple_msg_receives():
     mito.set_formula('=1', 0, 'B')
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=1', 'type': 'string part'}], 'location': {'type': 'entire_column'}}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=1', 'type': 'string part'}], 'location': {'type': FORMULA_ENTIRE_COLUMN_TYPE}}]
 
 
 def test_edit_to_same_formula_no_error():
@@ -77,13 +79,13 @@ def test_edit_to_same_formula_no_error():
             'sheet_index': 0,
             'column_id': get_column_header_id('B'),
             'formula_label': 0,
-            'index_labels_formula_is_applied_to': {'type': 'entire_column'},
+            'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE},
             'new_formula': '=A'
         }
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}], 'location': {'type': 'entire_column'}}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}], 'location': {'type': FORMULA_ENTIRE_COLUMN_TYPE}}]
 
 
 def test_formulas_fill_missing_parens():

@@ -8,12 +8,12 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
     SetColumnFormulaCodeChunk
 from mitosheet.errors import (MitoError, make_execution_error,
-                              make_invalid_formula_after_update_error,
-                              make_no_column_error, make_operator_type_error,
+                              make_operator_type_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import get_frontend_formula, parse_formula
@@ -21,7 +21,7 @@ from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType
 
 
 class SetColumnFormulaStepPerformer(StepPerformer):
@@ -272,7 +272,10 @@ def exec_column_formula(
             post_state.dfs[sheet_index]
         )
         
-        if index_labels_formula_is_applied_to['type'] == 'entire_column':
+        # If the user is setting the entire column, then there is only one formula for every cell in
+        # the entire column. But if they are just setting specific indexes, we need to store the formulas
+        # before this as well, so that we can figure out what formula is applied to each index
+        if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
             post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to}]
         else:
             post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to})
