@@ -110,7 +110,7 @@ const getNewParams = (prevParams: SnowflakeImportParams, database?: string | nul
 */
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
-    const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery} = useSendEditOnClick<SnowflakeImportParams, undefined>(
+    const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery, error} = useSendEditOnClick<SnowflakeImportParams, undefined>(
             () => getDefaultParams(),
             StepType.SnowflakeImport, 
             props.mitoAPI,
@@ -290,6 +290,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <div>
                         <MultiToggleBox
                             disabled={loadingAvailableOptionsAndDefaults}
+                            height={'medium'}
                             toggleAllIndexes={(indexesToToggle) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
                                     const newColumns = [...prevParams.query_params.columns];
@@ -342,6 +343,19 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 />
                             </Col>
                         </Row>
+                        {executingQuery && 
+                            <Row className={classNames('text-subtext-1')}>
+                                <p>
+                                    Executing query
+                                </p>
+                                <LoadingCounter />
+                            </Row>
+                        }
+                        {error !== undefined &&
+                            <p className='text-color-error'>
+                                {error}
+                            </p>
+                        }
                         <TextButton
                             disabled={
                                 !validCredentials ||
@@ -356,14 +370,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         >
                             Run Query
                         </TextButton>
-                        {executingQuery && 
-                            <Row className={classNames('text-subtext-1')}>
-                                <p>
-                                    Executing query
-                                </p>
-                                <LoadingCounter />
-                            </Row>
-                        }
                     </div>
                 }
             </DefaultTaskpaneBody>

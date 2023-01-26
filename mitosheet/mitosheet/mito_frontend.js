@@ -38575,7 +38575,7 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var SnowflakeImportTaskpane = (props) => {
     var _a;
-    const { params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery } = useSendEditOnClick_default(
+    const { params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery, error } = useSendEditOnClick_default(
       () => getDefaultParams7(),
       "snowflake_import" /* SnowflakeImport */,
       props.mitoAPI,
@@ -38697,6 +38697,7 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         disabled: loadingAvailableOptionsAndDefaults,
+        height: "medium",
         toggleAllIndexes: (indexesToToggle) => {
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
@@ -38741,7 +38742,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ))), /* @__PURE__ */ import_react167.default.createElement(
+    ))), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-color-error" }, error), /* @__PURE__ */ import_react167.default.createElement(
       TextButton_default,
       {
         disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
@@ -38750,7 +38751,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark"
       },
       "Run Query"
-    ), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)))));
+    ))));
   };
   var SnowflakeImportTaskpane_default = SnowflakeImportTaskpane;
 
