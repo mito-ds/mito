@@ -8,12 +8,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
-from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
+from mitosheet.code_chunks.code_chunk_utils import \
+    get_right_combine_with_column_delete_code_chunk
+from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import \
+    DeleteColumnsCodeChunk
 from mitosheet.parser import parse_formula
 from mitosheet.state import State
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
-from mitosheet.types import ColumnID, FormulaAppliedToType
+from mitosheet.types import (FORMULA_ENTIRE_COLUMN_TYPE, ColumnID,
+                             FormulaAppliedToType)
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 
 
 class SetColumnFormulaCodeChunk(CodeChunk):

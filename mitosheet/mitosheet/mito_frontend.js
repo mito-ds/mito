@@ -24823,11 +24823,12 @@ ${finalCode}`;
     const columnDtype = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnDtype : void 0;
     const columnFormulaAndLocation = columnID !== void 0 ? sheetData !== void 0 ? sheetData == null ? void 0 : sheetData.columnFormulasMap[columnID] : [] : [];
     let columnFormula;
+    console.log(columnFormulaAndLocation);
     if (columnFormulaAndLocation.length !== 0) {
       columnFormulaAndLocation.forEach((cfal) => {
         if (cfal.location.type === "entire_column") {
           columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
-        } else if (indexLabel && cfal.location.index_labels.includes(indexLabel)) {
+        } else if (indexLabel !== void 0 && cfal.location.index_labels.includes(indexLabel)) {
           columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
         }
       });
@@ -25579,8 +25580,7 @@ ${finalCode}`;
         const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
         submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
       } else {
-        const indexLabel2 = props.sheetData.index[props.editorState.rowIndex];
-        let index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel2] };
+        let index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
         errorMessage = await props.mitoAPI.editSetColumnFormula(
           props.sheetIndex,
           columnID2,

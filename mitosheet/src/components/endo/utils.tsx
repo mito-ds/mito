@@ -112,11 +112,12 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     
     // To find the column formula, we go through and find the LAST formula that was written that is
     // applied to this specific index label. Entire column formulas apply to the everything, duh
+    console.log(columnFormulaAndLocation)
     if (columnFormulaAndLocation.length !== 0) {
         columnFormulaAndLocation.forEach(cfal => {
             if (cfal.location.type === 'entire_column') {
                 columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
-            } else if (indexLabel && cfal.location.index_labels.includes(indexLabel)) {
+            } else if (indexLabel !== undefined && cfal.location.index_labels.includes(indexLabel)) {
                 columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
             }
         })
