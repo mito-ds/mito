@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -16,7 +16,7 @@ from mitosheet.errors import (MitoError, make_execution_error,
                               make_no_column_error, make_operator_type_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
-from mitosheet.parser import parse_formula
+from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -33,7 +33,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 2
+        return 3
 
     @classmethod
     def step_type(cls) -> str:
@@ -41,21 +41,23 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
     @classmethod
     def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        sheet_index = params['sheet_index']
-        column_id = params['column_id']
+        sheet_index: int = get_param(params, 'sheet_index')
+        column_id: ColumnID = get_param(params, 'column_id')
+        formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')
+        new_formula: str = get_param(params, 'new_formula')
+
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_headers = prev_state.dfs[sheet_index].keys()
         
         # If the user submits an empty formula, we just set it equal to zero
-        if params['new_formula'] == '':
+        if new_formula == '':
             params['new_formula'] = '=0'
         else:
             try:
                 # Try and parse the formula, letting it throw errors if it
                 # is invalid
-                parse_formula(params['new_formula'], column_header, column_headers, throw_errors=True)
-            except:
-                params['new_formula'] = _get_fixed_invalid_formula(params['new_formula'], column_header, column_headers)
+                parse_formula(new_formula, column_header, formula_label, prev_state.dfs[sheet_index], throw_errors=True)
+            except Exception as e:                
+                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, prev_state.dfs[sheet_index])
 
         return params
 
@@ -63,6 +65,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
+        formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')
         new_formula: str = get_param(params, 'new_formula')
 
         raise_error_if_column_ids_do_not_exist(
@@ -73,13 +76,13 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         )
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_headers = prev_state.dfs[sheet_index].keys()
 
         # Then we try and parse the formula
         _, new_functions, _ = parse_formula(
             new_formula, 
             column_header,
-            column_headers
+            formula_label,
+            prev_state.dfs[sheet_index]
         )
 
         # The formula can only reference known formulas
@@ -93,7 +96,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             pandas_start_time = perf_counter()
-            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, new_formula)
+            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, new_formula)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -123,6 +126,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_id'),
+                get_param(params, 'formula_label'),
                 get_param(params, 'new_formula'),
             )
         ]
@@ -135,7 +139,8 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 def _get_fixed_invalid_formula(
         new_formula: str, 
         column_header: ColumnHeader, 
-        column_headers: List[ColumnHeader]
+        formula_label: Union[str, bool, int, float],
+        df: pd.DataFrame
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -158,7 +163,7 @@ def _get_fixed_invalid_formula(
     for fixed_formula in POTENTIAL_VALID_FORMULAS:
         try:
             # Parse the formula, and return if it is valid
-            parse_formula(fixed_formula, column_header, column_headers, throw_errors=True)
+            parse_formula(fixed_formula, column_header, formula_label, df, throw_errors=True)
             return fixed_formula
         except:
             pass
@@ -220,7 +225,7 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
     return None
 
 
-def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID, spreadsheet_code: str) -> None:
+def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], spreadsheet_code: str) -> None:
     """
     Helper function for refreshing the column when the formula is set
     """
@@ -234,7 +239,8 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
     python_code, _, _ = parse_formula(
         spreadsheet_code, 
         column_header,
-        post_state.dfs[sheet_index].keys()
+        formula_label,
+        post_state.dfs[sheet_index]
     )
 
     try:
@@ -246,7 +252,11 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
             FUNCTIONS
         )
         # Then, update the column spreadsheet code
-        post_state.column_spreadsheet_code[sheet_index][column_id] = spreadsheet_code
+        post_state.column_formulas[sheet_index][column_id] = get_frontend_formula(
+            spreadsheet_code,
+            formula_label,
+            post_state.dfs[sheet_index]
+        )
     except TypeError as e:
         # We catch TypeErrors specificially, so that we can case on operator errors, to 
         # give better error messages
@@ -269,9 +279,4 @@ def exec_column_formula(post_state: State, df: pd.DataFrame, sheet_index: int, c
             error_modal=True
         )
     except Exception as e:
-        # If this is the same formula as before, then it used to be valid and is not,
-        # and so we let the user know they must have made some other change that made 
-        # in invalid
-        if spreadsheet_code == post_state.column_spreadsheet_code[sheet_index][column_id]:
-            raise make_invalid_formula_after_update_error()
         raise

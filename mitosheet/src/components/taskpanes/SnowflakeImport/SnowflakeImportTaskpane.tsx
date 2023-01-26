@@ -46,16 +46,16 @@ export type SnowflakeTableLocationAndWarehouse = {
 }
 
 export type SnowflakeQueryParams = {
-	columns: string[],
-	limit: number | undefined
+    columns: string[],
+    limit: number | undefined
 }
 
 export type SnowflakeConfigOptions = {
-	warehouses: string[],
-	databases: string[],
-	schemas: string[],
-	tables: string[]
-	columns: string[]
+    warehouses: string[],
+    databases: string[],
+    schemas: string[],
+    tables: string[]
+    columns: string[]
 }
 
 export interface SnowflakeImportParams {

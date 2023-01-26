@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
@@ -17,10 +17,11 @@ from mitosheet.types import ColumnID
 
 class SetColumnFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, new_formula: str):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], new_formula: str):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
+        self.formula_label = formula_label
         self.new_formula = new_formula
 
         self.df_name = self.post_state.df_names[self.sheet_index]
@@ -37,7 +38,8 @@ class SetColumnFormulaCodeChunk(CodeChunk):
         python_code, _, _ = parse_formula(
             self.new_formula, 
             column_header,
-            self.post_state.column_ids.get_column_headers(self.sheet_index),
+            self.formula_label,
+            self.post_state.dfs[self.sheet_index],
             df_name=self.post_state.df_names[self.sheet_index]
         )
 

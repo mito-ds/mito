@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
 import MitoAPI from "../../jupyter/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
+import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
@@ -226,36 +226,38 @@ function EndoGrid(props: {
             
                 // If there is already some suggested column headers, we do not change this selection, 
                 // as we want any future expanded selection of column headers to overwrite the same 
-                // region. So default to pendingSelectedColumns?.selectionStart, but if this does not
+                // region. So default to pendingSelections?.selectionStart, but if this does not
                 // exist, than take the selection range in the input currently
-                const newSelectionStart = firstNonNullOrUndefined(
-                    editorState.pendingSelectedColumns?.selectionStart,
+                const newInputSelectionStart = firstNonNullOrUndefined(
+                    editorState.pendingSelections?.inputSelectionStart,
                     selectionStart
                 )
-                const newSelectionEnd = firstNonNullOrUndefined(
-                    editorState.pendingSelectedColumns?.selectionEnd,
+                const newInputSelectionEnd = firstNonNullOrUndefined(
+                    editorState.pendingSelections?.inputSelectionEnd,
                     selectionEnd
                 )
+
+                const newSelection: MitoSelection[] = [{
+                    startingRowIndex: rowIndex !== undefined ? rowIndex : -1,
+                    endingRowIndex: rowIndex !== undefined ? rowIndex : -1,
+                    startingColumnIndex: columnIndex,
+                    endingColumnIndex: columnIndex,
+                }]
 
                 // Select the column that was clicked on, as they do in Excel
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
-                        selections: [{
-                            startingRowIndex: rowIndex !== undefined ? rowIndex : -1,
-                            endingRowIndex: rowIndex !== undefined ? rowIndex : -1,
-                            startingColumnIndex: columnIndex,
-                            endingColumnIndex: columnIndex,
-                        }]
+                        selections: newSelection
                     }
                 })
 
                 return setEditorState({
                     ...editorState,
-                    pendingSelectedColumns: {
-                        columnHeaders: [sheetData.data[columnIndex].columnHeader],
-                        selectionStart: newSelectionStart,
-                        selectionEnd: newSelectionEnd,
+                    pendingSelections: {
+                        selections: newSelection,
+                        inputSelectionStart: newInputSelectionStart,
+                        inputSelectionEnd: newInputSelectionEnd
                     },
                     /* If you click on a cell, you should now scroll in the sheet */
                     arrowKeysScrollInFormula: false

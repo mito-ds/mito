@@ -1195,6 +1195,7 @@ export default class MitoAPI {
     async editSetColumnFormula(
         sheetIndex: number,
         columnID: ColumnID,
+        formula_label: string | number | boolean,
         newFormula: string,
         cell_editor_location: string
     ): Promise<MitoError | undefined> {
@@ -1207,6 +1208,7 @@ export default class MitoAPI {
             'params': {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
+                'formula_label': formula_label,
                 'new_formula': newFormula,
                 'cell_editor_location': cell_editor_location // Just for logging purposes
             }

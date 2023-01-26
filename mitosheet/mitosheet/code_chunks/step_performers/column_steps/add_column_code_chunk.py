@@ -119,8 +119,10 @@ class AddColumnCodeChunk(CodeChunk):
             other_code_chunk.post_state,
             self.sheet_index,
             added_column_id,
+            other_code_chunk.formula_label,
             self.column_header,
-            self.column_header_index
+            self.column_header_index,
+            other_code_chunk.new_formula
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:

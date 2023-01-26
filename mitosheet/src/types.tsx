@@ -247,6 +247,12 @@ export type ConditionalFormattingResult = {
     'results': Record<ColumnID, Record<number | string, {color: string | undefined, backgroundColor: string | undefined} | undefined> | undefined>
 }
 
+type FormulaPart = {'type': 'string part', 'string': string} 
+	| {'type': 'reference part', 'display_column_header': string, 'row_offset': number} 
+export type Formula = FormulaPart[]
+
+export type IndexLabel = string | number;
+
 /**
  * Data that will be displayed in the sheet itself.
  * 
@@ -256,7 +262,7 @@ export type ConditionalFormattingResult = {
  * @param numColumns - the number of columns in the data. Should be equal to data.length
  * @param data - a list of the columns to display in the sheet, including their id and header, their dtype, as well as a list of columnData (which is the actual data in this column)
  * @param columnIDsMap - for this dataframe, a map from column id -> column headers
- * @param columnSpreadsheetCodeMap - for this dataframe, a map from column id -> spreadsheet formula
+ * @param columnFormulasMap - for this dataframe, a map from column id -> spreadsheet formula
  * @param columnFiltersMap - for this dataframe, a map from column id -> filter objects
  * @param columnDtypeMap - for this dataframe, a map from column id -> column dtype
  * @param index - the indexes in this dataframe
@@ -273,10 +279,10 @@ export type SheetData = {
         columnData: (string | number | boolean)[];
     }[];
     columnIDsMap: ColumnIDsMap;
-    columnSpreadsheetCodeMap: Record<ColumnID, string>;
+    columnFormulasMap: Record<ColumnID, Formula>;
     columnFiltersMap: ColumnFilterMap;
     columnDtypeMap: Record<ColumnID, string>;
-    index: (string | number)[];
+    index: IndexLabel[];
     dfFormat: DataframeFormat;
     conditionalFormattingResult: ConditionalFormattingResult;
 };
@@ -564,8 +570,8 @@ export interface ScrollPosition {
  * 
  * @param rowIndex - Row index of the cell being edited
  * @param columnIndex - Column index of the cell being edited
- * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelectedColumns
- * @param pendingSelectedColumns - A list of columns that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
+ * @param formula - The current formula. This might not be what is displayed to the user, if they have pendingSelections
+ * @param pendingSelection - A list of selections that the user has selected through the arrow keys or clicking on columns. Also stores _where_ in the formula these columns should be inserted
  * @param arrowKeysScrollInFormula - The user can click on the editor to make the arrow keys scroll in the editor rather than in the sheet
  * @param editorLocation -- The location of the cell editor, either a cell or formula bar
  */
@@ -575,11 +581,11 @@ export type EditorState = {
     formula: string;
     editingMode: 'set_column_formula' | 'set_cell_value';
 
-    pendingSelectedColumns?: {
-        columnHeaders: (ColumnHeader)[]
-        selectionStart: number,
-        selectionEnd: number,
-    };
+    pendingSelections?: {
+        selections: MitoSelection[],
+        inputSelectionStart: number,
+        inputSelectionEnd: number,
+    } | undefined
 
     /* 
         Represents where the arrow keys should scroll, if the user

@@ -9,6 +9,7 @@ from typing import Any, Collection, List, Dict, Optional
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
+from mitosheet.parser import FrontendFormula
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.utils import get_first_unused_dataframe_name
 
@@ -60,7 +61,7 @@ class State:
         df_names: Optional[List[str]]=None,
         df_sources: Optional[List[str]]=None,
         column_ids: Optional[ColumnIDMap]=None,
-        column_spreadsheet_code: Optional[List[Dict[ColumnID, str]]]=None,
+        column_formulas: Optional[List[Dict[ColumnID, FrontendFormula]]]=None,
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
         graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None
@@ -95,12 +96,12 @@ class State:
         # by column headers. The column headers _only_ index into the dataframe itself
         self.column_ids = column_ids if column_ids else ColumnIDMap(dfs)
 
-        self.column_spreadsheet_code = (
-            column_spreadsheet_code
-            if column_spreadsheet_code is not None
+        self.column_formulas: List[Dict[ColumnID, FrontendFormula]] = (
+            column_formulas
+            if column_formulas is not None
             else [
                 {
-                    column_id: ""
+                    column_id: []
                     for column_id in self.column_ids.get_column_ids(sheet_index)
                 }
                 for sheet_index in range(len(dfs))
@@ -146,7 +147,7 @@ class State:
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),
-            column_spreadsheet_code=deepcopy(self.column_spreadsheet_code),
+            column_formulas=deepcopy(self.column_formulas),
             column_filters=deepcopy(self.column_filters),
             df_formats=deepcopy(self.df_formats),
             graph_data_dict=deepcopy(self.graph_data_dict)
@@ -189,8 +190,8 @@ class State:
             )
 
             # Update all the variables that depend on column_headers
-            self.column_spreadsheet_code.append(
-                {column_id: "" for column_id in column_ids}
+            self.column_formulas.append(
+                {column_id: [] for column_id in column_ids}
             )
             self.column_filters.append(
                 {
@@ -226,8 +227,8 @@ class State:
             )
 
             # Update all the variables that depend on column_headers
-            self.column_spreadsheet_code[sheet_index] = {
-                column_id: "" for column_id in column_ids
+            self.column_formulas[sheet_index] = {
+                column_id: [] for column_id in column_ids
             }
             self.column_filters[sheet_index] = {
                 column_id: {"operator": "And", "filters": []}
@@ -250,7 +251,7 @@ class State:
         # Update column state variables
         for column_header in column_headers:
             column_id = self.column_ids.add_column_header(sheet_index, column_header)
-            self.column_spreadsheet_code[sheet_index][column_id] = ''
+            self.column_formulas[sheet_index][column_id] = []
             self.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
 
     def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
