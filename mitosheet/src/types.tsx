@@ -987,6 +987,9 @@ export interface Action {
         mac: string,
         windows: string
     }
+
+    // Set to True if this action should only be available for Enterprise users
+    isEnterprise?: boolean
 }
 
 export enum GraphSidebarTab {

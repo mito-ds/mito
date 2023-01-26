@@ -78,7 +78,6 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
         } for range_import in params['range_imports']]
 
     if step_type == SnowflakeImportStepPerformer.step_type():
-        print("HERE")
         return [{
             'step_type': step_type,
             'params': {

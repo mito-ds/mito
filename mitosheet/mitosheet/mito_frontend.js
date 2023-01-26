@@ -35198,8 +35198,6 @@ ${finalCode}`;
           setImportState
         }
       );
-    } else if (importState.screen == "authenticate_to_snowflake") {
-      return /* @__PURE__ */ import_react133.default.createElement(import_react133.default.Fragment, null);
     } else {
       return /* @__PURE__ */ import_react133.default.createElement(import_react133.default.Fragment, null);
     }
@@ -37942,10 +37940,12 @@ fig.write_html("${props.graphTabName}.html")`
       void _validateSnowflakeCredentials(credentials);
     };
     const _validateSnowflakeCredentials = async (credentials2) => {
-      const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials2);
-      setSnowflakeCredentialsValidityCheckResult(validityCheckResult);
-      if ((validityCheckResult == null ? void 0 : validityCheckResult.type) === "success") {
-        props.onCredentialsValidated();
+      const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials2);
+      setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult);
+      if ((credentialsValidityCheckResult == null ? void 0 : credentialsValidityCheckResult.type) === "success") {
+        props.onValidCredentials();
+      } else if (props.onInvalidCredentials !== void 0) {
+        props.onInvalidCredentials();
       }
       setLoading(false);
     };
@@ -38007,7 +38007,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         "Connect to Snowflake"
       )
-    ), !loading && snowflakeCredentialsValidityCheckResult !== void 0 && /* @__PURE__ */ import_react160.default.createElement("div", { className: classNames({ "text-color-error": snowflakeCredentialsValidityCheckResult.type === "error", "text-color-success": snowflakeCredentialsValidityCheckResult.type === "success" }, "mito-collapsible-content-card-subtext") }, snowflakeCredentialsValidityCheckResult.type === "success" && "Successfully connected to Snowflake instance.", snowflakeCredentialsValidityCheckResult.type === "error" && snowflakeCredentialsValidityCheckResult.error_message), loading && /* @__PURE__ */ import_react160.default.createElement(Row_default, { className: classNames("text-subtext-1", "mito-collapsible-content-card-subtext") }, /* @__PURE__ */ import_react160.default.createElement("p", null, "Connecting to Snowflake"), /* @__PURE__ */ import_react160.default.createElement(LoadingCounter_default, null)));
+    ), !loading && snowflakeCredentialsValidityCheckResult !== void 0 && /* @__PURE__ */ import_react160.default.createElement("div", { className: classNames({ "text-color-error": snowflakeCredentialsValidityCheckResult.type === "error", "text-color-success": snowflakeCredentialsValidityCheckResult.type === "success" }, "mito-collapsible-content-card-subtext") }, snowflakeCredentialsValidityCheckResult.type === "success" && "Successfully connected to Snowflake instance.", snowflakeCredentialsValidityCheckResult.type === "error" && snowflakeCredentialsValidityCheckResult.error_message), loading && /* @__PURE__ */ import_react160.default.createElement(Row_default, { suppressTopBottomMargin: true, className: classNames("text-subtext-1", "mito-collapsible-content-card-subtext") }, /* @__PURE__ */ import_react160.default.createElement("p", null, "Connecting to Snowflake"), /* @__PURE__ */ import_react160.default.createElement(LoadingCounter_default, null)));
   };
   var AuthenticateToSnowflakeCard_default = AuthenticateToSnowflakeCard;
 
@@ -38016,7 +38016,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react161.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react161.default.createElement(
       DefaultTaskpaneHeader_default,
       {
-        header: "UpdateSnowflakeCredentialsTaskpane",
+        header: "Connect to Snowflake",
         setUIState: props.setUIState,
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
@@ -38025,7 +38025,7 @@ fig.write_html("${props.graphTabName}.html")`
       AuthenticateToSnowflakeCard_default,
       {
         mitoAPI: props.mitoAPI,
-        onCredentialsValidated: () => props.edit(),
+        onValidCredentials: () => props.edit(),
         isOpen: true
       }
     )));
@@ -38581,10 +38581,10 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
-    const [credentialsValidated, setCredentialsValidated] = (0, import_react167.useState)(false);
+    const [validCredentials, setValidCredentials] = (0, import_react167.useState)(false);
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react167.useState)(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react167.useState)(void 0);
-    const [loadingOptionsAndDefaults, setLoadingOptionsAndDefaults] = (0, import_react167.useState)(false);
+    const [loadingAvailableOptionsAndDefaults, setLoadingAvailableOptionsAndDefaults] = (0, import_react167.useState)(false);
     const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
       setParamsWithoutRefreshOptionsAndDefaults(newParams);
       void loadAndSetOptionsAndDefaults(newParams);
@@ -38593,7 +38593,7 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react167.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const loadAndSetOptionsAndDefaults = async (newParams) => {
-      setLoadingOptionsAndDefaults(true);
+      setLoadingAvailableOptionsAndDefaults(true);
       const availableSnowflakeOptionsAndDefaults2 = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
       setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults2);
       if ((availableSnowflakeOptionsAndDefaults2 == null ? void 0 : availableSnowflakeOptionsAndDefaults2.type) === "success") {
@@ -38603,7 +38603,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         });
       }
-      setLoadingOptionsAndDefaults(false);
+      setLoadingAvailableOptionsAndDefaults(false);
     };
     return /* @__PURE__ */ import_react167.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react167.default.createElement(
       DefaultTaskpaneHeader_default,
@@ -38615,25 +38615,28 @@ fig.write_html("${props.graphTabName}.html")`
       AuthenticateToSnowflakeCard_default,
       {
         mitoAPI: props.mitoAPI,
-        onCredentialsValidated: () => {
+        onValidCredentials: () => {
           setCredentialsSectionIsOpen(false);
-          setCredentialsValidated(true);
+          setValidCredentials(true);
           void loadAndSetOptionsAndDefaults(params);
+        },
+        onInvalidCredentials: () => {
+          setValidCredentials(false);
         },
         isOpen: credentialsSectionIsOpen
       }
     ), /* @__PURE__ */ import_react167.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react167.default.createElement(
       CollapsibleSection_default,
       {
-        title: /* @__PURE__ */ import_react167.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Configure Query"),
+        title: /* @__PURE__ */ import_react167.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Configure Query"),
         open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
       },
-      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
         Select_default,
         {
           width: "medium",
           value: params.table_loc_and_warehouse.warehouse || "None available",
-          disabled: loadingOptionsAndDefaults,
+          disabled: loadingAvailableOptionsAndDefaults,
           onChange: (newWarehouse) => {
             setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
               return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
@@ -38644,12 +38647,12 @@ fig.write_html("${props.graphTabName}.html")`
           return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
         }) : []
       ))),
-      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
         Select_default,
         {
           width: "medium",
           value: params.table_loc_and_warehouse.database || "None available",
-          disabled: loadingOptionsAndDefaults,
+          disabled: loadingAvailableOptionsAndDefaults,
           onChange: (newDatabase) => {
             const newParams = getNewParams(params, newDatabase);
             setParamsAndRefreshOptionsAndDefaults(newParams);
@@ -38659,12 +38662,12 @@ fig.write_html("${props.graphTabName}.html")`
           return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
         }) : []
       ))),
-      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
         Select_default,
         {
           width: "medium",
           value: params.table_loc_and_warehouse.schema || "None available",
-          disabled: loadingOptionsAndDefaults,
+          disabled: loadingAvailableOptionsAndDefaults,
           onChange: (newSchema) => {
             const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
             setParamsAndRefreshOptionsAndDefaults(newParams);
@@ -38674,12 +38677,12 @@ fig.write_html("${props.graphTabName}.html")`
           return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
         }) : []
       ))),
-      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
         Select_default,
         {
           width: "medium",
-          value: loadingOptionsAndDefaults ? "Loading.." : params.table_loc_and_warehouse.table || "None available",
-          disabled: loadingOptionsAndDefaults,
+          value: params.table_loc_and_warehouse.table || "None available",
+          disabled: loadingAvailableOptionsAndDefaults,
           onChange: (newTable) => {
             const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
             setParamsAndRefreshOptionsAndDefaults(newParams);
@@ -38689,11 +38692,11 @@ fig.write_html("${props.graphTabName}.html")`
           return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
         }) : []
       ))),
-      loadingOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))
+      loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))
     ), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(
       MultiToggleBox_default,
       {
-        disabled: loadingOptionsAndDefaults,
+        disabled: loadingAvailableOptionsAndDefaults,
         toggleAllIndexes: (indexesToToggle) => {
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
@@ -38730,7 +38733,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
         placeholder: "100000",
-        disabled: loadingOptionsAndDefaults,
+        disabled: loadingAvailableOptionsAndDefaults,
         onChange: (e) => {
           const newLimitNumber = parseInt(e.target.value);
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
@@ -38741,8 +38744,8 @@ fig.write_html("${props.graphTabName}.html")`
     ))), /* @__PURE__ */ import_react167.default.createElement(
       TextButton_default,
       {
-        disabled: !credentialsValidated || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
-        disabledTooltip: "Fill out all required fieldsd",
+        disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
+        disabledTooltip: "Fill out all required fields",
         onClick: () => edit(),
         variant: "dark"
       },
@@ -39990,6 +39993,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       makeToolbarDropdownItem(props.actions["import files" /* Import_Files */]),
       makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */]),
+      makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */]),
       makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */]),
       /* @__PURE__ */ import_react208.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["export" /* Export */]),

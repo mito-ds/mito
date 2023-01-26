@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react';
     Loading counter
 */
 const LoadingCounter = (): JSX.Element => {
-    // We use a count to track the number of the time loading.
+    // Keep track of the amount of time loading
     const [timeLoading, setTimeLoading] = useState(1);
 
-    // Schedule a change to update the loading indicator, every .5 seconds
+    // Schedule a change to update the loading indicator, every 1 second
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeLoading(timeLoading => timeLoading + 1);

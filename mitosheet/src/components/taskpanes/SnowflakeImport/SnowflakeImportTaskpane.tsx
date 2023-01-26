@@ -117,10 +117,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             props.analysisData,
     )
 
-    const [credentialsValidated, setCredentialsValidated] = useState(false)
+    const [validCredentials, setValidCredentials] = useState(false)
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
-    const [loadingOptionsAndDefaults, setLoadingOptionsAndDefaults] = useState(false)
+    const [loadingAvailableOptionsAndDefaults, setLoadingAvailableOptionsAndDefaults] = useState(false)
 
     // Because we don't always want to refresh defaults, we have a setParamsWithoutDefaultRefresh function that will
     // set params without resetting the default values via the api call. This function, however, will both set the params and refresh the defaults.
@@ -134,7 +134,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     }
 
     const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
-        setLoadingOptionsAndDefaults(true)
+        setLoadingAvailableOptionsAndDefaults(true)
         const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
@@ -146,7 +146,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 }
             })
         }
-        setLoadingOptionsAndDefaults(false)
+        setLoadingAvailableOptionsAndDefaults(false)
     }
     
     return (
@@ -158,17 +158,20 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             <DefaultTaskpaneBody>
                 <AuthenticateToSnowflakeCard 
                     mitoAPI={props.mitoAPI}
-                    onCredentialsValidated={() => {
+                    onValidCredentials={() => {
                         setCredentialsSectionIsOpen(false)
-                        setCredentialsValidated(true)
+                        setValidCredentials(true)
                         void loadAndSetOptionsAndDefaults(params)
                     }}      
+                    onInvalidCredentials={() => {
+                        setValidCredentials(false)
+                    }}
                     isOpen={credentialsSectionIsOpen}          
                 />
                 <Spacer px={20}/>
                 <CollapsibleSection 
                     title={(
-                        <div className={classNames('text-header-3',{'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                        <div className={classNames('text-header-3',{'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                             Configure Query
                         </div>
                     )} 
@@ -176,7 +179,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 >
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Warehouse
                             </p>
                         </Col>
@@ -184,7 +187,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.warehouse || 'None available'}
-                                disabled={loadingOptionsAndDefaults}
+                                disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newWarehouse) => {
                                     setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {table_loc_and_warehouse: {warehouse: newWarehouse}});
@@ -201,7 +204,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Database
                             </p>
                         </Col>
@@ -209,7 +212,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.database || 'None available'}
-                                disabled={loadingOptionsAndDefaults}
+                                disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newDatabase) => {
                                     const newParams = getNewParams(params, newDatabase)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -225,7 +228,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Schema
                             </p>
                         </Col>
@@ -233,7 +236,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.schema || 'None available'}
-                                disabled={loadingOptionsAndDefaults}
+                                disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newSchema) => {
                                     const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -249,15 +252,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Table
                             </p>
                         </Col>
                         <Col>
                             <Select
                                 width="medium"
-                                value={loadingOptionsAndDefaults ? "Loading.." : params.table_loc_and_warehouse.table || 'None available'}
-                                disabled={loadingOptionsAndDefaults}
+                                value={params.table_loc_and_warehouse.table || 'None available'}
+                                disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newTable) => {
                                     const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -271,7 +274,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             </Select>
                         </Col>
                     </Row>
-                    {loadingOptionsAndDefaults && 
+                    {loadingAvailableOptionsAndDefaults && 
                         <Row className={classNames('text-subtext-1')}>
                             <p>
                                 Loading Snowflake options
@@ -286,7 +289,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
                     <div>
                         <MultiToggleBox
-                            disabled={loadingOptionsAndDefaults}
+                            disabled={loadingAvailableOptionsAndDefaults}
                             toggleAllIndexes={(indexesToToggle) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
                                     const newColumns = [...prevParams.query_params.columns];
@@ -329,7 +332,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     width='medium' 
                                     value={params.query_params.limit?.toString() || ''} 
                                     placeholder='100000'
-                                    disabled={loadingOptionsAndDefaults}
+                                    disabled={loadingAvailableOptionsAndDefaults}
                                     onChange={(e) => {
                                         const newLimitNumber = parseInt(e.target.value) 
                                         setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
@@ -341,13 +344,13 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Row>
                         <TextButton
                             disabled={
-                                !credentialsValidated || // Activated when user first validates credentials. Its possible they've since invalidated their credentials.
+                                !validCredentials ||
                                 params.table_loc_and_warehouse.warehouse === undefined || 
                                 params.table_loc_and_warehouse.database === undefined || 
                                 params.table_loc_and_warehouse.schema === undefined ||
                                 params.table_loc_and_warehouse.table === undefined 
                             }
-                            disabledTooltip='Fill out all required fieldsd'
+                            disabledTooltip='Fill out all required fields'
                             onClick={() => edit()}
                             variant='dark'
                         >

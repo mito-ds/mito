@@ -17,7 +17,8 @@ interface UpdateSnowflakeCredentialsTaskpaneTaskpaneProps {
 }
 
 /* 
-    This is the UpdateSnowflakeCredentialsTaskpane taskpane.
+    This is the UpdateSnowflakeCredentialsScreen. It is used to re-enter your snowflake
+    credentials after the kernel has restarted.
 */
 const UpdateSnowflakeCredentialsScreen = (props: UpdateSnowflakeCredentialsTaskpaneTaskpaneProps): JSX.Element => {
 
@@ -25,7 +26,7 @@ const UpdateSnowflakeCredentialsScreen = (props: UpdateSnowflakeCredentialsTaskp
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="UpdateSnowflakeCredentialsTaskpane"
+                header="Connect to Snowflake"
                 setUIState={props.setUIState} 
                 backCallback={props.backCallback}
                 notCloseable={props.notCloseable}
@@ -33,7 +34,7 @@ const UpdateSnowflakeCredentialsScreen = (props: UpdateSnowflakeCredentialsTaskp
             <DefaultTaskpaneBody>
                 <AuthenticateToSnowflakeCard 
                     mitoAPI={props.mitoAPI}
-                    onCredentialsValidated={() => props.edit()}      
+                    onValidCredentials={() => props.edit()}      
                     isOpen={true}          
                 />
             </DefaultTaskpaneBody>

@@ -1068,7 +1068,7 @@ input:checked + .toggle:after {
   border-radius: 5px;
 }
 .mito-collapsible-content-card-subtext {
-  padding: 5px;
+  padding: 0px 5px 5px 5px;
 }
 
 /* css/elements/DropdownButton.css */

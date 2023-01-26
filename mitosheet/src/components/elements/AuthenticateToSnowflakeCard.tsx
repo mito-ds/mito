@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import { updateObjectWithPartialObject } from '../../utils/objects';
+import '../../../css/layout/CollapsibleSection.css'
 
 import Col from '../layout/Col';
 import CollapsibleSection from '../layout/CollapsibleSection';
@@ -24,7 +25,8 @@ const getDefaultCredentials = (): SnowflakeCredentials => {
 
 const AuthenticateToSnowflakeCard = (props: {
     mitoAPI: MitoAPI;
-    onCredentialsValidated: () => void;
+    onValidCredentials: () => void;
+    onInvalidCredentials?: () => void;
     isOpen: boolean
 }): JSX.Element => {
 
@@ -53,10 +55,12 @@ const AuthenticateToSnowflakeCard = (props: {
     }
 
     const _validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {
-        const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
-        setSnowflakeCredentialsValidityCheckResult(validityCheckResult)
-        if (validityCheckResult?.type === 'success') {
-            props.onCredentialsValidated()
+        const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
+        setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult)
+        if (credentialsValidityCheckResult?.type === 'success') {
+            props.onValidCredentials()
+        } else if (props.onInvalidCredentials !== undefined) {
+            props.onInvalidCredentials()
         }
         setLoading(false)
     }
@@ -146,7 +150,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </div>
             }
             {loading && 
-                <Row className={classNames('text-subtext-1', 'mito-collapsible-content-card-subtext')}>
+                <Row suppressTopBottomMargin className={classNames('text-subtext-1', 'mito-collapsible-content-card-subtext')}>
                     <p>
                         Connecting to Snowflake
                     </p>
