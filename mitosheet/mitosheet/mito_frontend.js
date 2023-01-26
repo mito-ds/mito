@@ -24877,14 +24877,14 @@ ${finalCode}`;
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData, rowIndex) => {
     const columnHeadersAndIndexLabels = [];
-    const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn(selections, sheetData);
-    entireSelectedColumns.forEach((columnID) => {
-      const columnHeader = sheetData.columnIDsMap[columnID];
-      const formulaIndexLabel = sheetData.index[rowIndex];
-      columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
-    });
     selections.forEach((selection) => {
       if (isSelectionEntireSelectedColumn(selection)) {
+        const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
+        entireSelectedColumns.forEach((columnID) => {
+          const columnHeader = sheetData.columnIDsMap[columnID];
+          const formulaIndexLabel = sheetData.index[rowIndex];
+          columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+        });
         return;
       }
       const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
@@ -25082,15 +25082,12 @@ ${finalCode}`;
       if (formulaPart.type === "string part") {
         formulaString += formulaPart.string;
       } else {
-        formulaString += formulaPart.display_column_header;
         const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
         if (newIndexLabel !== void 0) {
+          formulaString += formulaPart.display_column_header;
           formulaString += getDisplayColumnHeader(newIndexLabel);
         } else {
-          const firstIndexLabel = sheetData == null ? void 0 : sheetData.index[0];
-          if (firstIndexLabel !== void 0) {
-            formulaString += getDisplayColumnHeader(firstIndexLabel);
-          }
+          formulaString += "0";
         }
       }
     });

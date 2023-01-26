@@ -372,6 +372,7 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
     return None
 
 
+
 def get_column_header_and_index_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
@@ -390,6 +391,31 @@ def get_column_header_and_index_matches(
     and therefore what sort of match is possible. Casting from the string
     to a parsed value is then done, and we can determine the row offset 
     of the match.
+
+    This formula is the main workhorse of the parser. With the inputs:
+
+    formula = "=A0"
+    formula_label = 1 (aka formula was written in B1)
+    string_matches = []
+    df = pd.DataFrame({'A': [1], 'B': [1]})
+
+    We would get the matches: 
+    {
+                        'type': COLUMN_HEADER_MATCH_TYPE,
+                        'match_range': (1, 1),
+                        'unparsed':'A',
+                        'parsed': 'A',
+                        'row_offset': 0
+    }
+    {
+                        'type': INDEX_LABEL_MATCH_TYPE,
+                        'match_range': (2, 2),
+                        'unparsed':'0',
+                        'parsed': 0,
+                        'row_offset': -1
+    }
+
+    These would be returned in reverse, so that they were easy to work with.
     """
 
     index = df.index

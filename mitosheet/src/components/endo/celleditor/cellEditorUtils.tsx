@@ -11,22 +11,19 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
     // For each of the selections, we turn them into a string that goes into the formula
     const columnHeadersAndIndexLabels: string[] = []
 
-    // If we have any selectiosn that reference the entire column header
-    const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn(selections, sheetData);
-    entireSelectedColumns.forEach((columnID) => {
-        const columnHeader = sheetData.columnIDsMap[columnID];
-        const formulaIndexLabel = sheetData.index[rowIndex];
-        columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
-    })
-
-
     selections.forEach(selection => {
-        // Skip these as we handle them above
+        // If we have selections that reference the column header, we have to handle them special
         if (isSelectionEntireSelectedColumn(selection)) {
+            const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
+            entireSelectedColumns.forEach((columnID) => {
+                const columnHeader = sheetData.columnIDsMap[columnID];
+                const formulaIndexLabel = sheetData.index[rowIndex];
+                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+            })
             return;
         }
 
-        // We need to get the column 
+        // Otherwise, we need to get the column 
         const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
         const indexLabels = getIndexLabelsInSelection(selection, sheetData);
 
@@ -376,29 +373,23 @@ export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined
         if (formulaPart.type === 'string part') {
             formulaString += formulaPart.string
         } else {
-            formulaString += formulaPart.display_column_header
 
-            /**
-             * After adding the reference to the column header, we need to add the correct index label.
-             * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
-             */
             const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {
+                /**
+                 * We add the reference to the column header and then we need to add the correct index label.
+                 * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
+                 */
+                formulaString += formulaPart.display_column_header
                 formulaString += getDisplayColumnHeader(newIndexLabel);
             } else {
                 /**
-                 * TODO: how do we want to handle the case where the newIndexLabel is undefined? This happens when 
-                 * we might have written a formula that references the row before, but now we're editing in the first row. 
-                 * 
-                 * E.g. B1 = A1 + A0, then go to B0. What do you see? B0 = A0 + A(?)
-                 * 
-                 * Currently, we handle this just by clamping to the first index, but this can be somewhat misleading. Let
-                 * me know what you think we should do here... we could try putting in the fill_value for the shift function...
+                 * When have written a formula that references the row before, but now we're editing in the first row,
+                 * we get references that reference A-1 (which isn't a thing in the data). In this case, we just display
+                 * the constant 0. In all cases other than datetimes, this is what is actually inserted when shifted, so
+                 * in practice is the correct thing to show the user. We notably need ot delete the column header
                  */
-                const firstIndexLabel = sheetData?.index[0]
-                if (firstIndexLabel !== undefined) {
-                    formulaString += getDisplayColumnHeader(firstIndexLabel);
-                }
+                formulaString += '0';
             }
         }
 
