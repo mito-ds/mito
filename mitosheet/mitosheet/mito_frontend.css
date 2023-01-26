@@ -43,6 +43,11 @@
   }
 }
 
+/* css/sitewide/backgrounds.css */
+.mito-blue-background {
+  background-color: var(--mito-light-blue);
+}
+
 /* css/sitewide/borders.css */
 .border-t-light-gray {
   border-top: 1px solid var(--mito-light-gray);
@@ -1053,6 +1058,13 @@ input:checked + .toggle:after {
   padding: 5px;
   background-color: var(--mito-light-blue);
   border-radius: 5px;
+}
+.mito-collapsible-content-card-container {
+  background-color: var(--mito-light-blue);
+  border-radius: 5px;
+}
+.mito-collapsible-content-card-subtext {
+  padding: 5px;
 }
 
 /* css/elements/DropdownButton.css */

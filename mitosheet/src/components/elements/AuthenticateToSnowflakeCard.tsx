@@ -9,6 +9,7 @@ import CollapsibleSection from '../layout/CollapsibleSection';
 import Row from '../layout/Row';
 import { SnowflakeCredentials } from '../taskpanes/SnowflakeImport/SnowflakeImportTaskpane';
 import Input from './Input';
+import LoadingCounter from './LoadingCounter';
 import TextButton from './TextButton';
 
 export type SnowflakeCredentialsValidityCheckResult = {type: 'success'} | {type: 'error', 'error_message': string}
@@ -29,9 +30,11 @@ const AuthenticateToSnowflakeCard = (props: {
 
     const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => getDefaultCredentials())
     const [snowflakeCredentialsValidityCheckResult, setSnowflakeCredentialsValidityCheckResult] = useState<SnowflakeCredentialsValidityCheckResult | undefined>(undefined)
+    const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
         // On first render, load the cached credentials
+        setLoading(true)
         loadAndSetAndValidateCachedCredentials()
     }, []);
 
@@ -41,9 +44,11 @@ const AuthenticateToSnowflakeCard = (props: {
             setCredentials(cachedCredentials)
             _validateSnowflakeCredentials(cachedCredentials)
         }
+        setLoading(false)
     }
 
     const validateSnowflakeCredentialsParams = async () => {
+        setLoading(true)
         _validateSnowflakeCredentials(credentials)
     }
 
@@ -53,10 +58,11 @@ const AuthenticateToSnowflakeCard = (props: {
         if (validityCheckResult?.type === 'success') {
             props.onCredentialsValidated()
         }
+        setLoading(false)
     }
 
     return (
-        <div className='mito-blue-container'>
+        <div className='mito-collapsible-content-card-container'>
             <CollapsibleSection title='Connection' open={props.isOpen}>
                 <Row justify="space-between">
                     <Col>
@@ -118,10 +124,18 @@ const AuthenticateToSnowflakeCard = (props: {
                 </TextButton>
             </CollapsibleSection>
             {snowflakeCredentialsValidityCheckResult !== undefined &&
-                <div className={(classNames({'text-color-error': snowflakeCredentialsValidityCheckResult.type === 'error' , 'text-color-success': snowflakeCredentialsValidityCheckResult.type === 'success'}))}>
+                <div className={(classNames({'text-color-error': snowflakeCredentialsValidityCheckResult.type === 'error' , 'text-color-success': snowflakeCredentialsValidityCheckResult.type === 'success'}, 'mito-collapsible-content-card-subtext'))}>
                     {snowflakeCredentialsValidityCheckResult.type === 'success' && "Successfully connected to Snowflake instance."}
                     {snowflakeCredentialsValidityCheckResult.type === 'error' && snowflakeCredentialsValidityCheckResult.error_message}
                 </div>
+            }
+            {loading && 
+                <Row className={classNames('text-subtext-1', 'mito-collapsible-content-card-subtext')}>
+                    <p>
+                        Connecting to Snowflake
+                    </p>
+                    <LoadingCounter />
+                </Row>
             }
         </div>
     )

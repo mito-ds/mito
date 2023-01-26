@@ -3,10 +3,12 @@ import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
+import { classNames } from "../../../utils/classNames";
 
 import { updateObjectWithPartialObject } from "../../../utils/objects";
 import AuthenticateToSnowflakeCard from "../../elements/AuthenticateToSnowflakeCard";
 import DropdownItem from "../../elements/DropdownItem";
+import LoadingCounter from "../../elements/LoadingCounter";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
 import Select from "../../elements/Select";
@@ -104,7 +106,7 @@ const getNewParams = (prevParams: SnowflakeImportParams, database?: string | nul
 */
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
-    const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
+    const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery} = useSendEditOnClick<SnowflakeImportParams, undefined>(
             () => getDefaultParams(),
             StepType.SnowflakeImport, 
             props.mitoAPI,
@@ -114,6 +116,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     const [credentialsValidated, setCredentialsValidated] = useState(false)
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
+    const [loadingOptionsAndDefaults, setLoadingOptionsAndDefaults] = useState(false)
 
     // Because we don't always want to refresh defaults, we have a setParamsWithoutDefaultRefresh function that will
     // set params without resetting the default values via the api call. This function, however, will both set the params and refresh the defaults.
@@ -127,6 +130,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
     }
 
     const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
+        setLoadingOptionsAndDefaults(true)
         const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
@@ -138,6 +142,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 }
             })
         }
+        setLoadingOptionsAndDefaults(false)
     }
     
     return (
@@ -243,6 +248,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             </Select>
                         </Col>
                     </Row>
+                    {loadingOptionsAndDefaults && 
+                        <Row className={classNames('text-subtext-1')}>
+                            <p>
+                                Loading Snowflake options
+                            </p>
+                            <LoadingCounter />
+                        </Row>
+                    }
                 </CollapsibleSection>
                 <Row justify="start">
                     <p className="text-header-3">Columns to Import</p>
@@ -294,6 +307,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             variant='dark'
                         >
                         </TextButton>
+                        {executingQuery && 
+                            <Row className={classNames('text-subtext-1')}>
+                                <p>
+                                    Executing query
+                                </p>
+                                <LoadingCounter />
+                            </Row>
+                        }
                     </>
                 }
             </DefaultTaskpaneBody>
