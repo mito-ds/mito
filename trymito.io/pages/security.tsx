@@ -35,10 +35,10 @@ const Security: NextPage = () => {
 
           <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
             <h1 className={titleStyles.title}>
-              Your data never leaves your computer, ever.
+              Your private data never leaves your computer, ever.
             </h1>
             <p className={titleStyles.description}>
-              You don’t have to worry about our data storage practices, because we never see a drop of your data.
+              You don’t have to worry about our data storage practices, because we never anything private.
             </p>
           </section>
           <section className={securityStyles.gradient_card}>

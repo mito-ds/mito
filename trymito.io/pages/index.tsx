@@ -32,8 +32,8 @@ const Home: NextPage = () => {
               </h1>
 
               <p className={titleStyles.description}>
-                Mito makes Python data analysis 10x easier. <br/>
-                Join thousands using Mito in Jupyter.
+                Automate entire spreadsheet workflows without having to learn Python.<br/>
+                Save yourself weeks by using Mito in Jupyter.
               </p>
             
               <div className={homeStyles.cta_button_and_video_spacer}>
@@ -51,27 +51,27 @@ const Home: NextPage = () => {
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
                 <h1>
-                  <span className='text-highlight'> Explore </span> your data visually
+                  <span className='text-highlight'>Automate</span> analyses with Python
                 </h1>
                 <p className='display-mobile-only'>
-                  View CSVs, Excel files, and dataframes in an Excel-like interface. 
-                  Explore your data by graphing, viewing summary stats, and creating pivot tables.
+                  Every edit to the Mito spreadsheet automatically generates Python code. 
+                  Mito is the fastest way to fully automate a spreadsheet workflow.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  View CSVs, Excel files, and dataframes in an Excel-like interface. 
+                  Every edit to the Mito spreadsheet automatically generates Python code. 
                 </p>
-                <p className='display-desktop-only-inline-block'> 
-                  Explore your data by graphing, viewing summary stats, and creating pivot tables.
+                <p className='display-desktop-only-inline-block'>
+                  Mito is the fastest way to fully automate a spreadsheet workflow.
                 </p>
-                <a href="https://docs.trymito.io/how-to/summary-statistics" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href="https://docs.trymito.io/how-to/using-the-generated-code" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media}>
-                <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
+              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
-
+          
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
                 <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
@@ -98,37 +98,37 @@ const Home: NextPage = () => {
                 <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
+            
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
                 <h1>
-                  <span className='text-highlight'>Automate</span> analyses with Python
+                  <span className='text-highlight'> Present </span> your data visually
                 </h1>
                 <p className='display-mobile-only'>
-                  Every edit to the Mito spreadsheet automatically generates Python code. 
-                  Write code quickly and accurately without worrying about the syntax. 
+                  Present your data by formatting, graphing, and more.
+                  From data ingestion to presentation, Mito has you covered.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Every edit to the Mito spreadsheet automatically generates Python code. 
+                  Present your data by formatting, graphing, and more.
                 </p>
-                <p className='display-desktop-only-inline-block'>
-                  Write code quickly and accurately without worrying about the syntax. 
+                <p className='display-desktop-only-inline-block'> 
+                  From data ingestion to presentation, Mito has you covered.
                 </p>
-                <a href="https://docs.trymito.io/how-to/using-the-generated-code" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href="https://docs.trymito.io/how-to/graphing" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                   Learn More →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+              <div className={homeStyles.functionality_media}>
+                <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
-            
           </section>
 
           <section className={pageStyles.background_card + ' ' + homeStyles.metrics_container}>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
-                20,000+
+                50,000+
               </h1>
               <p className={homeStyles.metrics_label}>
                 Mito users
@@ -136,10 +136,10 @@ const Home: NextPage = () => {
             </div>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
-                1M+
+                10,000+
               </h1>
               <p className={homeStyles.metrics_label}>
-                Lines of Code Generated
+                Hours saved through automation
               </p>
             </div>
             <div className={homeStyles.metric_container}>
@@ -156,10 +156,10 @@ const Home: NextPage = () => {
           <section className={homeStyles.tweet_section}>
             <div className={homeStyles.tweet_section_header + ' center'}>
               <h1>
-                Hear what other data professionals have to say about Mito
+                Mito is the go-to Python tool at the largest banks in the world
               </h1>
               <p className='display-desktop-only-inline-block'>
-                Used, known, and loved by hobbyists, researchers and Fortune 500 companies.
+                See why Mito is ranked as one of the top Python libraries of 2022
               </p>
               <GithubButton 
                 variant='Issue'

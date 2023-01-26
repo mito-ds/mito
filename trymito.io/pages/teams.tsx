@@ -37,10 +37,10 @@ const Teams: NextPage = () => {
 
             <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                 <h1 className={titleStyles.title}>
-                    Transition to Python by leveraging your team&apos;s spreadsheet mastery
+                    Leverage your teams spreadsheet mastery to automate entire workflows
                 </h1>
                 <p className={titleStyles.description}>
-                    Onboard your team to Mito in minutes
+                    Onboard in minutes, save your team days per month
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
                     <CTAButtons variant='contact' />
@@ -52,8 +52,8 @@ const Teams: NextPage = () => {
                         <p>
                             <b className='text-primary'>Spreadsheet-first teams </b> use Mito to write Python code using the spreadsheet interface they know and love.
                         </p>
-                        <p> 
-                            <b className='text-primary'>Python-first teams </b> use Mito to write code faster without spending time searching Google or Stack Overflow.
+                        <p>
+                            <b className='text-primary'>No new skills required </b> to automate your entire spreadsheet, from data ingestion to transformation to presentation.
                         </p>
                         <a href="mailto:founders@sagacollab.com" className={pageStyles.link_with_p_tag_margins}>
                             Contact the Mito team →
@@ -131,7 +131,7 @@ const Teams: NextPage = () => {
                     </p>
                 </div>
                 <h2 className='margin-top-4rem margin-bottom-2rem'>
-                    Python Before Mito
+                    Automation Before Mito
                 </h2>
                 <div className={pageStyles.subsection + ' ' + teamsStyles.calendar_section + ' flex-row-desktop-only'}>
                     <CalendarDay> 

@@ -37,6 +37,7 @@
         flex-direction: row;
         justify-content: space-evenly;
         flex: 1;
+        margin-top: 5rem;
     }
 
     .plan_card {
