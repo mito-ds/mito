@@ -38736,7 +38736,10 @@ fig.write_html("${props.graphTabName}.html")`
         placeholder: "100000",
         disabled: loadingAvailableOptionsAndDefaults,
         onChange: (e) => {
-          const newLimitNumber = parseInt(e.target.value);
+          var newLimitNumber = parseInt(e.target.value);
+          if (isNaN(newLimitNumber)) {
+            newLimitNumber = void 0;
+          }
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
             return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
           });
