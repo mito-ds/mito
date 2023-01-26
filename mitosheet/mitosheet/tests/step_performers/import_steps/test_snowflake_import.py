@@ -45,9 +45,14 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
 
+    query_params = {
+        'columns': ['COLUMNA', 'COLUMNB'],
+        'limit': 2,
+    }
+
     mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
-    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate'], 'COLUMNB': ["DR", "Rush",]})
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
@@ -271,7 +276,6 @@ def test_snowflake_import_with_simple_import():
     input_df = pd.DataFrame({'A': [1,2,3]})
     delimeter, encoding, decimal, skiprows, error_bad_lines = ';', 'utf-8', '.',  0, False
     input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
-
 
     mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
 

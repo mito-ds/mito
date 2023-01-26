@@ -38441,6 +38441,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane.tsx
   var import_react167 = __toESM(require_react());
+  var LIMIT_TOOLTIP = "Used to specify the number of rows to return. When working with large datasets, it might be helpful to begin with a subset of your data.";
   var getDefaultParams7 = () => {
     return {
       table_loc_and_warehouse: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
@@ -38466,6 +38467,7 @@ fig.write_html("${props.graphTabName}.html")`
     return newParams;
   };
   var SnowflakeImportTaskpane = (props) => {
+    var _a;
     const { params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery } = useSendEditOnClick_default(
       () => getDefaultParams7(),
       "snowflake_import" /* SnowflakeImport */,
@@ -38566,7 +38568,7 @@ fig.write_html("${props.graphTabName}.html")`
       (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
         return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
       }) : []
-    ))), loadingOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement(import_react167.default.Fragment, null, /* @__PURE__ */ import_react167.default.createElement(
+    ))), loadingOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(
       MultiToggleBox_default,
       {
         toggleAllIndexes: (indexesToToggle) => {
@@ -38599,14 +38601,28 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ), /* @__PURE__ */ import_react167.default.createElement(
+    ), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between", align: "center", title: LIMIT_TOOLTIP }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(LabelAndTooltip_default, { tooltip: LIMIT_TOOLTIP }, "Limit")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+      Input_default,
+      {
+        width: "medium",
+        value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
+        placeholder: "100000",
+        onChange: (e) => {
+          const newLimitNumber = parseInt(e.target.value);
+          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+            return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
+          });
+        }
+      }
+    ))), /* @__PURE__ */ import_react167.default.createElement(
       TextButton_default,
       {
         disabled: !credentialsValidated || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
-        disabledTooltip: "Fields missing from the query. TODO: Cleanup",
+        disabledTooltip: "Fill out all required fieldsd",
         onClick: () => edit(),
         variant: "dark"
-      }
+      },
+      "Run Query"
     ), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)))));
   };
   var SnowflakeImportTaskpane_default = SnowflakeImportTaskpane;

@@ -8,6 +8,8 @@ import { classNames } from "../../../utils/classNames";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
 import AuthenticateToSnowflakeCard from "../../elements/AuthenticateToSnowflakeCard";
 import DropdownItem from "../../elements/DropdownItem";
+import Input from "../../elements/Input";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import LoadingCounter from "../../elements/LoadingCounter";
 import MultiToggleBox from "../../elements/MultiToggleBox";
 import MultiToggleItem from "../../elements/MultiToggleItem";
@@ -31,6 +33,8 @@ interface SnowflakeImportTaskpaneProps {
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
 }
+
+const LIMIT_TOOLTIP = 'Used to specify the number of rows to return. When working with large datasets, it might be helpful to begin with a subset of your data.'
 
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
@@ -261,7 +265,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <p className="text-header-3">Columns to Import</p>
                 </Row>
                 {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
-                    <>
+                    <div>
                         <MultiToggleBox
                             toggleAllIndexes={(indexesToToggle) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
@@ -294,6 +298,26 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 );
                             })}
                         </MultiToggleBox>
+                        <Row justify='space-between' align='center' title={LIMIT_TOOLTIP}>
+                            <Col>
+                                <LabelAndTooltip tooltip={LIMIT_TOOLTIP}>
+                                    Limit
+                                </LabelAndTooltip>
+                            </Col>
+                            <Col>
+                                <Input 
+                                    width='medium' 
+                                    value={params.query_params.limit?.toString() || ''} 
+                                    placeholder='100000'
+                                    onChange={(e) => {
+                                        const newLimitNumber = parseInt(e.target.value) 
+                                        setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                                            return updateObjectWithPartialObject(prevParams, {query_params: {limit: newLimitNumber}});
+                                        });
+                                    }}
+                                />
+                            </Col>
+                        </Row>
                         <TextButton
                             disabled={
                                 !credentialsValidated || // Activated when user first validates credentials. Its possible they've since invalidated their credentials.
@@ -302,10 +326,11 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 params.table_loc_and_warehouse.schema === undefined ||
                                 params.table_loc_and_warehouse.table === undefined 
                             }
-                            disabledTooltip='Fields missing from the query. TODO: Cleanup'
+                            disabledTooltip='Fill out all required fieldsd'
                             onClick={() => edit()}
                             variant='dark'
                         >
+                            Run Query
                         </TextButton>
                         {executingQuery && 
                             <Row className={classNames('text-subtext-1')}>
@@ -315,7 +340,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 <LoadingCounter />
                             </Row>
                         }
-                    </>
+                    </div>
                 }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
