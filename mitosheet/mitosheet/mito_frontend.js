@@ -37927,19 +37927,19 @@ fig.write_html("${props.graphTabName}.html")`
     const [loading, setLoading] = (0, import_react160.useState)(false);
     (0, import_react160.useEffect)(() => {
       setLoading(true);
-      loadAndSetAndValidateCachedCredentials();
+      void loadAndSetAndValidateCachedCredentials();
     }, []);
     const loadAndSetAndValidateCachedCredentials = async () => {
       const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials();
       if (cachedCredentials !== void 0) {
         setCredentials(cachedCredentials);
-        _validateSnowflakeCredentials(cachedCredentials);
+        void _validateSnowflakeCredentials(cachedCredentials);
       }
       setLoading(false);
     };
     const validateSnowflakeCredentialsParams = async () => {
       setLoading(true);
-      _validateSnowflakeCredentials(credentials);
+      void _validateSnowflakeCredentials(credentials);
     };
     const _validateSnowflakeCredentials = async (credentials2) => {
       const validityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials2);
@@ -38618,7 +38618,7 @@ fig.write_html("${props.graphTabName}.html")`
         onCredentialsValidated: () => {
           setCredentialsSectionIsOpen(false);
           setCredentialsValidated(true);
-          loadAndSetOptionsAndDefaults(params);
+          void loadAndSetOptionsAndDefaults(params);
         },
         isOpen: credentialsSectionIsOpen
       }

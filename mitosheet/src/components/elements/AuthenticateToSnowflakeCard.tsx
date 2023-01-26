@@ -35,21 +35,21 @@ const AuthenticateToSnowflakeCard = (props: {
     useEffect(() => {
         // On first render, load the cached credentials
         setLoading(true)
-        loadAndSetAndValidateCachedCredentials()
+        void loadAndSetAndValidateCachedCredentials()
     }, []);
 
     const loadAndSetAndValidateCachedCredentials = async () => {
         const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials()
         if (cachedCredentials !== undefined) {
             setCredentials(cachedCredentials)
-            _validateSnowflakeCredentials(cachedCredentials)
+            void _validateSnowflakeCredentials(cachedCredentials)
         }
         setLoading(false)
     }
 
     const validateSnowflakeCredentialsParams = async () => {
         setLoading(true)
-        _validateSnowflakeCredentials(credentials)
+        void _validateSnowflakeCredentials(credentials)
     }
 
     const _validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {

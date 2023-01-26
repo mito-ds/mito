@@ -161,7 +161,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     onCredentialsValidated={() => {
                         setCredentialsSectionIsOpen(false)
                         setCredentialsValidated(true)
-                        loadAndSetOptionsAndDefaults(params)
+                        void loadAndSetOptionsAndDefaults(params)
                     }}      
                     isOpen={credentialsSectionIsOpen}          
                 />
