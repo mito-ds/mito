@@ -21614,7 +21614,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         },
         /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center", onClick: () => {
           setOpen(false);
-        } }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-header-3" }, props.title, " \xA0"), props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(UpArrowIcon_default, null))),
+        } }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, props.title, " \xA0", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(UpArrowIcon_default, null))),
         props.children
       );
     } else {
@@ -21626,7 +21626,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             setOpen(true);
           }
         },
-        /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-header-3" }, props.title, " \xA0"), props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(DownArrowIcon_default, null)))
+        /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, props.title, " \xA0", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(DownArrowIcon_default, null)))
       );
     }
   };
@@ -22029,273 +22029,285 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           disabled: !getDefaultSafetyFilter(props.sheetDataArray, graphSheetIndex)
         }
       ))
-    ), GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(CollapsibleSection_default, { title: getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + " configuration" }, GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Number of bins in histogram" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Number of bins (int)")), /* @__PURE__ */ import_react22.default.createElement(
-      Input_default,
+    ), GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(
+      CollapsibleSection_default,
       {
-        value: ((_a = props.graphParams.graphCreation.nbins) == null ? void 0 : _a.toString()) || "",
-        type: "number",
-        placeholder: "5",
-        onChange: (e) => {
-          const newNumberBins = e.target.value === "" ? void 0 : e.target.value;
-          updateGraphParam({ graphCreation: { nbins: newNumberBins } });
-        },
-        width: "small"
-      }
-    )), GRAPHS_THAT_HAVE_BARMODE.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "How bars are grouped together when there are multiple" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "How bars are grouped together when there are multiple", textBody: true }, "Bar mode")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphStyling.barmode || "group",
-        onChange: (newBarMode) => {
-          updateGraphParam({ graphStyling: { barmode: newBarMode } });
-        },
-        width: "small",
-        dropdownWidth: "medium"
+        title: /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-header-3" }, getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + " configuration")
       },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+      GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Number of bins in histogram" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Number of bins (int)")), /* @__PURE__ */ import_react22.default.createElement(
+        Input_default,
         {
-          title: "stack"
+          value: ((_a = props.graphParams.graphCreation.nbins) == null ? void 0 : _a.toString()) || "",
+          type: "number",
+          placeholder: "5",
+          onChange: (e) => {
+            const newNumberBins = e.target.value === "" ? void 0 : e.target.value;
+            updateGraphParam({ graphCreation: { nbins: newNumberBins } });
+          },
+          width: "small"
         }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+      )),
+      GRAPHS_THAT_HAVE_BARMODE.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "How bars are grouped together when there are multiple" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "How bars are grouped together when there are multiple", textBody: true }, "Bar mode")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
         {
-          title: "group"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "overlay"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "relative"
-        }
-      )
-    )), GRAPHS_THAT_HAVE_BARNORM.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Normalize strategy used for each group of bars at a specific location on the graph's domain" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "Normalize strategy used for each group of bars at a specific location on the graph's domain", textBody: true }, "Bar normalization")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphStyling.barnorm || "none",
-        onChange: (newBarNorm) => {
-          if (newBarNorm === "none") {
-            updateGraphParam({ graphStyling: { barnorm: void 0 } });
-            return;
+          value: props.graphParams.graphStyling.barmode || "group",
+          onChange: (newBarMode) => {
+            updateGraphParam({ graphStyling: { barmode: newBarMode } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
+        },
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "stack"
           }
-          updateGraphParam({ graphStyling: { barnorm: newBarNorm } });
-        },
-        width: "small",
-        dropdownWidth: "medium"
-      },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "none"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "fraction",
-          subtext: "value of each bar divided by the sum of all values at that location"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "percent",
-          subtext: "fraction multiplied by 100"
-        }
-      )
-    )), GRAPHS_THAT_HAVE_HISTNORM.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Normalization strategy used for each graphed series in the histogram" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "Normalization strategy used for each graphed series in the histogram", textBody: true }, "Hist normalization")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphCreation.histnorm || "none",
-        onChange: (newHistnorm) => {
-          if (newHistnorm === "none") {
-            updateGraphParam({ graphCreation: { histnorm: void 0 } });
-            return;
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "group"
           }
-          updateGraphParam({ graphCreation: { histnorm: newHistnorm } });
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "overlay"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "relative"
+          }
+        )
+      )),
+      GRAPHS_THAT_HAVE_BARNORM.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Normalize strategy used for each group of bars at a specific location on the graph's domain" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "Normalize strategy used for each group of bars at a specific location on the graph's domain", textBody: true }, "Bar normalization")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
+        {
+          value: props.graphParams.graphStyling.barnorm || "none",
+          onChange: (newBarNorm) => {
+            if (newBarNorm === "none") {
+              updateGraphParam({ graphStyling: { barnorm: void 0 } });
+              return;
+            }
+            updateGraphParam({ graphStyling: { barnorm: newBarNorm } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
         },
-        width: "small",
-        dropdownWidth: "medium"
-      },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "none"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "fraction",
+            subtext: "value of each bar divided by the sum of all values at that location"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "percent",
+            subtext: "fraction multiplied by 100"
+          }
+        )
+      )),
+      GRAPHS_THAT_HAVE_HISTNORM.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Normalization strategy used for each graphed series in the histogram" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "Normalization strategy used for each graphed series in the histogram", textBody: true }, "Hist normalization")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
         {
-          title: "none"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "probability",
-          subtext: "occurrences in bin divided by total number of sample points"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "percent",
-          subtext: "probabilty multiplied by 100"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "density",
-          subtext: "occurences in bin divided by bin interval"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "probability density",
-          subtext: "probability that a point falls into bin"
-        }
-      )
-    )), GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The metric displayed for each bin of data" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "The metric displayed for each bin of data", textBody: true }, "Hist Function")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphCreation.histfunc || "count",
-        onChange: (newHistfunc) => {
-          updateGraphParam({ graphCreation: { histfunc: newHistfunc } });
+          value: props.graphParams.graphCreation.histnorm || "none",
+          onChange: (newHistnorm) => {
+            if (newHistnorm === "none") {
+              updateGraphParam({ graphCreation: { histnorm: void 0 } });
+              return;
+            }
+            updateGraphParam({ graphCreation: { histnorm: newHistnorm } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
         },
-        width: "small",
-        dropdownWidth: "medium"
-      },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "none"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "probability",
+            subtext: "occurrences in bin divided by total number of sample points"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "percent",
+            subtext: "probabilty multiplied by 100"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "density",
+            subtext: "occurences in bin divided by bin interval"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "probability density",
+            subtext: "probability that a point falls into bin"
+          }
+        )
+      )),
+      GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The metric displayed for each bin of data" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement(LabelAndTooltip_default, { tooltip: "The metric displayed for each bin of data", textBody: true }, "Hist Function")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
         {
-          title: "count",
-          subtext: "number of values in each bin"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "sum",
-          subtext: "sum of values in each bin"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "avg",
-          subtext: "average value in each bin"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "min",
-          subtext: "min value in each bin"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "max",
-          subtext: "max value in each bin"
-        }
-      )
-    )), GRAPHS_THAT_HAVE_POINTS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display outlier points" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Points")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphCreation.points === false ? "none" : props.graphParams.graphCreation.points !== void 0 ? props.graphParams.graphCreation.points : "",
-        onChange: (newPointsString) => {
-          const newPointsParams = newPointsString === "false" ? false : newPointsString;
-          updateGraphParam({ graphCreation: { points: newPointsParams } });
+          value: props.graphParams.graphCreation.histfunc || "count",
+          onChange: (newHistfunc) => {
+            updateGraphParam({ graphCreation: { histfunc: newHistfunc } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
         },
-        width: "small",
-        dropdownWidth: "medium"
-      },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "count",
+            subtext: "number of values in each bin"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "sum",
+            subtext: "sum of values in each bin"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "avg",
+            subtext: "average value in each bin"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "min",
+            subtext: "min value in each bin"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "max",
+            subtext: "max value in each bin"
+          }
+        )
+      )),
+      GRAPHS_THAT_HAVE_POINTS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display outlier points" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Points")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
         {
-          title: "outliers",
-          subtext: "only display sample points outside the whiskers"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "supsected outliers",
-          id: "suspectedoutliers",
-          subtext: "display outlier and suspected outlier points"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "all",
-          subtext: "display all sample points"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "none",
-          id: "false",
-          subtext: "display no individual sample points"
-        }
-      )
-    )), GRAPHS_THAT_HAVE_LINE_SHAPE.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The shape of the line" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Line shape")), /* @__PURE__ */ import_react22.default.createElement(
-      Select_default,
-      {
-        value: props.graphParams.graphCreation.line_shape || "linear",
-        onChange: (newLineShape) => {
-          updateGraphParam({ graphCreation: { line_shape: newLineShape } });
+          value: props.graphParams.graphCreation.points === false ? "none" : props.graphParams.graphCreation.points !== void 0 ? props.graphParams.graphCreation.points : "",
+          onChange: (newPointsString) => {
+            const newPointsParams = newPointsString === "false" ? false : newPointsString;
+            updateGraphParam({ graphCreation: { points: newPointsParams } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
         },
-        width: "small",
-        dropdownWidth: "medium"
-      },
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "outliers",
+            subtext: "only display sample points outside the whiskers"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "supsected outliers",
+            id: "suspectedoutliers",
+            subtext: "display outlier and suspected outlier points"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "all",
+            subtext: "display all sample points"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "none",
+            id: "false",
+            subtext: "display no individual sample points"
+          }
+        )
+      )),
+      GRAPHS_THAT_HAVE_LINE_SHAPE.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The shape of the line" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Line shape")), /* @__PURE__ */ import_react22.default.createElement(
+        Select_default,
         {
-          title: "linear",
-          subtext: "straight line between points"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "spline",
-          subtext: "spline interpolation between points"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "hv",
-          subtext: "horizontal vertical"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "vh",
-          subtext: "veritical horizontal"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "hvh",
-          subtext: "horizontal vertical horizontal"
-        }
-      ),
-      /* @__PURE__ */ import_react22.default.createElement(
-        DropdownItem_default,
-        {
-          title: "vhv",
-          subtext: "vertical horizontal vertical"
-        }
-      )
-    ))), /* @__PURE__ */ import_react22.default.createElement(CollapsibleSection_default, { title: "Facet plots" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement(
+          value: props.graphParams.graphCreation.line_shape || "linear",
+          onChange: (newLineShape) => {
+            updateGraphParam({ graphCreation: { line_shape: newLineShape } });
+          },
+          width: "small",
+          dropdownWidth: "medium"
+        },
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "linear",
+            subtext: "straight line between points"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "spline",
+            subtext: "spline interpolation between points"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "hv",
+            subtext: "horizontal vertical"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "vh",
+            subtext: "veritical horizontal"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "hvh",
+            subtext: "horizontal vertical horizontal"
+          }
+        ),
+        /* @__PURE__ */ import_react22.default.createElement(
+          DropdownItem_default,
+          {
+            title: "vhv",
+            subtext: "vertical horizontal vertical"
+          }
+        )
+      ))
+    ), /* @__PURE__ */ import_react22.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-header-3" }, "Facet plots") }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement(
       Row_default,
       {
         justify: "space-between",
@@ -29140,7 +29152,7 @@ ${finalCode}`;
         }
       ),
       /* @__PURE__ */ import_react76.default.createElement(SuggestedStyles_default, { updateDataframeFormatParams }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Column Headers" }, /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Column Headers") }, /* @__PURE__ */ import_react76.default.createElement(
         LabelAndColor_default,
         {
           label: "Background Color",
@@ -29160,7 +29172,7 @@ ${finalCode}`;
         }
       )),
       /* @__PURE__ */ import_react76.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Rows" }, /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Rows") }, /* @__PURE__ */ import_react76.default.createElement(
         LabelAndColor_default,
         {
           label: "Even Row: Background Color",
@@ -29198,7 +29210,7 @@ ${finalCode}`;
         }
       )),
       /* @__PURE__ */ import_react76.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Dataframe Border" }, /* @__PURE__ */ import_react76.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react76.default.createElement(Col_default, null, /* @__PURE__ */ import_react76.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react76.default.createElement(Col_default, null), /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Dataframe Border") }, /* @__PURE__ */ import_react76.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react76.default.createElement(Col_default, null, /* @__PURE__ */ import_react76.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react76.default.createElement(Col_default, null), /* @__PURE__ */ import_react76.default.createElement(
         Select_default,
         {
           value: params.df_format.border.borderStyle || "none",
@@ -35410,7 +35422,7 @@ ${finalCode}`;
       });
       props.setGraphUpdatedNumber((old) => old + 1);
     }
-    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react137.default.createElement(
+    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Titles") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.title.title || "",
@@ -35464,7 +35476,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { visible: !graphStylingParams.yaxis.visible } } });
         }
       }
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Axis Transformations") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.xaxis.type || "default",
@@ -35546,7 +35558,7 @@ ${finalCode}`;
           title: "category" /* CATEGORY */
         }
       )
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Legend"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.showlegend,
@@ -35600,7 +35612,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { y: newY } } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Grid Lines"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.showgrid,
@@ -35640,7 +35652,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { gridwidth: newHoriztonalGridWidth } } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Colors"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Plot Background Color",
@@ -35685,7 +35697,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title_font_color: newColor } } });
         }
       }
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Facet Styling"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : "",
@@ -35721,7 +35733,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_row_spacing: newRowSpacing } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Range slider") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.rangeslider.visible,
@@ -37855,52 +37867,65 @@ fig.write_html("${props.graphTabName}.html")`
       }
       setLoading(false);
     };
-    return /* @__PURE__ */ import_react160.default.createElement("div", { className: "mito-collapsible-content-card-container" }, /* @__PURE__ */ import_react160.default.createElement(CollapsibleSection_default, { title: "Connection", open: props.isOpen }, /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, "Username"), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
-      Input_default,
+    return /* @__PURE__ */ import_react160.default.createElement("div", { className: "mito-collapsible-content-card-container" }, /* @__PURE__ */ import_react160.default.createElement(
+      CollapsibleSection_default,
       {
-        value: credentials.username,
-        onChange: (e) => {
-          const newUsername = e.target.value;
-          setCredentials((prevCredentials) => {
-            return updateObjectWithPartialObject(prevCredentials, { username: newUsername });
-          });
-        }
-      }
-    ))), /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, "Password"), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
-      Input_default,
-      {
-        value: credentials.password,
-        type: "password",
-        onChange: (e) => {
-          const newPassword = e.target.value;
-          setCredentials((prevCredentials) => {
-            return updateObjectWithPartialObject(prevCredentials, { password: newPassword });
-          });
-        }
-      }
-    ))), /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, "Account"), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
-      Input_default,
-      {
-        value: credentials.account,
-        onChange: (e) => {
-          const newAccount = e.target.value;
-          setCredentials((prevCredentials) => {
-            return updateObjectWithPartialObject(prevCredentials, { account: newAccount });
-          });
-        }
-      }
-    ))), /* @__PURE__ */ import_react160.default.createElement(
-      TextButton_default,
-      {
-        disabled: credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0,
-        disabledTooltip: "Please fill out the username, password, and account fields below.",
-        onClick: async () => {
-          await validateSnowflakeCredentialsParams();
-        },
-        variant: "dark"
+        title: /* @__PURE__ */ import_react160.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loading }) }, "Connection"),
+        open: props.isOpen
       },
-      "Connect to Snowflake"
-    )), snowflakeCredentialsValidityCheckResult !== void 0 && /* @__PURE__ */ import_react160.default.createElement("div", { className: classNames({ "text-color-error": snowflakeCredentialsValidityCheckResult.type === "error", "text-color-success": snowflakeCredentialsValidityCheckResult.type === "success" }, "mito-collapsible-content-card-subtext") }, snowflakeCredentialsValidityCheckResult.type === "success" && "Successfully connected to Snowflake instance.", snowflakeCredentialsValidityCheckResult.type === "error" && snowflakeCredentialsValidityCheckResult.error_message), loading && /* @__PURE__ */ import_react160.default.createElement(Row_default, { className: classNames("text-subtext-1", "mito-collapsible-content-card-subtext") }, /* @__PURE__ */ import_react160.default.createElement("p", null, "Connecting to Snowflake"), /* @__PURE__ */ import_react160.default.createElement(LoadingCounter_default, null)));
+      /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loading }) }, "Username")), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
+        Input_default,
+        {
+          value: credentials.username,
+          disabled: loading,
+          onChange: (e) => {
+            const newUsername = e.target.value;
+            setCredentials((prevCredentials) => {
+              return updateObjectWithPartialObject(prevCredentials, { username: newUsername });
+            });
+          }
+        }
+      ))),
+      /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loading }) }, "Password")), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
+        Input_default,
+        {
+          value: credentials.password,
+          type: "password",
+          disabled: loading,
+          onChange: (e) => {
+            const newPassword = e.target.value;
+            setCredentials((prevCredentials) => {
+              return updateObjectWithPartialObject(prevCredentials, { password: newPassword });
+            });
+          }
+        }
+      ))),
+      /* @__PURE__ */ import_react160.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loading }) }, "Account")), /* @__PURE__ */ import_react160.default.createElement(Col_default, null, /* @__PURE__ */ import_react160.default.createElement(
+        Input_default,
+        {
+          value: credentials.account,
+          disabled: loading,
+          onChange: (e) => {
+            const newAccount = e.target.value;
+            setCredentials((prevCredentials) => {
+              return updateObjectWithPartialObject(prevCredentials, { account: newAccount });
+            });
+          }
+        }
+      ))),
+      /* @__PURE__ */ import_react160.default.createElement(
+        TextButton_default,
+        {
+          disabled: credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0 || loading,
+          disabledTooltip: "Please fill out the username, password, and account fields below.",
+          onClick: async () => {
+            await validateSnowflakeCredentialsParams();
+          },
+          variant: "dark"
+        },
+        "Connect to Snowflake"
+      )
+    ), !loading && snowflakeCredentialsValidityCheckResult !== void 0 && /* @__PURE__ */ import_react160.default.createElement("div", { className: classNames({ "text-color-error": snowflakeCredentialsValidityCheckResult.type === "error", "text-color-success": snowflakeCredentialsValidityCheckResult.type === "success" }, "mito-collapsible-content-card-subtext") }, snowflakeCredentialsValidityCheckResult.type === "success" && "Successfully connected to Snowflake instance.", snowflakeCredentialsValidityCheckResult.type === "error" && snowflakeCredentialsValidityCheckResult.error_message), loading && /* @__PURE__ */ import_react160.default.createElement(Row_default, { className: classNames("text-subtext-1", "mito-collapsible-content-card-subtext") }, /* @__PURE__ */ import_react160.default.createElement("p", null, "Connecting to Snowflake"), /* @__PURE__ */ import_react160.default.createElement(LoadingCounter_default, null)));
   };
   var AuthenticateToSnowflakeCard_default = AuthenticateToSnowflakeCard;
 
@@ -38515,62 +38540,78 @@ fig.write_html("${props.graphTabName}.html")`
         },
         isOpen: credentialsSectionIsOpen
       }
-    ), /* @__PURE__ */ import_react167.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react167.default.createElement(CollapsibleSection_default, { title: "Connection Location", open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" }, /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, "Warehouse"), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
-      Select_default,
+    ), /* @__PURE__ */ import_react167.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react167.default.createElement(
+      CollapsibleSection_default,
       {
-        width: "medium",
-        value: params.table_loc_and_warehouse.warehouse || "None available",
-        onChange: (newWarehouse) => {
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
-          });
-        }
+        title: /* @__PURE__ */ import_react167.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Configure Query"),
+        open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
       },
-      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
-        return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
-      }) : []
-    ))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, "Database"), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
-      Select_default,
-      {
-        width: "medium",
-        value: params.table_loc_and_warehouse.database || "None available",
-        onChange: (newDatabase) => {
-          const newParams = getNewParams(params, newDatabase);
-          setParamsAndRefreshOptionsAndDefaults(newParams);
-        }
-      },
-      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
-        return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
-      }) : []
-    ))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, "Schema"), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
-      Select_default,
-      {
-        width: "medium",
-        value: params.table_loc_and_warehouse.schema || "None available",
-        onChange: (newSchema) => {
-          const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
-          setParamsAndRefreshOptionsAndDefaults(newParams);
-        }
-      },
-      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
-        return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
-      }) : []
-    ))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, "Table"), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
-      Select_default,
-      {
-        width: "medium",
-        value: params.table_loc_and_warehouse.table || "None available",
-        onChange: (newTable) => {
-          const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
-          setParamsAndRefreshOptionsAndDefaults(newParams);
-        }
-      },
-      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
-        return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
-      }) : []
-    ))), loadingOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+        Select_default,
+        {
+          width: "medium",
+          value: params.table_loc_and_warehouse.warehouse || "None available",
+          disabled: loadingOptionsAndDefaults,
+          onChange: (newWarehouse) => {
+            setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+              return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
+            });
+          }
+        },
+        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
+          return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
+        }) : []
+      ))),
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+        Select_default,
+        {
+          width: "medium",
+          value: params.table_loc_and_warehouse.database || "None available",
+          disabled: loadingOptionsAndDefaults,
+          onChange: (newDatabase) => {
+            const newParams = getNewParams(params, newDatabase);
+            setParamsAndRefreshOptionsAndDefaults(newParams);
+          }
+        },
+        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
+          return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
+        }) : []
+      ))),
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+        Select_default,
+        {
+          width: "medium",
+          value: params.table_loc_and_warehouse.schema || "None available",
+          disabled: loadingOptionsAndDefaults,
+          onChange: (newSchema) => {
+            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+            setParamsAndRefreshOptionsAndDefaults(newParams);
+          }
+        },
+        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
+          return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
+        }) : []
+      ))),
+      /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react167.default.createElement(Col_default, null, /* @__PURE__ */ import_react167.default.createElement(
+        Select_default,
+        {
+          width: "medium",
+          value: loadingOptionsAndDefaults ? "Loading.." : params.table_loc_and_warehouse.table || "None available",
+          disabled: loadingOptionsAndDefaults,
+          onChange: (newTable) => {
+            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
+            setParamsAndRefreshOptionsAndDefaults(newParams);
+          }
+        },
+        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
+          return /* @__PURE__ */ import_react167.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
+        }) : []
+      ))),
+      loadingOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))
+    ), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(
       MultiToggleBox_default,
       {
+        disabled: loadingOptionsAndDefaults,
         toggleAllIndexes: (indexesToToggle) => {
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
             const newColumns = [...prevParams.query_params.columns];
@@ -38607,6 +38648,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium",
         value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
         placeholder: "100000",
+        disabled: loadingOptionsAndDefaults,
         onChange: (e) => {
           const newLimitNumber = parseInt(e.target.value);
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {

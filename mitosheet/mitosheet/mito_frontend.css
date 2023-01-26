@@ -79,6 +79,7 @@
   --mito-medium-gray: #767180;
   --mito-light-gray: #ACACAD;
   --mito-very-light-gray: #F5F5F5;
+  --mito-gray-disabled: #9999A4;
   --mito-white: #FFFFFF;
   --mito-off-white: #ECDCDC;
   --mito-light-blue: #E8EBF8;
@@ -691,6 +692,9 @@
 }
 .text-underline-on-hover:hover {
   text-decoration: underline;
+}
+.text-color-gray-disabled {
+  color: var(--mito-gray-disabled);
 }
 
 /* css/sitewide/widths.css */

@@ -182,3 +182,8 @@
 .text-underline-on-hover:hover {
     text-decoration: underline;
 }
+
+.text-color-gray-disabled {
+    color: var(--mito-gray-disabled);
+   
+}

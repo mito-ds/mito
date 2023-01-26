@@ -166,15 +166,25 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     isOpen={credentialsSectionIsOpen}          
                 />
                 <Spacer px={20}/>
-                <CollapsibleSection title="Connection Location" open={availableSnowflakeOptionsAndDefaults?.type === 'success'}>
+                <CollapsibleSection 
+                    title={(
+                        <div className={classNames('text-header-3',{'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                            Configure Query
+                        </div>
+                    )} 
+                    open={availableSnowflakeOptionsAndDefaults?.type === 'success'}
+                >
                     <Row justify="space-between">
                         <Col>
-                            Warehouse
+                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                                Warehouse
+                            </p>
                         </Col>
                         <Col>
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.warehouse || 'None available'}
+                                disabled={loadingOptionsAndDefaults}
                                 onChange={(newWarehouse) => {
                                     setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
                                         return updateObjectWithPartialObject(prevParams, {table_loc_and_warehouse: {warehouse: newWarehouse}});
@@ -191,12 +201,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            Database
+                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                                Database
+                            </p>
                         </Col>
                         <Col>
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.database || 'None available'}
+                                disabled={loadingOptionsAndDefaults}
                                 onChange={(newDatabase) => {
                                     const newParams = getNewParams(params, newDatabase)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -212,12 +225,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            Schema
+                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                                Schema
+                            </p>
                         </Col>
                         <Col>
                             <Select
                                 width="medium"
                                 value={params.table_loc_and_warehouse.schema || 'None available'}
+                                disabled={loadingOptionsAndDefaults}
                                 onChange={(newSchema) => {
                                     const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -233,12 +249,15 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            Table
+                            <p className={classNames({'text-color-gray-disabled': loadingOptionsAndDefaults})}>
+                                Table
+                            </p>
                         </Col>
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.table_loc_and_warehouse.table || 'None available'}
+                                value={loadingOptionsAndDefaults ? "Loading.." : params.table_loc_and_warehouse.table || 'None available'}
+                                disabled={loadingOptionsAndDefaults}
                                 onChange={(newTable) => {
                                     const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
@@ -267,6 +286,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
                     <div>
                         <MultiToggleBox
+                            disabled={loadingOptionsAndDefaults}
                             toggleAllIndexes={(indexesToToggle) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
                                     const newColumns = [...prevParams.query_params.columns];
@@ -309,6 +329,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     width='medium' 
                                     value={params.query_params.limit?.toString() || ''} 
                                     placeholder='100000'
+                                    disabled={loadingOptionsAndDefaults}
                                     onChange={(e) => {
                                         const newLimitNumber = parseInt(e.target.value) 
                                         setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {

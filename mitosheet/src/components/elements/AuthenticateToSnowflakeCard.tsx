@@ -63,14 +63,24 @@ const AuthenticateToSnowflakeCard = (props: {
 
     return (
         <div className='mito-collapsible-content-card-container'>
-            <CollapsibleSection title='Connection' open={props.isOpen}>
+            <CollapsibleSection 
+                title={(
+                    <div className={classNames('text-header-3',{'text-color-gray-disabled': loading})}>
+                        Connection
+                    </div>
+                )}
+                open={props.isOpen}
+            >
                 <Row justify="space-between">
                     <Col>
-                        Username
+                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                            Username
+                        </p>
                     </Col>
                     <Col>
                         <Input 
                             value={credentials.username} 
+                            disabled={loading}
                             onChange={(e) => {
                                 const newUsername = e.target.value;
                                 setCredentials((prevCredentials) => {
@@ -81,12 +91,15 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        Password
+                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                            Password
+                        </p>
                     </Col>
                     <Col>
                         <Input 
                             value={credentials.password} 
                             type='password'
+                            disabled={loading}
                             onChange={(e) => {
                                 const newPassword = e.target.value;
                                 setCredentials((prevCredentials) => {
@@ -98,11 +111,14 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        Account
+                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                            Account
+                        </p>
                     </Col>
                     <Col>
                         <Input 
                             value={credentials.account} 
+                            disabled={loading}
                             onChange={(e) => {
                                 const newAccount = e.target.value;
                                 setCredentials((prevCredentials) => {
@@ -113,7 +129,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 {/* TODO: Make pressing enter if they have not yet connected submit this button? */}
                 <TextButton
-                    disabled={credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0}
+                    disabled={credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0 || loading}
                     disabledTooltip='Please fill out the username, password, and account fields below.'
                     onClick={async () => {
                         await validateSnowflakeCredentialsParams();
@@ -123,7 +139,7 @@ const AuthenticateToSnowflakeCard = (props: {
                     Connect to Snowflake
                 </TextButton>
             </CollapsibleSection>
-            {snowflakeCredentialsValidityCheckResult !== undefined &&
+            {!loading && snowflakeCredentialsValidityCheckResult !== undefined &&
                 <div className={(classNames({'text-color-error': snowflakeCredentialsValidityCheckResult.type === 'error' , 'text-color-success': snowflakeCredentialsValidityCheckResult.type === 'success'}, 'mito-collapsible-content-card-subtext'))}>
                     {snowflakeCredentialsValidityCheckResult.type === 'success' && "Successfully connected to Snowflake instance."}
                     {snowflakeCredentialsValidityCheckResult.type === 'error' && snowflakeCredentialsValidityCheckResult.error_message}

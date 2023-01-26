@@ -44,7 +44,7 @@ function GraphStyleTab(props: {
     return ( 
         <div className='graph-sidebar-toolbar-content'>   
             
-            <CollapsibleSection title='Titles'>                
+            <CollapsibleSection title={(<div className='text-header-3'>Titles</div>)}>
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
@@ -135,7 +135,7 @@ function GraphStyleTab(props: {
                     />
                 </Row>
             </CollapsibleSection>
-            <CollapsibleSection title='Axis Transformations'>
+            <CollapsibleSection title={(<div className='text-header-3'>Axis Transformations</div>)}>
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
@@ -203,7 +203,7 @@ function GraphStyleTab(props: {
                     </Select>
                 </Row>
             </CollapsibleSection>
-            <CollapsibleSection title='Legend' proSection={true} isPro={props.userProfile.isPro}>
+            <CollapsibleSection title={(<div className='text-header-3'>Legend</div>)} proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -301,7 +301,7 @@ function GraphStyleTab(props: {
                     </>
                 }
             </CollapsibleSection>
-            <CollapsibleSection title='Grid Lines' proSection={true} isPro={props.userProfile.isPro}>
+            <CollapsibleSection title={(<div className='text-header-3'>Grid Lines</div>)} proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -377,7 +377,7 @@ function GraphStyleTab(props: {
                 }
             </CollapsibleSection>
             
-            <CollapsibleSection title='Colors' proSection={true} isPro={props.userProfile.isPro}>
+            <CollapsibleSection title={(<div className='text-header-3'>Colors</div>)} proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -425,7 +425,7 @@ function GraphStyleTab(props: {
                     </>
                 }
             </CollapsibleSection>
-            <CollapsibleSection title='Facet Styling' proSection={true} isPro={props.userProfile.isPro}>
+            <CollapsibleSection title={(<div className='text-header-3'>Facet Styling</div>)} proSection={true} isPro={props.userProfile.isPro}>
                 {!props.userProfile.isPro &&
                     <Row justify='space-between' align='center'>
                         <p className='text-body-1'>
@@ -489,7 +489,7 @@ function GraphStyleTab(props: {
                     </>
                 }
             </CollapsibleSection>
-            <CollapsibleSection title='Range slider'>
+            <CollapsibleSection title={(<div className='text-header-3'>Range slider</div>)}>
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>

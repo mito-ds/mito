@@ -13,7 +13,7 @@ interface CollapsibleSectionProps {
     /** 
        * @param [title] - Title to put on the column div
     */
-    title: string;
+    title: JSX.Element;
     /** 
         * @param [children] - The content that is going inside of this column, to actually be displayed. All overflow will be cut off.
     */
@@ -57,9 +57,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
                 <Row justify='space-between' align='center' onClick={() => {setOpen(false)}}>
                     <Col>
                         <Row suppressTopBottomMargin>
-                            <div className='text-header-3'>
-                                {props.title} &nbsp;
-                            </div>
+                            {props.title} &nbsp;
                             {props.proSection && !props.isPro && <ProIcon />}
                         </Row>
                     </Col>
@@ -79,9 +77,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <Row suppressTopBottomMargin>
-                            <div className='text-header-3'>
-                                {props.title} &nbsp;
-                            </div>
+                            {props.title} &nbsp;
                             {props.proSection && !props.isPro && <ProIcon />}
                         </Row>
                     </Col>

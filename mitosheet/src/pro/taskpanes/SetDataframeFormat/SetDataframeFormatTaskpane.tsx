@@ -123,7 +123,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                     }}                    
                 />
                 <SuggestedStyles updateDataframeFormatParams={updateDataframeFormatParams}/>
-                <CollapsibleSection title="Column Headers">
+                <CollapsibleSection title={(<div className='text-header-3'>Column Headers</div>)}>
                     <LabelAndColor
                         label='Background Color'
                         color={params.df_format.headers.backgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT}
@@ -140,7 +140,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                     />
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title="Rows">
+                <CollapsibleSection title={(<div className='text-header-3'>Rows</div>)}>
                     <LabelAndColor
                         label='Even Row: Background Color'
                         color={params.df_format.rows.even.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT}
@@ -171,7 +171,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                     />
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title="Dataframe Border">
+                <CollapsibleSection title={(<div className='text-header-3'>Dataframe Border</div>)}>
                     <Row justify="space-between" align="center">
                         <Col>
                             <LabelAndTooltip tooltip="The border line will be displayed when the dataframe styling object is printed out." textBody>
