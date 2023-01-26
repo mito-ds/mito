@@ -174,7 +174,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class FormulaLocationToSpecificIndexLabels(TypedDict):
         type: Literal['specific_index_labels']
-        index_labels: Optional[List[Any]]
+        index_labels: List[Any]
 
 
 else:

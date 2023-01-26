@@ -405,7 +405,7 @@ const CellEditor = (props: {
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
             // Otherwise, update the formula for the column (or specific index)
-            let index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
+            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
                 ? {'type': 'entire_column'}
                 : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
 

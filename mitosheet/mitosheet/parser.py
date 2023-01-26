@@ -26,6 +26,8 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import (ColumnHeader, FrontendFormula,
                              FormulaAppliedToType, ParserMatch,
                              ParserMatchRange, RowOffset)
+from mitosheet.user.utils import get_pandas_version
+from mitosheet.utils import is_prev_version
 
 COLUMN_HEADER_MATCH_TYPE = 'column header match type'
 INDEX_LABEL_MATCH_TYPE = 'index label match type'
@@ -622,15 +624,19 @@ def parse_formula(
         code_with_column_headers,
     )
 
-    print("CODE", code_with_functions, code_with_column_headers)
-
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
     if include_df_set:
         if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
             final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
         else:
-            final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}, [{transpiled_column_header}]] = ({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels_formula_is_applied_to["index_labels"])}]' # type: ignore
+            index_labels = index_labels_formula_is_applied_to["index_labels"] # type: ignore
+            # If you're writing to an index that is a datetime, we make sure that these objects are datetimes (this is only necessary)
+            # on versions of pandas earlier than 1.0
+            if is_datetime_index(df.index) and is_prev_version(get_pandas_version(), '1.4.0'):
+                index_labels = pd.to_datetime(index_labels)
+                
+            final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels)}, [{transpiled_column_header}]] = ({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels)}]' # type: ignore
 
     else:
         final_code = f'{code_with_functions}'

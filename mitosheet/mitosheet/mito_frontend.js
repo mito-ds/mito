@@ -25580,7 +25580,7 @@ ${finalCode}`;
         const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
         submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
       } else {
-        let index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
+        const index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
         errorMessage = await props.mitoAPI.editSetColumnFormula(
           props.sheetIndex,
           columnID2,
