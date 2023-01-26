@@ -37,6 +37,12 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         credentials = get_cached_global_snowflake_credentials()
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouseOptional = params['table_loc_and_warehouse']
 
+        if credentials is None:
+                return json.dumps({
+                        'type': 'error',    
+                        'error_message': 'Invalid authentication information. Please try again.'
+                })
+                
         username = credentials['username']
         password = credentials['password']
         account = credentials['account']
