@@ -133,7 +133,8 @@ def get_connection_param_dict (credentials: SnowflakeCredentials, table_loc_and_
 def create_query(table: Optional[str], query_params: SnowflakeQueryParams) -> str:
     transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]
     # TODO: When we add more options, let's make a helper function for building these strings
-    limit_string = f' limit {query_params["limit"]}' if query_params["limit"] is not None else ''
+    limit = query_params.get('limit')
+    limit_string = f' limit {limit}' if limit is not None else ''
     return f'SELECT {", ".join(transpiled_column_headers)} FROM {table}{limit_string}'
 
 def get_snowflake_column_header(column_header: ColumnHeader) -> str:

@@ -7,7 +7,7 @@
 import json
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_global_snowflake_credentials
-from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeCredentials, SnowflakeTableLocationAndWarehouseOptional, StepsManagerType
+from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeTableLocationAndWarehouseOptional, StepsManagerType
 
 # The snowflake-connector-python package is only available in Python > 3.6 
 # and is not distributed with the mitosheet package, so we make sure to 
