@@ -111,10 +111,10 @@ const getNewParams = (prevParams: SnowflakeImportParams, database?: string | nul
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
     const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit, loading: executingQuery, error} = useSendEditOnClick<SnowflakeImportParams, undefined>(
-            () => getDefaultParams(),
-            StepType.SnowflakeImport, 
-            props.mitoAPI,
-            props.analysisData,
+        () => getDefaultParams(),
+        StepType.SnowflakeImport, 
+        props.mitoAPI,
+        props.analysisData,
     )
 
     const [validCredentials, setValidCredentials] = useState(false)
@@ -335,7 +335,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     placeholder='100000'
                                     disabled={loadingAvailableOptionsAndDefaults}
                                     onChange={(e) => {
-                                        var newLimitNumber: number | undefined = parseInt(e.target.value) 
+                                        let newLimitNumber: number | undefined = parseInt(e.target.value) 
                                         if (isNaN(newLimitNumber)) {
                                             // If the e.target.value is empty then parseInt(e.target.value) returns NaN
                                             // so we just set it back to undefined so we get the placeholder back

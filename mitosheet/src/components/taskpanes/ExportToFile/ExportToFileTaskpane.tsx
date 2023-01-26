@@ -68,11 +68,11 @@ const INVALID_CHARACTERS_IN_FILENAME = [
 const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => {
 
     const {params, setParams, edit, editApplied, loading} = useSendEditOnClick<ExportToFileParams, undefined>(
-            () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
-            StepType.ExportToFile, 
-            props.mitoAPI,
-            props.analysisData,
-        )
+        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
+        StepType.ExportToFile, 
+        props.mitoAPI,
+        props.analysisData,
+    )
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='Please import a dataframe before attempting to export it'/>
