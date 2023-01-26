@@ -343,6 +343,19 @@ export const getColumnHeadersInSelection = (selection: MitoSelection, sheetData:
     return columnHeaders;
 }
 
+export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: SheetData): (ColumnHeader)[] => {
+    const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
+    const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
+
+    const indexLabels: (ColumnHeader)[] = []; // the type is wacky, but it's finme
+    for (let i = min; i < max + 1; i++) {
+        if (sheetData.index[i] === undefined) continue;
+        indexLabels.push(sheetData.index[i])
+    }
+
+    return indexLabels;
+}
+
 export const isSelectionsOnlyColumnHeaders = (selections: MitoSelection[]): boolean => {
     let isOnlyColumnHeaders = true
     selections.forEach(selection => {
@@ -698,6 +711,10 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
     return newSelections
 }
 
+export const isSelectionEntireSelectedColumn = (selection: MitoSelection): boolean => {
+    return (selection.startingRowIndex === -1 && selection.endingRowIndex === -1);
+}
+
 export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
     if (sheetData === undefined) {
         return []
@@ -705,7 +722,7 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
 
     let columnIndexes: number[] = []
     selections.forEach(selection => {
-        if (selection.startingRowIndex === -1 && selection.endingRowIndex === -1) {
+        if (isSelectionEntireSelectedColumn(selection)) {
             columnIndexes = columnIndexes.concat(getColumnIndexesInSingleSelection(selection))
         }
     })

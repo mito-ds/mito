@@ -80,8 +80,8 @@ class Step:
         return self.post_state.column_ids
     
     @property
-    def column_spreadsheet_code(self):
-        return self.post_state.column_spreadsheet_code
+    def column_formulas(self):
+        return self.post_state.column_formulas
     
     @property
     def column_filters(self):

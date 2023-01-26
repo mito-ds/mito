@@ -61,9 +61,6 @@ class SetCellValueStepPerformer(StepPerformer):
         row_index: int = get_param(params, 'row_index')
         old_value: str = get_param(params, 'old_value')
         new_value: Union[str, None] = get_param(params, 'new_value')
-        
-        if column_id not in prev_state.column_spreadsheet_code[sheet_index]:
-            raise make_no_column_error({column_id}, error_modal=False)
 
         # If nothings changed, there's no work to do
         if old_value == new_value:

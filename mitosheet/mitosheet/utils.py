@@ -18,7 +18,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, StateType)
+from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, StateType, FrontendFormula)
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -92,7 +92,7 @@ def dfs_to_array_for_json(
         dfs: List[pd.DataFrame],
         df_names: List[str],
         df_sources: List[str],
-        column_spreadsheet_code_array: List[Dict[ColumnID, str]],
+        column_formulas_array: List[Dict[ColumnID, FrontendFormula]],
         column_filters_array: List[Dict[ColumnID, Any]],
         column_ids: ColumnIDMap,
         df_formats: List[DataframeFormat]
@@ -108,7 +108,7 @@ def dfs_to_array_for_json(
                     sheet_index,
                     df_names[sheet_index],
                     df_sources[sheet_index],
-                    column_spreadsheet_code_array[sheet_index],
+                    column_formulas_array[sheet_index],
                     column_filters_array[sheet_index],
                     column_ids.column_header_to_column_id[sheet_index],
                     df_formats[sheet_index],
@@ -129,7 +129,7 @@ def df_to_json_dumpsable(
         sheet_index: int,
         df_name: str,
         df_source: str,
-        column_spreadsheet_code: Dict[ColumnID, str],
+        column_formulas: Dict[ColumnID, FrontendFormula],
         column_filters: Dict[ColumnID, Any],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         df_format: DataframeFormat,
@@ -200,7 +200,7 @@ def df_to_json_dumpsable(
             column_headers_to_column_ids[column_header]: get_column_header_display(column_header)
             for column_header in original_df.keys()
         },
-        'columnSpreadsheetCodeMap': column_spreadsheet_code,
+        'columnFormulasMap': column_formulas,
         'columnFiltersMap': column_filters,
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],

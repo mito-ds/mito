@@ -1,10 +1,42 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnHeader, ColumnID, EditorState, SheetData } from "../../../types";
+import { ColumnID, EditorState, Formula, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
+import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
 
+
+export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, rowIndex: any): string => {
+    // For each of the selections, we turn them into a string that goes into the formula
+    const columnHeadersAndIndexLabels: string[] = []
+
+    selections.forEach(selection => {
+        // If we have selections that reference the column header, we have to handle them special
+        if (isSelectionEntireSelectedColumn(selection)) {
+            const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
+            entireSelectedColumns.forEach((columnID) => {
+                const columnHeader = sheetData.columnIDsMap[columnID];
+                const formulaIndexLabel = sheetData.index[rowIndex];
+                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+            })
+            return;
+        }
+
+        // Otherwise, we need to get the column 
+        const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
+        const indexLabels = getIndexLabelsInSelection(selection, sheetData);
+
+        // Then, because it's a rectangle, we combine _all_ of them together
+        columnHeaders.forEach(columnHeader => {
+            indexLabels.forEach(indexLabel => {
+                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel));
+            })
+        })
+    })
+
+    return columnHeadersAndIndexLabels.join(', ');
+}
 
 /* 
     Given a formula and and optional pending columns that are inserted
@@ -13,24 +45,25 @@ import { getCellDataFromCellIndexes } from "../utils";
 */
 export const getFullFormula = (
     formula: string, 
-    columnHeader: ColumnHeader,
-    pendingSelectedColumns: {
-        columnHeaders: (ColumnHeader)[]
-        selectionStart: number,
-        selectionEnd: number,
-    } | undefined
+    pendingSelections: {
+        selections: MitoSelection[],
+        inputSelectionStart: number,
+        inputSelectionEnd: number,
+    } | undefined,
+    sheetData: SheetData,
+    rowIndex: number
 ): string => {
 
-    if (pendingSelectedColumns === undefined || pendingSelectedColumns.columnHeaders.length === 0) {
+    if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const columnHeaderString = pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ');
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
 
-    const beforeSelection = formula.substring(0, pendingSelectedColumns.selectionStart);
-    const afterSelection = formula.substring(pendingSelectedColumns.selectionEnd);
+    const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
+    const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
     
-    return beforeSelection + columnHeaderString + afterSelection;
+    return beforeSelection + selectionFormulaString + afterSelection;
 }
 
 
@@ -156,20 +189,14 @@ export const getStartingFormula = (
 }
 
 /**
- * Returns true iff the formula ends in a column header in the sheet.
+ * Returns true if the formula ends in a refernece to a different column header in the sheet
+ * followed by a reference to the row of the index label. 
  * 
- * @param formula - the formula to check for ending in a column header
- * @param sheetData - the data returned
- * @returns if the formula ends in a column header in the sheet.
  */
-export const formulaEndsInColumnHeader = (formula: string, sheetData: SheetData): boolean => {
-    const columnHeaders = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader));
-    // We don't make any suggestions if it starts with a column headers
-    const endingColumnHeaders = columnHeaders.filter(columnHeader => formula.toLowerCase().endsWith(columnHeader.toLowerCase()));
-    if (endingColumnHeaders.length > 0) {
-        return true;
-    }
-    return false;
+export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, sheetData: SheetData): boolean => {
+    const possibleReferences = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
+    const endingReferences = possibleReferences.filter(reference => formula.toLowerCase().endsWith(reference.toLowerCase()));
+    return endingReferences.length > 0;
 }
 
 
@@ -319,4 +346,53 @@ export const getDocumentationFunction = (formula: string): FunctionDocumentation
     } else {
         return matchingFunctions[0];
     }
+}
+
+export const getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData, indexLabel: IndexLabel | undefined, rowOffset: number): IndexLabel | undefined => {
+    if (indexLabel === undefined) {
+        return undefined;
+    }
+    
+    const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
+    if (indexOfIndexLabel === -1) {
+        return undefined;
+    }
+
+    const indexOfNewLabel = indexOfIndexLabel - rowOffset;
+    return sheetData.index[indexOfNewLabel];
+}
+
+
+export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined, indexLabel: IndexLabel | undefined, sheetData: SheetData | undefined): string | undefined => {
+    let formulaString = '';
+    if (!formula || !sheetData) {
+        return formulaString;
+    }
+
+    formula.forEach(formulaPart => {
+        if (formulaPart.type === 'string part') {
+            formulaString += formulaPart.string
+        } else {
+
+            const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+            if (newIndexLabel !== undefined) {
+                /**
+                 * We add the reference to the column header and then we need to add the correct index label.
+                 * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
+                 */
+                formulaString += formulaPart.display_column_header
+                formulaString += getDisplayColumnHeader(newIndexLabel);
+            } else {
+                /**
+                 * When have written a formula that references the row before, but now we're editing in the first row,
+                 * we get references that reference A-1 (which isn't a thing in the data). In this case, we just display
+                 * the constant 0. In all cases other than datetimes, this is what is actually inserted when shifted, so
+                 * in practice is the correct thing to show the user. We notably need ot delete the column header
+                 */
+                formulaString += '0';
+            }
+        }
+
+    })
+    return formulaString;
 }

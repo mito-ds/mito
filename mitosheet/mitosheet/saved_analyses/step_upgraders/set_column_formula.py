@@ -28,7 +28,7 @@ def upgrade_set_column_formula_1_to_2(step: Dict[str, Any], later_steps: List[Di
         'step_type': "set_column_formula",
         'params': {
             sheet_index: 0,
-            column_header: _header_,
+            column_id: _column id_,
             old_formula: '=A',
             new_formula: '=B',
         }
@@ -39,6 +39,43 @@ def upgrade_set_column_formula_1_to_2(step: Dict[str, Any], later_steps: List[Di
 
     return [{
         "step_version": 2, 
+        "step_type": "set_column_formula", 
+        "params": params
+    }] + later_steps
+    
+def upgrade_set_column_formula_2_to_3(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Adds in the formula_label, which defaults to 0 for all upgrades. This is used for calculating offsets 
+    when users are writing rolling window formulas.
+
+    OLD: {
+        'step_version': 2, 
+        'step_type': "set_column_formula",
+        'params': {
+            sheet_index: 0,
+            column_id: _column id_,
+            old_formula: '=A',
+            new_formula: '=B',
+        }
+    }
+
+    NEW: {
+        'step_version': 3, 
+        'step_type': "set_column_formula",
+        'params': {
+            sheet_index: 0,
+            column_id: _column id_,
+            formula_label: 0,
+            old_formula: '=A',
+            new_formula: '=B',
+        }
+    }
+    """
+    params = step['params']
+    params['formula_label'] = 0
+
+    return [{
+        "step_version": 3, 
         "step_type": "set_column_formula", 
         "params": params
     }] + later_steps

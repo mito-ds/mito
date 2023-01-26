@@ -61,7 +61,8 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
     _, _, dependencies = parse_formula(
         formula, 
         'A', 
-        steps_manager.dfs[sheet_index].columns,
+        '0',
+        steps_manager.dfs[sheet_index],
         throw_errors=False
     )
     

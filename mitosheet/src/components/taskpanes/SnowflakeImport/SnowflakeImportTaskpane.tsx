@@ -43,16 +43,16 @@ export type SnowflakeTableLocationAndWarehouse = {
 }
 
 export type SnowflakeQueryParams = {
-	columns: string[],
-	limit: number | undefined
+    columns: string[],
+    limit: number | undefined
 }
 
 export type SnowflakeConfigOptions = {
-	warehouses: string[],
-	databases: string[],
-	schemas: string[],
-	tables: string[]
-	columns: string[]
+    warehouses: string[],
+    databases: string[],
+    schemas: string[],
+    tables: string[]
+    columns: string[]
 }
 
 export interface SnowflakeImportParams {
@@ -110,10 +110,10 @@ const getNewParams = (prevParams: SnowflakeImportParams, database?: string | nul
 const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Element => {
 
     const {params, setParams: setParamsWithoutRefreshOptionsAndDefaults, edit} = useSendEditOnClick<SnowflakeImportParams, undefined>(
-            () => getDefaultParams(),
-            StepType.SnowflakeImport, 
-            props.mitoAPI,
-            props.analysisData,
+        () => getDefaultParams(),
+        StepType.SnowflakeImport, 
+        props.mitoAPI,
+        props.analysisData,
     )
     
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);

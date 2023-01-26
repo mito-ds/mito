@@ -23,7 +23,7 @@ def test_create_steps_manager():
     steps_manager = StepsManager([df1, df2], mito_config.get_mito_config())
     assert steps_manager.curr_step_idx == 0
     assert steps_manager.curr_step.step_type == 'initialize'
-    assert steps_manager.curr_step.column_spreadsheet_code == [{'A': ''}, {'A': ''}]
+    assert steps_manager.curr_step.column_formulas == [{'A': []}, {'A': []}]
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
     assert steps_manager.mito_config == mito_config.get_mito_config()
