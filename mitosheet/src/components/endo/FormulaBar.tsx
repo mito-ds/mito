@@ -34,7 +34,7 @@ const FormulaBar = (props: {
     const rowIndex = props.selection.startingRowIndex
     const colIndex = props.selection.startingColumnIndex
 
-    const {columnHeader, columnFormula, cellValue} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
+    const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
@@ -100,7 +100,7 @@ const FormulaBar = (props: {
                                 formula: formulaBarValue,
                                 arrowKeysScrollInFormula: true,
                                 editorLocation: 'formula bar',
-                                editingMode: 'entire_column'
+                                editingMode: columnFormulaLocation || 'entire_column'
                             })
                         }}
                     >

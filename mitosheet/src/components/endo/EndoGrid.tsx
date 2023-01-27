@@ -501,7 +501,7 @@ function EndoGrid(props: {
             return;
         }
 
-        const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
+        const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
 
         setEditorState({
             rowIndex: rowIndex,
@@ -509,7 +509,7 @@ function EndoGrid(props: {
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
-            editingMode: 'entire_column'
+            editingMode: editingMode
         })
     }
     
@@ -568,7 +568,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
@@ -576,7 +576,7 @@ function EndoGrid(props: {
                         formula: startingColumnFormula,
                         arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
-                        editingMode: 'entire_column'
+                        editingMode: editingMode
                     });
 
                     e.preventDefault();

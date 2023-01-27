@@ -494,3 +494,11 @@ def test_set_specific_indexes_then_delete_column():
     mito.delete_columns(0, ['B'])
 
     assert len(mito.optimized_code_chunks) == 1
+
+def test_set_specific_indexes_twice_overwrites_delete_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B', index_labels=[0])
+
+    assert len(mito.optimized_code_chunks) == 2

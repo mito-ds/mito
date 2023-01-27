@@ -122,22 +122,24 @@ export const getStartingFormula = (
     rowIndex: number, 
     columnIndex: number, 
     e?: KeyboardEvent
-): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
+): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean, editingMode: 'entire_column' | 'specific_index_labels'} => {
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
     // ie: from the floating cell editor to the formula bar.
     if (editorState !== undefined && editorState.columnIndex === columnIndex) {
         return {
             startingColumnFormula: editorState.formula,
-            arrowKeysScrollInFormula: true
+            arrowKeysScrollInFormula: true,
+            editingMode: editorState.editingMode
         }
     }
   
-    const {columnFormula, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
+    const {columnFormula, columnHeader, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
     if (columnHeader === undefined) {
         return {
             startingColumnFormula: '',
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: false,
+            editingMode: 'entire_column'
         };
     }
 
@@ -178,13 +180,15 @@ export const getStartingFormula = (
     if (originalValue === defaultFormula) {
         return {
             startingColumnFormula: '',
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: false,
+            editingMode: 'entire_column'
         }
     }
 
     return {
         startingColumnFormula: originalValue,
-        arrowKeysScrollInFormula: true
+        arrowKeysScrollInFormula: true,
+        editingMode: columnFormulaLocation || 'entire_column'
     };
 }
 

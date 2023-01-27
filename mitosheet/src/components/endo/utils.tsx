@@ -94,6 +94,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
+    columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
     columnFormat: ColumnFormatType | undefined,
@@ -109,16 +110,18 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
     const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
     let columnFormula: string | undefined;
-    
+    let columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined;
+
     // To find the column formula, we go through and find the LAST formula that was written that is
     // applied to this specific index label. Entire column formulas apply to the everything, duh
-    console.log(columnFormulaAndLocation)
     if (columnFormulaAndLocation.length !== 0) {
         columnFormulaAndLocation.forEach(cfal => {
             if (cfal.location.type === 'entire_column') {
                 columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormulaLocation = 'entire_column';
             } else if (indexLabel !== undefined && cfal.location.index_labels.includes(indexLabel)) {
                 columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormulaLocation = 'specific_index_labels'
             }
         })
     }
@@ -133,6 +136,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnID: columnID,
         columnHeader: columnHeader,
         columnFormula: columnFormula,
+        columnFormulaLocation: columnFormulaLocation,
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,

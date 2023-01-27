@@ -633,7 +633,7 @@ def parse_formula(
             index_labels = index_labels_formula_is_applied_to["index_labels"] # type: ignore
             # If you're writing to an index that is a datetime, we make sure that these objects are datetimes (this is only necessary)
             # on versions of pandas earlier than 1.0
-            if is_datetime_index(df.index) and is_prev_version(get_pandas_version(), '1.4.0'):
+            if is_datetime_index(df.index) and is_prev_version(get_pandas_version(), '1.0.0'):
                 index_labels = pd.to_datetime(index_labels)
                 
             final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels)}, [{transpiled_column_header}]] = ({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels)}]' # type: ignore

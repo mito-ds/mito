@@ -24823,13 +24823,15 @@ ${finalCode}`;
     const columnDtype = columnID !== void 0 ? sheetData == null ? void 0 : sheetData.data[columnIndex].columnDtype : void 0;
     const columnFormulaAndLocation = columnID !== void 0 ? sheetData !== void 0 ? sheetData == null ? void 0 : sheetData.columnFormulasMap[columnID] : [] : [];
     let columnFormula;
-    console.log(columnFormulaAndLocation);
+    let columnFormulaLocation;
     if (columnFormulaAndLocation.length !== 0) {
       columnFormulaAndLocation.forEach((cfal) => {
         if (cfal.location.type === "entire_column") {
           columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+          columnFormulaLocation = "entire_column";
         } else if (indexLabel !== void 0 && cfal.location.index_labels.includes(indexLabel)) {
           columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+          columnFormulaLocation = "specific_index_labels";
         }
       });
     }
@@ -24842,6 +24844,7 @@ ${finalCode}`;
       columnID,
       columnHeader,
       columnFormula,
+      columnFormulaLocation,
       columnDtype,
       columnFilters,
       cellValue,
@@ -24939,14 +24942,16 @@ ${finalCode}`;
     if (editorState !== void 0 && editorState.columnIndex === columnIndex) {
       return {
         startingColumnFormula: editorState.formula,
-        arrowKeysScrollInFormula: true
+        arrowKeysScrollInFormula: true,
+        editingMode: editorState.editingMode
       };
     }
-    const { columnFormula, columnHeader } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
+    const { columnFormula, columnHeader, columnFormulaLocation } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
     if (columnHeader === void 0) {
       return {
         startingColumnFormula: "",
-        arrowKeysScrollInFormula: false
+        arrowKeysScrollInFormula: false,
+        editingMode: "entire_column"
       };
     }
     let originalValue = "";
@@ -24976,12 +24981,14 @@ ${finalCode}`;
     if (originalValue === defaultFormula) {
       return {
         startingColumnFormula: "",
-        arrowKeysScrollInFormula: false
+        arrowKeysScrollInFormula: false,
+        editingMode: "entire_column"
       };
     }
     return {
       startingColumnFormula: originalValue,
-      arrowKeysScrollInFormula: true
+      arrowKeysScrollInFormula: true,
+      editingMode: columnFormulaLocation || "entire_column"
     };
   };
   var formulaEndsInReference = (formula, indexLabel, sheetData) => {
@@ -25704,7 +25711,7 @@ ${finalCode}`;
     var _a, _b;
     const rowIndex = props.selection.startingRowIndex;
     const colIndex = props.selection.startingColumnIndex;
-    const { columnHeader, columnFormula, cellValue } = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
+    const { columnHeader, columnFormula, cellValue, columnFormulaLocation } = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = "" + (columnFormula !== void 0 && columnFormula !== "" ? columnFormula : cellValue !== void 0 ? cellValue : "");
     const cellEditingCellData = props.editorState === void 0 ? void 0 : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === void 0 ? columnHeader : cellEditingCellData == null ? void 0 : cellEditingCellData.columnHeader;
@@ -25759,7 +25766,7 @@ ${finalCode}`;
               formula: formulaBarValue,
               arrowKeysScrollInFormula: true,
               editorLocation: "formula bar",
-              editingMode: "entire_column"
+              editingMode: columnFormulaLocation || "entire_column"
             });
           }
         },
@@ -26656,14 +26663,14 @@ ${finalCode}`;
       if (rowIndex === void 0 || columnIndex === void 0 || getIsHeader(rowIndex, columnIndex)) {
         return;
       }
-      const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
+      const { startingColumnFormula, arrowKeysScrollInFormula, editingMode } = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
       setEditorState({
         rowIndex,
         columnIndex,
         formula: startingColumnFormula,
         arrowKeysScrollInFormula,
         editorLocation: "cell",
-        editingMode: "entire_column"
+        editingMode
       });
     };
     (0, import_react49.useEffect)(() => {
@@ -26703,14 +26710,14 @@ ${finalCode}`;
           }
           setGridState((gridState2) => {
             const lastSelection = gridState2.selections[gridState2.selections.length - 1];
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+            const { startingColumnFormula, arrowKeysScrollInFormula, editingMode } = getStartingFormula(sheetData, void 0, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
             setEditorState({
               rowIndex: lastSelection.startingRowIndex,
               columnIndex: lastSelection.startingColumnIndex,
               formula: startingColumnFormula,
               arrowKeysScrollInFormula,
               editorLocation: "cell",
-              editingMode: "entire_column"
+              editingMode
             });
             e.preventDefault();
             return __spreadProps(__spreadValues({}, gridState2), {
@@ -28617,14 +28624,14 @@ ${finalCode}`;
         {
           title: "Set Column Formula",
           onClick: () => {
-            const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex);
+            const { startingColumnFormula, arrowKeysScrollInFormula, editingMode } = getStartingFormula(props.sheetData, void 0, rowIndex, columnIndex);
             props.setEditorState({
               rowIndex: 0,
               columnIndex,
               formula: startingColumnFormula,
               arrowKeysScrollInFormula,
               editorLocation: "cell",
-              editingMode: "entire_column"
+              editingMode
             });
           },
           supressFocusSettingOnClose: true
@@ -29775,7 +29782,7 @@ ${finalCode}`;
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const { columnID } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
+    const { startingColumnFormula, arrowKeysScrollInFormula, editingMode } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
     const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);

@@ -39,7 +39,7 @@ class SetColumnFormulaCodeChunk(CodeChunk):
         if self.index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
             return f'Set formula of {column_header}'
         else:
-            return f'Set formula indexes {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])} of {column_header}' # type: ignore
+            return f'Set formula of {column_header} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)

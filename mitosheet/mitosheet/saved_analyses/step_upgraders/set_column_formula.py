@@ -92,6 +92,18 @@ def upgrade_set_column_formula_3_to_4(step: Dict[str, Any], later_steps: List[Di
             sheet_index: 0,
             column_id: _column id_,
             formula_label: 0,
+            old_formula: '=A',
+            new_formula: '=B',
+        }
+    }
+
+    NEW: {
+        'step_version': 4, 
+        'step_type': "set_column_formula",
+        'params': {
+            sheet_index: 0,
+            column_id: _column id_,
+            formula_label: 0,
             index_labels_formula_is_applied_to: {'type': 'entire_column'}
             old_formula: '=A',
             new_formula: '=B',
