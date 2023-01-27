@@ -35,10 +35,10 @@ const Security: NextPage = () => {
 
           <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
             <h1 className={titleStyles.title}>
-              Your data never leaves your computer, ever.
+              Your private data never leaves your computer, ever.
             </h1>
             <p className={titleStyles.description}>
-              You don’t have to worry about our data storage practices, because we never see a drop of your data.
+              You don&apos;t have to worry about our data storage practices, because we never see anything private.
             </p>
           </section>
           <section className={securityStyles.gradient_card}>
@@ -62,7 +62,7 @@ const Security: NextPage = () => {
                   Open source and auditable
                 </h1>
                 <p>
-                  If you want to see the code that’s running on your computer, you can. Mito is dedicated to building in public. 
+                  If you want to see the code that&apos;s running on your computer, you can. Mito is dedicated to building in public. 
                 </p>
                 <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noreferrer" target='_blank'>
                   See our Github →
@@ -94,7 +94,7 @@ const Security: NextPage = () => {
                   CCPA compliance keeps you in control
                 </h1>
                 <p>
-                  We don’t want any data you don’t want us to have. CCPA compliance means you stay in control of everything. 
+                  We don&apos;t want any data you don&apos;t want us to have. CCPA compliance means you stay in control of everything. 
                 </p>
                 <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noreferrer" target='_blank'>
                   See our Privacy Policy → 
@@ -110,7 +110,7 @@ const Security: NextPage = () => {
                   Opt-in upgrades and changes
                 </h1>
                 <p>
-                  Once you have Mito installed, you’re in total control of which version you run. Upgrade when you want to.
+                  Once you have Mito installed, you&apos;re in total control of which version you run. Upgrade when you want to.
                 </p>
                 <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noreferrer" target='_blank'>
                   See our recent updates → 

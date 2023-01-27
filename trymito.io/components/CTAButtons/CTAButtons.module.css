@@ -5,7 +5,8 @@
 }
     
 .cta_subbutton {
-    color: var(--color-text-highlight)
+    color: var(--color-text-highlight);
+    padding-top: 1rem;
 }
 
 .cta_subbutton:hover {

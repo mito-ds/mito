@@ -75,10 +75,26 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'Database Import',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+  {
     feature: 'Formatting Export',
     planSupport: {
       'Open Source': false,
-      'Pro': true,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Admin Settings',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
       'Enterprise': true 
     }
   },
@@ -346,7 +362,7 @@ const Plans: NextPage = () => {
                 Plans & Pricing
               </h1>
               <p className={titleStyles.description}>
-                Use Mito alone or with your team. Spend less time writing code and more time developing insights.
+                Use Mito alone or with your team. Teams that use Mito save days a month on repetative spreadsheet workflows.
               </p>
             </section>
             <section className={plansStyles.plan_cards}>
@@ -358,7 +374,7 @@ const Plans: NextPage = () => {
                   $0
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Perfect for solo data analytics for work or for fun.
+                  For citizen data scientists looking to write Python faster.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -398,7 +414,7 @@ const Plans: NextPage = () => {
                   $40 a month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Mito’s analysis tools, advanced features, and personal support.
+                  For practitioners or small teams automating spreadsheet processes.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -438,7 +454,7 @@ const Plans: NextPage = () => {
                   Contact Us
                 </p>
                 <p className={plansStyles.plan_description}>
-                  Advanced features, support and integrations for teams.
+                  For teams looking to transition from spreadsheets to Python for end-to-end automation.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -448,17 +464,17 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      ML prep transforms
+                      Admin controls
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Onboarding program
+                      Custom integrations
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Custom integration
+                      Training programs
                     </p>
                   </PlanBullet>
                 </div>
