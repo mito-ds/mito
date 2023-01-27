@@ -126,8 +126,8 @@ const Teams: NextPage = () => {
                         Make your team Python self-sufficient
                     </h1>
                     <p className='display-desktop-only-inline-block'>
-                        Leverage your team’s Excel expertise to make them Python self-sufficient. <br /> 
-                        Don’t throw away years of Excel skill building.
+                        Leverage your team&apos;s Excel expertise to make them Python self-sufficient. <br /> 
+                        Don&apos;t throw away years of Excel skill building.
                     </p>
                 </div>
                 <h2 className='margin-top-4rem margin-bottom-2rem'>
