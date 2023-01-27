@@ -75,7 +75,7 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'Databases Import',
+    feature: 'Database Import',
     planSupport: {
       'Open Source': false,
       'Pro': false,
@@ -374,7 +374,7 @@ const Plans: NextPage = () => {
                   $0
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For citizen data scientists looking to automate their basic spreadsheet processes.
+                  For citizen data scientists looking to write Python faster.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -414,7 +414,7 @@ const Plans: NextPage = () => {
                   $40 a month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For practitioners or small teams automating production processes.
+                  For practitioners or small teams automating spreadsheet processes.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -454,7 +454,7 @@ const Plans: NextPage = () => {
                   Contact Us
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For teams looking to transition from spreadsheets to Python.
+                  For teams looking to transition from spreadsheets to Python for end-to-end automation.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>

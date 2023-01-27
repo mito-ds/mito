@@ -19,13 +19,13 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
                     href="mailto:founders@sagacollab.com"
                 />
             }
-            <h3 className={styles.cta_subbutton}>
+            <h2 className={styles.cta_subbutton}>
                 <Link href='/plans'>
                     <a>
                         or see Pro plans →
                     </a>
                 </Link>
-            </h3>
+            </h2>
         </div>
     )
 }

@@ -38,7 +38,7 @@ const Security: NextPage = () => {
               Your private data never leaves your computer, ever.
             </h1>
             <p className={titleStyles.description}>
-              You don’t have to worry about our data storage practices, because we never anything private.
+              You don’t have to worry about our data storage practices, because we never see anything private.
             </p>
           </section>
           <section className={securityStyles.gradient_card}>

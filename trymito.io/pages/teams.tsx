@@ -37,7 +37,7 @@ const Teams: NextPage = () => {
 
             <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                 <h1 className={titleStyles.title}>
-                    Leverage your teams spreadsheet mastery to automate entire workflows
+                    Leverage your team's spreadsheet mastery to automate entire workflows
                 </h1>
                 <p className={titleStyles.description}>
                     Onboard in minutes, save your team days per month
