@@ -29782,7 +29782,7 @@ ${finalCode}`;
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const { columnID } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const { startingColumnFormula, arrowKeysScrollInFormula, editingMode } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
+    const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
     const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
