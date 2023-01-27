@@ -86,10 +86,12 @@ except ImportError:
 
 MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 
+FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
+FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
-    from typing import TypedDict
+    from typing import TypedDict, Literal
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
@@ -152,20 +154,28 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
     class ParserMatch(TypedDict):
-        type: str # 'column header' | 'index label'
+        type: Literal['column header match type', 'index label match type']
         match_range: ParserMatchRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
 
     class FrontendFormulaString(TypedDict):
-        type: str # 'string part'
+        type: Literal['string part']
         string: str
 
     class FrontendFormulaReference(TypedDict):
-        type: str # 'reference part'
+        type: Literal['reference part']
         display_column_header: str
         row_offset: int
+
+    class FormulaLocationEntireColumn(TypedDict):
+        type: Literal['entire_column']
+
+    class FormulaLocationToSpecificIndexLabels(TypedDict):
+        type: Literal['specific_index_labels']
+        index_labels: List[Any]
+
 
 else:
     ColumnIDWithFilter = Any # type:ignore
@@ -184,8 +194,22 @@ else:
     CodeSnippetEnvVars = Any # type:ignore
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaReference = Any # type:ignore
+    FormulaLocationEntireColumn = Any # type:ignore
+    FormulaLocationToSpecificIndexLabels = Any # type:ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
 FrontendFormula = List[FrontendFormulaPart]
 
+FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]
+
+
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class FrontendFormulaAndLocation(TypedDict):
+        frontend_formula: FrontendFormula
+        location: FormulaAppliedToType
+
+else:
+    FrontendFormulaAndLocation = Any # type:ignore

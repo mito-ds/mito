@@ -17,12 +17,17 @@ import pandas as pd
 
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
-from mitosheet.sheet_functions.types.utils import is_number_dtype, is_datetime_dtype, is_string_dtype
-from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
-from mitosheet.types import (ColumnHeader, FrontendFormula, ParserMatch, ParserMatchRange,
-                             RowOffset)
-
+from mitosheet.sheet_functions.types.utils import (is_datetime_dtype,
+                                                   is_number_dtype,
+                                                   is_string_dtype)
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import (ColumnHeader, FrontendFormula,
+                             FormulaAppliedToType, ParserMatch,
+                             ParserMatchRange, RowOffset)
+from mitosheet.user.utils import get_pandas_version
+from mitosheet.utils import is_prev_version
 
 COLUMN_HEADER_MATCH_TYPE = 'column header match type'
 INDEX_LABEL_MATCH_TYPE = 'index label match type'
@@ -305,7 +310,7 @@ def get_index_match_from_number_index(formula: str, formula_label: Union[str, bo
             row_offset = get_row_offset(index, formula_label, parsed_label)
             if row_offset is not None:
                 return {
-                    'type': INDEX_LABEL_MATCH_TYPE,
+                    'type': 'index label match type',
                     'match_range': (index_label_start, index_label_start + len(number_chars)),
                     'unparsed': number_chars,
                     'parsed': parsed_label,
@@ -337,7 +342,7 @@ def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, 
             row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime)
             if row_offset is not None:
                 return {
-                    'type': INDEX_LABEL_MATCH_TYPE,
+                    'type': 'index label match type',
                     'match_range': (index_label_start, index_label_start + len(str_datetime)),
                     'unparsed': str_datetime,
                     'parsed': parsed_datetime,
@@ -362,7 +367,7 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
             row_offset = get_row_offset(index, formula_label, potential_index_unparsed)
             if row_offset is not None:
                 return {
-                    'type': INDEX_LABEL_MATCH_TYPE,
+                    'type': 'index label match type',
                     'match_range': (index_label_start, index_label_start + len(potential_index_unparsed)),
                     'unparsed': potential_index_unparsed,
                     'parsed': potential_index_unparsed, # A parsed string is the same as an unparsed string
@@ -454,7 +459,7 @@ def get_column_header_and_index_matches(
             # First, we check if it's an unqualified column header with no index
             if is_no_index_after_column_header_match(formula, index, start, end):
                 parser_matches.append({
-                    'type': COLUMN_HEADER_MATCH_TYPE,
+                    'type': 'column header match type',
                     'match_range': match_range,
                     'parsed': column_header,
                     'unparsed': found_column_header,
@@ -470,7 +475,7 @@ def get_column_header_and_index_matches(
             index_label_match = number_index_label_match or datetime_index_label_match or string_index_label_match or None
             if index_label_match is not None:
                 parser_matches.append({
-                    'type': COLUMN_HEADER_MATCH_TYPE,
+                    'type': 'column header match type',
                     'match_range': match_range,
                     'parsed': column_header,
                     'unparsed': found_column_header,
@@ -603,6 +608,7 @@ def parse_formula(
         formula: Optional[str], 
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
+        index_labels_formula_is_applied_to: FormulaAppliedToType,
         df: pd.DataFrame,
         df_name: str='df',
         throw_errors: bool=True,
@@ -647,7 +653,17 @@ def parse_formula(
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
     if include_df_set:
-        final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
+        if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
+            final_code = f'{df_name}[{transpiled_column_header}] = {code_with_functions}'
+        else:
+            index_labels = index_labels_formula_is_applied_to["index_labels"] # type: ignore
+            # If you're writing to an index that is a datetime, we make sure that these objects are datetimes (this is only necessary)
+            # on versions of pandas earlier than 1.0
+            if is_datetime_index(df.index) and is_prev_version(get_pandas_version(), '1.0.0'):
+                index_labels = pd.to_datetime(index_labels)
+                
+            final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels)}, [{transpiled_column_header}]] = ({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels)}]' # type: ignore
+
     else:
         final_code = f'{code_with_functions}'
     return final_code, functions, column_header_dependencies

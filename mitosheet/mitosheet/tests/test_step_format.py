@@ -127,7 +127,7 @@ def test_params_static():
 
     check_step(
         SetColumnFormulaStepPerformer,
-        3,
+        4,
         'set_column_formula'
     )
 

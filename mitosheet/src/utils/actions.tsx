@@ -60,7 +60,7 @@ export const createActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex, 'set_column_formula');
+    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -888,7 +888,7 @@ export const createActions = (
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
-                    editingMode: 'set_cell_value'
+                    editingMode: 'specific_index_labels'
                 })
 
             },
@@ -981,7 +981,7 @@ export const createActions = (
                     // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
                     editorLocation: 'cell',
-                    editingMode: 'set_cell_value'
+                    editingMode: 'specific_index_labels'
                 })
             },
             isDisabled: () => {
@@ -1012,7 +1012,7 @@ export const createActions = (
                     formula: startingColumnFormula,
                     arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                     editorLocation: 'cell',
-                    editingMode: 'set_column_formula'
+                    editingMode: 'entire_column'
                 })
             },
             isDisabled: () => {
@@ -1694,7 +1694,7 @@ export const getSpreadsheetFormulaAction = (
                 formula: "=" + spreadsheetAction?.function + "(",
                 arrowKeysScrollInFormula: false,
                 editorLocation: 'cell',
-                editingMode: 'set_column_formula'
+                editingMode: 'entire_column'
             })
         },
         isDisabled: () => {

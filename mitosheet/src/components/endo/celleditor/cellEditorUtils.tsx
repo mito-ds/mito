@@ -118,24 +118,25 @@ export const getStartingFormula = (
     editorState: EditorState | undefined,
     rowIndex: number, 
     columnIndex: number, 
-    editingMode: 'set_column_formula' | 'set_cell_value',
     e?: KeyboardEvent
-): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean} => {
+): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean, editingMode: 'entire_column' | 'specific_index_labels'} => {
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
     // ie: from the floating cell editor to the formula bar.
     if (editorState !== undefined && editorState.columnIndex === columnIndex) {
         return {
             startingColumnFormula: editorState.formula,
-            arrowKeysScrollInFormula: true
+            arrowKeysScrollInFormula: true,
+            editingMode: editorState.editingMode
         }
     }
   
-    const {columnFormula, cellValue, columnHeader} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
+    const {columnFormula, columnHeader, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
     if (columnHeader === undefined) {
         return {
             startingColumnFormula: '',
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: false,
+            editingMode: 'entire_column'
         };
     }
 
@@ -149,14 +150,12 @@ export const getStartingFormula = (
         } else {
             originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
         }
-    } else if (editingMode === 'set_column_formula') {
+    } else {
         if (columnFormula === undefined || columnFormula === '') {
             originalValue = '=' + getDisplayColumnHeader(columnHeader);
         } else {
             originalValue = columnFormula;
         }
-    } else {
-        originalValue = cellValue + ''
     }
     
     // If a key is pressed, we overwrite what is currently there with the key, per excel, sheets, and ag-grid
@@ -178,13 +177,15 @@ export const getStartingFormula = (
     if (originalValue === defaultFormula) {
         return {
             startingColumnFormula: '',
-            arrowKeysScrollInFormula: false
+            arrowKeysScrollInFormula: false,
+            editingMode: 'entire_column'
         }
     }
 
     return {
         startingColumnFormula: originalValue,
-        arrowKeysScrollInFormula: true
+        arrowKeysScrollInFormula: true,
+        editingMode: columnFormulaLocation || 'entire_column'
     };
 }
 

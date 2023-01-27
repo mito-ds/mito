@@ -94,6 +94,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
+    columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
     columnFormat: ColumnFormatType | undefined,
@@ -107,8 +108,23 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
     const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
-    const columnFormulaRaw = columnID !== undefined ? sheetData?.columnFormulasMap[columnID] : undefined;
-    const columnFormula = getFormulaStringFromFrontendFormula(columnFormulaRaw, indexLabel, sheetData);
+    const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
+    let columnFormula: string | undefined;
+    let columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined;
+
+    // To find the column formula, we go through and find the LAST formula that was written that is
+    // applied to this specific index label. Entire column formulas apply to the everything, duh
+    if (columnFormulaAndLocation.length !== 0) {
+        columnFormulaAndLocation.forEach(cfal => {
+            if (cfal.location.type === 'entire_column') {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormulaLocation = 'entire_column';
+            } else if (indexLabel !== undefined && cfal.location.index_labels.includes(indexLabel)) {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormulaLocation = 'specific_index_labels'
+            }
+        })
+    }
 
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
@@ -120,6 +136,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnID: columnID,
         columnHeader: columnHeader,
         columnFormula: columnFormula,
+        columnFormulaLocation: columnFormulaLocation,
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,

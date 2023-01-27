@@ -6,13 +6,15 @@
 """
 Contains tests for set column formula edit events
 """
-from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 import pandas as pd
 import pytest
 
-from mitosheet.utils import get_new_id
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, create_mito_wrapper
 from mitosheet.column_headers import get_column_header_id
+from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_dfs)
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.utils import get_new_id
 
 
 def test_edit_cell_formula_on_message_receive():
@@ -60,7 +62,7 @@ def test_edit_cell_formula_mulitple_msg_receives():
     mito.set_formula('=1', 0, 'B')
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=1', 'type': 'string part'}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=1', 'type': 'string part'}], 'location': {'type': FORMULA_ENTIRE_COLUMN_TYPE}}]
 
 
 def test_edit_to_same_formula_no_error():
@@ -76,12 +78,14 @@ def test_edit_to_same_formula_no_error():
         'params': {
             'sheet_index': 0,
             'column_id': get_column_header_id('B'),
+            'formula_label': 0,
+            'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE},
             'new_formula': '=A'
         }
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}]
+    assert mito.curr_step.column_formulas[0]['B'] == [{'frontend_formula': [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}], 'location': {'type': FORMULA_ENTIRE_COLUMN_TYPE}}]
 
 
 def test_formulas_fill_missing_parens():
@@ -381,3 +385,120 @@ def test_different_indexes(input_df, formula, column_header, formula_label, outp
     mito.set_formula(formula, 0, column_header, formula_label=formula_label)
 
     assert mito.dfs[0].equals(output_df)
+
+
+SPECIFIC_INDEX_LABELS_TEST = [
+    # First cell
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [0],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]})
+    ),
+    # Second cell
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A1',
+        1,
+        [1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 2, 0]})
+    ),
+    # Set a different cell than the formula
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        1,
+        [1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 1, 0]})
+    ),
+    # Set multiple labels, includes formula
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [0, 1],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 0]})
+    ),
+    # Set multiple labels, does not include formula (this is weird you can do this -- but the frontend can just not do it. it's fine anyways)
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=A0',
+        0,
+        [1, 2],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [0, 2, 3]})
+    ),
+    # Set with a string label
+    (
+        pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']),
+        'B',
+        '=Aa',
+        'a',
+        ['a'],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]}, index=['a', 'b', 'c'])
+    ),
+    # Set with a datetime label
+    (
+        pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00'])),
+        'B',
+        '=A2007-01-22 00:00:00',
+        pd.to_datetime('2007-01-22 00:00:00'),
+        ['2007-01-22 00:00:00'],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00']))
+    ),
+]
+@pytest.mark.parametrize("input_df, column_header, formula, formula_label, index_labels, output_df", SPECIFIC_INDEX_LABELS_TEST)
+def test_set_specific_index_labels(input_df, column_header, formula, formula_label, index_labels, output_df):
+    mito = create_mito_wrapper_dfs(input_df)
+    mito.add_column(0, column_header)
+    mito.set_formula(formula, 0, column_header, formula_label=formula_label, index_labels=index_labels)
+
+    assert mito.dfs[0].equals(output_df)
+
+
+def test_set_specific_index_labels_twice():    
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
+
+def test_set_specific_index_labels_then_entire_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 0]}))
+
+
+def test_set_entire_column_then_specific_index_labels():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A1', 0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 3, 0]}))
+
+def test_set_specific_indexes_then_delete_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A1', 0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.delete_columns(0, ['B'])
+
+    assert len(mito.optimized_code_chunks) == 1
+
+def test_set_specific_indexes_twice_overwrites_delete_column():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=A0', 0, 'B', index_labels=[0])
+    mito.set_formula('=A1', 0, 'B', index_labels=[0])
+
+    assert len(mito.optimized_code_chunks) == 2

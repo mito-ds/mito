@@ -9,7 +9,7 @@ from typing import Any, Collection, List, Dict, Optional
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.parser import FrontendFormula
+from mitosheet.types import FrontendFormulaAndLocation
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.utils import get_first_unused_dataframe_name
 
@@ -61,7 +61,7 @@ class State:
         df_names: Optional[List[str]]=None,
         df_sources: Optional[List[str]]=None,
         column_ids: Optional[ColumnIDMap]=None,
-        column_formulas: Optional[List[Dict[ColumnID, FrontendFormula]]]=None,
+        column_formulas: Optional[List[Dict[ColumnID, List[FrontendFormulaAndLocation]]]]=None,
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
         graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None
@@ -96,7 +96,7 @@ class State:
         # by column headers. The column headers _only_ index into the dataframe itself
         self.column_ids = column_ids if column_ids else ColumnIDMap(dfs)
 
-        self.column_formulas: List[Dict[ColumnID, FrontendFormula]] = (
+        self.column_formulas: List[Dict[ColumnID, List[FrontendFormulaAndLocation]]] = (
             column_formulas
             if column_formulas is not None
             else [

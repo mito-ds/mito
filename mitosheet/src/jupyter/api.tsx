@@ -13,7 +13,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeCredentialsValidityCheckResult, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -1181,6 +1181,7 @@ export default class MitoAPI {
         columnID: ColumnID,
         formula_label: string | number | boolean,
         newFormula: string,
+        index_labels_formula_is_applied_to: FormulaLocation,
         cell_editor_location: string
     ): Promise<MitoError | undefined> {
         const stepID = getRandomId();
@@ -1194,6 +1195,7 @@ export default class MitoAPI {
                 'column_id': columnID,
                 'formula_label': formula_label,
                 'new_formula': newFormula,
+                'index_labels_formula_is_applied_to': index_labels_formula_is_applied_to,
                 'cell_editor_location': cell_editor_location // Just for logging purposes
             }
         }, {});

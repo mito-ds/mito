@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
@@ -103,7 +103,7 @@ const CellEditor = (props: {
                 return prevEditingState;
             } 
             
-            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
+            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula
@@ -239,7 +239,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInReference && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -378,7 +378,7 @@ const CellEditor = (props: {
 
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1) {
+        if (selectedSuggestionIndex !== -1 && !endsInReference) {
             takeSuggestion(selectedSuggestionIndex);
 
             // Then, reset the suggestion index that is selected back to -1, 
@@ -404,28 +404,19 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (props.editorState.editingMode === 'set_column_formula') {
-                // Change of formula
-                errorMessage = await props.mitoAPI.editSetColumnFormula(
-                    props.sheetIndex,
-                    columnID,
-                    formulaLabel,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } else {
-                // Change of data
-                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
-                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
-                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
-                errorMessage = await props.mitoAPI.editSetCellValue(
-                    props.sheetIndex,
-                    columnID,
-                    rowIndex,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } 
+            // Otherwise, update the formula for the column (or specific index)
+            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
+                ? {'type': 'entire_column'}
+                : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+
+            errorMessage = await props.mitoAPI.editSetColumnFormula(
+                props.sheetIndex,
+                columnID,
+                formulaLabel,
+                formula,
+                index_labels_formula_is_applied_to,
+                props.editorState.editorLocation
+            )
         }
         
         setLoading(false);
@@ -500,12 +491,12 @@ const CellEditor = (props: {
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
                     <Row justify='space-between' align='center' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
+                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
                             Edit entire column
                         </p>
                         <Toggle
                             className='mr-5px'
-                            value={props.editorState.editingMode === 'set_column_formula' ? true : false}
+                            value={props.editorState.editingMode === 'entire_column' ? true : false}
                             onChange={() => {
                                 props.setEditorState(prevEditorState => {
                                     if (prevEditorState === undefined) {
@@ -514,7 +505,7 @@ const CellEditor = (props: {
                                     const prevEditingMode = {...prevEditorState}.editingMode
                                     return {
                                         ...prevEditorState,
-                                        editingMode: prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                        editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
                                     }
                                 })
                             }}
@@ -545,7 +536,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInReference && props.editorState.editingMode === 'set_column_formula' &&
+                {cellEditorError === undefined && !loading && !endsInReference &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
@@ -584,7 +575,7 @@ const CellEditor = (props: {
                     </>
                 }
                 {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && props.editorState.editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
+                {cellEditorError === undefined && !loading && !hasSuggestions && documentationFunction !== undefined &&
                     <div>
                         <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
                             <p className='text-body-2'>
