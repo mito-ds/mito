@@ -28,7 +28,7 @@ def get_cached_global_snowflake_credentials() -> Optional[SnowflakeCredentials]:
     global cached_snowflake_credentials
     return cached_snowflake_credentials
 
-def _validate_snowflake_credentials(username: str, password: str, account: str) -> bool:
+def get_validate_snowflake_credentials_error(username: str, password: str, account: str) -> Optional[Exception]:
         try:
             con = snowflake.connector.connect(
                     user=username,
@@ -36,9 +36,9 @@ def _validate_snowflake_credentials(username: str, password: str, account: str) 
                     account=account,
             )
             con.close() #type: ignore
-            return True
-        except:
-            return False
+            return None
+        except Exception as e:
+            return e
 
 def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
 
@@ -52,12 +52,12 @@ def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manag
     password = params['password']
     account = params['account']
 
-    is_valid = _validate_snowflake_credentials(username, password, account)
+    exception = get_validate_snowflake_credentials_error(username, password, account)
 
-    if not is_valid:
+    if exception is not None:
         return json.dumps({
             'type': 'error',    
-            'error_message': 'Invalid authentication information. Please try again.'
+            'error_message': f'{exception}'
         })
 
     # cache the snowflake credentials 

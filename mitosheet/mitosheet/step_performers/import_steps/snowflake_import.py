@@ -47,7 +47,6 @@ class SnowflakeImportStepPerformer(StepPerformer):
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
-
         # If the credentials are not defined, then raise an error 
         if credentials is None:
             raise make_invalid_snowflake_credentials_error()
@@ -66,7 +65,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         except Exception as e: 
             print(e)
             # When we do the frontend, we can figure out exactly what we want to raise here
-            raise make_invalid_snowflake_import_error()
+            raise make_invalid_snowflake_import_error(e)
         
         try:
             # Second execute the query
@@ -74,8 +73,8 @@ class SnowflakeImportStepPerformer(StepPerformer):
             sql_query = create_query(table, query_params)
             cur.execute(sql_query)
             df = cur.fetch_pandas_all()
-        except: 
-            raise make_invalid_snowflake_import_error()
+        except Exception as e: 
+            raise make_invalid_snowflake_import_error(e)
         finally:
            # If we've created the connection, then make sure to close it
            con.close() # type: ignore

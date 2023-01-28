@@ -37561,14 +37561,16 @@ fig.write_html("${props.graphTabName}.html")`
       return;
     }
     updatedStepImportData.forEach((updatedStepImport, idx) => {
-      updateDataframeCreation(
-        idx,
-        updatedStepImport.imports[0],
-        setUpdatedStepImportData,
-        setUpdatedIndexes,
-        setInvalidImportMessages,
-        setReplacingDataframeState
-      );
+      if (updatedStepImport.imports[0].step_type === "snowflake_import") {
+        updateDataframeCreation(
+          idx,
+          updatedStepImport.imports[0],
+          setUpdatedStepImportData,
+          setUpdatedIndexes,
+          setInvalidImportMessages,
+          setReplacingDataframeState
+        );
+      }
     });
   };
   var getErrorTextFromToFix = (toFix) => {
@@ -38736,7 +38738,7 @@ fig.write_html("${props.graphTabName}.html")`
         placeholder: "100000",
         disabled: loadingAvailableOptionsAndDefaults,
         onChange: (e) => {
-          var newLimitNumber = parseInt(e.target.value);
+          let newLimitNumber = parseInt(e.target.value);
           if (isNaN(newLimitNumber)) {
             newLimitNumber = void 0;
           }

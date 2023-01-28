@@ -507,7 +507,7 @@ def make_invalid_simple_import_error(error_modal: bool=False) -> MitoError:
         error_modal=error_modal
     )
 
-def make_invalid_snowflake_import_error() -> MitoError:
+def make_invalid_snowflake_import_error(exception: Exception) -> MitoError:
     """
     Helper function for creating an invalid_snowflake_import_error.
 
@@ -516,7 +516,7 @@ def make_invalid_snowflake_import_error() -> MitoError:
     return MitoError(
         'invalid_snowflake_import_error',
         'Cannot Query Database',
-        'We were unable to execute that query. Reach out to support for help.',
+        f'{exception}',
         False
     )
 

@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_global_snowflake_credentials
 from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeTableLocationAndWarehouseOptional, StepsManagerType
 
@@ -19,12 +19,15 @@ except ImportError:
         SNOWFLAKE_CONNECTOR_IMPORTED = False
 
 
-def _get_snowflake_connection(username: str, password: str, account: str) -> MitoSafeSnowflakeConnection:
-        return snowflake.connector.connect(
-                user=username,
-                password=password,
-                account=account,
-        )
+def get_snowflake_connection_or_exception(username: str, password: str, account: str) -> Union[MitoSafeSnowflakeConnection, Exception]:
+        try:
+                return snowflake.connector.connect(
+                        user=username,
+                        password=password,
+                        account=account,
+                )
+        except Exception as e:
+                return e
 
 def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
@@ -47,13 +50,16 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         password = credentials['password']
         account = credentials['account']
 
-        con = _get_snowflake_connection(username, password, account)
+        con_or_exception = get_snowflake_connection_or_exception(username, password, account)
 
-        if con is None:
-               return json.dumps({
+        if isinstance(con_or_exception, Exception):
+                exception = con_or_exception
+                return json.dumps({
                         'type': 'error',    
-                        'error_message': 'Unable to establish connection. Make sure your credentials are valid and you are connected to the internet'
+                        'error_message': f'{exception}'
                 }) 
+
+        con = con_or_exception
 
         _warehouse = table_loc_and_warehouse.get('warehouse')
         _database = table_loc_and_warehouse.get('database') 

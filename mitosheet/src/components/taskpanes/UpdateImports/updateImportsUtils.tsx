@@ -110,14 +110,16 @@ export const updateAllSnowflakeImports = (
     }
 
     updatedStepImportData.forEach((updatedStepImport, idx) => {
-        updateDataframeCreation(
-            idx,
-            updatedStepImport.imports[0],
-            setUpdatedStepImportData,
-            setUpdatedIndexes,
-            setInvalidImportMessages,
-            setReplacingDataframeState
-        )
+        if (updatedStepImport.imports[0].step_type === 'snowflake_import') {
+            updateDataframeCreation(
+                idx,
+                updatedStepImport.imports[0],
+                setUpdatedStepImportData,
+                setUpdatedIndexes,
+                setInvalidImportMessages,
+                setReplacingDataframeState
+            )
+        }
     })
 }
 
