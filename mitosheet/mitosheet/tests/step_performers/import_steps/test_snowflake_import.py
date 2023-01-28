@@ -13,6 +13,7 @@ import pytest
 import os
 from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
+from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 from mitosheet.errors import MitoError
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
@@ -44,13 +45,14 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
 @python_post_3_6_only
 def test_snowflake_import_integration():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     query_params = {
         'columns': ['COLUMNA', 'COLUMNB'],
         'limit': 2,
     }
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate'], 'COLUMNB': ["DR", "Rush",]})
 
@@ -61,8 +63,9 @@ def test_snowflake_import_integration():
 @python_post_3_6_only
 def test_snowflake_import_with_clear_integration():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
@@ -79,6 +82,7 @@ def test_snowflake_import_with_clear_integration():
 @python_post_3_6_only
 def test_integration_success_empty_table():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',
@@ -92,7 +96,7 @@ def test_integration_success_empty_table():
         'limit': None,
     }
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+    mito.snowflake_import(table_loc_and_warehouse, query_params)
 
     expected_df = pd.DataFrame({"COLUMNA": []})
 
@@ -105,6 +109,7 @@ def test_integration_success_empty_table():
 @python_post_3_6_only
 def test_integration_no_table():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',
@@ -120,7 +125,6 @@ def test_integration_no_table():
             'type': 'snowflake_import_edit',
             'step_id': get_new_id(),
             'params': {
-                'credentials': TEST_SNOWFLAKE_CREDENTIALS,
                 'table_loc_and_warehouse': table_loc_and_warehouse,
                 'query_params': TEST_SNOWFLAKE_QUERY_PARAMS,
             }
@@ -132,39 +136,10 @@ def test_integration_no_table():
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
-def test_snowflake_import_invalid_credentials():
-    
-    mito = create_mito_wrapper_dfs()
-    
-    invalid_credentials = {
-        'type': 'username/password', 
-        'username': PYTEST_SNOWFLAKE_USERNAME, 
-        'password': 'invalid_password', 
-        'account': PYTEST_SNOWFLAKE_ACCOUNT
-    }
-
-    with pytest.raises(MitoError) as e_info:
-        mito.mito_backend.steps_manager.handle_edit_event({
-            'event': 'edit_event',
-            'id': get_new_id(),
-            'type': 'snowflake_import_edit',
-            'step_id': get_new_id(),
-            'params': {
-                'credentials': invalid_credentials,
-                'table_loc_and_warehouse': TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE,
-                'query_params': TEST_SNOWFLAKE_QUERY_PARAMS,
-            }
-        })
-
-    assert 'Database' in str(e_info)
-    assert len(mito.dfs) == 0
-
-
-@requires_snowflake_dependencies_and_credentials
-@python_post_3_6_only
 def test_snowflake_import_invalid_column():
-    
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+
 
     query_params = {
         'columns': ['DOES_NOT_EXIST'],
@@ -178,7 +153,6 @@ def test_snowflake_import_invalid_column():
             'type': 'snowflake_import_edit',
             'step_id': get_new_id(),
             'params': {
-                'credentials': TEST_SNOWFLAKE_CREDENTIALS,
                 'table_loc_and_warehouse': TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE,
                 'query_params': query_params,
             }
@@ -192,6 +166,8 @@ def test_snowflake_import_invalid_column():
 @python_post_3_6_only
 def test_snowflake_import_integration_type_test_simple():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+
 
     table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',
@@ -205,7 +181,7 @@ def test_snowflake_import_integration_type_test_simple():
         'limit': None
     }
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+    mito.snowflake_import(table_loc_and_warehouse, query_params)
 
     assert len(mito.dfs) == 1
     assert mito.get_column(0, 'NUMBER_COL', as_list=True) == [1]
@@ -219,6 +195,7 @@ def test_snowflake_import_integration_type_test_simple():
 @python_post_3_6_only
 def test_snowflake_import_integration_column_headers():
     mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',
@@ -228,7 +205,6 @@ def test_snowflake_import_integration_column_headers():
     }
 
     params = {
-        'credentials': TEST_SNOWFLAKE_CREDENTIALS,
         'table_loc_and_warehouse': table_loc_and_warehouse
     }
 
@@ -242,7 +218,7 @@ def test_snowflake_import_integration_column_headers():
         'columns': columns,
         'limit': None
     }
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, table_loc_and_warehouse, query_params)
+    mito.snowflake_import(table_loc_and_warehouse, query_params)
 
     expected_df = pd.DataFrame({
         '123': [1],
@@ -282,7 +258,8 @@ def test_snowflake_import_with_simple_import():
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(input_df)
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
 
     snowflake_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
@@ -318,7 +295,8 @@ def test_snowflake_import_with_other_imports_and_deletes():
     assert mito.dfs[0].equals(input_df_1)
     assert mito.dfs[1].equals(input_df_2)
 
-    mito.snowflake_import(TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
     snowflake_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
     assert len(mito.dfs) == 3
@@ -338,3 +316,36 @@ def test_snowflake_import_with_other_imports_and_deletes():
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
     os.remove(TEST_FILE_PATHS[1])
+
+
+def test_credentials_cached_across_mitosheets():
+    mito = create_mito_wrapper_dfs()
+
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
+    # Test that the cached credentials are accessible by the mitosheet that cached them
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    assert mito.dfs[0].equals(expected_df)
+
+    # Check that the cached credentials are accessible by other mitosheets running in the same kernel
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    assert mito.dfs[0].equals(expected_df)
+
+
+def test_optimized_snowflake_imports():
+    mito = create_mito_wrapper_dfs()
+
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
+    assert mito.dfs[0].equals(expected_df)
+    assert mito.dfs[0].equals(expected_df)
+    assert len(mito.dfs) == 2
+
+    assert len(mito.transpiled_code) == 12
+
