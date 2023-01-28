@@ -318,6 +318,8 @@ def test_snowflake_import_with_other_imports_and_deletes():
     os.remove(TEST_FILE_PATHS[1])
 
 
+@requires_snowflake_dependencies_and_credentials
+@python_post_3_6_only
 def test_credentials_cached_across_mitosheets():
     mito = create_mito_wrapper_dfs()
 
@@ -334,6 +336,8 @@ def test_credentials_cached_across_mitosheets():
     assert mito.dfs[0].equals(expected_df)
 
 
+@requires_snowflake_dependencies_and_credentials
+@python_post_3_6_only
 def test_optimized_snowflake_imports():
     mito = create_mito_wrapper_dfs()
 
