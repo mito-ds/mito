@@ -23568,18 +23568,6 @@ ${finalCode}`;
       }
       return void 0;
     }
-    async getCachedSnowflakeCredentials() {
-      const resultString = await this.send({
-        "event": "api_call",
-        "type": "get_cached_snowflake_credentials",
-        "params": {},
-        "priority": true
-      }, {});
-      if (resultString !== void 0 && resultString !== "null" && resultString !== "") {
-        return JSON.parse(resultString);
-      }
-      return void 0;
-    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -37922,26 +37910,11 @@ fig.write_html("${props.graphTabName}.html")`
     return { type: "username/password", username: "", password: "", account: "" };
   };
   var AuthenticateToSnowflakeCard = (props) => {
-    const [credentials, setCredentials] = (0, import_react160.useState)(() => getDefaultCredentials());
-    const [snowflakeCredentialsValidityCheckResult, setSnowflakeCredentialsValidityCheckResult] = (0, import_react160.useState)(void 0);
+    const [credentials, setCredentials] = (0, import_react160.useState)(() => props.defaultCredentials || getDefaultCredentials());
+    const [snowflakeCredentialsValidityCheckResult, setSnowflakeCredentialsValidityCheckResult] = (0, import_react160.useState)(props.defaultCredentials ? { "type": "success" } : void 0);
     const [loading, setLoading] = (0, import_react160.useState)(false);
-    (0, import_react160.useEffect)(() => {
+    const validateSnowflakeCredentials = async (credentials2) => {
       setLoading(true);
-      void loadAndSetAndValidateCachedCredentials();
-    }, []);
-    const loadAndSetAndValidateCachedCredentials = async () => {
-      const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials();
-      if (cachedCredentials !== void 0) {
-        setCredentials(cachedCredentials);
-        void _validateSnowflakeCredentials(cachedCredentials);
-      }
-      setLoading(false);
-    };
-    const validateSnowflakeCredentialsParams = async () => {
-      setLoading(true);
-      void _validateSnowflakeCredentials(credentials);
-    };
-    const _validateSnowflakeCredentials = async (credentials2) => {
       const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials2);
       setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult);
       if ((credentialsValidityCheckResult == null ? void 0 : credentialsValidityCheckResult.type) === "success") {
@@ -38003,7 +37976,7 @@ fig.write_html("${props.graphTabName}.html")`
           disabled: credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0 || loading,
           disabledTooltip: "Please fill out the username, password, and account fields below.",
           onClick: async () => {
-            await validateSnowflakeCredentialsParams();
+            await validateSnowflakeCredentials(credentials);
           },
           variant: "dark"
         },
@@ -38583,10 +38556,15 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData
     );
-    const [validCredentials, setValidCredentials] = (0, import_react167.useState)(false);
-    const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react167.useState)(true);
+    const [validCredentials, setValidCredentials] = (0, import_react167.useState)(props.userProfile.snowflakeCredentials !== null);
+    const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react167.useState)(props.userProfile.snowflakeCredentials === null);
     const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = (0, import_react167.useState)(void 0);
     const [loadingAvailableOptionsAndDefaults, setLoadingAvailableOptionsAndDefaults] = (0, import_react167.useState)(false);
+    (0, import_react167.useEffect)(() => {
+      if (props.userProfile.snowflakeCredentials !== null && params !== void 0) {
+        void loadAndSetOptionsAndDefaults(params);
+      }
+    }, []);
     const setParamsAndRefreshOptionsAndDefaults = (newParams) => {
       setParamsWithoutRefreshOptionsAndDefaults(newParams);
       void loadAndSetOptionsAndDefaults(newParams);
@@ -38617,6 +38595,7 @@ fig.write_html("${props.graphTabName}.html")`
       AuthenticateToSnowflakeCard_default,
       {
         mitoAPI: props.mitoAPI,
+        defaultCredentials: props.userProfile.snowflakeCredentials,
         onValidCredentials: () => {
           setCredentialsSectionIsOpen(false);
           setValidCredentials(true);

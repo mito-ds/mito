@@ -1,5 +1,5 @@
 // Copyright (c) Mito
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import MitoAPI from '../../jupyter/api';
 import { classNames } from '../../utils/classNames';
 import { updateObjectWithPartialObject } from '../../utils/objects';
@@ -25,36 +25,20 @@ const getDefaultCredentials = (): SnowflakeCredentials => {
 
 const AuthenticateToSnowflakeCard = (props: {
     mitoAPI: MitoAPI;
+    defaultCredentials?: SnowflakeCredentials | null  
     onValidCredentials: () => void;
     onInvalidCredentials?: () => void;
     isOpen: boolean
 }): JSX.Element => {
 
-    const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => getDefaultCredentials())
-    const [snowflakeCredentialsValidityCheckResult, setSnowflakeCredentialsValidityCheckResult] = useState<SnowflakeCredentialsValidityCheckResult | undefined>(undefined)
+    // If we receive default credentials then we assume that they are valid since we only
+    // cache credentials that have passed the validity check
+    const [credentials, setCredentials] = useState<SnowflakeCredentials>(() => props.defaultCredentials || getDefaultCredentials())
+    const [snowflakeCredentialsValidityCheckResult, setSnowflakeCredentialsValidityCheckResult] = useState<SnowflakeCredentialsValidityCheckResult | undefined>(props.defaultCredentials ? {'type': 'success'} : undefined)
     const [loading, setLoading] = useState<boolean>(false)
 
-    useEffect(() => {
-        // On first render, load the cached credentials
+    const validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {
         setLoading(true)
-        void loadAndSetAndValidateCachedCredentials()
-    }, []);
-
-    const loadAndSetAndValidateCachedCredentials = async () => {
-        const cachedCredentials = await props.mitoAPI.getCachedSnowflakeCredentials()
-        if (cachedCredentials !== undefined) {
-            setCredentials(cachedCredentials)
-            void _validateSnowflakeCredentials(cachedCredentials)
-        }
-        setLoading(false)
-    }
-
-    const validateSnowflakeCredentialsParams = async () => {
-        setLoading(true)
-        void _validateSnowflakeCredentials(credentials)
-    }
-
-    const _validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {
         const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
         setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult)
         if (credentialsValidityCheckResult?.type === 'success') {
@@ -136,7 +120,7 @@ const AuthenticateToSnowflakeCard = (props: {
                     disabled={credentials.username.length === 0 || credentials.password.length === 0 || credentials.account.length === 0 || loading}
                     disabledTooltip='Please fill out the username, password, and account fields below.'
                     onClick={async () => {
-                        await validateSnowflakeCredentialsParams();
+                        await validateSnowflakeCredentials(credentials);
                     }}
                     variant='dark'
                 >

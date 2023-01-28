@@ -6,7 +6,7 @@
 
 import json
 from typing import Any, Dict, List, Optional, Tuple, Union
-from mitosheet.api.get_validate_snowflake_credentials import get_cached_global_snowflake_credentials
+from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 from mitosheet.types import MitoSafeSnowflakeConnection, SnowflakeTableLocationAndWarehouseOptional, StepsManagerType
 
 # The snowflake-connector-python package is only available in Python > 3.6 
@@ -37,7 +37,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                         'error_message': 'The package snowflake-connector-python is required to use this feature, but it is not accessible. Ensure it is installed.'
                 })
 
-        credentials = get_cached_global_snowflake_credentials()
+        credentials = get_cached_snowflake_credentials()
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouseOptional = params['table_loc_and_warehouse']
 
         if credentials is None:

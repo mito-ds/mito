@@ -68,10 +68,7 @@
     "lint": "eslint src/ --ext .ts,.tsx --fix",
 
     "prepare": "jlpm run clean && jlpm run build:all",
-    "prepack": "npm run build:all",
-
-    "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
-    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
+    "prepack": "npm run build:all"
   },
   "keywords": [
     "jupyter",

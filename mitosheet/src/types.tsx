@@ -3,6 +3,7 @@ import { ChecklistID } from "./components/checklists/checklistData";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
+import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 
 
@@ -739,6 +740,7 @@ export interface UserProfile {
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
+    snowflakeCredentials: SnowflakeCredentials | null;
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
@@ -748,7 +750,6 @@ export interface UserProfile {
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
         } | null | undefined
-
     };
 }
 

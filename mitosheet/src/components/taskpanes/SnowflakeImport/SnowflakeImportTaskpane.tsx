@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
@@ -63,7 +63,7 @@ export interface SnowflakeImportParams {
     query_params: SnowflakeQueryParams,
 }
 
-const getDefaultParams = (): SnowflakeImportParams | undefined => {
+const getDefaultParams = (): SnowflakeImportParams => {
     return {
         table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
         query_params: {columns: [], limit: undefined},
@@ -117,10 +117,18 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         props.analysisData,
     )
 
-    const [validCredentials, setValidCredentials] = useState(false)
-    const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(true);
-    const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined);
+    const [validCredentials, setValidCredentials] = useState(props.userProfile.snowflakeCredentials !== null)
+    const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = useState(props.userProfile.snowflakeCredentials === null);
+    const [availableSnowflakeOptionsAndDefaults, setAvailableSnowflakeOptionsAndDefaults] = useState<AvailableSnowflakeOptionsAndDefaults | undefined>(undefined)
     const [loadingAvailableOptionsAndDefaults, setLoadingAvailableOptionsAndDefaults] = useState(false)
+
+    useEffect(() => {
+        // When opening the taskapne, if the credentials are already defined, then load the 
+        // available options and defaults to show to the user.
+        if (props.userProfile.snowflakeCredentials !== null && params !== undefined) {
+            void loadAndSetOptionsAndDefaults(params)
+        } 
+    }, [])
 
     // Because we don't always want to refresh defaults, we have a setParamsWithoutDefaultRefresh function that will
     // set params without resetting the default values via the api call. This function, however, will both set the params and refresh the defaults.
@@ -158,6 +166,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             <DefaultTaskpaneBody>
                 <AuthenticateToSnowflakeCard 
                     mitoAPI={props.mitoAPI}
+                    defaultCredentials={props.userProfile.snowflakeCredentials}
                     onValidCredentials={() => {
                         setCredentialsSectionIsOpen(false)
                         setValidCredentials(true)
