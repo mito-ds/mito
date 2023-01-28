@@ -21623,7 +21623,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         },
         /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center", onClick: () => {
           setOpen(false);
-        } }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, props.title, " \xA0", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(UpArrowIcon_default, null))),
+        } }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, typeof props.title === "string" && /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-header-3" }, props.title), typeof props.title !== "string" && props.title, "\xA0 ", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(UpArrowIcon_default, null))),
         props.children
       );
     } else {
@@ -21635,7 +21635,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             setOpen(true);
           }
         },
-        /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, props.title, " \xA0", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(DownArrowIcon_default, null)))
+        /* @__PURE__ */ import_react17.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(Row_default, { suppressTopBottomMargin: true }, typeof props.title === "string" && /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-header-3" }, props.title), typeof props.title !== "string" && props.title, "\xA0 ", props.proSection && !props.isPro && /* @__PURE__ */ import_react17.default.createElement(ProIcon_default, null))), /* @__PURE__ */ import_react17.default.createElement(Col_default, null, /* @__PURE__ */ import_react17.default.createElement(DownArrowIcon_default, null)))
       );
     }
   };
@@ -22041,7 +22041,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     ), GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(
       CollapsibleSection_default,
       {
-        title: /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-header-3" }, getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + " configuration")
+        title: getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + " configuration"
       },
       GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graphCreation.graph_type) && /* @__PURE__ */ import_react22.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Number of bins in histogram" }, /* @__PURE__ */ import_react22.default.createElement(Col_default, null, /* @__PURE__ */ import_react22.default.createElement("p", null, "Number of bins (int)")), /* @__PURE__ */ import_react22.default.createElement(
         Input_default,
@@ -22316,7 +22316,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
         )
       ))
-    ), /* @__PURE__ */ import_react22.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-header-3" }, "Facet plots") }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement(
+    ), /* @__PURE__ */ import_react22.default.createElement(CollapsibleSection_default, { title: "Facet plots" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement(
       Row_default,
       {
         justify: "space-between",
@@ -29222,7 +29222,7 @@ ${finalCode}`;
         }
       ),
       /* @__PURE__ */ import_react76.default.createElement(SuggestedStyles_default, { updateDataframeFormatParams }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Column Headers") }, /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Column Headers" }, /* @__PURE__ */ import_react76.default.createElement(
         LabelAndColor_default,
         {
           label: "Background Color",
@@ -29242,7 +29242,7 @@ ${finalCode}`;
         }
       )),
       /* @__PURE__ */ import_react76.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Rows") }, /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Rows" }, /* @__PURE__ */ import_react76.default.createElement(
         LabelAndColor_default,
         {
           label: "Even Row: Background Color",
@@ -29280,7 +29280,7 @@ ${finalCode}`;
         }
       )),
       /* @__PURE__ */ import_react76.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react76.default.createElement("div", { className: "text-header-3" }, "Dataframe Border") }, /* @__PURE__ */ import_react76.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react76.default.createElement(Col_default, null, /* @__PURE__ */ import_react76.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react76.default.createElement(Col_default, null), /* @__PURE__ */ import_react76.default.createElement(
+      /* @__PURE__ */ import_react76.default.createElement(CollapsibleSection_default, { title: "Dataframe Border" }, /* @__PURE__ */ import_react76.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react76.default.createElement(Col_default, null, /* @__PURE__ */ import_react76.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react76.default.createElement(Col_default, null), /* @__PURE__ */ import_react76.default.createElement(
         Select_default,
         {
           value: params.df_format.border.borderStyle || "none",
@@ -35490,7 +35490,7 @@ ${finalCode}`;
       });
       props.setGraphUpdatedNumber((old) => old + 1);
     }
-    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Titles") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react137.default.createElement(
+    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphStylingParams.title.title || "",
@@ -35544,7 +35544,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { visible: !graphStylingParams.yaxis.visible } } });
         }
       }
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Axis Transformations") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.xaxis.type || "default",
@@ -35626,7 +35626,7 @@ ${finalCode}`;
           title: "category" /* CATEGORY */
         }
       )
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Legend"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.showlegend,
@@ -35680,7 +35680,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { y: newY } } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Grid Lines"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.showgrid,
@@ -35720,7 +35720,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { gridwidth: newHoriztonalGridWidth } } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Colors"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(
       LabelAndColor_default,
       {
         label: "Plot Background Color",
@@ -35765,7 +35765,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title_font_color: newColor } } });
         }
       }
-    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Facet Styling"), proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react137.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react137.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : "",
@@ -35801,7 +35801,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_row_spacing: newRowSpacing } });
         }
       }
-    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: /* @__PURE__ */ import_react137.default.createElement("div", { className: "text-header-3" }, "Range slider") }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react137.default.createElement(
+    )))), /* @__PURE__ */ import_react137.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react137.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.rangeslider.visible,
@@ -37622,24 +37622,54 @@ fig.write_html("${props.graphTabName}.html")`
         return void 0;
       });
     };
-    const getSnowflakeDropddownItemOrEmptyElement = () => {
+    const getUpdateImportOptionDropdownItems = () => {
+      let dropdownItems = [];
       if (props.dataframeCreationData.step_type === "snowflake_import") {
-        return /* @__PURE__ */ import_react156.default.createElement(
+        dropdownItems.push(
+          /* @__PURE__ */ import_react156.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Connect to Snowflake",
+              onClick: () => {
+                props.setReplacingDataframeState({
+                  dataframeCreationIndex: props.dataframeCreationIndex,
+                  importState: { screen: "authenticate_to_snowflake" },
+                  params: void 0
+                });
+              }
+            }
+          )
+        );
+      }
+      dropdownItems = dropdownItems.concat([
+        /* @__PURE__ */ import_react156.default.createElement(
           DropdownItem_default,
           {
-            title: "Connect to Snowflake",
+            title: "Replace with file",
             onClick: () => {
               props.setReplacingDataframeState({
                 dataframeCreationIndex: props.dataframeCreationIndex,
-                importState: { screen: "authenticate_to_snowflake" },
+                importState: { screen: "file_browser" },
                 params: void 0
               });
             }
           }
-        );
-      } else {
-        return /* @__PURE__ */ import_react156.default.createElement(import_react156.default.Fragment, null);
-      }
+        ),
+        /* @__PURE__ */ import_react156.default.createElement(
+          DropdownItem_default,
+          {
+            title: "Replace with dataframe",
+            onClick: () => {
+              props.setReplacingDataframeState({
+                dataframeCreationIndex: props.dataframeCreationIndex,
+                importState: { screen: "dataframe_import" },
+                params: { df_names: [] }
+              });
+            }
+          }
+        )
+      ]);
+      return dropdownItems;
     };
     return /* @__PURE__ */ import_react156.default.createElement(Row_default, { justify: "space-between", align: "top", onClick: () => {
       openDropdown();
@@ -37650,33 +37680,7 @@ fig.write_html("${props.graphTabName}.html")`
         closeDropdown: () => closeDropdown(),
         width: "medium"
       },
-      getSnowflakeDropddownItemOrEmptyElement(),
-      /* @__PURE__ */ import_react156.default.createElement(
-        DropdownItem_default,
-        {
-          title: "Replace with file",
-          onClick: () => {
-            props.setReplacingDataframeState({
-              dataframeCreationIndex: props.dataframeCreationIndex,
-              importState: { screen: "file_browser" },
-              params: void 0
-            });
-          }
-        }
-      ),
-      /* @__PURE__ */ import_react156.default.createElement(
-        DropdownItem_default,
-        {
-          title: "Replace with dataframe",
-          onClick: () => {
-            props.setReplacingDataframeState({
-              dataframeCreationIndex: props.dataframeCreationIndex,
-              importState: { screen: "dataframe_import" },
-              params: { df_names: [] }
-            });
-          }
-        }
-      )
+      getUpdateImportOptionDropdownItems()
     ))));
   };
   var UpdateImportCard_default = UpdateImportCard;

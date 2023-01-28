@@ -13,7 +13,7 @@ interface CollapsibleSectionProps {
     /** 
        * @param [title] - Title to put on the column div
     */
-    title: JSX.Element;
+    title: string | JSX.Element;
     /** 
         * @param [children] - The content that is going inside of this column, to actually be displayed. All overflow will be cut off.
     */
@@ -57,8 +57,15 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
                 <Row justify='space-between' align='center' onClick={() => {setOpen(false)}}>
                     <Col>
                         <Row suppressTopBottomMargin>
-                            {props.title} &nbsp;
-                            {props.proSection && !props.isPro && <ProIcon />}
+                            {typeof props.title === 'string' && 
+                                <div className='text-header-3'>
+                                    {props.title}
+                                </div>
+                            } 
+                            {typeof props.title !== 'string' &&
+                                props.title
+                            }   
+                            &nbsp; {props.proSection && !props.isPro && <ProIcon />}
                         </Row>
                     </Col>
                     <Col>
@@ -77,8 +84,15 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <Row suppressTopBottomMargin>
-                            {props.title} &nbsp;
-                            {props.proSection && !props.isPro && <ProIcon />}
+                            {typeof props.title === 'string' && 
+                                <div className='text-header-3'>
+                                    {props.title}
+                                </div>
+                            } 
+                            {typeof props.title !== 'string' &&
+                                props.title
+                            }   
+                            &nbsp; {props.proSection && !props.isPro && <ProIcon />}
                         </Row>
                     </Col>
                     <Col>

@@ -327,7 +327,7 @@ function GraphSetupTab(
                 </Row>
                 {GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graphCreation.graph_type) && 
                     <CollapsibleSection 
-                        title={(<div className='text-header-3'>{getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + ' configuration'}</div>)}
+                        title={getGraphTypeFullName(props.graphParams.graphCreation.graph_type) + ' configuration'}
                     >
                         {GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graphCreation.graph_type) && 
                             <Row justify='space-between' align='center' title='Number of bins in histogram'>
@@ -573,7 +573,7 @@ function GraphSetupTab(
                         }
                     </CollapsibleSection>
                 }
-                <CollapsibleSection title={(<div className='text-header-3'>Facet plots</div>)}>
+                <CollapsibleSection title="Facet plots">
                     <div>
                         <Row 
                             justify='space-between' 

@@ -154,9 +154,11 @@ const UpdateImportCard = (props: {
         })
     }
 
-    const getSnowflakeDropddownItemOrEmptyElement = (): JSX.Element =>  {
+    const getUpdateImportOptionDropdownItems = (): JSX.Element[] => {
+        let dropdownItems: JSX.Element[] = []
+
         if (props.dataframeCreationData.step_type === 'snowflake_import') {
-            return (
+            dropdownItems.push(
                 <DropdownItem
                     title='Connect to Snowflake'
                     onClick={() => {
@@ -168,9 +170,32 @@ const UpdateImportCard = (props: {
                     }}
                 />
             )
-        } else {
-            return (<></>)
         }
+
+        dropdownItems = dropdownItems.concat([
+            <DropdownItem
+                title='Replace with file'
+                onClick={() => {
+                    props.setReplacingDataframeState({
+                        dataframeCreationIndex: props.dataframeCreationIndex,
+                        importState: {screen: 'file_browser'},
+                        params: undefined
+                    });
+                }}
+            />,
+            <DropdownItem
+                title='Replace with dataframe'
+                onClick={() => {
+                    props.setReplacingDataframeState({
+                        dataframeCreationIndex: props.dataframeCreationIndex,
+                        importState: {screen: 'dataframe_import'},
+                        params: {df_names: []}
+                    });
+                }}
+            />
+        ])
+
+        return dropdownItems
     }
 
     return (
@@ -201,27 +226,7 @@ const UpdateImportCard = (props: {
                         closeDropdown={() => closeDropdown()}
                         width='medium'
                     >
-                        {getSnowflakeDropddownItemOrEmptyElement()}
-                        <DropdownItem
-                            title='Replace with file'
-                            onClick={() => {
-                                props.setReplacingDataframeState({
-                                    dataframeCreationIndex: props.dataframeCreationIndex,
-                                    importState: {screen: 'file_browser'},
-                                    params: undefined
-                                });
-                            }}
-                        />
-                        <DropdownItem
-                            title='Replace with dataframe'
-                            onClick={() => {
-                                props.setReplacingDataframeState({
-                                    dataframeCreationIndex: props.dataframeCreationIndex,
-                                    importState: {screen: 'dataframe_import'},
-                                    params: {df_names: []}
-                                });
-                            }}
-                        />
+                        {getUpdateImportOptionDropdownItems()}
                     </Dropdown>
                 </div>
             </Col>

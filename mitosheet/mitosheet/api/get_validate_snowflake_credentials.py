@@ -40,6 +40,13 @@ def get_validate_snowflake_credentials_error(username: str, password: str, accou
             return e
 
 def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
+    """
+    Takes Snowflake Credentials and validates them by creating a snowflake connection. If it succeeds, it stores the credentials
+    as a global variable and returns a success object. If it fails, returns an error object.
+
+    This API call __must__ be called before the user can perform a snowflake_import or getting available options and defaults for
+    the snowflake query.
+    """
 
     if not SNOWFLAKE_CONNECTOR_IMPORTED: 
         return json.dumps({
