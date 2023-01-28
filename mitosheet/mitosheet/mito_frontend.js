@@ -37629,6 +37629,7 @@ fig.write_html("${props.graphTabName}.html")`
           /* @__PURE__ */ import_react156.default.createElement(
             DropdownItem_default,
             {
+              key: "Connect to Snowflake",
               title: "Connect to Snowflake",
               onClick: () => {
                 props.setReplacingDataframeState({
@@ -37645,6 +37646,7 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react156.default.createElement(
           DropdownItem_default,
           {
+            key: "Replace with file",
             title: "Replace with file",
             onClick: () => {
               props.setReplacingDataframeState({
@@ -37658,6 +37660,7 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react156.default.createElement(
           DropdownItem_default,
           {
+            key: "Replace with dataframe",
             title: "Replace with dataframe",
             onClick: () => {
               props.setReplacingDataframeState({

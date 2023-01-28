@@ -160,6 +160,7 @@ const UpdateImportCard = (props: {
         if (props.dataframeCreationData.step_type === 'snowflake_import') {
             dropdownItems.push(
                 <DropdownItem
+                    key='Connect to Snowflake'
                     title='Connect to Snowflake'
                     onClick={() => {
                         props.setReplacingDataframeState({
@@ -174,6 +175,7 @@ const UpdateImportCard = (props: {
 
         dropdownItems = dropdownItems.concat([
             <DropdownItem
+                key='Replace with file'
                 title='Replace with file'
                 onClick={() => {
                     props.setReplacingDataframeState({
@@ -184,6 +186,7 @@ const UpdateImportCard = (props: {
                 }}
             />,
             <DropdownItem
+                key='Replace with dataframe'
                 title='Replace with dataframe'
                 onClick={() => {
                     props.setReplacingDataframeState({
