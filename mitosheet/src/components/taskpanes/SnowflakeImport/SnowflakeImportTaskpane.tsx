@@ -115,6 +115,20 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         StepType.SnowflakeImport, 
         props.mitoAPI,
         props.analysisData,
+        undefined,
+        (newParamsOrFunction) => {
+            // When an Undo or Redo occurs, after getting the new params, use them 
+            // to load and set the available options and defaults
+            let newParams: SnowflakeImportParams | undefined = undefined
+            if (typeof newParamsOrFunction === 'function') {
+                newParams = newParamsOrFunction()
+            } else {
+                newParams = newParamsOrFunction
+            }
+            if (newParams !== undefined) {
+                void loadAndSetOptionsAndDefaults(newParams)
+            }
+        }
     )
 
     const [validCredentials, setValidCredentials] = useState(props.userProfile.snowflakeCredentials !== null)
@@ -150,7 +164,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
             setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
                 return {
                     ...prevParams,
-                    table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults.default_values
+                    table_loc_and_warehouse: availableSnowflakeOptionsAndDefaults.default_values,
                 }
             })
         }
@@ -310,7 +324,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
 
                                     return updateObjectWithPartialObject(prevParams, {query_params: {columns: newColumns}});
                                 });
-                            } }
+                            }}
                         >
                             {availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
                                 const isToggled = params.query_params.columns.includes(column);
@@ -376,7 +390,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 params.table_loc_and_warehouse.warehouse === undefined || 
                                 params.table_loc_and_warehouse.database === undefined || 
                                 params.table_loc_and_warehouse.schema === undefined ||
-                                params.table_loc_and_warehouse.table === undefined 
+                                params.table_loc_and_warehouse.table === undefined ||
+                                params.query_params.columns.length === 0
                             }
                             disabledTooltip='Fill out all required fields'
                             onClick={() => edit()}

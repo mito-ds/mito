@@ -21,7 +21,8 @@ function useSendEditOnClick<ParamType, ResultType>(
     options?: {
         allowSameParamsToReapplyTwice?: boolean,
         overwiteStepIfClickedMultipleTimes?: boolean
-    }
+    },
+    onUndoAndRedo?: (params: typeof defaultParams) => void
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
@@ -142,12 +143,19 @@ function useSendEditOnClick<ParamType, ResultType>(
 
 
         const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
-        console.log("NEW params", newParams);
         if (newParams !== undefined) {
             _setParams(newParams);
+            
+            if (onUndoAndRedo !== undefined) {
+                onUndoAndRedo(newParams)
+            }
         } else {
             _setParams(defaultParams);
             setParamsApplied(false);
+
+            if (onUndoAndRedo !== undefined) {
+                onUndoAndRedo(defaultParams)
+            }
         }
 
         // We also clear the error in this case, as this clearly was effectively applied
@@ -171,6 +179,11 @@ function useSendEditOnClick<ParamType, ResultType>(
         const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
         if (newParams !== undefined) {
             _setParams(newParams);
+
+            if (onUndoAndRedo !== undefined) {
+                onUndoAndRedo(newParams)
+            }
+
             // If we redo successfully, we also need to mark this as _nothing new_ so that
             // clicking the button does not reapply again
             setParamsApplied(true);

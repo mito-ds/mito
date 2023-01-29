@@ -33234,7 +33234,7 @@ ${finalCode}`;
   };
 
   // src/hooks/useSendEditOnClick.tsx
-  function useSendEditOnClick(defaultParams, stepType, mitoAPI, analysisData2, options) {
+  function useSendEditOnClick(defaultParams, stepType, mitoAPI, analysisData2, options, onUndoAndRedo) {
     const [params, _setParams] = (0, import_react107.useState)(defaultParams);
     const [error, setError] = (0, import_react107.useState)(void 0);
     const [loading, setLoading] = (0, import_react107.useState)(false);
@@ -33296,12 +33296,17 @@ ${finalCode}`;
         return newStepIDData;
       });
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
-      console.log("NEW params", newParams);
       if (newParams !== void 0) {
         _setParams(newParams);
+        if (onUndoAndRedo !== void 0) {
+          onUndoAndRedo(newParams);
+        }
       } else {
         _setParams(defaultParams);
         setParamsApplied(false);
+        if (onUndoAndRedo !== void 0) {
+          onUndoAndRedo(defaultParams);
+        }
       }
       setError(void 0);
     };
@@ -33315,6 +33320,9 @@ ${finalCode}`;
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
       if (newParams !== void 0) {
         _setParams(newParams);
+        if (onUndoAndRedo !== void 0) {
+          onUndoAndRedo(newParams);
+        }
         setParamsApplied(true);
       }
       setError(void 0);
@@ -38561,7 +38569,19 @@ fig.write_html("${props.graphTabName}.html")`
       () => getDefaultParams7(),
       "snowflake_import" /* SnowflakeImport */,
       props.mitoAPI,
-      props.analysisData
+      props.analysisData,
+      void 0,
+      (newParamsOrFunction) => {
+        let newParams = void 0;
+        if (typeof newParamsOrFunction === "function") {
+          newParams = newParamsOrFunction();
+        } else {
+          newParams = newParamsOrFunction;
+        }
+        if (newParams !== void 0) {
+          void loadAndSetOptionsAndDefaults(newParams);
+        }
+      }
     );
     const [validCredentials, setValidCredentials] = (0, import_react167.useState)(props.userProfile.snowflakeCredentials !== null);
     const [credentialsSectionIsOpen, setCredentialsSectionIsOpen] = (0, import_react167.useState)(props.userProfile.snowflakeCredentials === null);
@@ -38736,7 +38756,7 @@ fig.write_html("${props.graphTabName}.html")`
     ))), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-color-error" }, error), /* @__PURE__ */ import_react167.default.createElement(
       TextButton_default,
       {
-        disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0,
+        disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
         disabledTooltip: "Fill out all required fields",
         onClick: () => edit(),
         variant: "dark"
