@@ -30958,10 +30958,15 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          return void 0;
+          if (!userProfile2.isPro) {
+            return "Only available in Mito Pro and Mito Enterprise";
+          } else {
+            return void 0;
+          }
         },
         searchTerms: ["SQL", "database", "snowflake", "import"],
-        tooltip: "Import dataframe from a Snowflake data warehouse"
+        tooltip: "Import dataframe from a Snowflake data warehouse",
+        proAction: true
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
@@ -39899,8 +39904,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
     }
   };
-  var makeToolbarDropdownItem = (action, supressFocusSettingOnClose) => {
-    var _a, _b;
+  var makeToolbarDropdownItem = (action, userProfile2, supressFocusSettingOnClose) => {
     return /* @__PURE__ */ import_react205.default.createElement(
       DropdownItem_default,
       {
@@ -39909,10 +39913,17 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: action.actionFunction,
         disabled: action.isDisabled() !== void 0,
         tooltip: action.isDisabled(),
-        rightText: window.navigator.userAgent.toUpperCase().includes("MAC") ? (_a = action.displayKeyboardShortcuts) == null ? void 0 : _a.mac : (_b = action.displayKeyboardShortcuts) == null ? void 0 : _b.windows,
+        rightText: getToolbarDropdownItemRightText(action, userProfile2),
         supressFocusSettingOnClose
       }
     );
+  };
+  var getToolbarDropdownItemRightText = (action, userProfile2) => {
+    var _a, _b;
+    if (action.proAction && !userProfile2.isPro) {
+      return "Mito Pro";
+    }
+    return window.navigator.userAgent.toUpperCase().includes("MAC") ? (_a = action.displayKeyboardShortcuts) == null ? void 0 : _a.mac : (_b = action.displayKeyboardShortcuts) == null ? void 0 : _b.windows;
   };
 
   // src/components/toolbar/ToolbarButton.tsx
@@ -39965,23 +39976,23 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "large"
       },
-      makeToolbarDropdownItem(props.actions["add column" /* Add_Column */]),
-      makeToolbarDropdownItem(props.actions["rename column" /* Rename_Column */], true),
-      makeToolbarDropdownItem(props.actions["delete column" /* Delete_Column */]),
+      makeToolbarDropdownItem(props.actions["add column" /* Add_Column */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["rename column" /* Rename_Column */], props.userProfile, true),
+      makeToolbarDropdownItem(props.actions["delete column" /* Delete_Column */], props.userProfile),
       /* @__PURE__ */ import_react207.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["set column formula" /* Set_Column_Formula */], true),
-      makeToolbarDropdownItem(props.actions["set cell value" /* Set_Cell_Value */], true),
-      makeToolbarDropdownItem(props.actions["split text to column" /* Split_Text_To_Column */]),
-      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */]) : /* @__PURE__ */ import_react207.default.createElement(import_react207.default.Fragment, null),
-      makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */]),
+      makeToolbarDropdownItem(props.actions["set column formula" /* Set_Column_Formula */], props.userProfile, true),
+      makeToolbarDropdownItem(props.actions["set cell value" /* Set_Cell_Value */], props.userProfile, true),
+      makeToolbarDropdownItem(props.actions["split text to column" /* Split_Text_To_Column */], props.userProfile),
+      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */], props.userProfile) : /* @__PURE__ */ import_react207.default.createElement(import_react207.default.Fragment, null),
+      makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */], props.userProfile),
       /* @__PURE__ */ import_react207.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["filter" /* Filter */]),
-      makeToolbarDropdownItem(props.actions["sort" /* Sort */]),
-      makeToolbarDropdownItem(props.actions["change dtype" /* Change_Dtype */]),
-      makeToolbarDropdownItem(props.actions["fill na" /* Fill_Na */]),
+      makeToolbarDropdownItem(props.actions["filter" /* Filter */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["sort" /* Sort */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["change dtype" /* Change_Dtype */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["fill na" /* Fill_Na */], props.userProfile),
       /* @__PURE__ */ import_react207.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["unique values" /* Unique_Values */]),
-      makeToolbarDropdownItem(props.actions["column summary" /* Column_Summary */])
+      makeToolbarDropdownItem(props.actions["unique values" /* Unique_Values */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["column summary" /* Column_Summary */], props.userProfile)
     ));
   };
   var ToolbarColumnsDropdown_default = ToolbarColumnsDropdown;
@@ -40003,23 +40014,23 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "large"
       },
-      makeToolbarDropdownItem(props.actions["import files" /* Import_Files */]),
-      makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */]),
-      makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */]),
-      makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */]),
+      makeToolbarDropdownItem(props.actions["import files" /* Import_Files */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */], props.userProfile),
       /* @__PURE__ */ import_react208.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["export" /* Export */]),
+      makeToolbarDropdownItem(props.actions["export" /* Export */], props.userProfile),
       /* @__PURE__ */ import_react208.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["pivot" /* Pivot */]),
-      makeToolbarDropdownItem(props.actions["melt" /* Melt */]),
-      makeToolbarDropdownItem(props.actions["drop duplicates" /* Drop_Duplicates */]),
-      makeToolbarDropdownItem(props.actions["merge" /* Merge */]),
-      makeToolbarDropdownItem(props.actions["concat_dataframes" /* Concat_Dataframes */]),
-      makeToolbarDropdownItem(props.actions["transpose" /* Transpose */]),
+      makeToolbarDropdownItem(props.actions["pivot" /* Pivot */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["melt" /* Melt */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["drop duplicates" /* Drop_Duplicates */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["merge" /* Merge */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["concat_dataframes" /* Concat_Dataframes */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["transpose" /* Transpose */], props.userProfile),
       /* @__PURE__ */ import_react208.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["duplicate dataframe" /* Duplicate_Dataframe */]),
-      makeToolbarDropdownItem(props.actions["rename dataframe" /* Rename_Dataframe */], true),
-      makeToolbarDropdownItem(props.actions["delete dataframe" /* Delete_Dataframe */])
+      makeToolbarDropdownItem(props.actions["duplicate dataframe" /* Duplicate_Dataframe */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["rename dataframe" /* Rename_Dataframe */], props.userProfile, true),
+      makeToolbarDropdownItem(props.actions["delete dataframe" /* Delete_Dataframe */], props.userProfile)
     ));
   };
   var ToolbarDataframesDropdown_default = ToolbarDataframesDropdown;
@@ -40068,11 +40079,11 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
-      makeToolbarDropdownItem(props.actions["undo" /* Undo */]),
-      makeToolbarDropdownItem(props.actions["redo" /* Redo */]),
-      makeToolbarDropdownItem(props.actions["clear" /* Clear */]),
+      makeToolbarDropdownItem(props.actions["undo" /* Undo */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["redo" /* Redo */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["clear" /* Clear */], props.userProfile),
       /* @__PURE__ */ import_react210.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["copy" /* Copy */])
+      makeToolbarDropdownItem(props.actions["copy" /* Copy */], props.userProfile)
     ));
   };
   var ToolbarEditDropdown_default = ToolbarEditDropdown;
@@ -40094,12 +40105,12 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "large"
       },
-      makeToolbarDropdownItem(props.actions["set_dataframe_format" /* Set_Dataframe_Format */]),
-      makeToolbarDropdownItem(props.actions["ConditionalFormatting" /* Conditional_Formatting */]),
+      makeToolbarDropdownItem(props.actions["set_dataframe_format" /* Set_Dataframe_Format */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["ConditionalFormatting" /* Conditional_Formatting */], props.userProfile),
       /* @__PURE__ */ import_react211.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */]),
-      makeToolbarDropdownItem(props.actions["precision decrease" /* Precision_Decrease */]),
-      makeToolbarDropdownItem(props.actions["precision increase" /* Precision_Increase */])
+      makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["precision decrease" /* Precision_Decrease */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["precision increase" /* Precision_Increase */], props.userProfile)
     ));
   };
   var ToolbarFormatDropdown_default = ToolbarFormatDropdown;
@@ -40121,11 +40132,11 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
-      makeToolbarDropdownItem(props.actions["graph" /* Graph */]),
+      makeToolbarDropdownItem(props.actions["graph" /* Graph */], props.userProfile),
       /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      makeToolbarDropdownItem(props.actions["duplicate graph" /* Duplicate_Graph */]),
-      makeToolbarDropdownItem(props.actions["rename graph" /* Rename_Graph */]),
-      makeToolbarDropdownItem(props.actions["delete graph" /* Delete_Graph */])
+      makeToolbarDropdownItem(props.actions["duplicate graph" /* Duplicate_Graph */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["rename graph" /* Rename_Graph */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["delete graph" /* Delete_Graph */], props.userProfile)
     ));
   };
   var ToolbarGraphsDropdown_default = ToolbarGraphsDropdown;
@@ -40150,7 +40161,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "large"
       },
       allActions.map((action) => {
-        return makeToolbarDropdownItem(action);
+        return makeToolbarDropdownItem(action, props.userProfile);
       })
     ));
   };
@@ -40173,8 +40184,8 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "large"
       },
-      makeToolbarDropdownItem(props.actions["delete row" /* Delete_Row */]),
-      makeToolbarDropdownItem(props.actions["promote row to header" /* Promote_Row_To_Header */])
+      makeToolbarDropdownItem(props.actions["delete row" /* Delete_Row */], props.userProfile),
+      makeToolbarDropdownItem(props.actions["promote row to header" /* Promote_Row_To_Header */], props.userProfile)
     ));
   };
   var ToolbarRowsDropdown_tsx_default = ToolbarRowsDropdown;
@@ -40196,7 +40207,7 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
-      makeToolbarDropdownItem(props.actions["fullscreen" /* Fullscreen */])
+      makeToolbarDropdownItem(props.actions["fullscreen" /* Fullscreen */], props.userProfile)
     ));
   };
   var ToolbarViewDropdown_default = ToolbarViewDropdown;
@@ -40218,7 +40229,7 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
-      makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */])
+      makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */], props.userProfile)
     ));
   };
   var ToolbarCodeDropdown_default = ToolbarCodeDropdown;
@@ -40230,14 +40241,16 @@ fig.write_html("${props.graphTabName}.html")`
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Dataframes", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarDataframesDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Columns", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarColumnsDropdown_default,
@@ -40252,42 +40265,48 @@ fig.write_html("${props.graphTabName}.html")`
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Graphs", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarGraphsDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Format", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarFormatDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Code", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarCodeDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "View", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarViewDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     )), /* @__PURE__ */ import_react217.default.createElement(ToolbarDropdownSelector_default, { type: "Help", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react217.default.createElement(
       ToolbarHelpDropdown_default,
       {
         actions: props.actions,
         uiState: props.uiState,
-        setUIState: props.setUIState
+        setUIState: props.setUIState,
+        userProfile: props.userProfile
       }
     ))), /* @__PURE__ */ import_react217.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react217.default.createElement(
       GetSupportButton_default,

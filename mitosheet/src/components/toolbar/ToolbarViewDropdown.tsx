@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState } from '../../types';
+import { Action, ActionEnum, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
 
@@ -10,6 +10,7 @@ interface ToolbarViewDropdownProps {
     actions: Record<ActionEnum, Action>;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    userProfile: UserProfile
 }
 
 /**
@@ -34,7 +35,7 @@ const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
                 })}
                 width='medium'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Fullscreen])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Fullscreen], props.userProfile)}
             </Dropdown>
         </>
     );

@@ -55,6 +55,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Dataframes' uiState={props.uiState} setUIState={props.setUIState}>
@@ -62,6 +63,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Columns' uiState={props.uiState} setUIState={props.setUIState}>
@@ -77,6 +79,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Graphs' uiState={props.uiState} setUIState={props.setUIState}>
@@ -84,6 +87,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
@@ -91,6 +95,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Code' uiState={props.uiState} setUIState={props.setUIState}>
@@ -98,6 +103,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='View' uiState={props.uiState} setUIState={props.setUIState}>
@@ -105,6 +111,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Help' uiState={props.uiState} setUIState={props.setUIState}>
@@ -112,6 +119,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                 </div>

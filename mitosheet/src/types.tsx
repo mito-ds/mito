@@ -988,6 +988,9 @@ export interface Action {
         mac: string,
         windows: string
     }
+
+    // If this action is only available for pro users
+    proAction?: boolean
 }
 
 export enum GraphSidebarTab {
