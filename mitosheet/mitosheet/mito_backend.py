@@ -40,6 +40,7 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_USER_EMAIL)
 from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
 from mitosheet.utils import get_new_id
+from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 
 class MitoBackend():
@@ -115,7 +116,8 @@ class MitoBackend():
             'isLocalDeployment': self.is_local_deployment,
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
-            'mitoConfig': self.steps_manager.mito_config.get_mito_config()
+            'mitoConfig': self.steps_manager.mito_config.get_mito_config(),
+            'snowflakeCredentials': get_cached_snowflake_credentials()
         })
 
 

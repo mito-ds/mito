@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 
 import { ChecklistID } from "../components/checklists/checklistData";
+import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/AuthenticateToSnowflakeCard";
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
@@ -10,7 +11,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
-import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeCredentialsValidityCheckResult, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
+import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
@@ -693,13 +694,12 @@ export default class MitoAPI {
     }
 
     
-    async getAvailableSnowflakeOptionsAndDefaults(snowflakeCredentials: SnowflakeCredentials, table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse): Promise<AvailableSnowflakeOptionsAndDefaults | undefined> {
+    async getAvailableSnowflakeOptionsAndDefaults(table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse): Promise<AvailableSnowflakeOptionsAndDefaults | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_available_snowflake_options_and_defaults',
             'params': {
-                'credentials': snowflakeCredentials,
                 'table_loc_and_warehouse': table_loc_and_warehouse
             }
         }, {})

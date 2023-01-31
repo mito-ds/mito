@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
+from mitosheet.step_performers.import_steps.snowflake_import import SnowflakeImportStepPerformer
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
@@ -76,6 +77,15 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
             }
         } for range_import in params['range_imports']]
 
+    if step_type == SnowflakeImportStepPerformer.step_type():
+        return [{
+            'step_type': step_type,
+            'params': {
+                'table_loc_and_warehouse': params['table_loc_and_warehouse'],
+                'query_params': params['query_params']
+            }
+        }]
+
     return []
 
 
@@ -103,7 +113,12 @@ def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any],
             {
                 step_type: 'excel_range_import'
                 params: ExcelRangeImportParams
-            })[]
+            } |
+            {
+                step_type: 'snowflake_import'
+                params: SnowflakeImportParams
+            }  
+            )[]
         }
 	]
 

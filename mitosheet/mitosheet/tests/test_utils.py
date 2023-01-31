@@ -512,7 +512,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def snowflake_import(
             self, 
-            credentials: Any,
             table_loc_and_warehouse: Any,
             query_params: Any,
         ) -> bool:
@@ -523,7 +522,6 @@ class MitoWidgetTestWrapper:
                 'type': 'snowflake_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'credentials': credentials,
                     'table_loc_and_warehouse': table_loc_and_warehouse,
                     'query_params': query_params,
                 }

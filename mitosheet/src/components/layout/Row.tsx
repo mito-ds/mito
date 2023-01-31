@@ -84,7 +84,8 @@ const Row = (props: RowProps): JSX.Element => {
                 ...props.style,
                 justifyContent: props.justify,
                 alignItems: props.align,
-            }}>
+            }}
+        >
             {props.children}
         </div>
     )

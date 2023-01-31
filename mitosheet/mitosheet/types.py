@@ -142,11 +142,6 @@ if sys.version_info[:3] > (3, 8, 0):
     class SnowflakeQueryParams(TypedDict):
         columns: List[str]
         limit: Optional[int]
-
-    class SnowflakeImportParams(TypedDict):
-        credentials: SnowflakeCredentials
-        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse
-        query_params: SnowflakeQueryParams
         
     class CodeSnippetEnvVars(TypedDict):
         MITO_CONFIG_CODE_SNIPPETS_VERSION: str
@@ -190,7 +185,6 @@ else:
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
     SnowflakeTableLocationAndWarehouseOptional = Any #type:ignore
     SnowflakeQueryParams = Any # type:ignore
-    SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaReference = Any # type:ignore

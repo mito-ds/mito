@@ -39,6 +39,8 @@ export type ImportState = {
     filePath: string
 } | {
     screen: 'dataframe_import'
+} | {
+    screen: 'authenticate_to_snowflake'
 }
 
 

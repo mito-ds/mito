@@ -16,7 +16,7 @@ import ClearIcon from '../icons/ClearIcon';
 import FormatIcon from '../icons/FormatIcon';
 import DtypeIcon from '../icons/DtypeIcon';
 import DropdownItem from '../elements/DropdownItem';
-import { Action } from '../../types';
+import { Action, UserProfile } from '../../types';
 import MoreIcon from '../icons/MoreIcon';
 import LessIcon from '../icons/LessIcon';
 
@@ -96,7 +96,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
  * a function and not a component itself because the dropdown _expects_ to get
  * a DropdownItem as it's child, so we cannot wrap this in another component
  */
-export const makeToolbarDropdownItem = (action: Action, supressFocusSettingOnClose?: boolean): JSX.Element => {
+export const makeToolbarDropdownItem = (action: Action, userProfile: UserProfile, supressFocusSettingOnClose?: boolean): JSX.Element => {
     return (
         <DropdownItem 
             key={action.longTitle}
@@ -104,12 +104,18 @@ export const makeToolbarDropdownItem = (action: Action, supressFocusSettingOnClo
             onClick={action.actionFunction}
             disabled={action.isDisabled() !== undefined}                   
             tooltip={action.isDisabled()}     
-            rightText={
-                window.navigator.userAgent.toUpperCase().includes('MAC')
-                    ? action.displayKeyboardShortcuts?.mac
-                    : action.displayKeyboardShortcuts?.windows
-            }    
+            rightText={getToolbarDropdownItemRightText(action, userProfile)}
             supressFocusSettingOnClose={supressFocusSettingOnClose}
         />
     )
+}
+
+const getToolbarDropdownItemRightText = (action: Action, userProfile: UserProfile): string | undefined => {
+    if (action.proAction && !userProfile.isPro) {
+        return 'Mito Pro'
+    }
+
+    return window.navigator.userAgent.toUpperCase().includes('MAC')
+        ? action.displayKeyboardShortcuts?.mac
+        : action.displayKeyboardShortcuts?.windows
 }
