@@ -1073,7 +1073,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef11(initialValue) {
+          function useRef12(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1652,7 +1652,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
           exports.useReducer = useReducer;
-          exports.useRef = useRef11;
+          exports.useRef = useRef12;
           exports.useState = useState52;
           exports.version = ReactVersion;
         })();
@@ -33243,6 +33243,8 @@ ${finalCode}`;
     const [params, _setParams] = (0, import_react107.useState)(defaultParams);
     const [error, setError] = (0, import_react107.useState)(void 0);
     const [loading, setLoading] = (0, import_react107.useState)(false);
+    const paramsRef = (0, import_react107.useRef)();
+    paramsRef.current = params;
     const [stepIDData, setStepIDData] = (0, import_react107.useState)({
       stepIDs: [],
       currStepIDIndex: 0
@@ -33310,9 +33312,7 @@ ${finalCode}`;
         _setParams(defaultParams);
         setParamsApplied(false);
         if (onUndoAndRedo !== void 0) {
-          setTimeout(() => {
-            onUndoAndRedo(params);
-          }, 100);
+          onUndoAndRedo(paramsRef.current);
         }
       }
       setError(void 0);

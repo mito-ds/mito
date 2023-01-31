@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { AnalysisData } from "../types";
 import { isMitoError } from "../utils/errors";
@@ -37,6 +37,15 @@ function useSendEditOnClick<ParamType, ResultType>(
     const [params, _setParams] = useState(defaultParams);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+
+    // Make paramsRef always have the current params so that we can 
+    // access the current params in our functions. We need this in the 
+    // refreshOnUndo function so we can pass the current params to the 
+    // onUndoAndRedo function. Without it, we don't get the default params
+    // after setting it. See this SO post for more detail
+    // https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
+    const paramsRef = useRef<ParamType | undefined>();
+    paramsRef.current = params;
     
     // We store a list of all the step IDs that have been applied or
     // are sitting inside of the redo buffer waiting to reapplied. We
@@ -154,13 +163,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             setParamsApplied(false);
 
             if (onUndoAndRedo !== undefined) {
-                // Note: There is a race condition here between setting the params back to the default 
-                // and passing them to onUndoAndRedo. To ensure we get the new default params, we use this 
-                // ugly hack.
-                setTimeout(() => {
-                    onUndoAndRedo(params);
-                }, 100)
-               
+                onUndoAndRedo(paramsRef.current);
             }
         }
 
