@@ -79,7 +79,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
            # If we've created the connection, then make sure to close it
            con.close() # type: ignore
 
-        new_df_name = get_valid_dataframe_name(post_state.df_names, table)
+        new_df_name = get_valid_dataframe_name(post_state.df_names, table.lower())
         post_state.add_df_to_state(
             df, 
             DATAFRAME_SOURCE_IMPORTED, 

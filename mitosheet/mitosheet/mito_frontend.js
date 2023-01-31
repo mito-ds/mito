@@ -33310,7 +33310,9 @@ ${finalCode}`;
         _setParams(defaultParams);
         setParamsApplied(false);
         if (onUndoAndRedo !== void 0) {
-          onUndoAndRedo(defaultParams);
+          setTimeout(() => {
+            onUndoAndRedo(params);
+          }, 100);
         }
       }
       setError(void 0);
@@ -38576,13 +38578,7 @@ fig.write_html("${props.graphTabName}.html")`
       props.mitoAPI,
       props.analysisData,
       void 0,
-      (newParamsOrFunction) => {
-        let newParams = void 0;
-        if (typeof newParamsOrFunction === "function") {
-          newParams = newParamsOrFunction();
-        } else {
-          newParams = newParamsOrFunction;
-        }
+      (newParams) => {
         if (newParams !== void 0) {
           void loadAndSetOptionsAndDefaults(newParams);
         }
@@ -38635,6 +38631,8 @@ fig.write_html("${props.graphTabName}.html")`
         },
         onInvalidCredentials: () => {
           setValidCredentials(false);
+          setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams7());
+          setAvailableSnowflakeOptionsAndDefaults(void 0);
         },
         isOpen: credentialsSectionIsOpen
       }
@@ -38706,7 +38704,7 @@ fig.write_html("${props.graphTabName}.html")`
         }) : []
       ))),
       loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null))
-    ), /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(
+    ), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react167.default.createElement("div", null, /* @__PURE__ */ import_react167.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react167.default.createElement(
       MultiToggleBox_default,
       {
         disabled: loadingAvailableOptionsAndDefaults,
@@ -38758,7 +38756,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       }
-    ))), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-color-error" }, error), /* @__PURE__ */ import_react167.default.createElement(
+    ))), executingQuery && /* @__PURE__ */ import_react167.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react167.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react167.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react167.default.createElement("p", { className: "text-color-error" }, error)), /* @__PURE__ */ import_react167.default.createElement(Row_default, null, /* @__PURE__ */ import_react167.default.createElement(
       TextButton_default,
       {
         disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,

@@ -116,15 +116,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         props.mitoAPI,
         props.analysisData,
         undefined,
-        (newParamsOrFunction) => {
-            // When an Undo or Redo occurs, after getting the new params, use them 
-            // to load and set the available options and defaults
-            let newParams: SnowflakeImportParams | undefined = undefined
-            if (typeof newParamsOrFunction === 'function') {
-                newParams = newParamsOrFunction()
-            } else {
-                newParams = newParamsOrFunction
-            }
+        (newParams) => {
             if (newParams !== undefined) {
                 void loadAndSetOptionsAndDefaults(newParams)
             }
@@ -188,6 +180,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     }}      
                     onInvalidCredentials={() => {
                         setValidCredentials(false)
+                        setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams())
+                        setAvailableSnowflakeOptionsAndDefaults(undefined)
                     }}
                     isOpen={credentialsSectionIsOpen}          
                 />
@@ -306,11 +300,11 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         </Row>
                     }
                 </CollapsibleSection>
-                <Row justify="start">
-                    <p className="text-header-3">Columns to Import</p>
-                </Row>
                 {availableSnowflakeOptionsAndDefaults?.type === 'success' &&
                     <div>
+                        <Row justify="start">
+                            <p className="text-header-3">Columns to Import</p>
+                        </Row>
                         <MultiToggleBox
                             disabled={loadingAvailableOptionsAndDefaults}
                             height={'medium'}
@@ -384,23 +378,26 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 {error}
                             </p>
                         }
-                        <TextButton
-                            disabled={
-                                !validCredentials ||
-                                params.table_loc_and_warehouse.warehouse === undefined || 
-                                params.table_loc_and_warehouse.database === undefined || 
-                                params.table_loc_and_warehouse.schema === undefined ||
-                                params.table_loc_and_warehouse.table === undefined ||
-                                params.query_params.columns.length === 0
-                            }
-                            disabledTooltip='Fill out all required fields'
-                            onClick={() => edit()}
-                            variant='dark'
-                        >
-                            Run Query
-                        </TextButton>
                     </div>
                 }
+                <Row>
+                    <TextButton
+                        disabled={
+                            !validCredentials ||
+                            params.table_loc_and_warehouse.warehouse === undefined || 
+                            params.table_loc_and_warehouse.database === undefined || 
+                            params.table_loc_and_warehouse.schema === undefined ||
+                            params.table_loc_and_warehouse.table === undefined ||
+                            params.query_params.columns.length === 0
+                        }
+                        disabledTooltip='Fill out all required fields'
+                        onClick={() => edit()}
+                        variant='dark'
+                    >
+                        Run Query
+                    </TextButton>
+                </Row>
+                
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

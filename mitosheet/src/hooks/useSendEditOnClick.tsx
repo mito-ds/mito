@@ -22,7 +22,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         allowSameParamsToReapplyTwice?: boolean,
         overwiteStepIfClickedMultipleTimes?: boolean
     },
-    onUndoAndRedo?: (params: typeof defaultParams) => void
+    onUndoAndRedo?: (params: ParamType | undefined) => void
 ): {
         params: ParamType | undefined, // If this is undefined, no messages will be sent to the backend
         setParams: React.Dispatch<React.SetStateAction<ParamType>>, 
@@ -142,7 +142,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         })
 
 
-        const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
+        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
         if (newParams !== undefined) {
             _setParams(newParams);
             
@@ -154,7 +154,13 @@ function useSendEditOnClick<ParamType, ResultType>(
             setParamsApplied(false);
 
             if (onUndoAndRedo !== undefined) {
-                onUndoAndRedo(defaultParams)
+                // Note: There is a race condition here between setting the params back to the default 
+                // and passing them to onUndoAndRedo. To ensure we get the new default params, we use this 
+                // ugly hack.
+                setTimeout(() => {
+                    onUndoAndRedo(params);
+                }, 100)
+               
             }
         }
 
@@ -176,7 +182,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             return newStepIDData;
         })
 
-        const newParams = await mitoAPI.getParams<typeof defaultParams>(stepType, stepID, {});
+        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
         if (newParams !== undefined) {
             _setParams(newParams);
 

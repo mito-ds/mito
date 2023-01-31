@@ -18,7 +18,7 @@ except ImportError:
     SNOWFLAKE_CONNECTOR_IMPORTED = False
 
 # Global variable used to cache the snowflake credentials so that users
-# only need to eneter credentials once were kernel's lifespan. This global variable is accessed 
+# only need to enter credentials once per kernel's lifespan. This global variable is accessed 
 # by all mitosheets in the notebook! Caching the credentials also allows us to not pass 
 # the snowflake credentials to the step performer, which ensures they don't get written into the analysis json.
 cached_snowflake_credentials: Optional[SnowflakeCredentials] = None

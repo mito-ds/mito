@@ -56,7 +56,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return all_code, ['import snowflake.connector']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs) - 1]
+        return [i for i in range(len(self.post_state.dfs) - len(self.df_names), len(self.post_state.dfs))]
 
 
     def _combine_right_with_snowflake_import_code_chunk(self, other_code_chunk: "SnowflakeImportCodeChunk") -> Optional["SnowflakeImportCodeChunk"]:

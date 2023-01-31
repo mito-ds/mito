@@ -353,3 +353,21 @@ def test_optimized_snowflake_imports():
 
     assert len(mito.transpiled_code) == 12
 
+
+@requires_snowflake_dependencies_and_credentials
+@python_post_3_6_only
+def test_do_not_delete_both_snowflake_imports_when_one_deleted():
+    mito = create_mito_wrapper_dfs()
+
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
+
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
+
+    mito.delete_dataframe(1)
+
+    assert mito.dfs[0].equals(expected_df)
+    assert len(mito.dfs) == 1
+
+
