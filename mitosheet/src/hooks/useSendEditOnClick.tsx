@@ -38,11 +38,13 @@ function useSendEditOnClick<ParamType, ResultType>(
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
 
-    // Make paramsRef always have the current params so that we can 
-    // access the current params in our functions. We need this in the 
+    // paramsRef always has the current params so that we can 
+    // access them in functions directly after we call _setParams. We need this in the 
     // refreshOnUndo function so we can pass the current params to the 
-    // onUndoAndRedo function. Without it, we don't get the default params
-    // after setting it. See this SO post for more detail
+    // onUndoAndRedo function. This is because I can't get the type system to 
+    // handle the defaultParams type properly such that I can use it to either access the params or create them
+    // depending on whether the defaultParams is the param itself or a function to create them.
+    // Without the ref, we end up accessing the old params. See this SO post for more detail
     // https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
     const paramsRef = useRef<ParamType | undefined>();
     paramsRef.current = params;
