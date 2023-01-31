@@ -1073,7 +1073,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef12(initialValue) {
+          function useRef11(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1652,7 +1652,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
           exports.useReducer = useReducer;
-          exports.useRef = useRef12;
+          exports.useRef = useRef11;
           exports.useState = useState52;
           exports.version = ReactVersion;
         })();
@@ -33243,8 +33243,6 @@ ${finalCode}`;
     const [params, _setParams] = (0, import_react107.useState)(defaultParams);
     const [error, setError] = (0, import_react107.useState)(void 0);
     const [loading, setLoading] = (0, import_react107.useState)(false);
-    const paramsRef = (0, import_react107.useRef)();
-    paramsRef.current = params;
     const [stepIDData, setStepIDData] = (0, import_react107.useState)({
       stepIDs: [],
       currStepIDIndex: 0
@@ -33312,7 +33310,7 @@ ${finalCode}`;
         _setParams(defaultParams);
         setParamsApplied(false);
         if (onUndoAndRedo !== void 0) {
-          onUndoAndRedo(paramsRef.current);
+          onUndoAndRedo(defaultParams());
         }
       }
       setError(void 0);
@@ -33475,7 +33473,9 @@ ${finalCode}`;
   // src/components/taskpanes/DataframeImport/DataframeImportTaskpane.tsx
   var DataframeImportTaskpane = (props) => {
     const { params, setParams, edit } = useSendEditOnClick_default(
-      { df_names: [] },
+      () => {
+        return { df_names: [] };
+      },
       "dataframe_import" /* DataframeImport */,
       props.mitoAPI,
       props.analysisData,
@@ -37279,7 +37279,7 @@ fig.write_html("${props.graphTabName}.html")`
   var SplitTextToColumnsTaskpane = (props) => {
     var _a, _b;
     const { params, setParams, loading, edit, editApplied, result } = useSendEditOnClick_default(
-      getDefaultParams6(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex),
+      () => getDefaultParams6(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex),
       "split_text_to_columns" /* SplitTextToColumns */,
       props.mitoAPI,
       props.analysisData
@@ -38619,7 +38619,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: "Import from Snowflake",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react167.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react167.default.createElement(
+    ), /* @__PURE__ */ import_react167.default.createElement(DefaultTaskpaneBody_default, { userProfile: props.userProfile, requiresPro: true }, /* @__PURE__ */ import_react167.default.createElement(
       AuthenticateToSnowflakeCard_default,
       {
         mitoAPI: props.mitoAPI,
@@ -40379,6 +40379,13 @@ fig.write_html("${props.graphTabName}.html")`
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
+            });
+          });
+        } }),
+        /* @__PURE__ */ import_react217.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
             });
           });
         } })

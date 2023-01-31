@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { AnalysisData } from "../types";
 import { isMitoError } from "../utils/errors";
@@ -14,7 +14,7 @@ import { useEffectOnUndo } from "./useEffectOnUndo";
     2. If you perform an action, you can press undo to undo it. 
 */
 function useSendEditOnClick<ParamType, ResultType>(
-    defaultParams: ParamType | undefined | (() => ParamType | undefined),
+    defaultParams: (() => ParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
@@ -37,17 +37,6 @@ function useSendEditOnClick<ParamType, ResultType>(
     const [params, _setParams] = useState(defaultParams);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
-
-    // paramsRef always has the current params so that we can 
-    // access them in functions directly after we call _setParams. We need this in the 
-    // refreshOnUndo function so we can pass the current params to the 
-    // onUndoAndRedo function. This is because I can't get the type system to 
-    // handle the defaultParams type properly such that I can use it to either access the params or create them
-    // depending on whether the defaultParams is the param itself or a function to create them.
-    // Without the ref, we end up accessing the old params. See this SO post for more detail
-    // https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
-    const paramsRef = useRef<ParamType | undefined>();
-    paramsRef.current = params;
     
     // We store a list of all the step IDs that have been applied or
     // are sitting inside of the redo buffer waiting to reapplied. We
@@ -165,7 +154,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             setParamsApplied(false);
 
             if (onUndoAndRedo !== undefined) {
-                onUndoAndRedo(paramsRef.current);
+                onUndoAndRedo(defaultParams());
             }
         }
 
