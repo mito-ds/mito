@@ -83,7 +83,7 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                                             />
                                         }
                                     </th>
-                                    <th>
+                                    <th title={value}>
                                         {valueToDisplay}
                                     </th>
                                 </tr>
