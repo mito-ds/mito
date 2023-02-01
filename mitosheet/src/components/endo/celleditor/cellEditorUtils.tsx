@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, Formula, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { ColumnHeader, ColumnID, EditorState, Formula, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
@@ -16,9 +16,11 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
         if (isSelectionEntireSelectedColumn(selection)) {
             const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
             entireSelectedColumns.forEach((columnID) => {
-                const columnHeader = sheetData.columnIDsMap[columnID];
-                const formulaIndexLabel = sheetData.index[rowIndex];
-                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+                const columnHeader: ColumnHeader | undefined = sheetData.columnIDsMap[columnID];
+                const formulaIndexLabel: IndexLabel | undefined = sheetData.index[rowIndex];
+                if (columnHeader !== undefined && formulaIndexLabel !== undefined) {
+                    columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+                }
             })
             return;
         }
