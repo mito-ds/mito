@@ -12,8 +12,8 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union, Tuple, Any
+import pandas as pd
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -204,6 +204,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaAndLocation(TypedDict):
         frontend_formula: FrontendFormula
         location: FormulaAppliedToType
+        index: List[Any]
 
 else:
     FrontendFormulaAndLocation = Any # type:ignore
