@@ -79,8 +79,6 @@ def build_args_code(
 
 class PivotCodeChunk(CodeChunk):
 
-    
-
     def __init__(
         self, 
         prev_state: State, 

@@ -11,6 +11,7 @@ import json
 import pandas as pd
 import pytest
 import os
+from mitosheet.types import SnowflakeCredentials
 from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
@@ -22,11 +23,11 @@ PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
 PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
 PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
 
-TEST_SNOWFLAKE_CREDENTIALS = {
+TEST_SNOWFLAKE_CREDENTIALS: SnowflakeCredentials = {
     'type': 'username/password', 
-    'username': PYTEST_SNOWFLAKE_USERNAME, 
-    'password': PYTEST_SNOWFLAKE_PASSWORD, 
-    'account': PYTEST_SNOWFLAKE_ACCOUNT
+    'username': PYTEST_SNOWFLAKE_USERNAME or '', 
+    'password': PYTEST_SNOWFLAKE_PASSWORD or '', 
+    'account': PYTEST_SNOWFLAKE_ACCOUNT or ''
 }
 
 TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE = {
