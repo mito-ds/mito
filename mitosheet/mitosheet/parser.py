@@ -20,7 +20,7 @@ from mitosheet.errors import make_invalid_formula_error
 from mitosheet.sheet_functions.types.utils import (is_datetime_dtype,
                                                    is_number_dtype,
                                                    is_string_dtype)
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, IndexLabel
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import (ColumnHeader, FrontendFormula,
@@ -505,7 +505,7 @@ def replace_column_headers_and_indexes(
         string_matches: List,
         df: pd.DataFrame,
         df_name: str
-    ) -> Tuple[str, Set[ColumnHeader]]:
+    ) -> Tuple[str, Set[ColumnHeader], Set[IndexLabel]]:
     """
     Returns a modified formula, where:
     1. column headers have been replaced with references to the dataframe
@@ -524,6 +524,7 @@ def replace_column_headers_and_indexes(
     )
 
     column_headers = set()
+    index_labels = set()
     
     # Then, go through from the end to the start, and actually replace all the column headers
     # and remove all of the index labels
@@ -556,10 +557,13 @@ def replace_column_headers_and_indexes(
 
             formula = formula[:start] + replace_string + formula[end:]
         elif match_type == INDEX_LABEL_MATCH_TYPE:
+            index_label = match['parsed']
+            index_labels.add(index_label)
             # Just remove the index label
             formula = formula[:start] + formula[end:]
+
         
-    return formula, column_headers
+    return formula, column_headers, index_labels
 
 def replace_functions(
         formula: str,
@@ -613,7 +617,7 @@ def parse_formula(
         df_name: str='df',
         throw_errors: bool=True,
         include_df_set: bool=True,
-    ) -> Tuple[str, Set[str], Set[ColumnHeader]]:
+    ) -> Tuple[str, Set[str], Set[ColumnHeader], Set[IndexLabel]]:
     """
     Returns a representation of the formula that is easy to handle, specifically
     by returning (python_code, functions, column_header_dependencies), where column_headers
@@ -624,7 +628,7 @@ def parse_formula(
     """
     # If the column doesn't have a formula, then there are no dependencies, duh!
     if formula is None or formula == '':
-        return '', set(), set()
+        return '', set(), set(), set()
 
     if throw_errors:
         check_common_errors(formula, df)
@@ -638,7 +642,7 @@ def parse_formula(
     string_matches = get_string_matches(formula)
 
     # Then, we get the column header matches, as well as replace them with valid python
-    code_with_column_headers, column_header_dependencies = replace_column_headers_and_indexes(
+    code_with_column_headers, column_header_dependencies, index_label_dependencies = replace_column_headers_and_indexes(
         formula, 
         formula_label,
         string_matches,
@@ -666,7 +670,7 @@ def parse_formula(
 
     else:
         final_code = f'{code_with_functions}'
-    return final_code, functions, column_header_dependencies
+    return final_code, functions, column_header_dependencies, index_label_dependencies
 
 
 def get_frontend_formula(

@@ -23,6 +23,7 @@ PrimativeColumnHeader = Union[int, float, bool, str, Optional[str]]
 MultiLevelColumnHeader = Union[Tuple[PrimativeColumnHeader, ...], List[PrimativeColumnHeader]]
 # To a tuple of primative types (TODO: does this nest further?).
 ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
+IndexLabel = Any
 
 # To resolve circular dependencies, we create a StepsManagerType here
 if TYPE_CHECKING:

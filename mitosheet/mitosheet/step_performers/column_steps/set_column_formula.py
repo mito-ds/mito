@@ -80,7 +80,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Then we try and parse the formula
-        _, new_functions, _ = parse_formula(
+        _, new_functions, _, _ = parse_formula(
             new_formula, 
             column_header,
             formula_label,
@@ -249,7 +249,7 @@ def exec_column_formula(
         return
 
     column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    python_code, _, _ = parse_formula(
+    python_code, _, _, _ = parse_formula(
         spreadsheet_code, 
         column_header,
         formula_label,

@@ -797,7 +797,8 @@ See documentation here: https://docs.pytest.org/en/latest/parametrize.html#param
 PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
-    assert parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) == \
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
+    assert (code, funcs, cols) == \
         (
             python_code, 
             functions, 
