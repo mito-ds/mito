@@ -1,12 +1,12 @@
 // Copyright (c) Mito
 import React from 'react';
 import { SheetData, UIState } from '../../types';
-import { addIfAbsent, removeIfPresent, toggleInArray } from '../../utils/arrays';
+import { toggleInArray } from '../../utils/arrays';
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
 import { Height } from './sizes.d';
 
-interface DataframeMultiSelectProps {
+interface MultiToggleDataframesProps {
     sheetDataArray: SheetData[];
     selectedSheetIndexes: number[];
     onChange: (newSelectedSheetIndexes: number[]) => void;
@@ -15,10 +15,10 @@ interface DataframeMultiSelectProps {
 }
 
 /**
- * The DataframeMultiSelect component allows the user to toggle and select multiple
+ * The MultiToggleDataframe component allows the user to toggle and select multiple
  * different dataframes at once
  */
-const DataframeMultiSelect = (props: DataframeMultiSelectProps): JSX.Element => {
+const MultiToggleDataframes = (props: MultiToggleDataframesProps): JSX.Element => {
 
     const selectedSheetIndexes = [...props.selectedSheetIndexes].sort()
 
@@ -26,19 +26,9 @@ const DataframeMultiSelect = (props: DataframeMultiSelectProps): JSX.Element => 
         <MultiToggleBox
             width='block'
             height={props.height || 'small'}
-            toggleAllIndexes={(indexesToToggle, newToggle) => {
-                // We make the assumption that the order of the sheets in the MultiToggleBox
-                // is the same as the order in the sheet. 
-                const newSelectedSheetIndexes = [...selectedSheetIndexes]
-                indexesToToggle.forEach(sheetIndex => {
-                    if (newToggle) {
-                        addIfAbsent(newSelectedSheetIndexes, sheetIndex)
-                    } else {
-                        removeIfPresent(newSelectedSheetIndexes, sheetIndex)
-                    }
-                })
-                newSelectedSheetIndexes.sort() // Make sure these are in the right order;
-                props.onChange(newSelectedSheetIndexes);
+            onToggleAll={(newIndexes) => {
+                newIndexes.sort() // Make sure these are in the right order;
+                props.onChange(newIndexes);
             }}
         >
             {props.sheetDataArray.map((sheetData, index) => {
@@ -63,4 +53,4 @@ const DataframeMultiSelect = (props: DataframeMultiSelectProps): JSX.Element => 
     )
 }
 
-export default DataframeMultiSelect;
+export default MultiToggleDataframes;

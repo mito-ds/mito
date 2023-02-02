@@ -92,7 +92,7 @@ const MultiToggleBox = (props: {
     /** 
         * @param [toggleAllIndexes] - If you want to toggle mulitple indexes at once, you can with this function
     */
-    toggleAllIndexes?: (indexesToToggle: number[], newValue: boolean) => void;
+    onToggleAll?: (newSelectedIndexes: number[]) => void;
     /** 
         * @param [height] - Height of the MultiToggleBox
     */
@@ -222,7 +222,7 @@ const MultiToggleBox = (props: {
     });
 
 
-    const { toggleAllIndexes } = props;
+    const { onToggleAll: toggleAllIndexes } = props;
 
     return (
         <div className={classNames('multi-toggle-box-container', heightClass, widthClass, props.className)}>
@@ -260,7 +260,12 @@ const MultiToggleBox = (props: {
                             if (props.disabled) {
                                 return;
                             }
-                            toggleAllIndexes(nonDisabledDisplayedIndexes, !displayedNonDisabledAllToggled)
+
+                            if (!displayedNonDisabledAllToggled) {
+                                toggleAllIndexes(nonDisabledDisplayedIndexes)
+                            } else {
+                                toggleAllIndexes([])
+                            }
                         }}
                     >
                         <input

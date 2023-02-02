@@ -4,12 +4,10 @@
 import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
-import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DataframeSelect from '../../elements/DataframeSelect';
 import DropdownItem from '../../elements/DropdownItem';
-import MultiToggleBox from '../../elements/MultiToggleBox';
-import MultiToggleItem from '../../elements/MultiToggleItem';
+import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';
 import TextButton from '../../elements/TextButton';
 import Col from '../../layout/Col';
@@ -87,8 +85,6 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    const columnIDsAndHeaders: [ColumnID, ColumnHeader][] = props.sheetDataArray[params.sheet_index]?.data.map(c => [c.columnID, c.columnHeader]) || [];
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
@@ -159,59 +155,18 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 <p className='text-header-3 mt-10px'>
                     Columns to Deduplicate On
                 </p>
-                <MultiToggleBox
-                    searchable
-                    toggleAllIndexes={(indexesToToggle, newToggle) => {
-                        const columnIDsToToggle = indexesToToggle.map(index => columnIDsAndHeaders[index][0]);
+                <MultiToggleColumns
+                    sheetData={props.sheetDataArray[params.sheet_index]}
+                    selectedColumnIDs={params.column_ids}
+                    onChange={(newSelectedColumnIDs: ColumnID[]) => {
                         setParams(oldDropDuplicateParams => {
-                            const newSelectedColumnIDs = [...oldDropDuplicateParams.column_ids];
-                            columnIDsToToggle.forEach(columnID => {
-                                if (newToggle) {
-                                    if (!newSelectedColumnIDs.includes(columnID)) {
-                                        newSelectedColumnIDs.push(columnID);
-                                    }
-                                } else {
-                                    if (newSelectedColumnIDs.includes(columnID)) {
-                                        newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
-                                    }
-                                }
-                            })
-
                             return {
                                 ...oldDropDuplicateParams,
                                 column_ids: newSelectedColumnIDs
                             }
                         })
                     }}
-                    height='large'
-                >
-                    {columnIDsAndHeaders.map(([columnID, columnHeader], index) => {
-                        return (
-                            <MultiToggleItem
-                                key={index}
-                                title={getDisplayColumnHeader(columnHeader)}
-                                toggled={params.column_ids.includes(columnID)}
-                                index={index}
-                                onToggle={() => {
-                                    setParams(oldDropDuplicateParams => {
-                                        const newSelectedColumnIDs = [...oldDropDuplicateParams.column_ids];
-
-                                        if (!newSelectedColumnIDs.includes(columnID)) {
-                                            newSelectedColumnIDs.push(columnID);
-                                        } else {
-                                            newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
-                                        }
-        
-                                        return {
-                                            ...oldDropDuplicateParams,
-                                            column_ids: newSelectedColumnIDs
-                                        }
-                                    })
-                                }}
-                            />
-                        ) 
-                    })}
-                </MultiToggleBox>
+                />
                 <Spacer px={25}/>
                 <TextButton
                     variant='dark'
