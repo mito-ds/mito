@@ -14,7 +14,7 @@ from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowfl
 from mitosheet.tests.step_performers.import_steps.test_snowflake_import import TEST_SNOWFLAKE_CREDENTIALS, TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only, requires_snowflake_dependencies_and_credentials
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only, requires_snowflake_dependencies_and_credentials, pandas_post_1_2_only
 
 
 def test_can_rename_single_dataframe():
@@ -245,7 +245,7 @@ def test_excel_import_then_rename_diff_df_not_optimizes():
     # Remove the test file
     os.remove(TEST_XLSX_FILE)
 
-@pandas_post_1_only
+@pandas_post_1_2_only
 @python_post_3_6_only
 def test_excel_range_import_then_rename_same_df_optimizes():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
@@ -261,7 +261,7 @@ def test_excel_range_import_then_rename_same_df_optimizes():
 
     os.remove(TEST_XLSX_FILE)
 
-@pandas_post_1_only
+@pandas_post_1_2_only
 @python_post_3_6_only
 def test_excel_range_import_then_rename_diff_df_not_optimizes():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
