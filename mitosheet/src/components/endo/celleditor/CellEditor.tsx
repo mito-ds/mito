@@ -162,9 +162,10 @@ const CellEditor = (props: {
 
         // If the user presses tab, and they are currently have a suggestion selected, then
         // we go ahead and take that suggestion
-
         let suggestionReplacementLength = 0;
         let suggestion = '';
+
+        let isColumnHeaderSuggestion = true;
         if (suggestionIndex < suggestedColumnHeaders.length) {
             suggestionReplacementLength = suggestedColumnHeadersReplacementLength
             suggestion = suggestedColumnHeaders[suggestionIndex][0];
@@ -172,6 +173,7 @@ const CellEditor = (props: {
             suggestionReplacementLength = suggestedFunctionsReplacementLength
             // We add a open parentheses onto the formula suggestion
             suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + '(';
+            isColumnHeaderSuggestion = false;
         }
 
         // Get the full formula
@@ -185,7 +187,9 @@ const CellEditor = (props: {
         // Strip the prefix, and append the suggestion, and the current index label as well
         fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         fullFormula += suggestion;
-        fullFormula += getDisplayColumnHeader(indexLabel);
+        if (isColumnHeaderSuggestion) {
+            fullFormula += getDisplayColumnHeader(indexLabel);
+        }
 
         // Update the cell editor state
         props.setEditorState({
