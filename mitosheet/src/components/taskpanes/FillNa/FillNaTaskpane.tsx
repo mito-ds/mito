@@ -2,28 +2,26 @@
 // Distributed under the terms of the Modified BSD License.
 
 import React, { useEffect } from 'react';
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import Select from '../../elements/Select';
-import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import DropdownItem from '../../elements/DropdownItem';
-import MultiToggleBox from '../../elements/MultiToggleBox';
-import MultiToggleItem from '../../elements/MultiToggleItem';
-import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
-import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
-import { addIfAbsent, intersection, removeIfPresent } from '../../../utils/arrays';
-import Spacer from '../../layout/Spacer';
-import Input from '../../elements/Input';
+import { intersection } from '../../../utils/arrays';
+import { getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { isDatetimeDtype, isNumberDtype, isTimedeltaDtype } from '../../../utils/dtypes';
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import TextButton from '../../elements/TextButton';
 import { isOnlyNumberString } from '../../../utils/numbers';
 import DataframeSelect from '../../elements/DataframeSelect';
+import DropdownItem from '../../elements/DropdownItem';
+import Input from '../../elements/Input';
+import MultiToggleColumns from '../../elements/MultiToggleColumns';
+import Select from '../../elements/Select';
+import TextButton from '../../elements/TextButton';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import Spacer from '../../layout/Spacer';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 
 
 interface FillNaTaskpaneProps {
@@ -150,35 +148,12 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
     }
 
     const sheetData: SheetData | undefined = props.sheetDataArray[params.sheet_index];
-    const columnIDsMap = sheetData?.columnIDsMap || {};
     const columnDtypeMap = sheetData?.columnDtypeMap || {};
     const onlyMeanAndMedianColumnSelected = params.column_ids.length === 0 || params.column_ids
         .map(columnID => columnDtypeMap[columnID])
         .filter(columnDtype => columnDtype !== undefined)
         .map(columnDtype => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype))
         .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
-
-    const toggleIndexes = (indexes: number[], newToggle: boolean): void => {
-        const columnIds = Object.keys(props.sheetDataArray[params.sheet_index]?.columnIDsMap) || [];
-        const columnIdsToToggle = indexes.map(index => columnIds[index]);
-
-        const newColumnIds = [...params.column_ids];
-
-        columnIdsToToggle.forEach(columnID => {
-            if (newToggle) {
-                addIfAbsent(newColumnIds, columnID);
-            } else {
-                removeIfPresent(newColumnIds, columnID);
-            }
-        })
-
-        setParams(prevParams => {
-            return {
-                ...prevParams,
-                column_ids: newColumnIds
-            }
-        })
-    }
 
     return (
         <DefaultTaskpane>
@@ -212,32 +187,23 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </p>
                     </Col>
                 </Row>
-                <MultiToggleBox
-                    searchable
-                    toggleAllIndexes={toggleIndexes}
-                    height='medium'
-                >
-                    {Object.entries(columnDtypeMap).map(([columnID, columnDtype], index) => {
-                        const columnHeader = columnIDsMap[columnID];
-                        const toggle = params.column_ids.includes(columnID);
+                <MultiToggleColumns
+                    sheetData={sheetData}
+                    selectedColumnIDs={params.column_ids}
+                    getIsDisabledColumnID={(columnID, columnHeader, columnDtype) => {
                         const disabled = (params.fill_method.type === 'mean' || params.fill_method.type === 'median') && 
                             !(isNumberDtype(columnDtype) || isTimedeltaDtype(columnDtype) || isDatetimeDtype(columnDtype));
-
-                        return (
-                            <MultiToggleItem
-                                key={index}
-                                index={index}
-                                disabled={disabled}
-                                title={getDisplayColumnHeader(columnHeader)}
-                                rightText={getDtypeValue(columnDtype)}
-                                toggled={toggle}
-                                onToggle={() => {
-                                    toggleIndexes([index], !toggle)
-                                }}
-                            />
-                        ) 
-                    })}
-                </MultiToggleBox>
+                        return disabled;
+                    }}
+                    onChange={(newSelectedColumnIDs: ColumnID[]) => {
+                        setParams(oldDropDuplicateParams => {
+                            return {
+                                ...oldDropDuplicateParams,
+                                column_ids: newSelectedColumnIDs
+                            }
+                        })
+                    }}
+                />
                 <Spacer px={15}/>
                 <Row justify='space-between' align='center' title='Select the method for filling nan values'>
                     <Col>

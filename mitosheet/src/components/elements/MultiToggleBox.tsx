@@ -92,7 +92,7 @@ const MultiToggleBox = (props: {
     /** 
         * @param [toggleAllIndexes] - If you want to toggle mulitple indexes at once, you can with this function
     */
-    toggleAllIndexes?: (indexesToToggle: number[], newValue: boolean) => void;
+    onToggleAll?: (newSelectedIndexes: number[]) => void;
     /** 
         * @param [height] - Height of the MultiToggleBox
     */
@@ -164,7 +164,7 @@ const MultiToggleBox = (props: {
     const heightClass = `element-height-${height}`
     const widthClass = `element-width-${width}`
 
-    let displayedNonDisabledAllToggled = true;
+    let isAllDisplayedNonDisabledAreToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
     
     let numToggled = 0;
@@ -211,7 +211,7 @@ const MultiToggleBox = (props: {
         const itemDisabled = child.props.disabled || props.disabled;
         if (!itemDisabled) {
             nonDisabledDisplayedIndexes.push(child.props.index);
-            displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
+            isAllDisplayedNonDisabledAreToggled = isAllDisplayedNonDisabledAreToggled && child.props.toggled; 
         }
 
         const copiedChild = React.cloneElement(child, {
@@ -222,7 +222,7 @@ const MultiToggleBox = (props: {
     });
 
 
-    const { toggleAllIndexes } = props;
+    const { onToggleAll: toggleAllIndexes } = props;
 
     return (
         <div className={classNames('multi-toggle-box-container', heightClass, widthClass, props.className)}>
@@ -255,19 +255,24 @@ const MultiToggleBox = (props: {
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
-                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedNonDisabledAllToggled})}
+                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': isAllDisplayedNonDisabledAreToggled})}
                         onClick={() => {
                             if (props.disabled) {
                                 return;
                             }
-                            toggleAllIndexes(nonDisabledDisplayedIndexes, !displayedNonDisabledAllToggled)
+
+                            if (!isAllDisplayedNonDisabledAreToggled) {
+                                toggleAllIndexes(nonDisabledDisplayedIndexes)
+                            } else {
+                                toggleAllIndexes([])
+                            }
                         }}
                     >
                         <input
                             key={'Toggle All'}
                             type="checkbox"
                             name={'Toggle All'}
-                            checked={displayedNonDisabledAllToggled}
+                            checked={isAllDisplayedNonDisabledAreToggled}
                         />
                         <MultiToggleSelectedMessage
                             searchString={searchString}

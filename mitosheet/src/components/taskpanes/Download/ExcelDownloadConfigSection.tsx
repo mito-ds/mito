@@ -2,7 +2,7 @@ import React from "react";
 import MitoAPI from "../../../jupyter/api";
 import ExcelFormatSection from "../../../pro/download/ExcelFormatSection";
 import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
-import DataframeMultiSelect from "../../elements/DataframeMultiSelect";
+import MultiToggleDataframes from "../../elements/MultiToggleDataframes";
 import Row from "../../layout/Row";
 
 const ExcelDownloadConfigSection = (props: {
@@ -21,7 +21,7 @@ const ExcelDownloadConfigSection = (props: {
             <p className='text-header-3'>
                 Dataframes to Export
             </p> 
-            <DataframeMultiSelect
+            <MultiToggleDataframes
                 sheetDataArray={props.sheetDataArray}
                 selectedSheetIndexes={props.exportState.sheetIndexes}
                 setUIState={props.setUIState}

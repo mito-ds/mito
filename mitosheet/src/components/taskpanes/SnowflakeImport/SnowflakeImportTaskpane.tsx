@@ -308,14 +308,9 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <MultiToggleBox
                             disabled={loadingAvailableOptionsAndDefaults}
                             height={'medium'}
-                            toggleAllIndexes={(indexesToToggle) => {
+                            onToggleAll={(newSelectedIndexes) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
-                                    const newColumns = [...prevParams.query_params.columns];
-                                    const columnsToToggle = indexesToToggle.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
-                                    columnsToToggle.forEach(sheetName => {
-                                        toggleInArray(newColumns, sheetName);
-                                    });
-
+                                    const newColumns = newSelectedIndexes.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
                                     return updateObjectWithPartialObject(prevParams, {query_params: {columns: newColumns}});
                                 });
                             }}

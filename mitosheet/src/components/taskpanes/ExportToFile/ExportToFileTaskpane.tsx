@@ -6,7 +6,7 @@ import Input from '../../elements/Input';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 
-import DataframeMultiSelect from "../../elements/DataframeMultiSelect";
+import MultiToggleDataframes from "../../elements/MultiToggleDataframes";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -155,7 +155,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         <p className="text-header-3">Dataframes to Export</p>
                     </Col>
                 </Row>
-                <DataframeMultiSelect
+                <MultiToggleDataframes
                     height="medium"
                     sheetDataArray={props.sheetDataArray}
                     selectedSheetIndexes={params.sheet_indexes}

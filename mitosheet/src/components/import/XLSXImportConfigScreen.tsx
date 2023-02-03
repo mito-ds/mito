@@ -143,15 +143,9 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             searchable
                             height='medium'
                             emptyMessage='There are no sheets to choose from. Either the workbook is empty or password protected.'
-                            toggleAllIndexes={(indexesToToggle) => {
-                                // TODO: this is broken. The toggle all is not working properly!
+                            onToggleAll={(newSelectedIndexes) => {
                                 props.setParams(prevParams => {
-                                    const newSheetNames = [...prevParams.sheet_names];
-                                    const sheetsToToggle = indexesToToggle.map(index => fileMetadata.sheet_names[index]);
-                                    sheetsToToggle.forEach(sheetName => {
-                                        toggleInArray(newSheetNames, sheetName);
-                                    })
-
+                                    const newSheetNames = newSelectedIndexes.map(index => fileMetadata.sheet_names[index]);
                                     return {
                                         ...prevParams,
                                         sheet_names: newSheetNames
