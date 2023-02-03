@@ -220,3 +220,16 @@ def test_set_dataframe_format_different_indexes(df_format, included_formatting_c
                 assert code in mito.transpiled_code[-2]
                 continue
             assert code in mito.transpiled_code[-1]
+
+
+def test_rename_then_duplicate_then_format():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper_dfs(df)
+    mito.set_dataframe_format(0, get_dataframe_format(
+        columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
+    ))
+    mito.rename_column(0, 'A', 'B')
+    mito.duplicate_dataframe(0)
+
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(mito.dfs[1])
