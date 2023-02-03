@@ -43,7 +43,7 @@ class SetColumnFormulaCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        python_code, _, _ = parse_formula(
+        python_code, _, _, _ = parse_formula(
             self.new_formula, 
             column_header,
             self.formula_label,

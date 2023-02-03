@@ -1,4 +1,4 @@
-import { BorderStyle, ColumnHeader, ColumnID, MitoSelection, SheetData } from '../../types';
+import { BorderStyle, ColumnHeader, ColumnID, IndexLabel, MitoSelection, SheetData } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import { MAX_ROWS } from './EndoGrid';
 
@@ -343,11 +343,11 @@ export const getColumnHeadersInSelection = (selection: MitoSelection, sheetData:
     return columnHeaders;
 }
 
-export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: SheetData): (ColumnHeader)[] => {
+export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: SheetData): (IndexLabel)[] => {
     const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
     const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
 
-    const indexLabels: (ColumnHeader)[] = []; // the type is wacky, but it's finme
+    const indexLabels: (IndexLabel)[] = []; // the type is wacky, but it's finme
     for (let i = min; i < max + 1; i++) {
         if (sheetData.index[i] === undefined) continue;
         indexLabels.push(sheetData.index[i])

@@ -80,7 +80,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Then we try and parse the formula
-        _, new_functions, _ = parse_formula(
+        _, new_functions, _, _ = parse_formula(
             new_formula, 
             column_header,
             formula_label,
@@ -249,7 +249,7 @@ def exec_column_formula(
         return
 
     column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    python_code, _, _ = parse_formula(
+    python_code, _, _, _ = parse_formula(
         spreadsheet_code, 
         column_header,
         formula_label,
@@ -276,9 +276,9 @@ def exec_column_formula(
         # the entire column. But if they are just setting specific indexes, we need to store the formulas
         # before this as well, so that we can figure out what formula is applied to each index
         if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
-            post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to}]
+            post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()}]
         else:
-            post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to})
+            post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()})
 
     except TypeError as e:
         # We catch TypeErrors specificially, so that we can case on operator errors, to 

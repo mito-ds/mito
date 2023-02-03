@@ -12,8 +12,8 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union, Tuple, Any
+import pandas as pd
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -23,6 +23,7 @@ PrimativeColumnHeader = Union[int, float, bool, str, Optional[str]]
 MultiLevelColumnHeader = Union[Tuple[PrimativeColumnHeader, ...], List[PrimativeColumnHeader]]
 # To a tuple of primative types (TODO: does this nest further?).
 ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
+IndexLabel = Any
 
 # To resolve circular dependencies, we create a StepsManagerType here
 if TYPE_CHECKING:
@@ -204,6 +205,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaAndLocation(TypedDict):
         frontend_formula: FrontendFormula
         location: FormulaAppliedToType
+        index: List[Any]
 
 else:
     FrontendFormulaAndLocation = Any # type:ignore

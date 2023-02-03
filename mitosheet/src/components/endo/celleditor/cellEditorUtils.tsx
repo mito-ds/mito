@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, Formula, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { ColumnHeader, ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
@@ -16,9 +16,11 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
         if (isSelectionEntireSelectedColumn(selection)) {
             const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
             entireSelectedColumns.forEach((columnID) => {
-                const columnHeader = sheetData.columnIDsMap[columnID];
-                const formulaIndexLabel = sheetData.index[rowIndex];
-                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+                const columnHeader: ColumnHeader | undefined = sheetData.columnIDsMap[columnID];
+                const formulaIndexLabel: IndexLabel | undefined = sheetData.index[rowIndex];
+                if (columnHeader !== undefined && formulaIndexLabel !== undefined) {
+                    columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+                }
             })
             return;
         }
@@ -349,33 +351,33 @@ export const getDocumentationFunction = (formula: string): FunctionDocumentation
     }
 }
 
-export const getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData: SheetData, indexLabel: IndexLabel | undefined, rowOffset: number): IndexLabel | undefined => {
+export const getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (index: IndexLabel[], indexLabel: IndexLabel | undefined, rowOffset: number): IndexLabel | undefined => {
     if (indexLabel === undefined) {
         return undefined;
     }
     
-    const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
+    const indexOfIndexLabel = index.indexOf(indexLabel);
     if (indexOfIndexLabel === -1) {
         return undefined;
     }
 
     const indexOfNewLabel = indexOfIndexLabel - rowOffset;
-    return sheetData.index[indexOfNewLabel];
+    return index[indexOfNewLabel];
 }
 
 
-export const getFormulaStringFromFrontendFormula = (formula: Formula | undefined, indexLabel: IndexLabel | undefined, sheetData: SheetData | undefined): string | undefined => {
+export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndLocation, indexLabel: IndexLabel | undefined, sheetData: SheetData | undefined): string | undefined => {
     let formulaString = '';
     if (!formula || !sheetData) {
         return formulaString;
     }
 
-    formula.forEach(formulaPart => {
+    formula.frontend_formula.forEach(formulaPart => {
         if (formulaPart.type === 'string part') {
             formulaString += formulaPart.string
         } else {
 
-            const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+            const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {
                 /**
                  * We add the reference to the column header and then we need to add the correct index label.

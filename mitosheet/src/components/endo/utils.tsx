@@ -117,10 +117,10 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     if (columnFormulaAndLocation.length !== 0) {
         columnFormulaAndLocation.forEach(cfal => {
             if (cfal.location.type === 'entire_column') {
-                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
                 columnFormulaLocation = 'entire_column';
             } else if (indexLabel !== undefined && cfal.location.index_labels.includes(indexLabel)) {
-                columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+                columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
                 columnFormulaLocation = 'specific_index_labels'
             }
         })

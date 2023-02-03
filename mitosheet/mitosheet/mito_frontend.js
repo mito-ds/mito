@@ -24851,10 +24851,10 @@ ${finalCode}`;
     if (columnFormulaAndLocation.length !== 0) {
       columnFormulaAndLocation.forEach((cfal) => {
         if (cfal.location.type === "entire_column") {
-          columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+          columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
           columnFormulaLocation = "entire_column";
         } else if (indexLabel !== void 0 && cfal.location.index_labels.includes(indexLabel)) {
-          columnFormula = getFormulaStringFromFrontendFormula(cfal.frontend_formula, indexLabel, sheetData);
+          columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
           columnFormulaLocation = "specific_index_labels";
         }
       });
@@ -24921,7 +24921,9 @@ ${finalCode}`;
         entireSelectedColumns.forEach((columnID) => {
           const columnHeader = sheetData.columnIDsMap[columnID];
           const formulaIndexLabel = sheetData.index[rowIndex];
-          columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+          if (columnHeader !== void 0 && formulaIndexLabel !== void 0) {
+            columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
+          }
         });
         return;
       }
@@ -25102,27 +25104,27 @@ ${finalCode}`;
       return matchingFunctions[0];
     }
   };
-  var getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (sheetData, indexLabel, rowOffset) => {
+  var getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (index, indexLabel, rowOffset) => {
     if (indexLabel === void 0) {
       return void 0;
     }
-    const indexOfIndexLabel = sheetData.index.indexOf(indexLabel);
+    const indexOfIndexLabel = index.indexOf(indexLabel);
     if (indexOfIndexLabel === -1) {
       return void 0;
     }
     const indexOfNewLabel = indexOfIndexLabel - rowOffset;
-    return sheetData.index[indexOfNewLabel];
+    return index[indexOfNewLabel];
   };
   var getFormulaStringFromFrontendFormula = (formula, indexLabel, sheetData) => {
     let formulaString = "";
     if (!formula || !sheetData) {
       return formulaString;
     }
-    formula.forEach((formulaPart) => {
+    formula.frontend_formula.forEach((formulaPart) => {
       if (formulaPart.type === "string part") {
         formulaString += formulaPart.string;
       } else {
-        const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(sheetData, indexLabel, formulaPart.row_offset);
+        const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
         if (newIndexLabel !== void 0) {
           formulaString += formulaPart.display_column_header;
           formulaString += getDisplayColumnHeader(newIndexLabel);
@@ -25466,12 +25468,14 @@ ${finalCode}`;
       }
       let suggestionReplacementLength = 0;
       let suggestion = "";
+      let isColumnHeaderSuggestion = true;
       if (suggestionIndex < suggestedColumnHeaders.length) {
         suggestionReplacementLength = suggestedColumnHeadersReplacementLength;
         suggestion = suggestedColumnHeaders[suggestionIndex][0];
       } else {
         suggestionReplacementLength = suggestedFunctionsReplacementLength;
         suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + "(";
+        isColumnHeaderSuggestion = false;
       }
       let fullFormula2 = getFullFormula(
         props.editorState.formula,
@@ -25481,7 +25485,9 @@ ${finalCode}`;
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
-      fullFormula2 += getDisplayColumnHeader(indexLabel);
+      if (isColumnHeaderSuggestion) {
+        fullFormula2 += getDisplayColumnHeader(indexLabel);
+      }
       props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
         formula: fullFormula2,
         pendingSelections: void 0,
@@ -27999,7 +28005,7 @@ ${finalCode}`;
           setUIState: props.setUIState,
           columnID: props.columnID
         }
-      )), /* @__PURE__ */ import_react58.default.createElement("th", null, valueToDisplay));
+      )), /* @__PURE__ */ import_react58.default.createElement("th", { title: value }, valueToDisplay));
     })), loading && /* @__PURE__ */ import_react58.default.createElement("p", null, "Column Summary statistics are loading...")));
   }
   var ColumnSummaryStatistics_default = ColumnSummaryStatistics;
@@ -28123,7 +28129,11 @@ ${finalCode}`;
             if (props.disabled) {
               return;
             }
-            toggleAllIndexes(nonDisabledDisplayedIndexes, !displayedNonDisabledAllToggled);
+            if (!displayedNonDisabledAllToggled) {
+              toggleAllIndexes(nonDisabledDisplayedIndexes);
+            } else {
+              toggleAllIndexes([]);
+            }
           }
         },
         /* @__PURE__ */ import_react59.default.createElement(
@@ -29434,23 +29444,13 @@ ${finalCode}`;
         MultiToggleBox_default,
         {
           searchable: true,
-          toggleAllIndexes: (indexesToToggle, newToggle) => {
+          toggleAllIndexes: (newSelectedIndexes) => {
             var _a2;
-            const columnIDs = Object.keys(((_a2 = props.sheetData) == null ? void 0 : _a2.columnDtypeMap) || {}).map((columnID) => {
+            const newSelectedColumnIDs = Object.keys(((_a2 = props.sheetData) == null ? void 0 : _a2.columnDtypeMap) || {}).map((columnID) => {
               return columnID;
             }).filter((_, index) => {
-              return indexesToToggle.includes(index);
+              return newSelectedIndexes.includes(index);
             });
-            const newSelectedColumnIDs = [...props.conditionalFormat.columnIDs];
-            if (newToggle) {
-              columnIDs.forEach((columnID) => {
-                addIfAbsent(newSelectedColumnIDs, columnID);
-              });
-            } else {
-              columnIDs.forEach((columnID) => {
-                removeIfPresent(newSelectedColumnIDs, columnID);
-              });
-            }
             const newConditionalFormats = [...props.df_format.conditional_formats];
             newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
             props.updateDataframeFormatParams(__spreadProps(__spreadValues({}, props.df_format), { conditional_formats: newConditionalFormats }));
@@ -33526,17 +33526,9 @@ ${finalCode}`;
       {
         width: "block",
         height: props.height || "small",
-        toggleAllIndexes: (indexesToToggle, newToggle) => {
-          const newSelectedSheetIndexes = [...selectedSheetIndexes];
-          indexesToToggle.forEach((sheetIndex) => {
-            if (newToggle) {
-              addIfAbsent(newSelectedSheetIndexes, sheetIndex);
-            } else {
-              removeIfPresent(newSelectedSheetIndexes, sheetIndex);
-            }
-          });
-          newSelectedSheetIndexes.sort();
-          props.onChange(newSelectedSheetIndexes);
+        toggleAllIndexes: (newSelectedIndexes) => {
+          newSelectedIndexes.sort();
+          props.onChange(newSelectedIndexes);
         }
       },
       props.sheetDataArray.map((sheetData, index) => {
@@ -33859,23 +33851,11 @@ ${finalCode}`;
       MultiToggleBox_default,
       {
         searchable: true,
-        toggleAllIndexes: (indexesToToggle, newToggle) => {
-          const columnIDsToToggle = indexesToToggle.map((index) => columnIDsAndHeaders[index][0]);
+        toggleAllIndexes: (newSelectedIndexes) => {
+          const newSelectedColumnIds = newSelectedIndexes.map((index) => columnIDsAndHeaders[index][0]);
           setParams((oldDropDuplicateParams) => {
-            const newSelectedColumnIDs = [...oldDropDuplicateParams.column_ids];
-            columnIDsToToggle.forEach((columnID) => {
-              if (newToggle) {
-                if (!newSelectedColumnIDs.includes(columnID)) {
-                  newSelectedColumnIDs.push(columnID);
-                }
-              } else {
-                if (newSelectedColumnIDs.includes(columnID)) {
-                  newSelectedColumnIDs.splice(newSelectedColumnIDs.indexOf(columnID), 1);
-                }
-              }
-            });
             return __spreadProps(__spreadValues({}, oldDropDuplicateParams), {
-              column_ids: newSelectedColumnIDs
+              column_ids: newSelectedColumnIds
             });
           });
         },
@@ -34968,13 +34948,9 @@ ${finalCode}`;
         searchable: true,
         height: "medium",
         emptyMessage: "There are no sheets to choose from. Either the workbook is empty or password protected.",
-        toggleAllIndexes: (indexesToToggle) => {
+        toggleAllIndexes: (newSelectedIndexes) => {
           props.setParams((prevParams) => {
-            const newSheetNames = [...prevParams.sheet_names];
-            const sheetsToToggle = indexesToToggle.map((index) => fileMetadata.sheet_names[index]);
-            sheetsToToggle.forEach((sheetName) => {
-              toggleInArray(newSheetNames, sheetName);
-            });
+            let newSheetNames = newSelectedIndexes.map((index) => fileMetadata.sheet_names[index]);
             return __spreadProps(__spreadValues({}, prevParams), {
               sheet_names: newSheetNames
             });
@@ -35280,18 +35256,10 @@ ${finalCode}`;
     const columnIDsMap = (sheetData == null ? void 0 : sheetData.columnIDsMap) || {};
     const columnDtypeMap = (sheetData == null ? void 0 : sheetData.columnDtypeMap) || {};
     const onlyMeanAndMedianColumnSelected = params.column_ids.length === 0 || params.column_ids.map((columnID) => columnDtypeMap[columnID]).filter((columnDtype) => columnDtype !== void 0).map((columnDtype) => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype)).every((hasDefinedMeanAndMedian) => hasDefinedMeanAndMedian === true);
-    const toggleIndexes = (indexes, newToggle) => {
+    const toggleIndexes = (newSelectedIndexes) => {
       var _a;
       const columnIds = Object.keys((_a = props.sheetDataArray[params.sheet_index]) == null ? void 0 : _a.columnIDsMap) || [];
-      const columnIdsToToggle = indexes.map((index) => columnIds[index]);
-      const newColumnIds = [...params.column_ids];
-      columnIdsToToggle.forEach((columnID) => {
-        if (newToggle) {
-          addIfAbsent(newColumnIds, columnID);
-        } else {
-          removeIfPresent(newColumnIds, columnID);
-        }
-      });
+      const newColumnIds = newSelectedIndexes.map((index) => columnIds[index]);
       setParams((prevParams) => {
         return __spreadProps(__spreadValues({}, prevParams), {
           column_ids: newColumnIds
@@ -35343,7 +35311,7 @@ ${finalCode}`;
             rightText: getDtypeValue(columnDtype),
             toggled: toggle,
             onToggle: () => {
-              toggleIndexes([index], !toggle);
+              toggleIndexes([index]);
             }
           }
         );
@@ -36157,8 +36125,8 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         searchable: true,
-        toggleAllIndexes: (indexesToToggle, newValue) => {
-          toggleIndexes("id_var_column_ids", indexesToToggle, newValue);
+        toggleAllIndexes: (newSelectedIndexes) => {
+          toggleIndexes("id_var_column_ids", newSelectedIndexes, newSelectedIndexes.length !== 0);
         },
         height: "medium"
       },
@@ -36184,8 +36152,8 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         searchable: true,
-        toggleAllIndexes: (indexesToToggle, newValue) => {
-          toggleIndexes("value_var_column_ids", indexesToToggle, newValue);
+        toggleAllIndexes: (newSelectedIndexes) => {
+          toggleIndexes("value_var_column_ids", newSelectedIndexes, newSelectedIndexes.length !== 0);
         },
         height: "medium"
       },
@@ -36215,6 +36183,9 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/Merge/MergeTaskpane.tsx
   var import_react145 = __toESM(require_react());
+
+  // src/components/taskpanes/Merge/MergeKeysSelection.tsx
+  var import_react143 = __toESM(require_react());
 
   // src/components/taskpanes/Merge/mergeUtils.ts
   var getFirstSuggestedMergeKeys = (sheetDataArray2, sheetOneIndex, sheetTwoIndex, existingMergeKeys) => {
@@ -36259,66 +36230,13 @@ fig.write_html("${props.graphTabName}.html")`
     }
   };
 
-  // src/components/taskpanes/Merge/MergeSheetSelection.tsx
-  var import_react143 = __toESM(require_react());
-  var MergeSheetSection = (props) => {
-    const [dfNames] = (0, import_react143.useState)(props.sheetDataArray.map((sheetData) => sheetData.dfName));
-    return /* @__PURE__ */ import_react143.default.createElement("div", null, /* @__PURE__ */ import_react143.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "First Dataframe"), /* @__PURE__ */ import_react143.default.createElement(
-      Select_default,
-      {
-        value: dfNames[props.params.sheet_index_one] || "",
-        onChange: (dfName) => {
-          const newSheetIndex = dfNames.indexOf(dfName);
-          props.setParams((prevParams) => {
-            const newParams = getDefaultMergeParams(props.sheetDataArray, newSheetIndex, prevParams.sheet_index_two, prevParams);
-            return newParams ? newParams : prevParams;
-          });
-        },
-        className: "merge-sheet-selection-first-dataframe-select"
-      },
-      dfNames.map((dfName) => {
-        return /* @__PURE__ */ import_react143.default.createElement(
-          DropdownItem_default,
-          {
-            key: dfName,
-            title: dfName
-          }
-        );
-      })
-    )), /* @__PURE__ */ import_react143.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "Second Dataframe"), /* @__PURE__ */ import_react143.default.createElement(
-      Select_default,
-      {
-        value: dfNames[props.params.sheet_index_two] || "",
-        onChange: (dfName) => {
-          const newSheetIndex = dfNames.indexOf(dfName);
-          props.setParams((prevParams) => {
-            const newParams = getDefaultMergeParams(props.sheetDataArray, prevParams.sheet_index_one, newSheetIndex, prevParams);
-            return newParams ? newParams : prevParams;
-          });
-        },
-        width: "medium"
-      },
-      dfNames.map((dfName) => {
-        return /* @__PURE__ */ import_react143.default.createElement(
-          DropdownItem_default,
-          {
-            key: dfName,
-            title: dfName
-          }
-        );
-      })
-    ))));
-  };
-  var MergeSheetSelection_default = MergeSheetSection;
-
   // src/components/taskpanes/Merge/MergeKeysSelection.tsx
-  var import_react144 = __toESM(require_react());
   var MergeKeysSelectionSection = (props) => {
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
     const noPossibleMergeKeys = Object.keys((sheetDataOne == null ? void 0 : sheetDataOne.columnDtypeMap) || {}).length === 0 || Object.keys((sheetDataTwo == null ? void 0 : sheetDataTwo.columnDtypeMap) || {}).length === 0;
-    return /* @__PURE__ */ import_react144.default.createElement("div", { className: "light-gray-container" }, /* @__PURE__ */ import_react144.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Match rows where:"))), props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
-      return /* @__PURE__ */ import_react144.default.createElement(Row_default, { key: index, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
+    return /* @__PURE__ */ import_react143.default.createElement("div", { className: "light-gray-container" }, /* @__PURE__ */ import_react143.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-header-3" }, "Match rows where:"))), props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
+      return /* @__PURE__ */ import_react143.default.createElement(Row_default, { key: index, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
         Select_default,
         {
           value: mergeKeyColumnIDOne,
@@ -36335,7 +36253,7 @@ fig.write_html("${props.graphTabName}.html")`
           searchable: true
         },
         Object.entries((sheetDataOne == null ? void 0 : sheetDataOne.columnIDsMap) || {}).map(([columnID, columnHeader]) => {
-          return /* @__PURE__ */ import_react144.default.createElement(
+          return /* @__PURE__ */ import_react143.default.createElement(
             DropdownItem_default,
             {
               key: columnID,
@@ -36344,7 +36262,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         })
-      )), /* @__PURE__ */ import_react144.default.createElement(Col_default, { className: "text-header-3" }, "="), /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
+      )), /* @__PURE__ */ import_react143.default.createElement(Col_default, { className: "text-header-3" }, "="), /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
         Select_default,
         {
           value: mergeKeyColumnIDTwo,
@@ -36361,7 +36279,7 @@ fig.write_html("${props.graphTabName}.html")`
           searchable: true
         },
         Object.entries((sheetDataTwo == null ? void 0 : sheetDataTwo.columnIDsMap) || {}).map(([columnID, columnHeader]) => {
-          return /* @__PURE__ */ import_react144.default.createElement(
+          return /* @__PURE__ */ import_react143.default.createElement(
             DropdownItem_default,
             {
               key: columnID,
@@ -36370,7 +36288,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         })
-      )), /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement(
+      )), /* @__PURE__ */ import_react143.default.createElement(Col_default, null, /* @__PURE__ */ import_react143.default.createElement(
         XIcon_default,
         {
           onClick: () => {
@@ -36384,7 +36302,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       )));
-    }), props.error !== void 0 && /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react144.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react144.default.createElement(
+    }), props.error !== void 0 && /* @__PURE__ */ import_react143.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react143.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react143.default.createElement(
       TextButton_default,
       {
         width: "medium",
@@ -36408,6 +36326,58 @@ fig.write_html("${props.graphTabName}.html")`
     ));
   };
   var MergeKeysSelection_default = MergeKeysSelectionSection;
+
+  // src/components/taskpanes/Merge/MergeSheetSelection.tsx
+  var import_react144 = __toESM(require_react());
+  var MergeSheetSection = (props) => {
+    const [dfNames] = (0, import_react144.useState)(props.sheetDataArray.map((sheetData) => sheetData.dfName));
+    return /* @__PURE__ */ import_react144.default.createElement("div", null, /* @__PURE__ */ import_react144.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react144.default.createElement(Col_default, null, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "First Dataframe"), /* @__PURE__ */ import_react144.default.createElement(
+      Select_default,
+      {
+        value: dfNames[props.params.sheet_index_one] || "",
+        onChange: (dfName) => {
+          const newSheetIndex = dfNames.indexOf(dfName);
+          props.setParams((prevParams) => {
+            const newParams = getDefaultMergeParams(props.sheetDataArray, newSheetIndex, prevParams.sheet_index_two, prevParams);
+            return newParams ? newParams : prevParams;
+          });
+        },
+        className: "merge-sheet-selection-first-dataframe-select"
+      },
+      dfNames.map((dfName) => {
+        return /* @__PURE__ */ import_react144.default.createElement(
+          DropdownItem_default,
+          {
+            key: dfName,
+            title: dfName
+          }
+        );
+      })
+    )), /* @__PURE__ */ import_react144.default.createElement(Col_default, { offsetRight: 2 }, /* @__PURE__ */ import_react144.default.createElement("p", { className: "text-header-3" }, "Second Dataframe"), /* @__PURE__ */ import_react144.default.createElement(
+      Select_default,
+      {
+        value: dfNames[props.params.sheet_index_two] || "",
+        onChange: (dfName) => {
+          const newSheetIndex = dfNames.indexOf(dfName);
+          props.setParams((prevParams) => {
+            const newParams = getDefaultMergeParams(props.sheetDataArray, prevParams.sheet_index_one, newSheetIndex, prevParams);
+            return newParams ? newParams : prevParams;
+          });
+        },
+        width: "medium"
+      },
+      dfNames.map((dfName) => {
+        return /* @__PURE__ */ import_react144.default.createElement(
+          DropdownItem_default,
+          {
+            key: dfName,
+            title: dfName
+          }
+        );
+      })
+    ))));
+  };
+  var MergeSheetSelection_default = MergeSheetSection;
 
   // src/components/taskpanes/Merge/MergeTaskpane.tsx
   var getDefaultMergeParams = (sheetDataArray2, _sheetIndexOne, _sheetIndexTwo, previousParams) => {
@@ -36543,23 +36513,13 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         searchable: true,
-        toggleAllIndexes: (indexesToToggle, newToggle) => {
-          const columnIDs = Object.keys((sheetDataOne == null ? void 0 : sheetDataOne.columnDtypeMap) || {}).map((columnID) => {
+        toggleAllIndexes: (newSelecedIndexes) => {
+          const newSelectedColumnIDsOne = Object.keys((sheetDataOne == null ? void 0 : sheetDataOne.columnDtypeMap) || {}).map((columnID) => {
             return columnID;
           }).filter((_, index) => {
-            return indexesToToggle.includes(index);
+            return newSelecedIndexes.includes(index);
           });
           setParams((prevParams) => {
-            const newSelectedColumnIDsOne = [...params.selected_column_ids_one];
-            if (newToggle) {
-              columnIDs.forEach((columnID) => {
-                addIfAbsent(newSelectedColumnIDsOne, columnID);
-              });
-            } else {
-              columnIDs.forEach((columnID) => {
-                removeIfPresent(newSelectedColumnIDsOne, columnID);
-              });
-            }
             return __spreadProps(__spreadValues({}, prevParams), {
               selected_column_ids_one: newSelectedColumnIDsOne
             });
@@ -36598,23 +36558,13 @@ fig.write_html("${props.graphTabName}.html")`
       MultiToggleBox_default,
       {
         searchable: true,
-        toggleAllIndexes: (indexesToToggle, newToggle) => {
-          const columnIDs = Object.keys((sheetDataTwo == null ? void 0 : sheetDataTwo.columnDtypeMap) || {}).map((columnID) => {
+        toggleAllIndexes: (newSelecedIndexes) => {
+          const newSelectedColumnIDsTwo = Object.keys((sheetDataTwo == null ? void 0 : sheetDataTwo.columnDtypeMap) || {}).map((columnID) => {
             return columnID;
           }).filter((_, index) => {
-            return indexesToToggle.includes(index);
+            return newSelecedIndexes.includes(index);
           });
           setParams((prevParams) => {
-            const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
-            if (newToggle) {
-              columnIDs.forEach((columnID) => {
-                addIfAbsent(newSelectedColumnIDsTwo, columnID);
-              });
-            } else {
-              columnIDs.forEach((columnID) => {
-                removeIfPresent(newSelectedColumnIDsTwo, columnID);
-              });
-            }
             return __spreadProps(__spreadValues({}, prevParams), {
               selected_column_ids_two: newSelectedColumnIDsTwo
             });
@@ -38716,14 +38666,10 @@ fig.write_html("${props.graphTabName}.html")`
       {
         disabled: loadingAvailableOptionsAndDefaults,
         height: "medium",
-        toggleAllIndexes: (indexesToToggle) => {
+        toggleAllIndexes: (newSelecedIndexes) => {
           setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            const newColumns = [...prevParams.query_params.columns];
-            const columnsToToggle = indexesToToggle.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
-            columnsToToggle.forEach((sheetName) => {
-              toggleInArray(newColumns, sheetName);
-            });
-            return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
+            const newSelectedColumns = newSelecedIndexes.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
+            return updateObjectWithPartialObject(prevParams, { query_params: { columns: newSelectedColumns } });
           });
         }
       },

@@ -39,7 +39,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         return f'Added column {column_header_to_transpiled_code(self.column_header)}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
-        python_code, _, _ = parse_formula(
+        python_code, _, _, _ = parse_formula(
             self.new_formula, 
             self.column_header,
             self.formula_label,

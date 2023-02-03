@@ -257,7 +257,8 @@ export type FormulaLocation = {'type': 'entire_column'} | {'type': 'specific_ind
 
 export type FrontendFormulaAndLocation = {
     'frontend_formula': Formula,
-    'location': FormulaLocation
+    'location': FormulaLocation,
+    'index': IndexLabel[]
 }
 
 
