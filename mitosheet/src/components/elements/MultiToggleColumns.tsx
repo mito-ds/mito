@@ -19,7 +19,7 @@ interface MultiToggleColumnsProps {
 }
 
 /**
- * The MultiToggleDataframe component allows the user to toggle and select multiple
+ * The MultiToggleColumns component allows the user to toggle and select multiple
  * different columns at once
  */
 const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
@@ -40,8 +40,6 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
             {columnIDsAndDtype.map(([columnID, columnDtype], index) => {
                 const columnHeader = columnIDsMap[columnID];
 
-                // We turn off and disable the toggle in the case it is included in the id variables, 
-                // as pandas automatically filters the id variables out from the value variables
                 const toggle = props.selectedColumnIDs.includes(columnID);
                 const disabled = (props.disabledColumnIDs !== undefined && props.disabledColumnIDs.includes(columnID)) 
                     || (props.getIsDisabledColumnID !== undefined && props.getIsDisabledColumnID(columnID, columnHeader, columnDtype));

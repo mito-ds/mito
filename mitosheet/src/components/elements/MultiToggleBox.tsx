@@ -164,7 +164,7 @@ const MultiToggleBox = (props: {
     const heightClass = `element-height-${height}`
     const widthClass = `element-width-${width}`
 
-    let displayedNonDisabledAllToggled = true;
+    let isAllDisplayedNonDisabledAreToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
     
     let numToggled = 0;
@@ -211,7 +211,7 @@ const MultiToggleBox = (props: {
         const itemDisabled = child.props.disabled || props.disabled;
         if (!itemDisabled) {
             nonDisabledDisplayedIndexes.push(child.props.index);
-            displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
+            isAllDisplayedNonDisabledAreToggled = isAllDisplayedNonDisabledAreToggled && child.props.toggled; 
         }
 
         const copiedChild = React.cloneElement(child, {
@@ -255,13 +255,13 @@ const MultiToggleBox = (props: {
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
-                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedNonDisabledAllToggled})}
+                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': isAllDisplayedNonDisabledAreToggled})}
                         onClick={() => {
                             if (props.disabled) {
                                 return;
                             }
 
-                            if (!displayedNonDisabledAllToggled) {
+                            if (!isAllDisplayedNonDisabledAreToggled) {
                                 toggleAllIndexes(nonDisabledDisplayedIndexes)
                             } else {
                                 toggleAllIndexes([])
@@ -272,7 +272,7 @@ const MultiToggleBox = (props: {
                             key={'Toggle All'}
                             type="checkbox"
                             name={'Toggle All'}
-                            checked={displayedNonDisabledAllToggled}
+                            checked={isAllDisplayedNonDisabledAreToggled}
                         />
                         <MultiToggleSelectedMessage
                             searchString={searchString}
