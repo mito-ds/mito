@@ -397,6 +397,24 @@ SPECIFIC_INDEX_LABELS_TEST = [
         [0],
         pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]})
     ),
+    # Set number
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        'B',
+        '=1',
+        0,
+        [0],
+        pd.DataFrame({'A': [1, 2, 3], 'B': [1, 0, 0]})
+    ),
+    # Set string constant
+    (
+        pd.DataFrame({'A': ['a', 'b', 'c']}),
+        'B',
+        '="a"',
+        0,
+        [0],
+        pd.DataFrame({'A': ['a', 'b', 'c'], 'B': ["a", 0, 0]})
+    ),
     # Second cell
     (
         pd.DataFrame({'A': [1, 2, 3]}),
