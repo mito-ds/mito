@@ -54,9 +54,6 @@ class DataframeDuplicateStepPerformer(StepPerformer):
                 del new_df_format['columns'][old_column_id]
                 new_df_format['columns'][new_column_id] = old_column_format
 
-        print("OLD FORMATS", old_df_format)
-        print("NEW FORMATS", new_df_format)
-
         post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, df_format=new_df_format)
 
         return post_state, {
