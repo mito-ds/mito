@@ -298,6 +298,35 @@ def create_filter_string_for_condition(
 
 FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
+def get_entire_filter_string_for_filters_only(df_name: str, column_header: ColumnHeader, column_dtype: str, operator: str, filters_only: List[Dict[str, Any]]) -> Optional[str]:
+
+        filter_strings = []
+
+        # We loop over the filter conditions so we avoid looping over the filters and having to ensure
+        # we don't see a filter condition twice
+        for filter_condition in FILTER_FORMAT_STRING_DICT.keys():
+            filter_string = create_filter_string_for_condition(
+                filter_condition,
+                filters_only,
+                df_name,
+                column_header,
+                operator,
+                column_dtype,
+            )
+            if filter_string != "":
+                filter_strings.append(filter_string)
+
+        if len(filter_strings) == 0:
+            return None
+        elif len(filter_strings) == 1:
+            return filter_strings[0]
+        else:
+            filter_string = combine_filter_strings(
+                operator, filter_strings, split_lines=True
+            )
+            return filter_string
+
+
 def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
         df_name = state.df_names[sheet_index]
@@ -319,52 +348,23 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
             for filter_or_group in filters
             if "filters" not in filter_or_group
         ]
+        
         filter_groups = [
             filter_or_group
             for filter_or_group in filters
             if "filters" in filter_or_group
         ]
 
-        filter_strings = []
+        # Get all the filter strings
+        filter_strings_with_nones = [
+            get_entire_filter_string_for_filters_only(df_name, column_header, column_dtype, operator, filters_only)
+        ] + [
+            get_entire_filter_string_for_filters_only(df_name, column_header, column_dtype, filter_group["operator"], filter_group["filters"])
+            for filter_group in filter_groups
+        ]
 
-        # We loop over the filter conditions so we avoid looping over the filters and having to ensure
-        # we don't see a filter condition twice
-        for filter_condition in FILTER_FORMAT_STRING_DICT.keys():
-            filter_string = create_filter_string_for_condition(
-                filter_condition,
-                filters_only,
-                df_name,
-                column_header,
-                operator,
-                column_dtype,
-            )
-            if filter_string != "":
-                filter_strings.append(filter_string)
-
-        for filter_group in filter_groups:
-            # If it is a group, we build the code for each filter condition, and then combine them at the end
-            group_filter_strings = []
-            for filter_condition in FILTER_FORMAT_STRING_DICT.keys():
-                filter_string = create_filter_string_for_condition(
-                    filter_condition,
-                    filter_group["filters"],
-                    df_name,
-                    column_header,
-                    filter_group["operator"],
-                    column_dtype,
-                )
-                if filter_string != "":
-                    group_filter_strings.append(filter_string)
-
-            if len(group_filter_strings) == 0:
-                continue
-
-            filter_strings.append(
-                # Note: we add parens around this, so it's grouped properly
-                "("
-                + combine_filter_strings(filter_group["operator"], group_filter_strings)
-                + ")"
-            )
+        # Then, filter out all the None values
+        filter_strings = [fs for fs in filter_strings_with_nones if fs is not None]
 
         if len(filter_strings) == 0:
             return None
@@ -375,7 +375,6 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
                 operator, filter_strings, split_lines=True
             )
             return filter_string
-
 
 
 class FilterCodeChunk(CodeChunk):
