@@ -66,8 +66,11 @@ def install_step_mitosheet_install_mitosheet():
 
 
 def install_step_mitosheet_activate_notebook_extension():
-    run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'install', '--py', '--user', 'mitosheet'])
-    run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'enable', '--py', '--user', 'mitosheet'])
+    try:
+        run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'install', '--py', '--user', 'mitosheet'])
+        run_command([sys.executable, "-m", 'jupyter', 'nbextension', 'enable', '--py', '--user', 'mitosheet'])
+    except:
+        print("Unable to activate extension for Classic Notebook. Mito will still work in JupyterLab")
 
     
 MITOSHEET_INSTALLER_STEPS = [
