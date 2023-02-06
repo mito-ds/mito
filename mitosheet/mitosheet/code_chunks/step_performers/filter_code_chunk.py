@@ -388,8 +388,8 @@ class FilterCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
-        column_header = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
-        return f'Filtered {column_header}'
+        column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
+        return f'Filtered {", ".join(map(str, column_headers))}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         all_filter_strings_with_none = [
@@ -419,7 +419,7 @@ class FilterCodeChunk(CodeChunk):
             self.sheet_index,
             column_ids_with_filter_groups
         )
-        
+
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         if isinstance(other_code_chunk, FilterCodeChunk):
             return self._combine_right_with_filter_code_chunk(other_code_chunk)
