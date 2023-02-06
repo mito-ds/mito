@@ -94,13 +94,66 @@ import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict, Literal
 
+
+    BooleanFilterCondition = Literal[
+        'boolean_is_true',
+        'boolean_is_false'
+    ]
+    StringFilterCondition = Literal[
+        'contains',
+        'string_does_not_contain',
+        'string_exactly',
+        'string_not_exactly',
+        'string_starts_with',
+        'string_ends_with'
+    ]
+    NumberFilterCondition = Literal[
+        'number_exactly',
+        'number_not_exactly',
+        'greater',
+        'greater_than_or_equal',
+        'less',
+        'less_than_or_equal',
+        'number_lowest',
+        'number_highest',
+    ]
+    DatetimeFilterCondition = Literal[
+        'datetime_exactly',
+        'datetime_not_exactly',
+        'datetime_greater',
+        'datetime_greater_than_or_equal',
+        'datetime_less',
+        'datetime_less_than_or_equal'
+    ]
+    SharedFilterCondition = Literal[
+        'empty',
+        'not_empty',
+        'most_frequent',
+        'least_frequent'
+    ]
+
+    Operator = Literal['And', 'Or']
+
+    class Filter(TypedDict):
+        condition: Union[BooleanFilterCondition, StringFilterCondition, NumberFilterCondition, DatetimeFilterCondition, SharedFilterCondition]
+        value: Union[str, float, int]
+
+    class FilterGroup(TypedDict):
+        # NOTE: this is a recursive type. The filter group can contain a filter group
+        filters: List[Union[Filter, "FilterGroup"]]
+        operator: Operator #type:ignore
+
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
-        filter: Dict[str, Any]
+        filter: Filter
+
+    class ColumnIDWithFilterGroup(TypedDict):
+        column_id: ColumnID
+        filter: FilterGroup
 
     class ColumnHeaderWithFilter(TypedDict):
         column_header: ColumnHeader
-        filter: Dict[str, Any]
+        filter: Filter
 
     class ColumnIDWithPivotTransform(TypedDict):
         column_id: ColumnID
@@ -174,7 +227,11 @@ if sys.version_info[:3] > (3, 8, 0):
 
 
 else:
+    Filter = Any #type: ignore
+    FilterGroup = Any #type: ignore
+    Operator = Any #type:ignore
     ColumnIDWithFilter = Any # type:ignore
+    ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore

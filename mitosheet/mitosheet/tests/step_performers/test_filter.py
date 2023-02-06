@@ -831,9 +831,7 @@ def test_not_exactly_collapses_to_one_clause():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[~df1['A'].isin([1, 2])]",
-        "df1 = df1[df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))]",
-        "df1 = df1[~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021']))]",
+        "df1 = df1[(~df1['A'].isin([1, 2])) & (df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))) & (~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021'])))]"
     ]
 
 
@@ -865,8 +863,7 @@ def test_boolean_and_empty_collapses_to_one_check():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[df1['A'] == True]",
-        "df1 = df1[df1['B'].isna()]",
+        "df1 = df1[(df1['A'] == True) & (df1['B'].isna())]",
     ]
 
 
@@ -1331,3 +1328,28 @@ def test_filter_not_optimizes_out_after_delete_diff_sheet():
     mito.delete_dataframe(1)
 
     assert len(mito.optimized_code_chunks) >= 3
+
+
+def test_filter_two_columns_combines():
+    df1 = pd.DataFrame({"first": ["Nate", "Jake", "ABC"], "last": ["Rush", "Jack", 'ABC']})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.filters(0, "first", "And", [{"condition": FC_STRING_CONTAINS, "value": "e"}])
+    mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Rush"}])
+
+    assert mito.dfs[0].equals(pd.DataFrame({"first": ["Nate"], "last": ["Rush"]}))
+    assert len(mito.optimized_code_chunks) == 1
+
+
+def test_filter_two_columns_combines_then_updates():
+    df1 = pd.DataFrame({"first": ["Nate", "Jake", "ABC"], "last": ["Rush", "Jack", 'ABC']})
+    mito = create_mito_wrapper_dfs(df1)
+    mito.filters(0, "first", "And", [{"condition": FC_STRING_CONTAINS, "value": "e"}])
+    mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Rush"}])
+    mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Jack"}])
+
+    assert mito.dfs[0].equals(pd.DataFrame({"first": ["Jake"], "last": ["Jack"]}, index=[1]))
+    assert len(mito.optimized_code_chunks) == 1
+
+    mito.filters(0, "last", "And", [])
+    mito.filters(0, "first", "And", [])
+    assert mito.dfs[0].equals(pd.DataFrame({"first": ["Nate", "Jake", "ABC"], "last": ["Rush", "Jack", 'ABC']}))
