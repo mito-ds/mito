@@ -13,7 +13,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
     USE_INPLACE_PIVOT, PivotCodeChunk)
 from mitosheet.column_headers import flatten_column_header
-from mitosheet.errors import make_invalid_pivot_error, make_no_column_error
+from mitosheet.errors import make_invalid_pivot_error, make_invalid_pivot_filter_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.filter import (combine_filters,
                                               get_applied_filter)
@@ -132,7 +132,7 @@ class PivotStepPerformer(StepPerformer):
         columns_used = set(pivot_rows).union(set(pivot_columns)).union(set(values.keys()))
         missing_pivot_keys = columns_used.difference(prev_state.dfs[sheet_index].keys())
         if len(missing_pivot_keys) > 0:
-            raise make_no_column_error(missing_pivot_keys)
+            raise make_no_column_error(missing_pivot_keys, error_modal=False)
 
         # Create the post state, it can be a shallow copy
         post_state = prev_state.copy()
@@ -303,10 +303,12 @@ def _execute_pivot(
 
     # First, we do the filtering on the initial dataframe, according to the pivot_filters
     if len(pivot_filters) > 0:
-        filters = [
-            get_applied_filter(df, pf['column_header'], pf['filter'])
-            for pf in pivot_filters
-        ]
+        filters = []
+        for pf in pivot_filters:
+            try:
+                filters.append(get_applied_filter(df, pf['column_header'], pf['filter']))
+            except:
+                raise make_invalid_pivot_filter_error(pf['column_header'], pf['filter']['condition'])
         full_filter = combine_filters('And', filters)
         df = df[full_filter] # TODO: do we have to make a copy
 
