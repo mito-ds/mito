@@ -18,7 +18,7 @@ import traceback
 from os.path import basename, normpath
 from typing import Any, Collection, Iterable, List, Optional, Set, Union
 
-from mitosheet.types import ColumnHeader, ColumnID, StateType
+from mitosheet.types import ColumnHeader, ColumnID, Operator, StateType
 
 
 class MitoError(Exception):

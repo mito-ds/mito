@@ -5,7 +5,8 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from copy import copy
+from typing import List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.sheet_functions.types.utils import is_datetime_dtype
@@ -13,15 +14,17 @@ from mitosheet.state import State
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
-    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY, FC_LEAST_FREQUENT, FC_MOST_FREQUENT,
-    FC_NOT_EMPTY, FC_NUMBER_EXACTLY, FC_NUMBER_GREATER,
-    FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST, FC_NUMBER_LESS,
-    FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST, FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
-    FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH, FC_STRING_EXACTLY,
-    FC_STRING_NOT_EXACTLY, FC_STRING_STARTS_WITH)
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
+    FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
+    FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+    FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
+    FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+    FC_STRING_STARTS_WITH)
 from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
+                             Filter, FilterGroup, Operator)
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -172,7 +175,7 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
 OPERATOR_SIGNS = {"Or": "|", "And": "&"}
 
 def get_single_filter_string(
-    df_name: str, column_header: ColumnHeader, filter_: Dict[str, Any]
+    df_name: str, column_header: ColumnHeader, filter_: Filter
 ) -> str:
     """
     Transpiles a specific filter to a fitler string, to be used
@@ -192,17 +195,17 @@ def get_single_filter_string(
 def get_multiple_filter_string(
     df_name: str,
     column_header: ColumnHeader,
-    original_operator: str,
+    original_operator: Operator,
     condition: str,
     column_dtype: str,
-    filters: List[Dict[str, Any]],
+    filters: List[Filter],
 ) -> str:
     """
     Transpiles a list of filters with the same filter condition to a filter string.
     """
 
     # Handle dates specially by wrapping the number in a string and adding the pd.to_datetime call
-    values: Union[str, List[str]]
+    values: Union[str, List[Union[str, int, float]]]
     if is_datetime_dtype(column_dtype):
         values = [f'\'{filter["value"]}\'' for filter in filters]
         values = (
@@ -223,7 +226,7 @@ def get_multiple_filter_string(
 
 
 def combine_filter_strings(
-    operator: str, filter_strings: List[str], split_lines: bool = False
+    operator: Operator, filter_strings: List[str], split_lines: bool = False
 ) -> str:
     """
     Combines the given filter strings with the passed operator, optionally
@@ -260,10 +263,10 @@ def combine_filter_strings(
 
 def create_filter_string_for_condition(
     condition: str,
-    mito_filters: List[Dict[str, Any]],
+    mito_filters: List[Filter],
     df_name: str,
     column_header: ColumnHeader,
-    operator: str,
+    operator: Operator,
     column_dtype: str,
 ) -> str:
     """
@@ -298,7 +301,7 @@ def create_filter_string_for_condition(
 
 FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
-def get_entire_filter_string_for_filters_only(df_name: str, column_header: ColumnHeader, column_dtype: str, operator: str, filters_only: List[Dict[str, Any]]) -> Optional[str]:
+def get_entire_filter_string_for_filters_only(df_name: str, column_header: ColumnHeader, column_dtype: str, operator: Operator, filters_only: List[Filter]) -> Optional[str]:
 
         filter_strings = []
 
@@ -327,7 +330,7 @@ def get_entire_filter_string_for_filters_only(df_name: str, column_header: Colum
             return filter_string
 
 
-def get_entire_filter_string(state: State, sheet_index: int, operator: str, filters: List[Dict[str, Any]], column_id: Optional[ColumnID]=None) -> Optional[str]:
+def get_entire_filter_string(state: State, sheet_index: int, operator: Operator, filters: List[Union[Filter, FilterGroup]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
         df_name = state.df_names[sheet_index]
         if column_id:
@@ -343,23 +346,16 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
             column_header = FAKE_COLUMN_HEADER
             column_dtype = 'string'
 
-        filters_only = [
-            filter_or_group
-            for filter_or_group in filters
-            if "filters" not in filter_or_group
-        ]
-        
-        filter_groups = [
-            filter_or_group
-            for filter_or_group in filters
-            if "filters" in filter_or_group
-        ]
+        filters_only: List[Filter] = [filter_or_group for filter_or_group in filters if "filters" not in filter_or_group] # type: ignore
+        filter_groups: List[FilterGroup] = [filter_or_group for filter_or_group in filters if "filters" in filter_or_group] # type: ignore
 
         # Get all the filter strings
         filter_strings_with_nones = [
             get_entire_filter_string_for_filters_only(df_name, column_header, column_dtype, operator, filters_only)
         ] + [
-            get_entire_filter_string_for_filters_only(df_name, column_header, column_dtype, filter_group["operator"], filter_group["filters"])
+            # NOTE: when we get to a filter group, we recurse on this function. This allows us to call this function with infinitely
+            # nested filter groups, which is useful when combining code chunks
+            get_entire_filter_string(state, sheet_index, filter_group["operator"], filter_group["filters"], column_id=column_id)
             for filter_group in filter_groups
         ]
 
@@ -379,12 +375,10 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: str, filt
 
 class FilterCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, operator: str, filters: List[Dict[str, Any]]):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids_with_filter_groups: List[ColumnIDWithFilterGroup]):
         super().__init__(prev_state, post_state)
         self.sheet_index: int = sheet_index
-        self.column_id: ColumnID = column_id
-        self.operator: str = operator
-        self.filters: List[Dict[str, Any]] = filters
+        self.column_ids_with_filter_groups = column_ids_with_filter_groups
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -393,21 +387,44 @@ class FilterCodeChunk(CodeChunk):
         return 'Filtered'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+        column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
+        column_header = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
         return f'Filtered {column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
+        all_filter_strings_with_none = [
+            get_entire_filter_string(self.post_state, self.sheet_index, f['filter']["operator"], f['filter']["filters"], f['column_id'])
+            for f in self.column_ids_with_filter_groups
+        ]
+        all_filter_strings = [fs for fs in all_filter_strings_with_none if fs is not None]
 
-        entire_filter_string = get_entire_filter_string(
-            self.post_state, self.sheet_index, self.operator, self.filters, self.column_id
-        )
-
-        if entire_filter_string is None:
+        if len(all_filter_strings) == 0:
             return [], []
         else:
+            entire_filter_string = combine_filter_strings('And', all_filter_strings, split_lines=True)
             return [
                 f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
             ], []
+
+    def _combine_right_with_filter_code_chunk(self, filter_code_chunk: "FilterCodeChunk") -> Optional['CodeChunk']:
+        if not self.params_match(filter_code_chunk, ['sheet_index']):
+            return None
+
+        column_ids_with_filter_groups = copy(self.column_ids_with_filter_groups)
+        column_ids_with_filter_groups.extend(filter_code_chunk.column_ids_with_filter_groups)
+
+        return FilterCodeChunk(
+            self.prev_state,
+            filter_code_chunk.post_state,
+            self.sheet_index,
+            column_ids_with_filter_groups
+        )
+        
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, FilterCodeChunk):
+            return self._combine_right_with_filter_code_chunk(other_code_chunk)
+
+        return None
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

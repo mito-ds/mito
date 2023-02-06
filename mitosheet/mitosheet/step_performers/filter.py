@@ -7,7 +7,7 @@
 import functools
 from datetime import date
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -15,7 +15,7 @@ from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, Operator
 
 # The constants used in the filter step itself as filter conditions
 # NOTE: these must be unique (e.g. no repeating names for different types)
@@ -99,7 +99,7 @@ class FilterStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        operator: str = get_param(params, 'operator')
+        operator: Operator = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
         raise_error_if_column_ids_do_not_exist(
@@ -146,9 +146,13 @@ class FilterStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'sheet_index'),
-                get_param(params, 'column_id'),
-                get_param(params, 'operator'),
-                get_param(params, 'filters'),
+                [{
+                    'column_id': get_param(params, 'column_id'),
+                    'filter': {
+                        'operator': get_param(params, 'operator'),
+                        'filters': get_param(params, 'filters')
+                    }
+                }]
             )
         ]
 
@@ -158,7 +162,7 @@ class FilterStepPerformer(StepPerformer):
 
 
 def get_applied_filter(
-    df: pd.DataFrame, column_header: ColumnHeader, filter_: Dict[str, Any]
+    df: pd.DataFrame, column_header: ColumnHeader, filter_: Filter
 ) -> pd.Series:
     """
     Given a filter triple, returns the filter indexes for that
@@ -173,9 +177,11 @@ def get_applied_filter(
     elif condition == FC_NOT_EMPTY:
         return df[column_header].notnull()
     elif condition == FC_LEAST_FREQUENT:
-        return df[column_header].isin(df[column_header].value_counts().index.tolist()[-value:])
+        value_int: int = value # type: ignore
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[-value_int:])
     elif condition == FC_MOST_FREQUENT:
-        return df[column_header].isin(df[column_header].value_counts().index.tolist()[:value])
+        value_int: int = value # type: ignore
+        return df[column_header].isin(df[column_header].value_counts().index.tolist()[:value_int])
 
 
     # Then bool
@@ -241,7 +247,7 @@ def get_applied_filter(
     raise Exception(f"Invalid type passed in filter {filter_}")
 
 
-def combine_filters(operator: str, filters: List[pd.Series]) -> pd.Series:
+def combine_filters(operator: Operator, filters: List[pd.Series]) -> pd.Series:
     def filter_reducer(filter_one: pd.Series, filter_two: pd.Series) -> pd.Series:
         # Helper for combining filters based on the operations
         if operator == "Or":
@@ -257,33 +263,21 @@ def combine_filters(operator: str, filters: List[pd.Series]) -> pd.Series:
 def get_full_applied_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
-    operator: str,
-    filters: List[Dict[str, Any]],
+    operator: Operator,
+    filters: List[Union[Filter, FilterGroup]],
 ) -> Tuple[pd.Series, float]:
     applied_filters = []
     pandas_start_time = perf_counter()
 
     for filter_or_group in filters:
-
-        # If it's a group, then we build the filters for the group, combine them
-        # and then add that to the applied filters
-        if "filters" in filter_or_group:
-            group_filters = []
-            for filter_ in filter_or_group["filters"]:
-                group_filters.append(get_applied_filter(df, column_header, filter_))
-
-            if len(group_filters) > 0:
-                applied_filters.append(
-                    combine_filters(filter_or_group["operator"], group_filters)
-                )
-
-        # Otherwise, we just get that specific filter, and append it
+        if "filters" not in filter_or_group:
+            filter_: Filter = filter_or_group #type: ignore
+            applied_filters.append(get_applied_filter(df, column_header, filter_))
         else:
-            applied_filters.append(
-                get_applied_filter(df, column_header, filter_or_group)
-            )
+            filter_group: FilterGroup = filter_or_group #type: ignore
+            full_group_filter, _ = get_full_applied_filter(df, column_header, filter_group['operator'], filter_group["filters"])
+            applied_filters.append(full_group_filter)
 
-    
     if len(applied_filters) > 0:
         full_applied_filter = combine_filters(operator, applied_filters)
     else:
@@ -298,8 +292,8 @@ def get_full_applied_filter(
 def _execute_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
-    operator: str,
-    filters: List[Dict[str, Any]],
+    operator: Operator,
+    filters: List[Union[Filter, FilterGroup]],
 ) -> Tuple[pd.DataFrame, float]:
     """
     Executes a filter on the given column, filtering by removing any rows who
@@ -310,20 +304,20 @@ def _execute_filter(
     return df[full_applied_filter], pandas_processing_time
 
 
-def check_filters_contain_condition_that_needs_full_df(filters: List[Dict[str, Any]]) -> bool:
+def check_filters_contain_condition_that_needs_full_df(filters: List[Union[Filter, FilterGroup]]) -> bool:
     """
     Returns true if any filter condition is a FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME
     """
 
     for filter_or_group in filters:
 
-        # If it's a group, then we build the filters for the group, combine them
-        # and then add that to the applied filters
-        if "filters" in filter_or_group:
-            for filter_ in filter_or_group["filters"]:
-                if filter_['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
-                    return True
-        elif filter_or_group['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
+        if 'filters' not in filter_or_group:
+            filter_: Filter = filter_or_group #type: ignore
+            if filter_['condition'] in FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME:
                 return True
-
+        else:
+            filter_group: FilterGroup = filter_or_group #type: ignore
+            if check_filters_contain_condition_that_needs_full_df(filter_group["filters"]):
+                return True
+        
     return False
