@@ -36,8 +36,11 @@ const div = document.getElementById(divID);
 console.log("Rendering to div", div);
 ReactDOM.render(
     <Mito
-        kernelID={kernelID}
-        commTargetID={commTargetID}
+        connectionInformation={{
+            type: 'jupyter',
+            kernelID: kernelID,
+            commTargetID: commTargetID
+        }}
         sheetDataArray={sheetDataArray}
         analysisData={analysisData}
         userProfile={userProfile}

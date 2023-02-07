@@ -17,7 +17,7 @@ import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImpo
 import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 
 /*
@@ -88,7 +88,7 @@ interface MitoErrorModalResponse {
     data: undefined;
 }
 
-type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
+export type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
 
 
 declare global {
@@ -155,7 +155,7 @@ export default class MitoAPI {
     async init(commContainer: CommContainer): Promise<void> {
         this.commContainer = commContainer;
         this._send = commContainer.comm.send;
-        if (commContainer.type === 'notebook') {
+        if (commContainer.type === 'notebook' || commContainer.type === 'streamlit') {
             commContainer.comm.on_msg((msg) => this.receiveResponse(msg));
         } else {
             commContainer.comm.onMsg = (msg) => this.receiveResponse(msg);
@@ -248,7 +248,19 @@ export default class MitoAPI {
         and allow the API to just make a call to a server, and wait on a response
     */
     receiveResponse(rawResponse: Record<string, unknown>): void {
-        const response = (rawResponse as any).content.data as MitoResponse; // TODO: turn this into one of the funcitons that checks types, to avoid the echo!
+        let response: MitoResponse | undefined = undefined;
+
+        if (isInJupyterLab() || isInJupyterNotebook()) {
+            response = (rawResponse as any).content.data as MitoResponse; // TODO: turn this into one of the funcitons that checks types, to avoid the echo!
+        } else {
+            // In streamlit
+            response = (rawResponse as any) as MitoResponse;
+        }
+
+        console.log("PROCESSING", response)
+        if (response === undefined) {
+            return;
+        }
 
         this.unconsumedResponses.push(response);
 

@@ -75,6 +75,7 @@ class MitoBackend():
         self.is_local_deployment = is_local_deployment()
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
+        self.saved_messages = []
 
 
     @property
@@ -89,7 +90,11 @@ class MitoBackend():
             # If we don't have a comm defined, this is because we are running a test, and so 
             # we simply don't do anything with messages that are tried to send. In the future, 
             # we can save them somewhere, and then make assertions about them -- cool!
-            return lambda _: _
+            def send(msg):
+                self.saved_messages.append(msg)
+                import streamlit as st
+                st.experimental_rerun()
+            return send
 
     def get_shared_state_variables(self) -> Dict[str, Any]:
         """

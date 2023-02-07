@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { ConnectionInformation } from "../components/Mito"
 import MitoAPI from "../jupyter/api"
 import { CommCreationStatus, getCommContainer } from "../jupyter/comm"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
 
 
 export const useMitoAPI = (
-    kernelID: string,
-    commTargetID: string,
+    connectionInformation: ConnectionInformation,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
@@ -26,6 +26,26 @@ export const useMitoAPI = (
 
     const [commCreationStatus, setCommCreationStatus] = useState<CommCreationStatus>('loading');
 
+    const [streamlitOnMessage, setStreamlitOnMessage] = useState<((msg: any) => void) | undefined>(undefined)
+
+    const numProcessed = useRef(0);
+    useEffect(() => {
+        if (connectionInformation.type === 'streamlit') {
+            if (numProcessed.current < connectionInformation.receivedMessages.length) {
+                console.log("PROCESSING MORE", streamlitOnMessage)
+                for (let i = numProcessed.current; i < connectionInformation.receivedMessages.length; i++) {
+                    if (streamlitOnMessage) {
+                        console.log("RECEIVED MESSAGE", connectionInformation.receivedMessages[i], numProcessed.current, streamlitOnMessage)
+                        streamlitOnMessage(connectionInformation.receivedMessages[i]);
+                        numProcessed.current = connectionInformation.receivedMessages.length;
+                    }
+                }
+            }
+        }
+    }, [connectionInformation, streamlitOnMessage])
+
+    console.log("STREAMLIT ON MESSAGE", streamlitOnMessage)
+
     
     useEffect(() => {
         /**
@@ -43,7 +63,7 @@ export const useMitoAPI = (
          * timeout.
          */
         const init = async () => {
-            const commContainerOrError = await getCommContainer(kernelID, commTargetID)
+            const commContainerOrError = await getCommContainer(connectionInformation, setStreamlitOnMessage)
             if (typeof commContainerOrError === 'string') { // Check if it it's an error
                 setCommCreationStatus(commContainerOrError);
             } else {

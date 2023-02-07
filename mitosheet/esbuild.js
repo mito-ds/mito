@@ -2,8 +2,8 @@ const esbuild = require('esbuild');
 
 esbuild
     .build({
-        entryPoints: ["src/jupyterRender.tsx"],
-        outfile: 'mitosheet/mito_frontend.js',
+        entryPoints: ["src/streamlit/index.tsx"],
+        outfile: 'mitosheet/streamlit/streamlit.js',
         bundle: true,
         plugins: [],
         loader: {

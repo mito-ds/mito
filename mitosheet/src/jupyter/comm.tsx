@@ -36,6 +36,8 @@
  * we return an error to the user.
  */
 
+import { ConnectionInformation } from "../components/Mito";
+import { isInStreamlit } from "../streamlit";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
@@ -60,6 +62,10 @@ interface NotebookComm {
     send: (msg: Record<string, unknown>) => void,
     on_msg: (handler: (msg: {content: {data: Record<string, unknown>}}) => void) => void,
 }
+interface StreamlitComm {
+    send: (msg: Record<string, unknown>) => void,
+    on_msg: (handler: (msg: Record<string, unknown>) => void) => void,
+}
 
 export type CommContainer = {
     'type': 'lab',
@@ -67,6 +73,9 @@ export type CommContainer = {
 } | {
     'type': 'notebook',
     'comm': NotebookComm
+} | {
+    'type': 'streamlit',
+    'comm': StreamlitComm
 }
 
 export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
@@ -194,11 +203,30 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
-    if (isInJupyterNotebook()) {
-        return getNotebookComm(commTargetID);
-    } else if (isInJupyterLab()) {
-        return getLabComm(kernelID, commTargetID);
+export const getCommContainer = async (connectionInformation: ConnectionInformation, setStreamlitOnMsg: React.Dispatch<React.SetStateAction<((msg: any) => void) | undefined>>
+): Promise<CommContainer | CommCreationErrorStatus> => {
+    if (connectionInformation.type == 'jupyter') {
+        if (isInJupyterNotebook()) {
+            return getNotebookComm(connectionInformation.commTargetID);
+        } else if (isInJupyterLab()) {
+            return getLabComm(connectionInformation.kernelID, connectionInformation.commTargetID);
+        }
+    } else {
+        if (isInStreamlit()) {
+            // We need to make a streamlit comm
+            const allMessages: any = [];
+            return {
+                'type': 'streamlit',
+                'comm': {
+                    'send': (msg) => {
+                        allMessages.push(msg); 
+                        connectionInformation.setComponentValue(allMessages);
+                    },
+                    'on_msg': (handler) => {console.log("HANLDER", handler), setStreamlitOnMsg(handler);}
+                }
+            }
+
+        }
     }
 
     return 'non_valid_location_error'

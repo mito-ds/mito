@@ -70,6 +70,8 @@ class API:
             args=(self.api_queue, steps_manager, mito_backend),
             daemon=True,
         )
+        from streamlit.runtime.scriptrunner import add_script_run_ctx
+        add_script_run_ctx(self.thread) 
         self.thread.start()
 
         # Save some variables for ease
