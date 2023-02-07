@@ -30171,7 +30171,7 @@ ${finalCode}`;
           return doesAnySheetExist(sheetDataArray2) ? defaultActionDisabledMessage : "There are no dataframes to export. Import data.";
         },
         searchTerms: ["export", "download", "excel", "csv"],
-        tooltip: "Download dataframes as a .csv or .xlsx file."
+        tooltip: "Export dataframes as a .csv or .xlsx file."
       },
       ["fill na" /* Fill_Na */]: {
         type: "fill na" /* Fill_Na */,

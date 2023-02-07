@@ -460,7 +460,7 @@ export const createActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
-            tooltip: "Download dataframes as a .csv or .xlsx file."
+            tooltip: "Export dataframes as a .csv or .xlsx file."
         },
         [ActionEnum.Fill_Na]: {
             type: ActionEnum.Fill_Na,
