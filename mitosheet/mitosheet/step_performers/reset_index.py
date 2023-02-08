@@ -41,7 +41,7 @@ class ResetIndexStepPerformer(StepPerformer):
         if not drop:
             # If we keep the index as a column, keep track of it's metadata (it gets added as the first column)
             # TODO: there's a bug if you don't drop multiple times, eventually it errors
-            post_state.add_columns_to_state(0, [post_state.dfs[sheet_index].columns[0]]) 
+            post_state.add_columns_to_state(sheet_index, [post_state.dfs[sheet_index].columns[0]]) 
         
         pandas_processing_time = perf_counter() - pandas_start_time
 
