@@ -43,6 +43,11 @@
   }
 }
 
+/* css/sitewide/backgrounds.css */
+.mito-blue-background {
+  background-color: var(--mito-light-blue);
+}
+
 /* css/sitewide/borders.css */
 .border-t-light-gray {
   border-top: 1px solid var(--mito-light-gray);
@@ -74,6 +79,7 @@
   --mito-medium-gray: #767180;
   --mito-light-gray: #ACACAD;
   --mito-very-light-gray: #F5F5F5;
+  --mito-gray-disabled: #9999A4;
   --mito-white: #FFFFFF;
   --mito-off-white: #ECDCDC;
   --mito-light-blue: #E8EBF8;
@@ -687,6 +693,9 @@
 .text-underline-on-hover:hover {
   text-decoration: underline;
 }
+.text-color-gray-disabled {
+  color: var(--mito-gray-disabled);
+}
 
 /* css/sitewide/widths.css */
 .w-5 {
@@ -1053,6 +1062,13 @@ input:checked + .toggle:after {
   padding: 5px;
   background-color: var(--mito-light-blue);
   border-radius: 5px;
+}
+.mito-collapsible-content-card-container {
+  background-color: var(--mito-light-blue);
+  border-radius: 5px;
+}
+.mito-collapsible-content-card-subtext {
+  padding: 0px 5px 5px 5px;
 }
 
 /* css/elements/DropdownButton.css */

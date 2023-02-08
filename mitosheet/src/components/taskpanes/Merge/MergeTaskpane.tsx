@@ -1,26 +1,22 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../jupyter/api';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
-import MultiToggleBox from '../../elements/MultiToggleBox';
-import MultiToggleItem from '../../elements/MultiToggleItem';
+import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import { getDtypeValue } from '../ControlPanel/FilterAndSortTab/DtypeCard';
+import Spacer from '../../layout/Spacer';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import { getFirstSuggestedMergeKeys } from './mergeUtils';
-import MergeSheetSection from './MergeSheetSelection';
 import MergeKeysSelectionSection from './MergeKeysSelection';
-import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
-import Spacer from '../../layout/Spacer';
+import MergeSheetSection from './MergeSheetSelection';
+import { getFirstSuggestedMergeKeys } from './mergeUtils';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -130,6 +126,9 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
     const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
     const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
 
+    const mergeKeyColumnIDsOne = params.merge_key_column_ids.map(([one, ]) => {return one});
+    const mergeKeyColumnIDsTwo = params.merge_key_column_ids.map(([, two]) => {return two});
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader
@@ -206,61 +205,19 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     Columns to Keep from First Dataframe
                 </p>
                 {params.how !== MergeType.UNIQUE_IN_RIGHT &&
-                    <MultiToggleBox
-                        searchable
-                        toggleAllIndexes={(indexesToToggle, newToggle) => {
-                            const columnIDs = Object.keys(sheetDataOne?.columnDtypeMap || {})
-                                .map((columnID) => {return columnID})
-                                .filter((_, index) => {
-                                    return indexesToToggle.includes(index);
-                                });
-                            
-                            setParams(prevParams => {
-                                const newSelectedColumnIDsOne = [...params.selected_column_ids_one];
-                                if (newToggle) {
-                                    columnIDs.forEach((columnID) => {
-                                        addIfAbsent(newSelectedColumnIDsOne, columnID);
-                                    })
-                                } else {
-                                    columnIDs.forEach((columnID) => {
-                                        removeIfPresent(newSelectedColumnIDsOne, columnID);
-                                    })
-                                }
-
+                    <MultiToggleColumns
+                        sheetData={sheetDataOne}
+                        selectedColumnIDs={params.selected_column_ids_one.concat(mergeKeyColumnIDsOne)}
+                        disabledColumnIDs={mergeKeyColumnIDsOne}
+                        onChange={(newSelectedColumnIDs: ColumnID[]) => {
+                            setParams(oldDropDuplicateParams => {
                                 return {
-                                    ...prevParams,
-                                    selected_column_ids_one: newSelectedColumnIDsOne
+                                    ...oldDropDuplicateParams,
+                                    selected_column_ids_one: newSelectedColumnIDs
                                 }
                             })
                         }}
-                        height='medium'
-                    >
-                        {Object.entries(sheetDataOne?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
-                            const columnHeader = sheetDataOne.columnIDsMap[columnID];
-                            const toggled = params.selected_column_ids_one.includes(columnID); // TODO: make it true if merge key with OR
-                            const isMergeKey = params.merge_key_column_ids.map(([mergeKeyOne, ]) => {return mergeKeyOne}).includes(columnID);
-                            return (
-                                <MultiToggleItem
-                                    key={index}
-                                    title={getDisplayColumnHeader(columnHeader)}
-                                    rightText={getDtypeValue(columnDtype)}
-                                    toggled={toggled || isMergeKey}
-                                    disabled={isMergeKey}
-                                    index={index}
-                                    onToggle={() => {
-                                        setParams(prevParams => {
-                                            const newSelectedColumnIDsOne = [...params.selected_column_ids_one];
-                                            toggleInArray(newSelectedColumnIDsOne, columnID);
-                                            return {
-                                                ...prevParams,
-                                                selected_column_ids_one: newSelectedColumnIDsOne
-                                            }
-                                        })
-                                    }}
-                                />
-                            ) 
-                        })}
-                    </MultiToggleBox>
+                    />
                 }
                 {params.how === MergeType.UNIQUE_IN_RIGHT &&
                     <p>
@@ -273,62 +230,19 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         Columns to Keep from Second Dataframe
                     </p>
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
-                        <MultiToggleBox
-                            searchable
-                            toggleAllIndexes={(indexesToToggle, newToggle) => {
-                                const columnIDs = Object.keys(sheetDataTwo?.columnDtypeMap || {})
-                                    .map((columnID) => {return columnID})
-                                    .filter((_, index) => {
-                                        return indexesToToggle.includes(index);
-                                    });
-                            
-                                setParams(prevParams => {
-                                    const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
-                                    if (newToggle) {
-                                        columnIDs.forEach((columnID) => {
-                                            addIfAbsent(newSelectedColumnIDsTwo, columnID);
-                                        })
-                                    } else {
-                                        columnIDs.forEach((columnID) => {
-                                            removeIfPresent(newSelectedColumnIDsTwo, columnID);
-                                        })
-                                    }
-
+                        <MultiToggleColumns
+                            sheetData={sheetDataTwo}
+                            selectedColumnIDs={params.selected_column_ids_two.concat(mergeKeyColumnIDsTwo)}
+                            disabledColumnIDs={mergeKeyColumnIDsTwo}
+                            onChange={(newSelectedColumnIDs: ColumnID[]) => {
+                                setParams(oldDropDuplicateParams => {
                                     return {
-                                        ...prevParams,
-                                        selected_column_ids_two: newSelectedColumnIDsTwo
+                                        ...oldDropDuplicateParams,
+                                        selected_column_ids_two: newSelectedColumnIDs
                                     }
                                 })
                             }}
-                            height='medium'
-                        >
-                            {Object.entries(sheetDataTwo?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
-                                const columnHeader = sheetDataTwo.columnIDsMap[columnID];
-                                const toggled = params.selected_column_ids_two.includes(columnID);
-                                const isMergeKey = params.merge_key_column_ids.map(([, mergeKeyTwo]) => {return mergeKeyTwo}).includes(columnID);
-
-                                return (
-                                    <MultiToggleItem
-                                        key={index}
-                                        title={getDisplayColumnHeader(columnHeader)}
-                                        rightText={getDtypeValue(columnDtype)}
-                                        toggled={toggled || isMergeKey}
-                                        disabled={isMergeKey}
-                                        index={index}
-                                        onToggle={() => {
-                                            setParams(prevParams => {
-                                                const newSelectedColumnIDsTwo = [...params.selected_column_ids_two];
-                                                toggleInArray(newSelectedColumnIDsTwo, columnID);
-                                                return {
-                                                    ...prevParams,
-                                                    selected_column_ids_two: newSelectedColumnIDsTwo
-                                                }
-                                            })
-                                        }}
-                                    />
-                                ) 
-                            })}
-                        </MultiToggleBox>
+                        />
                     }
                     {params.how === MergeType.UNIQUE_IN_LEFT &&
                         <p>

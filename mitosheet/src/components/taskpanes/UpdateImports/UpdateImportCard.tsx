@@ -19,8 +19,8 @@ const getFileNameSpanFromFilePath = (filePath: string): JSX.Element => {
     )
 }
 
-const getSimpleNameSpan = (name: string): JSX.Element => {
-    return (<span title={name}>{name}</span>)
+const getSimpleNameSpan = (name: string | undefined | null): JSX.Element => {
+    return (<span title={name || 'not definend'}>{name}</span>)
 }
 
 
@@ -44,12 +44,23 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
                 <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.df_names[0])}
             </div>
         )
-    } else {
+    } else if (dataframeCreationData.step_type === 'excel_range_import') {
         return (
             <div>
                 <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_path)}
             </div>
-
+        )
+    } else if (dataframeCreationData.step_type === 'snowflake_import') {
+        return (
+            <div>
+                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table)} <span className='text-color-medium-gray-important'>from Snowflake </span>
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                <></>
+            </div>
         )
     }
 }
@@ -86,13 +97,28 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
                 <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0])}
             </div>
         )
-    } else {
+    } else if (updatedDataframeCreationData.step_type === 'excel_range_import') {
         return (
             <div className='mt-3px'>
                 <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path)}
             </div>
         )
+    } else if (updatedDataframeCreationData.step_type === 'snowflake_import') {
+        return (
+            // If the user validates their snowlfake credentials, we just remove the error, but don't add
+            // an update message since the query did not change.
+            <div>
+                <></>
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                <></>
+            </div>
+        )
     }
+    
 }
 
 /* 
@@ -128,6 +154,53 @@ const UpdateImportCard = (props: {
         })
     }
 
+    const getUpdateImportOptionDropdownItems = (): JSX.Element[] => {
+        let dropdownItems: JSX.Element[] = []
+
+        if (props.dataframeCreationData.step_type === 'snowflake_import') {
+            dropdownItems.push(
+                <DropdownItem
+                    key='Connect to Snowflake'
+                    title='Connect to Snowflake'
+                    onClick={() => {
+                        props.setReplacingDataframeState({
+                            dataframeCreationIndex: props.dataframeCreationIndex,
+                            importState: {screen: 'authenticate_to_snowflake'},
+                            params: undefined
+                        });
+                    }}
+                />
+            )
+        }
+
+        dropdownItems = dropdownItems.concat([
+            <DropdownItem
+                key='Replace with file'
+                title='Replace with file'
+                onClick={() => {
+                    props.setReplacingDataframeState({
+                        dataframeCreationIndex: props.dataframeCreationIndex,
+                        importState: {screen: 'file_browser'},
+                        params: undefined
+                    });
+                }}
+            />,
+            <DropdownItem
+                key='Replace with dataframe'
+                title='Replace with dataframe'
+                onClick={() => {
+                    props.setReplacingDataframeState({
+                        dataframeCreationIndex: props.dataframeCreationIndex,
+                        importState: {screen: 'dataframe_import'},
+                        params: {df_names: []}
+                    });
+                }}
+            />
+        ])
+
+        return dropdownItems
+    }
+
     return (
         <Row justify='space-between' align='top' onClick={() => {openDropdown()}}>
             <Col span={22}>
@@ -156,26 +229,7 @@ const UpdateImportCard = (props: {
                         closeDropdown={() => closeDropdown()}
                         width='medium'
                     >
-                        <DropdownItem
-                            title='Replace with file'
-                            onClick={() => {
-                                props.setReplacingDataframeState({
-                                    dataframeCreationIndex: props.dataframeCreationIndex,
-                                    importState: {screen: 'file_browser'},
-                                    params: undefined
-                                });
-                            }}
-                        />
-                        <DropdownItem
-                            title='Replace with dataframe'
-                            onClick={() => {
-                                props.setReplacingDataframeState({
-                                    dataframeCreationIndex: props.dataframeCreationIndex,
-                                    importState: {screen: 'dataframe_import'},
-                                    params: {df_names: []}
-                                });
-                            }}
-                        />
+                        {getUpdateImportOptionDropdownItems()}
                     </Dropdown>
                 </div>
             </Col>

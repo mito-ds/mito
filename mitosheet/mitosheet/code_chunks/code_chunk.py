@@ -15,7 +15,7 @@ else:
 class CodeChunk:
     """
     A CodeChunk is the a abstract base class that can be inhereited from
-    to create a code generating object. For example, a AddColumnCodeChunk
+    to create a code generating object. For example, an AddColumnCodeChunk
     with the correct parameters and states will generate code that adds
     a column with a specific column header to a specific dataframe.
 
@@ -43,7 +43,11 @@ class CodeChunk:
         raise NotImplementedError('Implement in subclass')
 
     def get_code(self) -> Tuple[List[str], List[str]]:
-        """Returns a the list of code strings that this code chunk executes"""
+        """
+        Returns a Tuple of lists of code strings that this code chunk executes. 
+        The first list is the code used to perfrom the operation. The second list 
+        is the imports required for the code. ie: import pandas as pd
+        """
         raise NotImplementedError('Implement in subclass')
 
     # TODO: we could add a function that returns a list of params and execution

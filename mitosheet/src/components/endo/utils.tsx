@@ -1,7 +1,8 @@
 import React from "react";
-import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, SheetData, UIState } from "../../types";
+import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
 import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
+import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
 
 
@@ -93,17 +94,38 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     columnHeader: ColumnHeader | undefined,
     columnDtype: string | undefined,
     columnFormula: string | undefined,
+    columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined,
     cellValue: string | number | boolean | undefined,
     columnFilters: ColumnFilters | undefined,
     columnFormat: ColumnFormatType | undefined,
     headerBackgroundColor: string | undefined,
     headerTextColor: string | undefined,
+    indexLabel: IndexLabel | undefined,
 } => {
+
     
     const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
     const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
-    const columnFormula = columnID !== undefined ? sheetData?.columnSpreadsheetCodeMap[columnID] : undefined;
+    const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
     const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
+    const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
+    let columnFormula: string | undefined;
+    let columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined;
+
+    // To find the column formula, we go through and find the LAST formula that was written that is
+    // applied to this specific index label. Entire column formulas apply to the everything, duh
+    if (columnFormulaAndLocation.length !== 0) {
+        columnFormulaAndLocation.forEach(cfal => {
+            if (cfal.location.type === 'entire_column') {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
+                columnFormulaLocation = 'entire_column';
+            } else if (indexLabel !== undefined && cfal.location.index_labels.includes(indexLabel)) {
+                columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
+                columnFormulaLocation = 'specific_index_labels'
+            }
+        })
+    }
+
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
     const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
     const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
@@ -114,12 +136,14 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
         columnID: columnID,
         columnHeader: columnHeader,
         columnFormula: columnFormula,
+        columnFormulaLocation: columnFormulaLocation,
         columnDtype: columnDtype,
         columnFilters: columnFilters,
         cellValue: cellValue,
         columnFormat: columnFormat,
         headerBackgroundColor: headerBackgroundColor, 
         headerTextColor: headerTextColor,
+        indexLabel: indexLabel
     }
 }
 

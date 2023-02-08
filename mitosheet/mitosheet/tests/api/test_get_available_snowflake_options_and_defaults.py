@@ -1,6 +1,7 @@
 import json
 import os
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
+from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 
@@ -35,9 +36,10 @@ def test_integration_success():
     }
 
     params = {
-        'credentials': TEST_SNOWFLAKE_CREDENTIALS,
         'table_loc_and_warehouse': table_loc_and_warehouse
     }
+
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
 

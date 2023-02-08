@@ -11,7 +11,7 @@ from mitosheet.step_performers.column_steps.set_column_formula import SetColumnF
 from mitosheet.step_performers.filter import FilterStepPerformer
 from mitosheet.state import State
 from mitosheet.step_performers import STEP_TYPE_TO_STEP_PERFORMER
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import FORMULA_SPECIFIC_INDEX_LABELS_TYPE, ColumnHeader, ColumnID, FORMULA_ENTIRE_COLUMN_TYPE
 
 
 class Step:
@@ -80,8 +80,8 @@ class Step:
         return self.post_state.column_ids
     
     @property
-    def column_spreadsheet_code(self):
-        return self.post_state.column_spreadsheet_code
+    def column_formulas(self):
+        return self.post_state.column_formulas
     
     @property
     def column_filters(self):
@@ -176,7 +176,8 @@ class Step:
         Currently, a step only skips the steps before it if:
         1. This step is a filter step that is trying to replace an older filter step
         2. This step has the same id as any step before it (like for pivot tables)
-        3. This step is a formula step overwriting the step that came just before it
+        3. This step is a formula step overwriting the step that came just before it AND they both set the entire column
+        4. This step is a formula step overwriting the step that came just before it AND they both set the same indexes
         """
 
         step_indexes_to_skip = set()
@@ -195,9 +196,15 @@ class Step:
         if len(all_steps_before_this_step) > 0:
             previous_step: Step = all_steps_before_this_step[-1]
             
-            # Check (3)
-            if self.step_type == SetColumnFormulaStepPerformer.step_type():
-                if self.step_type == previous_step.step_type \
+            # Check (3) and (4)
+            if self.step_type == SetColumnFormulaStepPerformer.step_type() and previous_step.step_type == SetColumnFormulaStepPerformer.step_type():
+                both_entire_column = self.params['index_labels_formula_is_applied_to']['type'] == FORMULA_ENTIRE_COLUMN_TYPE and previous_step.params['index_labels_formula_is_applied_to']['type'] == FORMULA_ENTIRE_COLUMN_TYPE
+                same_indexes = (
+                    self.params['index_labels_formula_is_applied_to']['type'] == FORMULA_SPECIFIC_INDEX_LABELS_TYPE and previous_step.params['index_labels_formula_is_applied_to']['type'] == FORMULA_SPECIFIC_INDEX_LABELS_TYPE \
+                    and self.params['index_labels_formula_is_applied_to']['index_labels'] == previous_step.params['index_labels_formula_is_applied_to']['index_labels']
+                )
+                
+                if (both_entire_column or same_indexes) \
                     and self.params['sheet_index'] == previous_step.params['sheet_index'] \
                     and self.params['column_id'] == previous_step.params['column_id']:
                     step_indexes_to_skip.add(len(all_steps_before_this_step) - 1)

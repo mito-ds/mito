@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState } from '../../types';
+import { Action, ActionEnum, UIState, UserProfile } from '../../types';
 import { getSortedActions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
@@ -11,6 +11,7 @@ interface ToolbarHelpDropdownProps {
     actions: Record<ActionEnum, Action>;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    userProfile: UserProfile
 }
 
 /**
@@ -39,7 +40,7 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
                 width='large'
             >
                 {allActions.map((action) => {
-                    return makeToolbarDropdownItem(action)
+                    return makeToolbarDropdownItem(action, props.userProfile)
                 })}
             </Dropdown>
         </>

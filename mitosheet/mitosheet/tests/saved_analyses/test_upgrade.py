@@ -6,17 +6,22 @@
 import json
 import os
 from pathlib import Path
-from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-import pytest
-import pandas as pd
 
-from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import BULK_OLD_RENAME_STEP
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+import pandas as pd
+import pytest
+
 from mitosheet._version import __version__
 from mitosheet.column_headers import (get_column_header_id,
                                       get_column_header_ids)
 from mitosheet.saved_analyses import (SAVED_ANALYSIS_FOLDER, is_prev_version,
                                       read_and_upgrade_analysis)
+from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
+    BULK_OLD_RENAME_STEP    
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
+    DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+    DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
+from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
 PREV_TESTS = [
     ('0.1.61', '0.1.62', True),
@@ -85,7 +90,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "D", "column_header_index": -1}}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "E", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("D"), "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "D", "column_header_index": -1}}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "E", "column_header_index": -1}}, {"step_version": 4, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("D"), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}]
         }
     ),
     # A merge
@@ -131,7 +136,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 2, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [{'column_id': get_column_header_id("DORK"), 'transformation': 'no-op'}], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
+            "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 4, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [{'column_id': get_column_header_id("DORK"), 'transformation': 'no-op'}], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
         },
     ), 
     # An add_column step version 1 should be upgraded to add_column step version 2
@@ -223,8 +228,8 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("new")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("new")]}},
                 {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
                 {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("new"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("new"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('new'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
-                {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), 'old_formula': '=A', 'new_formula': '=B'}},
-                {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('new'), 'old_formula': '=A', 'new_formula': '=B'}},
+                {'step_version': 4, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
+                {'step_version': 4, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('new'), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
             ]
         }
@@ -247,7 +252,7 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 1, "step_type": "dataframe_duplicate", "params": {"sheet_index": 0}}, 
                 {'step_version': 1, 'step_type': "add_column", 'params': {'sheet_index': 1,'column_header': 'formula'}},
-                {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('formula'), 'old_formula': '=0', 'new_formula': '=new'}},
+                {'step_version': 4, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('formula'), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=0', 'new_formula': '=new'}},
             ]
         }
     ),
@@ -275,8 +280,8 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("newer")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("newer")]}},
                 {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 0, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("old"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('old'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
                 {"step_version": 8, "step_type": "pivot", "params": {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, 'sheet_index': 1, 'pivot_rows_column_ids_with_transforms': [{'column_id': get_column_header_id("newer"), 'transformation': 'no-op'}], 'pivot_columns_column_ids_with_transforms': [{'column_id': get_column_header_id("newer"), 'transformation': 'no-op'}], 'values_column_ids_map': {get_column_header_id('newer'): ['sum']}, 'destination_sheet_index': 1, 'pivot_filters': []}}, BULK_OLD_RENAME_STEP,
-                {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), 'old_formula': '=A', 'new_formula': '=B'}},
-                {'step_version': 2, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('newer'), 'old_formula': '=A', 'new_formula': '=B'}},
+                {'step_version': 4, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
+                {'step_version': 4, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('newer'), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
             ]
         }
     ),
@@ -296,7 +301,7 @@ UPGRADE_TESTS = [
             "steps_data": [ 
                 {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}, 
                 {"step_version": 3, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": ["Date"], "new_dtype": "datetime", "old_dtypes": {"Date": "object"}}}, {"step_version": 2, "step_type": "add_column", "params": {"sheet_index": 0, "column_header": "new-column-9rkm", "column_header_index": 1}}, 
-                {"step_version": 2, "step_type": "set_column_formula", "params": {"sheet_index": 0, "column_id": "new-column-9rkm", "new_formula": "weekday(Date)", "old_formula": "=0"}}, 
+                {"step_version": 4, "step_type": "set_column_formula", "params": {"sheet_index": 0, "column_id": "new-column-9rkm", "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "new_formula": "weekday(Date)", "old_formula": "=0"}}, 
                 {"step_version": 4, "step_type": "graph", "params": {"graph_id": "_iv911muyd", "graph_preprocessing": {"safety_filter_turned_on_by_user": True}, "graph_creation": {"graph_type": "bar", "sheet_index": 0, "x_axis_column_ids": ["Low"], "y_axis_column_ids": ["Open"], "color": "new-column-9rkm"}, "graph_styling": {"title": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT}, "xaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True, "rangeslider": {"visible": True}}, "yaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True}, "showlegend": True, 'legend': {'orientation': 'v'}, 'paper_bgcolor': DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, 'plot_bgcolor': DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT}, "graph_rendering": {"height": "426px", "width": "1141.800048828125px"}}}
             ]
         }

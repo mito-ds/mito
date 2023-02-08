@@ -18,11 +18,12 @@ import { Height, Width } from './sizes.d';
 const MAX_DISPLAYED = 10000;
 
 
-const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, message?: string;}): JSX.Element => {
+const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean, numDisplayed: number, isSubset?: boolean, emptyMessage?: string, message?: string;}): JSX.Element => {
+    const _emptyMessage = props.emptyMessage !== undefined ? props. emptyMessage : "No items to display."
     if (props.loading) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     Loading items<LoadingDots/>
                 </p>
             </Row>
@@ -30,7 +31,7 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     } else if (props.maxDisplayed || props.isSubset) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     There are too many items to display. Search to filter down to the items you care about.
                 </p>
             </Row>
@@ -38,15 +39,15 @@ const MultiToggleBoxMessage = (props: {loading?: boolean, maxDisplayed: boolean,
     } else if (props.numDisplayed === 0) {
         return (
             <Row justify='center'>
-                <p className='text-body-1'> 
-                    No items to display.
+                <p className='text-body-1 text-align-center-important'> 
+                    {_emptyMessage}
                 </p>
             </Row>
         )
     } else if (props.message !== undefined) {
         return (
             <Row justify='center'>
-                <p className='text-body-1 text-align-center'> 
+                <p className='text-body-1 text-align-center-important'> 
                     {props.message}
                 </p>
             </Row>
@@ -91,7 +92,7 @@ const MultiToggleBox = (props: {
     /** 
         * @param [toggleAllIndexes] - If you want to toggle mulitple indexes at once, you can with this function
     */
-    toggleAllIndexes?: (indexesToToggle: number[], newValue: boolean) => void;
+    onToggleAll?: (newSelectedIndexes: number[]) => void;
     /** 
         * @param [height] - Height of the MultiToggleBox
     */
@@ -131,6 +132,11 @@ const MultiToggleBox = (props: {
     message?: string;
 
     /** 
+        * @param [emptyMessage] - Display this message if there are no items in the MultiToggleBox.
+    */
+    emptyMessage?: string;
+
+    /** 
         * @param [disabled] - Optionally make none of the buttons clickable here
     */
     disabled?: boolean;
@@ -158,7 +164,7 @@ const MultiToggleBox = (props: {
     const heightClass = `element-height-${height}`
     const widthClass = `element-width-${width}`
 
-    let displayedNonDisabledAllToggled = true;
+    let isAllDisplayedNonDisabledAreToggled = true;
     const nonDisabledDisplayedIndexes: number[] = [];
     
     let numToggled = 0;
@@ -205,7 +211,7 @@ const MultiToggleBox = (props: {
         const itemDisabled = child.props.disabled || props.disabled;
         if (!itemDisabled) {
             nonDisabledDisplayedIndexes.push(child.props.index);
-            displayedNonDisabledAllToggled = displayedNonDisabledAllToggled && child.props.toggled; 
+            isAllDisplayedNonDisabledAreToggled = isAllDisplayedNonDisabledAreToggled && child.props.toggled; 
         }
 
         const copiedChild = React.cloneElement(child, {
@@ -216,7 +222,7 @@ const MultiToggleBox = (props: {
     });
 
 
-    const { toggleAllIndexes } = props;
+    const { onToggleAll: toggleAllIndexes } = props;
 
     return (
         <div className={classNames('multi-toggle-box-container', heightClass, widthClass, props.className)}>
@@ -242,25 +248,31 @@ const MultiToggleBox = (props: {
                     loading={props.loading}
                     isSubset={props.isSubset}
                     message={props.message}
+                    emptyMessage={props.emptyMessage}
                     maxDisplayed={maxDisplayed}
                     numDisplayed={numDisplayed}
                 />}
                 {toggleAllIndexes !== undefined && numDisplayed > 0 &&
                     <div 
                         key='Toggle All' 
-                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': displayedNonDisabledAllToggled})}
+                        className={classNames('multi-toggle-box-row', {'multi-toggle-box-row-selected': isAllDisplayedNonDisabledAreToggled})}
                         onClick={() => {
                             if (props.disabled) {
                                 return;
                             }
-                            toggleAllIndexes(nonDisabledDisplayedIndexes, !displayedNonDisabledAllToggled)
+
+                            if (!isAllDisplayedNonDisabledAreToggled) {
+                                toggleAllIndexes(nonDisabledDisplayedIndexes)
+                            } else {
+                                toggleAllIndexes([])
+                            }
                         }}
                     >
                         <input
                             key={'Toggle All'}
                             type="checkbox"
                             name={'Toggle All'}
-                            checked={displayedNonDisabledAllToggled}
+                            checked={isAllDisplayedNonDisabledAreToggled}
                         />
                         <MultiToggleSelectedMessage
                             searchString={searchString}

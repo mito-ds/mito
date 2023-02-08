@@ -10,10 +10,12 @@ import { ExcelRangeImportParams } from "../ExcelRangeImport/ExcelRangeImportTask
 import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
+import { SnowflakeImportParams } from "../SnowflakeImport/SnowflakeImportTaskpane";
 import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
-import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateDataframeCreation } from "./updateImportsUtils";
+import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
+import UpdateSnowflakeCredentialsScreen from "./UpdateSnowflakeCredentialsScreen";
 
 
 interface UpdateImportsTaskpaneProps {
@@ -41,6 +43,9 @@ export type DataframeCreationData = {
 } | {
     step_type: 'excel_range_import',
     params: ExcelRangeImportParams
+} | {
+    step_type: 'snowflake_import',
+    params: SnowflakeImportParams
 }
 
 
@@ -406,6 +411,30 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 editApplied={false}
                 loading={false}
             
+                backCallback={() => {
+                    setReplacingDataframeState(undefined);
+                }}
+                notCloseable={updatePreReplay}
+            />
+        )
+    } else if (replacingDataframeState.importState.screen === 'authenticate_to_snowflake') {
+        return (
+            <UpdateSnowflakeCredentialsScreen
+                mitoAPI={props.mitoAPI}
+                setUIState={props.setUIState}
+                edit={() => {
+                    // Once the user validates their snowflake credentials once, we assume they are going
+                    // to use the same credentials for all other snowflake imports in this analysis, so we mark
+                    // them all as resolved. 
+                    updateAllSnowflakeImports(
+                        updatedStepImportData,
+                        setUpdatedStepImportData,
+                        setUpdatedIndexes,
+                        setPostUpdateInvalidImportMessages,
+                        setReplacingDataframeState
+                    )
+                }}
+
                 backCallback={() => {
                     setReplacingDataframeState(undefined);
                 }}

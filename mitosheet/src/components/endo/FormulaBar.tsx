@@ -34,7 +34,7 @@ const FormulaBar = (props: {
     const rowIndex = props.selection.startingRowIndex
     const colIndex = props.selection.startingColumnIndex
 
-    const {columnHeader, columnFormula, cellValue} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
+    const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
@@ -49,7 +49,7 @@ const FormulaBar = (props: {
         }
     } else {
         // If we're editing, display the formula
-        formulaBarValue = getFullFormula(props.editorState.formula, formulaBarColumnHeader || '', props.editorState.pendingSelectedColumns);
+        formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
     }
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -100,7 +100,7 @@ const FormulaBar = (props: {
                                 formula: formulaBarValue,
                                 arrowKeysScrollInFormula: true,
                                 editorLocation: 'formula bar',
-                                editingMode: 'set_column_formula'
+                                editingMode: columnFormulaLocation || 'entire_column'
                             })
                         }}
                     >

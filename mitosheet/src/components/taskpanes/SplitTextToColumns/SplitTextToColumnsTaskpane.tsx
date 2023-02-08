@@ -74,7 +74,7 @@ const getDefaultParams  = (startingColumnID: ColumnID | undefined, sheetDataArra
 const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX.Element => {
 
     const {params, setParams, loading, edit, editApplied, result} = useSendEditOnClick<SplitTextToColumnsParams, SplitTextToColumnsResult>(
-        getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex),
+        () => getDefaultParams(props.startingColumnID, props.sheetDataArray, props.selectedSheetIndex),
         StepType.SplitTextToColumns, 
         props.mitoAPI,
         props.analysisData,

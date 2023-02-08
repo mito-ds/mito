@@ -60,7 +60,7 @@ export const createActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex, 'set_column_formula');
+    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -417,8 +417,8 @@ export const createActions = (
         },
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
-            shortTitle: 'Export',
-            longTitle: 'Export to file',
+            shortTitle: 'Download',
+            longTitle: 'Download File',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -440,6 +440,27 @@ export const createActions = (
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Download dataframes as a .csv or .xlsx file."
+        },
+        [ActionEnum.Export_Dropdown]: {
+            type: ActionEnum.Export_Dropdown,
+            shortTitle: 'Export',
+            longTitle: 'Open Export Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'export'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Export dataframes as a .csv or .xlsx file."
         },
         [ActionEnum.Fill_Na]: {
             type: ActionEnum.Fill_Na,
@@ -867,7 +888,7 @@ export const createActions = (
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
-                    editingMode: 'set_cell_value'
+                    editingMode: 'specific_index_labels'
                 })
 
             },
@@ -960,7 +981,7 @@ export const createActions = (
                     // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
                     editorLocation: 'cell',
-                    editingMode: 'set_cell_value'
+                    editingMode: 'specific_index_labels'
                 })
             },
             isDisabled: () => {
@@ -991,7 +1012,7 @@ export const createActions = (
                     formula: startingColumnFormula,
                     arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                     editorLocation: 'cell',
-                    editingMode: 'set_column_formula'
+                    editingMode: 'entire_column'
                 })
             },
             isDisabled: () => {
@@ -1281,27 +1302,77 @@ export const createActions = (
             searchTerms: ['CodeSnippets'],
             tooltip: "CodeSnippets"
         },
-        // [ActionEnum.SNOWFLAKEIMPORT]: {
-        //     type: ActionEnum.SNOWFLAKEIMPORT,
-        //     shortTitle: 'Snowflake Import',
-        //     longTitle: 'Snowflake Import',
-        //     actionFunction: () => {
-        //         // We turn off editing mode, if it is on
-        //         setEditorState(undefined);
+        [ActionEnum.EXPORT_TO_FILE]: {
+            type: ActionEnum.EXPORT_TO_FILE,
+            shortTitle: 'Generate Export Code',
+            longTitle: 'Generate Export Code',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
 
-        //         setUIState(prevUIState => {
-        //             return {
-        //                 ...prevUIState,
-        //                 currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT},
-        //                 selectedTabType: 'data'
-        //             }
-        //         })
-        //     },
-        //     isDisabled: () => {return undefined}, 
-        //     searchTerms: ['SQL', 'database', 'snowflake', 'import'],
-        //     tooltip: "Import dataframe from a Snowflake data warehouse"
-        // },
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before exporting it'},
+            searchTerms: ['export', 'download', 'file'],
+            tooltip: "Generate code that exports dataframes to files."
+        },
+        [ActionEnum.RESET_AND_KEEP_INDEX]: {
+            type: ActionEnum.RESET_AND_KEEP_INDEX,
+            shortTitle: 'Reset and Keep Index',
+            longTitle: 'Reset and Keep Index',
+            actionFunction: () => {
+                void mitoAPI.editResetIndex(sheetIndex, false);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before resetting an index.'},
+            searchTerms: ['reset', 'index'],
+            tooltip: "Resets a dataframe's index to 0,1,2,3... Keeps the current index as a column in the dataframe."
+        },
+        [ActionEnum.RESET_AND_DROP_INDEX]: {
+            type: ActionEnum.RESET_AND_DROP_INDEX,
+            shortTitle: 'Reset and Drop Index',
+            longTitle: 'Reset and Drop Index',
+            actionFunction: () => {
+                void mitoAPI.editResetIndex(sheetIndex, true);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Import data before resetting an index.'},
+            searchTerms: ['reset', 'index'],
+            tooltip: "Resets a dataframe's index to 0,1,2,3... Removes current index entirely."
+        },
+        [ActionEnum.SNOWFLAKEIMPORT]: {
+            type: ActionEnum.SNOWFLAKEIMPORT,
+            shortTitle: 'Snowflake Import',
+            longTitle: 'Snowflake Import',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                if (!userProfile.isPro) {
+                    return 'Only available in Mito Pro and Mito Enterprise'
+                } else {
+                    return undefined
+                }
+            }, 
+            searchTerms: ['SQL', 'database', 'snowflake', 'import'],
+            tooltip: "Import dataframe from a Snowflake data warehouse",
+            proAction: true
+        },
         // AUTOGENERATED LINE: ACTION (DO NOT DELETE)
+    
     
     
     
@@ -1630,7 +1701,7 @@ export const getSpreadsheetFormulaAction = (
                 formula: "=" + spreadsheetAction?.function + "(",
                 arrowKeysScrollInFormula: false,
                 editorLocation: 'cell',
-                editingMode: 'set_column_formula'
+                editingMode: 'entire_column'
             })
         },
         isDisabled: () => {

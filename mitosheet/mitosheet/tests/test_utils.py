@@ -10,18 +10,24 @@ This file contains helpful functions and classes for testing operations.
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
-from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
-from mitosheet.step_performers.import_steps.dataframe_import import get_variable_with_name_from_caller
-from mitosheet.step_performers.graph_steps.plotly_express_graphs import DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT, DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
-from numpy import number
 
 import pandas as pd
+from numpy import number
+
+from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
-from mitosheet.parser import parse_formula
+from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
+    DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+    DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, column_header_list_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat, GraphID, MultiLevelColumnHeader, ColumnIDWithFilter, ColumnHeaderWithFilter, ColumnHeaderWithPivotTransform, ColumnIDWithPivotTransform
+from mitosheet.transpiler.transpile_utils import (
+    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
+                             ColumnHeaderWithPivotTransform, ColumnID,
+                             ColumnIDWithFilter, ColumnIDWithPivotTransform,
+                             DataframeFormat, FormulaAppliedToType, GraphID,
+                             MultiLevelColumnHeader, Filter, FilterGroup, Operator)
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -106,7 +112,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         test_wrapper.mito_backend.steps_manager.curr_step.dfs,
         test_wrapper.mito_backend.steps_manager.curr_step.df_names,
         test_wrapper.mito_backend.steps_manager.curr_step.df_sources,
-        test_wrapper.mito_backend.steps_manager.curr_step.column_spreadsheet_code,
+        test_wrapper.mito_backend.steps_manager.curr_step.column_formulas,
         test_wrapper.mito_backend.steps_manager.curr_step.column_filters,
         test_wrapper.mito_backend.steps_manager.curr_step.column_ids,
         test_wrapper.mito_backend.steps_manager.curr_step.df_formats
@@ -198,6 +204,8 @@ class MitoWidgetTestWrapper:
             sheet_index: int,
             column_header: str, 
             add_column: bool=False,
+            formula_label: Optional[Any]=None,
+            index_labels: Optional[List[Any]]=None
         ) -> bool:
         """
         Sets the given column to have formula, and optionally
@@ -211,6 +219,15 @@ class MitoWidgetTestWrapper:
             column_header
         )
 
+        if formula_label is None:
+            formula_label = self.mito_backend.steps_manager.dfs[sheet_index].index[0]
+
+        index_labels_formula_is_applied_to: FormulaAppliedToType
+        if index_labels is None:
+            index_labels_formula_is_applied_to = {'type': 'entire_column'}
+        else:
+            index_labels_formula_is_applied_to = {'type': 'specific_index_labels', 'index_labels': index_labels}
+
         return self.mito_backend.receive_message(
             {
                 'event': 'edit_event',
@@ -220,6 +237,8 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'column_id': column_id,
+                    'formula_label': formula_label,
+                    'index_labels_formula_is_applied_to': index_labels_formula_is_applied_to,
                     'new_formula': formula,
                 }
             }
@@ -493,7 +512,6 @@ class MitoWidgetTestWrapper:
     @check_transpiled_code_after_call
     def snowflake_import(
             self, 
-            credentials: Any,
             table_loc_and_warehouse: Any,
             query_params: Any,
         ) -> bool:
@@ -504,7 +522,6 @@ class MitoWidgetTestWrapper:
                 'type': 'snowflake_import_edit',
                 'step_id': get_new_id(),
                 'params': {
-                    'credentials': credentials,
                     'table_loc_and_warehouse': table_loc_and_warehouse,
                     'query_params': query_params,
                 }
@@ -529,6 +546,50 @@ class MitoWidgetTestWrapper:
                     'file_path': file_path,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
+                }
+            }
+        )
+    
+    # NOTE: we don't automatically run the code for testing reasons, so that we can
+    # test the step performer to make sure that it works properly without the generated
+    # code overwriting the files
+    def export_to_file(
+            self, 
+            type: str,
+            sheet_indexes: List[int],
+            file_name: str,
+        ) -> bool:
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'export_to_file_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'type': type,
+                    'sheet_indexes': sheet_indexes,
+                    'file_name': file_name
+                }
+            }
+        )
+
+    @check_transpiled_code_after_call
+    def reset_index(
+            self, 
+            sheet_index: int,
+            drop: bool,
+        ) -> bool:
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'reset_index_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'drop': drop,
                 }
             }
         )
@@ -664,7 +725,7 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: str,
+            operator: Operator,
             condition: str, 
             value: Any
         ) -> bool:
@@ -698,8 +759,8 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: str,
-            filters: List[Dict[str, Any]]
+            operator: Operator,
+            filters: List[Union[Filter, FilterGroup]]
         ) -> bool:
 
         column_id = self.mito_backend.steps_manager.curr_step.column_ids.get_column_id_by_header(
@@ -1264,31 +1325,10 @@ class MitoWidgetTestWrapper:
         column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
             sheet_index, column_header
         )
-        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
+        if column_id not in self.mito_backend.steps_manager.curr_step.column_formulas[sheet_index]:
             return ''
-        return self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index][column_id]
+        return self.mito_backend.steps_manager.curr_step.column_formulas[sheet_index][column_id]
 
-    def get_python_formula(self, sheet_index: int, column_header: ColumnHeader) -> str:
-        """
-        Gets the formula for a given column. Returns an empty
-        string if nothing exists.
-        """
-        column_id = self.mito_backend.steps_manager.curr_step.get_column_id_by_header(
-            sheet_index, column_header
-        )
-        if column_id not in self.mito_backend.steps_manager.curr_step.column_spreadsheet_code[sheet_index]:
-            return ''
-
-        column_headers = self.curr_step.post_state.dfs[sheet_index].keys()
-
-        # We compile all of their formulas
-        python_code, _, _ = parse_formula(
-            self.curr_step.post_state.column_spreadsheet_code[sheet_index][column_id], 
-            column_header,
-            column_headers
-        )
-
-        return python_code
 
     def get_value(self, sheet_index: int, column_header: ColumnHeader, row: int) -> Any:
         """

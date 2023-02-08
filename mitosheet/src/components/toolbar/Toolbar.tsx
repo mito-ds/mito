@@ -55,6 +55,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Dataframes' uiState={props.uiState} setUIState={props.setUIState}>
@@ -62,6 +63,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Columns' uiState={props.uiState} setUIState={props.setUIState}>
@@ -77,6 +79,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Graphs' uiState={props.uiState} setUIState={props.setUIState}>
@@ -84,6 +87,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
@@ -91,6 +95,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Code' uiState={props.uiState} setUIState={props.setUIState}>
@@ -98,6 +103,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='View' uiState={props.uiState} setUIState={props.setUIState}>
@@ -105,6 +111,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                     <ToolbarMenu type='Help' uiState={props.uiState} setUIState={props.setUIState}>
@@ -112,6 +119,7 @@ const Toolbar = (
                             actions={props.actions}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
+                            userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
                 </div>
@@ -188,14 +196,50 @@ const Toolbar = (
                                     currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
                                 }
                             })}}/>
+                            <DropdownItem title='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT}
+                                }
+                            })}}/>
                         </Dropdown>
                     </ToolbarButton>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.EXPORT}
-                        action={props.actions[ActionEnum.Export]}
+                        action={props.actions[ActionEnum.Export_Dropdown]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Export].isDisabled()}
-                    />
+                        disabledTooltip={props.actions[ActionEnum.Export_Dropdown].isDisabled()}
+                    >
+                        <Dropdown
+                            display={props.uiState.toolbarDropdown === 'export'}
+                            closeDropdown={() => 
+                                props.setUIState(prevUIState => {
+                                    if (prevUIState.toolbarDropdown !== 'export') {
+                                        return prevUIState;
+                                    }
+
+                                    return {
+                                        ...prevUIState,
+                                        toolbarDropdown: undefined
+                                    }
+                                })
+                            }
+                            width='medium'
+                        >
+                            <DropdownItem title='Download File' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
+                                }
+                            })}}/>
+                            <DropdownItem title='Generate Export Code' onClick={() => {props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
+                                }
+                            })}}/>
+                        </Dropdown>
+                    </ToolbarButton>
 
                     <div className="toolbar-vertical-line"/>
 

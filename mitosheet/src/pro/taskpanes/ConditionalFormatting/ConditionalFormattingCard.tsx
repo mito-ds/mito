@@ -1,19 +1,16 @@
 import React from 'react';
-import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
-import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css'
-import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
-import MultiToggleBox from '../../../components/elements/MultiToggleBox';
-import MultiToggleItem from '../../../components/elements/MultiToggleItem';
-import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
-import { getDtypeValue } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
-import { addIfAbsent, removeIfPresent, toggleInArray } from '../../../utils/arrays';
-import LabelAndColor from '../../graph/LabelAndColor';
+import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css';
+import ExpandableContentCard from '../../../components/elements/ExpandableContentCard';
+import MultiToggleColumns from '../../../components/elements/MultiToggleColumns';
 import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
-import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
-import { capitalizeFirstLetter } from '../../../utils/strings';
 import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIcon';
 import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
-import ExpandableContentCard from '../../../components/elements/ExpandableContentCard';
+import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
+import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
+import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
+import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
+import { capitalizeFirstLetter } from '../../../utils/strings';
+import LabelAndColor from '../../graph/LabelAndColor';
 
 
 
@@ -130,55 +127,21 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
             }}
         
         >
-            <MultiToggleBox
-                searchable
-                toggleAllIndexes={(indexesToToggle, newToggle) => {
-                    const columnIDs = Object.keys(props.sheetData?.columnDtypeMap || {})
-                        .map((columnID) => {return columnID})
-                        .filter((_, index) => {
-                            return indexesToToggle.includes(index);
-                        });
-
-                    const newSelectedColumnIDs = [...props.conditionalFormat.columnIDs];
-                    if (newToggle) {
-                        columnIDs.forEach((columnID) => {
-                            addIfAbsent(newSelectedColumnIDs, columnID);
-                        })
-                    } else {
-                        columnIDs.forEach((columnID) => {
-                            removeIfPresent(newSelectedColumnIDs, columnID);
-                        })
-                    }
+            <MultiToggleColumns
+                sheetData={props.sheetData}
+                selectedColumnIDs={props.conditionalFormat.columnIDs}
+                onChange={(newSelectedColumnIDs: ColumnID[]) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
                     newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
-
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}
+                getDisplayColumnHeaderOverride={(columnID, columnHeader) => {
+                    // If it's invalid, we add some text saying so
+                    const isInvalid = invalidColumnIDs.includes(columnID);
+                    return getDisplayColumnHeader(columnHeader) + (isInvalid ? " (invalid)" : '');
+                }}
                 height='medium'
-            >
-                {Object.entries(props.sheetData?.columnDtypeMap || {}).map(([columnID, columnDtype], index) => {
-                    const columnHeader = props.sheetData.columnIDsMap[columnID];
-                    const toggled = props.conditionalFormat.columnIDs.includes(columnID);
-                    const isInvalid = invalidColumnIDs.includes(columnID); // If it's invalid, we merge
-                    return (
-                        <MultiToggleItem
-                            key={index}
-                            title={getDisplayColumnHeader(columnHeader) + (isInvalid ? " (invalid)" : '')}
-                            rightText={getDtypeValue(columnDtype)}
-                            toggled={toggled}
-                            index={index}
-                            onToggle={() => {
-                                const newSelectedColumnIDs = [...props.conditionalFormat.columnIDs];
-                                toggleInArray(newSelectedColumnIDs, columnID);
-                                const newConditionalFormats = [...props.df_format.conditional_formats];
-                                newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
-        
-                                props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
-                            }}
-                        />
-                    ) 
-                })}
-            </MultiToggleBox>
+            />
             {invalidColumnIDMessage}
             <Filter
                 filter={props.conditionalFormat.filters[0]}

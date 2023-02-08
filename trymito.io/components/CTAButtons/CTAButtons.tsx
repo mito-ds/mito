@@ -9,7 +9,7 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
         <div className={styles.cta_buttons_container}> 
             {props.variant === 'download' && 
                 <TextButton 
-                    text='Install Mito for Jupyter'
+                    text='Install Mito for Free'
                     href={MITO_INSTALLATION_DOCS_LINK}
                 />
             }
@@ -19,13 +19,13 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
                     href="mailto:founders@sagacollab.com"
                 />
             }
-            <p className={styles.cta_subbutton}>
+            <h2 className={styles.cta_subbutton}>
                 <Link href='/plans'>
                     <a>
                         or see Pro plans →
                     </a>
                 </Link>
-            </p>
+            </h2>
         </div>
     )
 }

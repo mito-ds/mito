@@ -12,8 +12,8 @@ explicit and clear, and make sure to test the types in our
 continous integration
 """
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union, Tuple, Any
+import pandas as pd
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -23,6 +23,7 @@ PrimativeColumnHeader = Union[int, float, bool, str, Optional[str]]
 MultiLevelColumnHeader = Union[Tuple[PrimativeColumnHeader, ...], List[PrimativeColumnHeader]]
 # To a tuple of primative types (TODO: does this nest further?).
 ColumnHeader = Union[PrimativeColumnHeader, MultiLevelColumnHeader]
+IndexLabel = Any
 
 # To resolve circular dependencies, we create a StepsManagerType here
 if TYPE_CHECKING:
@@ -69,6 +70,9 @@ ConditionalFormattingResult = Dict[str, Union[
 
 PivotColumnTransformation = str
 
+RowOffset = int
+ParserMatchRange = Tuple[int, int] # start, end
+
 # If the user does not have the snowflake.connector python package installed,
 # we take extra care to make sure that our mypy typing will still pass even though
 # that code is not accessible to the user.
@@ -83,18 +87,73 @@ except ImportError:
 
 MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 
+FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
+FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
-    from typing import TypedDict
+    from typing import TypedDict, Literal
+
+
+    BooleanFilterCondition = Literal[
+        'boolean_is_true',
+        'boolean_is_false'
+    ]
+    StringFilterCondition = Literal[
+        'contains',
+        'string_does_not_contain',
+        'string_exactly',
+        'string_not_exactly',
+        'string_starts_with',
+        'string_ends_with'
+    ]
+    NumberFilterCondition = Literal[
+        'number_exactly',
+        'number_not_exactly',
+        'greater',
+        'greater_than_or_equal',
+        'less',
+        'less_than_or_equal',
+        'number_lowest',
+        'number_highest',
+    ]
+    DatetimeFilterCondition = Literal[
+        'datetime_exactly',
+        'datetime_not_exactly',
+        'datetime_greater',
+        'datetime_greater_than_or_equal',
+        'datetime_less',
+        'datetime_less_than_or_equal'
+    ]
+    SharedFilterCondition = Literal[
+        'empty',
+        'not_empty',
+        'most_frequent',
+        'least_frequent'
+    ]
+
+    Operator = Literal['And', 'Or']
+
+    class Filter(TypedDict):
+        condition: Union[BooleanFilterCondition, StringFilterCondition, NumberFilterCondition, DatetimeFilterCondition, SharedFilterCondition]
+        value: Union[str, float, int]
+
+    class FilterGroup(TypedDict):
+        # NOTE: this is a recursive type. The filter group can contain a filter group
+        filters: List[Union[Filter, "FilterGroup"]]
+        operator: Operator #type:ignore
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
-        filter: Dict[str, Any]
+        filter: Filter
+
+    class ColumnIDWithFilterGroup(TypedDict):
+        column_id: ColumnID
+        filter: FilterGroup
 
     class ColumnHeaderWithFilter(TypedDict):
         column_header: ColumnHeader
-        filter: Dict[str, Any]
+        filter: Filter
 
     class ColumnIDWithPivotTransform(TypedDict):
         column_id: ColumnID
@@ -137,28 +196,73 @@ if sys.version_info[:3] > (3, 8, 0):
     class SnowflakeQueryParams(TypedDict):
         columns: List[str]
         limit: Optional[int]
-
-    class SnowflakeImportParams(TypedDict):
-        credentials: SnowflakeCredentials
-        table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse
-        query_params: SnowflakeQueryParams
         
     class CodeSnippetEnvVars(TypedDict):
         MITO_CONFIG_CODE_SNIPPETS_VERSION: str
         MITO_CONFIG_CODE_SNIPPETS_URL: str
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
+    class ParserMatch(TypedDict):
+        type: Literal['column header match type', 'index label match type']
+        match_range: ParserMatchRange
+        unparsed: str
+        parsed: Any
+        row_offset: RowOffset
+
+    class FrontendFormulaString(TypedDict):
+        type: Literal['string part']
+        string: str
+
+    class FrontendFormulaReference(TypedDict):
+        type: Literal['reference part']
+        display_column_header: str
+        row_offset: int
+
+    class FormulaLocationEntireColumn(TypedDict):
+        type: Literal['entire_column']
+
+    class FormulaLocationToSpecificIndexLabels(TypedDict):
+        type: Literal['specific_index_labels']
+        index_labels: List[Any]
+
+
 else:
+    Filter = Any #type: ignore
+    FilterGroup = Any #type: ignore
+    Operator = Any #type:ignore
     ColumnIDWithFilter = Any # type:ignore
+    ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
     ColumnIDWithPivotTransform = Any # type:ignore
     ColumnHeaderWithPivotTransform = Any # type:ignore
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
+    CodeSnippetEnvVars = Any # type:ignore
+    ParserMatch = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
     SnowflakeTableLocationAndWarehouseOptional = Any #type:ignore
     SnowflakeQueryParams = Any # type:ignore
-    SnowflakeImportParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+    FrontendFormulaString = Any # type:ignore
+    FrontendFormulaReference = Any # type:ignore
+    FormulaLocationEntireColumn = Any # type:ignore
+    FormulaLocationToSpecificIndexLabels = Any # type:ignore
 
+
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
+FrontendFormula = List[FrontendFormulaPart]
+
+FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]
+
+
+if sys.version_info[:3] > (3, 8, 0):
+    from typing import TypedDict
+
+    class FrontendFormulaAndLocation(TypedDict):
+        frontend_formula: FrontendFormula
+        location: FormulaAppliedToType
+        index: List[Any]
+
+else:
+    FrontendFormulaAndLocation = Any # type:ignore

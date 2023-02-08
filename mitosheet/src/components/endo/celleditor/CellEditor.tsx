@@ -1,21 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { formulaEndsInColumnHeader, getFullFormula, getSuggestedColumnHeaders, getDocumentationFunction, getSuggestedFunctions, getStartingFormula } from './cellEditorUtils';
-import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
-import { focusGrid } from '../focusUtils';
-import { getColumnHeadersInSelection, getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
-import { EditorState, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
-import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
+import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { ensureCellVisible } from '../visibilityUtils';
-import LoadingDots from '../../elements/LoadingDots';
-import { getColumnHeaderParts, getDisplayColumnHeader} from '../../../utils/columnHeaders';
-import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
-import { TaskpaneType } from '../../taskpanes/taskpanes';
+import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
 import Row from '../../layout/Row';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
+import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { focusGrid } from '../focusUtils';
+import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
+import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
+import { ensureCellVisible } from '../visibilityUtils';
+import { formulaEndsInReference, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
@@ -52,7 +52,7 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
 
-    const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
     const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
@@ -84,17 +84,18 @@ const CellEditor = (props: {
             // Focus the input
             cellEditorInputRef.current?.focus();
 
-            // If there is a pendingSelectedColumns, then we set the selection to be 
+            // If there is a pendingSelections, then we set the selection to be 
             // at the _end_ of them!
-            if (props.editorState.pendingSelectedColumns !== undefined) {
-                const index = props.editorState.pendingSelectedColumns.selectionStart + props.editorState.pendingSelectedColumns.columnHeaders.map(ch => getDisplayColumnHeader(ch)).join(', ').length;
+            if (props.editorState.pendingSelections !== undefined) {
+                // TODO: use the correct funciton, rather than JSON.stringify
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
             }
             
         })
-    }, [props.editorState.pendingSelectedColumns]);
+    }, [props.editorState.pendingSelections]);
 
     useEffect(() => {
         props.setEditorState(prevEditingState => {
@@ -102,7 +103,7 @@ const CellEditor = (props: {
                 return prevEditingState;
             } 
             
-            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.editorState.editingMode).startingColumnFormula
+            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula
@@ -110,12 +111,12 @@ const CellEditor = (props: {
         })
     }, [props.editorState.editingMode])
 
-    if (columnID === undefined || columnHeader === undefined) {
+    if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
         return <></>;
     }
 
-    const fullFormula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns);
-    const endsInColumnHeader = formulaEndsInColumnHeader(fullFormula, props.sheetData);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
     const documentationFunction = getDocumentationFunction(fullFormula);
 
@@ -161,9 +162,10 @@ const CellEditor = (props: {
 
         // If the user presses tab, and they are currently have a suggestion selected, then
         // we go ahead and take that suggestion
-
         let suggestionReplacementLength = 0;
         let suggestion = '';
+
+        let isColumnHeaderSuggestion = true;
         if (suggestionIndex < suggestedColumnHeaders.length) {
             suggestionReplacementLength = suggestedColumnHeadersReplacementLength
             suggestion = suggestedColumnHeaders[suggestionIndex][0];
@@ -171,24 +173,29 @@ const CellEditor = (props: {
             suggestionReplacementLength = suggestedFunctionsReplacementLength
             // We add a open parentheses onto the formula suggestion
             suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + '(';
+            isColumnHeaderSuggestion = false;
         }
 
         // Get the full formula
         let fullFormula = getFullFormula(
             props.editorState.formula, 
-            columnHeader,
-            props.editorState.pendingSelectedColumns
+            props.editorState.pendingSelections, 
+            props.sheetData,
+            props.editorState.rowIndex
         );
 
-        // Strip the prefix, and append the suggestion
+        // Strip the prefix, and append the suggestion, and the current index label as well
         fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         fullFormula += suggestion;
+        if (isColumnHeaderSuggestion) {
+            fullFormula += getDisplayColumnHeader(indexLabel);
+        }
 
         // Update the cell editor state
         props.setEditorState({
             ...props.editorState,
             formula: fullFormula,
-            pendingSelectedColumns: undefined,
+            pendingSelections: undefined,
             arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
@@ -236,7 +243,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -281,29 +288,28 @@ const CellEditor = (props: {
 
                 props.setGridState((gridState) => {
                     const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
-                    const columnHeaders = getColumnHeadersInSelection(newSelection, props.sheetData);
 
                     // If there is already some suggested column headers, we do not change this selection, 
                     // as we want any future expanded selection of column headers to overwrite the same 
-                    // region. So default to pendingSelectedColumns?.selectionStart, but if this does not
+                    // region. So default to pendingSelections?.selectionStart, but if this does not
                     // exist, than take the selection range in the input currently
-                    const newSelectionStart = firstNonNullOrUndefined(
-                        props.editorState.pendingSelectedColumns?.selectionStart,
+                    const newInputSelectionStart = firstNonNullOrUndefined(
+                        props.editorState.pendingSelections?.inputSelectionStart,
                         cellEditorInputRef.current?.selectionStart,
                         0
                     )
-                    const newSelectionEnd = firstNonNullOrUndefined(
-                        props.editorState.pendingSelectedColumns?.selectionEnd,
+                    const newInputSelectionEnd = firstNonNullOrUndefined(
+                        props.editorState.pendingSelections?.inputSelectionEnd,
                         cellEditorInputRef.current?.selectionEnd,
                         0
                     )
 
                     props.setEditorState({
                         ...props.editorState,
-                        pendingSelectedColumns: {
-                            columnHeaders: columnHeaders,
-                            selectionStart: newSelectionStart,
-                            selectionEnd: newSelectionEnd
+                        pendingSelections: {
+                            selections: [newSelection],
+                            inputSelectionStart: newInputSelectionStart,
+                            inputSelectionEnd: newInputSelectionEnd
                         },
                     })
 
@@ -352,17 +358,18 @@ const CellEditor = (props: {
                 props.editorState.rowIndex, props.editorState.columnIndex
             );
 
-            // Take the pendingSelectedColumns, and clear them
+            // Take the pendingSelections, and clear them
             const fullFormula = getFullFormula(
                 props.editorState.formula, 
-                columnHeader,
-                props.editorState.pendingSelectedColumns
+                props.editorState.pendingSelections,
+                props.sheetData,
+                props.editorState.rowIndex
             );
                 
             props.setEditorState({
                 ...props.editorState,
                 formula: fullFormula,
-                pendingSelectedColumns: undefined
+                pendingSelections: undefined
             })
         }
     }
@@ -375,7 +382,7 @@ const CellEditor = (props: {
 
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1) {
+        if (selectedSuggestionIndex !== -1 && !endsInReference) {
             takeSuggestion(selectedSuggestionIndex);
 
             // Then, reset the suggestion index that is selected back to -1, 
@@ -387,7 +394,8 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)
+        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)
+        const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
         setLoading(true);
@@ -400,27 +408,19 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
-            if (props.editorState.editingMode === 'set_column_formula') {
-                // Change of formula
-                errorMessage = await props.mitoAPI.editSetColumnFormula(
-                    props.sheetIndex,
-                    columnID,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } else {
-                // Change of data
-                // Get the index of the edited row in the dataframe. This isn't the same as the editorState.rowIndex
-                // because the editorState.rowIndex is simply the row number in the Mito Spreadsheet which is affected by sorts, etc.
-                const rowIndex = props.sheetData.index[props.editorState.rowIndex];
-                errorMessage = await props.mitoAPI.editSetCellValue(
-                    props.sheetIndex,
-                    columnID,
-                    rowIndex,
-                    formula,
-                    props.editorState.editorLocation
-                )
-            } 
+            // Otherwise, update the formula for the column (or specific index)
+            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
+                ? {'type': 'entire_column'}
+                : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+
+            errorMessage = await props.mitoAPI.editSetColumnFormula(
+                props.sheetIndex,
+                columnID,
+                formulaLabel,
+                formula,
+                index_labels_formula_is_applied_to,
+                props.editorState.editorLocation
+            )
         }
         
         setLoading(false);
@@ -455,7 +455,7 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: true
                         })
                     }}
-                    value={getFullFormula(props.editorState.formula, columnHeader, props.editorState.pendingSelectedColumns)}
+                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
 
@@ -495,12 +495,12 @@ const CellEditor = (props: {
             <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
                 {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
                     <Row justify='space-between' align='center' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'set_column_formula' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
+                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
                             Edit entire column
                         </p>
                         <Toggle
                             className='mr-5px'
-                            value={props.editorState.editingMode === 'set_column_formula' ? true : false}
+                            value={props.editorState.editingMode === 'entire_column' ? true : false}
                             onChange={() => {
                                 props.setEditorState(prevEditorState => {
                                     if (prevEditorState === undefined) {
@@ -509,7 +509,7 @@ const CellEditor = (props: {
                                     const prevEditingMode = {...prevEditorState}.editingMode
                                     return {
                                         ...prevEditorState,
-                                        editingMode: prevEditingMode === 'set_column_formula' ? 'set_cell_value' : 'set_column_formula'
+                                        editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
                                     }
                                 })
                             }}
@@ -540,7 +540,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInColumnHeader && props.editorState.editingMode === 'set_column_formula' &&
+                {cellEditorError === undefined && !loading && !endsInReference &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
@@ -579,7 +579,7 @@ const CellEditor = (props: {
                     </>
                 }
                 {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && props.editorState.editingMode === 'set_column_formula' && !hasSuggestions && documentationFunction !== undefined &&
+                {cellEditorError === undefined && !loading && !hasSuggestions && documentationFunction !== undefined &&
                     <div>
                         <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
                             <p className='text-body-2'>
@@ -593,10 +593,10 @@ const CellEditor = (props: {
                             <p className='text-subtext-1'>
                                 Examples
                             </p>
-                            {documentationFunction.examples?.map(example => {
+                            {documentationFunction.examples?.map((example, index) => {
                                 return (
                                     <p 
-                                        key={example}
+                                        key={index}
                                         className='cell-editor-function-documentation-example'
                                     >
                                         {example}

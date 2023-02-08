@@ -104,7 +104,7 @@ def _delete_column_id(
     partial_pandas_processing_time = perf_counter() - partial_pandas_start_time
 
     # And then update all the state variables removing this column from the state
-    del state.column_spreadsheet_code[sheet_index][column_id]
+    del state.column_formulas[sheet_index][column_id]
     if column_id in state.df_formats[sheet_index]['columns']:
         del state.df_formats[sheet_index]['columns'][column_id]
 

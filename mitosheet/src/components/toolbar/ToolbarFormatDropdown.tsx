@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState } from '../../types';
+import { Action, ActionEnum, UIState, UserProfile } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
@@ -11,6 +11,7 @@ interface ToolbarViewDropdownProps {
     actions: Record<ActionEnum, Action>;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    userProfile: UserProfile
 }
 
 /**
@@ -34,12 +35,12 @@ const ToolbarFormatDropdown = (props: ToolbarViewDropdownProps): JSX.Element => 
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Dataframe_Format])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Conditional_Formatting])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Dataframe_Format], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Conditional_Formatting], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Decrease])}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Increase])}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Decrease], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.Precision_Increase], props.userProfile)}
             </Dropdown>
         </>
     );

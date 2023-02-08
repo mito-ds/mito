@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
@@ -15,17 +15,20 @@ from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
-from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
 
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, column_header: ColumnHeader, column_header_index: int):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, column_header: ColumnHeader, column_header_index: int, new_formula: str):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.column_header = column_header
+        self.formula_label = formula_label
+        self.index_labels_formula_is_applied_to = index_labels_formula_is_applied_to
         self.column_header_index = column_header_index
+        self.new_formula = new_formula
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -36,12 +39,12 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         return f'Added column {column_header_to_transpiled_code(self.column_header)}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
-        column_headers = self.post_state.dfs[self.sheet_index].keys().tolist()
-
-        python_code, _, _ = parse_formula(
-            self.post_state.column_spreadsheet_code[self.sheet_index][self.column_id], 
+        python_code, _, _, _ = parse_formula(
+            self.new_formula, 
             self.column_header,
-            column_headers,
+            self.formula_label,
+            self.index_labels_formula_is_applied_to,
+            self.post_state.dfs[self.sheet_index],
             df_name=self.post_state.df_names[self.sheet_index],
             include_df_set=False
         )
@@ -95,8 +98,11 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
                 other_code_chunk.post_state,
                 self.sheet_index,
                 self.column_id,
+                self.formula_label,
+                self.index_labels_formula_is_applied_to,
                 column_ids_to_new_column_headers[added_column_id],
-                self.column_header_index
+                self.column_header_index,
+                self.new_formula
             )
 
         return None

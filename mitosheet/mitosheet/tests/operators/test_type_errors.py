@@ -73,6 +73,8 @@ def test_type_errors(formula, error):
                 'params': {
                     'sheet_index': 0,
                     'column_id': get_column_header_id('E'),
+                    'formula_label': 0,
+                    'index_labels_formula_is_applied_to': {'type': 'entire_column'},
                     'old_formula': '=0',
                     'new_formula': formula,
                 }

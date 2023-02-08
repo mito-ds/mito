@@ -11,6 +11,8 @@ node_modules/
 docs/source/_static
 mitosheet/nbextension
 mitosheet/labextension
+mitosheet/mito_frontend.js
+mitosheet/mito_frontend.css
 lib
 mitovenv
 *deployment/tutorial/.ipynb_checkpoints/

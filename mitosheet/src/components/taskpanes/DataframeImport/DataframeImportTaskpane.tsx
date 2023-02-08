@@ -21,7 +21,7 @@ interface DataframeImportTaskpaneProps {
 const DataframeImportTaskpane = (props: DataframeImportTaskpaneProps): JSX.Element => {
 
     const {params, setParams, edit} = useSendEditOnClick<{df_names: string[]}, {df_names: string[]}>(
-        {df_names: []}, 
+        () => {return {df_names: []}}, 
         StepType.DataframeImport, 
         props.mitoAPI, 
         props.analysisData, 

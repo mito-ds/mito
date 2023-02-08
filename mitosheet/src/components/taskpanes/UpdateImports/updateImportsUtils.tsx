@@ -98,6 +98,31 @@ export const updateDataframeCreation = (
     setReplacingDataframeState(undefined);
 }
 
+export const updateAllSnowflakeImports = (
+    updatedStepImportData: StepImportData[] | undefined,
+    setUpdatedStepImportData: React.Dispatch<React.SetStateAction<StepImportData[] | undefined>>,
+    setUpdatedIndexes: React.Dispatch<React.SetStateAction<number[]>>,
+    setInvalidImportMessages: React.Dispatch<React.SetStateAction<Record<number, string | undefined>>>,
+    setReplacingDataframeState: React.Dispatch<React.SetStateAction<ReplacingDataframeState | undefined>>
+): void => {
+    if (updatedStepImportData === undefined) {
+        return
+    }
+
+    updatedStepImportData.forEach((updatedStepImport, idx) => {
+        if (updatedStepImport.imports[0].step_type === 'snowflake_import') {
+            updateDataframeCreation(
+                idx,
+                updatedStepImport.imports[0],
+                setUpdatedStepImportData,
+                setUpdatedIndexes,
+                setInvalidImportMessages,
+                setReplacingDataframeState
+            )
+        }
+    })
+}
+
 export const getErrorTextFromToFix = (toFix: string): string => {
     return toFix + " Update imports to fix this error.";
 }

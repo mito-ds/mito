@@ -121,3 +121,7 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
         max_found_col_index = max_search_col
 
     return f'{get_column_from_column_index(min_found_col_index - 1)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index - 1)}{max_found_row_index}'
+
+
+def get_df_name_as_valid_sheet_name(df_name: str) -> str:
+    return df_name[:31] # not more than 32 chars

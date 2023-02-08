@@ -58,15 +58,19 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
         return anonymize_as_string(formula)
 
     # We just input a random address, as we don't use it
-    _, _, dependencies = parse_formula(
+    _, _, column_header_depedencies, index_label_dependencies = parse_formula(
         formula, 
         'A', 
-        steps_manager.dfs[sheet_index].columns,
+        '0',
+        {'type': 'entire_column'},
+        steps_manager.dfs[sheet_index],
         throw_errors=False
     )
     
-    for dependency in dependencies:
+    for dependency in column_header_depedencies:
         formula = formula.replace(str(dependency), anonymize_as_string(dependency))
+    for index_label in index_label_dependencies:
+        formula = formula.replace(str(index_label), f"I[{anonymize_as_string(index_label)}]") # Tag with an I so we know it's an index
     
     return formula
 
