@@ -17,6 +17,7 @@ import LabelAndTooltip from '../../elements/LabelAndTooltip';
 const FILTERS_TOOLTIP = 'Filters are used to only include a subset of the source data in the pivot table.'
 
 const PivotTableFilterSection = (props: {
+    error: string | undefined;
     mitoAPI: MitoAPI;
     sheetData: SheetData | undefined,
     params: FrontendPivotParams,
@@ -73,6 +74,9 @@ const PivotTableFilterSection = (props: {
                     </DropdownButton>
                 </Col>
             </Row>
+            {props.error !== undefined && props.error.includes("filter") &&
+                <p className='text-color-error'>{props.error}</p>
+            }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={columnIDsMap}
                 pivotSection={'values'}

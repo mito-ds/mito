@@ -424,7 +424,23 @@ def make_invalid_pivot_error() -> MitoError:
     return MitoError(
         'invalid_pivot_error',
         'Pivot Error',
-        f'Sorry, there was an error computing your pivot. Please try a different pivot!'
+        f'Sorry, there was an error computing your pivot. Please try a different pivot!',
+        error_modal=False
+    )
+
+def make_invalid_pivot_filter_error(column_header: ColumnHeader, filter_condition: str) -> MitoError:
+    """
+    Helper function for creating a invalid_pivot_filter_error.
+
+    Occurs when:
+    -  the user runs a pivot that is invalid in some way.
+    """
+    # TODO: this to_fix message is _just terrible_
+    return MitoError(
+        'invalid_pivot_filter_error',
+        'Pivot Error',
+        f'Sorry, the filter {filter_condition} on {column_header} is invalid. This is likely due to incompatible dtypes. Try changing the filter condition or column dtype.',
+        error_modal=False
     )
 
 

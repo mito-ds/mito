@@ -36911,7 +36911,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react151.default.createElement(
+    ))), props.error !== void 0 && props.error.includes("filter") && /* @__PURE__ */ import_react151.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react151.default.createElement(
       PivotInvalidSelectedColumnsError_default,
       {
         columnIDsMap,
@@ -36973,7 +36973,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/PivotTable/PivotTaskpane.tsx
   var PivotTaskpane = (props) => {
-    const { params, setParams } = useLiveUpdatingParams_default(
+    const { params, setParams, error } = useLiveUpdatingParams_default(
       () => getDefaultPivotParams(props.sheetDataArray, props.sourceSheetIndex, props.existingPivotParams),
       "pivot" /* Pivot */,
       props.mitoAPI,
@@ -36998,7 +36998,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: props.destinationSheetIndex ? `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`,
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    ), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneBody_default, null, error !== void 0 && !error.includes("filter") && /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-color-error" }, error), /* @__PURE__ */ import_react152.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to pivot",
@@ -37043,6 +37043,7 @@ fig.write_html("${props.graphTabName}.html")`
     )), /* @__PURE__ */ import_react152.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react152.default.createElement(
       PivotTableFilterSection_default,
       {
+        error,
         sheetData,
         params,
         setParams,
