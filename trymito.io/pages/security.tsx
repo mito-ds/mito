@@ -25,6 +25,7 @@ const Security: NextPage = () => {
       <Head>
         <title>Mito | Security </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script defer data-domain="trymito.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       
       <Header/>

@@ -11,6 +11,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="viewport-fit=cover" />
         <meta name="description" content="Mito is the fastest way to do Python data science. Edit your data in a spreadsheet, and generate Python code automatically."/>
+        <script defer data-domain="trymito.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <Script
         id="intercom"
