@@ -29,6 +29,7 @@ class MyDocument extends Document {
                 as="font"
                 crossOrigin=""
             />
+            <script defer data-domain="trymito.io" src="https://plausible.io/js/script.js"></script>
         </Head> 
         <body>
           <Main />
