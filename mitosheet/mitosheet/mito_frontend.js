@@ -28403,12 +28403,19 @@ ${finalCode}`;
     var _a, _b;
     const { columnHeader, columnID, columnFilters, columnDtype, columnFormat } = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
     const [filters, _setFilters] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.filters : []);
-    const [operator, setOperator] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
+    const [operator, _setOperator] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
     const [updateNumber, setUpdateNumber] = (0, import_react64.useState)(0);
     const [stepID, setStepID] = (0, import_react64.useState)("");
     const setFilters = (0, import_react64.useCallback)(
       (args) => {
         _setFilters(args);
+        setUpdateNumber((old) => old + 1);
+      },
+      []
+    );
+    const setOperator = (0, import_react64.useCallback)(
+      (args) => {
+        _setOperator(args);
         setUpdateNumber((old) => old + 1);
       },
       []
