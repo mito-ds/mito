@@ -40,6 +40,7 @@ UJ_MITOSHEET_LAST_UPGRADED_DATE = 'mitosheet_last_upgraded_date'
 UJ_MITOSHEET_LAST_FIFTY_USAGES = 'mitosheet_last_fifty_usages'
 UJ_MITOSHEET_TELEMETRY = 'mitosheet_telemetry'
 UJ_MITOSHEET_PRO = 'mitosheet_pro'
+UJ_MITOSHEET_ENTERPRISE = 'mitosheet_enterprise'
 UJ_EXPERIMENT = 'experiment'
 UJ_RECEIVED_CHECKLISTS = 'received_checklists'
 
@@ -247,7 +248,34 @@ USER_JSON_VERSION_7 = {
     UJ_RECEIVED_CHECKLISTS: {}
 }
 
+"""
+Adds UJ_MITOSHEET_ENTERPRISE and sets it equal to Falase
+"""
+USER_JSON_VERSION_8 = {
+    # The new version of the user json object
+    UJ_USER_JSON_VERSION: 8,
+    # The static id of the user
+    UJ_STATIC_USER_ID: get_random_id(),
+    # A random secret that the user can use as salt when hashing things
+    UJ_USER_SALT: get_random_id(),
+    # Email of the user
+    UJ_USER_EMAIL: '',
+    # Tours that the user has received
+    UJ_RECEIVED_TOURS: [],
+    # A list of all the feedback the user has given
+    UJ_FEEDBACKS: [],
+    UJ_FEEDBACKS_V2: {},
+    UJ_MITOSHEET_CURRENT_VERSION: __version__,
+    UJ_MITOSHEET_LAST_UPGRADED_DATE: datetime.today().strftime('%Y-%m-%d'),
+    UJ_MITOSHEET_LAST_FIFTY_USAGES: [datetime.today().strftime('%Y-%m-%d')],
+    UJ_MITOSHEET_TELEMETRY: True,
+    UJ_MITOSHEET_PRO: False,
+    UJ_MITOSHEET_ENTERPRISE: False,
+    UJ_EXPERIMENT: get_new_experiment(),
+    UJ_RECEIVED_CHECKLISTS: {}
+}
+
 
 # This is the most up to date user json, and you must update it when
 # you add a new schema
-USER_JSON_DEFAULT = USER_JSON_VERSION_7
+USER_JSON_DEFAULT = USER_JSON_VERSION_8

@@ -169,7 +169,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 header="Import from Snowflake"
                 setUIState={props.setUIState}           
             />
-            <DefaultTaskpaneBody userProfile={props.userProfile} requiresPro>
+            <DefaultTaskpaneBody userProfile={props.userProfile} requiresEnterprise>
                 <AuthenticateToSnowflakeCard 
                     mitoAPI={props.mitoAPI}
                     defaultCredentials={props.userProfile.snowflakeCredentials}

@@ -24570,21 +24570,29 @@ ${finalCode}`;
 
   // src/components/elements/MitoProUpgradePrompt.tsx
   var import_react31 = __toESM(require_react());
-  var MitoProUpgradePrompt = (props) => {
-    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || "This is a Mito Pro feature. To access all Mito Pro functionality, please upgrade.")), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito Pro")));
+  var MitoUpgradePrompt = (props) => {
+    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito Pro functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito ", props.proOrEnterprise)));
   };
-  var MitoProUpgradePrompt_default = MitoProUpgradePrompt;
+  var MitoProUpgradePrompt_default = MitoUpgradePrompt;
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody.tsx
   var DefaultTaskpaneBody = (props) => {
-    var _a;
-    const promptUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
-    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, promptUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+    var _a, _b;
+    const shouldPromptProUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
+    const shouldPromptEnterpriseUpgrade = !((_b = props.userProfile) == null ? void 0 : _b.isEnterprise) && props.requiresEnterprise;
+    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, shouldPromptProUpgrade && /* @__PURE__ */ import_react32.default.createElement(
       MitoProUpgradePrompt_default,
       {
-        message: props.requiresProMessage
+        message: props.requiresProMessage,
+        proOrEnterprise: "Pro"
       }
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": promptUpgrade }) }, props.children));
+    ), shouldPromptEnterpriseUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+      MitoProUpgradePrompt_default,
+      {
+        message: props.requiresEnterpriseMessage,
+        proOrEnterprise: "Enterprise"
+      }
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": shouldPromptProUpgrade }) }, props.children));
   };
   var DefaultTaskpaneBody_default = DefaultTaskpaneBody;
 
@@ -38444,7 +38452,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: "Import from Snowflake",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpaneBody_default, { userProfile: props.userProfile, requiresPro: true }, /* @__PURE__ */ import_react168.default.createElement(
+    ), /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpaneBody_default, { userProfile: props.userProfile, requiresEnterprise: true }, /* @__PURE__ */ import_react168.default.createElement(
       AuthenticateToSnowflakeCard_default,
       {
         mitoAPI: props.mitoAPI,
@@ -39593,6 +39601,13 @@ fig.write_html("${props.graphTabName}.html")`
   var import_react199 = __toESM(require_react());
   var PlanButton = (props) => {
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0;
+    let displayMessage = "Upgrade to Mito Pro";
+    if (props.userProfile.isPro) {
+      displayMessage = "Mito Pro";
+    }
+    if (props.userProfile.isEnterprise) {
+      displayMessage = "Mito Enterprise";
+    }
     return /* @__PURE__ */ import_react199.default.createElement(
       "div",
       {
@@ -39612,7 +39627,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         }
       },
-      props.userProfile.isPro ? "Mito Pro" : "Upgrade to Mito Pro"
+      displayMessage
     );
   };
   var PlanButton_default = PlanButton;

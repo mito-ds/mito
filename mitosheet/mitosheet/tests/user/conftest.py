@@ -18,7 +18,7 @@ from mitosheet import __version__
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.user import is_running_test
 from mitosheet.user.db import USER_JSON_PATH, get_user_field, get_user_json_object
-from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS_V2, UJ_RECEIVED_CHECKLISTS, USER_JSON_DEFAULT
+from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS_V2, UJ_MITOSHEET_ENTERPRISE, UJ_RECEIVED_CHECKLISTS, USER_JSON_DEFAULT
 from mitosheet.user.schemas import (
     UJ_USER_JSON_VERSION, UJ_STATIC_USER_ID, UJ_USER_SALT, UJ_USER_EMAIL, 
     UJ_RECEIVED_TOURS, UJ_FEEDBACKS, UJ_MITOSHEET_CURRENT_VERSION, 
@@ -78,6 +78,7 @@ def check_user_json(
         mitosheet_last_fifty_usages=[today_str],
         mitosheet_telemetry=True,
         mitosheet_is_pro=False,
+        mitosheet_is_enterprise=False,
         mitosheet_experiment_id=None,
         received_checklists={'onboarding_checklist': ['signup', 'import', 'filter','pivot','graph','finalize']},
     ):
@@ -89,7 +90,7 @@ def check_user_json(
     """
     assert set(get_user_json_object().keys()) == set(USER_JSON_DEFAULT.keys())
 
-    assert get_user_field(UJ_USER_JSON_VERSION) == 7
+    assert get_user_field(UJ_USER_JSON_VERSION) == 8
     assert len(get_user_field(UJ_STATIC_USER_ID)) > 0
     assert len(get_user_field(UJ_USER_SALT)) > 0
     assert (get_user_field(UJ_USER_EMAIL) == user_email or (get_user_field(UJ_USER_EMAIL) == 'github@action.com' and is_running_test()))
@@ -101,6 +102,7 @@ def check_user_json(
     assert get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES) == mitosheet_last_fifty_usages
     assert get_user_field(UJ_MITOSHEET_TELEMETRY) == mitosheet_telemetry
     assert get_user_field(UJ_MITOSHEET_PRO) == mitosheet_is_pro
+    assert get_user_field(UJ_MITOSHEET_ENTERPRISE) == mitosheet_is_enterprise
     assert get_user_field(UJ_EXPERIMENT) is not None
     assert get_user_field(UJ_RECEIVED_CHECKLISTS) == received_checklists or (get_user_field(UJ_RECEIVED_CHECKLISTS) == {})
     if mitosheet_experiment_id:

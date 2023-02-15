@@ -17,6 +17,14 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
 
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
 
+    let displayMessage = 'Upgrade to Mito Pro';
+    if (props.userProfile.isPro) {
+        displayMessage = 'Mito Pro';
+    } 
+    if (props.userProfile.isEnterprise) {
+        displayMessage = 'Mito Enterprise';
+    }
+
     return (
         <div 
             className={classNames('text-button', 'text-button-variant-dark', 'plan-button', 'cursor-pointer')}
@@ -39,7 +47,7 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
                 })
             }}
         >
-            {props.userProfile.isPro ?  "Mito Pro" : "Upgrade to Mito Pro"}
+            {displayMessage}
         </div>
     )
 }

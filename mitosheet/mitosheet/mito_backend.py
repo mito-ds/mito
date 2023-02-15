@@ -38,7 +38,7 @@ from mitosheet.user.location import is_in_google_colab, is_in_vs_code
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL)
-from mitosheet.user.utils import get_pandas_version, is_pro, is_running_test
+from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
 from mitosheet.utils import get_new_id
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
@@ -109,6 +109,7 @@ class MitoBackend():
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
             'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
             'isPro': is_pro(),
+            'isEnterprise': is_enterprise(),
             'telemetryEnabled': telemetry_turned_on(),
             # Static over a single analysis
             'pythonVersion': get_python_version(),

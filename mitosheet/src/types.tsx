@@ -727,7 +727,8 @@ export interface AnalysisData {
  * 
  * @param userEmail - the email of the user. May be an empty string if they have not signed up yet
  * @param receivedTours - a list of the tours they have received
- * @param isPro - if the user is a pro user
+ * @param isPro - if the user is a pro user (always true if they are an enterprise user)
+ * @param isEnterprise - if the user is a Mito Enterprise user
  * @param pythonVersion - the version of the user's python installation
  * @param pandasVersion - ther version of th user's pandas isntallation
  * @param telemetryEnabled - if the user has telemetry enabled
@@ -742,6 +743,7 @@ export interface UserProfile {
     receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
+    isEnterprise: boolean;
     pandasVersion: string;
     pythonVersion: string;
     telemetryEnabled: boolean;
