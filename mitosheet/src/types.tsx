@@ -679,7 +679,8 @@ export enum MitoEnterpriseConfigKey {
     CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL',
     CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
     CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
-    DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
+    DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS',
+    ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
 }
 
 
@@ -760,6 +761,7 @@ export interface UserProfile {
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
             [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
         } | null | undefined
+        [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
     };
 }
 

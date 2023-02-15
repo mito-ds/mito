@@ -38446,155 +38446,167 @@ fig.write_html("${props.graphTabName}.html")`
       }
       setLoadingAvailableOptionsAndDefaults(false);
     };
+    console.log("CONFIG", props.userProfile.mitoConfig);
     return /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react168.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Import from Snowflake",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpaneBody_default, { userProfile: props.userProfile, requiresEnterprise: true }, /* @__PURE__ */ import_react168.default.createElement(
-      AuthenticateToSnowflakeCard_default,
+    ), /* @__PURE__ */ import_react168.default.createElement(
+      DefaultTaskpaneBody_default,
       {
-        mitoAPI: props.mitoAPI,
-        defaultCredentials: props.userProfile.snowflakeCredentials,
-        onValidCredentials: () => {
-          setCredentialsSectionIsOpen(false);
-          setValidCredentials(true);
-          void loadAndSetOptionsAndDefaults(params);
-        },
-        onInvalidCredentials: () => {
-          setValidCredentials(false);
-          setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams7());
-          setAvailableSnowflakeOptionsAndDefaults(void 0);
-        },
-        isOpen: credentialsSectionIsOpen
-      }
-    ), /* @__PURE__ */ import_react168.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react168.default.createElement(
-      CollapsibleSection_default,
-      {
-        title: /* @__PURE__ */ import_react168.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Configure Query"),
-        open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
+        userProfile: props.userProfile,
+        requiresEnterprise: !props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"]
       },
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
+      /* @__PURE__ */ import_react168.default.createElement(
+        AuthenticateToSnowflakeCard_default,
         {
-          width: "medium",
-          value: params.table_loc_and_warehouse.warehouse || "None available",
+          mitoAPI: props.mitoAPI,
+          defaultCredentials: props.userProfile.snowflakeCredentials,
+          onValidCredentials: () => {
+            setCredentialsSectionIsOpen(false);
+            setValidCredentials(true);
+            void loadAndSetOptionsAndDefaults(params);
+          },
+          onInvalidCredentials: () => {
+            setValidCredentials(false);
+            setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams7());
+            setAvailableSnowflakeOptionsAndDefaults(void 0);
+          },
+          isOpen: credentialsSectionIsOpen
+        }
+      ),
+      /* @__PURE__ */ import_react168.default.createElement(Spacer_default, { px: 20 }),
+      /* @__PURE__ */ import_react168.default.createElement(
+        CollapsibleSection_default,
+        {
+          title: /* @__PURE__ */ import_react168.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Configure Query"),
+          open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
+        },
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.warehouse || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newWarehouse) => {
+              setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
+              });
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.database || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newDatabase) => {
+              const newParams = getNewParams(params, newDatabase);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.schema || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newSchema) => {
+              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.table || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newTable) => {
+              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
+          }) : []
+        ))),
+        loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null))
+      ),
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react168.default.createElement("div", null, /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react168.default.createElement(
+        MultiToggleBox_default,
+        {
           disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newWarehouse) => {
+          height: "medium",
+          onToggleAll: (newSelectedIndexes) => {
             setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-              return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
+              const newColumns = newSelectedIndexes.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
+              return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
             });
           }
         },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
+        availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
+          const isToggled = params.query_params.columns.includes(column);
+          return /* @__PURE__ */ import_react168.default.createElement(
+            MultiToggleItem_default,
+            {
+              key: column,
+              title: column,
+              toggled: isToggled,
+              onToggle: () => {
+                setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                  const newColumns = [...prevParams.query_params.columns];
+                  toggleInArray(newColumns, column);
+                  return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
+                });
+              },
+              index
+            }
+          );
+        })
+      ), /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between", align: "center", title: LIMIT_TOOLTIP }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(LabelAndTooltip_default, { tooltip: LIMIT_TOOLTIP }, "Limit")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+        Input_default,
         {
           width: "medium",
-          value: params.table_loc_and_warehouse.database || "None available",
+          value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
+          placeholder: "100000",
           disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newDatabase) => {
-            const newParams = getNewParams(params, newDatabase);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
+          onChange: (e) => {
+            let newLimitNumber = parseInt(e.target.value);
+            if (isNaN(newLimitNumber)) {
+              newLimitNumber = void 0;
+            }
+            setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+              return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
+            });
           }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
-        {
-          width: "medium",
-          value: params.table_loc_and_warehouse.schema || "None available",
-          disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newSchema) => {
-            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
-          }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
-        {
-          width: "medium",
-          value: params.table_loc_and_warehouse.table || "None available",
-          disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newTable) => {
-            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
-          }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
-        }) : []
-      ))),
-      loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null))
-    ), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react168.default.createElement("div", null, /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react168.default.createElement(
-      MultiToggleBox_default,
-      {
-        disabled: loadingAvailableOptionsAndDefaults,
-        height: "medium",
-        onToggleAll: (newSelectedIndexes) => {
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            const newColumns = newSelectedIndexes.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
-            return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
-          });
         }
-      },
-      availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
-        const isToggled = params.query_params.columns.includes(column);
-        return /* @__PURE__ */ import_react168.default.createElement(
-          MultiToggleItem_default,
-          {
-            key: column,
-            title: column,
-            toggled: isToggled,
-            onToggle: () => {
-              setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-                const newColumns = [...prevParams.query_params.columns];
-                toggleInArray(newColumns, column);
-                return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
-              });
-            },
-            index
-          }
-        );
-      })
-    ), /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between", align: "center", title: LIMIT_TOOLTIP }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(LabelAndTooltip_default, { tooltip: LIMIT_TOOLTIP }, "Limit")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-      Input_default,
-      {
-        width: "medium",
-        value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
-        placeholder: "100000",
-        disabled: loadingAvailableOptionsAndDefaults,
-        onChange: (e) => {
-          let newLimitNumber = parseInt(e.target.value);
-          if (isNaN(newLimitNumber)) {
-            newLimitNumber = void 0;
-          }
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
-          });
-        }
-      }
-    ))), executingQuery && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-color-error" }, error)), /* @__PURE__ */ import_react168.default.createElement(Row_default, null, /* @__PURE__ */ import_react168.default.createElement(
-      TextButton_default,
-      {
-        disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
-        disabledTooltip: "Fill out all required fields",
-        onClick: () => edit(),
-        variant: "dark"
-      },
-      "Run Query"
-    ))));
+      ))), executingQuery && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-color-error" }, error)),
+      /* @__PURE__ */ import_react168.default.createElement(Row_default, null, /* @__PURE__ */ import_react168.default.createElement(
+        TextButton_default,
+        {
+          disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
+          disabledTooltip: "Fill out all required fields",
+          onClick: () => edit(),
+          variant: "dark"
+        },
+        "Run Query"
+      ))
+    ));
   };
   var SnowflakeImportTaskpane_default = SnowflakeImportTaskpane;
 
