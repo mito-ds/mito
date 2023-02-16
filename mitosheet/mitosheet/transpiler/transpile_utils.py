@@ -16,6 +16,8 @@ from mitosheet.utils import is_prev_version
 TAB = '    '
 NEWLINE_TAB = f'\n{TAB}'
 NEWLINE = '\n'
+OPEN_BRACKET = "{"
+CLOSE_BRACKET = "}"
 
 
 def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader], List[Tuple[str, Optional[str]]]]) -> str:
