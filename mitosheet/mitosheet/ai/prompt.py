@@ -123,7 +123,7 @@ df.replace(1, 2, inplace=True)
 ```"""
 
 
-def get_prompt(df_names: List[str], dfs: List[pd.DataFrame], current_selection: Optional[Selection], user_input: str):
+def get_prompt(df_names: List[str], dfs: List[pd.DataFrame], current_selection: Optional[Selection], user_input: str) -> str:
 
     if len(dfs) > 0:
         input_data_string = get_input_data_string(df_names, dfs, current_selection)
