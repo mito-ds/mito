@@ -23554,6 +23554,17 @@ ${finalCode}`;
       }
       return void 0;
     }
+    async getCompletion(params) {
+      const resultString = await this.send({
+        "event": "api_call",
+        "type": "get_completion",
+        "params": params
+      }, {});
+      if (resultString !== void 0 && resultString !== "") {
+        return JSON.parse(resultString);
+      }
+      return void 0;
+    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
