@@ -1,13 +1,12 @@
 import ast
 from copy import copy
-from typing import Dict
+from typing import Dict, List, Optional
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from mitosheet.types import ReconData
+from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
 
-# TODO: test this function
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
         assert_frame_equal(old, new, check_names=False)
@@ -15,8 +14,7 @@ def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     except AssertionError:
         return True
 
-
-def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> ReconData:
+def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> DataframeReconData:
     """
     Given some Python code, and a list of previously defined dataframes, this function:
     1. Gets all the newly defined dataframes
@@ -81,4 +79,45 @@ def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> ReconData:
         'created_dataframes': created_dataframes,
         'modified_dataframes': modified_dataframes,
         'last_line_expression_value': last_line_expression_value
+    }
+
+def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnReconData:
+    """
+    Given a dataframe and a modified dataframe, this function tries to figure out what has happened
+    to column headers dataframe. Specifically, because our state maps column headers to do others based on column
+    id, we need to track which columns are added, which are removed, and which are renamed.
+    """
+
+    old_columns = old_df.columns.to_list()
+    new_columns = new_df.columns.to_list()
+
+    old_df_head = old_df.head(5)
+    new_df_head = new_df.head(5)
+
+    # First, preserving the order, we remove any columns that are in both the old
+    # and the new dataframe
+    old_columns_without_shared = list(filter(lambda ch: ch not in new_columns, old_columns))
+    new_columns_without_shared = list(filter(lambda ch: ch not in old_columns, new_columns))
+
+
+    
+    # Then, we look through to find any columns that have been simply renamed - simply
+    # by comparing to see of column are identical between the two values. We do this 
+    # just by checking the first 5 values of the dataframe, before doing a direct comparison
+    renamed_columns: Dict[ColumnHeader, ColumnHeader] = {}
+    for old_ch in old_columns_without_shared:
+        old_column = old_df_head[old_ch]
+        for new_ch in new_columns_without_shared:
+            new_column = new_df_head[new_ch]
+            if old_column.equals(new_column) and new_ch not in renamed_columns.values():
+                renamed_columns[old_ch] = new_ch
+
+    added_columns = [ch for ch in new_columns_without_shared if ch not in renamed_columns.values()]
+    removed_columns = [ch for ch in old_columns_without_shared if ch not in renamed_columns]
+
+
+    return {
+        'added_columns': added_columns,
+        'removed_columns': removed_columns,
+        'renamed_columns': renamed_columns
     }

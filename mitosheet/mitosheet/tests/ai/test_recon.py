@@ -6,10 +6,10 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
 
-from mitosheet.ai.recon import exec_for_recon
-from mitosheet.types import ReconData
+from mitosheet.ai.recon import exec_for_recon, get_column_recon_data
+from mitosheet.types import ColumnReconData, DataframeReconData
 
-EXEC_FOR_RECON_TESTS: List[Tuple[str, Dict[str, pd.DataFrame], ReconData]] = [
+EXEC_FOR_RECON_TESTS: List[Tuple[str, Dict[str, pd.DataFrame], DataframeReconData]] = [
     (
         """
 x = 1
@@ -285,3 +285,89 @@ def test_exec_for_recon(code, dfs, recon_data):
         assert_frame_equal(recon['last_line_expression_value'], recon_data['last_line_expression_value'])
     else:
         assert recon['last_line_expression_value'] == recon_data['last_line_expression_value']    
+
+EXEC_FOR_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
+    (
+        pd.DataFrame(),
+        pd.DataFrame(),
+        {
+            'added_columns': [],
+            'removed_columns': [],
+            'renamed_columns': {}
+        }
+    ),
+    # Remove 1
+    (
+        pd.DataFrame({'A': [123]}),
+        pd.DataFrame(),
+        {
+            'added_columns': [],
+            'removed_columns': ['A'],
+            'renamed_columns': {}
+        }
+    ),
+    # Remove multiple
+    (
+        pd.DataFrame({'A': [123], 'B': [123]}),
+        pd.DataFrame(),
+        {
+            'added_columns': [],
+            'removed_columns': ['A', 'B'],
+            'renamed_columns': {}
+        }
+    ),
+    # Add 1
+    (
+        pd.DataFrame(),
+        pd.DataFrame({'A': [123]}),
+        {
+            'added_columns': ['A'],
+            'removed_columns': [],
+            'renamed_columns': {}
+        }
+    ),
+    # Add multiple
+    (
+        pd.DataFrame({'A': [123]}),
+        pd.DataFrame({'A': [123], 'B': [123], 'C': [123]}),
+        {
+            'added_columns': ['B', 'C'],
+            'removed_columns': [],
+            'renamed_columns': {}
+        }
+    ),
+    # Rename 1
+    (
+        pd.DataFrame({'A': [123]}),
+        pd.DataFrame({'B': [123]}),
+        {
+            'added_columns': [],
+            'removed_columns': [],
+            'renamed_columns': {'A': 'B'}
+        }
+    ),
+    # Rename multiple
+    (
+        pd.DataFrame({'A': [123], True: [456], 3: [789]}),
+        pd.DataFrame({'A': [123], False: [456], 4: [789]}),
+        {
+            'added_columns': [],
+            'removed_columns': [],
+            'renamed_columns': {True: False, 3: 4}
+        }
+    ),
+    # Reorder them
+    (
+        pd.DataFrame({'A': [123], True: [456], 3: [789]}),
+        pd.DataFrame({True: [456], 3: [789], 'A': [123]}),
+        {
+            'added_columns': [],
+            'removed_columns': [],
+            'renamed_columns': {}
+        }
+    ),
+]
+@pytest.mark.parametrize("old_df, new_df, recon", EXEC_FOR_RECON_TESTS)
+def test_get_column_recon(old_df, new_df, recon):
+    _recon = get_column_recon_data(old_df, new_df)
+    assert recon == _recon
