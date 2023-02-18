@@ -1,9 +1,11 @@
 import ast
 from copy import copy
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
+from mitosheet.state import DATAFRAME_SOURCE_AI, State
+from mitosheet.step_performers.column_steps.delete_column import delete_column_ids
 
 from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
 
@@ -14,7 +16,7 @@ def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     except AssertionError:
         return True
 
-def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> DataframeReconData:
+def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> DataframeReconData:
     """
     Given some Python code, and a list of previously defined dataframes, this function:
     1. Gets all the newly defined dataframes
@@ -34,7 +36,14 @@ def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> DataframeReconDat
     last expressio, then rebuilding it into a string (aka so we can handle multiple lines) - 
     and then saving it in fake variable that we can then access again through the locals.
     """
-    original_dfs = {df_name: df.copy(deep=True) for df_name, df in dfs.items()}
+    if len(code) == 0:
+        return {
+            'created_dataframes': {},
+            'modified_dataframes': {},
+            'last_line_expression_value': None
+        }
+
+    df_map = {df_name: df.copy(deep=True) for df_name, df in original_df_map.items()}
     locals_before = copy(locals())
     ast_before = ast.parse(code)
 
@@ -47,19 +56,19 @@ def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> DataframeReconDat
         code = code.replace(last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [
-        df_name for df_name in dfs if 
+        df_name for df_name in original_df_map if 
         df_name in code
     ]
 
     for df_name in potentially_modified_df_names:
-        locals()[df_name] = dfs[df_name]
+        locals()[df_name] = df_map[df_name]
 
     exec(code, {}, locals())
 
     created_dataframes = {
         name: value for name, value in locals().items() 
         if name not in locals_before and name != 'locals_before' and name != 'FAKE_VAR_NAME'
-        and isinstance(value, pd.DataFrame) and name not in dfs
+        and isinstance(value, pd.DataFrame) and name not in original_df_map
     }
 
     modified_dataframes = {
@@ -67,7 +76,7 @@ def exec_for_recon(code: str, dfs: Dict[str, pd.DataFrame]) -> DataframeReconDat
         if isinstance(value, pd.DataFrame) and name in potentially_modified_df_names
         # TODO: if the dataframe was really modified, this will return true even when it shouldn't
         # so maybe we need to make a copy?
-        and is_df_changed(original_dfs[name], value)
+        and is_df_changed(original_df_map[name], value)
     }
 
     if has_last_line_expression_value:
@@ -98,8 +107,6 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     # and the new dataframe
     old_columns_without_shared = list(filter(lambda ch: ch not in new_columns, old_columns))
     new_columns_without_shared = list(filter(lambda ch: ch not in old_columns, new_columns))
-
-
     
     # Then, we look through to find any columns that have been simply renamed - simply
     # by comparing to see of column are identical between the two values. We do this 
@@ -121,3 +128,50 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
         'removed_columns': removed_columns,
         'renamed_columns': renamed_columns
     }
+
+
+def exec_and_get_new_state_and_last_line_expression_value(state: State, code: str) -> Tuple[State, Optional[Any]]:
+
+    # Make deep copies of all dataframes here, so we can manipulate them without fear
+    # TODO: in the future, we could just do the modified ones
+    new_state = state.copy(deep_sheet_indexes=list(range(len(state.dfs))))
+
+
+    df_map = {df_name: df for df_name, df in zip(new_state.df_names, new_state.dfs)}
+    recon_data = exec_for_recon(code, df_map)
+
+    # For all of the added dataframes, we just add them to the state
+    for df_name, df in recon_data['created_dataframes'].items():
+        new_state.add_df_to_state(df, DATAFRAME_SOURCE_AI, df_name=df_name)
+    
+    # For modified dataframes, we update all the column variables
+    for df_name, new_df in recon_data['modified_dataframes'].items():
+        sheet_index = new_state.df_names.index(df_name)
+        old_df = df_map[df_name]
+        column_recon = get_column_recon_data(old_df, new_df)
+
+        # Add new columns to the state
+        new_state.add_columns_to_state(sheet_index, column_recon['added_columns'])
+
+        # Delete removed columns from the state
+        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['removed_columns'])
+        delete_column_ids(new_state, sheet_index, deleted_column_ids)
+
+        # Rename renamed columns in the state
+        for old_ch, new_ch in column_recon['renamed_columns'].items():
+            column_id = new_state.column_ids.get_column_id_by_header(sheet_index, old_ch)
+            new_state.column_ids.set_column_header(sheet_index, column_id, new_ch)
+
+        # Then, actually set the dataframe
+        new_state.dfs[sheet_index] = new_df
+
+    # For the last value, if is a dataframe, then add it to the state as well
+    # TODO: we have to take special care to handle this in the generated code (maybe we want to do it in one place?)
+    if isinstance(recon_data['last_line_expression_value'], pd.DataFrame):
+        new_state.add_df_to_state(recon_data['last_line_expression_value'], DATAFRAME_SOURCE_AI)
+
+    return (new_state, recon_data['last_line_expression_value'])
+
+        
+        
+

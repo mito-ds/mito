@@ -6,8 +6,10 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
 
-from mitosheet.ai.recon import exec_for_recon, get_column_recon_data
+from mitosheet.ai.recon import exec_and_get_new_state_and_last_line_expression_value, exec_for_recon, get_column_recon_data, exec_and_get_new_state_and_last_line_expression_value
+from mitosheet.state import State
 from mitosheet.types import ColumnReconData, DataframeReconData
+from mitosheet.utils import df_to_json_dumpsable
 
 EXEC_FOR_RECON_TESTS: List[Tuple[str, Dict[str, pd.DataFrame], DataframeReconData]] = [
     (
@@ -286,7 +288,7 @@ def test_exec_for_recon(code, dfs, recon_data):
     else:
         assert recon['last_line_expression_value'] == recon_data['last_line_expression_value']    
 
-EXEC_FOR_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
+COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
     (
         pd.DataFrame(),
         pd.DataFrame(),
@@ -371,3 +373,117 @@ EXEC_FOR_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] =
 def test_get_column_recon(old_df, new_df, recon):
     _recon = get_column_recon_data(old_df, new_df)
     assert recon == _recon
+
+
+
+EXEC_AND_GET_NEW_STATE_TESTS: List[Tuple[Dict[str, pd.DataFrame], str, Dict[str, pd.DataFrame]]] = [
+    (
+        {},
+        '',
+        {}
+    ),
+    # Create a df with nothing before
+    (
+        {},
+        """
+import pandas as pd
+df = pd.DataFrame({'a': [123]})
+        """,
+        {'df': pd.DataFrame({'a': [123]})}
+    ),
+    # Create a df with other dfs
+    (
+        {'df': pd.DataFrame({'a': [123]})},
+        """
+import pandas as pd
+df1 = pd.DataFrame({'b': [123]})
+        """,
+        {
+            'df': pd.DataFrame({'a': [123]}),
+            'df1': pd.DataFrame({'b': [123]})
+        }
+    ),
+    # Create a df and modify a df by deleting a column
+    (
+        {'df': pd.DataFrame({'a': [123]})},
+        """
+import pandas as pd
+del df['a']
+df1 = pd.DataFrame({'b': [123]})
+        """,
+        {
+            'df': pd.DataFrame(index=[0]),
+            'df1': pd.DataFrame({'b': [123]})
+        }
+    ),
+    # Create a df and modify a df by adding a column
+    (
+        {'df': pd.DataFrame({'a': [123]})},
+        """
+import pandas as pd
+df['b'] = 10
+df1 = pd.DataFrame({'b': [123]})
+        """,
+        {
+            'df': pd.DataFrame({'a': [123], 'b': [10]}),
+            'df1': pd.DataFrame({'b': [123]})
+        }
+    ),
+    # Create a df and modify a df by renaming a column
+    (
+        {'df': pd.DataFrame({'a': [123]})},
+        """
+import pandas as pd
+df.rename(columns={'a': 'b'}, inplace=True)
+df1 = pd.DataFrame({'b': [123]})
+        """,
+        {
+            'df': pd.DataFrame({'b': [123]}),
+            'df1': pd.DataFrame({'b': [123]})
+        }
+    ),
+    # Create a df and modify a df by adding, deleting, and renaming a column
+    (
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+        """
+import pandas as pd
+df.rename(columns={'a': 'c'}, inplace=True)
+del df['b']
+df['d'] = 10
+df1 = pd.DataFrame({'b': [123]})
+        """,
+        {
+            'df': pd.DataFrame({'c': [123], 'd': [10]}),
+            'df1': pd.DataFrame({'b': [123]})
+        }
+    ),
+]
+
+@pytest.mark.parametrize("old_dfs_map, code, new_df_map", EXEC_AND_GET_NEW_STATE_TESTS)
+def test_exec_and_get_new_state(old_dfs_map, code, new_df_map):
+    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
+    new_state, _ = exec_and_get_new_state_and_last_line_expression_value(prev_state, code)
+
+    # Check all dataframes are equal
+    for df1, df2 in zip(new_state.dfs, new_df_map.values()):
+        print(df1)
+        print(df2)
+        assert df1.equals(df2)
+
+    assert new_state.df_names == list(new_df_map.keys())
+
+    # Then, check that we can write sheet json, just by generating it
+    for sheet_index, df in enumerate(new_state.dfs):
+        df_to_json_dumpsable(
+            new_state,
+            df,
+            sheet_index,
+            new_state.df_names[sheet_index],
+            new_state.df_sources[sheet_index],
+            new_state.column_formulas[sheet_index],
+            new_state.column_filters[sheet_index],
+            new_state.column_ids.column_header_to_column_id[sheet_index],
+            new_state.df_formats[sheet_index],
+        )
+
+    
