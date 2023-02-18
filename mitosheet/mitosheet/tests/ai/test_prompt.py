@@ -64,7 +64,7 @@ PROMPT_TESTS: List[Tuple[List[str], List[pd.DataFrame], Optional[Selection], str
     # Selection in second dataframe
     (
         [f'df{i}' for i in range(3)],
-        [pd.DataFrame({f'{str(i)}': [1, 2, 3]}) for i in range(10_000)],
+        [pd.DataFrame({f'A': [1, 2, 3]}) for i in range(3)],
         {
             'selected_df_name': 'df1',
             'selected_column_headers': [],
