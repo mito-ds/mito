@@ -61,10 +61,10 @@ PROMPT_TESTS: List[Tuple[List[str], List[pd.DataFrame], Optional[Selection], str
             "df49 = pd.DataFrame({'A': [1, 2, 3]})",
         ]
     ),
-    # Dataframe with very many column headers
+    # Selection in second dataframe
     (
-        [f'df1'],
-        [pd.DataFrame({f'{str(i)}': [1, 2, 3] for i in range(10_000)})],
+        [f'df{i}' for i in range(3)],
+        [pd.DataFrame({f'{str(i)}': [1, 2, 3]}) for i in range(10_000)],
         {
             'selected_df_name': 'df1',
             'selected_column_headers': [],
@@ -72,10 +72,26 @@ PROMPT_TESTS: List[Tuple[List[str], List[pd.DataFrame], Optional[Selection], str
         },
         'import a dataframe',
         [
-            "'1510', '1511', '1512', '1513', '1514', '1515', '1516', '1517', '1518', '1519', '1520'",
+            "df1 = pd.DataFrame(",
+            "df0 = pd.DataFrame(",
             "df1.replace(1, 2, inplace=True)"
         ]
     ),
+    # Dataframe with very many column headers
+     (
+         [f'df1'],
+         [pd.DataFrame({f'{str(i)}': [1, 2, 3] for i in range(10_000)})],
+         {
+             'selected_df_name': 'df1',
+             'selected_column_headers': [],
+             'selected_row_labels': []
+         },
+         'import a dataframe',
+         [
+             "'1510', '1511', '1512', '1513', '1514', '1515', '1516', '1517', '1518', '1519', '1520'",
+             "df1.replace(1, 2, inplace=True)"
+         ]
+     ),
     # Dataframe with long column header
     (
         [f'df1'],
