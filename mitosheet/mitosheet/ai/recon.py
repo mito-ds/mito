@@ -74,8 +74,6 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     modified_dataframes = {
         name: value for name, value in locals().items() 
         if isinstance(value, pd.DataFrame) and name in potentially_modified_df_names
-        # TODO: if the dataframe was really modified, this will return true even when it shouldn't
-        # so maybe we need to make a copy?
         and is_df_changed(original_df_map[name], value)
     }
 
@@ -122,11 +120,14 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     added_columns = [ch for ch in new_columns_without_shared if ch not in renamed_columns.values()]
     removed_columns = [ch for ch in old_columns_without_shared if ch not in renamed_columns]
 
+    shared_columns = list(filter(lambda ch: ch in new_columns, old_columns))
+    modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
 
     return {
         'added_columns': added_columns,
         'removed_columns': removed_columns,
-        'renamed_columns': renamed_columns
+        'modified_columns': modified_columns,
+        'renamed_columns': renamed_columns,
     }
 
 

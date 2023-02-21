@@ -238,6 +238,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class ColumnReconData(TypedDict):
         added_columns: List[ColumnHeader]
         removed_columns: List[ColumnHeader]
+        modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
 else:
