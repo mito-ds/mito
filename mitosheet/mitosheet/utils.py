@@ -18,7 +18,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.sheet_functions.types.utils import get_float_dt_td_columns
-from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, StateType, FrontendFormula)
+from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -92,7 +92,7 @@ def dfs_to_array_for_json(
         dfs: List[pd.DataFrame],
         df_names: List[str],
         df_sources: List[str],
-        column_formulas_array: List[Dict[ColumnID, FrontendFormula]],
+        column_formulas_array: List[Dict[ColumnID, List[FrontendFormulaAndLocation]]],
         column_filters_array: List[Dict[ColumnID, Any]],
         column_ids: ColumnIDMap,
         df_formats: List[DataframeFormat]
@@ -129,7 +129,7 @@ def df_to_json_dumpsable(
         sheet_index: int,
         df_name: str,
         df_source: str,
-        column_formulas: Dict[ColumnID, FrontendFormula],
+        column_formulas: Dict[ColumnID, List[FrontendFormulaAndLocation]],
         column_filters: Dict[ColumnID, Any],
         column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
         df_format: DataframeFormat,

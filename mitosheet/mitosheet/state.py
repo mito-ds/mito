@@ -22,6 +22,7 @@ DATAFRAME_SOURCE_CONCAT = "concated"  # created through a concat
 DATAFRAME_SOURCE_DUPLICATED = "duplicated"  # created through a sheet duplication
 DATAFRAME_SOURCE_TRANSPOSED = "transposed"  # created through a dataframe being transposed
 DATAFRAME_SOURCE_MELTED = "melted"  # created through a dataframe being melted
+DATAFRAME_SOURCE_AI = "ai"  # through AI generated code
 
 # Constants used for formatting. Defined here to avoid circular imports
 NUMBER_FORMAT_PLAIN_TEXT = "plain text"

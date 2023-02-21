@@ -230,6 +230,16 @@ if sys.version_info[:3] > (3, 8, 0):
         selected_column_headers: List[ColumnHeader]
         selected_row_labels: List[IndexLabel]
 
+    class DataframeReconData(TypedDict):
+        created_dataframes: Dict[str, pd.DataFrame]
+        modified_dataframes: Dict[str, pd.DataFrame]
+        last_line_expression_value: Optional[Any]
+
+    class ColumnReconData(TypedDict):
+        added_columns: List[ColumnHeader]
+        removed_columns: List[ColumnHeader]
+        modified_columns: List[ColumnHeader]
+        renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
 else:
     Filter = Any #type: ignore
@@ -254,6 +264,8 @@ else:
     FormulaLocationEntireColumn = Any # type:ignore
     FormulaLocationToSpecificIndexLabels = Any # type:ignore
     Selection = Any # type:ignore
+    DataframeReconData = Any # type: ignore
+    ColumnReconData = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
