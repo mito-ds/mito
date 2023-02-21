@@ -1378,7 +1378,7 @@ export const createActions = (
             actionFunction: () => {
                 // TODO
             },
-            isDisabled: () => {return undefined}, // TODO
+            isDisabled: () => {return 'This feature is in closed beta. Email aaron@sagacollab.com for access.'},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },

@@ -31033,7 +31033,7 @@ ${finalCode}`;
         actionFunction: () => {
         },
         isDisabled: () => {
-          return void 0;
+          return "This feature is in closed beta. Email aaron@sagacollab.com for access.";
         },
         searchTerms: ["AI Transformation"],
         tooltip: "AI Transformation"

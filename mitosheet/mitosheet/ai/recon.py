@@ -52,7 +52,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         has_last_line_expression_value = False
     else:
         has_last_line_expression_value = True
-        last_expression_string = ast.unparse([last_expression])
+        last_expression_string = ast.unparse([last_expression]) # type: ignore
         code = code.replace(last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [

@@ -68,7 +68,7 @@ class AITransformationStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'user_input'),
                 get_param(params, 'edited_completion'),
-                get_param(execution_data, 'last_line_is_dataframe')
+                get_param(execution_data if execution_data is not None else {}, 'last_line_is_dataframe')
             )
         ]
 

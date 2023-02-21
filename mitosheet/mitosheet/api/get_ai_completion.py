@@ -63,3 +63,6 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         # TODO: handle error here (e.g. it returns a 404, or something)
 
         print(res.json())
+        return json.dumps({
+                'error': 'There was an error accessing the OpenAI API.'
+        })
