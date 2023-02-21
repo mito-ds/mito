@@ -74,9 +74,8 @@ class AITransformationStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return set() # TODO: add the modified indexes here!
+        return set() # NOTE: We act as though we modify all sheet indexes, as we can't easily figure out what we do modify
 
     @classmethod
     def get_created_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {-1} # TODO: add the modified indexes here!
-    
+        return {-1} # NOTE: We act as though we create all sheet indexes, as we can't easily figure out what we do modify
