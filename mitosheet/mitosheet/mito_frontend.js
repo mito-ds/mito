@@ -23205,7 +23205,7 @@ ${finalCode}`;
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
       const id = getRandomId();
       msg["id"] = id;
-      console.log(`Sending1: {type: ${msg["type"]}, id: ${id}}`);
+      console.log(`Sending: {type: ${msg["type"]}, id: ${id}}`);
       await waitUntilConditionReturnsTrueOrTimeout(() => {
         return this.commContainer !== void 0 && this._send !== void 0;
       }, MAX_WAIT_FOR_COMM_CREATION);
