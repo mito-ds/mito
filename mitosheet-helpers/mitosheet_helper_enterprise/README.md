@@ -1,6 +1,6 @@
 # Mitosheet Helper Pro
 
-This is a helper package for mitosheet that requires a `Mito Pro` license.
+This is a helper package for mitosheet that requires a `Mito Enterprise` license.
 
 ## Instructions
 

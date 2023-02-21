@@ -71,7 +71,7 @@ import BottomLeftPopup from './elements/BottomLeftPopup';
 import EphemeralMessage from './popups/EphemeralMessage';
 import StepsTaskpane from './taskpanes/Steps/StepsTaskpane';
 import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
-import UpgradeToProTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
+import UpgradeTaskpane from './taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
@@ -126,7 +126,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // Create the Mito API
     const {mitoAPI, commCreationStatus} = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
     
-
     // If the comm ends up failing to be created, then we open a taskpane that let's
     // the user know of this error
     useEffect(() => {
@@ -523,10 +522,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     />
                 )
             case TaskpaneType.UPGRADE_TO_PRO: return (
-                <UpgradeToProTaskpane
+                <UpgradeTaskpane
                     mitoAPI={mitoAPI}
                     userProfile={userProfile}
                     setUIState={setUIState}
+                    proOrEnterprise={uiState.currOpenTaskpane.proOrEnterprise}
                 />
             )
             case TaskpaneType.DOWNLOAD: return (

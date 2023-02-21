@@ -54,7 +54,10 @@ export enum TaskpaneType {
 
 export type TaskpaneInfo = 
     | {type: TaskpaneType.CONTROL_PANEL}
-    | {type: TaskpaneType.UPGRADE_TO_PRO}
+    | {
+        type: TaskpaneType.UPGRADE_TO_PRO,
+        proOrEnterprise: 'Pro' | 'Enterprise'
+    }
     | {type: TaskpaneType.DOWNLOAD}
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {
