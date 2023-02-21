@@ -162,8 +162,6 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
         }
         setLoadingAvailableOptionsAndDefaults(false)
     }
-
-    console.log("CONFIG", props.userProfile.mitoConfig)
     
     return (
         <DefaultTaskpane>

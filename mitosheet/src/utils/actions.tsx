@@ -1142,7 +1142,7 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO},
+                        currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO, proOrEnterprise: 'Pro'},
                         selectedTabType: 'data'
                     }
                 })

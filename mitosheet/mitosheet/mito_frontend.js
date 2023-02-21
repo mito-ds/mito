@@ -23205,7 +23205,7 @@ ${finalCode}`;
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
       const id = getRandomId();
       msg["id"] = id;
-      console.log(`Sending: {type: ${msg["type"]}, id: ${id}}`);
+      console.log(`Sending1: {type: ${msg["type"]}, id: ${id}}`);
       await waitUntilConditionReturnsTrueOrTimeout(() => {
         return this.commContainer !== void 0 && this._send !== void 0;
       }, MAX_WAIT_FOR_COMM_CREATION);
@@ -24571,7 +24571,7 @@ ${finalCode}`;
   // src/components/elements/MitoProUpgradePrompt.tsx
   var import_react31 = __toESM(require_react());
   var MitoUpgradePrompt = (props) => {
-    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito Pro functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito ", props.proOrEnterprise)));
+    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito ", props.proOrEnterprise)));
   };
   var MitoProUpgradePrompt_default = MitoUpgradePrompt;
 
@@ -24592,7 +24592,7 @@ ${finalCode}`;
         message: props.requiresEnterpriseMessage,
         proOrEnterprise: "Enterprise"
       }
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": shouldPromptProUpgrade }) }, props.children));
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade }) }, props.children));
   };
   var DefaultTaskpaneBody_default = DefaultTaskpaneBody;
 
@@ -30775,7 +30775,7 @@ ${finalCode}`;
           setEditorState(void 0);
           setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise: "Pro" },
               selectedTabType: "data"
             });
           });
@@ -34323,7 +34323,7 @@ ${finalCode}`;
           });
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise: "Pro" },
               selectedTabType: "data"
             });
           });
@@ -38446,7 +38446,6 @@ fig.write_html("${props.graphTabName}.html")`
       }
       setLoadingAvailableOptionsAndDefaults(false);
     };
-    console.log("CONFIG", props.userProfile.mitoConfig);
     return /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react168.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -39598,10 +39597,10 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react198.default.createElement(
         DefaultTaskpaneHeader_default,
         {
-          header: "Welcome to Mito Pro!",
+          header: `Welcome to Mito ${props.proOrEnterprise}!`,
           setUIState: props.setUIState
         }
-      ), /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react198.default.createElement("p", { className: "text-heading-4 mb-10px" }, "You've successfully upgraded to Mito Pro. You can cancel any time by sending us an email."), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All future pro functionality!" })));
+      ), /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react198.default.createElement("p", { className: "text-heading-4 mb-10px" }, props.proOrEnterprise === "Pro" ? "You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email." : "Mito Enterprise is the fastest way to automate any Python analysis."), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: `All future ${props.proOrEnterprise} functionality!` })));
     }
   };
   var UpgradeToProTaskpane_default = UpgradeToProTaskpane;
@@ -39614,11 +39613,13 @@ fig.write_html("${props.graphTabName}.html")`
   var PlanButton = (props) => {
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0;
     let displayMessage = "Upgrade to Mito Pro";
+    let proOrEnterprise = "Pro";
     if (props.userProfile.isPro) {
       displayMessage = "Mito Pro";
     }
     if (props.userProfile.isEnterprise) {
       displayMessage = "Mito Enterprise";
+      proOrEnterprise = "Enterprise";
     }
     return /* @__PURE__ */ import_react199.default.createElement(
       "div",
@@ -39633,7 +39634,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise },
               selectedTabType: "data"
             });
           });
@@ -41028,7 +41029,8 @@ fig.write_html("${props.graphTabName}.html")`
             {
               mitoAPI,
               userProfile: userProfile2,
-              setUIState
+              setUIState,
+              proOrEnterprise: uiState.currOpenTaskpane.proOrEnterprise
             }
           );
         case "download" /* DOWNLOAD */:

@@ -65,7 +65,7 @@ const DefaultTaskpaneBody = (
                     proOrEnterprise='Enterprise'
                 />
             }
-            <div className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade})}> 
+            <div className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade})}> 
                 {props.children}
             </div>
         </>

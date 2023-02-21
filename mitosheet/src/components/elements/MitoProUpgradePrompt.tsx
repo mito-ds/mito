@@ -11,7 +11,7 @@ const MitoUpgradePrompt = (props: {
         <div>
             <Row justify='space-between' align='center'>
                 <p className='text-body-1'>
-                    {props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito Pro functionality, please upgrade.`}
+                    {props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`}
                 </p>  
             </Row>    
             <Row justify='center'>

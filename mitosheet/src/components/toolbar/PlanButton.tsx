@@ -18,11 +18,13 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
 
     let displayMessage = 'Upgrade to Mito Pro';
+    let proOrEnterprise: 'Pro' | 'Enterprise' = 'Pro'
     if (props.userProfile.isPro) {
         displayMessage = 'Mito Pro';
     } 
     if (props.userProfile.isEnterprise) {
         displayMessage = 'Mito Enterprise';
+        proOrEnterprise = 'Enterprise'
     }
 
     return (
@@ -41,7 +43,7 @@ const PlanButton = (props: PlanButtonProps): JSX.Element => {
                 props.setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO},
+                        currOpenTaskpane: {type: TaskpaneType.UPGRADE_TO_PRO, proOrEnterprise: proOrEnterprise},
                         selectedTabType: 'data'
                     }
                 })

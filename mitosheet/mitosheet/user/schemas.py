@@ -249,7 +249,7 @@ USER_JSON_VERSION_7 = {
 }
 
 """
-Adds UJ_MITOSHEET_ENTERPRISE and sets it equal to Falase
+Adds UJ_MITOSHEET_ENTERPRISE and sets it equal to False
 """
 USER_JSON_VERSION_8 = {
     # The new version of the user json object
