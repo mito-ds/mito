@@ -17,7 +17,7 @@ from typing import Optional
 import pandas as pd
 from mitosheet._version import __version__, package_name
 from mitosheet.user.db import get_user_field
-from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_UPGRADED_DATE,
+from mitosheet.user.schemas import (UJ_MITOSHEET_ENTERPRISE, UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
 
 try:
@@ -25,6 +25,11 @@ try:
     MITOSHEET_HELPER_PRO = True
 except ImportError:
     MITOSHEET_HELPER_PRO = False
+try:
+    import mitosheet_helper_enterprise
+    MITOSHEET_HELPER_ENTERPRISE = True
+except ImportError:
+    MITOSHEET_HELPER_ENTERPRISE = False
 
 
 def is_running_test() -> bool:
@@ -47,12 +52,24 @@ def is_on_kuberentes_mito() -> bool:
     user = getpass.getuser()
     return user == 'jovyan'
 
+def is_enterprise() -> bool:
+    """
+    Helper function for returning if this is a Mito Enterprise
+    users
+    """
+    is_enterprise = get_user_field(UJ_MITOSHEET_ENTERPRISE)
+
+    # This package overides the user.json
+    if MITOSHEET_HELPER_ENTERPRISE:
+        return MITOSHEET_HELPER_ENTERPRISE
+
+    return is_enterprise if is_enterprise is not None else False
+
 def is_pro() -> bool:
     """
     Helper function for returning if this is a
     pro deployment of mito
     """
-    is_pro = get_user_field(UJ_MITOSHEET_PRO)
 
     # This package overides the user.json
     if MITOSHEET_HELPER_PRO:
@@ -62,7 +79,14 @@ def is_pro() -> bool:
     if package_name == 'mitosheet-private':
         return True
 
-    return is_pro if is_pro is not None else False
+    # If you're on Mito Enterprise, then you get all Mito Pro features
+    if is_enterprise():
+        return True
+
+    pro = get_user_field(UJ_MITOSHEET_PRO)
+
+    return pro if pro is not None else False
+
 
 
 def is_local_deployment() -> bool:

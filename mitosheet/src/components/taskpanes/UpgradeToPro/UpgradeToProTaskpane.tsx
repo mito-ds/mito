@@ -21,6 +21,7 @@ interface UpgradeTaskpaneProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    proOrEnterprise: 'Pro' | 'Enterprise'
 }
 
 const ProListElement = (props: {text: string}): JSX.Element => {
@@ -160,12 +161,15 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
         return (
             <DefaultTaskpane>
                 <DefaultTaskpaneHeader 
-                    header="Welcome to Mito Pro!"
+                    header={`Welcome to Mito ${props.proOrEnterprise}!`}
                     setUIState={props.setUIState}            
                 />
                 <DefaultTaskpaneBody>
                     <p className="text-heading-4 mb-10px">
-                        You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email.
+                        {props.proOrEnterprise === 'Pro' 
+                            ? 'You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email.' 
+                            : 'Mito Enterprise is the fastest way to automate any Python analysis.'
+                        }
                     </p>
                     <ProListElement text="All telemetry is off"/>
                     <ProListElement text="Generated code is being optimized"/>
@@ -173,7 +177,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                     <ProListElement text="Format dataframes"/>
                     <ProListElement text="Export formatting"/>
                     <ProListElement text="Get priority support"/>
-                    <ProListElement text="All future pro functionality!"/>
+                    <ProListElement text={`All future ${props.proOrEnterprise} functionality!`}/>
                 </DefaultTaskpaneBody>
             </DefaultTaskpane>
         )
