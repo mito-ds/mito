@@ -16,7 +16,7 @@ import requests
 
 URL = 'https://api.openai.com/v1/completions'
 
-def get_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
         selection: Optional[Selection] = params['selection']
         user_input: str = params['user_input']
 
@@ -31,11 +31,11 @@ def get_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> s
 
         if OPENAI_API_KEY is None:
                 return json.dumps({
-                        'error': 'Please aquire an OPENAI_API_KEY and set it as an enviornmental variable.'
+                        'error': 'Please acquire an OPENAI_API_KEY and set it as an environmental variable.'
                 })
 
         data = {
-                "model": "text-davinci-003",
+                "model": "code-davinci-002",
                 "prompt": prompt,
                 "max_tokens": 7,
                 "temperature": .2,

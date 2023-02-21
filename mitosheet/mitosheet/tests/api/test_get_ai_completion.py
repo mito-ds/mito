@@ -3,14 +3,14 @@
 import os
 import json
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.api.get_completion import get_completion
+from mitosheet.api.get_ai_completion import get_ai_completion
 from mitosheet.tests.decorators import requires_open_ai_credentials
 
 @requires_open_ai_credentials
-def test_get_completion():
+def test_get_ai_completion():
     mito = create_mito_wrapper_dfs()
 
-    completion = get_completion({
+    completion = get_ai_completion({
         'user_input': 'test',
         'selection': None
     }, mito.mito_backend.steps_manager)
@@ -21,13 +21,13 @@ def test_get_completion():
     assert len(json.loads(completion)['completion']) > 0
 
 @requires_open_ai_credentials
-def test_get_completion_with_no_api_key_errors():
+def test_get_ai_completion_with_no_api_key_errors():
     mito = create_mito_wrapper_dfs()
 
     key = os.environ['OPENAI_API_KEY']
     del os.environ['OPENAI_API_KEY']
 
-    completion = get_completion({
+    completion = get_ai_completion({
         'user_input': 'test',
         'selection': None
     }, mito.mito_backend.steps_manager)

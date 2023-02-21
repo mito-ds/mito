@@ -726,11 +726,11 @@ export default class MitoAPI {
 
 
     
-    async getCompletion(params: {user_input: string, selection: {'selected_df_name': string, 'selected_column_headers': ColumnHeader[], 'selected_index_labels': IndexLabel[]} | undefined}): Promise<{error: string,} | undefined> {
+    async getAICompletion(params: {user_input: string, selection: {'selected_df_name': string, 'selected_column_headers': ColumnHeader[], 'selected_index_labels': IndexLabel[]} | undefined}): Promise<{error: string,} | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
-            'type': 'get_completion',
+            'type': 'get_ai_completion',
             'params': params
         }, {})
 

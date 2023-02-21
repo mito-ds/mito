@@ -23554,10 +23554,10 @@ ${finalCode}`;
       }
       return void 0;
     }
-    async getCompletion(params) {
+    async getAICompletion(params) {
       const resultString = await this.send({
         "event": "api_call",
-        "type": "get_completion",
+        "type": "get_ai_completion",
         "params": params
       }, {});
       if (resultString !== void 0 && resultString !== "") {
