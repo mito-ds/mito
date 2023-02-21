@@ -11,7 +11,7 @@ to run specific tests on specific versions of pandas or Python
 import pytest
 import pandas as pd
 import sys
-from mitosheet.tests.ai.ai_utils import is_open_ai_credentials_available
+from mitosheet.ai.ai_utils import is_open_ai_credentials_available
 
 from mitosheet.utils import is_prev_version, is_snowflake_connector_python_installed, is_snowflake_credentials_available
 

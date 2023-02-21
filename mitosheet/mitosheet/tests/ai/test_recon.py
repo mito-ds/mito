@@ -369,8 +369,9 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         }
     ),
 ]
-@pytest.mark.parametrize("old_df, new_df, recon", EXEC_FOR_RECON_TESTS)
+@pytest.mark.parametrize("old_df, new_df, recon", COLUMN_RECON_TESTS)
 def test_get_column_recon(old_df, new_df, recon):
+    print("OLD DF", type(old_df))
     _recon = get_column_recon_data(old_df, new_df)
     assert recon == _recon
 

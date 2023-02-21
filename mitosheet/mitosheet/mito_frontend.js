@@ -23205,7 +23205,7 @@ ${finalCode}`;
     async send(msg, { maxRetries = MAX_RETRIES, doNotWaitForReply = false }) {
       const id = getRandomId();
       msg["id"] = id;
-      console.log(`Sending1: {type: ${msg["type"]}, id: ${id}}`);
+      console.log(`Sending: {type: ${msg["type"]}, id: ${id}}`);
       await waitUntilConditionReturnsTrueOrTimeout(() => {
         return this.commContainer !== void 0 && this._send !== void 0;
       }, MAX_WAIT_FOR_COMM_CREATION);
@@ -23702,6 +23702,21 @@ ${finalCode}`;
         "params": {
           sheet_index,
           drop
+        }
+      }, {});
+    }
+    async editAiTransformation(user_input, prompt_version, prompt, completion, edited_completion) {
+      const stepID = getRandomId();
+      await this.send({
+        "event": "edit_event",
+        "type": "ai_transformation_edit",
+        "step_id": stepID,
+        "params": {
+          user_input,
+          prompt_version,
+          prompt,
+          completion,
+          edited_completion
         }
       }, {});
     }
@@ -31010,6 +31025,18 @@ ${finalCode}`;
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
         proAction: true
+      },
+      ["AI_Transformation" /* AI_TRANSFORMATION */]: {
+        type: "AI_Transformation" /* AI_TRANSFORMATION */,
+        shortTitle: "AI Transformation",
+        longTitle: "AI Transformation",
+        actionFunction: () => {
+        },
+        isDisabled: () => {
+          return void 0;
+        },
+        searchTerms: ["AI Transformation"],
+        tooltip: "AI Transformation"
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
