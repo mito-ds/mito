@@ -14,7 +14,7 @@ from mitosheet.code_chunks.ai_transformation_code_chunk import AITransformationC
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.ai.recon import exec_and_get_new_state_and_last_line_expression_value
+from mitosheet.ai.recon import exec_and_get_new_state_and_result
 
 class AITransformationStepPerformer(StepPerformer):
     """
@@ -31,6 +31,7 @@ class AITransformationStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        # We don't use any of these parameters, but we keep them for clarity, and we don't want to remove them accidently
         user_input: str = get_param(params, 'user_input')
         prompt_version: str = get_param(params, 'prompt_version')
         prompt: str = get_param(params, 'prompt')
@@ -38,20 +39,15 @@ class AITransformationStepPerformer(StepPerformer):
         edited_completion: str = get_param(params, 'edited_completion')
 
         pandas_start_time = perf_counter()
-        post_state, last_line_value = exec_and_get_new_state_and_last_line_expression_value(prev_state, edited_completion)
+        post_state, last_line_value, frontend_result = exec_and_get_new_state_and_result(prev_state, edited_completion)
         pandas_processing_time = perf_counter() - pandas_start_time
 
-        # If the last line value is a primitive, we return it as a result for the frontend
-        result_last_line_value = None
-        if isinstance(last_line_value, str) or isinstance(last_line_value, bool) or isinstance(last_line_value, int) or isinstance(last_line_value, float):
-            result_last_line_value = last_line_value
+        # We then build a 
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'last_line_is_dataframe': isinstance(last_line_value, pd.DataFrame),
-            'result': {
-                'last_line_value': result_last_line_value
-            }
+            'result': frontend_result
         }
 
     @classmethod

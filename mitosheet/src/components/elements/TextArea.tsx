@@ -68,9 +68,8 @@ const TextArea = (props: {
             autoFocus={autoFocus}
             required={required}
             placeholder={props.placeholder}
-        >
-            {props.value}
-        </textarea>
+            value={props.value}
+        />
     )
 } 
 

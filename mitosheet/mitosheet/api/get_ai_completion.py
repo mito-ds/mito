@@ -17,7 +17,7 @@ import requests
 URL = 'https://api.openai.com/v1/completions'
 
 def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        selection: Optional[Selection] = params['selection']
+        selection: Optional[Selection] = params.get('selection', None)
         user_input: str = params['user_input']
 
         prompt = get_prompt(
@@ -59,10 +59,6 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                         'completion': completion,
                 })
 
-
-        # TODO: handle error here (e.g. it returns a 404, or something)
-
-        print(res.json())
         return json.dumps({
                 'error': 'There was an error accessing the OpenAI API.'
         })

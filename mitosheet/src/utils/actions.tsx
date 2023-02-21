@@ -1376,9 +1376,17 @@ export const createActions = (
             shortTitle: 'AI Transformation',
             longTitle: 'AI Transformation',
             actionFunction: () => {
-                // TODO
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                        selectedTabType: 'data'
+                    }
+                })
             },
-            isDisabled: () => {return 'This feature is in closed beta. Email aaron@sagacollab.com for access.'},
+            isDisabled: () => {return undefined},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },

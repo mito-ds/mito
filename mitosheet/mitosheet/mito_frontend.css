@@ -2227,6 +2227,36 @@ a:visited {
   overflow: scroll;
 }
 
+/* css/elements/TextArea.css */
+.text-area {
+  resize: none;
+  margin: 0px;
+  padding: 5px;
+  background-color: var(--mito-very-light-gray);
+  border: 1px solid var(--mito-lighter-gray);
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.text-area::placeholder {
+  color: var(--mito-medium-gray);
+}
+.text-area:hover {
+  border-color: var(--mito-medium-purple);
+}
+
+/* css/taskpanes/AITransformation/AITransformation.css */
+.ai-transformation-example {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 3px 5px;
+  gap: 10px;
+  background: #F5F5F5;
+  border: 1px solid #ACACAD;
+  border-radius: 3px;
+}
+
 /* css/loading-indicator.css */
 .loading-indicator-header {
   background-color: var(--mito-purple);

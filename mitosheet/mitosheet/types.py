@@ -240,6 +240,11 @@ if sys.version_info[:3] > (3, 8, 0):
         removed_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
+    class AITransformFrontendResult(TypedDict):
+        last_line_value: Optional[Union[str, bool, int, float]]
+        created_dataframe_names: List[str]
+        modified_dataframes_column_recons: Dict[str, ColumnReconData]
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -265,6 +270,7 @@ else:
     Selection = Any # type:ignore
     DataframeReconData = Any # type: ignore
     ColumnReconData = Any # type: ignore
+    AITransformFrontendResult = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]

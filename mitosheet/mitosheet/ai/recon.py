@@ -7,7 +7,7 @@ from pandas.testing import assert_frame_equal
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.column_steps.delete_column import delete_column_ids
 
-from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
+from mitosheet.types import AITransformFrontendResult, ColumnHeader, ColumnReconData, DataframeReconData
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -130,7 +130,7 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     }
 
 
-def exec_and_get_new_state_and_last_line_expression_value(state: State, code: str) -> Tuple[State, Optional[Any]]:
+def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
 
     # Make deep copies of all dataframes here, so we can manipulate them without fear
     # TODO: in the future, we could just do the modified ones
@@ -145,10 +145,12 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
         new_state.add_df_to_state(df, DATAFRAME_SOURCE_AI, df_name=df_name)
     
     # For modified dataframes, we update all the column variables
+    modified_dataframes_column_recons: Dict[str, ColumnReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
         old_df = df_map[df_name]
         column_recon = get_column_recon_data(old_df, new_df)
+        modified_dataframes_column_recons[df_name] = column_recon
 
         # Add new columns to the state
         new_state.add_columns_to_state(sheet_index, column_recon['added_columns'])
@@ -167,10 +169,22 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
 
     # For the last value, if is a dataframe, then add it to the state as well
     # TODO: we have to take special care to handle this in the generated code (maybe we want to do it in one place?)
-    if isinstance(recon_data['last_line_expression_value'], pd.DataFrame):
-        new_state.add_df_to_state(recon_data['last_line_expression_value'], DATAFRAME_SOURCE_AI)
+    last_line_expression_value = recon_data['last_line_expression_value']
+    if isinstance(last_line_expression_value, pd.DataFrame):
+        new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
 
-    return (new_state, recon_data['last_line_expression_value'])
+    # If the last line value is a primitive, we return it as a result for the frontend
+    result_last_line_value = None
+    if isinstance(last_line_expression_value, str) or isinstance(last_line_expression_value, bool) or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float):
+        result_last_line_value = last_line_expression_value
+
+    frontend_result: AITransformFrontendResult = {
+        'last_line_value': result_last_line_value,
+        'created_dataframe_names': list(recon_data['created_dataframes'].keys()),
+        'modified_dataframes_column_recons': modified_dataframes_column_recons
+    }
+
+    return (new_state, recon_data['last_line_expression_value'], frontend_result)
 
         
         

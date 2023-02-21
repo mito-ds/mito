@@ -1,0 +1,15 @@
+.ai-transformation-example {
+    box-sizing: border-box;
+
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 3px 5px;
+    gap: 10px;
+
+    background: #F5F5F5;
+    border: 1px solid #ACACAD;
+    border-radius: 3px;
+}
