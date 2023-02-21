@@ -93,12 +93,55 @@ df2 = pd.DataFrame({'a': [123]})
             pd.DataFrame({'a': [123]}),
         ]
     ),
+    # Import dataframe from url
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}),
+        ],
+        """
+import pandas as pd
+df2=pd.read_csv("https://raw.githubusercontent.com/mito-ds/monorepo/dev/mitosheet/datasets/small-datasets/very-small.csv")
+""",
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}),
+            pd.DataFrame({'Column A': ['A', 'B'], 'Column B': ['A', 'B'], 'Column C': ['A', 'B']}),
+        ]
+    ),
+    # Add column and using formula
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}),
+        ],
+        """
+import pandas as pd
+df1['G'] = df1['A'] + df1['B']
+""",
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days']), 'G': [2.0, 4.0, 6.0]}),
+        ]
+    ),
+    # Add column and using Mito formula
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}),
+        ],
+        """
+import pandas as pd
+from mitosheet import *
+df1['G'] = SUM(df1['A'], df1['B'])
+""",
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days']), 'G': [2.0, 4.0, 6.0]}),
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, edited_completion, output_dfs", AI_TRANSFORMATION_TESTS)
 def test_ai_transformation(input_dfs, edited_completion, output_dfs):
     mito = create_mito_wrapper_dfs(*input_dfs)
 
     mito.ai_transformation('fake user input', 'fake version', 'fake prompt', 'fake_completion', edited_completion)
+
+    print(mito.df_names)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
