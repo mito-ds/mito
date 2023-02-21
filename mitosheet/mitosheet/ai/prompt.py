@@ -12,7 +12,7 @@ from mitosheet.transpiler.transpile_utils import (
 from mitosheet.types import Selection
 
 MAX_TOKENS = 7500
-CHARS_PER_TOKEN = 4
+CHARS_PER_TOKEN = 4 # https://platform.openai.com/docs/introduction/tokens
 MAX_CHARS = MAX_TOKENS * CHARS_PER_TOKEN
 
 MAX_TOKENS_FOR_INPUT_DATA = 6000
@@ -45,14 +45,14 @@ def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, flo
         for column_header in df.columns
     }
 
-    with_values = ", ".join([f"{ch}: {vs}" for ch, vs in transpiled_column_headers_to_transpiled_values.items()])
-    df_string_with_values = f'pd.DataFrame({OPEN_BRACKET}{with_values}{CLOSE_BRACKET})'
+    column_headers_to_values_string = ", ".join([f"{ch}: {vs}" for ch, vs in transpiled_column_headers_to_transpiled_values.items()])
+    df_string_with_values = f'pd.DataFrame({OPEN_BRACKET}{column_headers_to_values_string}{CLOSE_BRACKET})'
 
     if len(df_string_with_values) < max_characters:
         return df_string_with_values
     
-    with_headers = ", ".join([ch for ch in transpiled_column_headers_to_transpiled_values])
-    df_string_with_only_headers = f'pd.DataFrame(columns=[{with_headers}])'
+    column_headers_string = ", ".join([ch for ch in transpiled_column_headers_to_transpiled_values])
+    df_string_with_only_headers = f'pd.DataFrame(columns=[{column_headers_string}])'
 
     if len(df_string_with_only_headers) < max_characters:
         return df_string_with_only_headers
@@ -65,7 +65,7 @@ def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, flo
     low = 0
     num_not_included = 1
     high = len(columns) - 1
-    len_container = len(f'pd.DataFrame(columns=[])')
+    len_container = len(f'pd.DataFrame(columns=[ ... and {high} more])') # Max length of container
 
     while low < high:
         mid = (low + high) // 2
