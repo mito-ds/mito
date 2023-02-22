@@ -53,9 +53,9 @@ export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivEl
                 return;
             }
 
-            // Then, we check if the user is actually focused on some input in Mito,
+            // Then, we check if the user is actually focused on some input or textarea in Mito,
             // as in this case we don't want to overwrite this action
-            if (document.activeElement?.tagName.toLowerCase() === 'input') {
+            if (document.activeElement?.tagName.toLowerCase() === 'input' || document.activeElement?.tagName.toLowerCase() === 'textarea') {
                 return;
             }
 

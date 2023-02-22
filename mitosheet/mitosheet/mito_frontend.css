@@ -2256,6 +2256,12 @@ a:visited {
   border: 1px solid #ACACAD;
   border-radius: 3px;
 }
+.ai-transformation-feedback-button {
+  background: #F5F5F5;
+  border: 1px solid #E9E0FD;
+  border-radius: 5px;
+  padding: 5px;
+}
 
 /* css/loading-indicator.css */
 .loading-indicator-header {

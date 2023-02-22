@@ -5,6 +5,7 @@ import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
+import { CompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -14,7 +15,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnHeader, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, IndexLabel, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -725,11 +726,10 @@ export default class MitoAPI {
         return undefined;
     }
 
-
     
     async getAICompletion(
             user_input: string, 
-            selection: {'selected_df_name': string, 'selected_column_headers': ColumnHeader[], 'selected_index_labels': IndexLabel[]} | undefined
+            selection: CompletionSelection | undefined
         ): Promise<
             {error: string} | 
             {

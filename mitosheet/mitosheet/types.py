@@ -232,17 +232,20 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class DataframeReconData(TypedDict):
         created_dataframes: Dict[str, pd.DataFrame]
+        deleted_dataframes: List[str]
         modified_dataframes: Dict[str, pd.DataFrame]
         last_line_expression_value: Optional[Any]
 
     class ColumnReconData(TypedDict):
         added_columns: List[ColumnHeader]
         removed_columns: List[ColumnHeader]
+        modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
     class AITransformFrontendResult(TypedDict):
         last_line_value: Optional[Union[str, bool, int, float]]
         created_dataframe_names: List[str]
+        deleted_dataframe_names: List[str]
         modified_dataframes_column_recons: Dict[str, ColumnReconData]
 
 else:

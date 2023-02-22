@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnHeader, StepType, UIState, UserProfile } from "../../../types";
+import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import TextArea from "../../elements/TextArea";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
@@ -9,17 +9,22 @@ import CollapsibleSection from "../../layout/CollapsibleSection";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
 
+import '../../../../css/taskpanes/AITransformation/AITransformation.css';
+import { getColumnHeadersInSelections, getIndexLabelsInSelections } from "../../endo/selectionUtils";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import '../../../../css/taskpanes/AITransformation/AITransformation.css'
+import AITransformationResultSection from "./AITransformationResultSection";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
+    gridState: GridState
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
+    sheetDataArray: SheetData[]
 }
 
 interface AITransformationParams {
@@ -33,12 +38,14 @@ interface AITransformationParams {
 interface ColumnReconData {
     added_columns: ColumnHeader[]
     removed_columns: ColumnHeader[]
+    modified_columns: ColumnHeader[],
     renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
 }
-interface AITransformationResult {
-    last_line_value: string | boolean | number | undefined
-    created_dataframe_names: string[]
-    modified_dataframes_column_recons: Record<string, ColumnReconData>
+export interface AITransformationResult {
+    last_line_value: string | boolean | number | undefined | null,
+    created_dataframe_names: string[],
+    deleted_dataframe_names: string[],
+    modified_dataframes_column_recons: Record<string, ColumnReconData>,
 }
 
 interface PromptState {
@@ -52,6 +59,12 @@ interface SectionState {
     'Prompt': boolean,
     'Generated Code': boolean,
     'Result': boolean
+}
+
+export interface CompletionSelection {
+    'selected_df_name': string, 
+    'selected_column_headers': ColumnHeader[], 
+    'selected_index_labels': IndexLabel[]
 }
 
 const getDefaultParams = (): AITransformationParams | undefined => {
@@ -80,6 +93,26 @@ const getExample = (userInput: string, setPromptState: React.Dispatch<React.SetS
     )
 }
 
+const getSelectionForCompletion = (uiState: UIState, gridState: GridState, sheetDataArray: SheetData[]): CompletionSelection | undefined => {
+    const selectedSheetIndex = uiState.selectedSheetIndex;
+    const sheetData = sheetDataArray[selectedSheetIndex];
+
+    if (sheetData === undefined) {
+        return undefined;
+    }
+
+    const dfName = sheetData.dfName;
+    const selectedColumnHeaders = getColumnHeadersInSelections(gridState.selections, sheetData);
+    const selectedIndexLabels = getIndexLabelsInSelections(gridState.selections, sheetData);
+    
+
+    return {
+        'selected_df_name': dfName,
+        'selected_column_headers': selectedColumnHeaders,
+        'selected_index_labels': selectedIndexLabels
+    }
+}
+
 
 /* 
     This is the AITransformation taskpane.
@@ -99,7 +132,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         loading: false
     });
 
-    const {params, setParams, edit, editApplied, result} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
+    const {params, setParams, edit, editApplied, result, error} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
         () => getDefaultParams(),
         StepType.AiTransformation, 
         props.mitoAPI,
@@ -133,6 +166,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 <CollapsibleSection title={"Prompt"} open={openSections['Prompt']}>
                     <TextArea 
                         value={promptState.userInput} 
+                        placeholder='delete columns with nans'
                         onChange={(e) => {
                             const newUserInput = e.target.value;
                             setPromptState({userInput: newUserInput, error: undefined, loading: false});
@@ -142,7 +176,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     <TextButton
                         onClick={async () => {
                             setPromptState(prevPromptState => {return {...prevPromptState, loading: true}})
-                            const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, undefined);
+                            const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
+                            const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
                             if (completionOrError !== undefined && 'completion' in completionOrError) {
                                 setParams({...completionOrError, edited_completion: completionOrError.completion});
                                 setOpenSections(prevOpenSections => {
@@ -180,6 +215,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 <CollapsibleSection title={"Generated Code"} open={openSections['Generated Code']}>
                     <TextArea 
                         value={params.edited_completion} 
+                        placeholder='df["column"] = True'
                         onChange={(e) => {
                             const newEditedCompletion = e.target.value;
                             setParams(prevParams => {
@@ -199,7 +235,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         {editApplied && 
                             <Col span={6}>
                                 <TextButton 
-                                    onClick={() => {props.mitoAPI.updateUndo()}}
+                                    onClick={() => {
+                                        // First, we undo
+                                        props.mitoAPI.updateUndo()
+
+
+                                    }}
                                     variant='dark'
                                     width="small"
                                 >
@@ -216,22 +257,18 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </TextButton>
                         </Col>
                     </Row>
+                    {error !== undefined &&
+                        <p className="text-color-error">{error}</p>
+                    }
                 </CollapsibleSection>
                 <Spacer px={10}/>
                 <CollapsibleSection title={"Result"} open={openSections['Result'] || result?.last_line_value !== undefined}>
-                    {
-                        result?.last_line_value
-                    }
-                    {result?.created_dataframe_names.map(dfName => {
-                        return (
-                            <div>Created: {dfName}</div>
-                        )
-                    })}
-                    {Object.keys(result?.modified_dataframes_column_recons || {}).map(dfName => {
-                        return (
-                            <div>Modified: {dfName}</div>
-                        )
-                    })}
+                    <AITransformationResultSection
+                        setUIState={props.setUIState}
+                        result={result}
+                        sheetDataArray={props.sheetDataArray}
+                        mitoAPI={props.mitoAPI}
+                    />
                 </CollapsibleSection>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>

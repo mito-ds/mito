@@ -60,5 +60,5 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 })
 
         return json.dumps({
-                'error': 'There was an error accessing the OpenAI API.'
+                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
         })
