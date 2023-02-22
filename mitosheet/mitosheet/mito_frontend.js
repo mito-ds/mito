@@ -23705,6 +23705,21 @@ ${finalCode}`;
         }
       }, {});
     }
+    async editAiTransformation(user_input, prompt_version, prompt, completion, edited_completion) {
+      const stepID = getRandomId();
+      await this.send({
+        "event": "edit_event",
+        "type": "ai_transformation_edit",
+        "step_id": stepID,
+        "params": {
+          user_input,
+          prompt_version,
+          prompt,
+          completion,
+          edited_completion
+        }
+      }, {});
+    }
     async editPromoteRowToHeader(sheetIndex, index) {
       const stepID = getRandomId();
       await this.send({
@@ -31010,6 +31025,18 @@ ${finalCode}`;
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
         proAction: true
+      },
+      ["AI_Transformation" /* AI_TRANSFORMATION */]: {
+        type: "AI_Transformation" /* AI_TRANSFORMATION */,
+        shortTitle: "AI Transformation",
+        longTitle: "AI Transformation",
+        actionFunction: () => {
+        },
+        isDisabled: () => {
+          return "This feature is in closed beta. Email aaron@sagacollab.com for access.";
+        },
+        searchTerms: ["AI Transformation"],
+        tooltip: "AI Transformation"
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,

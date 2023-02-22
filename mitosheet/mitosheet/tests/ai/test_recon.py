@@ -7,6 +7,7 @@ from pandas.testing import assert_frame_equal
 import pytest
 
 from mitosheet.ai.recon import exec_and_get_new_state_and_last_line_expression_value, exec_for_recon, get_column_recon_data, exec_and_get_new_state_and_last_line_expression_value
+from mitosheet.errors import MitoError
 from mitosheet.state import State
 from mitosheet.types import ColumnReconData, DataframeReconData
 from mitosheet.utils import df_to_json_dumpsable
@@ -20,6 +21,7 @@ x = 2
         {'df': pd.DataFrame()},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None
         }
@@ -33,6 +35,7 @@ df = pd.DataFrame({'a': [123]})
         {},
         {
             'created_dataframes': {'df': pd.DataFrame({'a': [123]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None
         }
@@ -47,6 +50,7 @@ df1 = pd.DataFrame({'b': [123]})
         {},
         {
             'created_dataframes': {'df': pd.DataFrame({'a': [123]}), 'df1': pd.DataFrame({'b': [123]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None
         }
@@ -60,6 +64,7 @@ df = pd.DataFrame({'a': [123]})
         {'df': pd.DataFrame({'a': [321]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123]})},
             'last_line_expression_value': None
         }
@@ -73,6 +78,7 @@ df = pd.DataFrame({'a': [123, None]})
         {'df': pd.DataFrame({'a': [123, 321]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123, None]})},
             'last_line_expression_value': None
         }
@@ -86,6 +92,7 @@ df = pd.DataFrame({'a': [123, 456]})
         {'df': pd.DataFrame({'a': [123, None]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123, 456]})},
             'last_line_expression_value': None
         }
@@ -99,6 +106,7 @@ df = pd.DataFrame({'b': [None]})
         {'df': pd.DataFrame({'a': [123, None]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'b': [None]})},
             'last_line_expression_value': None
         }
@@ -112,6 +120,7 @@ df = pd.DataFrame({'a': [123, None]})
         {'df': pd.DataFrame({'a': [123, None]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None
         }
@@ -124,6 +133,7 @@ df['a'] = 10
         {'df': pd.DataFrame({'a': [123, None]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [10, 10]})},
             'last_line_expression_value': None
         }
@@ -136,6 +146,7 @@ df['b'] = 10
         {'df': pd.DataFrame({'a': [1, 1]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [1, 1], 'b': [10, 10]})},
             'last_line_expression_value': None
         }
@@ -150,6 +161,7 @@ df1 = pd.DataFrame({'a': [1234]})
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {'df1': pd.DataFrame({'a': [1234]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123]})},
             'last_line_expression_value': None
         }
@@ -164,6 +176,7 @@ df1 = pd.DataFrame({'a': [1234]})
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {'df1': pd.DataFrame({'a': [1234]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [4]})},
             'last_line_expression_value': None
         }
@@ -178,6 +191,7 @@ x + y
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': 3
         }
@@ -191,6 +205,7 @@ pd.DataFrame({'a': [10]})
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': pd.DataFrame({'a': [10]})
         }
@@ -203,6 +218,7 @@ df.replace(1, 2)
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': pd.DataFrame({'a': [2]})
         }
@@ -216,6 +232,7 @@ df.replace(2, 3)
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]})
         }
@@ -231,6 +248,7 @@ df.replace(2, 3)
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {'df1': pd.DataFrame({'b': [1]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]})
         }
@@ -247,6 +265,7 @@ df.replace(2, 3)
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {'df1': pd.DataFrame({'b': [1]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]})
         }
@@ -264,6 +283,7 @@ df.replace(3, 4)
         {'df': pd.DataFrame({'a': [1]})},
         {
             'created_dataframes': {'df1': pd.DataFrame({'b': [1]})},
+            'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [3]})},
             'last_line_expression_value': pd.DataFrame({'a': [4]})
         }
@@ -412,6 +432,7 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
 ]
 @pytest.mark.parametrize("old_df, new_df, recon", COLUMN_RECON_TESTS)
 def test_get_column_recon(old_df, new_df, recon):
+    print("OLD DF", type(old_df))
     _recon = get_column_recon_data(old_df, new_df)
     assert recon == _recon
 
@@ -498,6 +519,43 @@ df1 = pd.DataFrame({'b': [123]})
             'df1': pd.DataFrame({'b': [123]})
         }
     ),
+    # Deleting  dataframe
+    (
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+        """
+del df
+        """,
+        {}
+    ),
+    # Modify dataframe then delete it
+    (
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+        """
+df['a'] = 10
+del df
+        """,
+        {}
+    ),
+    # Create dataframe then delete it
+    (
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+        """
+import pandas as pd
+df1 = pd.DataFrame()
+del df1
+        """,
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+    ),
+    # Create dataframe, delete a different one
+    (
+        {'df': pd.DataFrame({'a': [123], 'b': [456]})},
+        """
+import pandas as pd
+df1 = pd.DataFrame({'a': [1]})
+del df
+        """,
+        {'df1': pd.DataFrame({'a': [1]})},
+    ),
 ]
 
 @pytest.mark.parametrize("old_dfs_map, code, new_df_map", EXEC_AND_GET_NEW_STATE_TESTS)
@@ -527,4 +585,10 @@ def test_exec_and_get_new_state(old_dfs_map, code, new_df_map):
             new_state.df_formats[sheet_index],
         )
 
-    
+def test_invalid_code_execute():
+    old_dfs_map = {'df': pd.DataFrame({'a': [123]})}
+    code = 'x += 1'
+    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
+    with pytest.raises(MitoError) as e:
+        exec_and_get_new_state_and_last_line_expression_value(prev_state, code)
+    assert 'NameError: name \'x\' is not defined' in str(e)

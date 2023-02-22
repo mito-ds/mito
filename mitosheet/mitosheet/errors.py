@@ -622,6 +622,19 @@ def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
         error_modal=error_modal
     )
 
+def make_exec_error(e: Exception) -> MitoError:
+    """
+    Helper function for creating a make_exec_error, which captures an error that
+    occurs inside of exec (from AI generated code).
+    """
+
+    return MitoError(
+        'make_exec_error',
+        'Exec Error',
+        f'{type(e).__name__}: {e}',
+        error_modal=False
+    )
+
 def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
     """
     Helper function for creating a upper_left_corner_value_not_found_error.
