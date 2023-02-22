@@ -40,13 +40,7 @@ class DataframeDeleteStepPerformer(StepPerformer):
         post_state = prev_state.copy()
 
         # Execute the delete
-        post_state.column_ids.remove_df(sheet_index)
-        post_state.column_formulas.pop(sheet_index)
-        post_state.column_filters.pop(sheet_index)
-        post_state.df_formats.pop(sheet_index)
-        post_state.dfs.pop(sheet_index)
-        post_state.df_names.pop(sheet_index)
-        post_state.df_sources.pop(sheet_index)
+        delete_dataframe_from_state(post_state, sheet_index)
 
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
@@ -72,3 +66,12 @@ class DataframeDeleteStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return set() # Redo all of them, as order shifts
+
+def delete_dataframe_from_state(state: State, sheet_index: int) -> None:
+    state.column_ids.remove_df(sheet_index)
+    state.column_formulas.pop(sheet_index)
+    state.column_filters.pop(sheet_index)
+    state.df_formats.pop(sheet_index)
+    state.dfs.pop(sheet_index)
+    state.df_names.pop(sheet_index)
+    state.df_sources.pop(sheet_index)

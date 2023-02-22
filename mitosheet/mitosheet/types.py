@@ -232,6 +232,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class DataframeReconData(TypedDict):
         created_dataframes: Dict[str, pd.DataFrame]
+        deleted_dataframes: List[str]
         modified_dataframes: Dict[str, pd.DataFrame]
         last_line_expression_value: Optional[Any]
 

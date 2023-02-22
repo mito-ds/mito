@@ -1,13 +1,19 @@
 import ast
+import traceback
 from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mitosheet.state import DATAFRAME_SOURCE_AI, State
-from mitosheet.step_performers.column_steps.delete_column import delete_column_ids
+from mitosheet.errors import make_exec_error
 
+from mitosheet.state import DATAFRAME_SOURCE_AI, State
+from mitosheet.step_performers.column_steps.delete_column import \
+    delete_column_ids
+from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
+    delete_dataframe_from_state
 from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
+
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -39,6 +45,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     if len(code) == 0:
         return {
             'created_dataframes': {},
+            'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None
         }
@@ -63,16 +70,27 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
-    exec(code, {}, locals())
+    try:
+        exec(code, {}, locals())
+    except Exception as e:
+        raise make_exec_error(e)
+        
+    # We make a copy of locals, as the local variables redefine themselves in 
+    # list comprehensions... sometimes. I don't get what is happening here, but it works
+    new_locals = locals()
 
-    created_dataframes = {
-        name: value for name, value in locals().items() 
+    created_dataframes: Dict[str, pd.DataFrame] = {
+        name: value for name, value in new_locals.items()
         if name not in locals_before and name != 'locals_before' and name != 'FAKE_VAR_NAME'
         and isinstance(value, pd.DataFrame) and name not in original_df_map
     }
 
+    deleted_dataframes = [
+        name for name in df_map if name not in new_locals and name in potentially_modified_df_names
+    ]
+
     modified_dataframes = {
-        name: value for name, value in locals().items() 
+        name: value for name, value in new_locals.items()
         if isinstance(value, pd.DataFrame) and name in potentially_modified_df_names
         and is_df_changed(original_df_map[name], value)
     }
@@ -84,6 +102,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
 
     return {
         'created_dataframes': created_dataframes,
+        'deleted_dataframes': deleted_dataframes,
         'modified_dataframes': modified_dataframes,
         'last_line_expression_value': last_line_expression_value
     }
@@ -137,13 +156,16 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
     # TODO: in the future, we could just do the modified ones
     new_state = state.copy(deep_sheet_indexes=list(range(len(state.dfs))))
 
-
     df_map = {df_name: df for df_name, df in zip(new_state.df_names, new_state.dfs)}
     recon_data = exec_for_recon(code, df_map)
 
     # For all of the added dataframes, we just add them to the state
     for df_name, df in recon_data['created_dataframes'].items():
         new_state.add_df_to_state(df, DATAFRAME_SOURCE_AI, df_name=df_name)
+
+    # For deleted dataframes, we remove them from the state
+    for df_name in recon_data['deleted_dataframes']:
+        delete_dataframe_from_state(new_state, new_state.df_names.index(df_name))
     
     # For modified dataframes, we update all the column variables
     for df_name, new_df in recon_data['modified_dataframes'].items():
