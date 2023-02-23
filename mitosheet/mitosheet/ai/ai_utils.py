@@ -17,20 +17,26 @@ def fix_up_missing_imports(code: str) -> str:
 
     return code
 
-    
+def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
+    code_lines = code.splitlines()
+    # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
+    # we can actually get the line with our slice. Also, on earlier versions of Python, the end_lineno is
+    # not defined; thus, we must access it through the attribute getter
+    lineno = last_expression.lineno - 1
+    end_lineno = last_expression.__dict__.get('end_lineno', None)
+    if end_lineno is not None:
+        end_lineno -= 1
+        if end_lineno == lineno:
+            end_lineno += 1
+    relevant_lines = code_lines[lineno:end_lineno] 
+    return "\n".join(relevant_lines)
 
-def fix_dataframe_name(code: str, new_df_name: str) -> str:
-    """
-    This fixes common issues in AI generated code including:
-    1. If the final value is a dataframe, then it gives this dataframe a name 
-    2. If np or pd is used, then we import them    
-    """
-
+def fix_final_dataframe_name(code: str, new_df_name: str) -> str:
     ast_before = ast.parse(code)
     last_expression = ast_before.body[-1]
 
     # (1)
-    last_expression_string = ast.unparse([last_expression]) # type: ignore
+    last_expression_string = get_code_string_from_last_expression(code, last_expression)
     code = code.replace(last_expression_string, f'{new_df_name} = {last_expression_string}')
 
     return code

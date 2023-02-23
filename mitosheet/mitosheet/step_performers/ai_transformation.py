@@ -8,7 +8,7 @@
 import pandas as pd
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.ai.ai_utils import fix_dataframe_name, fix_up_missing_imports
+from mitosheet.ai.ai_utils import fix_final_dataframe_name, fix_up_missing_imports
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.ai_transformation_code_chunk import AITransformationCodeChunk
 
@@ -46,7 +46,7 @@ class AITransformationStepPerformer(StepPerformer):
         pandas_processing_time = perf_counter() - pandas_start_time
 
         if isinstance(last_line_value, pd.DataFrame):
-            final_code = fix_dataframe_name(fixed_import_code, post_state.df_names[-1])
+            final_code = fix_final_dataframe_name(fixed_import_code, post_state.df_names[-1])
         else:
             final_code = fixed_import_code
 
