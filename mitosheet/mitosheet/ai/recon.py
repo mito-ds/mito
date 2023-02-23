@@ -24,10 +24,14 @@ def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
 def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
     code_lines = code.splitlines()
     # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
-    # we can actually get the line with our slice
-    lineno, end_lineno = last_expression.lineno - 1, last_expression.end_lineno - 1 if last_expression.end_lineno is not None else None 
-    if end_lineno == lineno and end_lineno is not None:
-        end_lineno += 1
+    # we can actually get the line with our slice. Also, on earlier versions of Python, the end_lineno is
+    # not defined; thus, we must access it through the attribute getter
+    lineno = last_expression.lineno - 1
+    end_lineno = last_expression.__dict__.get('end_lineno', None)
+    if end_lineno is not None:
+        end_lineno -= 1
+        if end_lineno == lineno:
+            end_lineno += 1
     relevant_lines = code_lines[lineno:end_lineno] 
     return "\n".join(relevant_lines)
 
