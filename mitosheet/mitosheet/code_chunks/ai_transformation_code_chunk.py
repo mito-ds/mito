@@ -6,6 +6,7 @@
 # Distributed under the terms of the GPL License.
 import ast
 from typing import List, Tuple
+from mitosheet.ai.recon import get_code_string_from_last_expression
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.state import State
@@ -32,7 +33,7 @@ class AITransformationCodeChunk(CodeChunk):
             # TODO: in the future, we can do this with import fix up before we even execute the code?
             ast_before = ast.parse(self.edited_completion)
             last_expression = ast_before.body[-1]
-            last_expression_string = ast.unparse([last_expression]) # type: ignore
+            last_expression_string = get_code_string_from_last_expression(self.edited_completion, last_expression)
             code = self.edited_completion.replace(last_expression_string, f'{self.post_state.df_names[-1]} = {last_expression_string}')
         else:
             code = self.edited_completion
