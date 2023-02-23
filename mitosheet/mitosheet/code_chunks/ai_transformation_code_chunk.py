@@ -5,6 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import List, Tuple
+from mitosheet.ai.recon import get_code_string_from_last_expression
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
