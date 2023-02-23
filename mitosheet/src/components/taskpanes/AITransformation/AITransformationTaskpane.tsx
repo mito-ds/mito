@@ -179,7 +179,6 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
                             const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
                             if (completionOrError !== undefined && 'completion' in completionOrError) {
-                                console.log("COMPLETION", completionOrError.prompt)
                                 setParams({...completionOrError, edited_completion: completionOrError.completion});
                                 setOpenSections(prevOpenSections => {
                                     return {
@@ -229,7 +228,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         height={
                             // We shrink the box if the code is small
                             params.completion.trim().split(/\r\n|\r|\n/).length < 5
-                            ? 'small' : 'medium'
+                                ? 'small' : 'medium'
                         } 
                     />
                     <Row justify="space-between">
@@ -238,9 +237,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 <TextButton 
                                     onClick={() => {
                                         // First, we undo
-                                        props.mitoAPI.updateUndo()
+                                        void props.mitoAPI.updateUndo()
 
-
+                                        // TODO: mess with the params?
                                     }}
                                     variant='dark'
                                     width="small"

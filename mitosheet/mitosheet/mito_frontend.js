@@ -39019,6 +39019,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react172.default.createElement(
       Col_default,
       {
+        key: idx,
         className: "ai-transformation-feedback-button",
         onClick: () => {
           setSentFeedback(idx);
@@ -39038,6 +39039,7 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react172.default.createElement(
         "div",
         {
+          key: dfName,
           onClick: () => {
             props.setUIState((prevUIState) => {
               return __spreadProps(__spreadValues({}, prevUIState), {
@@ -39051,7 +39053,7 @@ fig.write_html("${props.graphTabName}.html")`
       );
     }), Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
-      return /* @__PURE__ */ import_react172.default.createElement("div", null, /* @__PURE__ */ import_react172.default.createElement(
+      return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, /* @__PURE__ */ import_react172.default.createElement(
         "div",
         {
           onClick: () => {
@@ -39064,17 +39066,17 @@ fig.write_html("${props.graphTabName}.html")`
         },
         "Modified: ",
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName)
-      ), columnReconData.added_columns.map((ch) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { className: "ml-5px" }, "Added: ", getDisplayColumnHeader(ch));
-      }), columnReconData.modified_columns.map((ch) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { className: "ml-5px" }, "Modified: ", getDisplayColumnHeader(ch));
-      }), Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh]) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { className: "ml-5px" }, "Renamed: ", getDisplayColumnHeader(oldCh), " to ", getDisplayColumnHeader(newCh), " ");
-      }), columnReconData.removed_columns.map((ch) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { className: "ml-5px" }, "Removed: ", getDisplayColumnHeader(ch));
+      ), columnReconData.added_columns.map((ch, index) => {
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "added" + index, className: "ml-5px" }, "Added: ", getDisplayColumnHeader(ch));
+      }), columnReconData.modified_columns.map((ch, index) => {
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "modified" + index, className: "ml-5px" }, "Modified: ", getDisplayColumnHeader(ch));
+      }), Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "renamed" + index, className: "ml-5px" }, "Renamed: ", getDisplayColumnHeader(oldCh), " to ", getDisplayColumnHeader(newCh), " ");
+      }), columnReconData.removed_columns.map((ch, index) => {
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "removed" + index, className: "ml-5px" }, "Removed: ", getDisplayColumnHeader(ch));
       }));
     }), result.deleted_dataframe_names.map((dfName) => {
-      return /* @__PURE__ */ import_react172.default.createElement("div", null, "Deleted: ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
+      return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, "Deleted: ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
     }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", null, "No changes"), /* @__PURE__ */ import_react172.default.createElement("p", { className: "mt-5px text-bold" }, "On a scale from 1-10, how effective was Mito AI?"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between" }, Array.from(Array(10).keys()).map((idx) => idx + 1).map((idx) => {
       return getFeedbackButton(idx, setSentFeedback);
     })), sentFeedback >= 1 && /* @__PURE__ */ import_react172.default.createElement("p", null, "Thanks for the feedback - ", sentFeedback < 7 ? "we're working hard to improve." : "we're glad things are working well!"));
@@ -39170,7 +39172,6 @@ fig.write_html("${props.graphTabName}.html")`
           const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
           const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
           if (completionOrError !== void 0 && "completion" in completionOrError) {
-            console.log("COMPLETION", completionOrError.prompt);
             setParams(__spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion }));
             setOpenSections((prevOpenSections) => {
               return __spreadProps(__spreadValues({}, prevOpenSections), {
@@ -39213,7 +39214,7 @@ fig.write_html("${props.graphTabName}.html")`
       TextButton_default,
       {
         onClick: () => {
-          props.mitoAPI.updateUndo();
+          void props.mitoAPI.updateUndo();
         },
         variant: "dark",
         width: "small"

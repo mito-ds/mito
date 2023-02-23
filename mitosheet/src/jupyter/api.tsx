@@ -728,17 +728,17 @@ export default class MitoAPI {
 
     
     async getAICompletion(
-            user_input: string, 
-            selection: CompletionSelection | undefined
-        ): Promise<
-            {error: string} | 
-            {
-                user_input: string,
-                prompt_version: string,
-                prompt: string,
-                completion: string
-            } | 
-            undefined
+        user_input: string, 
+        selection: CompletionSelection | undefined
+    ): Promise<
+        {error: string} | 
+        {
+            user_input: string,
+            prompt_version: string,
+            prompt: string,
+            completion: string
+        } | 
+        undefined
         > {
 
         const resultString = await this.send<string>({

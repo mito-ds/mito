@@ -18,6 +18,7 @@ interface AITransformationResultSectionProps {
 const getFeedbackButton = (idx: number, setSentFeedback: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
     return (
         <Col 
+            key={idx}
             className="ai-transformation-feedback-button"
             onClick={() => {
                 setSentFeedback(idx);
@@ -46,6 +47,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                 const sheetIndex = props.sheetDataArray.findIndex(sd => sd.dfName === dfName);
                 return (
                     <div 
+                        key={dfName}
                         onClick={() => {
                             props.setUIState(prevUIState => {
                                 return {
@@ -55,13 +57,13 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                             })
                         }}>
                             Created: <span className="text-underline">{dfName}</span> 
-                        </div>
+                    </div>
                 )
             })}
             {Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
                 const sheetIndex = props.sheetDataArray.findIndex(sd => sd.dfName === dfName);
                 return (
-                    <div>
+                    <div key={dfName}>
                         <div 
                             onClick={() => {
                                 props.setUIState(prevUIState => {
@@ -73,24 +75,24 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                             }}>
                             Modified: <span className="text-underline">{dfName}</span> 
                         </div>
-                        {columnReconData.added_columns.map(ch => {
-                            return <div className="ml-5px">Added: {getDisplayColumnHeader(ch)}</div>
+                        {columnReconData.added_columns.map((ch, index) => {
+                            return <div key={dfName + 'added' + index} className="ml-5px">Added: {getDisplayColumnHeader(ch)}</div>
                         })}
-                        {columnReconData.modified_columns.map(ch => {
-                            return <div className="ml-5px">Modified: {getDisplayColumnHeader(ch)}</div>
+                        {columnReconData.modified_columns.map((ch, index) => {
+                            return <div key={dfName + 'modified' + index} className="ml-5px">Modified: {getDisplayColumnHeader(ch)}</div>
                         })}
-                        {Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh]) => {
-                            return <div className="ml-5px">Renamed: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
+                        {Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
+                            return <div key={dfName + 'renamed' + index} className="ml-5px">Renamed: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
                         })}
-                        {columnReconData.removed_columns.map(ch => {
-                            return <div className="ml-5px">Removed: {getDisplayColumnHeader(ch)}</div>
+                        {columnReconData.removed_columns.map((ch, index) => {
+                            return <div key={dfName + 'removed' + index} className="ml-5px">Removed: {getDisplayColumnHeader(ch)}</div>
                         })}
                     </div>
                 )
             })}
             {result.deleted_dataframe_names.map(dfName => {
                 return (
-                    <div>
+                    <div key={dfName}>
                         Deleted: <span>{dfName}</span> 
                     </div>
                 )

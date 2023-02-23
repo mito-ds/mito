@@ -57,8 +57,8 @@ const DefaultTaskpaneBody = (
                 <MitoUpgradePrompt
                     message={props.requiresProMessage}
                     proOrEnterprise='Pro'
-                    />
-                }
+                />
+            }
             {shouldPromptEnterpriseUpgrade &&
                 <MitoUpgradePrompt
                     message={props.requiresEnterpriseMessage}
