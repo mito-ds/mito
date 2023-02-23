@@ -39322,6 +39322,9 @@ fig.write_html("${props.graphTabName}.html")`
       case "reset_index" /* ResetIndex */: {
         return "Resetting Index";
       }
+      case "ai_transformation" /* AiTransformation */: {
+        return "AI Transformation";
+      }
       case "undo" /* Undo */: {
         return "Undoing previous edit";
       }

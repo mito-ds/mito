@@ -14,13 +14,22 @@ from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
 from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
 
-
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
         assert_frame_equal(old, new, check_names=False)
         return False
     except AssertionError:
         return True
+
+def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
+    code_lines = code.splitlines()
+    # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
+    # we can actually get the line with our slice
+    lineno, end_lineno = last_expression.lineno - 1, last_expression.end_lineno - 1 if last_expression.end_lineno is not None else None 
+    if end_lineno == lineno and end_lineno is not None:
+        end_lineno += 1
+    relevant_lines = code_lines[lineno:end_lineno] 
+    return "\n".join(relevant_lines)
 
 def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> DataframeReconData:
     """
@@ -59,7 +68,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         has_last_line_expression_value = False
     else:
         has_last_line_expression_value = True
-        last_expression_string = ast.unparse([last_expression]) # type: ignore
+        last_expression_string = get_code_string_from_last_expression(code, last_expression)
         code = code.replace(last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [
