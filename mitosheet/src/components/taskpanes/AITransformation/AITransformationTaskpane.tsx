@@ -179,6 +179,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
                             const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
                             if (completionOrError !== undefined && 'completion' in completionOrError) {
+                                console.log("COMPLETION", completionOrError.prompt)
                                 setParams({...completionOrError, edited_completion: completionOrError.completion});
                                 setOpenSections(prevOpenSections => {
                                     return {

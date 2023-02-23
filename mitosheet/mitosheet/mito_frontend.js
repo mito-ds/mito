@@ -39170,6 +39170,7 @@ fig.write_html("${props.graphTabName}.html")`
           const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
           const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
           if (completionOrError !== void 0 && "completion" in completionOrError) {
+            console.log("COMPLETION", completionOrError.prompt);
             setParams(__spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion }));
             setOpenSections((prevOpenSections) => {
               return __spreadProps(__spreadValues({}, prevOpenSections), {

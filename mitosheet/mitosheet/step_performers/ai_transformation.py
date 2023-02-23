@@ -8,6 +8,7 @@
 import pandas as pd
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+from mitosheet.ai.ai_utils import fix_dataframe_name, fix_up_missing_imports
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.ai_transformation_code_chunk import AITransformationCodeChunk
 
@@ -38,16 +39,23 @@ class AITransformationStepPerformer(StepPerformer):
         completion: str = get_param(params, 'completion')
         edited_completion: str = get_param(params, 'edited_completion')
 
+        fixed_import_code = fix_up_missing_imports(edited_completion)
+
         pandas_start_time = perf_counter()
-        post_state, last_line_value, frontend_result = exec_and_get_new_state_and_result(prev_state, edited_completion)
+        post_state, last_line_value, frontend_result = exec_and_get_new_state_and_result(prev_state, fixed_import_code)
         pandas_processing_time = perf_counter() - pandas_start_time
+
+        if isinstance(last_line_value, pd.DataFrame):
+            final_code = fix_dataframe_name(fixed_import_code, post_state.df_names[-1])
+        else:
+            final_code = fixed_import_code
 
         # We then build a 
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'last_line_is_dataframe': isinstance(last_line_value, pd.DataFrame),
-            'result': frontend_result
+            'result': frontend_result,
+            'final_code': final_code
         }
 
     @classmethod
@@ -63,8 +71,7 @@ class AITransformationStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'user_input'),
-                get_param(params, 'edited_completion'),
-                get_param(execution_data if execution_data is not None else {}, 'last_line_is_dataframe')
+                get_param(execution_data if execution_data is not None else {}, 'final_code')
             )
         ]
 

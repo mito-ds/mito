@@ -141,8 +141,6 @@ def test_ai_transformation(input_dfs, edited_completion, output_dfs):
 
     mito.ai_transformation('fake user input', 'fake version', 'fake prompt', 'fake_completion', edited_completion)
 
-    print(mito.df_names)
-
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
         assert actual.equals(expected)
