@@ -45,8 +45,8 @@ class AITransformationStepPerformer(StepPerformer):
         post_state, last_line_value, frontend_result = exec_and_get_new_state_and_result(prev_state, fixed_import_code)
         pandas_processing_time = perf_counter() - pandas_start_time
 
-        if isinstance(last_line_value, pd.DataFrame):
-            final_code = fix_final_dataframe_name(fixed_import_code, post_state.df_names[-1])
+        if isinstance(last_line_value, pd.DataFrame) or isinstance(last_line_value, pd.Series):
+            final_code = fix_final_dataframe_name(fixed_import_code, post_state.df_names[-1], isinstance(last_line_value, pd.Series))
         else:
             final_code = fixed_import_code
 

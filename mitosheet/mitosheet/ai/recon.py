@@ -192,9 +192,13 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
         new_state.dfs[sheet_index] = new_df
 
     # For the last value, if is a dataframe, then add it to the state as well
-    # TODO: we have to take special care to handle this in the generated code (maybe we want to do it in one place?)
     last_line_expression_value = recon_data['last_line_expression_value']
-    if isinstance(last_line_expression_value, pd.DataFrame):
+    if isinstance(last_line_expression_value, pd.DataFrame) or isinstance(last_line_expression_value, pd.Series):
+
+        # If we get a series, we turn it into a dataframe for the user
+        if isinstance(last_line_expression_value, pd.Series):
+            last_line_expression_value = pd.DataFrame(last_line_expression_value)
+
         new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
         # We also need to add this to the list of created dataframes, as we didn't know it's name till now
         recon_data['created_dataframes'][new_state.df_names[-1]] = last_line_expression_value

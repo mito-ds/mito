@@ -134,6 +134,18 @@ df1['G'] = SUM(df1['A'], df1['B'])
             pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days']), 'G': [2.0, 4.0, 6.0]}),
         ]
     ),
+    # Create a series, turned into dataframe
+    (
+        [
+        ],
+        """
+import pandas as pd
+pd.Series([1, 2, 3])
+""",
+        [
+            pd.DataFrame(pd.Series([1, 2, 3]))
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, edited_completion, output_dfs", AI_TRANSFORMATION_TESTS)
 def test_ai_transformation(input_dfs, edited_completion, output_dfs):

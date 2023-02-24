@@ -31,13 +31,19 @@ def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -
     relevant_lines = code_lines[lineno:end_lineno] 
     return "\n".join(relevant_lines)
 
-def fix_final_dataframe_name(code: str, new_df_name: str) -> str:
+def fix_final_dataframe_name(code: str, new_df_name: str, is_series) -> str:
     ast_before = ast.parse(code)
     last_expression = ast_before.body[-1]
 
-    # (1)
     last_expression_string = get_code_string_from_last_expression(code, last_expression)
-    code = code.replace(last_expression_string, f'{new_df_name} = {last_expression_string}')
+
+    if not is_series:
+        # If it's a dataframe, just add the name
+        code = code.replace(last_expression_string, f'{new_df_name} = {last_expression_string}')
+    else:
+        code = code.replace(last_expression_string, f'{new_df_name} = pd.DataFrame({last_expression_string})')
+        if 'import pandas as pd' not in code:
+            code = 'import pandas as pd\n' + code
 
     return code
 
