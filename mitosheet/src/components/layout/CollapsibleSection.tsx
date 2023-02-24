@@ -7,6 +7,7 @@ import UpArrowIcon from '../icons/UpArrowIcon';
 import Col from './Col';
 import Row from './Row';
 import ProIcon from '../icons/ProIcon'
+import { classNames } from '../../utils/classNames';
 
 
 interface CollapsibleSectionProps {
@@ -33,6 +34,11 @@ interface CollapsibleSectionProps {
         * @param [open] - You can optionally override the open state from the outside by passing this variable
     */
     open?: boolean
+
+    /**
+        * @param [disabled] - Force closed, and don't let it open
+    */
+    disabled?: boolean
 }
 
 
@@ -49,7 +55,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
         }
     }, [props.open])
 
-    if (open) {
+    if (open && props.disabled !== true) {
         return (
             <div
                 className='mito-blue-container' 
@@ -78,7 +84,7 @@ const CollapsibleSection = (props: CollapsibleSectionProps): JSX.Element => {
     } else {
         return (
             <div 
-                className='mito-blue-container'
+                className={classNames('mito-blue-container', {'mito-blue-container-disabled': props.disabled})}
                 onClick={() => {setOpen(true)}}
             >
                 <Row justify='space-between' align='center'>

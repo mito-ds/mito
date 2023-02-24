@@ -196,6 +196,8 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     last_line_expression_value = recon_data['last_line_expression_value']
     if isinstance(last_line_expression_value, pd.DataFrame):
         new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
+        # We also need to add this to the list of created dataframes, as we didn't know it's name till now
+        recon_data['created_dataframes'][new_state.df_names[-1]] = last_line_expression_value
 
     # If the last line value is a primitive, we return it as a result for the frontend
     result_last_line_value = None

@@ -15,11 +15,14 @@
 }
 
 .ai-transformation-feedback-button {
-    background: #F5F5F5;
-    /* very light purple */
-
-    border: 1px solid #E9E0FD;
-    border-radius: 5px;
-
     padding: 5px;
+    border-radius: 3px;
+}
+
+.ai-transformation-feedback-button:hover {
+    background-color: var(--mito-light-gray);
+}
+
+.ai-transformation-feedback-button-selected {
+    background-color: var(--mito-light-gray);
 }

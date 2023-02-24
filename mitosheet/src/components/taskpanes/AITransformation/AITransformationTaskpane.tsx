@@ -16,6 +16,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
+import { shallowEqual } from "../../../utils/objects";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -51,13 +52,13 @@ export interface AITransformationResult {
 interface PromptState {
     userInput: string, 
     error: string | undefined, 
+    hint: string | undefined,
     loading: boolean
 }
 
 interface SectionState {
     'Examples': boolean,
     'Prompt': boolean,
-    'Generated Code': boolean,
     'Result': boolean
 }
 
@@ -66,6 +67,12 @@ export interface CompletionSelection {
     'selected_column_headers': ColumnHeader[], 
     'selected_index_labels': IndexLabel[]
 }
+
+const HINTS = [
+    'You can edit the generated code below before executing it. This can allow you to fix up minor errors.',
+    'Check the Results section to see how the generated code effected your dataframes.',
+    'Edit not apply correctly? Just press Undo in the toolbar to undo the edit.',
+]
 
 const getDefaultParams = (): AITransformationParams | undefined => {
     return {
@@ -81,7 +88,7 @@ const getExample = (userInput: string, setPromptState: React.Dispatch<React.SetS
     return (
         <Col 
             onClick={() => {
-                setPromptState({userInput: userInput, error: undefined, loading: false});
+                setPromptState({userInput: userInput, error: undefined, hint: undefined, loading: false});
                 setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Prompt': true}})
             }} 
             span={11}
@@ -113,6 +120,31 @@ const getSelectionForCompletion = (uiState: UIState, gridState: GridState, sheet
     }
 }
 
+const getCurrentlySelectedParamsIndex = (previousParams: AITransformationParams[], currParams: AITransformationParams): number => {
+    const index = previousParams.findIndex(params => shallowEqual(params, currParams));
+    return index === -1 ? previousParams.length : index;
+}
+
+/**
+ * A helper function for updating the previous params list. If the current params are currently already on the array, then we simply
+ * overwrite this final entry. Otherwise, we append them to the list
+ */
+const getNewPreviousParams = (previousParams: AITransformationParams[], currParams: AITransformationParams, newParams: AITransformationParams): AITransformationParams[] => {
+    if (previousParams.length === 0) {
+        return [newParams];
+    }
+
+    const newPreviousParams = [...previousParams];
+    const previousParam = newPreviousParams[newPreviousParams.length - 1];
+    if (previousParam !== undefined && shallowEqual(previousParam, currParams)) {
+        newPreviousParams[newPreviousParams.length - 1] = newParams
+    } else {
+        newPreviousParams.push(newParams);
+    }
+
+    return newPreviousParams;
+}
+
 
 /* 
     This is the AITransformation taskpane.
@@ -122,17 +154,19 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const [openSections, setOpenSections] = useState<SectionState>({
         'Examples': true,
         'Prompt': true,
-        'Generated Code': false,
         'Result': false
     })
 
     const [promptState, setPromptState] = useState<PromptState>({
         userInput: '',
         error: undefined,
+        hint: undefined,
         loading: false
     });
 
-    const {params, setParams, edit, editApplied, result, error} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
+    const [previousParams, setPreviousParams] = useState<AITransformationParams[]>([])
+
+    const {params, setParams, edit, result, error} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
         () => getDefaultParams(),
         StepType.AiTransformation, 
         props.mitoAPI,
@@ -143,7 +177,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
-    
+
+    console.log(previousParams);
 
     return (
         <DefaultTaskpane>
@@ -169,25 +204,28 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         placeholder='delete columns with nans'
                         onChange={(e) => {
                             const newUserInput = e.target.value;
-                            setPromptState({userInput: newUserInput, error: undefined, loading: false});
+                            setPromptState({userInput: newUserInput, error: undefined, hint: undefined, loading: false});
                         }}
                         height='small'
+                        autoFocus
+                        darkBorder
                     />
                     <TextButton
                         onClick={async () => {
-                            setPromptState(prevPromptState => {return {...prevPromptState, loading: true}})
+                            const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
+                            setPromptState(prevPromptState => {return {...prevPromptState, loading: true, hint: randomHint}})
+
                             const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
                             const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
                             if (completionOrError !== undefined && 'completion' in completionOrError) {
-                                setParams({...completionOrError, edited_completion: completionOrError.completion});
-                                setOpenSections(prevOpenSections => {
-                                    return {
-                                        ...prevOpenSections,
-                                        'Examples': false,
-                                        'Prompt': false,
-                                        'Generated Code': true
-                                    }
+                                const newParams = {...completionOrError, edited_completion: completionOrError.completion};
+                                setParams(newParams);
+                                setPreviousParams(prevPreviousParams => {
+                                    const newPreviousParams = [...prevPreviousParams];
+                                    newPreviousParams.push(newParams);
+                                    return newPreviousParams;
                                 })
+                                setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Result': false}})
                             } else if (completionOrError !== undefined && 'error' in completionOrError){
                                 setPromptState(prevPromptState => {
                                     return {
@@ -199,7 +237,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
                             setPromptState(prevPromptState => {return {...prevPromptState, loading: false}})
                         }}
-                        disabled={promptState.loading}
+                        disabled={promptState.userInput.length === 0 || promptState.loading}
                         variant='dark'
                     >
                         Generate Code
@@ -208,16 +246,25 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         <p className="text-color-error">{promptState.error}</p>
                     }
                     {promptState.loading && 
-                        <p className="text-subtext-1">Generating code...</p>
+                        <p className="text-subtext-1">Generating code... {promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
                     }
-                </CollapsibleSection>
-                <Spacer px={10}/>
-                <CollapsibleSection title={"Generated Code"} open={openSections['Generated Code']}>
+                    <Spacer px={10}/>
                     <TextArea 
                         value={params.edited_completion} 
                         placeholder='df["column"] = True'
                         onChange={(e) => {
                             const newEditedCompletion = e.target.value;
+
+                            const newParams = {
+                                ...params,
+                                edited_completion: newEditedCompletion
+                            };
+
+                            // Save these new previous params
+                            setPreviousParams(prevPreviousParams => {
+                                return getNewPreviousParams(prevPreviousParams, params, newParams);
+                            })
+
                             setParams(prevParams => {
                                 return {
                                     ...prevParams,
@@ -230,39 +277,65 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             params.completion.trim().split(/\r\n|\r|\n/).length < 5
                                 ? 'small' : 'medium'
                         } 
+                        disabled={params.edited_completion.length === 0 || promptState.loading}
+                        darkBorder
                     />
-                    <Row justify="space-between">
-                        {editApplied && 
-                            <Col span={6}>
-                                <TextButton 
-                                    onClick={() => {
-                                        // First, we undo
-                                        void props.mitoAPI.updateUndo()
-
-                                        // TODO: mess with the params?
-                                    }}
-                                    variant='dark'
-                                    width="small"
-                                >
-                                    Undo
-                                </TextButton>
-                            </Col>
-                        }
-                        <Col span={editApplied ? 17 : 24}>
-                            <TextButton 
-                                onClick={() => {edit()}}
-                                variant='dark'
-                            >
-                                Execute Generated Code
-                            </TextButton>
-                        </Col>
-                    </Row>
+                    <TextButton 
+                        onClick={() => {
+                            edit();
+                        }}
+                        variant='dark'
+                        disabled={params.edited_completion.length === 0 || promptState.loading}
+                    >
+                        Execute Generated Code
+                    </TextButton>
                     {error !== undefined &&
                         <p className="text-color-error">{error}</p>
                     }
+                    {previousParams.length > 1 && 
+                        <Row justify="space-around" align="center" suppressTopBottomMargin>
+                            <Col className="text-subtext-1">
+                                <Row suppressTopBottomMargin>
+                                    <Col
+                                        onClick={() => {
+                                            const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+                                            const newIndex = currentIndex - 1;
+                                            if (newIndex < 0) {
+                                                return;
+                                            }
+                                            const newParams = previousParams[newIndex];
+                                            setParams(newParams);
+                                            setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
+                                        }}
+                                    >
+                                        ◀ &nbsp;
+                                    </Col>
+                                    <Col>Your Prompts ({getCurrentlySelectedParamsIndex(previousParams, params) + 1} / {previousParams.length})</Col>
+                                    <Col
+                                        onClick={() => {
+                                            const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+                                            const newIndex = currentIndex + 1;
+                                            if (newIndex > previousParams.length - 1) {
+                                                return;
+                                            }
+                                            const newParams = previousParams[newIndex];
+                                            setParams(newParams);
+                                            setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
+                                        }}
+                                    >
+                                        &nbsp; ▶
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    }
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title={"Result"} open={openSections['Result'] || result?.last_line_value !== undefined}>
+                <CollapsibleSection 
+                    title={"Result"} 
+                    open={openSections['Result'] || result !== undefined}
+                    disabled={result === undefined}
+                >
                     <AITransformationResultSection
                         setUIState={props.setUIState}
                         result={result}

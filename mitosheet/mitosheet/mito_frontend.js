@@ -7684,7 +7684,7 @@
           }
           var objectIs = typeof Object.is === "function" ? Object.is : is;
           var hasOwnProperty$2 = Object.prototype.hasOwnProperty;
-          function shallowEqual(objA, objB) {
+          function shallowEqual2(objA, objB) {
             if (objectIs(objA, objB)) {
               return true;
             }
@@ -7982,7 +7982,7 @@
               return;
             }
             var currentSelection = getSelection$1(activeElement$1);
-            if (!lastSelection || !shallowEqual(lastSelection, currentSelection)) {
+            if (!lastSelection || !shallowEqual2(lastSelection, currentSelection)) {
               lastSelection = currentSelection;
               var listeners = accumulateTwoPhaseListeners(activeElementInst$1, "onSelect");
               if (listeners.length > 0) {
@@ -11193,7 +11193,7 @@
               return shouldUpdate;
             }
             if (ctor.prototype && ctor.prototype.isPureReactComponent) {
-              return !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState);
+              return !shallowEqual2(oldProps, newProps) || !shallowEqual2(oldState, newState);
             }
             return true;
           }
@@ -14550,7 +14550,7 @@
             if (!includesSomeLane(updateLanes, renderLanes2)) {
               var prevProps = currentChild.memoizedProps;
               var compare = Component2.compare;
-              compare = compare !== null ? compare : shallowEqual;
+              compare = compare !== null ? compare : shallowEqual2;
               if (compare(prevProps, nextProps) && current2.ref === workInProgress2.ref) {
                 return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
               }
@@ -14589,7 +14589,7 @@
             }
             if (current2 !== null) {
               var prevProps = current2.memoizedProps;
-              if (shallowEqual(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type) {
+              if (shallowEqual2(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type) {
                 didReceiveUpdate = false;
                 if (!includesSomeLane(renderLanes2, updateLanes)) {
                   workInProgress2.lanes = current2.lanes;
@@ -21377,6 +21377,19 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     recurseObjectAssign(newParams, update);
     return newParams;
   }
+  function shallowEqual(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key2 of keys1) {
+      if (object1[key2] !== object2[key2]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   // src/components/elements/DataframeSelect.tsx
   var import_react9 = __toESM(require_react());
@@ -21601,7 +21614,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         setOpen(props.open);
       }
     }, [props.open]);
-    if (open) {
+    if (open && props.disabled !== true) {
       return /* @__PURE__ */ import_react17.default.createElement(
         "div",
         {
@@ -21616,7 +21629,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return /* @__PURE__ */ import_react17.default.createElement(
         "div",
         {
-          className: "mito-blue-container",
+          className: classNames("mito-blue-container", { "mito-blue-container-disabled": props.disabled }),
           onClick: () => {
             setOpen(true);
           }
@@ -24569,7 +24582,8 @@ ${finalCode}`;
     "set_dataframe_format" /* SET_DATAFRAME_FORMAT */,
     "SnowflakeImport" /* SNOWFLAKEIMPORT */,
     "Excel Range Import" /* EXCEL_RANGE_IMPORT */,
-    "Export To File" /* EXPORT_TO_FILE */
+    "Export To File" /* EXPORT_TO_FILE */,
+    "AITransformation" /* AITRANSFORMATION */
   ];
   var ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     "pivot" /* PIVOT */,
@@ -24584,7 +24598,8 @@ ${finalCode}`;
     "ConditionalFormatting" /* CONDITIONALFORMATTING */,
     "UpdateImports" /* UPDATEIMPORTS */,
     "SnowflakeImport" /* SNOWFLAKEIMPORT */,
-    "Excel Range Import" /* EXCEL_RANGE_IMPORT */
+    "Excel Range Import" /* EXCEL_RANGE_IMPORT */,
+    "AITransformation" /* AITRANSFORMATION */
   ];
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpane.tsx
@@ -39002,12 +39017,13 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react171.default.createElement(
       "textarea",
       {
-        className: classNames("text-area", "text-body-2", widthClass, heightClass, props.className),
+        className: classNames("text-area", "text-body-2", widthClass, heightClass, props.className, { "text-area-dark-border": props.darkBorder }),
         onChange: props.onChange,
         autoFocus,
         required,
         placeholder: props.placeholder,
-        value: props.value
+        value: props.value,
+        disabled: props.disabled
       }
     );
   };
@@ -39015,27 +39031,17 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/AITransformation/AITransformationResultSection.tsx
   var import_react172 = __toESM(require_react());
-  var getFeedbackButton = (idx, setSentFeedback) => {
-    return /* @__PURE__ */ import_react172.default.createElement(
-      Col_default,
-      {
-        key: idx,
-        className: "ai-transformation-feedback-button",
-        onClick: () => {
-          setSentFeedback(idx);
-        }
-      },
-      idx
-    );
-  };
   var AITransformationResultSection = (props) => {
-    const [sentFeedback, setSentFeedback] = (0, import_react172.useState)(-1);
+    const [sentFeedback, setSentFeedback] = (0, import_react172.useState)(void 0);
     const result = props.result;
     if (result === void 0) {
       return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null);
     }
-    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, "Value: ", result.last_line_value), result.created_dataframe_names.map((dfName) => {
+    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.created_dataframe_names.map((dfName) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
+      const sheetData = props.sheetDataArray[sheetIndex];
+      const numRows = (sheetData == null ? void 0 : sheetData.numRows) || 0;
+      const numColumns = (sheetData == null ? void 0 : sheetData.numColumns) || 0;
       return /* @__PURE__ */ import_react172.default.createElement(
         "div",
         {
@@ -39048,8 +39054,14 @@ fig.write_html("${props.graphTabName}.html")`
             });
           }
         },
-        "Created: ",
-        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName)
+        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Created:"),
+        " ",
+        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName),
+        "  (",
+        numColumns,
+        " column, ",
+        numRows,
+        " rows)"
       );
     }), Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
@@ -39064,26 +39076,54 @@ fig.write_html("${props.graphTabName}.html")`
             });
           }
         },
-        "Modified: ",
+        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Modified:"),
+        " ",
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName)
       ), columnReconData.added_columns.map((ch, index) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "added" + index, className: "ml-5px" }, "Added: ", getDisplayColumnHeader(ch));
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "added" + index, className: "ml-5px" }, "Added column: ", getDisplayColumnHeader(ch));
       }), columnReconData.modified_columns.map((ch, index) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "modified" + index, className: "ml-5px" }, "Modified: ", getDisplayColumnHeader(ch));
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "modified" + index, className: "ml-5px" }, "Modified column: ", getDisplayColumnHeader(ch));
       }), Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "renamed" + index, className: "ml-5px" }, "Renamed: ", getDisplayColumnHeader(oldCh), " to ", getDisplayColumnHeader(newCh), " ");
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "renamed" + index, className: "ml-5px" }, "Renamed column: ", getDisplayColumnHeader(oldCh), " to ", getDisplayColumnHeader(newCh), " ");
       }), columnReconData.removed_columns.map((ch, index) => {
-        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "removed" + index, className: "ml-5px" }, "Removed: ", getDisplayColumnHeader(ch));
+        return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "removed" + index, className: "ml-5px" }, "Deleted column: ", getDisplayColumnHeader(ch));
       }));
     }), result.deleted_dataframe_names.map((dfName) => {
-      return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, "Deleted: ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
-    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", null, "No changes"), /* @__PURE__ */ import_react172.default.createElement("p", { className: "mt-5px text-bold" }, "On a scale from 1-10, how effective was Mito AI?"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between" }, Array.from(Array(10).keys()).map((idx) => idx + 1).map((idx) => {
-      return getFeedbackButton(idx, setSentFeedback);
-    })), sentFeedback >= 1 && /* @__PURE__ */ import_react172.default.createElement("p", null, "Thanks for the feedback - ", sentFeedback < 7 ? "we're working hard to improve." : "we're glad things are working well!"));
+      return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Deleted:"), " ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
+    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "No changes"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "How did Mito AI Assistant do?")), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react172.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement(
+      "p",
+      {
+        className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Up" }),
+        onClick: () => {
+          setSentFeedback("Up");
+          props.mitoAPI.log("ai_transformation_feedback", {
+            "feedback": "Up"
+          });
+        }
+      },
+      "\u{1F44D}"
+    )), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offset: 2 }, /* @__PURE__ */ import_react172.default.createElement(
+      "p",
+      {
+        className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Down" }),
+        onClick: () => {
+          setSentFeedback("Down");
+          props.mitoAPI.log("ai_transformation_feedback", {
+            "feedback": "Down"
+          });
+        }
+      },
+      "\u{1F44E}"
+    ))))), sentFeedback !== void 0 && /* @__PURE__ */ import_react172.default.createElement("p", null, "Thanks for the feedback - ", sentFeedback === "Down" ? "we're working hard to improve." : "we're glad things are working well!"));
   };
   var AITransformationResultSection_default = AITransformationResultSection;
 
   // src/components/taskpanes/AITransformation/AITransformationTaskpane.tsx
+  var HINTS = [
+    "You can edit the generated code below before executing it. This can allow you to fix up minor errors.",
+    "Check the Results section to see how the generated code effected your dataframes.",
+    "Edit not apply correctly? Just press Undo in the toolbar to undo the edit."
+  ];
   var getDefaultParams10 = () => {
     return {
       user_input: "",
@@ -39098,7 +39138,7 @@ fig.write_html("${props.graphTabName}.html")`
       Col_default,
       {
         onClick: () => {
-          setPromptState({ userInput, error: void 0, loading: false });
+          setPromptState({ userInput, error: void 0, hint: void 0, loading: false });
           setOpenSections((prevOpenSections) => {
             return __spreadProps(__spreadValues({}, prevOpenSections), { "Examples": false, "Prompt": true });
           });
@@ -39123,19 +39163,37 @@ fig.write_html("${props.graphTabName}.html")`
       "selected_index_labels": selectedIndexLabels
     };
   };
+  var getCurrentlySelectedParamsIndex = (previousParams, currParams) => {
+    const index = previousParams.findIndex((params) => shallowEqual(params, currParams));
+    return index === -1 ? previousParams.length : index;
+  };
+  var getNewPreviousParams = (previousParams, currParams, newParams) => {
+    if (previousParams.length === 0) {
+      return [newParams];
+    }
+    const newPreviousParams = [...previousParams];
+    const previousParam = newPreviousParams[newPreviousParams.length - 1];
+    if (previousParam !== void 0 && shallowEqual(previousParam, currParams)) {
+      newPreviousParams[newPreviousParams.length - 1] = newParams;
+    } else {
+      newPreviousParams.push(newParams);
+    }
+    return newPreviousParams;
+  };
   var AITransformationTaskpane = (props) => {
     const [openSections, setOpenSections] = (0, import_react173.useState)({
       "Examples": true,
       "Prompt": true,
-      "Generated Code": false,
       "Result": false
     });
     const [promptState, setPromptState] = (0, import_react173.useState)({
       userInput: "",
       error: void 0,
+      hint: void 0,
       loading: false
     });
-    const { params, setParams, edit, editApplied, result, error } = useSendEditOnClick_default(
+    const [previousParams, setPreviousParams] = (0, import_react173.useState)([]);
+    const { params, setParams, edit, result, error } = useSendEditOnClick_default(
       () => getDefaultParams10(),
       "ai_transformation" /* AiTransformation */,
       props.mitoAPI,
@@ -39145,6 +39203,7 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react173.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
+    console.log(previousParams);
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -39158,27 +39217,32 @@ fig.write_html("${props.graphTabName}.html")`
         placeholder: "delete columns with nans",
         onChange: (e) => {
           const newUserInput = e.target.value;
-          setPromptState({ userInput: newUserInput, error: void 0, loading: false });
+          setPromptState({ userInput: newUserInput, error: void 0, hint: void 0, loading: false });
         },
-        height: "small"
+        height: "small",
+        autoFocus: true,
+        darkBorder: true
       }
     ), /* @__PURE__ */ import_react173.default.createElement(
       TextButton_default,
       {
         onClick: async () => {
+          const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
           setPromptState((prevPromptState) => {
-            return __spreadProps(__spreadValues({}, prevPromptState), { loading: true });
+            return __spreadProps(__spreadValues({}, prevPromptState), { loading: true, hint: randomHint });
           });
           const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
           const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
           if (completionOrError !== void 0 && "completion" in completionOrError) {
-            setParams(__spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion }));
+            const newParams = __spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion });
+            setParams(newParams);
+            setPreviousParams((prevPreviousParams) => {
+              const newPreviousParams = [...prevPreviousParams];
+              newPreviousParams.push(newParams);
+              return newPreviousParams;
+            });
             setOpenSections((prevOpenSections) => {
-              return __spreadProps(__spreadValues({}, prevOpenSections), {
-                "Examples": false,
-                "Prompt": false,
-                "Generated Code": true
-              });
+              return __spreadProps(__spreadValues({}, prevOpenSections), { "Examples": false, "Result": false });
             });
           } else if (completionOrError !== void 0 && "error" in completionOrError) {
             setPromptState((prevPromptState) => {
@@ -39191,53 +39255,90 @@ fig.write_html("${props.graphTabName}.html")`
             return __spreadProps(__spreadValues({}, prevPromptState), { loading: false });
           });
         },
-        disabled: promptState.loading,
+        disabled: promptState.userInput.length === 0 || promptState.loading,
         variant: "dark"
       },
       "Generate Code"
-    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, "Generating code...")), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Generated Code", open: openSections["Generated Code"] }, /* @__PURE__ */ import_react173.default.createElement(
+    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, "Generating code... ", promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: params.edited_completion,
         placeholder: 'df["column"] = True',
         onChange: (e) => {
           const newEditedCompletion = e.target.value;
+          const newParams = __spreadProps(__spreadValues({}, params), {
+            edited_completion: newEditedCompletion
+          });
+          setPreviousParams((prevPreviousParams) => {
+            return getNewPreviousParams(prevPreviousParams, params, newParams);
+          });
           setParams((prevParams) => {
             return __spreadProps(__spreadValues({}, prevParams), {
               edited_completion: newEditedCompletion
             });
           });
         },
-        height: params.completion.trim().split(/\r\n|\r|\n/).length < 5 ? "small" : "medium"
+        height: params.completion.trim().split(/\r\n|\r|\n/).length < 5 ? "small" : "medium",
+        disabled: params.edited_completion.length === 0 || promptState.loading,
+        darkBorder: true
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between" }, editApplied && /* @__PURE__ */ import_react173.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react173.default.createElement(
-      TextButton_default,
-      {
-        onClick: () => {
-          void props.mitoAPI.updateUndo();
-        },
-        variant: "dark",
-        width: "small"
-      },
-      "Undo"
-    )), /* @__PURE__ */ import_react173.default.createElement(Col_default, { span: editApplied ? 17 : 24 }, /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(
       TextButton_default,
       {
         onClick: () => {
           edit();
         },
-        variant: "dark"
+        variant: "dark",
+        disabled: params.edited_completion.length === 0 || promptState.loading
       },
       "Execute Generated Code"
-    ))), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error)), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Result", open: openSections["Result"] || (result == null ? void 0 : result.last_line_value) !== void 0 }, /* @__PURE__ */ import_react173.default.createElement(
-      AITransformationResultSection_default,
+    ), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error), previousParams.length > 1 && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-around", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(Col_default, { className: "text-subtext-1" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(
+      Col_default,
       {
-        setUIState: props.setUIState,
-        result,
-        sheetDataArray: props.sheetDataArray,
-        mitoAPI: props.mitoAPI
-      }
-    ))));
+        onClick: () => {
+          const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+          const newIndex = currentIndex - 1;
+          if (newIndex < 0) {
+            return;
+          }
+          const newParams = previousParams[newIndex];
+          setParams(newParams);
+          setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
+        }
+      },
+      "\u25C0 \xA0"
+    ), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, "Your Prompts (", getCurrentlySelectedParamsIndex(previousParams, params) + 1, " / ", previousParams.length, ")"), /* @__PURE__ */ import_react173.default.createElement(
+      Col_default,
+      {
+        onClick: () => {
+          const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+          const newIndex = currentIndex + 1;
+          if (newIndex > previousParams.length - 1) {
+            return;
+          }
+          const newParams = previousParams[newIndex];
+          setParams(newParams);
+          setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
+        }
+      },
+      "\xA0 \u25B6"
+    ))))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
+      CollapsibleSection_default,
+      {
+        title: "Result",
+        open: openSections["Result"] || result !== void 0,
+        disabled: result === void 0
+      },
+      /* @__PURE__ */ import_react173.default.createElement(
+        AITransformationResultSection_default,
+        {
+          setUIState: props.setUIState,
+          result,
+          sheetDataArray: props.sheetDataArray,
+          mitoAPI: props.mitoAPI
+        }
+      )
+    )));
   };
   var AITransformationTaskpane_default = AITransformationTaskpane;
 

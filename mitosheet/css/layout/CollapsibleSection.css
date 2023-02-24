@@ -4,6 +4,10 @@
     border-radius: 5px;
 }
 
+.mito-blue-container-disabled {
+    opacity: 50%;
+}
+
 .mito-collapsible-content-card-container {
     background-color: var(--mito-light-blue);
     border-radius: 5px;

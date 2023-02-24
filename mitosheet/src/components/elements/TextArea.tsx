@@ -42,9 +42,19 @@ const TextArea = (props: {
     required?: boolean;
 
     /** 
+        * @param [disabled] - When true, does't let the user select the text input or type in it
+    */
+    disabled?: boolean;
+
+    /** 
         * @param [autoFocus] - When true, the button automatically gets focused on. Defaults to False.
     */
     autoFocus?: boolean;
+
+    /** 
+        * @param [darkBorder] - Makes the border darker, in case this is a dark container
+    */
+    darkBorder?: boolean;
 
     /** 
         * @param [className] - Optional class to apply to the text area
@@ -63,12 +73,13 @@ const TextArea = (props: {
 
     return (
         <textarea 
-            className={classNames('text-area', 'text-body-2', widthClass, heightClass, props.className)}
+            className={classNames('text-area', 'text-body-2', widthClass, heightClass, props.className, {'text-area-dark-border': props.darkBorder})}
             onChange={props.onChange} 
             autoFocus={autoFocus}
             required={required}
             placeholder={props.placeholder}
             value={props.value}
+            disabled={props.disabled}
         />
     )
 } 

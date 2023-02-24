@@ -7,6 +7,7 @@ import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import Row from "../../layout/Row";
 import Col from "../../layout/Col";
 import MitoAPI from "../../../jupyter/api";
+import { classNames } from "../../../utils/classNames";
 
 interface AITransformationResultSectionProps {
     mitoAPI: MitoAPI;
@@ -15,22 +16,9 @@ interface AITransformationResultSectionProps {
     sheetDataArray: SheetData[]
 }
 
-const getFeedbackButton = (idx: number, setSentFeedback: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
-    return (
-        <Col 
-            key={idx}
-            className="ai-transformation-feedback-button"
-            onClick={() => {
-                setSentFeedback(idx);
-                // TODO: send the feedback to the backend!
-            }}
-        >{idx}</Col>
-    )
-}
-
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
 
-    const [sentFeedback, setSentFeedback] = useState(-1);
+    const [sentFeedback, setSentFeedback] = useState<'Up' | 'Down' | undefined>(undefined);
     
     const result = props.result;
 
@@ -41,10 +29,13 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
     return (
         <>
             {result.last_line_value !== undefined && result.last_line_value !== null && 
-                <p>Value: {result.last_line_value}</p>
+                <p><span className="text-bold">Value:</span> {result.last_line_value}</p>
             }
             {result.created_dataframe_names.map(dfName => {
                 const sheetIndex = props.sheetDataArray.findIndex(sd => sd.dfName === dfName);
+                const sheetData = props.sheetDataArray[sheetIndex];
+                const numRows = sheetData?.numRows || 0;
+                const numColumns = sheetData?.numColumns || 0;
                 return (
                     <div 
                         key={dfName}
@@ -56,7 +47,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                            Created: <span className="text-underline">{dfName}</span> 
+                            <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numColumns} column, {numRows} rows)
                     </div>
                 )
             })}
@@ -73,19 +64,19 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     }
                                 })
                             }}>
-                            Modified: <span className="text-underline">{dfName}</span> 
+                            <span className="text-bold">Modified:</span> <span className="text-underline">{dfName}</span> 
                         </div>
                         {columnReconData.added_columns.map((ch, index) => {
-                            return <div key={dfName + 'added' + index} className="ml-5px">Added: {getDisplayColumnHeader(ch)}</div>
+                            return <div key={dfName + 'added' + index} className="ml-5px">Added column: {getDisplayColumnHeader(ch)}</div>
                         })}
                         {columnReconData.modified_columns.map((ch, index) => {
-                            return <div key={dfName + 'modified' + index} className="ml-5px">Modified: {getDisplayColumnHeader(ch)}</div>
+                            return <div key={dfName + 'modified' + index} className="ml-5px">Modified column: {getDisplayColumnHeader(ch)}</div>
                         })}
                         {Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
-                            return <div key={dfName + 'renamed' + index} className="ml-5px">Renamed: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
+                            return <div key={dfName + 'renamed' + index} className="ml-5px">Renamed column: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
                         })}
                         {columnReconData.removed_columns.map((ch, index) => {
-                            return <div key={dfName + 'removed' + index} className="ml-5px">Removed: {getDisplayColumnHeader(ch)}</div>
+                            return <div key={dfName + 'removed' + index} className="ml-5px">Deleted column: {getDisplayColumnHeader(ch)}</div>
                         })}
                     </div>
                 )
@@ -93,23 +84,57 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             {result.deleted_dataframe_names.map(dfName => {
                 return (
                     <div key={dfName}>
-                        Deleted: <span>{dfName}</span> 
+                        <span className="text-bold">Deleted:</span> <span>{dfName}</span> 
                     </div>
                 )
             })}
             {!(result.last_line_value !== undefined && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && 
-                <p>
+                <p className="text-bold">
                     No changes
                 </p>
             }
-            <p className="mt-5px text-bold">On a scale from 1-10, how effective was Mito AI?</p>
-            <Row justify="space-between">
-                {Array.from(Array(10).keys()).map(idx => idx + 1 ).map(idx => {
-                    return getFeedbackButton(idx, setSentFeedback)
-                })}
+            <Row justify="space-between" align="center">
+                <Col>
+                    <p className="text-bold">
+                        How did Mito AI Assistant do?
+                    </p>
+                </Col>
+                <Col offsetRight={.5}>
+                    <Row suppressTopBottomMargin>
+                        <Col>
+                            <p
+                                className={classNames("ai-transformation-feedback-button", {'ai-transformation-feedback-button-selected': sentFeedback === 'Up'})}
+                                onClick={() => {
+                                    setSentFeedback('Up');
+                                    props.mitoAPI.log('ai_transformation_feedback', {
+                                        'feedback': 'Up',
+                                        // TODO: what do we want here
+                                    })
+                                }}
+                            >
+                                👍
+                            </p>
+                        </Col>
+                        <Col offset={2}>
+                            <p
+                                className={classNames("ai-transformation-feedback-button", {'ai-transformation-feedback-button-selected': sentFeedback === 'Down'})}
+                                onClick={() => {
+                                    setSentFeedback('Down')
+                                    props.mitoAPI.log('ai_transformation_feedback', {
+                                        'feedback': 'Down',
+                                        // TODO: what do we want here
+                                    })
+                                }}
+                            >
+                                👎
+                            </p>
+                        </Col>
+                    </Row>
+                </Col>
+
             </Row>
-            {sentFeedback >= 1 && 
-                <p>Thanks for the feedback - {sentFeedback < 7 ? "we're working hard to improve." : "we're glad things are working well!"}</p>
+            {sentFeedback !== undefined && 
+                <p>Thanks for the feedback - {sentFeedback === 'Down' ? "we're working hard to improve." : "we're glad things are working well!"}</p>
             }
         </>
 
