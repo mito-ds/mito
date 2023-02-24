@@ -2,18 +2,19 @@ import React, { useState } from "react";
 import { SheetData, UIState } from "../../../types";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
-import { AITransformationResult } from "./AITransformationTaskpane";
-import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
 import MitoAPI from "../../../jupyter/api";
 import { classNames } from "../../../utils/classNames";
+import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import { AITransformationParams, AITransformationResult } from "./AITransformationTaskpane";
 
 interface AITransformationResultSectionProps {
     mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     result: AITransformationResult | undefined;
     sheetDataArray: SheetData[]
+    params: AITransformationParams
 }
 
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
@@ -108,7 +109,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     setSentFeedback('Up');
                                     void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Up',
-                                        // TODO: what do we want here
+                                        ...props.params
                                     })
                                 }}
                             >
@@ -122,7 +123,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     setSentFeedback('Down')
                                     void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Down',
-                                        // TODO: what do we want here
+                                        ...props.params
                                     })
                                 }}
                             >

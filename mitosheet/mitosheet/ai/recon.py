@@ -197,7 +197,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
 
         # If we get a series, we turn it into a dataframe for the user
         if isinstance(last_line_expression_value, pd.Series):
-            last_line_expression_value = pd.DataFrame(last_line_expression_value)
+            last_line_expression_value = pd.DataFrame(last_line_expression_value, index=last_line_expression_value)
 
         new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
         # We also need to add this to the list of created dataframes, as we didn't know it's name till now

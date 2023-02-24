@@ -50,8 +50,6 @@ class AITransformationStepPerformer(StepPerformer):
         else:
             final_code = fixed_import_code
 
-        # We then build a 
-
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'result': frontend_result,

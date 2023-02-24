@@ -29746,6 +29746,7 @@ ${finalCode}`;
   var DOCUMENTATION_LINK_INSTALL = "https://docs.trymito.io/getting-started/installing-mito";
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
+  var DOCUMENTATION_LINK_AI_TRANSFORM = "https://docs.trymito.io/how-to/ai-transformations";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
 
   // src/utils/copy.tsx
@@ -39096,9 +39097,9 @@ fig.write_html("${props.graphTabName}.html")`
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Up" }),
         onClick: () => {
           setSentFeedback("Up");
-          void props.mitoAPI.log("ai_transformation_feedback", {
+          void props.mitoAPI.log("ai_transformation_feedback", __spreadValues({
             "feedback": "Up"
-          });
+          }, props.params));
         }
       },
       "\u{1F44D}"
@@ -39108,9 +39109,9 @@ fig.write_html("${props.graphTabName}.html")`
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Down" }),
         onClick: () => {
           setSentFeedback("Down");
-          void props.mitoAPI.log("ai_transformation_feedback", {
+          void props.mitoAPI.log("ai_transformation_feedback", __spreadValues({
             "feedback": "Down"
-          });
+          }, props.params));
         }
       },
       "\u{1F44E}"
@@ -39181,6 +39182,7 @@ fig.write_html("${props.graphTabName}.html")`
     return newPreviousParams;
   };
   var AITransformationTaskpane = (props) => {
+    const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === void 0;
     const [openSections, setOpenSections] = (0, import_react173.useState)({
       "Examples": true,
       "Prompt": true,
@@ -39203,14 +39205,13 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react173.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
-    console.log(previousParams);
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "AI Transformation",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"] }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections), getExample("cleanup column dtypes", setPromptState, setOpenSections)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections), getExample("duplicate this dataframe", setPromptState, setOpenSections))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"] }, /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections), getExample("cleanup column dtypes", setPromptState, setOpenSections)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections), getExample("duplicate this dataframe", setPromptState, setOpenSections))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: promptState.userInput,
@@ -39335,7 +39336,8 @@ fig.write_html("${props.graphTabName}.html")`
           setUIState: props.setUIState,
           result,
           sheetDataArray: props.sheetDataArray,
-          mitoAPI: props.mitoAPI
+          mitoAPI: props.mitoAPI,
+          params
         }
       )
     )));

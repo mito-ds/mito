@@ -17,6 +17,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { shallowEqual } from "../../../utils/objects";
+import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -28,7 +29,7 @@ interface AITransformationTaskpaneProps {
     sheetDataArray: SheetData[]
 }
 
-interface AITransformationParams {
+export interface AITransformationParams {
     user_input: string,
     prompt_version: string,
     prompt: string,
@@ -151,6 +152,8 @@ const getNewPreviousParams = (previousParams: AITransformationParams[], currPara
 */
 const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Element => {
 
+    const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === undefined;
+
     const [openSections, setOpenSections] = useState<SectionState>({
         'Examples': true,
         'Prompt': true,
@@ -178,7 +181,6 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    console.log(previousParams);
 
     return (
         <DefaultTaskpane>
@@ -187,7 +189,13 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <CollapsibleSection title={"Examples"} open={openSections['Examples']}>
+                {apiKeyNotDefined && 
+                    <p className="text-color-error">
+                        You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
+                    </p>
+                
+                }
+                <CollapsibleSection title={"Examples"} open={openSections['Examples']} disabled={apiKeyNotDefined}>
                     <Row justify="space-between" align="center">
                         {getExample('delete columns with nans', setPromptState, setOpenSections)}
                         {getExample('cleanup column dtypes', setPromptState, setOpenSections)}
@@ -198,7 +206,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     </Row>
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']}>
+                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']} disabled={apiKeyNotDefined}>
                     <TextArea 
                         value={promptState.userInput} 
                         placeholder='delete columns with nans'
@@ -341,6 +349,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         result={result}
                         sheetDataArray={props.sheetDataArray}
                         mitoAPI={props.mitoAPI}
+                        params={params}
                     />
                 </CollapsibleSection>
             </DefaultTaskpaneBody>

@@ -118,7 +118,8 @@ class MitoBackend():
             'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
             'mitoConfig': self.steps_manager.mito_config.get_mito_config(),
-            'snowflakeCredentials': get_cached_snowflake_credentials()
+            'snowflakeCredentials': get_cached_snowflake_credentials(),
+            'openAIAPIKey': os.environ.get('OPENAI_API_KEY', None)
         })
 
 

@@ -753,6 +753,7 @@ export interface UserProfile {
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     snowflakeCredentials: SnowflakeCredentials | null;
+    openAIAPIKey: string | null | undefined
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
