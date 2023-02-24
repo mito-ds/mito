@@ -39038,6 +39038,12 @@ fig.write_html("${props.graphTabName}.html")`
     if (result === void 0) {
       return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null);
     }
+    const logParams = {
+      prompt_version: props.params.prompt_version,
+      prompt: props.params.prompt.split("\n"),
+      completion: props.params.completion.split("\n"),
+      edited_completion: props.params.edited_completion.split("\n")
+    };
     return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.created_dataframe_names.map((dfName) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
       const sheetData = props.sheetDataArray[sheetIndex];
@@ -39099,7 +39105,7 @@ fig.write_html("${props.graphTabName}.html")`
           setSentFeedback("Up");
           void props.mitoAPI.log("ai_transformation_feedback", __spreadValues({
             "feedback": "Up"
-          }, props.params));
+          }, logParams));
         }
       },
       "\u{1F44D}"
@@ -39111,7 +39117,7 @@ fig.write_html("${props.graphTabName}.html")`
           setSentFeedback("Down");
           void props.mitoAPI.log("ai_transformation_feedback", __spreadValues({
             "feedback": "Down"
-          }, props.params));
+          }, logParams));
         }
       },
       "\u{1F44E}"
