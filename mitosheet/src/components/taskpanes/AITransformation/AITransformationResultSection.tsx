@@ -47,7 +47,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                            <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numColumns} column, {numRows} rows)
+                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numColumns} column, {numRows} rows)
                     </div>
                 )
             })}
@@ -106,7 +106,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 className={classNames("ai-transformation-feedback-button", {'ai-transformation-feedback-button-selected': sentFeedback === 'Up'})}
                                 onClick={() => {
                                     setSentFeedback('Up');
-                                    props.mitoAPI.log('ai_transformation_feedback', {
+                                    void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Up',
                                         // TODO: what do we want here
                                     })
@@ -120,7 +120,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 className={classNames("ai-transformation-feedback-button", {'ai-transformation-feedback-button-selected': sentFeedback === 'Down'})}
                                 onClick={() => {
                                     setSentFeedback('Down')
-                                    props.mitoAPI.log('ai_transformation_feedback', {
+                                    void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Down',
                                         // TODO: what do we want here
                                     })

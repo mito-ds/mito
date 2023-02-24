@@ -31,7 +31,7 @@ def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -
     relevant_lines = code_lines[lineno:end_lineno] 
     return "\n".join(relevant_lines)
 
-def fix_final_dataframe_name(code: str, new_df_name: str, is_series) -> str:
+def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> str:
     ast_before = ast.parse(code)
     last_expression = ast_before.body[-1]
 

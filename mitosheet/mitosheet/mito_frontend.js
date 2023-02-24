@@ -21383,7 +21383,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (keys1.length !== keys2.length) {
       return false;
     }
-    for (let key2 of keys1) {
+    for (const key2 of keys1) {
       if (object1[key2] !== object2[key2]) {
         return false;
       }
@@ -39096,7 +39096,7 @@ fig.write_html("${props.graphTabName}.html")`
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Up" }),
         onClick: () => {
           setSentFeedback("Up");
-          props.mitoAPI.log("ai_transformation_feedback", {
+          void props.mitoAPI.log("ai_transformation_feedback", {
             "feedback": "Up"
           });
         }
@@ -39108,7 +39108,7 @@ fig.write_html("${props.graphTabName}.html")`
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Down" }),
         onClick: () => {
           setSentFeedback("Down");
-          props.mitoAPI.log("ai_transformation_feedback", {
+          void props.mitoAPI.log("ai_transformation_feedback", {
             "feedback": "Down"
           });
         }
