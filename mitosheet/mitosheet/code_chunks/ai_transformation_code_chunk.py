@@ -5,6 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import List, Tuple
+from mitosheet.ai.ai_utils import get_import_lines_to_add
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
@@ -22,9 +23,10 @@ class AITransformationCodeChunk(CodeChunk):
         return self.user_input.strip()
 
     def get_code(self) -> Tuple[List[str], List[str]]:
+        import_lines = get_import_lines_to_add(self.final_code)
         return [
             self.final_code.strip()
-        ], []
+        ], import_lines
 
     def get_edited_sheet_indexes(self) -> List[int]:
         # TODO: we can save this perhaps?

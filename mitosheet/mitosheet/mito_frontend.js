@@ -2461,11 +2461,11 @@
       if (true) {
         (function() {
           "use strict";
-          var React218 = require_react();
+          var React219 = require_react();
           var _assign = require_object_assign();
           var Scheduler = require_scheduler();
           var tracing = require_tracing();
-          var ReactSharedInternals = React218.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React219.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           function warn(format) {
             {
               for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2497,7 +2497,7 @@
               Function.prototype.apply.call(console[level], console, argsWithFormat);
             }
           }
-          if (!React218) {
+          if (!React219) {
             {
               throw Error("ReactDOM was loaded before React. Make sure you load the React package before loading ReactDOM.");
             }
@@ -3833,7 +3833,7 @@
           var didWarnInvalidChild = false;
           function flattenChildren(children) {
             var content = "";
-            React218.Children.forEach(children, function(child) {
+            React219.Children.forEach(children, function(child) {
               if (child == null) {
                 return;
               }
@@ -3844,7 +3844,7 @@
           function validateProps(element, props) {
             {
               if (typeof props.children === "object" && props.children !== null) {
-                React218.Children.forEach(props.children, function(child) {
+                React219.Children.forEach(props.children, function(child) {
                   if (child == null) {
                     return;
                   }
@@ -11047,7 +11047,7 @@
           }
           var fakeInternalInstance = {};
           var isArray = Array.isArray;
-          var emptyRefsObject = new React218.Component().refs;
+          var emptyRefsObject = new React219.Component().refs;
           var didWarnAboutStateAssignmentForComponent;
           var didWarnAboutUninitializedState;
           var didWarnAboutGetSnapshotBeforeUpdateWithoutDidUpdate;
@@ -20644,11 +20644,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   });
 
   // src/jupyterRender.tsx
-  var React217 = __toESM(require_react());
+  var React218 = __toESM(require_react());
   var import_react_dom2 = __toESM(require_react_dom());
 
   // src/components/Mito.tsx
-  var import_react225 = __toESM(require_react());
+  var import_react226 = __toESM(require_react());
 
   // src/components/taskpanes/Graph/graphUtils.tsx
   var import_react23 = __toESM(require_react());
@@ -31061,7 +31061,7 @@ ${finalCode}`;
       },
       ["AI_Transformation" /* AI_TRANSFORMATION */]: {
         type: "AI_Transformation" /* AI_TRANSFORMATION */,
-        shortTitle: "AI Transformation",
+        shortTitle: "AI",
         longTitle: "AI Transformation",
         actionFunction: () => {
           setEditorState(void 0);
@@ -39024,7 +39024,8 @@ fig.write_html("${props.graphTabName}.html")`
         required,
         placeholder: props.placeholder,
         value: props.value,
-        disabled: props.disabled
+        disabled: props.disabled,
+        onKeyDown: props.onKeyDown
       }
     );
   };
@@ -39065,10 +39066,10 @@ fig.write_html("${props.graphTabName}.html")`
         " ",
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName),
         "  (",
-        numColumns,
-        " column, ",
         numRows,
-        " rows)"
+        " rows, ",
+        numColumns,
+        " column)"
       );
     }), Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
@@ -39086,13 +39087,13 @@ fig.write_html("${props.graphTabName}.html")`
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Modified:"),
         " ",
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName)
-      ), columnReconData.added_columns.map((ch, index) => {
+      ), columnReconData.created_columns.map((ch, index) => {
         return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "added" + index, className: "ml-5px" }, "Added column: ", getDisplayColumnHeader(ch));
       }), columnReconData.modified_columns.map((ch, index) => {
         return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "modified" + index, className: "ml-5px" }, "Modified column: ", getDisplayColumnHeader(ch));
       }), Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
         return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "renamed" + index, className: "ml-5px" }, "Renamed column: ", getDisplayColumnHeader(oldCh), " to ", getDisplayColumnHeader(newCh), " ");
-      }), columnReconData.removed_columns.map((ch, index) => {
+      }), columnReconData.deleted_columns.map((ch, index) => {
         return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "removed" + index, className: "ml-5px" }, "Deleted column: ", getDisplayColumnHeader(ch));
       }));
     }), result.deleted_dataframe_names.map((dfName) => {
@@ -39127,7 +39128,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/AITransformation/AITransformationTaskpane.tsx
   var HINTS = [
-    "You can edit the generated code below before executing it. This can allow you to fix up minor errors.",
+    "You can edit the generated code below before executing it to fix up minor errors.",
     "Check the Results section to see how the generated code effected your dataframes.",
     "Edit not apply correctly? Just press Undo in the toolbar to undo the edit."
   ];
@@ -39140,7 +39141,7 @@ fig.write_html("${props.graphTabName}.html")`
       edited_completion: ""
     };
   };
-  var getExample = (userInput, setPromptState, setOpenSections) => {
+  var getExample = (userInput, setPromptState, setOpenSections, setParams) => {
     return /* @__PURE__ */ import_react173.default.createElement(
       Col_default,
       {
@@ -39149,6 +39150,7 @@ fig.write_html("${props.graphTabName}.html")`
           setOpenSections((prevOpenSections) => {
             return __spreadProps(__spreadValues({}, prevOpenSections), { "Examples": false, "Prompt": true });
           });
+          setParams(getDefaultParams10());
         },
         span: 11
       },
@@ -39211,13 +39213,42 @@ fig.write_html("${props.graphTabName}.html")`
     if (params === void 0) {
       return /* @__PURE__ */ import_react173.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
+    const generateCode = async () => {
+      const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
+      setPromptState((prevPromptState) => {
+        return __spreadProps(__spreadValues({}, prevPromptState), { loading: true, hint: randomHint });
+      });
+      const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
+      const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
+      if (completionOrError !== void 0 && "completion" in completionOrError) {
+        const newParams = __spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion });
+        setParams(newParams);
+        setPreviousParams((prevPreviousParams) => {
+          const newPreviousParams = [...prevPreviousParams];
+          newPreviousParams.push(newParams);
+          return newPreviousParams;
+        });
+        setOpenSections((prevOpenSections) => {
+          return __spreadProps(__spreadValues({}, prevOpenSections), { "Examples": false, "Result": false });
+        });
+      } else if (completionOrError !== void 0 && "error" in completionOrError) {
+        setPromptState((prevPromptState) => {
+          return __spreadProps(__spreadValues({}, prevPromptState), {
+            error: completionOrError.error
+          });
+        });
+      }
+      setPromptState((prevPromptState) => {
+        return __spreadProps(__spreadValues({}, prevPromptState), { loading: false });
+      });
+    };
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "AI Transformation",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections), getExample("cleanup column dtypes", setPromptState, setOpenSections)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections), getExample("duplicate this dataframe", setPromptState, setOpenSections))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections, setParams), getExample("sort dataframe by values", setPromptState, setOpenSections, setParams)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections, setParams), getExample("duplicate this dataframe", setPromptState, setOpenSections, setParams))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: promptState.userInput,
@@ -39228,49 +39259,28 @@ fig.write_html("${props.graphTabName}.html")`
         },
         height: "small",
         autoFocus: true,
-        darkBorder: true
+        darkBorder: true,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            void generateCode();
+          }
+        }
       }
     ), /* @__PURE__ */ import_react173.default.createElement(
       TextButton_default,
       {
-        onClick: async () => {
-          const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
-          setPromptState((prevPromptState) => {
-            return __spreadProps(__spreadValues({}, prevPromptState), { loading: true, hint: randomHint });
-          });
-          const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
-          const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
-          if (completionOrError !== void 0 && "completion" in completionOrError) {
-            const newParams = __spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion });
-            setParams(newParams);
-            setPreviousParams((prevPreviousParams) => {
-              const newPreviousParams = [...prevPreviousParams];
-              newPreviousParams.push(newParams);
-              return newPreviousParams;
-            });
-            setOpenSections((prevOpenSections) => {
-              return __spreadProps(__spreadValues({}, prevOpenSections), { "Examples": false, "Result": false });
-            });
-          } else if (completionOrError !== void 0 && "error" in completionOrError) {
-            setPromptState((prevPromptState) => {
-              return __spreadProps(__spreadValues({}, prevPromptState), {
-                error: completionOrError.error
-              });
-            });
-          }
-          setPromptState((prevPromptState) => {
-            return __spreadProps(__spreadValues({}, prevPromptState), { loading: false });
-          });
-        },
+        onClick: () => generateCode(),
         disabled: promptState.userInput.length === 0 || promptState.loading,
         variant: "dark"
       },
       "Generate Code"
-    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, "Generating code... ", promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
+    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: params.edited_completion,
-        placeholder: 'df["column"] = True',
+        placeholder: "Generated code will appear here...",
         onChange: (e) => {
           const newEditedCompletion = e.target.value;
           const newParams = __spreadProps(__spreadValues({}, params), {
@@ -39286,7 +39296,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         },
         height: params.completion.trim().split(/\r\n|\r|\n/).length < 5 ? "small" : "medium",
-        disabled: params.edited_completion.length === 0 || promptState.loading,
+        disabled: params.completion.length === 0 || promptState.loading,
         darkBorder: true
       }
     ), /* @__PURE__ */ import_react173.default.createElement(
@@ -39313,8 +39323,9 @@ fig.write_html("${props.graphTabName}.html")`
           setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
         }
       },
-      "\u25C0 \xA0"
-    ), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, "Your Prompts (", getCurrentlySelectedParamsIndex(previousParams, params) + 1, " / ", previousParams.length, ")"), /* @__PURE__ */ import_react173.default.createElement(
+      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "previous" }, getCurrentlySelectedParamsIndex(previousParams, params) !== 0 ? "\u25C0" : "\u25C1", " "),
+      "\xA0"
+    ), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, "Your Prompts (", Math.min(getCurrentlySelectedParamsIndex(previousParams, params) + 1, previousParams.length), " / ", previousParams.length, ")"), /* @__PURE__ */ import_react173.default.createElement(
       Col_default,
       {
         onClick: () => {
@@ -39328,7 +39339,8 @@ fig.write_html("${props.graphTabName}.html")`
           setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
         }
       },
-      "\xA0 \u25B6"
+      "\xA0 ",
+      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "next" }, getCurrentlySelectedParamsIndex(previousParams, params) !== previousParams.length - 1 ? "\u25B6" : "\u25B7")
     ))))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       CollapsibleSection_default,
       {
@@ -40034,7 +40046,7 @@ fig.write_html("${props.graphTabName}.html")`
   var UpgradeToProTaskpane_default = UpgradeToProTaskpane;
 
   // src/components/toolbar/Toolbar.tsx
-  var import_react221 = __toESM(require_react());
+  var import_react222 = __toESM(require_react());
 
   // src/components/toolbar/PlanButton.tsx
   var import_react202 = __toESM(require_react());
@@ -40074,10 +40086,10 @@ fig.write_html("${props.graphTabName}.html")`
   var PlanButton_default = PlanButton;
 
   // src/components/toolbar/ToolbarButton.tsx
-  var import_react210 = __toESM(require_react());
+  var import_react211 = __toESM(require_react());
 
   // src/components/toolbar/utils.tsx
-  var import_react209 = __toESM(require_react());
+  var import_react210 = __toESM(require_react());
 
   // src/components/icons/ExportIcon.tsx
   var import_react203 = __toESM(require_react());
@@ -40123,64 +40135,74 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var LessIcon_default = LessIcon;
 
+  // src/components/icons/AIIcon.tsx
+  var import_react209 = __toESM(require_react());
+  var AIIcon = () => {
+    return /* @__PURE__ */ import_react209.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 11 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react209.default.createElement("path", { d: "M10.5 3.5C10.5 1.84315 9.15685 0.5 7.5 0.5H3.5C1.84315 0.5 0.5 1.84315 0.5 3.5V3.5C0.5 5.15685 1.84315 6.5 3.5 6.5H7.5C9.15685 6.5 10.5 5.15685 10.5 3.5V3.5Z", fill: "#494650", stroke: "#494650", strokeWidth: "0.600361", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react209.default.createElement("circle", { cx: "3", cy: "3.5", r: "1", transform: "rotate(-90 3 3.5)", fill: "#C8ADFF" }), /* @__PURE__ */ import_react209.default.createElement("circle", { cx: "8", cy: "3.5", r: "1", transform: "rotate(-90 8 3.5)", fill: "#C8ADFF" }));
+  };
+  var AIIcon_default = AIIcon;
+
   // src/components/toolbar/utils.tsx
   var getToolbarItemIcon = (toolbarButtonType) => {
     switch (toolbarButtonType) {
       case "UNDO" /* UNDO */: {
-        return /* @__PURE__ */ import_react209.default.createElement(UndoIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(UndoIcon_default, null);
       }
       case "REDO" /* REDO */: {
-        return /* @__PURE__ */ import_react209.default.createElement(RedoIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(RedoIcon_default, null);
       }
       case "CLEAR" /* CLEAR */: {
-        return /* @__PURE__ */ import_react209.default.createElement(ClearIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(ClearIcon_default, null);
       }
       case "IMPORT" /* IMPORT */: {
-        return /* @__PURE__ */ import_react209.default.createElement(ImportIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(ImportIcon_default, null);
       }
       case "EXPORT" /* EXPORT */: {
-        return /* @__PURE__ */ import_react209.default.createElement(ExportIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(ExportIcon_default, null);
       }
       case "ADD COL" /* ADD_COL */: {
-        return /* @__PURE__ */ import_react209.default.createElement(AddColumnIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(AddColumnIcon_default, null);
       }
       case "DEL COL" /* DEL_COL */: {
-        return /* @__PURE__ */ import_react209.default.createElement(DeleteColumnIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(DeleteColumnIcon_default, null);
       }
       case "DTYPE" /* DTYPE */: {
-        return /* @__PURE__ */ import_react209.default.createElement(DtypeIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(DtypeIcon_default, null);
       }
       case "LESS" /* LESS */: {
-        return /* @__PURE__ */ import_react209.default.createElement(LessIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(LessIcon_default, null);
       }
       case "MORE" /* MORE */: {
-        return /* @__PURE__ */ import_react209.default.createElement(MoreIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(MoreIcon_default, null);
       }
       case "FORMAT" /* FORMAT */: {
-        return /* @__PURE__ */ import_react209.default.createElement(FormatIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(FormatIcon_default, null);
       }
       case "PIVOT" /* PIVOT */: {
-        return /* @__PURE__ */ import_react209.default.createElement(PivotIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(PivotIcon_default, null);
       }
       case "GRAPH" /* GRAPH */: {
-        return /* @__PURE__ */ import_react209.default.createElement(GraphIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(GraphIcon_default, null);
+      }
+      case "AI_TRANSFORMATION" /* AI_TRANSFORMATION */: {
+        return /* @__PURE__ */ import_react210.default.createElement(AIIcon_default, null);
       }
       case "CATCH UP" /* CATCH_UP */: {
-        return /* @__PURE__ */ import_react209.default.createElement(CatchUpIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(CatchUpIcon_default, null);
       }
       case "STEPS" /* STEPS */: {
-        return /* @__PURE__ */ import_react209.default.createElement(StepsIcon_default, null);
+        return /* @__PURE__ */ import_react210.default.createElement(StepsIcon_default, null);
       }
       case "OPEN FULLSCREEN" /* OPEN_FULLSCREEN */: {
-        return /* @__PURE__ */ import_react209.default.createElement(OpenFullscreenIcon, null);
+        return /* @__PURE__ */ import_react210.default.createElement(OpenFullscreenIcon, null);
       }
       case "CLOSE FULLSCREEN" /* CLOSE_FULLSCREEN */: {
-        return /* @__PURE__ */ import_react209.default.createElement(CloseFullscreenIcon, null);
+        return /* @__PURE__ */ import_react210.default.createElement(CloseFullscreenIcon, null);
       }
     }
   };
   var makeToolbarDropdownItem = (action, userProfile2, supressFocusSettingOnClose) => {
-    return /* @__PURE__ */ import_react209.default.createElement(
+    return /* @__PURE__ */ import_react210.default.createElement(
       DropdownItem_default,
       {
         key: action.longTitle,
@@ -40205,7 +40227,7 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarButton = (props) => {
     const disabled = props.disabledTooltip !== void 0;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? "toolbar-button-draw-attention" : "";
-    return /* @__PURE__ */ import_react210.default.createElement(
+    return /* @__PURE__ */ import_react211.default.createElement(
       "div",
       {
         className: classNames("toolbar-button-container", disabled ? "toolbar-button-container-disabled" : "toolbar-button-container-enabled"),
@@ -40220,13 +40242,13 @@ fig.write_html("${props.graphTabName}.html")`
           props.action.actionFunction();
         }
       },
-      /* @__PURE__ */ import_react210.default.createElement(
+      /* @__PURE__ */ import_react211.default.createElement(
         "button",
         {
           className: classNames("toolbar-button", "vertical-align-content", highlightToobarItemClass),
           type: "button"
         },
-        /* @__PURE__ */ import_react210.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react210.default.createElement("div", { className: "toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react210.default.createElement("p", { className: "toolbar-button-label" }, props.action.shortTitle))
+        /* @__PURE__ */ import_react211.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react211.default.createElement("div", { className: "toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react211.default.createElement("p", { className: "toolbar-button-label" }, props.action.shortTitle))
       ),
       props.children !== void 0 && props.children
     );
@@ -40234,9 +40256,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarButton_default = ToolbarButton;
 
   // src/components/toolbar/ToolbarColumnsDropdown.tsx
-  var import_react211 = __toESM(require_react());
+  var import_react212 = __toESM(require_react());
   var ToolbarColumnsDropdown = (props) => {
-    return /* @__PURE__ */ import_react211.default.createElement(import_react211.default.Fragment, null, /* @__PURE__ */ import_react211.default.createElement(
+    return /* @__PURE__ */ import_react212.default.createElement(import_react212.default.Fragment, null, /* @__PURE__ */ import_react212.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Columns",
@@ -40254,18 +40276,18 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["add column" /* Add_Column */], props.userProfile),
       makeToolbarDropdownItem(props.actions["rename column" /* Rename_Column */], props.userProfile, true),
       makeToolbarDropdownItem(props.actions["delete column" /* Delete_Column */], props.userProfile),
-      /* @__PURE__ */ import_react211.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["set column formula" /* Set_Column_Formula */], props.userProfile, true),
       makeToolbarDropdownItem(props.actions["set cell value" /* Set_Cell_Value */], props.userProfile, true),
       makeToolbarDropdownItem(props.actions["split text to column" /* Split_Text_To_Column */], props.userProfile),
-      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */], props.userProfile) : /* @__PURE__ */ import_react211.default.createElement(import_react211.default.Fragment, null),
+      props.userProfile.isPro ? makeToolbarDropdownItem(props.actions["one_hot_encoding" /* One_Hot_Encoding */], props.userProfile) : /* @__PURE__ */ import_react212.default.createElement(import_react212.default.Fragment, null),
       makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */], props.userProfile),
-      /* @__PURE__ */ import_react211.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["filter" /* Filter */], props.userProfile),
       makeToolbarDropdownItem(props.actions["sort" /* Sort */], props.userProfile),
       makeToolbarDropdownItem(props.actions["change dtype" /* Change_Dtype */], props.userProfile),
       makeToolbarDropdownItem(props.actions["fill na" /* Fill_Na */], props.userProfile),
-      /* @__PURE__ */ import_react211.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["unique values" /* Unique_Values */], props.userProfile),
       makeToolbarDropdownItem(props.actions["column summary" /* Column_Summary */], props.userProfile)
     ));
@@ -40273,9 +40295,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarColumnsDropdown_default = ToolbarColumnsDropdown;
 
   // src/components/toolbar/ToolbarDataframesDropdown.tsx
-  var import_react212 = __toESM(require_react());
+  var import_react213 = __toESM(require_react());
   var ToolbarDataframesDropdown = (props) => {
-    return /* @__PURE__ */ import_react212.default.createElement(import_react212.default.Fragment, null, /* @__PURE__ */ import_react212.default.createElement(
+    return /* @__PURE__ */ import_react213.default.createElement(import_react213.default.Fragment, null, /* @__PURE__ */ import_react213.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Dataframes",
@@ -40293,16 +40315,16 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */], props.userProfile),
       makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */], props.userProfile),
       makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */], props.userProfile),
-      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react213.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["export" /* Export */], props.userProfile),
-      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react213.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["pivot" /* Pivot */], props.userProfile),
       makeToolbarDropdownItem(props.actions["melt" /* Melt */], props.userProfile),
       makeToolbarDropdownItem(props.actions["drop duplicates" /* Drop_Duplicates */], props.userProfile),
       makeToolbarDropdownItem(props.actions["merge" /* Merge */], props.userProfile),
       makeToolbarDropdownItem(props.actions["concat_dataframes" /* Concat_Dataframes */], props.userProfile),
       makeToolbarDropdownItem(props.actions["transpose" /* Transpose */], props.userProfile),
-      /* @__PURE__ */ import_react212.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react213.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["duplicate dataframe" /* Duplicate_Dataframe */], props.userProfile),
       makeToolbarDropdownItem(props.actions["rename dataframe" /* Rename_Dataframe */], props.userProfile, true),
       makeToolbarDropdownItem(props.actions["delete dataframe" /* Delete_Dataframe */], props.userProfile)
@@ -40311,10 +40333,10 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarDataframesDropdown_default = ToolbarDataframesDropdown;
 
   // src/components/toolbar/ToolbarDropdownSelector.tsx
-  var import_react213 = __toESM(require_react());
+  var import_react214 = __toESM(require_react());
   var ToolbarDropdownSelector = (props) => {
     const selected = props.uiState.currOpenToolbarDropdown === props.type;
-    return /* @__PURE__ */ import_react213.default.createElement("div", null, /* @__PURE__ */ import_react213.default.createElement(
+    return /* @__PURE__ */ import_react214.default.createElement("div", null, /* @__PURE__ */ import_react214.default.createElement(
       "p",
       {
         className: classNames("toolbar-dropdown-selector", "text-unselectable", { "toolbar-dropdown-selector-selected": selected }),
@@ -40338,9 +40360,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarDropdownSelector_default = ToolbarDropdownSelector;
 
   // src/components/toolbar/ToolbarEditDropdown.tsx
-  var import_react214 = __toESM(require_react());
+  var import_react215 = __toESM(require_react());
   var ToolbarEditDropdown = (props) => {
-    return /* @__PURE__ */ import_react214.default.createElement(import_react214.default.Fragment, null, /* @__PURE__ */ import_react214.default.createElement(
+    return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null, /* @__PURE__ */ import_react215.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Edit",
@@ -40357,16 +40379,16 @@ fig.write_html("${props.graphTabName}.html")`
       makeToolbarDropdownItem(props.actions["undo" /* Undo */], props.userProfile),
       makeToolbarDropdownItem(props.actions["redo" /* Redo */], props.userProfile),
       makeToolbarDropdownItem(props.actions["clear" /* Clear */], props.userProfile),
-      /* @__PURE__ */ import_react214.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react215.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["copy" /* Copy */], props.userProfile)
     ));
   };
   var ToolbarEditDropdown_default = ToolbarEditDropdown;
 
   // src/components/toolbar/ToolbarFormatDropdown.tsx
-  var import_react215 = __toESM(require_react());
+  var import_react216 = __toESM(require_react());
   var ToolbarFormatDropdown = (props) => {
-    return /* @__PURE__ */ import_react215.default.createElement(import_react215.default.Fragment, null, /* @__PURE__ */ import_react215.default.createElement(
+    return /* @__PURE__ */ import_react216.default.createElement(import_react216.default.Fragment, null, /* @__PURE__ */ import_react216.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Format",
@@ -40382,7 +40404,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       makeToolbarDropdownItem(props.actions["set_dataframe_format" /* Set_Dataframe_Format */], props.userProfile),
       makeToolbarDropdownItem(props.actions["ConditionalFormatting" /* Conditional_Formatting */], props.userProfile),
-      /* @__PURE__ */ import_react215.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react216.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["format number columns" /* Format_Number_Columns */], props.userProfile),
       makeToolbarDropdownItem(props.actions["precision decrease" /* Precision_Decrease */], props.userProfile),
       makeToolbarDropdownItem(props.actions["precision increase" /* Precision_Increase */], props.userProfile)
@@ -40391,9 +40413,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarFormatDropdown_default = ToolbarFormatDropdown;
 
   // src/components/toolbar/ToolbarGraphsDropdown.tsx
-  var import_react216 = __toESM(require_react());
+  var import_react217 = __toESM(require_react());
   var ToolbarGraphsDropdown = (props) => {
-    return /* @__PURE__ */ import_react216.default.createElement(import_react216.default.Fragment, null, /* @__PURE__ */ import_react216.default.createElement(
+    return /* @__PURE__ */ import_react217.default.createElement(import_react217.default.Fragment, null, /* @__PURE__ */ import_react217.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Graphs",
@@ -40408,7 +40430,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "medium"
       },
       makeToolbarDropdownItem(props.actions["graph" /* Graph */], props.userProfile),
-      /* @__PURE__ */ import_react216.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react217.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["duplicate graph" /* Duplicate_Graph */], props.userProfile),
       makeToolbarDropdownItem(props.actions["rename graph" /* Rename_Graph */], props.userProfile),
       makeToolbarDropdownItem(props.actions["delete graph" /* Delete_Graph */], props.userProfile)
@@ -40417,10 +40439,10 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarGraphsDropdown_default = ToolbarGraphsDropdown;
 
   // src/components/toolbar/ToolbarHelpDropdown.tsx
-  var import_react217 = __toESM(require_react());
+  var import_react218 = __toESM(require_react());
   var ToolbarHelpDropdown = (props) => {
     const allActions = getSortedActions(props.actions);
-    return /* @__PURE__ */ import_react217.default.createElement(import_react217.default.Fragment, null, /* @__PURE__ */ import_react217.default.createElement(
+    return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null, /* @__PURE__ */ import_react218.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Help",
@@ -40443,9 +40465,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarHelpDropdown_default = ToolbarHelpDropdown;
 
   // src/components/toolbar/ToolbarRowsDropdown.tsx.tsx
-  var import_react218 = __toESM(require_react());
+  var import_react219 = __toESM(require_react());
   var ToolbarRowsDropdown = (props) => {
-    return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null, /* @__PURE__ */ import_react218.default.createElement(
+    return /* @__PURE__ */ import_react219.default.createElement(import_react219.default.Fragment, null, /* @__PURE__ */ import_react219.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Rows",
@@ -40466,9 +40488,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarRowsDropdown_tsx_default = ToolbarRowsDropdown;
 
   // src/components/toolbar/ToolbarViewDropdown.tsx
-  var import_react219 = __toESM(require_react());
+  var import_react220 = __toESM(require_react());
   var ToolbarViewDropdown = (props) => {
-    return /* @__PURE__ */ import_react219.default.createElement(import_react219.default.Fragment, null, /* @__PURE__ */ import_react219.default.createElement(
+    return /* @__PURE__ */ import_react220.default.createElement(import_react220.default.Fragment, null, /* @__PURE__ */ import_react220.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "View",
@@ -40488,9 +40510,9 @@ fig.write_html("${props.graphTabName}.html")`
   var ToolbarViewDropdown_default = ToolbarViewDropdown;
 
   // src/components/toolbar/ToolbarCodeDropdown.tsx
-  var import_react220 = __toESM(require_react());
+  var import_react221 = __toESM(require_react());
   var ToolbarCodeDropdown = (props) => {
-    return /* @__PURE__ */ import_react220.default.createElement(import_react220.default.Fragment, null, /* @__PURE__ */ import_react220.default.createElement(
+    return /* @__PURE__ */ import_react221.default.createElement(import_react221.default.Fragment, null, /* @__PURE__ */ import_react221.default.createElement(
       Dropdown_default,
       {
         display: props.uiState.currOpenToolbarDropdown === "Code",
@@ -40504,6 +40526,7 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
+      makeToolbarDropdownItem(props.actions["AI_Transformation" /* AI_TRANSFORMATION */], props.userProfile),
       makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */], props.userProfile)
     ));
   };
@@ -40511,7 +40534,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
-    return /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    return /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarEditDropdown_default,
       {
         actions: props.actions,
@@ -40519,7 +40542,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Dataframes", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Dataframes", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarDataframesDropdown_default,
       {
         actions: props.actions,
@@ -40527,7 +40550,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Columns", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Columns", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarColumnsDropdown_default,
       {
         actions: props.actions,
@@ -40535,7 +40558,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Rows", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Rows", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarRowsDropdown_tsx_default,
       {
         actions: props.actions,
@@ -40543,7 +40566,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Graphs", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Graphs", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarGraphsDropdown_default,
       {
         actions: props.actions,
@@ -40551,7 +40574,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Format", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Format", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarFormatDropdown_default,
       {
         actions: props.actions,
@@ -40559,7 +40582,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Code", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Code", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarCodeDropdown_default,
       {
         actions: props.actions,
@@ -40567,7 +40590,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "View", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "View", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarViewDropdown_default,
       {
         actions: props.actions,
@@ -40575,7 +40598,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    )), /* @__PURE__ */ import_react221.default.createElement(ToolbarDropdownSelector_default, { type: "Help", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react221.default.createElement(
+    )), /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Help", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarHelpDropdown_default,
       {
         actions: props.actions,
@@ -40583,7 +40606,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    ))), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react221.default.createElement(
+    ))), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react222.default.createElement(
       GetSupportButton_default,
       {
         userProfile: props.userProfile,
@@ -40592,7 +40615,7 @@ fig.write_html("${props.graphTabName}.html")`
         width: "small",
         className: "plan-button"
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       PlanButton_default,
       {
         uiState: props.uiState,
@@ -40600,7 +40623,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         mitoAPI: props.mitoAPI
       }
-    ))), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-bottom" }, /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-bottom-left-half" }, /* @__PURE__ */ import_react221.default.createElement(
+    ))), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-bottom" }, /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-bottom-left-half" }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         id: "mito-undo-button",
@@ -40608,7 +40631,7 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["undo" /* Undo */],
         disabledTooltip: props.actions["undo" /* Undo */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         id: "mito-redo-button",
@@ -40616,14 +40639,14 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["redo" /* Redo */],
         disabledTooltip: props.actions["redo" /* Redo */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "CLEAR" /* CLEAR */,
         action: props.actions["clear" /* Clear */],
         disabledTooltip: props.actions["clear" /* Clear */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "IMPORT" /* IMPORT */,
@@ -40631,7 +40654,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["import dropdown" /* Import_Dropdown */].isDisabled()
       },
-      /* @__PURE__ */ import_react221.default.createElement(
+      /* @__PURE__ */ import_react222.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "import",
@@ -40645,21 +40668,21 @@ fig.write_html("${props.graphTabName}.html")`
           }),
           width: "medium"
         },
-        /* @__PURE__ */ import_react221.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "import files" /* IMPORT_FILES */ }
             });
           });
         } }),
-        /* @__PURE__ */ import_react221.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
             });
           });
         } }),
-        /* @__PURE__ */ import_react221.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
@@ -40667,7 +40690,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         } })
       )
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "EXPORT" /* EXPORT */,
@@ -40675,7 +40698,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["export dropdown" /* Export_Dropdown */].isDisabled()
       },
-      /* @__PURE__ */ import_react221.default.createElement(
+      /* @__PURE__ */ import_react222.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "export",
@@ -40689,14 +40712,14 @@ fig.write_html("${props.graphTabName}.html")`
           }),
           width: "medium"
         },
-        /* @__PURE__ */ import_react221.default.createElement(DropdownItem_default, { title: "Download File", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Download File", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "download" /* DOWNLOAD */ }
             });
           });
         } }),
-        /* @__PURE__ */ import_react221.default.createElement(DropdownItem_default, { title: "Generate Export Code", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Generate Export Code", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "Export To File" /* EXPORT_TO_FILE */ }
@@ -40704,7 +40727,7 @@ fig.write_html("${props.graphTabName}.html")`
           });
         } })
       )
-    ), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "ADD COL" /* ADD_COL */,
@@ -40713,7 +40736,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["add column" /* Add_Column */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "DEL COL" /* DEL_COL */,
@@ -40721,7 +40744,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["delete column" /* Delete_Column */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "DTYPE" /* DTYPE */,
@@ -40729,7 +40752,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["change dtype" /* Change_Dtype */].isDisabled()
       },
-      /* @__PURE__ */ import_react221.default.createElement(
+      /* @__PURE__ */ import_react222.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "dtype",
@@ -40752,7 +40775,7 @@ fig.write_html("${props.graphTabName}.html")`
           );
         })
       )
-    ), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "LESS" /* LESS */,
@@ -40760,7 +40783,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["precision decrease" /* Precision_Decrease */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "MORE" /* MORE */,
@@ -40768,7 +40791,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["precision increase" /* Precision_Increase */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "FORMAT" /* FORMAT */,
@@ -40776,7 +40799,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["format number columns" /* Format_Number_Columns */].isDisabled()
       },
-      /* @__PURE__ */ import_react221.default.createElement(
+      /* @__PURE__ */ import_react222.default.createElement(
         Dropdown_default,
         {
           display: props.uiState.toolbarDropdown === "format",
@@ -40791,7 +40814,7 @@ fig.write_html("${props.graphTabName}.html")`
         },
         getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI)
       )
-    ), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "PIVOT" /* PIVOT */,
@@ -40800,7 +40823,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["pivot" /* Pivot */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "GRAPH" /* GRAPH */,
@@ -40808,20 +40831,28 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["graph" /* Graph */].isDisabled()
       }
-    )), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
+      ToolbarButton_default,
+      {
+        toolbarButtonType: "AI_TRANSFORMATION" /* AI_TRANSFORMATION */,
+        action: props.actions["AI_Transformation" /* AI_TRANSFORMATION */],
+        setEditorState: props.setEditorState,
+        disabledTooltip: props.actions["AI_Transformation" /* AI_TRANSFORMATION */].isDisabled()
+      }
+    )), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "CATCH UP" /* CATCH_UP */,
         action: props.actions["catch up" /* Catch_Up */]
       }
-    ), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "STEPS" /* STEPS */,
         action: props.actions["steps" /* Steps */],
         disabledTooltip: props.actions["steps" /* Steps */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react221.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react221.default.createElement(
+    ), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-vertical-line" }), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: fscreen_esm_default.fullscreenElement ? "CLOSE FULLSCREEN" /* CLOSE_FULLSCREEN */ : "OPEN FULLSCREEN" /* OPEN_FULLSCREEN */,
@@ -40832,17 +40863,17 @@ fig.write_html("${props.graphTabName}.html")`
   var Toolbar_default = Toolbar;
 
   // src/components/tour/Tour.tsx
-  var import_react223 = __toESM(require_react());
+  var import_react224 = __toESM(require_react());
 
   // src/components/tour/Tours.tsx
-  var import_react222 = __toESM(require_react());
+  var import_react223 = __toESM(require_react());
   var introTourSteps = [
     {
       tourName: "Intro" /* INTRO */,
       stepNumber: 1,
       stepHeader: "Seeing your data",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " Your data is visible in the sheet. Each dataframe is represented by a different tab. "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " Your data is visible in the sheet. Each dataframe is represented by a different tab. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: false,
@@ -40853,7 +40884,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Find functionality",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " All functionality can be found through the toolbar. Explore the toolbar to see what is possible. "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " All functionality can be found through the toolbar. Explore the toolbar to see what is possible. "),
       location: "top_left" /* TOP_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true,
@@ -40864,7 +40895,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Use the generated code",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, "Each time you make an edit, Mito generates equivalent Python code in the cell below. Running this generated code edits the dataframes in your notebook directly."),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, "Each time you make an edit, Mito generates equivalent Python code in the cell below. Running this generated code edits the dataframes in your notebook directly."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40876,7 +40907,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Creating a pivot table",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " ", /* @__PURE__ */ import_react222.default.createElement("b", null, " Click on the Pivot button"), " to get started. Mito\u2019s pivot tables make it easy to slice and dice your data into different categories. "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " ", /* @__PURE__ */ import_react223.default.createElement("b", null, " Click on the Pivot button"), " to get started. Mito\u2019s pivot tables make it easy to slice and dice your data into different categories. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40886,7 +40917,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Configure your pivot table",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " In the open sidebar, ", /* @__PURE__ */ import_react222.default.createElement("b", null, "select a row and value "), " to create your pivot table."),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " In the open sidebar, ", /* @__PURE__ */ import_react223.default.createElement("b", null, "select a row and value "), " to create your pivot table."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40896,7 +40927,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "That was easy!",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, /* @__PURE__ */ import_react222.default.createElement("b", null, "Checkout the pivot table code below"), ". Each time you create a pivot table, a new dataframe is created in both the Mito sheet and the generated code. We just saved our first few trips to stack overflow :) "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, /* @__PURE__ */ import_react223.default.createElement("b", null, "Checkout the pivot table code below"), ". Each time you create a pivot table, a new dataframe is created in both the Mito sheet and the generated code. We just saved our first few trips to stack overflow :) "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40908,7 +40939,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Our Formulas are Different",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " Edit a column by updating its formula. If you want to uppercase the column ", /* @__PURE__ */ import_react222.default.createElement("b", null, "Name"), ", set its formula to ", /* @__PURE__ */ import_react222.default.createElement("b", null, "UPPER(Name)"), ". No extra columns necessary. "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " Edit a column by updating its formula. If you want to uppercase the column ", /* @__PURE__ */ import_react223.default.createElement("b", null, "Name"), ", set its formula to ", /* @__PURE__ */ import_react223.default.createElement("b", null, "UPPER(Name)"), ". No extra columns necessary. "),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40918,7 +40949,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "Manually Reapply Formulas",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " Mito differs from other spreadsheets because formulas do not automatically update when the input data changes. If you want to update a specific formula, simply resubmit it!  "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " Mito differs from other spreadsheets because formulas do not automatically update when the input data changes. If you want to update a specific formula, simply resubmit it!  "),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40928,7 +40959,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Become a Formula Expert",
       stepHeaderBackgroundColor: "#DDA1A1",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " Want to learn more about how Mito's formulas are different? ", /* @__PURE__ */ import_react222.default.createElement("a", { className: "text-body-1-link text-color-white-important", href: DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, target: "_blank", rel: "noreferrer" }, "Check out our detailed formula documentation.")),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " Want to learn more about how Mito's formulas are different? ", /* @__PURE__ */ import_react223.default.createElement("a", { className: "text-body-1-link text-color-white-important", href: DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, target: "_blank", rel: "noreferrer" }, "Check out our detailed formula documentation.")),
       location: "bottom_right" /* BOTTOM_RIGHT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40940,7 +40971,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Exploring data with Mito",
       stepHeaderBackgroundColor: "#BCDFBC",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " Mito makes it easy to build intuition for your data by automatically generating summary information about each column. To get started, ", /* @__PURE__ */ import_react222.default.createElement("b", null, "click on the filter button in the column header"), " of one of your columns."),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " Mito makes it easy to build intuition for your data by automatically generating summary information about each column. To get started, ", /* @__PURE__ */ import_react223.default.createElement("b", null, "click on the filter button in the column header"), " of one of your columns."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40950,7 +40981,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 2,
       stepHeader: "View summary stats",
       stepHeaderBackgroundColor: "#CAD1FF",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, " ", /* @__PURE__ */ import_react222.default.createElement("b", null, "Click on the Summary Stats tab "), " at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there\u2019s more specific summary information down below. Check it out!"),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, " ", /* @__PURE__ */ import_react223.default.createElement("b", null, "Click on the Summary Stats tab "), " at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there\u2019s more specific summary information down below. Check it out!"),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40960,7 +40991,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 3,
       stepHeader: "Add a filter",
       stepHeaderBackgroundColor: "#FFDAAE",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, /* @__PURE__ */ import_react222.default.createElement("b", null, "Switch over to the Filter/Sort Tab "), " to clean up your data now that you've built up some intuition.  "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, /* @__PURE__ */ import_react223.default.createElement("b", null, "Switch over to the Filter/Sort Tab "), " to clean up your data now that you've built up some intuition.  "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40970,7 +41001,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 4,
       stepHeader: "Create a filter",
       stepHeaderBackgroundColor: "#79C2F8",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, /* @__PURE__ */ import_react222.default.createElement("b", null, "Click on the Add Filter button "), ", and then set the filter ", /* @__PURE__ */ import_react222.default.createElement("b", null, "condition and value"), ". "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, /* @__PURE__ */ import_react223.default.createElement("b", null, "Click on the Add Filter button "), ", and then set the filter ", /* @__PURE__ */ import_react223.default.createElement("b", null, "condition and value"), ". "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40980,7 +41011,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 5,
       stepHeader: "Enjoy your cleaned data",
       stepHeaderBackgroundColor: "#FFCBDE",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, "Nice work! In just a few clicks, we\u2019ve built some intuition for our data and removed the values we're not interested in. "),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, "Nice work! In just a few clicks, we\u2019ve built some intuition for our data and removed the values we're not interested in. "),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Continue",
       displayBackButton: true
@@ -40992,7 +41023,7 @@ fig.write_html("${props.graphTabName}.html")`
       stepNumber: 1,
       stepHeader: "Before you go!",
       stepHeaderBackgroundColor: "#FFDAAE",
-      stepText: /* @__PURE__ */ import_react222.default.createElement("div", null, "If you want more information on how to clean and analyze your data by writing spreadsheet formulas, visualizing your data, and adding filters, checkout our more detailed tutorial ", /* @__PURE__ */ import_react222.default.createElement("a", { href: DOCUMENTATION_LINK_TUTORIAL, target: "_blank", rel: "noreferrer", style: { color: "#0081DE" } }, "here"), "."),
+      stepText: /* @__PURE__ */ import_react223.default.createElement("div", null, "If you want more information on how to clean and analyze your data by writing spreadsheet formulas, visualizing your data, and adding filters, checkout our more detailed tutorial ", /* @__PURE__ */ import_react223.default.createElement("a", { href: DOCUMENTATION_LINK_TUTORIAL, target: "_blank", rel: "noreferrer", style: { color: "#0081DE" } }, "here"), "."),
       location: "bottom_left" /* BOTTOM_LEFT */,
       advanceButtonText: "Close",
       displayBackButton: true
@@ -41015,13 +41046,13 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var Tour = (props) => {
     var _a;
-    const [stepNumber, setStepNumber] = (0, import_react223.useState)(0);
-    const [skippedTour, setSkippedTour] = (0, import_react223.useState)(false);
+    const [stepNumber, setStepNumber] = (0, import_react224.useState)(0);
+    const [skippedTour, setSkippedTour] = (0, import_react224.useState)(false);
     const steps = [];
     props.tourNames.forEach((tourName) => {
       steps.push(...tours[tourName]);
     });
-    (0, import_react223.useEffect)(() => {
+    (0, import_react224.useEffect)(() => {
       void props.mitoAPI.log(
         "begin_tour",
         {
@@ -41030,7 +41061,7 @@ fig.write_html("${props.graphTabName}.html")`
         }
       );
     }, []);
-    (0, import_react223.useEffect)(() => {
+    (0, import_react224.useEffect)(() => {
       if (steps[stepNumber].tourName === "Pivot" /* PIVOT */ && steps[stepNumber].stepNumber === 1) {
         props.setHighlightPivotTableButton(true);
       } else {
@@ -41092,7 +41123,7 @@ fig.write_html("${props.graphTabName}.html")`
     const stepTextFunction = steps[stepNumber].stepTextFunction;
     const finalStepText = stepText || stepTextFunction && stepTextFunction(((_a = props.sheetData) == null ? void 0 : _a.data[0].columnID) || "");
     const hideXIcon = steps[stepNumber].hideXIcon === true;
-    return /* @__PURE__ */ import_react223.default.createElement("div", { className: classNames("tour-container", locationToClassNamesMapping[steps[stepNumber].location]), key: stepNumber }, /* @__PURE__ */ import_react223.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react223.default.createElement(Col_default, null, /* @__PURE__ */ import_react223.default.createElement("p", { className: "text-header-2" }, stepNumber + 1, "/", steps.length)), !hideXIcon && /* @__PURE__ */ import_react223.default.createElement(Col_default, null, /* @__PURE__ */ import_react223.default.createElement(
+    return /* @__PURE__ */ import_react224.default.createElement("div", { className: classNames("tour-container", locationToClassNamesMapping[steps[stepNumber].location]), key: stepNumber }, /* @__PURE__ */ import_react224.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react224.default.createElement(Col_default, null, /* @__PURE__ */ import_react224.default.createElement("p", { className: "text-header-2" }, stepNumber + 1, "/", steps.length)), !hideXIcon && /* @__PURE__ */ import_react224.default.createElement(Col_default, null, /* @__PURE__ */ import_react224.default.createElement(
       XIcon_default,
       {
         variant: "light",
@@ -41104,7 +41135,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         }
       }
-    ))), /* @__PURE__ */ import_react223.default.createElement(Row_default, null, /* @__PURE__ */ import_react223.default.createElement(Col_default, null, /* @__PURE__ */ import_react223.default.createElement("p", { className: "text-header-2 text-color-white-important" }, steps[stepNumber].stepHeader))), /* @__PURE__ */ import_react223.default.createElement("div", { className: "text-overflow-wrap mb-20px" }, finalStepText), /* @__PURE__ */ import_react223.default.createElement(Row_default, { justify: "space-between" }, stepNumber - 1 >= 0 && /* @__PURE__ */ import_react223.default.createElement(Col_default, null, /* @__PURE__ */ import_react223.default.createElement(
+    ))), /* @__PURE__ */ import_react224.default.createElement(Row_default, null, /* @__PURE__ */ import_react224.default.createElement(Col_default, null, /* @__PURE__ */ import_react224.default.createElement("p", { className: "text-header-2 text-color-white-important" }, steps[stepNumber].stepHeader))), /* @__PURE__ */ import_react224.default.createElement("div", { className: "text-overflow-wrap mb-20px" }, finalStepText), /* @__PURE__ */ import_react224.default.createElement(Row_default, { justify: "space-between" }, stepNumber - 1 >= 0 && /* @__PURE__ */ import_react224.default.createElement(Col_default, null, /* @__PURE__ */ import_react224.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -41112,7 +41143,7 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => goToStep(stepNumber - 1)
       },
       "Back"
-    )), stepNumber - 1 <= 0 && /* @__PURE__ */ import_react223.default.createElement(Col_default, null), /* @__PURE__ */ import_react223.default.createElement(Col_default, null, /* @__PURE__ */ import_react223.default.createElement(
+    )), stepNumber - 1 <= 0 && /* @__PURE__ */ import_react224.default.createElement(Col_default, null), /* @__PURE__ */ import_react224.default.createElement(Col_default, null, /* @__PURE__ */ import_react224.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -41125,9 +41156,9 @@ fig.write_html("${props.graphTabName}.html")`
   var Tour_default = Tour;
 
   // src/hooks/useMitoAPI.tsx
-  var import_react224 = __toESM(require_react());
+  var import_react225 = __toESM(require_react());
   var useMitoAPI = (kernelID2, commTargetID2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
-    const [mitoAPI] = (0, import_react224.useState)(
+    const [mitoAPI] = (0, import_react225.useState)(
       () => {
         return new MitoAPI(
           setSheetDataArray,
@@ -41137,8 +41168,8 @@ fig.write_html("${props.graphTabName}.html")`
         );
       }
     );
-    const [commCreationStatus, setCommCreationStatus] = (0, import_react224.useState)("loading");
-    (0, import_react224.useEffect)(() => {
+    const [commCreationStatus, setCommCreationStatus] = (0, import_react225.useState)("loading");
+    (0, import_react225.useEffect)(() => {
       const init = async () => {
         const commContainerOrError = await getCommContainer(kernelID2, commTargetID2);
         if (typeof commContainerOrError === "string") {
@@ -41158,12 +41189,12 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/Mito.tsx
   var Mito = (props) => {
-    const mitoContainerRef = (0, import_react225.useRef)(null);
-    const [sheetDataArray2, setSheetDataArray] = (0, import_react225.useState)(props.sheetDataArray);
-    const [analysisData2, setAnalysisData] = (0, import_react225.useState)(props.analysisData);
-    const [userProfile2, setUserProfile] = (0, import_react225.useState)(props.userProfile);
-    const [gridState, setGridState] = (0, import_react225.useState)(() => getDefaultGridState(sheetDataArray2, 0));
-    const [uiState, setUIState] = (0, import_react225.useState)({
+    const mitoContainerRef = (0, import_react226.useRef)(null);
+    const [sheetDataArray2, setSheetDataArray] = (0, import_react226.useState)(props.sheetDataArray);
+    const [analysisData2, setAnalysisData] = (0, import_react226.useState)(props.analysisData);
+    const [userProfile2, setUserProfile] = (0, import_react226.useState)(props.userProfile);
+    const [gridState, setGridState] = (0, import_react226.useState)(() => getDefaultGridState(sheetDataArray2, 0));
+    const [uiState, setUIState] = (0, import_react226.useState)({
       loading: [],
       currOpenModal: userProfile2.userEmail == "" && userProfile2.telemetryEnabled ? { type: "SignUp" /* SignUp */ } : userProfile2.shouldUpgradeMitosheet ? { type: "Upgrade" /* Upgrade */ } : { type: "None" /* None */ },
       currOpenTaskpane: { type: "none" /* NONE */ },
@@ -41178,12 +41209,12 @@ fig.write_html("${props.graphTabName}.html")`
         ["top_right" /* TopRight */]: { type: "none" /* None */ }
       }
     });
-    const [editorState, setEditorState] = (0, import_react225.useState)(void 0);
-    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react225.useState)(false);
-    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react225.useState)(false);
-    const [currPathParts, setCurrPathParts] = (0, import_react225.useState)(["."]);
+    const [editorState, setEditorState] = (0, import_react226.useState)(void 0);
+    const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react226.useState)(false);
+    const [highlightAddColButton, setHighlightAddColButton] = (0, import_react226.useState)(false);
+    const [currPathParts, setCurrPathParts] = (0, import_react226.useState)(["."]);
     const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -41195,10 +41226,10 @@ fig.write_html("${props.graphTabName}.html")`
         });
       }
     }, [commCreationStatus]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, [mitoAPI]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
@@ -41248,16 +41279,16 @@ fig.write_html("${props.graphTabName}.html")`
       };
       void handleRender();
     }, [mitoAPI, commCreationStatus]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       if (analysisData2.renderCount >= 1) {
         writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled);
       }
     }, [analysisData2]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       plotly_default();
     }, []);
-    const previousNumSheetsRef = (0, import_react225.useRef)(sheetDataArray2.length);
-    (0, import_react225.useEffect)(() => {
+    const previousNumSheetsRef = (0, import_react226.useRef)(sheetDataArray2.length);
+    (0, import_react226.useEffect)(() => {
       const previousNumSheets = previousNumSheetsRef.current;
       setUIState((prevUIState) => {
         const prevSelectedSheetIndex = prevUIState.selectedSheetIndex;
@@ -41273,12 +41304,12 @@ fig.write_html("${props.graphTabName}.html")`
       });
       previousNumSheetsRef.current = sheetDataArray2.length;
     }, [sheetDataArray2]);
-    const previousNumGraphsRef = (0, import_react225.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
-    const previousGraphIndex = (0, import_react225.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
-    (0, import_react225.useEffect)(() => {
+    const previousNumGraphsRef = (0, import_react226.useRef)(Object.keys(analysisData2.graphDataDict || {}).length);
+    const previousGraphIndex = (0, import_react226.useRef)(uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1);
+    (0, import_react226.useEffect)(() => {
       previousGraphIndex.current = uiState.selectedGraphID !== void 0 ? Object.keys(analysisData2.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1;
     }, [uiState.selectedGraphID]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       const graphIDs = Object.keys(analysisData2.graphDataDict || {});
       const previousNumGraphs = previousNumGraphsRef.current;
       const newNumGraphs = Object.keys(analysisData2.graphDataDict || {}).length;
@@ -41301,7 +41332,7 @@ fig.write_html("${props.graphTabName}.html")`
       }
       previousNumGraphsRef.current = newNumGraphs;
     }, [Object.keys(analysisData2.graphDataDict || {}).length]);
-    (0, import_react225.useEffect)(() => {
+    (0, import_react226.useEffect)(() => {
       const openEditedPivot = async () => {
         const existingPivotParams = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
         if (existingPivotParams !== void 0) {
@@ -41327,8 +41358,8 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState(void 0);
       }
     }, [uiState.selectedSheetIndex]);
-    const prevOpenTaskpaneRef = (0, import_react225.useRef)(uiState.currOpenTaskpane.type);
-    (0, import_react225.useEffect)(() => {
+    const prevOpenTaskpaneRef = (0, import_react226.useRef)(uiState.currOpenTaskpane.type);
+    (0, import_react226.useEffect)(() => {
       var _a;
       if (prevOpenTaskpaneRef.current !== "none" /* NONE */ && uiState.currOpenTaskpane.type === "none" /* NONE */) {
         const endoGridContainer = (_a = mitoContainerRef.current) == null ? void 0 : _a.querySelector(".endo-grid-container");
@@ -41345,7 +41376,7 @@ fig.write_html("${props.graphTabName}.html")`
       gridState.selections[gridState.selections.length - 1].startingRowIndex,
       gridState.selections[gridState.selections.length - 1].startingColumnIndex
     );
-    const closeOpenEditingPopups = (0, import_react225.useCallback)((taskpanesToKeepIfOpen) => {
+    const closeOpenEditingPopups = (0, import_react226.useCallback)((taskpanesToKeepIfOpen) => {
       if (EDITING_TASKPANES.includes(uiState.currOpenTaskpane.type) && (taskpanesToKeepIfOpen === void 0 || !taskpanesToKeepIfOpen.includes(uiState.currOpenTaskpane.type))) {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -41363,9 +41394,9 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrentModalComponent = () => {
       switch (uiState.currOpenModal.type) {
         case "None" /* None */:
-          return /* @__PURE__ */ import_react225.default.createElement("div", null);
+          return /* @__PURE__ */ import_react226.default.createElement("div", null);
         case "Error" /* Error */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ErrorModal_default,
             {
               error: uiState.currOpenModal.error,
@@ -41375,7 +41406,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ClearAnalysis" /* ClearAnalysis */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ClearAnalysisModal_default,
             {
               setUIState,
@@ -41383,7 +41414,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "SignUp" /* SignUp */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             SignupModal_default,
             {
               setUIState,
@@ -41395,7 +41426,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Upgrade" /* Upgrade */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             UpgradeModal_default,
             {
               setUIState,
@@ -41403,7 +41434,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ErrorReplayAnalysis" /* ErrorReplayedAnalysis */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ReplayAnalysisModals_default,
             {
               setUIState,
@@ -41417,7 +41448,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DeleteGraphs" /* DeleteGraphs */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             DeleteGraphsModal_default,
             {
               setUIState,
@@ -41432,7 +41463,7 @@ fig.write_html("${props.graphTabName}.html")`
     const getCurrOpenTaskpane = () => {
       switch (uiState.currOpenTaskpane.type) {
         case "control_panel" /* CONTROL_PANEL */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ControlPanelTaskpane_default,
             {
               key: "" + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab,
@@ -41452,7 +41483,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "upgrade_to_pro" /* UPGRADE_TO_PRO */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             UpgradeToProTaskpane_default,
             {
               mitoAPI,
@@ -41462,7 +41493,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "download" /* DOWNLOAD */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             DownloadTaskpane_default,
             {
               dfNames,
@@ -41475,7 +41506,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "drop_duplicates" /* DROP_DUPLICATES */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             DropDuplicates_default,
             {
               dfNames,
@@ -41487,7 +41518,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "graph" /* GRAPH */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             GraphSidebar_default,
             {
               graphID: uiState.currOpenTaskpane.graphID,
@@ -41505,7 +41536,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import files" /* IMPORT_FILES */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             FileImportTaskpane_default,
             {
               mitoAPI,
@@ -41517,7 +41548,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "merge" /* MERGE */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             MergeTaskpane_default,
             {
               selectedSheetIndex: uiState.selectedSheetIndex,
@@ -41528,7 +41559,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "concat" /* CONCAT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ConcatTaskpane_default,
             {
               analysisData: analysisData2,
@@ -41538,9 +41569,9 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* NONE */:
-          return /* @__PURE__ */ import_react225.default.createElement(import_react225.Fragment, null);
+          return /* @__PURE__ */ import_react226.default.createElement(import_react226.Fragment, null);
         case "pivot" /* PIVOT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             PivotTaskpane_default,
             {
               dfNames,
@@ -41555,7 +41586,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "split_text_to_columns" /* SPLIT_TEXT_TO_COLUMNS */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             SplitTextToColumnsTaskpane_default,
             {
               mitoAPI,
@@ -41568,7 +41599,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "steps" /* STEPS */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             StepsTaskpane_default,
             {
               stepSummaryList: analysisData2.stepSummaryList,
@@ -41578,7 +41609,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "import_first" /* IMPORT_FIRST */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             DefaultEmptyTaskpane_default,
             {
               setUIState,
@@ -41586,7 +41617,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "fill_na" /* FILL_NA */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             FillNaTaskpane_default,
             {
               setUIState,
@@ -41599,7 +41630,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "melt" /* MELT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             MeltTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41611,7 +41642,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "set_dataframe_format" /* SET_DATAFRAME_FORMAT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             SetDataframeFormatTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41623,7 +41654,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "ConditionalFormatting" /* CONDITIONALFORMATTING */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ConditionalFormattingTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41635,7 +41666,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "DataframeImport" /* DATAFRAMEIMPORT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             DataframeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41647,7 +41678,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "UpdateImports" /* UPDATEIMPORTS */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             UpdateImportsTaskpane_default,
             {
               mitoAPI,
@@ -41661,7 +41692,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "CannotCreateComm" /* CANNOTCREATECOMM */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             CannotCreateCommTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41670,7 +41701,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "CodeSnippets" /* CODESNIPPETS */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             CodeSnippetsTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41682,7 +41713,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "SnowflakeImport" /* SNOWFLAKEIMPORT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             SnowflakeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41694,7 +41725,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Excel Range Import" /* EXCEL_RANGE_IMPORT */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ExcelRangeImportTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41707,7 +41738,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "Export To File" /* EXPORT_TO_FILE */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             ExportToFileTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41719,7 +41750,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "AITransformation" /* AITRANSFORMATION */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             AITransformationTaskpane_default,
             {
               userProfile: userProfile2,
@@ -41737,7 +41768,7 @@ fig.write_html("${props.graphTabName}.html")`
       const popupLocationInfo = uiState.currOpenPopups[popupLocation];
       switch (popupLocationInfo.type) {
         case "ephemeral_message" /* EphemeralMessage */:
-          return /* @__PURE__ */ import_react225.default.createElement(
+          return /* @__PURE__ */ import_react226.default.createElement(
             EphemeralMessage_default,
             {
               message: popupLocationInfo.message,
@@ -41746,7 +41777,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           );
         case "none" /* None */:
-          return /* @__PURE__ */ import_react225.default.createElement(import_react225.Fragment, null);
+          return /* @__PURE__ */ import_react226.default.createElement(import_react226.Fragment, null);
       }
     };
     const actions = createActions(
@@ -41767,10 +41798,10 @@ fig.write_html("${props.graphTabName}.html")`
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
     const getCurrTour = () => {
       if (analysisData2.dataTypeInTool === "none" /* NONE */ || analysisData2.dataTypeInTool === "tutorial" /* TUTORIAL */) {
-        return /* @__PURE__ */ import_react225.default.createElement(import_react225.default.Fragment, null);
+        return /* @__PURE__ */ import_react226.default.createElement(import_react226.default.Fragment, null);
       }
       if (userProfile2.mitoConfig.MITO_CONFIG_DISABLE_TOURS) {
-        return /* @__PURE__ */ import_react225.default.createElement(import_react225.default.Fragment, null);
+        return /* @__PURE__ */ import_react226.default.createElement(import_react226.default.Fragment, null);
       }
       const toursToDisplay = [];
       if (!userProfile2.receivedTours.includes("Intro" /* INTRO */)) {
@@ -41779,7 +41810,7 @@ fig.write_html("${props.graphTabName}.html")`
       if (editorState !== void 0 && editorState.rowIndex >= 0 && !userProfile2.receivedTours.includes("Column_Formulas" /* COLUMN_FORMULAS */)) {
         toursToDisplay.push("Column_Formulas" /* COLUMN_FORMULAS */);
       }
-      return /* @__PURE__ */ import_react225.default.createElement(import_react225.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react225.default.createElement(
+      return /* @__PURE__ */ import_react226.default.createElement(import_react226.default.Fragment, null, toursToDisplay.length !== 0 && uiState.currOpenModal.type !== "SignUp" /* SignUp */ && /* @__PURE__ */ import_react226.default.createElement(
         Tour_default,
         {
           sheetData: sheetDataArray2[uiState.selectedSheetIndex],
@@ -41802,7 +41833,7 @@ fig.write_html("${props.graphTabName}.html")`
       "mito-default-fullscreen-taskpane-open": graphTaskpaneOpen,
       "mito-default-narrow-taskpane-open": narrowTaskpaneOpen
     });
-    return /* @__PURE__ */ import_react225.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react225.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react225.default.createElement(
+    return /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react226.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react226.default.createElement(
       Toolbar_default,
       {
         mitoAPI,
@@ -41822,7 +41853,7 @@ fig.write_html("${props.graphTabName}.html")`
         analysisData: analysisData2,
         sheetIndex: uiState.selectedSheetIndex
       }
-    ), /* @__PURE__ */ import_react225.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react225.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react225.default.createElement(
+    ), /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react226.default.createElement(
       EndoGrid_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -41838,7 +41869,7 @@ fig.write_html("${props.graphTabName}.html")`
         closeOpenEditingPopups,
         commCreationStatus
       }
-    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react225.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react225.default.createElement(
+    )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react226.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react226.default.createElement(
       Footer_default,
       {
         sheetDataArray: sheetDataArray2,
@@ -41852,7 +41883,7 @@ fig.write_html("${props.graphTabName}.html")`
         mitoContainerRef,
         setEditorState
       }
-    ), getCurrentModalComponent(), /* @__PURE__ */ import_react225.default.createElement(
+    ), getCurrentModalComponent(), /* @__PURE__ */ import_react226.default.createElement(
       BottomLeftPopup_default,
       {
         loading: uiState.loading,
@@ -41864,7 +41895,7 @@ fig.write_html("${props.graphTabName}.html")`
         actions,
         setUIState
       }
-    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react225.default.createElement(
+    ), getCurrOpenPopup("top_right" /* TopRight */), analysisData2.currStepIdx !== lastStepSummary.step_idx && /* @__PURE__ */ import_react226.default.createElement(
       CatchUpPopup_default,
       {
         fastForward: () => {
@@ -41892,7 +41923,7 @@ fig.write_html("${props.graphTabName}.html")`
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
   import_react_dom2.default.render(
-    /* @__PURE__ */ React217.createElement(
+    /* @__PURE__ */ React218.createElement(
       Mito_default,
       {
         kernelID,

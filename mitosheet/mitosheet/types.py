@@ -13,6 +13,7 @@ continous integration
 """
 
 import pandas as pd
+import numpy as np
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
@@ -237,13 +238,13 @@ if sys.version_info[:3] > (3, 8, 0):
         last_line_expression_value: Optional[Any]
 
     class ColumnReconData(TypedDict):
-        added_columns: List[ColumnHeader]
-        removed_columns: List[ColumnHeader]
+        created_columns: List[ColumnHeader]
+        deleted_columns: List[ColumnHeader]
         modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
     class AITransformFrontendResult(TypedDict):
-        last_line_value: Optional[Union[str, bool, int, float]]
+        last_line_value: Optional[Union[str, bool, int, float, np.number]]
         created_dataframe_names: List[str]
         deleted_dataframe_names: List[str]
         modified_dataframes_column_recons: Dict[str, ColumnReconData]

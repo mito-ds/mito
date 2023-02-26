@@ -288,6 +288,20 @@ df.replace(3, 4)
             'last_line_expression_value': pd.DataFrame({'a': [4]})
         }
     ),
+    # Returns a np.number
+        (
+        """
+import numpy as np
+np.float32(1.0)
+        """,
+        {'df': pd.DataFrame({'a': [1]})},
+        {
+            'created_dataframes': {},
+            'deleted_dataframes': [],
+            'modified_dataframes': {},
+            'last_line_expression_value': 1.0
+        }
+    ),
 ]
 @pytest.mark.parametrize("code, dfs, recon_data", EXEC_FOR_RECON_TESTS)
 def test_exec_for_recon(code, dfs, recon_data):
@@ -313,8 +327,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame(),
         pd.DataFrame(),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -324,8 +338,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123]}),
         pd.DataFrame(),
         {
-            'added_columns': [],
-            'removed_columns': ['A'],
+            'created_columns': [],
+            'deleted_columns': ['A'],
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -335,8 +349,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], 'B': [123]}),
         pd.DataFrame(),
         {
-            'added_columns': [],
-            'removed_columns': ['A', 'B'],
+            'created_columns': [],
+            'deleted_columns': ['A', 'B'],
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -346,8 +360,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame(),
         pd.DataFrame({'A': [123]}),
         {
-            'added_columns': ['A'],
-            'removed_columns': [],            
+            'created_columns': ['A'],
+            'deleted_columns': [],            
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -357,8 +371,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123]}),
         pd.DataFrame({'A': [123], 'B': [123], 'C': [123]}),
         {
-            'added_columns': ['B', 'C'],
-            'removed_columns': [],
+            'created_columns': ['B', 'C'],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -368,8 +382,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123]}),
         pd.DataFrame({'B': [123]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {'A': 'B'}
         }
@@ -379,8 +393,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [123], False: [456], 4: [789]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {True: False, 3: 4}
         }
@@ -390,8 +404,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({True: [456], 3: [789], 'A': [123]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {}
         }
@@ -401,8 +415,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [1], True: [456], 3: [789]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': ['A'],
             'renamed_columns': {}
         }
@@ -412,8 +426,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [1], True: [4], 3: [2]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': ['A', True, 3],
             'renamed_columns': {}
         }
@@ -423,8 +437,8 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [None], True: [None], 3: [789]}),
         pd.DataFrame({'A': [None], True: [None], 3: [789]}),
         {
-            'added_columns': [],
-            'removed_columns': [],
+            'created_columns': [],
+            'deleted_columns': [],
             'modified_columns': [],
             'renamed_columns': {}
         }

@@ -47,7 +47,12 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 'Authorization': f'Bearer {OPENAI_API_KEY}' 
         }
 
-        res = requests.post(URL, headers=headers, json=data)
+        try:
+                res = requests.post(URL, headers=headers, json=data)
+        except:
+                return json.dumps({
+                        'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
+                })
 
         if res.status_code == 200:
                 res_json = res.json()

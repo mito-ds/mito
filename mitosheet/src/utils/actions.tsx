@@ -1373,7 +1373,7 @@ export const createActions = (
         },
         [ActionEnum.AI_TRANSFORMATION]: {
             type: ActionEnum.AI_TRANSFORMATION,
-            shortTitle: 'AI Transformation',
+            shortTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
                 setEditorState(undefined);

@@ -331,7 +331,8 @@ class StepsManager:
                 'renderCount': self.render_count,
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
-            }
+            },
+            cls=NpEncoder
         )
 
     @property

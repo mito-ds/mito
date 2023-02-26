@@ -2,19 +2,27 @@
 
 import ast
 import os
-from typing import Optional
+from typing import List, Optional
 
 def is_open_ai_credentials_available() -> bool:
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     return OPENAI_API_KEY is not None
 
+def get_import_lines_to_add(code: str) -> List[str]:
+    lines = []
+    if 'np.' in code and 'import numpy as np' not in code:
+        lines.append('import numpy as np')
+    if 'pd.' in code and 'import pandas as pd' not in code:
+        lines.append('import pandas as pd')
+    return lines
+
 
 def fix_up_missing_imports(code: str) -> str:
-    if 'np.' in code and 'import numpy as np' not in code:
-        code = 'import numpy as np\n' + code
-    if 'pd.' in code and 'import pandas as pd' not in code:
-        code = 'import pandas as pd\n' + code
+    import_lines = get_import_lines_to_add(code)
 
+    for import_line in import_lines:
+        code = f'{import_line}\n' + code
+        
     return code
 
 def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
@@ -41,9 +49,8 @@ def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> st
         # If it's a dataframe, just add the name
         code = code.replace(last_expression_string, f'{new_df_name} = {last_expression_string}')
     else:
-        code = code.replace(last_expression_string, f'{new_df_name} = pd.DataFrame({last_expression_string})')
-        if 'import pandas as pd' not in code:
-            code = 'import pandas as pd\n' + code
+        # If it's a series, create a dataframe
+        code = code.replace(last_expression_string, f'series = {last_expression_string}\n{new_df_name} = pd.DataFrame(series, index=series.index)')
 
     return code
 

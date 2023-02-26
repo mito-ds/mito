@@ -2490,6 +2490,7 @@ a:visited {
 .toolbar-button-label {
   font-size: 11px;
   height: 13px;
+  text-align: center !important;
 }
 .toolbar-vertical-line {
   border-left: 1px solid var(--toolbar-seperator-color);

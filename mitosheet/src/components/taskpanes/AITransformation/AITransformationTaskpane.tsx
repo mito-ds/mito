@@ -38,8 +38,8 @@ export interface AITransformationParams {
 }
 
 interface ColumnReconData {
-    added_columns: ColumnHeader[]
-    removed_columns: ColumnHeader[]
+    created_columns: ColumnHeader[]
+    deleted_columns: ColumnHeader[]
     modified_columns: ColumnHeader[],
     renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
 }
@@ -63,19 +63,19 @@ interface SectionState {
     'Result': boolean
 }
 
-export interface CompletionSelection {
+export interface AICompletionSelection {
     'selected_df_name': string, 
     'selected_column_headers': ColumnHeader[], 
     'selected_index_labels': IndexLabel[]
 }
 
 const HINTS = [
-    'You can edit the generated code below before executing it. This can allow you to fix up minor errors.',
+    'You can edit the generated code below before executing it to fix up minor errors.',
     'Check the Results section to see how the generated code effected your dataframes.',
     'Edit not apply correctly? Just press Undo in the toolbar to undo the edit.',
 ]
 
-const getDefaultParams = (): AITransformationParams | undefined => {
+const getDefaultParams = (): AITransformationParams => {
     return {
         user_input: '',
         prompt_version: '',
@@ -85,12 +85,13 @@ const getDefaultParams = (): AITransformationParams | undefined => {
     }
 }
 
-const getExample = (userInput: string, setPromptState: React.Dispatch<React.SetStateAction<PromptState>>, setOpenSections: React.Dispatch<React.SetStateAction<SectionState>>): JSX.Element => {
+const getExample = (userInput: string, setPromptState: React.Dispatch<React.SetStateAction<PromptState>>, setOpenSections: React.Dispatch<React.SetStateAction<SectionState>>, setParams: React.Dispatch<React.SetStateAction<AITransformationParams>>): JSX.Element => {
     return (
         <Col 
             onClick={() => {
                 setPromptState({userInput: userInput, error: undefined, hint: undefined, loading: false});
                 setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Prompt': true}})
+                setParams(getDefaultParams())
             }} 
             span={11}
         >
@@ -101,7 +102,7 @@ const getExample = (userInput: string, setPromptState: React.Dispatch<React.SetS
     )
 }
 
-const getSelectionForCompletion = (uiState: UIState, gridState: GridState, sheetDataArray: SheetData[]): CompletionSelection | undefined => {
+const getSelectionForCompletion = (uiState: UIState, gridState: GridState, sheetDataArray: SheetData[]): AICompletionSelection | undefined => {
     const selectedSheetIndex = uiState.selectedSheetIndex;
     const sheetData = sheetDataArray[selectedSheetIndex];
 
@@ -127,7 +128,7 @@ const getCurrentlySelectedParamsIndex = (previousParams: AITransformationParams[
 }
 
 /**
- * A helper function for updating the previous params list. If the current params are currently already on the array, then we simply
+ * A helper function for updating the previous params list. If the current params are already on the array, then we simply
  * overwrite this final entry. Otherwise, we append them to the list
  */
 const getNewPreviousParams = (previousParams: AITransformationParams[], currParams: AITransformationParams, newParams: AITransformationParams): AITransformationParams[] => {
@@ -181,6 +182,33 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
+    const generateCode = async () => {
+        const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
+        setPromptState(prevPromptState => {return {...prevPromptState, loading: true, hint: randomHint}})
+
+        const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
+        const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
+        if (completionOrError !== undefined && 'completion' in completionOrError) {
+            const newParams = {...completionOrError, edited_completion: completionOrError.completion};
+            setParams(newParams);
+            setPreviousParams(prevPreviousParams => {
+                const newPreviousParams = [...prevPreviousParams];
+                newPreviousParams.push(newParams);
+                return newPreviousParams;
+            })
+            setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Result': false}})
+        } else if (completionOrError !== undefined && 'error' in completionOrError){
+            setPromptState(prevPromptState => {
+                return {
+                    ...prevPromptState,
+                    error: completionOrError.error
+                }
+            })
+        }
+
+        setPromptState(prevPromptState => {return {...prevPromptState, loading: false}})
+    }
+
 
     return (
         <DefaultTaskpane>
@@ -197,12 +225,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 }
                 <CollapsibleSection title={"Examples"} open={openSections['Examples']} disabled={apiKeyNotDefined}>
                     <Row justify="space-between" align="center">
-                        {getExample('delete columns with nans', setPromptState, setOpenSections)}
-                        {getExample('cleanup column dtypes', setPromptState, setOpenSections)}
+                        {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
+                        {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
                     </Row>
                     <Row justify="space-between" align="center">
-                        {getExample('rename headers lowercase', setPromptState, setOpenSections)}
-                        {getExample('duplicate this dataframe', setPromptState, setOpenSections)}
+                        {getExample('rename headers lowercase', setPromptState, setOpenSections, setParams)}
+                        {getExample('duplicate this dataframe', setPromptState, setOpenSections, setParams)}
                     </Row>
                 </CollapsibleSection>
                 <Spacer px={10}/>
@@ -217,34 +245,16 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         height='small'
                         autoFocus
                         darkBorder
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                void generateCode()
+                            }
+                        }} 
                     />
                     <TextButton
-                        onClick={async () => {
-                            const randomHint = HINTS[Math.floor(Math.random() * HINTS.length)];
-                            setPromptState(prevPromptState => {return {...prevPromptState, loading: true, hint: randomHint}})
-
-                            const currentSelection = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
-                            const completionOrError = await props.mitoAPI.getAICompletion(promptState.userInput, currentSelection);
-                            if (completionOrError !== undefined && 'completion' in completionOrError) {
-                                const newParams = {...completionOrError, edited_completion: completionOrError.completion};
-                                setParams(newParams);
-                                setPreviousParams(prevPreviousParams => {
-                                    const newPreviousParams = [...prevPreviousParams];
-                                    newPreviousParams.push(newParams);
-                                    return newPreviousParams;
-                                })
-                                setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Result': false}})
-                            } else if (completionOrError !== undefined && 'error' in completionOrError){
-                                setPromptState(prevPromptState => {
-                                    return {
-                                        ...prevPromptState,
-                                        error: completionOrError.error
-                                    }
-                                })
-                            }
-
-                            setPromptState(prevPromptState => {return {...prevPromptState, loading: false}})
-                        }}
+                        onClick={() => generateCode()}
                         disabled={promptState.userInput.length === 0 || promptState.loading}
                         variant='dark'
                     >
@@ -254,12 +264,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         <p className="text-color-error">{promptState.error}</p>
                     }
                     {promptState.loading && 
-                        <p className="text-subtext-1">Generating code... {promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
+                        <p className="text-subtext-1">{promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
                     }
                     <Spacer px={10}/>
                     <TextArea 
                         value={params.edited_completion} 
-                        placeholder='df["column"] = True'
+                        placeholder='Generated code will appear here...'
                         onChange={(e) => {
                             const newEditedCompletion = e.target.value;
 
@@ -285,7 +295,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             params.completion.trim().split(/\r\n|\r|\n/).length < 5
                                 ? 'small' : 'medium'
                         } 
-                        disabled={params.edited_completion.length === 0 || promptState.loading}
+                        disabled={params.completion.length === 0 || promptState.loading}
                         darkBorder
                     />
                     <TextButton 
@@ -316,9 +326,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                             setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
                                         }}
                                     >
-                                        ◀ &nbsp;
+                                        <span role="img" aria-label="previous">{getCurrentlySelectedParamsIndex(previousParams, params) !== 0 ? '◀' : '◁'} </span>&nbsp;
                                     </Col>
-                                    <Col>Your Prompts ({getCurrentlySelectedParamsIndex(previousParams, params) + 1} / {previousParams.length})</Col>
+                                    <Col>Your Prompts ({Math.min(getCurrentlySelectedParamsIndex(previousParams, params) + 1, previousParams.length)} / {previousParams.length})</Col>
                                     <Col
                                         onClick={() => {
                                             const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
@@ -331,7 +341,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                             setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
                                         }}
                                     >
-                                        &nbsp; ▶
+                                        &nbsp; <span role="img" aria-label="next">{getCurrentlySelectedParamsIndex(previousParams, params) !== previousParams.length - 1 ? '▶' : '▷'}</span>
                                     </Col>
                                 </Row>
                             </Col>

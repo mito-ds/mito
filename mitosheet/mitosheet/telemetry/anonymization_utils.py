@@ -101,7 +101,7 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
 
     # If this is a log to linearize, then we recurse and create private versions of those
     # nested parameters. Note we only do this if it's actually possible to recurse
-    if key in LOG_PARAMS_TO_LINEARIZE and isinstance(value, dict): 
+    if key in LOG_PARAMS_TO_LINEARIZE and isinstance(value, dict):
         for nested_key, nested_value in value.items():
             nested_params = get_final_private_params_for_single_kv(nested_key, nested_value, params, steps_manager)
             private_params = {

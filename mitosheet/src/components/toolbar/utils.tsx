@@ -19,6 +19,7 @@ import DropdownItem from '../elements/DropdownItem';
 import { Action, UserProfile } from '../../types';
 import MoreIcon from '../icons/MoreIcon';
 import LessIcon from '../icons/LessIcon';
+import AIIcon from '../icons/AIIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -54,6 +55,9 @@ export enum ToolbarButtonType {
 
     PIVOT = "PIVOT",
     GRAPH = "GRAPH",
+    AI_TRANSFORMATION = "AI_TRANSFORMATION",
+
+
     CATCH_UP = "CATCH UP",
     STEPS = "STEPS",
     OPEN_FULLSCREEN = "OPEN FULLSCREEN",
@@ -83,6 +87,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
 
         case ToolbarButtonType.PIVOT: {return <PivotIcon />}
         case ToolbarButtonType.GRAPH: {return <GraphIcon />}
+        case ToolbarButtonType.AI_TRANSFORMATION: {return <AIIcon />}
 
         case ToolbarButtonType.CATCH_UP: {return <CatchUpIcon />}
         case ToolbarButtonType.STEPS: {return <StepsIcon />}

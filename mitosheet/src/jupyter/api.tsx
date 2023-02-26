@@ -5,7 +5,7 @@ import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
-import { CompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
+import { AICompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -729,7 +729,7 @@ export default class MitoAPI {
     
     async getAICompletion(
         user_input: string, 
-        selection: CompletionSelection | undefined
+        selection: AICompletionSelection | undefined
     ): Promise<
         {error: string} | 
         {

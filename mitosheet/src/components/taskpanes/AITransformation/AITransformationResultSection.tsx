@@ -27,6 +27,14 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
         return <></>
     }
 
+    const logParams: Record<string, unknown> = {
+        prompt_version: props.params.prompt_version,
+        // Do a little work to avoid length limits
+        prompt: props.params.prompt.split('\n'),
+        completion: props.params.completion.split('\n'),
+        edited_completion: props.params.edited_completion.split('\n')
+    }
+
     return (
         <>
             {result.last_line_value !== undefined && result.last_line_value !== null && 
@@ -48,7 +56,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numColumns} column, {numRows} rows)
+                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} column)
                     </div>
                 )
             })}
@@ -67,7 +75,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                             }}>
                             <span className="text-bold">Modified:</span> <span className="text-underline">{dfName}</span> 
                         </div>
-                        {columnReconData.added_columns.map((ch, index) => {
+                        {columnReconData.created_columns.map((ch, index) => {
                             return <div key={dfName + 'added' + index} className="ml-5px">Added column: {getDisplayColumnHeader(ch)}</div>
                         })}
                         {columnReconData.modified_columns.map((ch, index) => {
@@ -76,7 +84,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                         {Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
                             return <div key={dfName + 'renamed' + index} className="ml-5px">Renamed column: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
                         })}
-                        {columnReconData.removed_columns.map((ch, index) => {
+                        {columnReconData.deleted_columns.map((ch, index) => {
                             return <div key={dfName + 'removed' + index} className="ml-5px">Deleted column: {getDisplayColumnHeader(ch)}</div>
                         })}
                     </div>
@@ -107,9 +115,10 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 className={classNames("ai-transformation-feedback-button", {'ai-transformation-feedback-button-selected': sentFeedback === 'Up'})}
                                 onClick={() => {
                                     setSentFeedback('Up');
+                                    
                                     void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Up',
-                                        ...props.params
+                                        ...logParams
                                     })
                                 }}
                             >
@@ -123,7 +132,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     setSentFeedback('Down')
                                     void props.mitoAPI.log('ai_transformation_feedback', {
                                         'feedback': 'Down',
-                                        ...props.params
+                                        ...logParams
                                     })
                                 }}
                             >

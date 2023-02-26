@@ -155,6 +155,7 @@
 .toolbar-button-label {
   font-size: 11px;
   height: 13px;
+  text-align: center !important;
 }
 
 .toolbar-vertical-line {

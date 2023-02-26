@@ -60,6 +60,11 @@ const TextArea = (props: {
         * @param [className] - Optional class to apply to the text area
     */
     className?: string;
+
+    /** 
+        * @param [onKeyDown] - Function to be called when a key is pressed down
+    */
+    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }): JSX.Element => {
 
     // Create better default values to handle optional params 
@@ -80,6 +85,7 @@ const TextArea = (props: {
             placeholder={props.placeholder}
             value={props.value}
             disabled={props.disabled}
+            onKeyDown={props.onKeyDown}
         />
     )
 } 

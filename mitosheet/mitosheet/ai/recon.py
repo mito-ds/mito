@@ -2,10 +2,10 @@ import ast
 import traceback
 from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
-
+import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mitosheet.ai.ai_utils import get_code_string_from_last_expression
+from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression
 
 from mitosheet.errors import make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
@@ -144,14 +144,17 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
 
     return {
-        'added_columns': added_columns,
-        'removed_columns': removed_columns,
+        'created_columns': added_columns,
+        'deleted_columns': removed_columns,
         'modified_columns': modified_columns,
         'renamed_columns': renamed_columns,
     }
 
 
 def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
+
+    # Fix up the code, so we can ensure that we execute it properly
+    code = fix_up_missing_imports(code)
 
     # Make deep copies of all dataframes here, so we can manipulate them without fear
     # TODO: in the future, we could just do the modified ones
@@ -177,10 +180,10 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
         modified_dataframes_column_recons[df_name] = column_recon
 
         # Add new columns to the state
-        new_state.add_columns_to_state(sheet_index, column_recon['added_columns'])
+        new_state.add_columns_to_state(sheet_index, column_recon['created_columns'])
 
         # Delete removed columns from the state
-        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['removed_columns'])
+        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['deleted_columns'])
         delete_column_ids(new_state, sheet_index, deleted_column_ids)
 
         # Rename renamed columns in the state
@@ -197,7 +200,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
 
         # If we get a series, we turn it into a dataframe for the user
         if isinstance(last_line_expression_value, pd.Series):
-            last_line_expression_value = pd.DataFrame(last_line_expression_value, index=last_line_expression_value)
+            last_line_expression_value = pd.DataFrame(last_line_expression_value, index=last_line_expression_value.index)
 
         new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
         # We also need to add this to the list of created dataframes, as we didn't know it's name till now
@@ -205,8 +208,12 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
 
     # If the last line value is a primitive, we return it as a result for the frontend
     result_last_line_value = None
-    if isinstance(last_line_expression_value, str) or isinstance(last_line_expression_value, bool) or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float):
+    if isinstance(last_line_expression_value, str) or isinstance(last_line_expression_value, bool) \
+        or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float) \
+            or isinstance(last_line_expression_value, np.number):
         result_last_line_value = last_line_expression_value
+
+
 
     frontend_result: AITransformFrontendResult = {
         'last_line_value': result_last_line_value,
