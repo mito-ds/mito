@@ -28,6 +28,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: Setup Auth for PyPi
         run: |
           echo -e "[distutils]" >> ~/.pypirc

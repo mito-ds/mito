@@ -74,6 +74,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: Setup Auth for PyPi
         run: |
           echo -e "[distutils]" >> ~/.pypirc
@@ -121,6 +124,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: Setup Auth for PyPi
         run: |
           echo -e "[distutils]" >> ~/.pypirc
