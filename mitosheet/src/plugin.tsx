@@ -337,6 +337,11 @@ function activateMitosheetExtension(
             // First, get the mito container that this element is a part of
             const mitoContainer = getParentMitoContainer();
 
+            // If we are in an input or text, we don't actually do the undo, as it's handled in the input
+            if (document.activeElement?.tagName.toLowerCase() === 'input' || document.activeElement?.tagName.toLowerCase() === 'textarea') {
+                return;
+            }
+
             // Get the undo button, and click it
             const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
             undoButton?.click()
@@ -354,6 +359,11 @@ function activateMitosheetExtension(
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
             const mitoContainer = getParentMitoContainer();
+
+            // If we are in an input or text, we don't actually do the undo, as it's handled in the input
+            if (document.activeElement?.tagName.toLowerCase() === 'input' || document.activeElement?.tagName.toLowerCase() === 'textarea') {
+                return;
+            }
 
             // Get the undo button, and click it
             const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;

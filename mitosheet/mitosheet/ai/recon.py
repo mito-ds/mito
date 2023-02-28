@@ -2,17 +2,19 @@ import ast
 import traceback
 from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
-
+import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mitosheet.errors import make_exec_error
+from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression
 
+from mitosheet.errors import make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.column_steps.delete_column import \
     delete_column_ids
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
-from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
+from mitosheet.types import (AITransformFrontendResult, ColumnHeader,
+                             ColumnReconData, DataframeReconData)
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -20,20 +22,6 @@ def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
         return False
     except AssertionError:
         return True
-
-def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
-    code_lines = code.splitlines()
-    # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
-    # we can actually get the line with our slice. Also, on earlier versions of Python, the end_lineno is
-    # not defined; thus, we must access it through the attribute getter
-    lineno = last_expression.lineno - 1
-    end_lineno = last_expression.__dict__.get('end_lineno', None)
-    if end_lineno is not None:
-        end_lineno -= 1
-        if end_lineno == lineno:
-            end_lineno += 1
-    relevant_lines = code_lines[lineno:end_lineno] 
-    return "\n".join(relevant_lines)
 
 def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> DataframeReconData:
     """
@@ -156,14 +144,17 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
 
     return {
-        'added_columns': added_columns,
-        'removed_columns': removed_columns,
+        'created_columns': added_columns,
+        'deleted_columns': removed_columns,
         'modified_columns': modified_columns,
         'renamed_columns': renamed_columns,
     }
 
 
-def exec_and_get_new_state_and_last_line_expression_value(state: State, code: str) -> Tuple[State, Optional[Any]]:
+def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
+
+    # Fix up the code, so we can ensure that we execute it properly
+    code = fix_up_missing_imports(code)
 
     # Make deep copies of all dataframes here, so we can manipulate them without fear
     # TODO: in the future, we could just do the modified ones
@@ -181,16 +172,18 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
         delete_dataframe_from_state(new_state, new_state.df_names.index(df_name))
     
     # For modified dataframes, we update all the column variables
+    modified_dataframes_column_recons: Dict[str, ColumnReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
         old_df = df_map[df_name]
         column_recon = get_column_recon_data(old_df, new_df)
+        modified_dataframes_column_recons[df_name] = column_recon
 
         # Add new columns to the state
-        new_state.add_columns_to_state(sheet_index, column_recon['added_columns'])
+        new_state.add_columns_to_state(sheet_index, column_recon['created_columns'])
 
         # Delete removed columns from the state
-        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['removed_columns'])
+        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['deleted_columns'])
         delete_column_ids(new_state, sheet_index, deleted_column_ids)
 
         # Rename renamed columns in the state
@@ -202,11 +195,34 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
         new_state.dfs[sheet_index] = new_df
 
     # For the last value, if is a dataframe, then add it to the state as well
-    # TODO: we have to take special care to handle this in the generated code (maybe we want to do it in one place?)
-    if isinstance(recon_data['last_line_expression_value'], pd.DataFrame):
-        new_state.add_df_to_state(recon_data['last_line_expression_value'], DATAFRAME_SOURCE_AI)
+    last_line_expression_value = recon_data['last_line_expression_value']
+    if isinstance(last_line_expression_value, pd.DataFrame) or isinstance(last_line_expression_value, pd.Series):
 
-    return (new_state, recon_data['last_line_expression_value'])
+        # If we get a series, we turn it into a dataframe for the user
+        if isinstance(last_line_expression_value, pd.Series):
+            last_line_expression_value = pd.DataFrame(last_line_expression_value, index=last_line_expression_value.index)
+
+        new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
+        # We also need to add this to the list of created dataframes, as we didn't know it's name till now
+        recon_data['created_dataframes'][new_state.df_names[-1]] = last_line_expression_value
+
+    # If the last line value is a primitive, we return it as a result for the frontend
+    result_last_line_value = None
+    if isinstance(last_line_expression_value, str) or isinstance(last_line_expression_value, bool) \
+        or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float) \
+            or isinstance(last_line_expression_value, np.number):
+        result_last_line_value = last_line_expression_value
+
+
+
+    frontend_result: AITransformFrontendResult = {
+        'last_line_value': result_last_line_value,
+        'created_dataframe_names': list(recon_data['created_dataframes'].keys()),
+        'deleted_dataframe_names': recon_data['deleted_dataframes'],
+        'modified_dataframes_column_recons': modified_dataframes_column_recons,
+    }
+
+    return (new_state, recon_data['last_line_expression_value'], frontend_result)
 
         
         

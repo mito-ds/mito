@@ -343,6 +343,14 @@ export const getColumnHeadersInSelection = (selection: MitoSelection, sheetData:
     return columnHeaders;
 }
 
+export const getColumnHeadersInSelections = (selections: MitoSelection[], sheetData: SheetData): (ColumnHeader)[] => {
+    let columnHeaders: ColumnHeader[] = [];
+    selections.forEach(selection => {
+        columnHeaders = columnHeaders.concat(getColumnHeadersInSelection(selection, sheetData));
+    })
+    return columnHeaders;
+}
+
 export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: SheetData): (IndexLabel)[] => {
     const min = Math.min(selection.startingRowIndex, selection.endingRowIndex)
     const max = Math.max(selection.startingRowIndex, selection.endingRowIndex)
@@ -353,6 +361,14 @@ export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: S
         indexLabels.push(sheetData.index[i])
     }
 
+    return indexLabels;
+}
+
+export const getIndexLabelsInSelections = (selections: MitoSelection[], sheetData: SheetData): (IndexLabel)[] => {
+    let indexLabels: (IndexLabel)[] = [];
+    selections.forEach(selection => {
+        indexLabels = indexLabels.concat(getIndexLabelsInSelection(selection, sheetData));
+    })
     return indexLabels;
 }
 

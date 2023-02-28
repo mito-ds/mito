@@ -45,7 +45,6 @@ class SetDataframeFormatStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            # 'result': {} # There is no result for this step
         }
 
     @classmethod

@@ -78,9 +78,6 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'new_sheet_index_to_df_range': sheet_index_to_df_range,
-            'result': {
-                # TODO: fill in the result, when we make the frontend
-            }
         }
 
     @classmethod

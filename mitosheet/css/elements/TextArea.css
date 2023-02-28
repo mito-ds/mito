@@ -9,10 +9,18 @@
     box-sizing: border-box;
 }
 
+.text-area:focus {
+    border-color: var(--mito-medium-purple);
+}
+
+.text-area-dark-border {
+    border: 1px solid #ACACAD;
+}
+
 .text-area::placeholder {
     color: var(--mito-medium-gray)
 }
 
-.text-area:hover {
+.text-area:hover:not(:disabled) {
     border-color: var(--mito-medium-purple)
 }

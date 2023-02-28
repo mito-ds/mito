@@ -104,7 +104,7 @@ The dataframe {current_selection['selected_df_name']} is currently selected.
 
     return input_data_string
 
-def get_example_string(current_selection: Optional[Selection]) -> str:
+def get_example_string(df_names: List[str], current_selection: Optional[Selection]) -> str:
 
     # TODO: If there is a previous edit in the mitosheet, we could use this as the example, as it's about as in-context as you can get
 
@@ -116,10 +116,11 @@ Code:
 {current_selection['selected_df_name']}.replace(1, 2, inplace=True)
 ```"""
     else:
-        return f"""Transformation: replace 1 with 2 in df
+        df_name = df_names[0] if len(df_names) > 0 else 'df'
+        return f"""Transformation: replace 1 with 2 in {df_name}
 Code:
 ```
-df.replace(1, 2, inplace=True)
+{df_name}.replace(1, 2, inplace=True)
 ```"""
 
 
@@ -127,7 +128,7 @@ def get_prompt(df_names: List[str], dfs: List[pd.DataFrame], current_selection: 
 
     if len(dfs) > 0:
         input_data_string = get_input_data_string(df_names, dfs, current_selection)
-        example_string = get_example_string(current_selection)
+        example_string = get_example_string(df_names, current_selection)
 
         return f"""You are a pandas developer who is working with the following dataframes.
 
