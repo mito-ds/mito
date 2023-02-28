@@ -35,7 +35,8 @@ from mitosheet.step_performers import (
     ExcelRangeImportStepPerformer,
     ExportToFileStepPerformer,
     ResetIndexStepPerformer,
-    SnowflakeImportStepPerformer
+    SnowflakeImportStepPerformer,
+    AITransformationStepPerformer
 )
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
@@ -300,4 +301,10 @@ def test_params_static():
         'snowflake_import'
     )
 
-    assert len(STEP_PERFORMERS) == 36
+    check_step(
+        AITransformationStepPerformer,
+        1,
+        'ai_transformation'
+    )
+
+    assert len(STEP_PERFORMERS) == 37

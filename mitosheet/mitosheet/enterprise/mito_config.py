@@ -17,6 +17,7 @@ MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMA
 MITO_CONFIG_CODE_SNIPPETS_VERSION  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION' 
 MITO_CONFIG_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
 MITO_CONFIG_DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
+MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -41,7 +42,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': None,
         'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
         'MITO_CONFIG_CODE_SNIPPETS_URL': None,
-        'MITO_CONFIG_DISABLE_TOURS': None
+        'MITO_CONFIG_DISABLE_TOURS': None,
+        'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT': None
     }
     """
     return {
@@ -50,7 +52,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None,
         MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
         MITO_CONFIG_CODE_SNIPPETS_URL: None,
-        MITO_CONFIG_DISABLE_TOURS: None
+        MITO_CONFIG_DISABLE_TOURS: None,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: None
     }
 
 """
@@ -94,7 +97,8 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
         MITO_CONFIG_CODE_SNIPPETS_VERSION,
         MITO_CONFIG_CODE_SNIPPETS_URL, 
-        MITO_CONFIG_DISABLE_TOURS
+        MITO_CONFIG_DISABLE_TOURS,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT
     ]
 }
 
@@ -144,7 +148,14 @@ class MitoConfig:
             return False
 
         disable_tours = is_env_variable_set_to_true(self.mec[MITO_CONFIG_DISABLE_TOURS])
-        return True if disable_tours else False
+        return disable_tours
+
+    def get_enable_snowflake_import(self) -> bool:
+        if self.mec is None or self.mec[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT] is None:
+            return False
+
+        enable_snowflake_import = is_env_variable_set_to_true(self.mec[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT])
+        return enable_snowflake_import
 
     def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_VERSION] is None:
@@ -195,6 +206,7 @@ class MitoConfig:
             MITO_CONFIG_VERSION: self.get_version(),
             MITO_CONFIG_SUPPORT_EMAIL: self.get_support_email(),
             MITO_CONFIG_DISABLE_TOURS: self.get_disable_tours(),
-            MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets()
+            MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets(),
+            MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.get_enable_snowflake_import()
         }
 

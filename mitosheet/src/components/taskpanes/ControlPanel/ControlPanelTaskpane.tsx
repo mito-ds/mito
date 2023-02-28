@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react';
 import "../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
 import MitoAPI from '../../../jupyter/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData } from '../../../types';
+import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
@@ -60,7 +60,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     const {columnHeader, columnID, columnFilters, columnDtype, columnFormat} = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
 
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
-    const [operator, setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
+    const [operator, _setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
     const [updateNumber, setUpdateNumber] = useState(0);
     const [stepID, setStepID] = useState('');
 
@@ -70,6 +70,14 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     const setFilters: React.Dispatch<React.SetStateAction<(FilterType | FilterGroupType)[]>> = useCallback(
         (args: any) => {
             _setFilters(args);
+            setUpdateNumber(old => old + 1)
+        },
+        [],
+    );
+
+    const setOperator: React.Dispatch<React.SetStateAction<Operator>> = useCallback(
+        (args: any) => {
+            _setOperator(args);
             setUpdateNumber(old => old + 1)
         },
         [],

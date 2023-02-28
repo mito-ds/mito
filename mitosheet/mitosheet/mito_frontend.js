@@ -23554,6 +23554,17 @@ ${finalCode}`;
       }
       return void 0;
     }
+    async getAICompletion(params) {
+      const resultString = await this.send({
+        "event": "api_call",
+        "type": "get_ai_completion",
+        "params": params
+      }, {});
+      if (resultString !== void 0 && resultString !== "") {
+        return JSON.parse(resultString);
+      }
+      return void 0;
+    }
     async _edit(edit_event_type, params, stepID) {
       const result = await this.send({
         "event": "edit_event",
@@ -23691,6 +23702,21 @@ ${finalCode}`;
         "params": {
           sheet_index,
           drop
+        }
+      }, {});
+    }
+    async editAiTransformation(user_input, prompt_version, prompt, completion, edited_completion) {
+      const stepID = getRandomId();
+      await this.send({
+        "event": "edit_event",
+        "type": "ai_transformation_edit",
+        "step_id": stepID,
+        "params": {
+          user_input,
+          prompt_version,
+          prompt,
+          completion,
+          edited_completion
         }
       }, {});
     }
@@ -24570,21 +24596,29 @@ ${finalCode}`;
 
   // src/components/elements/MitoProUpgradePrompt.tsx
   var import_react31 = __toESM(require_react());
-  var MitoProUpgradePrompt = (props) => {
-    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || "This is a Mito Pro feature. To access all Mito Pro functionality, please upgrade.")), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito Pro")));
+  var MitoUpgradePrompt = (props) => {
+    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito ", props.proOrEnterprise)));
   };
-  var MitoProUpgradePrompt_default = MitoProUpgradePrompt;
+  var MitoProUpgradePrompt_default = MitoUpgradePrompt;
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody.tsx
   var DefaultTaskpaneBody = (props) => {
-    var _a;
-    const promptUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
-    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, promptUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+    var _a, _b;
+    const shouldPromptProUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
+    const shouldPromptEnterpriseUpgrade = !((_b = props.userProfile) == null ? void 0 : _b.isEnterprise) && props.requiresEnterprise;
+    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, shouldPromptProUpgrade && /* @__PURE__ */ import_react32.default.createElement(
       MitoProUpgradePrompt_default,
       {
-        message: props.requiresProMessage
+        message: props.requiresProMessage,
+        proOrEnterprise: "Pro"
       }
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": promptUpgrade }) }, props.children));
+    ), shouldPromptEnterpriseUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+      MitoProUpgradePrompt_default,
+      {
+        message: props.requiresEnterpriseMessage,
+        proOrEnterprise: "Enterprise"
+      }
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade }) }, props.children));
   };
   var DefaultTaskpaneBody_default = DefaultTaskpaneBody;
 
@@ -28403,12 +28437,19 @@ ${finalCode}`;
     var _a, _b;
     const { columnHeader, columnID, columnFilters, columnDtype, columnFormat } = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
     const [filters, _setFilters] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.filters : []);
-    const [operator, setOperator] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
+    const [operator, _setOperator] = (0, import_react64.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
     const [updateNumber, setUpdateNumber] = (0, import_react64.useState)(0);
     const [stepID, setStepID] = (0, import_react64.useState)("");
     const setFilters = (0, import_react64.useCallback)(
       (args) => {
         _setFilters(args);
+        setUpdateNumber((old) => old + 1);
+      },
+      []
+    );
+    const setOperator = (0, import_react64.useCallback)(
+      (args) => {
+        _setOperator(args);
         setUpdateNumber((old) => old + 1);
       },
       []
@@ -30760,7 +30801,7 @@ ${finalCode}`;
           setEditorState(void 0);
           setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise: "Pro" },
               selectedTabType: "data"
             });
           });
@@ -30984,6 +31025,18 @@ ${finalCode}`;
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
         proAction: true
+      },
+      ["AI_Transformation" /* AI_TRANSFORMATION */]: {
+        type: "AI_Transformation" /* AI_TRANSFORMATION */,
+        shortTitle: "AI Transformation",
+        longTitle: "AI Transformation",
+        actionFunction: () => {
+        },
+        isDisabled: () => {
+          return "This feature is in closed beta. Email aaron@sagacollab.com for access.";
+        },
+        searchTerms: ["AI Transformation"],
+        tooltip: "AI Transformation"
       },
       ["abs" /* ABS */]: getSpreadsheetFormulaAction(
         "abs" /* ABS */,
@@ -34308,7 +34361,7 @@ ${finalCode}`;
           });
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise: "Pro" },
               selectedTabType: "data"
             });
           });
@@ -36911,7 +36964,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         );
       })
-    ))), /* @__PURE__ */ import_react151.default.createElement(
+    ))), props.error !== void 0 && props.error.includes("filter") && /* @__PURE__ */ import_react151.default.createElement("p", { className: "text-color-error" }, props.error), /* @__PURE__ */ import_react151.default.createElement(
       PivotInvalidSelectedColumnsError_default,
       {
         columnIDsMap,
@@ -36973,7 +37026,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/taskpanes/PivotTable/PivotTaskpane.tsx
   var PivotTaskpane = (props) => {
-    const { params, setParams } = useLiveUpdatingParams_default(
+    const { params, setParams, error } = useLiveUpdatingParams_default(
       () => getDefaultPivotParams(props.sheetDataArray, props.sourceSheetIndex, props.existingPivotParams),
       "pivot" /* Pivot */,
       props.mitoAPI,
@@ -36998,7 +37051,7 @@ fig.write_html("${props.graphTabName}.html")`
         header: props.destinationSheetIndex ? `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` : `Create Pivot Table ${props.dfNames[props.dfNames.length - 1]}`,
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react152.default.createElement(
+    ), /* @__PURE__ */ import_react152.default.createElement(DefaultTaskpaneBody_default, null, error !== void 0 && !error.includes("filter") && /* @__PURE__ */ import_react152.default.createElement("p", { className: "text-color-error" }, error), /* @__PURE__ */ import_react152.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to pivot",
@@ -37043,6 +37096,7 @@ fig.write_html("${props.graphTabName}.html")`
     )), /* @__PURE__ */ import_react152.default.createElement("div", { className: "default-taskpane-body-section-div" }, /* @__PURE__ */ import_react152.default.createElement(
       PivotTableFilterSection_default,
       {
+        error,
         sheetData,
         params,
         setParams,
@@ -38436,149 +38490,160 @@ fig.write_html("${props.graphTabName}.html")`
         header: "Import from Snowflake",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react168.default.createElement(DefaultTaskpaneBody_default, { userProfile: props.userProfile, requiresPro: true }, /* @__PURE__ */ import_react168.default.createElement(
-      AuthenticateToSnowflakeCard_default,
+    ), /* @__PURE__ */ import_react168.default.createElement(
+      DefaultTaskpaneBody_default,
       {
-        mitoAPI: props.mitoAPI,
-        defaultCredentials: props.userProfile.snowflakeCredentials,
-        onValidCredentials: () => {
-          setCredentialsSectionIsOpen(false);
-          setValidCredentials(true);
-          void loadAndSetOptionsAndDefaults(params);
-        },
-        onInvalidCredentials: () => {
-          setValidCredentials(false);
-          setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams7());
-          setAvailableSnowflakeOptionsAndDefaults(void 0);
-        },
-        isOpen: credentialsSectionIsOpen
-      }
-    ), /* @__PURE__ */ import_react168.default.createElement(Spacer_default, { px: 20 }), /* @__PURE__ */ import_react168.default.createElement(
-      CollapsibleSection_default,
-      {
-        title: /* @__PURE__ */ import_react168.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Configure Query"),
-        open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
+        userProfile: props.userProfile,
+        requiresEnterprise: !props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"]
       },
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
+      /* @__PURE__ */ import_react168.default.createElement(
+        AuthenticateToSnowflakeCard_default,
         {
-          width: "medium",
-          value: params.table_loc_and_warehouse.warehouse || "None available",
+          mitoAPI: props.mitoAPI,
+          defaultCredentials: props.userProfile.snowflakeCredentials,
+          onValidCredentials: () => {
+            setCredentialsSectionIsOpen(false);
+            setValidCredentials(true);
+            void loadAndSetOptionsAndDefaults(params);
+          },
+          onInvalidCredentials: () => {
+            setValidCredentials(false);
+            setParamsWithoutRefreshOptionsAndDefaults(getDefaultParams7());
+            setAvailableSnowflakeOptionsAndDefaults(void 0);
+          },
+          isOpen: credentialsSectionIsOpen
+        }
+      ),
+      /* @__PURE__ */ import_react168.default.createElement(Spacer_default, { px: 20 }),
+      /* @__PURE__ */ import_react168.default.createElement(
+        CollapsibleSection_default,
+        {
+          title: /* @__PURE__ */ import_react168.default.createElement("div", { className: classNames("text-header-3", { "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Configure Query"),
+          open: (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success"
+        },
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Warehouse")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.warehouse || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newWarehouse) => {
+              setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
+              });
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.database || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newDatabase) => {
+              const newParams = getNewParams(params, newDatabase);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.schema || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newSchema) => {
+              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
+          }) : []
+        ))),
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: params.table_loc_and_warehouse.table || "None available",
+            disabled: loadingAvailableOptionsAndDefaults,
+            onChange: (newTable) => {
+              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
+              setParamsAndRefreshOptionsAndDefaults(newParams);
+            }
+          },
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
+          }) : []
+        ))),
+        loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null))
+      ),
+      (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react168.default.createElement("div", null, /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react168.default.createElement(
+        MultiToggleBox_default,
+        {
           disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newWarehouse) => {
+          height: "medium",
+          onToggleAll: (newSelectedIndexes) => {
             setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-              return updateObjectWithPartialObject(prevParams, { table_loc_and_warehouse: { warehouse: newWarehouse } });
+              const newColumns = newSelectedIndexes.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
+              return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
             });
           }
         },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.warehouses.map((warehouse) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: warehouse, id: warehouse, title: warehouse });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Database")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
+        availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
+          const isToggled = params.query_params.columns.includes(column);
+          return /* @__PURE__ */ import_react168.default.createElement(
+            MultiToggleItem_default,
+            {
+              key: column,
+              title: column,
+              toggled: isToggled,
+              onToggle: () => {
+                setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+                  const newColumns = [...prevParams.query_params.columns];
+                  toggleInArray(newColumns, column);
+                  return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
+                });
+              },
+              index
+            }
+          );
+        })
+      ), /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between", align: "center", title: LIMIT_TOOLTIP }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(LabelAndTooltip_default, { tooltip: LIMIT_TOOLTIP }, "Limit")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+        Input_default,
         {
           width: "medium",
-          value: params.table_loc_and_warehouse.database || "None available",
+          value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
+          placeholder: "100000",
           disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newDatabase) => {
-            const newParams = getNewParams(params, newDatabase);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
+          onChange: (e) => {
+            let newLimitNumber = parseInt(e.target.value);
+            if (isNaN(newLimitNumber)) {
+              newLimitNumber = void 0;
+            }
+            setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
+              return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
+            });
           }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.databases.map((database) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: database, id: database, title: database });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Schema")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
-        {
-          width: "medium",
-          value: params.table_loc_and_warehouse.schema || "None available",
-          disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newSchema) => {
-            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
-          }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.schemas.map((schema) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
-        }) : []
-      ))),
-      /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-        Select_default,
-        {
-          width: "medium",
-          value: params.table_loc_and_warehouse.table || "None available",
-          disabled: loadingAvailableOptionsAndDefaults,
-          onChange: (newTable) => {
-            const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
-            setParamsAndRefreshOptionsAndDefaults(newParams);
-          }
-        },
-        (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
-          return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
-        }) : []
-      ))),
-      loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null))
-    ), (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" && /* @__PURE__ */ import_react168.default.createElement("div", null, /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "start" }, /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-header-3" }, "Columns to Import")), /* @__PURE__ */ import_react168.default.createElement(
-      MultiToggleBox_default,
-      {
-        disabled: loadingAvailableOptionsAndDefaults,
-        height: "medium",
-        onToggleAll: (newSelectedIndexes) => {
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            const newColumns = newSelectedIndexes.map((index) => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
-            return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
-          });
         }
-      },
-      availableSnowflakeOptionsAndDefaults.config_options.columns.map((column, index) => {
-        const isToggled = params.query_params.columns.includes(column);
-        return /* @__PURE__ */ import_react168.default.createElement(
-          MultiToggleItem_default,
-          {
-            key: column,
-            title: column,
-            toggled: isToggled,
-            onToggle: () => {
-              setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-                const newColumns = [...prevParams.query_params.columns];
-                toggleInArray(newColumns, column);
-                return updateObjectWithPartialObject(prevParams, { query_params: { columns: newColumns } });
-              });
-            },
-            index
-          }
-        );
-      })
-    ), /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between", align: "center", title: LIMIT_TOOLTIP }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(LabelAndTooltip_default, { tooltip: LIMIT_TOOLTIP }, "Limit")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
-      Input_default,
-      {
-        width: "medium",
-        value: ((_a = params.query_params.limit) == null ? void 0 : _a.toString()) || "",
-        placeholder: "100000",
-        disabled: loadingAvailableOptionsAndDefaults,
-        onChange: (e) => {
-          let newLimitNumber = parseInt(e.target.value);
-          if (isNaN(newLimitNumber)) {
-            newLimitNumber = void 0;
-          }
-          setParamsWithoutRefreshOptionsAndDefaults((prevParams) => {
-            return updateObjectWithPartialObject(prevParams, { query_params: { limit: newLimitNumber } });
-          });
-        }
-      }
-    ))), executingQuery && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-color-error" }, error)), /* @__PURE__ */ import_react168.default.createElement(Row_default, null, /* @__PURE__ */ import_react168.default.createElement(
-      TextButton_default,
-      {
-        disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
-        disabledTooltip: "Fill out all required fields",
-        onClick: () => edit(),
-        variant: "dark"
-      },
-      "Run Query"
-    ))));
+      ))), executingQuery && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Executing query"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null)), error !== void 0 && /* @__PURE__ */ import_react168.default.createElement("p", { className: "text-color-error" }, error)),
+      /* @__PURE__ */ import_react168.default.createElement(Row_default, null, /* @__PURE__ */ import_react168.default.createElement(
+        TextButton_default,
+        {
+          disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
+          disabledTooltip: "Fill out all required fields",
+          onClick: () => edit(),
+          variant: "dark"
+        },
+        "Run Query"
+      ))
+    ));
   };
   var SnowflakeImportTaskpane_default = SnowflakeImportTaskpane;
 
@@ -39257,6 +39322,9 @@ fig.write_html("${props.graphTabName}.html")`
       case "reset_index" /* ResetIndex */: {
         return "Resetting Index";
       }
+      case "ai_transformation" /* AiTransformation */: {
+        return "AI Transformation";
+      }
       case "undo" /* Undo */: {
         return "Undoing previous edit";
       }
@@ -39570,10 +39638,10 @@ fig.write_html("${props.graphTabName}.html")`
       return /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react198.default.createElement(
         DefaultTaskpaneHeader_default,
         {
-          header: "Welcome to Mito Pro!",
+          header: `Welcome to Mito ${props.proOrEnterprise}!`,
           setUIState: props.setUIState
         }
-      ), /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react198.default.createElement("p", { className: "text-heading-4 mb-10px" }, "You've successfully upgraded to Mito Pro. You can cancel any time by sending us an email."), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All future pro functionality!" })));
+      ), /* @__PURE__ */ import_react198.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react198.default.createElement("p", { className: "text-heading-4 mb-10px" }, props.proOrEnterprise === "Pro" ? "You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email." : "Mito Enterprise is the fastest way to automate any Python analysis."), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "All telemetry is off" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Generated code is being optimized" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Style graphs" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Format dataframes" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Export formatting" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: "Get priority support" }), /* @__PURE__ */ import_react198.default.createElement(ProListElement, { text: `All future ${props.proOrEnterprise} functionality!` })));
     }
   };
   var UpgradeToProTaskpane_default = UpgradeToProTaskpane;
@@ -39585,6 +39653,15 @@ fig.write_html("${props.graphTabName}.html")`
   var import_react199 = __toESM(require_react());
   var PlanButton = (props) => {
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0;
+    let displayMessage = "Upgrade to Mito Pro";
+    let proOrEnterprise = "Pro";
+    if (props.userProfile.isPro) {
+      displayMessage = "Mito Pro";
+    }
+    if (props.userProfile.isEnterprise) {
+      displayMessage = "Mito Enterprise";
+      proOrEnterprise = "Enterprise";
+    }
     return /* @__PURE__ */ import_react199.default.createElement(
       "div",
       {
@@ -39598,13 +39675,13 @@ fig.write_html("${props.graphTabName}.html")`
           }
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */ },
+              currOpenTaskpane: { type: "upgrade_to_pro" /* UPGRADE_TO_PRO */, proOrEnterprise },
               selectedTabType: "data"
             });
           });
         }
       },
-      props.userProfile.isPro ? "Mito Pro" : "Upgrade to Mito Pro"
+      displayMessage
     );
   };
   var PlanButton_default = PlanButton;
@@ -40993,7 +41070,8 @@ fig.write_html("${props.graphTabName}.html")`
             {
               mitoAPI,
               userProfile: userProfile2,
-              setUIState
+              setUIState,
+              proOrEnterprise: uiState.currOpenTaskpane.proOrEnterprise
             }
           );
         case "download" /* DOWNLOAD */:

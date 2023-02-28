@@ -36,7 +36,7 @@ export type PivotTaskpaneProps = {
 
 const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
-    const {params, setParams} = useLiveUpdatingParams(
+    const {params, setParams, error} = useLiveUpdatingParams(
         () => getDefaultPivotParams(props.sheetDataArray, props.sourceSheetIndex, props.existingPivotParams),
         StepType.Pivot,
         props.mitoAPI, props.analysisData, 0, 
@@ -68,6 +68,9 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
+                {error !== undefined && !error.includes("filter") &&
+                    <p className='text-color-error'>{error}</p>
+                }
                 <DataframeSelect
                     title='Dataframe to pivot'
                     sheetDataArray={props.sheetDataArray}
@@ -111,6 +114,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
                 </div>
                 <div className='default-taskpane-body-section-div'>
                     <PivotTableFilterSection
+                        error={error}
                         sheetData={sheetData}
                         params={params}
                         setParams={setParams}

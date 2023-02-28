@@ -424,7 +424,23 @@ def make_invalid_pivot_error() -> MitoError:
     return MitoError(
         'invalid_pivot_error',
         'Pivot Error',
-        f'Sorry, there was an error computing your pivot. Please try a different pivot!'
+        f'Sorry, there was an error computing your pivot. Please try a different pivot!',
+        error_modal=False
+    )
+
+def make_invalid_pivot_filter_error(column_header: ColumnHeader, filter_condition: str) -> MitoError:
+    """
+    Helper function for creating a invalid_pivot_filter_error.
+
+    Occurs when:
+    -  the user runs a pivot that is invalid in some way.
+    """
+    # TODO: this to_fix message is _just terrible_
+    return MitoError(
+        'invalid_pivot_filter_error',
+        'Pivot Error',
+        f'Sorry, the filter {filter_condition} on {column_header} is invalid. This is likely due to incompatible dtypes. Try changing the filter condition or column dtype.',
+        error_modal=False
     )
 
 
@@ -604,6 +620,19 @@ def make_invalid_range_error(range: str, error_modal: bool) -> MitoError:
         'Invalid Range',
         f'Range {range} is not in the format A1:B3. Please update to COLUMNROW:COLUMNROW.',
         error_modal=error_modal
+    )
+
+def make_exec_error(e: Exception) -> MitoError:
+    """
+    Helper function for creating a make_exec_error, which captures an error that
+    occurs inside of exec (from AI generated code).
+    """
+
+    return MitoError(
+        'make_exec_error',
+        'Exec Error',
+        f'{type(e).__name__}: {e}',
+        error_modal=False
     )
 
 def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:

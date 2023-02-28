@@ -35,6 +35,9 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
     - name: Install dependencies
       run: |
         cd mitosheet
@@ -54,3 +57,4 @@ jobs:
         PYTEST_SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         PYTEST_SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
         PYTEST_SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
