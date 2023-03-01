@@ -46,6 +46,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "[", "column_header_index": -1}}]
         }
     ),
@@ -57,6 +58,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": [get_column_header_id("Median_Income")], "new_dtype": "int", "old_dtypes": {get_column_header_id("Median_Income"): "float64"}}}]
         }
     ),
@@ -68,6 +70,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip"), "new_column_header": "Zip1"}}]
         }
     ),
@@ -79,6 +82,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "reorder_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip1"), "new_column_index": 2}}]
         }
     ),
@@ -90,6 +94,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "D", "column_header_index": -1}}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "E", "column_header_index": -1}}, {"step_version": 4, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("D"), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}]
         }
     ),
@@ -101,6 +106,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("Name"), get_column_header_id("Name")]], "selected_column_ids_one": get_column_header_ids(["Name", "Number"]), "selected_column_ids_two": get_column_header_ids(["Name", "Sign"])}}, {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 2, "column_id": get_column_header_id("Number"), "sort_direction": "descending"}}]
         },
     ),
@@ -112,6 +118,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 0, "column_id": get_column_header_id("String"), "sort_direction": "ascending"}}]
         },
     ),
@@ -124,6 +131,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}]
         }
     ), 
@@ -136,6 +144,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": "B", "column_header_index": -1}}, {"step_version": 4, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("B"), "formula_label": 0, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "old_formula": "=0", "new_formula": "=1"}}, {"step_version": 8, "step_type": "pivot", 'params': {"flatten_column_headers": True, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [{'column_id': get_column_header_id("DORK"), 'transformation': 'no-op'}], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, ]
         },
     ), 
@@ -147,6 +156,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": 'New_Column_Header', "column_header_index": -1}}]
         },
     ), 
@@ -158,6 +168,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}]
         },
     ), 
@@ -169,6 +180,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "simple_import", 'params': {"file_names": ["NamesNew.csv"], "use_deprecated_id_algorithm": True}}, {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}]
         },
     ), 
@@ -180,6 +192,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"condition": "greater", "value": 1}, {"filters": [{"condition": "greater", "value": 2}, {"condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}]
         }
     ), 
@@ -191,6 +204,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}]
         },
     ), 
@@ -202,6 +216,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
         },
     ), 
@@ -223,6 +238,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("old"), get_column_header_id("new")]], "selected_column_ids_one": [get_column_header_id("old")], "selected_column_ids_two": [get_column_header_id("new")]}},
@@ -248,6 +264,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 1, "step_type": "dataframe_duplicate", "params": {"sheet_index": 0}}, 
@@ -274,6 +291,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "new"}}, 
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
@@ -298,6 +316,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [ 
                 {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}, 
                 {"step_version": 3, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": ["Date"], "new_dtype": "datetime", "old_dtypes": {"Date": "object"}}}, {"step_version": 2, "step_type": "add_column", "params": {"sheet_index": 0, "column_header": "new-column-9rkm", "column_header_index": 1}}, 
@@ -314,6 +333,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}]
         },
     ),
@@ -325,6 +345,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
+            "public_interface_version": 1,
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
         }
     ),
@@ -355,6 +376,7 @@ def test_doesnt_upgrade_updated_format():
 
     new = {
         "version": __version__, 
+        "public_interface_version": 1,
         "steps_data": [{"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}]
     }
     

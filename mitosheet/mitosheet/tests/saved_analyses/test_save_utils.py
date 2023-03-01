@@ -330,3 +330,18 @@ def test_save_replays_overwrite_by_ids_propererly():
     assert new_mito.dfs[1].equals(
         pd.DataFrame({'A': [1, 2, 3], 'A count': [1, 1, 1]})
     )
+
+def test_save_and_replay_different_interface_version_works():
+    mito = create_mito_wrapper([1, 2, 3])
+    mito.mito_backend.steps_manager.public_interface_version = 100
+
+    random_name = 'UUID-test_save' + str(random.random())
+    mito.save_analysis(random_name)
+
+    saved_analysis = read_and_upgrade_analysis(random_name)
+    assert len(saved_analysis['steps_data']) == 0
+
+    new_mito = create_mito_wrapper([1, 2, 3])
+    new_mito.replay_analysis(random_name)
+
+    assert mito.mito_backend.steps_manager.public_interface_version == 100

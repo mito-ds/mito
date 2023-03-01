@@ -308,6 +308,7 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     Notable, changes to the saved analysis take two types:
     1. Changes to the format of the saved analysis itself. 
     2. Changes to the format of the specific steps in the saved analysis.
+    3. Adds the public interface version and sets it to 1, if it's not already there
 
     See mitosheet/upgrade/schemas.py, but as we only have 1 format change
     in the saved analyses, we process the specific step upgrades first if
@@ -316,6 +317,9 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     saved_analysis = upgrade_steps_for_old_format(saved_analysis)
     new_format_saved_analysis = upgrade_saved_analysis_format_to_steps_data(saved_analysis)
     saved_analysis = upgrade_steps_for_new_format(new_format_saved_analysis)
+
+    if saved_analysis is not None and 'public_interface_version' not in saved_analysis:
+        saved_analysis['public_interface_version'] = 1
 
     return saved_analysis
     

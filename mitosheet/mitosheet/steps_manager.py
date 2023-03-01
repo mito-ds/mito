@@ -263,6 +263,9 @@ class StepsManager:
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
 
+        # The version of the public interface used by this analysis
+        self.public_interface_version = 1
+
     @property
     def curr_step(self) -> Step:
         """

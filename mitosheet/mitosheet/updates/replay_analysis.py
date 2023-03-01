@@ -99,6 +99,7 @@ def execute_replay_analysis_update(
 
     try:
         steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+        steps_manager.public_interface_version = analysis['public_interface_version']
     except:
         raise
 
