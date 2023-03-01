@@ -170,18 +170,11 @@ def make_steps_json_obj(
         if step_index in skipped_step_indexes:
             continue
 
-        # We don't want to save the public interface version in the step params, so we in-fact skip it here
-        # because it's already in the analysis
-        params = {
-            key: value for key, value in step.params.items()
-            if key != 'public_interface_version'
-        }
-
         # Save the step type
         step_summary = {
             'step_version': step.step_performer.step_version(),
             'step_type': step.step_type,
-            'params': params
+            'params': step.params
         }
 
         steps_json_obj.append(step_summary)                

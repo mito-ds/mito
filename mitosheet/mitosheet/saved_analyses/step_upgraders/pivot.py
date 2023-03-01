@@ -300,3 +300,45 @@ def upgrade_pivot_7_to_8(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
     
     return [step] + later_steps
 
+
+
+def upgrade_pivot_8_to_9(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Adds the public interface to the pivot step.
+
+    Old format: [
+        {
+            "step_version": 8, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                pivot_columns_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                values_column_ids_map: Dict[_id_, List[str]],
+                pivot_filters: {columnID: ColumnID, filter: FilterType}[]
+                destination_sheet_index: 1,
+                flatten_column_headers: True
+            }
+        },
+    ]
+
+    New format: [
+        {
+            "step_version": 9, 
+            "step_type": "pivot", 
+            "params": {
+                sheet_index: 0,
+                pivot_rows_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                pivot_columns_column_ids_with_transforms: {column_id: ColumnID, transformation: PivotColumnTransformation}[],
+                values_column_ids_map: Dict[_id_, List[str]],
+                pivot_filters: {columnID: ColumnID, filter: FilterType}[]
+                destination_sheet_index: 1,
+                flatten_column_headers: True,
+                public_interface_version: 1
+            }
+        },
+    ]
+    """
+    step['step_version'] = 9
+    step['params']['public_interface_version'] = 1
+    return [step] + later_steps
