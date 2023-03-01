@@ -127,7 +127,6 @@ def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], p
             'steps_data': steps_data,
             'public_interface_version': public_interface_version
         }
-
         f.write(json.dumps(saved_analysis, cls=NpEncoder))
 
 
@@ -171,11 +170,18 @@ def make_steps_json_obj(
         if step_index in skipped_step_indexes:
             continue
 
+        # We don't want to save the public interface version in the step params, so we in-fact skip it here
+        # because it's already in the analysis
+        params = {
+            key: value for key, value in step.params.items()
+            if key != 'public_interface_version'
+        }
+
         # Save the step type
         step_summary = {
             'step_version': step.step_performer.step_version(),
             'step_type': step.step_type,
-            'params': step.params
+            'params': params
         }
 
         steps_json_obj.append(step_summary)                
@@ -207,11 +213,3 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]
 
     # Actually write the file
     write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version)
-
-
-def register_analysis(analysis_name):
-    """
-    A helper function that is used in the frontend
-    to save which analysis is being run (so it can be replayed)
-    """
-    log('ran_generated_code', {'analysis_name': analysis_name}) 

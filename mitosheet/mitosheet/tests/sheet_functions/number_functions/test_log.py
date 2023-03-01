@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 from math import e
 
-from mitosheet.public_interfaces.v1.sheet_functions.number_functions import LOG
+from mitosheet.public.v1.sheet_functions.number_functions import LOG
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 LOG_VALID_TESTS = [

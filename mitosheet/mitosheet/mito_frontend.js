@@ -22584,7 +22584,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   };
 
   // src/utils/code.tsx
-  function getCodeString(analysisName, code, telemetryEnabled) {
+  var IMPORT_STATEMENTS = {
+    1: "from mitosheet.public.v1 import *",
+    2: "from mitosheet.public.v2 import *"
+  };
+  function getCodeString(analysisName, code, telemetryEnabled, publicInterfaceVersion) {
     if (code.length == 0) {
       return "";
     }
@@ -22600,11 +22604,12 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         finalCode += code[i] + "\n";
       }
     }
+    const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion];
     if (telemetryEnabled) {
-      return `from mitosheet.public_interfaces.v2 import *; register_analysis("${analysisName}");
+      return `${importStatement}; register_analysis("${analysisName}");
 ${finalCode}`;
     } else {
-      return `from mitosheet import *; # Analysis Name:${analysisName};
+      return `${importStatement}; # Analysis Name:${analysisName};
 ${finalCode}`;
     }
   }
@@ -22634,7 +22639,13 @@ ${finalCode}`;
     return lastLine.indexOf("sheet(") !== -1;
   }
   function isMitoAnalysisCode(codeText) {
-    return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet.public_interfaces.v2 import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:") || codeText.startsWith("from mitosheet.public_interfaces.v2 import *; # Analysis Name:");
+    let startsWithPublicVersionImport = false;
+    Object.values(IMPORT_STATEMENTS).forEach((importStatement) => {
+      if (codeText.startsWith(importStatement + "; register_analysis(") || codeText.startsWith(importStatement + "; # Analysis Name:")) {
+        startsWithPublicVersionImport = true;
+      }
+    });
+    return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:") || startsWithPublicVersionImport;
   }
   function containsMitosheetCallWithSpecificAnalysisToReplay(codeText, analysisName) {
     return codeText.includes("sheet(") && codeText.includes(`analysis_to_replay="${analysisName}"`);
@@ -22772,9 +22783,9 @@ ${finalCode}`;
       void mitoAPI.log("overwrite_analysis_to_replay_to_mitosheet_call_failed");
     }
   };
-  var notebookWriteGeneratedCodeToCell = (analysisName, codeLines, telemetryEnabled) => {
+  var notebookWriteGeneratedCodeToCell = (analysisName, codeLines, telemetryEnabled, publicInterfaceVersion) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
-    const code = getCodeString(analysisName, codeLines, telemetryEnabled);
+    const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
     const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(analysisName);
     if (mitosheetCallCellAndIndex === void 0) {
       return;
@@ -22863,16 +22874,17 @@ ${finalCode}`;
       console.error("Not detected as in Jupyter Notebook or JupyterLab");
     }
   };
-  var writeGeneratedCodeToCell = (analysisName, code, telemetryEnabled) => {
+  var writeGeneratedCodeToCell = (analysisName, code, telemetryEnabled, publicInterfaceVersion) => {
     var _a;
     if (isInJupyterLab()) {
       (_a = window.commands) == null ? void 0 : _a.execute("mitosheet:write-generated-code-cell", {
         analysisName,
         code,
-        telemetryEnabled
+        telemetryEnabled,
+        publicInterfaceVersion
       });
     } else if (isInJupyterNotebook()) {
-      notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled);
+      notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion);
     } else {
       console.error("Not detected as in Jupyter Notebook or JupyterLab");
     }
@@ -40863,7 +40875,7 @@ fig.write_html("${props.graphTabName}.html")`
     }, [mitoAPI, commCreationStatus]);
     (0, import_react222.useEffect)(() => {
       if (analysisData2.renderCount >= 1) {
-        writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled);
+        writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled, analysisData2.publicInterfaceVersion);
       }
     }, [analysisData2]);
     (0, import_react222.useEffect)(() => {

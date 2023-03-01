@@ -317,6 +317,7 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
+                "publicInterfaceVersion": self.public_interface_version,
                 "analysisToReplay": {
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,

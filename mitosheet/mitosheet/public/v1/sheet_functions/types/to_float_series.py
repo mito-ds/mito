@@ -13,7 +13,7 @@ import pandas as pd
 from mitosheet.is_type_utils import (
     is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
 from typing import Any
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import get_billion_identifier_in_string, get_million_identifier_in_string
+from mitosheet.public.v1.sheet_functions.types.utils import get_billion_identifier_in_string, get_million_identifier_in_string
 
 
 

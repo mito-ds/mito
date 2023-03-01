@@ -10,7 +10,7 @@ Contains tests for the DAY function.
 import pytest
 import pandas as pd
 
-from mitosheet.public_interfaces.v1.sheet_functions.date_functions import DAY
+from mitosheet.public.v1.sheet_functions.date_functions import DAY
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 DAY_TESTS = [

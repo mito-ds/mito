@@ -339,9 +339,27 @@ def test_save_and_replay_different_interface_version_works():
     mito.save_analysis(random_name)
 
     saved_analysis = read_and_upgrade_analysis(random_name)
+    assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
+    assert saved_analysis['public_interface_version'] == 100
+    print(saved_analysis)
 
     new_mito = create_mito_wrapper([1, 2, 3])
     new_mito.replay_analysis(random_name)
 
-    assert mito.mito_backend.steps_manager.public_interface_version == 100
+    assert new_mito.mito_backend.steps_manager.public_interface_version == 100
+
+def test_replay_failed_analysis_does_not_change_public_interface_version():
+    mito = create_mito_wrapper([1, 2, 3])
+    mito.delete_columns(0, ['A'])
+    mito.mito_backend.steps_manager.public_interface_version = 100
+
+    random_name = 'UUID-test_save' + str(random.random())
+    mito.save_analysis(random_name)
+
+    new_mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1, 2, 3]}))
+    starting_val = new_mito.mito_backend.steps_manager.public_interface_version
+    new_mito.replay_analysis(random_name)
+
+    assert new_mito.mito_backend.steps_manager.public_interface_version == starting_val
+    assert len(new_mito.optimized_code_chunks) == 0

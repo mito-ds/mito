@@ -316,10 +316,12 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     """
     saved_analysis = upgrade_steps_for_old_format(saved_analysis)
     new_format_saved_analysis = upgrade_saved_analysis_format_to_steps_data(saved_analysis)
-    saved_analysis = upgrade_steps_for_new_format(new_format_saved_analysis)
+    final_upgraded_saved_analysis = upgrade_steps_for_new_format(new_format_saved_analysis)
 
-    if saved_analysis is not None and 'public_interface_version' not in saved_analysis:
-        saved_analysis['public_interface_version'] = 1
+    # NOTE: upgrading above only takes certain keys, so we have to carry through the new public interface version manually
+    if saved_analysis is not None and final_upgraded_saved_analysis is not None and 'public_interface_version' in saved_analysis:
+        final_upgraded_saved_analysis['public_interface_version'] = saved_analysis['public_interface_version']
+    elif final_upgraded_saved_analysis is not None:
+        final_upgraded_saved_analysis['public_interface_version'] = 1
 
-    return saved_analysis
-    
+    return final_upgraded_saved_analysis

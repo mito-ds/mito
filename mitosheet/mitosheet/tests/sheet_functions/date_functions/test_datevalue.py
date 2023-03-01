@@ -10,7 +10,7 @@ Contains tests for the DATEVALUE function.
 import pytest
 import pandas as pd
 
-from mitosheet.public_interfaces.v1.sheet_functions.date_functions import DATEVALUE
+from mitosheet.public.v1.sheet_functions.date_functions import DATEVALUE
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 DATEVALUE_TESTS = [

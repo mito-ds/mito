@@ -97,10 +97,16 @@ def execute_replay_analysis_update(
     if len(step_import_data_list_to_overwrite) > 0:
         analysis = overwrite_import_data(analysis, step_import_data_list_to_overwrite)
 
+    previous_public_interface_version = steps_manager.public_interface_version
     try:
-        steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+        # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
+
+        steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
+
     except:
+        # If we error, reset the public interface version
+        steps_manager.public_interface_version = previous_public_interface_version
         raise
 
     # NOTE: We update the analysis name only if the new steps execute correctly,

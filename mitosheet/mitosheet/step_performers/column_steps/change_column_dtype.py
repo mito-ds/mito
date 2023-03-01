@@ -70,9 +70,9 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         )
 
         if public_interface_version == 1:
-            from mitosheet.public_interfaces.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+            from mitosheet.public.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
         else:
-            from mitosheet.public_interfaces.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+            from mitosheet.public.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0

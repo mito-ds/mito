@@ -9,7 +9,7 @@ For going to a datetime series.
 
 
 from typing import Any
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import get_datetime_format
+from mitosheet.public.v1.sheet_functions.types.utils import get_datetime_format
 
 import numpy as np
 import pandas as pd

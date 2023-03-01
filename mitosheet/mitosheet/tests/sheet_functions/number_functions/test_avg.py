@@ -12,7 +12,7 @@ import pandas as pd
 from statistics import mean
 import numpy as np
 
-from mitosheet.public_interfaces.v1.sheet_functions.number_functions import AVG
+from mitosheet.public.v1.sheet_functions.number_functions import AVG
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

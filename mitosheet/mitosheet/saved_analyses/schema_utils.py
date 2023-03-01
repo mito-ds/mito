@@ -69,7 +69,7 @@ def upgrade_saved_analysis_format_to_steps_data(saved_analysis: Optional[Dict[st
         
         return {
             'version': version,
-            'steps_data': new_steps_data
+            'steps_data': new_steps_data,
         }
     else:
         return saved_analysis

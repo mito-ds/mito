@@ -28,17 +28,17 @@ import pandas as pd
 
 # Public interface we want users to rely on
 from mitosheet.mito_backend import sheet
-from mitosheet.saved_analyses import register_analysis
+from mitosheet.public.v1 import register_analysis
 from mitosheet._version import __version__
 
 # NOTE: We always export v1 sheet functions and types as unqualified exports, as we did
 # this when we started Mito. This allows us to not break other users analyses
-from mitosheet.public_interfaces.v1.sheet_functions import *
-from mitosheet.public_interfaces.v1.sheet_functions.types import *
-from mitosheet.public_interfaces.v1.utils import flatten_column_header
+from mitosheet.public.v1.sheet_functions import *
+from mitosheet.public.v1.sheet_functions.types import *
+from mitosheet.public.v1.utils import flatten_column_header
 
 # Export the v2 interface
-import mitosheet.public_interfaces.v2 as v2
+import mitosheet.public.v2 as v2
 
 # We export depricated utilities, so that users can still use them if they used to
 from mitosheet.api.get_column_summary_graph import (

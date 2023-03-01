@@ -251,7 +251,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
-            writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled);
+            writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion);
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?

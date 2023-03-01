@@ -10,7 +10,7 @@ Contains tests for the PROPER function.
 import pytest
 import pandas as pd
 
-from mitosheet.public_interfaces.v1.sheet_functions.string_functions import PROPER
+from mitosheet.public.v1.sheet_functions.string_functions import PROPER
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

@@ -4,11 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from mitosheet.state import State
 import io
 from xmlrpc.client import boolean
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go

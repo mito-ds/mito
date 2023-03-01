@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from mitosheet.public_interfaces.v1.sheet_functions.number_functions import SKEW
+from mitosheet.public.v1.sheet_functions.number_functions import SKEW
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

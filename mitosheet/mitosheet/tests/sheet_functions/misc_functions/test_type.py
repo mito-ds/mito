@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import datetime
 
-from mitosheet.public_interfaces.v1.sheet_functions.misc_functions import TYPE
+from mitosheet.public.v1.sheet_functions.misc_functions import TYPE
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 TYPE_TESTS = [

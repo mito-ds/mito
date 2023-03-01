@@ -11,7 +11,7 @@ from typing import Any, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from mitosheet.public_interfaces.v1.sheet_functions.sheet_function_utils import is_series_of_constant
+from mitosheet.public.v1.sheet_functions.sheet_function_utils import is_series_of_constant
 
 
 def get_nan_indexes_metadata(*argv: pd.Series) -> Tuple[pd.Index, pd.Index]: 

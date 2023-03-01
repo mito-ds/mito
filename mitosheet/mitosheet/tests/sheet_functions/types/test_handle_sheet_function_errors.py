@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from mitosheet.errors import MitoError
-from mitosheet.public_interfaces.v1.sheet_functions.types.decorators import handle_sheet_function_errors
+from mitosheet.public.v1.sheet_functions.types.decorators import handle_sheet_function_errors
 
 def test_function_no_error():
     @handle_sheet_function_errors

@@ -376,9 +376,9 @@ def _execute_pivot(
 
         # Get the correct version of flatten column header
         if public_interface_version == 1:
-            from mitosheet.public_interfaces.v1 import flatten_column_header
+            from mitosheet.public.v1 import flatten_column_header
         else:
-            from mitosheet.public_interfaces.v2 import flatten_column_header
+            from mitosheet.public.v2 import flatten_column_header
 
         # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
         # it is depricated

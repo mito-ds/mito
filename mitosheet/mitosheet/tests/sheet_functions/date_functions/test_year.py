@@ -10,7 +10,7 @@ Contains tests for the YEAR function.
 import pytest
 import pandas as pd
 
-from mitosheet.public_interfaces.v1.sheet_functions.date_functions import YEAR
+from mitosheet.public.v1.sheet_functions.date_functions import YEAR
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 YEAR_TESTS = [

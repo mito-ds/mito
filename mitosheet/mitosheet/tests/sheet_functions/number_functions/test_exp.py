@@ -13,7 +13,7 @@ import numpy as np
 from math import exp
 
 from mitosheet.errors import MitoError
-from mitosheet.public_interfaces.v1.sheet_functions.number_functions import EXP
+from mitosheet.public.v1.sheet_functions.number_functions import EXP
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests
