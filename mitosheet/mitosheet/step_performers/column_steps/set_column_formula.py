@@ -89,8 +89,10 @@ class SetColumnFormulaStepPerformer(StepPerformer):
 
         if public_interface_version == 1:
             from mitosheet.public.v1 import FUNCTIONS
-        else:
+        elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS
+        else:
+            raise Exception(f'Please add support for {public_interface_version=}')
 
         # The formula can only reference known formulas
         missing_functions = new_functions.difference(set(FUNCTIONS.keys()))
@@ -266,8 +268,10 @@ def exec_column_formula(
     try:
         if public_interface_version == 1:
             from mitosheet.public.v1 import FUNCTIONS as locals_for_exec
-        else:
+        elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS as locals_for_exec
+        else:
+            raise Exception(f'Please add support for {public_interface_version=}')
 
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python

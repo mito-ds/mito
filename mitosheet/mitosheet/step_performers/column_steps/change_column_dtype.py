@@ -71,8 +71,10 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
         if public_interface_version == 1:
             from mitosheet.public.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
-        else:
+        elif public_interface_version == 2:
             from mitosheet.public.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        else:
+            raise Exception(f'Please add support for {public_interface_version=}')
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0
