@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (is_bool_dtype,
+from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_int_dtype,
                                                    is_number_dtype,

@@ -10,7 +10,7 @@ from mitosheet.types import ColumnID
 from mitosheet.state import State
 
 from mitosheet.errors import make_invalid_column_type_change_error
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import ( is_bool_dtype,
+from mitosheet.is_type_utils import ( is_bool_dtype,
                                                     is_datetime_dtype,
                                                     is_float_dtype,
                                                     is_int_dtype,

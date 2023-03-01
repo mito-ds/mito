@@ -14,7 +14,7 @@ from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import \
 from mitosheet.errors import (make_cast_value_to_type_error,
                               make_no_column_error)
 from mitosheet.public_interfaces.v1.sheet_functions.types import get_function_to_convert_to_series
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (is_int_dtype, is_none_type,
+from mitosheet.is_type_utils import (is_int_dtype, is_none_type,
                                                    is_number_dtype,
                                                    is_string_dtype)
 from mitosheet.state import State

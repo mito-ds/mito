@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 from mitosheet.step_performers.graph_steps.graph_utils import (
     get_html_and_script_from_figure,
 )
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_number_dtype
+from mitosheet.is_type_utils import is_number_dtype
 from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.steps_manager import StepsManager

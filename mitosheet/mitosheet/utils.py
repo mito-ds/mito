@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import get_float_dt_td_columns
+from mitosheet.is_type_utils import get_float_dt_td_columns
 from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
 
 # We only send the first 1500 rows of a dataframe; note that this

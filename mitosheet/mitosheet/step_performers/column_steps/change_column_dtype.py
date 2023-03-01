@@ -16,13 +16,13 @@ from mitosheet.public_interfaces.v1.sheet_functions.types.to_boolean_series impo
 from mitosheet.public_interfaces.v1.sheet_functions.types.to_float_series import to_float_series
 from mitosheet.public_interfaces.v1.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (get_datetime_format,
-                                                   is_bool_dtype,
+from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
                                                    is_int_dtype, is_number_dtype,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import get_datetime_format
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param

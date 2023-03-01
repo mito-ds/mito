@@ -17,7 +17,7 @@ from mitosheet.public_interfaces.v1.sheet_functions.types.to_int_series import t
 from mitosheet.public_interfaces.v1.sheet_functions.types.to_string_series import to_string_series
 from mitosheet.public_interfaces.v1.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
-from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (is_bool_dtype,
+from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
                                                    is_int_dtype,
