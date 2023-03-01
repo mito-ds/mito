@@ -4,5 +4,5 @@ Public interfaces are what are exposed to users. With Mito, we do our _very best
 
 Thus, if you want to add a new public interface (e.g. changing sheet functions in a backwards incompatible way):
 1. Add a new folder (e.g. `v3`)
-2. Fix up all the steps so they support the new version of the public interface
+2. Fix up all the steps so they support the new version of the public interface (and make sure to upgrade them to take this as a parameter in the step upgrader)
 3. Add code-gen on the frontend so that the new import statement are from the new public interface

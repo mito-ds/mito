@@ -309,8 +309,8 @@ def upgrade_saved_analysis_to_have_public_interface_version(saved_analysis: Opti
     if saved_analysis is None:
         return None
     
-    # If there is already a public interface version, we just make sure to set it (as it was not carried through from previous ugprades)
-    # and we don't worry about the steps, as they alredy have this as a parm
+    # If there is already a public interface version, we just make sure to set it (as it was not carried through from previous ugprade
+    # functions which only take speciifc params
     if public_interface_version is not None:
         saved_analysis['public_interface_version'] = public_interface_version
     else:
