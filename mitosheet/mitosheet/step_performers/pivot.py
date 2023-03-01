@@ -12,7 +12,6 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
     USE_INPLACE_PIVOT, PivotCodeChunk)
-from mitosheet.public_interfaces.v1.utils import flatten_column_header
 from mitosheet.errors import make_invalid_pivot_error, make_invalid_pivot_filter_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.filter import (combine_filters,
@@ -372,6 +371,8 @@ def _execute_pivot(
     if flatten_column_headers:
         # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
         # it is depricated
+        from mitosheet.public_interfaces.v1.utils import flatten_column_header
+
         if USE_INPLACE_PIVOT:
             pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
         else:

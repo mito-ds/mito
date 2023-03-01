@@ -17,7 +17,6 @@ from mitosheet.errors import (MitoError, make_execution_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import get_frontend_formula, parse_formula
-from mitosheet.public_interfaces.v1.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -87,6 +86,8 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             index_labels_formula_is_applied_to,
             prev_state.dfs[sheet_index]
         )
+
+        from mitosheet.public_interfaces.v1.sheet_functions import FUNCTIONS
 
         # The formula can only reference known formulas
         missing_functions = new_functions.difference(set(FUNCTIONS.keys()))
@@ -258,6 +259,8 @@ def exec_column_formula(
     )
 
     try:
+        from mitosheet.public_interfaces.v1.sheet_functions import FUNCTIONS
+
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         exec(
