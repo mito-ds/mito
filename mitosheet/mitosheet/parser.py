@@ -597,6 +597,7 @@ def replace_functions(
             # may remain lower case. 
             function = word.upper()
             functions.add(function)
+
             return function
         else:
             return word

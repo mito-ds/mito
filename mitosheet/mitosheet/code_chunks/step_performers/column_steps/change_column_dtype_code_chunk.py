@@ -19,7 +19,7 @@ from mitosheet.is_type_utils import ( is_bool_dtype,
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 
 
-def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str, datetime_formats: Optional[Dict[ColumnID, Optional[str]]]) -> Optional[str]:
+def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str, datetime_formats: Optional[Dict[ColumnID, Optional[str]]], public_interface_version: int) -> Optional[str]:
     
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
     transpiled_column_header = column_header_to_transpiled_code(column_header)
@@ -136,7 +136,7 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
 class ChangeColumnDtypeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], datetime_formats: Optional[Dict[ColumnID, Optional[str]]]):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], datetime_formats: Optional[Dict[ColumnID, Optional[str]]], public_interface_version: int):
         super().__init__(prev_state, post_state)
         self.sheet_index: int = sheet_index
         self.column_ids: List[ColumnID] = column_ids
@@ -144,6 +144,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         self.new_dtype: str = new_dtype
         self.changed_column_ids: List[ColumnID] = changed_column_ids
         self.datetime_formats: Optional[Dict[ColumnID, Optional[str]]] = datetime_formats
+        self.public_interface_version = public_interface_version
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -165,7 +166,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         for column_id in self.column_ids:
             old_dtype = self.old_dtypes[column_id]
 
-            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.datetime_formats)
+            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.datetime_formats, self.public_interface_version)
             if conversion_code is not None:
                 code.append(conversion_code)
         

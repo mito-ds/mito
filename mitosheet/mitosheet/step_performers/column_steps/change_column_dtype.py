@@ -60,6 +60,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
         old_dtypes: Dict[ColumnID, str] = get_param(params, 'old_dtypes')
         new_dtype: str = get_param(params, 'new_dtype')
+        public_interface_version: str = get_param(params, 'public_interface_version')
 
         raise_error_if_column_ids_do_not_exist(
             'change column dtype',
@@ -68,7 +69,10 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             column_ids
         )
 
-        from mitosheet.public_interfaces.v1.sheet_functions.types import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        if public_interface_version == 1:
+            from mitosheet.public_interfaces.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        else:
+            from mitosheet.public_interfaces.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0
@@ -257,7 +261,8 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 get_param(params, 'old_dtypes'),
                 get_param(params, 'new_dtype'),
                 get_param(execution_data if execution_data is not None else {}, 'changed_column_ids'),
-                execution_data.get('datetime_formats', None) if execution_data is not None else None
+                execution_data.get('datetime_formats', None) if execution_data is not None else None,
+                get_param(params, 'public_interface_version')
             )
         ]
 

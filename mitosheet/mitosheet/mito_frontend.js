@@ -22601,7 +22601,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       }
     }
     if (telemetryEnabled) {
-      return `from mitosheet import *; register_analysis("${analysisName}");
+      return `from mitosheet.public_interfaces.v2 import *; register_analysis("${analysisName}");
 ${finalCode}`;
     } else {
       return `from mitosheet import *; # Analysis Name:${analysisName};
@@ -22634,7 +22634,7 @@ ${finalCode}`;
     return lastLine.indexOf("sheet(") !== -1;
   }
   function isMitoAnalysisCode(codeText) {
-    return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:");
+    return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet.public_interfaces.v2 import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:") || codeText.startsWith("from mitosheet.public_interfaces.v2 import *; # Analysis Name:");
   }
   function containsMitosheetCallWithSpecificAnalysisToReplay(codeText, analysisName) {
     return codeText.includes("sheet(") && codeText.includes(`analysis_to_replay="${analysisName}"`);

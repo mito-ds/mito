@@ -128,7 +128,8 @@ class AddColumnCodeChunk(CodeChunk):
             other_code_chunk.index_labels_formula_is_applied_to,
             self.column_header,
             self.column_header_index,
-            other_code_chunk.new_formula
+            other_code_chunk.new_formula,
+            other_code_chunk.public_interface_version
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:

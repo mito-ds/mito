@@ -71,6 +71,7 @@ class DataframeRenameCodeChunk(CodeChunk):
             pivot_code_chunk.values_column_ids_map,
             pivot_code_chunk.flatten_column_headers,
             pivot_code_chunk.was_series,
+            pivot_code_chunk.public_interface_version
         )
 
     def _combine_left_with_merge_code_chunk(self, merge_code_chunk: MergeCodeChunk) -> Optional[CodeChunk]:

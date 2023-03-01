@@ -105,6 +105,7 @@ class PivotStepPerformer(StepPerformer):
         flatten_column_headers: bool = get_param(params, 'flatten_column_headers')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
         use_deprecated_id_algorithm: bool = get_param(params, 'use_deprecated_id_algorithm') if get_param(params, 'use_deprecated_id_algorithm') else False
+        public_interface_version: bool = get_param(params, 'public_interface_version')
         
         # Get just the column headers in a list, for convenience
         pivot_rows = [prev_state.column_ids.get_column_header_by_id(sheet_index, cit['column_id']) for cit in pivot_rows_column_ids_with_transforms]
@@ -145,7 +146,8 @@ class PivotStepPerformer(StepPerformer):
             pivot_columns_with_transforms,
             values,
             pivot_filters,
-            flatten_column_headers
+            flatten_column_headers,
+            public_interface_version
         )
         pandas_processing_time = perf_counter() - pandas_start_time
         # Create a new df name if we don't have one
@@ -186,6 +188,7 @@ class PivotStepPerformer(StepPerformer):
                 get_param(params, 'values_column_ids_map'),
                 get_param(params, 'flatten_column_headers'),
                 get_param(execution_data if execution_data is not None else {}, 'was_series'),
+                get_param(params, 'public_interface_version'),
             )
         ]
 
@@ -285,7 +288,8 @@ def _execute_pivot(
         pivot_columns_with_transforms: List[ColumnHeaderWithPivotTransform], 
         values: Dict[ColumnHeader, Collection[str]],
         pivot_filters: List[ColumnHeaderWithFilter],
-        flatten_column_headers: bool
+        flatten_column_headers: bool,
+        public_interface_version: int
     ) -> Tuple[pd.DataFrame, bool]:
     """
     Helper function for executing the pivot on a specific dataframe
@@ -369,10 +373,15 @@ def _execute_pivot(
         was_series = True
 
     if flatten_column_headers:
+
+        # Get the correct version of flatten column header
+        if public_interface_version == 1:
+            from mitosheet.public_interfaces.v1 import flatten_column_header
+        else:
+            from mitosheet.public_interfaces.v2 import flatten_column_header
+
         # See comment in pivot_code_chunk, we avoid using inplace=True post pandas 1.5.0, as
         # it is depricated
-        from mitosheet.public_interfaces.v1.utils import flatten_column_header
-
         if USE_INPLACE_PIVOT:
             pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)
         else:

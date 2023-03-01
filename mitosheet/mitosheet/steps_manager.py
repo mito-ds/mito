@@ -262,7 +262,7 @@ class StepsManager:
         self.mito_config = mito_config
 
         # The version of the public interface used by this analysis
-        self.public_interface_version = 1
+        self.public_interface_version = 2
 
     @property
     def curr_step(self) -> Step:

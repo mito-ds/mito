@@ -32,7 +32,7 @@ export function getCodeString(
     // If telemetry not enabled, we want to be clear about this by
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
-        return `from mitosheet import *; register_analysis("${analysisName}");
+        return `from mitosheet.public_interfaces.v2 import *; register_analysis("${analysisName}");
 ${finalCode}`
     } else {
         return `from mitosheet import *; # Analysis Name:${analysisName};
@@ -100,8 +100,10 @@ export function isMitoAnalysisCode(codeText: string): boolean {
     // Handle the old and new Mito boilerplate code
     return codeText.startsWith('# MITO CODE START') 
         || codeText.startsWith('from mitosheet import *; register_analysis(')
+        || codeText.startsWith('from mitosheet.public_interfaces.v2 import *; register_analysis(')
         || codeText.startsWith('from mitosheet import *; # Analysis:')
         || codeText.startsWith('from mitosheet import *; # Analysis Name:')
+        || codeText.startsWith('from mitosheet.public_interfaces.v2 import *; # Analysis Name:')
 }
 
 

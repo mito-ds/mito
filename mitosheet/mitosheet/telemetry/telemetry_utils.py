@@ -125,6 +125,7 @@ def _get_wsc_log_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[
             'wsc_local': is_local_deployment(),
             'wsc_curr_step_idx': steps_manager.curr_step_idx,
             'wsc_curr_step_type': steps_manager.curr_step.step_type,
+            'wsc_public_interface_version': steps_manager.public_interface_version,
         }
     else:
         return {}

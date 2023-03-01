@@ -37,6 +37,9 @@ from mitosheet.public_interfaces.v1.sheet_functions import *
 from mitosheet.public_interfaces.v1.sheet_functions.types import *
 from mitosheet.public_interfaces.v1.utils import flatten_column_header
 
+# Export the v2 interface
+import mitosheet.public_interfaces.v2 as v2
+
 # We export depricated utilities, so that users can still use them if they used to
 from mitosheet.api.get_column_summary_graph import (
     filter_df_to_safe_size_external as filter_df_to_safe_size,
