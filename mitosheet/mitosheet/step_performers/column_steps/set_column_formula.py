@@ -17,7 +17,7 @@ from mitosheet.errors import (MitoError, make_execution_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import get_frontend_formula, parse_formula
-from mitosheet.sheet_functions import FUNCTIONS
+from mitosheet.public_interfaces.v1.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param

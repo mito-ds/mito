@@ -12,7 +12,7 @@ import pytest
 import pandas as pd
 import numpy as np 
 
-from mitosheet.sheet_functions.control_functions import BOOL
+from mitosheet.public_interfaces.v1.sheet_functions.control_functions import BOOL
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 # Raw function tests

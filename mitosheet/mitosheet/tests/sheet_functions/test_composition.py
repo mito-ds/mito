@@ -12,7 +12,6 @@ import numpy as np
 import pytest
 import math
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.sheet_functions import FUNCTIONS
 
 # Test pure arithmetic
 ARITHMETIC_COMPOSITION_TESTS: List[Tuple[Any, ...]] = [

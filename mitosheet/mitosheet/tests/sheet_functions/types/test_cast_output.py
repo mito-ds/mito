@@ -9,7 +9,7 @@ Contains tests for the cast_output decorator.
 
 import pandas as pd
 import pytest
-from mitosheet.sheet_functions.types.decorators import cast_output
+from mitosheet.public_interfaces.v1.sheet_functions.types.decorators import cast_output
 
 CAST_TESTS = [
     (

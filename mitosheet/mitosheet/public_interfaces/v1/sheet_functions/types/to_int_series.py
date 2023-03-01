@@ -7,7 +7,7 @@
 For going to a number series.
 """
 from typing import Any
-from mitosheet.sheet_functions.types.to_float_series import to_float_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_float_series import to_float_series
 
 import numpy as np
 import pandas as pd

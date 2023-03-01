@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk, get_split_param_dict
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import add_columns_to_df, get_param

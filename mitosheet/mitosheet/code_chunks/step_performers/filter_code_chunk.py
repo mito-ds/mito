@@ -9,7 +9,7 @@ from copy import copy
 from typing import List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_datetime_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.filter import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,

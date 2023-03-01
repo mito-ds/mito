@@ -12,7 +12,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
     USE_INPLACE_PIVOT, PivotCodeChunk)
-from mitosheet.column_headers import flatten_column_header
+from mitosheet.public_interfaces.v1.utils import flatten_column_header
 from mitosheet.errors import make_invalid_pivot_error, make_invalid_pivot_filter_error, make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.filter import (combine_filters,
@@ -94,6 +94,7 @@ class PivotStepPerformer(StepPerformer):
             params['values_column_ids_map'][column_id] = new_aggregation_function_names
 
         return params
+    
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:

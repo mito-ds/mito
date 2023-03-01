@@ -9,15 +9,15 @@ File that holds all the type conversion functions
 from typing import Any, Callable
 
 import pandas as pd
-from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
-from mitosheet.sheet_functions.types.to_datetime_series import \
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_boolean_series import to_boolean_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_datetime_series import \
     to_datetime_series
-from mitosheet.sheet_functions.types.to_float_series import to_float_series
-from mitosheet.sheet_functions.types.to_int_series import to_int_series
-from mitosheet.sheet_functions.types.to_string_series import to_string_series
-from mitosheet.sheet_functions.types.to_timedelta_series import \
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_float_series import to_float_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_int_series import to_int_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_string_series import to_string_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
-from mitosheet.sheet_functions.types.utils import (is_bool_dtype,
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
                                                    is_int_dtype,

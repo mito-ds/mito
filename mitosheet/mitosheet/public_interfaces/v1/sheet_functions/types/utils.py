@@ -11,7 +11,7 @@ from typing import Any, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from mitosheet.sheet_functions.sheet_function_utils import is_series_of_constant
+from mitosheet.public_interfaces.v1.sheet_functions.sheet_function_utils import is_series_of_constant
 
 # A series of helper functions that help you figure
 # out which dtype we're dealing with. NOTE: since some

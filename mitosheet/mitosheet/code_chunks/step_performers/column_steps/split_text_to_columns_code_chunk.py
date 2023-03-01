@@ -6,7 +6,7 @@
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code, param_dict_to_code
 from mitosheet.types import ColumnHeader, ColumnID

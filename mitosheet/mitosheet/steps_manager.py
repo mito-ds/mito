@@ -33,8 +33,6 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
-from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE_EVENT
-
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
@@ -398,7 +396,10 @@ class StepsManager:
 
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
-        # First, we make a new step
+        # First, we add the public interface to the params, as we might need it for any step
+        edit_event["params"]['public_interface_version'] = self.public_interface_version
+
+        # Then, we make a new step
         new_step = Step(
             step_performer.step_type(), edit_event["step_id"], edit_event["params"]
         )

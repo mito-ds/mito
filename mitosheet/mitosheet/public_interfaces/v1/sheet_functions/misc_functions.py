@@ -16,8 +16,8 @@ import pandas as pd
 import numpy as np
 import datetime
 
-from mitosheet.sheet_functions.sheet_function_utils import try_extend_series_to_index
-from mitosheet.sheet_functions.types.decorators import filter_nans, convert_arg_to_series_type, handle_sheet_function_errors
+from mitosheet.public_interfaces.v1.sheet_functions.sheet_function_utils import try_extend_series_to_index
+from mitosheet.public_interfaces.v1.sheet_functions.types.decorators import filter_nans, convert_arg_to_series_type, handle_sheet_function_errors
 
 
 @handle_sheet_function_errors

@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from typing import Any
 
-from mitosheet.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
 
 
 def to_string_series(

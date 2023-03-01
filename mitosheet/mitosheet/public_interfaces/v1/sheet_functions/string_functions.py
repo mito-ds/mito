@@ -14,9 +14,9 @@ NOTE: This file is alphabetical order!
 import functools
 
 import pandas as pd
-from mitosheet.sheet_functions.sheet_function_utils import (
+from mitosheet.public_interfaces.v1.sheet_functions.sheet_function_utils import (
     fill_series_with_one_index, try_extend_series_to_index)
-from mitosheet.sheet_functions.types.decorators import (
+from mitosheet.public_interfaces.v1.sheet_functions.types.decorators import (
     cast_output, convert_arg_to_series_type, convert_args_to_series_type,
     filter_nans, handle_sheet_function_errors)
 

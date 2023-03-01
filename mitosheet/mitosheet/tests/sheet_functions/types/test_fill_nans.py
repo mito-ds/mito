@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import pytest
 
-from mitosheet.sheet_functions.types.decorators import fill_nans
+from mitosheet.public_interfaces.v1.sheet_functions.types.decorators import fill_nans
 
 FILL_NAN_TESTS = [
     (

@@ -10,7 +10,7 @@ Contains tests for the STRIPTIMETOHOURS function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import STRIPTIMETOHOURS
+from mitosheet.public_interfaces.v1.sheet_functions.date_functions import STRIPTIMETOHOURS
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 STRIP_TO_HOURS_TESTS = [

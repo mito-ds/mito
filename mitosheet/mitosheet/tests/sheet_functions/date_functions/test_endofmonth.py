@@ -10,7 +10,7 @@ Contains tests for the ENDOFMONTH function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import ENDOFMONTH
+from mitosheet.public_interfaces.v1.sheet_functions.date_functions import ENDOFMONTH
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 END_OF_MONTH_TESTS = [

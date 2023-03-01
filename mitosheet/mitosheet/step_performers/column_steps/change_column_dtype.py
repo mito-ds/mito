@@ -11,12 +11,12 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.change_column_dtype_code_chunk import ChangeColumnDtypeCodeChunk
 
 from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error, raise_error_if_column_ids_do_not_exist
-from mitosheet.sheet_functions.types import to_int_series
-from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
-from mitosheet.sheet_functions.types.to_float_series import to_float_series
-from mitosheet.sheet_functions.types.to_timedelta_series import \
+from mitosheet.public_interfaces.v1.sheet_functions.types import to_int_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_boolean_series import to_boolean_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_float_series import to_float_series
+from mitosheet.public_interfaces.v1.sheet_functions.types.to_timedelta_series import \
     to_timedelta_series
-from mitosheet.sheet_functions.types.utils import (get_datetime_format,
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (get_datetime_format,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,

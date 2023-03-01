@@ -10,7 +10,7 @@ Contains tests for the CONCAT function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.string_functions import CONCAT
+from mitosheet.public_interfaces.v1.sheet_functions.string_functions import CONCAT
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

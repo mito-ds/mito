@@ -10,7 +10,7 @@ Contains tests for the STRIPTIMETOMONTHS function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import STRIPTIMETOMONTHS
+from mitosheet.public_interfaces.v1.sheet_functions.date_functions import STRIPTIMETOMONTHS
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 STRIP_TO_MONTH_TESTS = [

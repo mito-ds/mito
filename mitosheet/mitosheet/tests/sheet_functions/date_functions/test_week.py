@@ -10,7 +10,7 @@ Contains tests for the WEEK function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import WEEK
+from mitosheet.public_interfaces.v1.sheet_functions.date_functions import WEEK
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 WEEK_TESTS = [

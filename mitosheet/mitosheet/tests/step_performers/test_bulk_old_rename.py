@@ -9,7 +9,7 @@ import pytest
 
 from mitosheet.tests.test_utils import (create_mito_wrapper_dfs)
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import get_header_renames, make_valid_header
-from mitosheet.column_headers import flatten_column_header
+from mitosheet.public_interfaces.v1.utils import flatten_column_header
 
 
 def test_bulk_rename_renames_all_headers():

@@ -13,7 +13,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from mitosheet.sheet_functions.types.utils import (get_datetime_format,
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (get_datetime_format,
                                                    is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_number_dtype,

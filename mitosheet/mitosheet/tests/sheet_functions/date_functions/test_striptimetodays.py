@@ -10,7 +10,7 @@ Contains tests for the STRIPTIMETODAYS function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import STRIPTIMETODAYS
+from mitosheet.public_interfaces.v1.sheet_functions.date_functions import STRIPTIMETODAYS
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 STRIP_TIME_TO_DAYS_TESTS = [

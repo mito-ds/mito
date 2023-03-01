@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from mitosheet.sheet_functions.types.utils import (
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import (
     get_billion_identifier_in_string, get_million_identifier_in_string,
     is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype)
 from typing import Any

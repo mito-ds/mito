@@ -11,7 +11,7 @@ from typing import Any, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from mitosheet.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
+from mitosheet.public_interfaces.v1.sheet_functions.types.utils import is_bool_dtype, is_datetime_dtype, is_number_dtype, is_string_dtype, is_timedelta_dtype
 
 
 def to_timedelta_series(
