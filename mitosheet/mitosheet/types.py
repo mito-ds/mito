@@ -13,7 +13,7 @@ continous integration
 """
 
 import pandas as pd
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, TypeAlias, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -131,8 +131,19 @@ if sys.version_info[:3] > (3, 8, 0):
         'most_frequent',
         'least_frequent'
     ]
-
-    Operator = Literal['And', 'Or']
+    Operator = Literal[
+        'And', 
+        'Or'
+    ]
+    
+    PrimitiveTypeNames = Literal[
+        'str', 
+        'int', 
+        'float', 
+        'bool', 
+        'datetime', 
+        'timedelta'
+    ]
 
     class Filter(TypedDict):
         condition: Union[BooleanFilterCondition, StringFilterCondition, NumberFilterCondition, DatetimeFilterCondition, SharedFilterCondition]
@@ -242,10 +253,12 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
     Operator = Any #type:ignore
+    PrimitiveTypeNames = None # type: ignore
     ColumnIDWithFilter = Any # type:ignore
     ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore

@@ -15,7 +15,7 @@ from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, Operator
+from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType
 
 # The constants used in the filter step itself as filter conditions
 # NOTE: these must be unique (e.g. no repeating names for different types)
@@ -99,7 +99,7 @@ class FilterStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        operator: Operator = get_param(params, 'operator')
+        operator: OperatorType = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
         raise_error_if_column_ids_do_not_exist(
@@ -247,7 +247,7 @@ def get_applied_filter(
     raise Exception(f"Invalid type passed in filter {filter_}")
 
 
-def combine_filters(operator: Operator, filters: List[pd.Series]) -> pd.Series:
+def combine_filters(operator: OperatorType, filters: List[pd.Series]) -> pd.Series:
     def filter_reducer(filter_one: pd.Series, filter_two: pd.Series) -> pd.Series:
         # Helper for combining filters based on the operations
         if operator == "Or":
@@ -263,7 +263,7 @@ def combine_filters(operator: Operator, filters: List[pd.Series]) -> pd.Series:
 def get_full_applied_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
-    operator: Operator,
+    operator: OperatorType,
     filters: List[Union[Filter, FilterGroup]],
 ) -> Tuple[pd.Series, float]:
     applied_filters = []
@@ -292,7 +292,7 @@ def get_full_applied_filter(
 def _execute_filter(
     df: pd.DataFrame,
     column_header: ColumnHeader,
-    operator: Operator,
+    operator: OperatorType,
     filters: List[Union[Filter, FilterGroup]],
 ) -> Tuple[pd.DataFrame, float]:
     """
