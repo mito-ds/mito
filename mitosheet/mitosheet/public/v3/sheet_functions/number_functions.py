@@ -23,8 +23,11 @@ from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 @cast_values_in_arg_to_type('float') # TODO: do we want number type
 def SUM(*argv: Union[pd.Series, int, float]):
     
-    pass
+    result: Union[pd.Series, float, int] = 0
+    for arg in argv:
+        result += arg
 
+    return result 
 
 # TODO: we should see if we can list these automatically!
 NUMBER_FUNCTIONS = {

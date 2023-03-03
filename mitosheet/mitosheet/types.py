@@ -13,7 +13,7 @@ continous integration
 """
 
 import pandas as pd
-from typing import TYPE_CHECKING, Dict, List, Optional, TypeAlias, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -131,7 +131,7 @@ if sys.version_info[:3] > (3, 8, 0):
         'most_frequent',
         'least_frequent'
     ]
-    Operator = Literal[
+    OperatorType = Literal[
         'And', 
         'Or'
     ]
@@ -152,7 +152,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FilterGroup(TypedDict):
         # NOTE: this is a recursive type. The filter group can contain a filter group
         filters: List[Union[Filter, "FilterGroup"]]
-        operator: Operator #type:ignore
+        operator: OperatorType #type:ignore
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
@@ -257,7 +257,7 @@ if sys.version_info[:3] > (3, 8, 0):
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
-    Operator = Any #type:ignore
+    OperatorType = Any #type:ignore
     PrimitiveTypeNames = None # type: ignore
     ColumnIDWithFilter = Any # type:ignore
     ColumnIDWithFilterGroup = Any # type:ignore

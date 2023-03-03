@@ -24,7 +24,7 @@ from mitosheet.step_performers.filter import (
 from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
 from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
-                             Filter, FilterGroup, Operator)
+                             Filter, FilterGroup, OperatorType)
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -195,7 +195,7 @@ def get_single_filter_string(
 def get_multiple_filter_string(
     df_name: str,
     column_header: ColumnHeader,
-    original_operator: Operator,
+    original_operator: OperatorType,
     condition: str,
     column_dtype: str,
     filters: List[Filter],
@@ -226,7 +226,7 @@ def get_multiple_filter_string(
 
 
 def combine_filter_strings(
-    operator: Operator, filter_strings: List[str], split_lines: bool = False
+    operator: OperatorType, filter_strings: List[str], split_lines: bool = False
 ) -> str:
     """
     Combines the given filter strings with the passed operator, optionally
@@ -266,7 +266,7 @@ def create_filter_string_for_condition(
     mito_filters: List[Filter],
     df_name: str,
     column_header: ColumnHeader,
-    operator: Operator,
+    operator: OperatorType,
     column_dtype: str,
 ) -> str:
     """
@@ -301,7 +301,7 @@ def create_filter_string_for_condition(
 
 FAKE_COLUMN_HEADER = 'FAKE_COLUMN_HEADER'
 
-def get_entire_filter_string_for_filters_only(df_name: str, column_header: ColumnHeader, column_dtype: str, operator: Operator, filters_only: List[Filter]) -> Optional[str]:
+def get_entire_filter_string_for_filters_only(df_name: str, column_header: ColumnHeader, column_dtype: str, operator: OperatorType, filters_only: List[Filter]) -> Optional[str]:
 
         filter_strings = []
 
@@ -330,7 +330,7 @@ def get_entire_filter_string_for_filters_only(df_name: str, column_header: Colum
             return filter_string
 
 
-def get_entire_filter_string(state: State, sheet_index: int, operator: Operator, filters: List[Union[Filter, FilterGroup]], column_id: Optional[ColumnID]=None) -> Optional[str]:
+def get_entire_filter_string(state: State, sheet_index: int, operator: OperatorType, filters: List[Union[Filter, FilterGroup]], column_id: Optional[ColumnID]=None) -> Optional[str]:
 
         df_name = state.df_names[sheet_index]
         if column_id:
