@@ -136,7 +136,7 @@ if sys.version_info[:3] > (3, 8, 0):
         'Or'
     ]
     
-    PrimitiveTypeNames = Literal[
+    PrimitiveTypeName = Literal[
         'str', 
         'int', 
         'float', 
@@ -258,7 +258,7 @@ else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
     OperatorType = Any #type:ignore
-    PrimitiveTypeNames = None # type: ignore
+    PrimitiveTypeName = None # type: ignore
     ColumnIDWithFilter = Any # type:ignore
     ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore

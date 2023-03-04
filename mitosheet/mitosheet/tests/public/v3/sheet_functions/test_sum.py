@@ -9,15 +9,17 @@ Contains tests for the SUM function.
 
 import pytest
 import pandas as pd
-import numpy as np
 
 from mitosheet.public.v3.sheet_functions.number_functions import SUM
-from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 SUM_NUMBER_TESTS = [
-    ([2.0, pd.Series([1,2,3])], pd.Series([3.0,4.0,5.0])),   
-    ([2.0, 3.0], 5.0),   
+    ([2.0, pd.Series([1,2,3])], pd.Series([3.0,4.0,5.0])),
+    ([2.0, pd.Series([1,2,None])], pd.Series([3.0,4.0,None])),
+    ([2.0, pd.Series(['1', '2', '3'])], pd.Series([3.0, 4.0, 5.0])),
+    ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([3.0, 4.0, 5.0])),
+    ([2.0, pd.Series(['$1.00', '$2.00', '$3.00'])], pd.Series([3.0, 4.0, 5.0])),
+    ([2.0, 3.0], 5.0),
 ]
 
 
