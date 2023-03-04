@@ -20,8 +20,9 @@ SUM_NUMBER_TESTS = [
     ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([3.0, 4.0, 5.0])),
     ([2.0, pd.Series(['$1.00', '$2.00', '$3.00'])], pd.Series([3.0, 4.0, 5.0])),
     ([2.0, 3.0], 5.0),
+    ([2.0, '$3.0'], 5.0),
+    ([2.0, True], 3.0),
 ]
-
 
 @pytest.mark.parametrize("_argv,expected", SUM_NUMBER_TESTS)
 def test_sum_works_for_series_and_number(_argv, expected):
