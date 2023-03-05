@@ -68,6 +68,7 @@ export enum UserJsonFields {
     UJ_MITOSHEET_ENTERPRISE = 'mitosheet_enterprise',
     UJ_EXPERIMENT = 'experiment',
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
+    UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy',
 }
 
 interface MitoSuccessOrInplaceErrorResponse {
@@ -1512,6 +1513,17 @@ export default class MitoAPI {
                 'field': UserJsonFields.UJ_MITOSHEET_LAST_UPGRADED_DATE,
                 // Taken from https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
                 'value': tenDaysAgoDate.toISOString().split('T')[0]
+            }
+        }, {});
+    }
+
+    async updateAcceptAITransformationPrivacyPolicy(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'set_user_field_update',
+            'params': {
+                'field': UserJsonFields.UJ_AI_PRIVACY_POLICY,
+                'value': true
             }
         }, {});
     }

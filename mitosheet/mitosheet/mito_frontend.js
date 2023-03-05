@@ -24027,6 +24027,16 @@ ${finalCode}`;
         }
       }, {});
     }
+    async updateAcceptAITransformationPrivacyPolicy() {
+      await this.send({
+        "event": "update_event",
+        "type": "set_user_field_update",
+        "params": {
+          "field": "ai_privacy_policy" /* UJ_AI_PRIVACY_POLICY */,
+          "value": true
+        }
+      }, {});
+    }
     async updateCheckoutStepByIndex(stepIndex) {
       await this.send({
         "event": "update_event",
@@ -39225,6 +39235,7 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var AITransformationTaskpane = (props) => {
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === void 0;
+    const aiPrivacyPolicyNotAccepted = !props.userProfile.aiPrivacyPolicy;
     const [openSections, setOpenSections] = (0, import_react173.useState)({
       "Examples": true,
       "Prompt": true,
@@ -39282,13 +39293,23 @@ fig.write_html("${props.graphTabName}.html")`
       });
     };
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "AI Transformation",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections, setParams), getExample("sort dataframe by values", setPromptState, setOpenSections, setParams)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections, setParams), getExample("duplicate this dataframe", setPromptState, setOpenSections, setParams))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"], disabled: apiKeyNotDefined }, /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), !apiKeyNotDefined && aiPrivacyPolicyNotAccepted && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://openai.com/policies/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here."), "."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "You can see Mito's ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here.")), /* @__PURE__ */ import_react173.default.createElement(
+      TextButton_default,
+      {
+        onClick: () => {
+          void props.mitoAPI.updateAcceptAITransformationPrivacyPolicy();
+        },
+        variant: "dark"
+      },
+      "Accept Privacy Policy for Mito AI"
+    )), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Examples", open: openSections["Examples"], disabled: aiFeatureDisabled }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("delete columns with nans", setPromptState, setOpenSections, setParams), getExample("sort dataframe by values", setPromptState, setOpenSections, setParams)), /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, getExample("rename headers lowercase", setPromptState, setOpenSections, setParams), getExample("duplicate this dataframe", setPromptState, setOpenSections, setParams))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Prompt", open: openSections["Prompt"], disabled: aiFeatureDisabled }, /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: promptState.userInput,

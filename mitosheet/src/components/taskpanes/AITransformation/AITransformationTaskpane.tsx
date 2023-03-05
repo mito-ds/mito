@@ -174,6 +174,7 @@ const getAdditionalErrorHelp = (error: string | undefined): JSX.Element | undefi
 const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Element => {
 
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === undefined;
+    const aiPrivacyPolicyNotAccepted = !props.userProfile.aiPrivacyPolicy;
 
     const [openSections, setOpenSections] = useState<SectionState>({
         'Examples': true,
@@ -237,6 +238,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
 
 
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -248,9 +251,31 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     <p className="text-color-error">
                         You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
                     </p>
-                
                 }
-                <CollapsibleSection title={"Examples"} open={openSections['Examples']} disabled={apiKeyNotDefined}>
+                {(!apiKeyNotDefined && aiPrivacyPolicyNotAccepted) && 
+                    <>
+                        <p className="text-body-1">
+                            Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values.
+                        </p>
+                        <Spacer px={5}/>
+                        <p className="text-body-1">
+                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>.
+                        </p>
+                        <Spacer px={5}/>
+                        <p className="text-body-1">
+                            You can see Mito's <a className='text-underline' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>
+                        </p>
+                        <TextButton
+                            onClick={() => {
+                                void props.mitoAPI.updateAcceptAITransformationPrivacyPolicy();
+                            }}
+                            variant='dark'
+                        >
+                            Accept Privacy Policy for Mito AI
+                        </TextButton>
+                    </>
+                }
+                <CollapsibleSection title={"Examples"} open={openSections['Examples']} disabled={aiFeatureDisabled}>
                     <Row justify="space-between" align="center">
                         {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
                         {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
@@ -261,7 +286,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     </Row>
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']} disabled={apiKeyNotDefined}>
+                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']} disabled={aiFeatureDisabled}>
                     <TextArea 
                         value={promptState.userInput} 
                         placeholder='delete columns with nans'
