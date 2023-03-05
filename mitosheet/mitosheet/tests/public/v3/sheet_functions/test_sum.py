@@ -37,6 +37,8 @@ SUM_NUMBER_TESTS = [
     ([pd.Series([1, 2, 3]).rolling(window=2), 1], pd.Series([4, 6, 4])), #A0 = B0:B1 + 1
     ([pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}).rolling(window=2), 1], pd.Series([13, 17, 10])), #A0 = B0:C1 + 1
     ([pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}).rolling(window=3), 1], pd.Series([22, 17, 10])), #A0 = B0:C2 + 1
+    ([pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}).shift(1, fill_value=0).rolling(window=2), 1], pd.Series([6, 13, 17])), #A1 = B0:C1 + 1
+    # TODO: we can't support this last one!
 ]
 
 @pytest.mark.parametrize("_argv,expected", SUM_NUMBER_TESTS)
