@@ -157,4 +157,4 @@ def test_ai_transformation(input_dfs, edited_completion, output_dfs):
     for actual, expected in zip(mito.dfs, output_dfs):
         print(actual)
         print(expected)
-        assert actual.equals(expected)
+        assert actual.equals(expected) 

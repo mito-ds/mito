@@ -599,10 +599,16 @@ def test_exec_and_get_new_state(old_dfs_map, code, new_df_map):
             new_state.df_formats[sheet_index],
         )
 
-def test_invalid_code_execute():
+
+INVALID_CODE = [
+    ('x += 1', 'NameError: name \'x\' is not defined'),
+    ('this is not python doh', 'SyntaxError: invalid syntax')
+]
+
+@pytest.mark.parametrize('code, error', INVALID_CODE)
+def test_invalid_code_execute(code, error):
     old_dfs_map = {'df': pd.DataFrame({'a': [123]})}
-    code = 'x += 1'
     prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
     with pytest.raises(MitoError) as e:
         exec_and_get_new_state_and_result(prev_state, code)
-    assert 'NameError: name \'x\' is not defined' in str(e)
+    assert error in str(e)

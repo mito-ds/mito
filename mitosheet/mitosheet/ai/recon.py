@@ -53,7 +53,10 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
 
     df_map = {df_name: df.copy(deep=True) for df_name, df in original_df_map.items()}
     locals_before = copy(locals())
-    ast_before = ast.parse(code)
+    try:
+        ast_before = ast.parse(code)
+    except SyntaxError as e:
+        raise make_exec_error(e)
 
     last_expression = ast_before.body[-1]
     if not isinstance(last_expression, ast.Expr):
@@ -212,8 +215,6 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
         or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float) \
             or isinstance(last_line_expression_value, np.number):
         result_last_line_value = last_line_expression_value
-
-
 
     frontend_result: AITransformFrontendResult = {
         'last_line_value': result_last_line_value,
