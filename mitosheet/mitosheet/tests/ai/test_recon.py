@@ -24,7 +24,7 @@ x = 2
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Define one dataframe
@@ -39,7 +39,7 @@ df = pd.DataFrame({'a': [123]})
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Define two dataframes
@@ -55,7 +55,7 @@ df1 = pd.DataFrame({'b': [123]})
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Redefine dataframe is a modification
@@ -70,7 +70,7 @@ df = pd.DataFrame({'a': [123]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Redefine dataframe with NaN in redefine
@@ -85,7 +85,7 @@ df = pd.DataFrame({'a': [123, None]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123, None]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Redefine dataframe with NaN in original
@@ -100,7 +100,7 @@ df = pd.DataFrame({'a': [123, 456]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123, 456]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Redefine dataframe removing columns
@@ -115,7 +115,7 @@ df = pd.DataFrame({'b': [None]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'b': [None]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Redefine dataframe with no changes, doesn't get added
@@ -130,7 +130,7 @@ df = pd.DataFrame({'a': [123, None]})
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Make an edit to existing column
@@ -144,7 +144,7 @@ df['a'] = 10
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [10, 10]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Add a new column
@@ -158,7 +158,7 @@ df['b'] = 10
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [1, 1], 'b': [10, 10]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Add a new dataframe and redefine one
@@ -174,7 +174,7 @@ df1 = pd.DataFrame({'a': [1234]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [123]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Add a new dataframe and edit one
@@ -190,7 +190,7 @@ df1 = pd.DataFrame({'a': [1234]})
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [4]})},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
     ),
     # Last line expression is number
@@ -206,7 +206,7 @@ x + y
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': 3,
-            'prints': []
+            'prints': ''
         }
     ),
     # Last line expression is dataframe
@@ -221,7 +221,7 @@ pd.DataFrame({'a': [10]})
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': pd.DataFrame({'a': [10]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Expression refering existing dataframe
@@ -235,7 +235,7 @@ df.replace(1, 2)
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': pd.DataFrame({'a': [2]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Expression refering existing dataframe, while editing it
@@ -250,7 +250,7 @@ df.replace(2, 3)
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Create new dataframe, while edit existing dataframe, with final expression
@@ -267,7 +267,7 @@ df.replace(2, 3)
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Create same dataframe twice, while edit existing dataframe, with final expression
@@ -285,7 +285,7 @@ df.replace(2, 3)
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [2]})},
             'last_line_expression_value': pd.DataFrame({'a': [3]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Create dataframe, while modifing existing dataframe twice, with final expression
@@ -304,7 +304,7 @@ df.replace(3, 4)
             'deleted_dataframes': [],
             'modified_dataframes': {'df': pd.DataFrame({'a': [3]})},
             'last_line_expression_value': pd.DataFrame({'a': [4]}),
-            'prints': []
+            'prints': ''
         }
     ),
     # Returns a np.number
@@ -319,7 +319,7 @@ np.float32(1.0)
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': 1.0,
-            'prints': []
+            'prints': ''
         }
     ),
     # Prints something out
@@ -333,7 +333,7 @@ print("test")
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': ["test"]
+            'prints': "test\n"
         }
     ),
     # Prints multiple times
@@ -348,7 +348,7 @@ print("multiple")
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': ["test", "multiple"]
+            'prints': "test\nmultiple\n"
         }
     ),
     # Print multiple items in a single call, all works
@@ -362,7 +362,7 @@ print("test", 1, 2)
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': ["test 1 2"]
+            'prints': "test 1 2\n"
         }
     ),
     # Print multiple items in a single call and some keywords
@@ -376,7 +376,7 @@ print("test", 1, 2, flush=False)
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': ["test 1 2"]
+            'prints': "test 1 2\n"
         }
     ),
 ]
@@ -751,11 +751,3 @@ def test_invalid_code_execute(code, error):
     with pytest.raises(MitoError) as e:
         exec_and_get_new_state_and_result(prev_state, code)
     assert error in str(e)
-
-def test_get_specific_error_location():
-    old_dfs_map = {'df': pd.DataFrame({'a': [123]})}
-    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
-    with pytest.raises(MitoError) as e:
-        exec_and_get_new_state_and_result(prev_state, "x += 1")
-    
-    assert False

@@ -7,6 +7,9 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression, replace_last_instance_in_string
 
+from io import StringIO
+from contextlib import redirect_stdout
+
 from mitosheet.errors import make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.column_steps.delete_column import \
@@ -49,7 +52,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
             'deleted_dataframes': [],
             'modified_dataframes': {},
             'last_line_expression_value': None,
-            'prints': []
+            'prints': ''
         }
 
     df_map = {df_name: df.copy(deep=True) for df_name, df in original_df_map.items()}
@@ -76,15 +79,12 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
-    # Setup a function to capture all the prints 
-    # TODO: we somehow have to capture standard out. I am not sure how to mock a function
-    # inside of exec... which is tricky
-    prints = []
-    def print_with_capture(*args, **kwargs):
-        prints.append(" ".join(map(str, args)))
+    # Capture the output as well
+    output_string_io = StringIO()
 
     try:
-        exec(code, {'print': print_with_capture}, locals())
+        with redirect_stdout(output_string_io):
+            exec(code, {}, locals())
     except Exception as e:
         raise make_exec_error(e)
         
@@ -118,7 +118,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'deleted_dataframes': deleted_dataframes,
         'modified_dataframes': modified_dataframes,
         'last_line_expression_value': last_line_expression_value,
-        'prints': prints
+        'prints': output_string_io.getvalue()
     }
 
 def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ModifiedDataframeReconData:

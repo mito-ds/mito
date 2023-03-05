@@ -11,11 +11,11 @@ from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import Selection
 
-MAX_TOKENS = 7500
+MAX_TOKENS = 4096
 CHARS_PER_TOKEN = 4 # https://platform.openai.com/docs/introduction/tokens
 MAX_CHARS = MAX_TOKENS * CHARS_PER_TOKEN
 
-MAX_TOKENS_FOR_INPUT_DATA = 6000
+MAX_TOKENS_FOR_INPUT_DATA = 3800
 MAX_CHARS_FOR_INPUT_DATA = MAX_TOKENS_FOR_INPUT_DATA * CHARS_PER_TOKEN
 
 def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, float]) -> str:

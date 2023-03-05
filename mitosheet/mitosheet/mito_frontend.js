@@ -33412,12 +33412,16 @@ ${finalCode}`;
       });
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
       if (newParams !== void 0) {
-        _setParams(newParams);
+        if ((options == null ? void 0 : options.doNotRefreshParamsOnUndoAndRedo) !== true) {
+          _setParams(newParams);
+        }
         if (onUndoAndRedo !== void 0) {
           onUndoAndRedo(newParams);
         }
       } else {
-        _setParams(defaultParams);
+        if ((options == null ? void 0 : options.doNotRefreshParamsOnUndoAndRedo) !== true) {
+          _setParams(defaultParams);
+        }
         setParamsApplied(false);
         if (onUndoAndRedo !== void 0) {
           onUndoAndRedo(defaultParams());
@@ -33434,7 +33438,9 @@ ${finalCode}`;
       });
       const newParams = await mitoAPI.getParams(stepType, stepID, {});
       if (newParams !== void 0) {
-        _setParams(newParams);
+        if ((options == null ? void 0 : options.doNotRefreshParamsOnUndoAndRedo) !== true) {
+          _setParams(newParams);
+        }
         if (onUndoAndRedo !== void 0) {
           onUndoAndRedo(newParams);
         }
@@ -39025,7 +39031,8 @@ fig.write_html("${props.graphTabName}.html")`
         placeholder: props.placeholder,
         value: props.value,
         disabled: props.disabled,
-        onKeyDown: props.onKeyDown
+        onKeyDown: props.onKeyDown,
+        spellCheck: props.spellCheck
       }
     );
   };
@@ -39045,9 +39052,7 @@ fig.write_html("${props.graphTabName}.html")`
       completion: props.params.completion.split("\n"),
       edited_completion: props.params.edited_completion.split("\n")
     };
-    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.prints.length > 0 && /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Printed:")), result.prints.map((print) => {
-      return /* @__PURE__ */ import_react172.default.createElement("div", { key: print, className: "ml-5px" }, print);
-    })), result.created_dataframe_names.map((dfName) => {
+    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.prints.length > 0 && /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Printed:")), /* @__PURE__ */ import_react172.default.createElement("pre", null, result.prints)), result.created_dataframe_names.map((dfName) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
       const sheetData = props.sheetDataArray[sheetIndex];
       const numRows = (sheetData == null ? void 0 : sheetData.numRows) || 0;
@@ -39071,7 +39076,7 @@ fig.write_html("${props.graphTabName}.html")`
         numRows,
         " rows, ",
         numColumns,
-        " column)"
+        " columns)"
       );
     }), Object.entries(result.modified_dataframes_recons).map(([dfName, modifiedDataframeRecon]) => {
       const columnReconData = modifiedDataframeRecon.column_recon;
@@ -39220,13 +39225,12 @@ fig.write_html("${props.graphTabName}.html")`
       hint: void 0,
       loading: false
     });
-    const [previousParams, setPreviousParams] = (0, import_react173.useState)([]);
     const { params, setParams, edit, result, error } = useSendEditOnClick_default(
       () => getDefaultParams10(),
       "ai_transformation" /* AiTransformation */,
       props.mitoAPI,
       props.analysisData,
-      { allowSameParamsToReapplyTwice: true }
+      { allowSameParamsToReapplyTwice: true, doNotRefreshParamsOnUndoAndRedo: true }
     );
     if (params === void 0) {
       return /* @__PURE__ */ import_react173.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
@@ -39241,8 +39245,14 @@ fig.write_html("${props.graphTabName}.html")`
       if (completionOrError !== void 0 && "completion" in completionOrError) {
         const newParams = __spreadProps(__spreadValues({}, completionOrError), { edited_completion: completionOrError.completion });
         setParams(newParams);
-        setPreviousParams((prevPreviousParams) => {
+        props.setPreviousAITransformParams((prevPreviousParams) => {
           const newPreviousParams = [...prevPreviousParams];
+          const existingIndex = newPreviousParams.findIndex((p) => {
+            return p.completion === newParams.completion && p.edited_completion === newParams.edited_completion && p.user_input === newParams.user_input;
+          });
+          if (existingIndex !== -1) {
+            newPreviousParams.splice(existingIndex, 1);
+          }
           newPreviousParams.push(newParams);
           return newPreviousParams;
         });
@@ -39260,6 +39270,7 @@ fig.write_html("${props.graphTabName}.html")`
         return __spreadProps(__spreadValues({}, prevPromptState), { loading: false });
       });
     };
+    const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -39299,12 +39310,13 @@ fig.write_html("${props.graphTabName}.html")`
       {
         value: params.edited_completion,
         placeholder: "Generated code will appear here...",
+        spellCheck: false,
         onChange: (e) => {
           const newEditedCompletion = e.target.value;
           const newParams = __spreadProps(__spreadValues({}, params), {
             edited_completion: newEditedCompletion
           });
-          setPreviousParams((prevPreviousParams) => {
+          props.setPreviousAITransformParams((prevPreviousParams) => {
             return getNewPreviousParams(prevPreviousParams, params, newParams);
           });
           setParams((prevParams) => {
@@ -39327,38 +39339,37 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: params.edited_completion.length === 0 || promptState.loading
       },
       "Execute Generated Code"
-    ), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error), getAdditionalErrorHelp(error)), previousParams.length > 1 && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-around", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(Col_default, { className: "text-subtext-1" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(
+    ), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error), getAdditionalErrorHelp(error)), props.previousAITransformParams.length > 1 && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-around", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(Col_default, { className: "text-subtext-1" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(
       Col_default,
       {
         onClick: () => {
-          const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
-          const newIndex = currentIndex - 1;
+          const newIndex = currentlySelectedParamsIndex - 1;
           if (newIndex < 0) {
             return;
           }
-          const newParams = previousParams[newIndex];
+          const newParams = props.previousAITransformParams[newIndex];
           setParams(newParams);
           setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
         }
       },
-      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "previous" }, getCurrentlySelectedParamsIndex(previousParams, params) !== 0 ? "\u25C0" : "\u25C1", " "),
+      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "previous" }, currentlySelectedParamsIndex !== 0 ? "\u25C0" : "\u25C1", " "),
       "\xA0"
-    ), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, "Your Prompts (", Math.min(getCurrentlySelectedParamsIndex(previousParams, params) + 1, previousParams.length), " / ", previousParams.length, ")"), /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, "Your Prompts (", Math.min(getCurrentlySelectedParamsIndex(props.previousAITransformParams, params) + 1, props.previousAITransformParams.length), " / ", props.previousAITransformParams.length, ")"), /* @__PURE__ */ import_react173.default.createElement(
       Col_default,
       {
         onClick: () => {
-          const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+          const currentIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
           const newIndex = currentIndex + 1;
-          if (newIndex > previousParams.length - 1) {
+          if (newIndex > props.previousAITransformParams.length - 1) {
             return;
           }
-          const newParams = previousParams[newIndex];
+          const newParams = props.previousAITransformParams[newIndex];
           setParams(newParams);
           setPromptState({ userInput: newParams.user_input, error: void 0, hint: void 0, loading: false });
         }
       },
       "\xA0 ",
-      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "next" }, getCurrentlySelectedParamsIndex(previousParams, params) !== previousParams.length - 1 ? "\u25B6" : "\u25B7")
+      /* @__PURE__ */ import_react173.default.createElement("span", { role: "img", "aria-label": "next" }, currentlySelectedParamsIndex < props.previousAITransformParams.length - 1 ? "\u25B6" : "\u25B7")
     ))))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       CollapsibleSection_default,
       {
@@ -41231,6 +41242,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightPivotTableButton, setHighlightPivotTableButton] = (0, import_react226.useState)(false);
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react226.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react226.useState)(["."]);
+    const [previousAITransformParams, setPreviousAITransformParams] = (0, import_react226.useState)([]);
     const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react226.useEffect)(() => {
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
@@ -41777,7 +41789,9 @@ fig.write_html("${props.graphTabName}.html")`
               uiState,
               setUIState,
               mitoAPI,
-              sheetDataArray: sheetDataArray2
+              sheetDataArray: sheetDataArray2,
+              previousAITransformParams,
+              setPreviousAITransformParams
             }
           );
       }
