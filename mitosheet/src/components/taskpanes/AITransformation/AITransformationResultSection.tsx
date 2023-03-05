@@ -43,9 +43,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             {result.prints.length > 0 && 
                 <>
                     <p><span className="text-bold">Printed:</span></p>
-                    {result.prints.map(print => {
-                        return <div key={print} className="ml-5px">{print}</div>
-                    })}
+                    <pre>{result.prints}</pre>
                 </>
             }
             {result.created_dataframe_names.map(dfName => {
@@ -64,7 +62,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} column)
+                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} columns)
                     </div>
                 )
             })}

@@ -20,7 +20,8 @@ function useSendEditOnClick<ParamType, ResultType>(
     analysisData: AnalysisData,
     options?: {
         allowSameParamsToReapplyTwice?: boolean,
-        overwiteStepIfClickedMultipleTimes?: boolean
+        overwiteStepIfClickedMultipleTimes?: boolean,
+        doNotRefreshParamsOnUndoAndRedo?: boolean
     },
     onUndoAndRedo?: (params: ParamType | undefined) => void
 ): {
@@ -37,7 +38,7 @@ function useSendEditOnClick<ParamType, ResultType>(
     const [params, _setParams] = useState(defaultParams);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
-    
+
     // We store a list of all the step IDs that have been applied or
     // are sitting inside of the redo buffer waiting to reapplied. We
     // also store the current index that we're at in these step ids
@@ -144,13 +145,18 @@ function useSendEditOnClick<ParamType, ResultType>(
 
         const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
         if (newParams !== undefined) {
-            _setParams(newParams);
+            if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
+                _setParams(newParams);
+            }
             
             if (onUndoAndRedo !== undefined) {
                 onUndoAndRedo(newParams)
             }
         } else {
-            _setParams(defaultParams);
+            if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
+                _setParams(defaultParams);
+            }
+    
             setParamsApplied(false);
 
             if (onUndoAndRedo !== undefined) {
@@ -178,7 +184,9 @@ function useSendEditOnClick<ParamType, ResultType>(
 
         const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
         if (newParams !== undefined) {
-            _setParams(newParams);
+            if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
+                _setParams(newParams);
+            }
 
             if (onUndoAndRedo !== undefined) {
                 onUndoAndRedo(newParams)

@@ -27,6 +27,8 @@ interface AITransformationTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     analysisData: AnalysisData;
     sheetDataArray: SheetData[]
+    previousAITransformParams: AITransformationParams[];
+    setPreviousAITransformParams: React.Dispatch<React.SetStateAction<AITransformationParams[]>>;
 }
 
 export interface AITransformationParams {
@@ -51,7 +53,7 @@ export interface AITransformationResult {
         'column_recon': ColumnReconData,
         'num_added_or_removed_rows': number
     }>,
-    prints: string[]
+    prints: string
 }
 
 interface PromptState {
@@ -133,7 +135,7 @@ const getCurrentlySelectedParamsIndex = (previousParams: AITransformationParams[
 
 /**
  * A helper function for updating the previous params list. If the current params are already on the array, then we simply
- * overwrite this final entry. Otherwise, we append them to the list
+ * overwrite this final entry. Otherwise, we append them to the list.
  */
 const getNewPreviousParams = (previousParams: AITransformationParams[], currParams: AITransformationParams, newParams: AITransformationParams): AITransformationParams[] => {
     if (previousParams.length === 0) {
@@ -186,14 +188,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         loading: false
     });
 
-    const [previousParams, setPreviousParams] = useState<AITransformationParams[]>([])
-
     const {params, setParams, edit, result, error} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
         () => getDefaultParams(),
         StepType.AiTransformation, 
         props.mitoAPI,
         props.analysisData,
-        {allowSameParamsToReapplyTwice: true}
+        {allowSameParamsToReapplyTwice: true, doNotRefreshParamsOnUndoAndRedo: true}
     )
 
     if (params === undefined) {
@@ -209,11 +209,17 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         if (completionOrError !== undefined && 'completion' in completionOrError) {
             const newParams = {...completionOrError, edited_completion: completionOrError.completion};
             setParams(newParams);
-            setPreviousParams(prevPreviousParams => {
+
+            props.setPreviousAITransformParams(prevPreviousParams => {
                 const newPreviousParams = [...prevPreviousParams];
+                const existingIndex = newPreviousParams.findIndex((p) => {return p.completion === newParams.completion && p.edited_completion === newParams.edited_completion && p.user_input === newParams.user_input});
+                if (existingIndex !== -1) { // if it exists already, delete it, so we don't get confused about where we are
+                    newPreviousParams.splice(existingIndex, 1);
+                }
                 newPreviousParams.push(newParams);
                 return newPreviousParams;
             })
+
             setOpenSections(prevOpenSections => {return {...prevOpenSections, 'Examples': false, 'Result': false}})
         } else if (completionOrError !== undefined && 'error' in completionOrError){
             setPromptState(prevPromptState => {
@@ -226,6 +232,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
         setPromptState(prevPromptState => {return {...prevPromptState, loading: false}})
     }
+
+
+    const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
 
 
     return (
@@ -288,6 +297,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     <TextArea 
                         value={params.edited_completion} 
                         placeholder='Generated code will appear here...'
+                        spellCheck={false}
                         onChange={(e) => {
                             const newEditedCompletion = e.target.value;
 
@@ -297,7 +307,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             };
 
                             // Save these new previous params
-                            setPreviousParams(prevPreviousParams => {
+                            props.setPreviousAITransformParams(prevPreviousParams => {
                                 return getNewPreviousParams(prevPreviousParams, params, newParams);
                             })
 
@@ -331,38 +341,37 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             {getAdditionalErrorHelp(error)}
                         </>
                     }
-                    {previousParams.length > 1 && 
+                    {props.previousAITransformParams.length > 1 && 
                         <Row justify="space-around" align="center" suppressTopBottomMargin>
                             <Col className="text-subtext-1">
                                 <Row suppressTopBottomMargin>
                                     <Col
                                         onClick={() => {
-                                            const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
-                                            const newIndex = currentIndex - 1;
+                                            const newIndex = currentlySelectedParamsIndex - 1;
                                             if (newIndex < 0) {
                                                 return;
                                             }
-                                            const newParams = previousParams[newIndex];
+                                            const newParams = props.previousAITransformParams[newIndex];
                                             setParams(newParams);
                                             setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
                                         }}
                                     >
-                                        <span role="img" aria-label="previous">{getCurrentlySelectedParamsIndex(previousParams, params) !== 0 ? '◀' : '◁'} </span>&nbsp;
+                                        <span role="img" aria-label="previous">{currentlySelectedParamsIndex !== 0 ? '◀' : '◁'} </span>&nbsp;
                                     </Col>
-                                    <Col>Your Prompts ({Math.min(getCurrentlySelectedParamsIndex(previousParams, params) + 1, previousParams.length)} / {previousParams.length})</Col>
+                                    <Col>Your Prompts ({Math.min(getCurrentlySelectedParamsIndex(props.previousAITransformParams, params) + 1, props.previousAITransformParams.length)} / {props.previousAITransformParams.length})</Col>
                                     <Col
                                         onClick={() => {
-                                            const currentIndex = getCurrentlySelectedParamsIndex(previousParams, params);
+                                            const currentIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
                                             const newIndex = currentIndex + 1;
-                                            if (newIndex > previousParams.length - 1) {
+                                            if (newIndex > props.previousAITransformParams.length - 1) {
                                                 return;
                                             }
-                                            const newParams = previousParams[newIndex];
+                                            const newParams = props.previousAITransformParams[newIndex];
                                             setParams(newParams);
                                             setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
                                         }}
                                     >
-                                        &nbsp; <span role="img" aria-label="next">{getCurrentlySelectedParamsIndex(previousParams, params) !== previousParams.length - 1 ? '▶' : '▷'}</span>
+                                        &nbsp; <span role="img" aria-label="next">{currentlySelectedParamsIndex < (props.previousAITransformParams.length - 1) ? '▶' : '▷'}</span>
                                     </Col>
                                 </Row>
                             </Col>
