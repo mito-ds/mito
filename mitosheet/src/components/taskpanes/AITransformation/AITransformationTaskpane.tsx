@@ -263,7 +263,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         </p>
                         <Spacer px={5}/>
                         <p className="text-body-1">
-                            You can see Mito's <a className='text-underline' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>
+                            You can see our <a className='text-underline' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>
                         </p>
                         <TextButton
                             onClick={() => {

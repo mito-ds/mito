@@ -203,10 +203,8 @@ def upgrade_user_json_version_8_to_9(user_json_version_8: Dict[str, Any]) -> Dic
     """
     Adds the UJ_AI_PRIVACY_POLICY key, and sets it to False
     """
-    # First, bump the version number
     user_json_version_8[UJ_USER_JSON_VERSION] = 9
 
-    # Then, add the new enterprise key
     user_json_version_8[UJ_AI_PRIVACY_POLICY] = False
 
     return user_json_version_8
