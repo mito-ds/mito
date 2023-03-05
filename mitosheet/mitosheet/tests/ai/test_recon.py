@@ -751,3 +751,11 @@ def test_invalid_code_execute(code, error):
     with pytest.raises(MitoError) as e:
         exec_and_get_new_state_and_result(prev_state, code)
     assert error in str(e)
+
+def test_get_specific_error_location():
+    old_dfs_map = {'df': pd.DataFrame({'a': [123]})}
+    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
+    with pytest.raises(MitoError) as e:
+        exec_and_get_new_state_and_result(prev_state, "x += 1")
+    
+    assert False

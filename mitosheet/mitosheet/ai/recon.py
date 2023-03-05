@@ -76,7 +76,9 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
-    # Setup a function to capture all the prints
+    # Setup a function to capture all the prints 
+    # TODO: we somehow have to capture standard out. I am not sure how to mock a function
+    # inside of exec... which is tricky
     prints = []
     def print_with_capture(*args, **kwargs):
         prints.append(" ".join(map(str, args)))
