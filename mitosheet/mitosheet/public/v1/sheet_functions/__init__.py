@@ -6,11 +6,11 @@
 """
 Contains exports for all functions that can be used in the mitosheet
 """
-from mitosheet.sheet_functions.number_functions import *
-from mitosheet.sheet_functions.string_functions import *
-from mitosheet.sheet_functions.date_functions import *
-from mitosheet.sheet_functions.control_functions import *
-from mitosheet.sheet_functions.misc_functions import *
+from mitosheet.public.v1.sheet_functions.number_functions import *
+from mitosheet.public.v1.sheet_functions.string_functions import *
+from mitosheet.public.v1.sheet_functions.date_functions import *
+from mitosheet.public.v1.sheet_functions.control_functions import *
+from mitosheet.public.v1.sheet_functions.misc_functions import *
 
 FUNCTIONS = dict(NUMBER_FUNCTIONS, **STRING_FUNCTIONS, **DATE_FUNCTIONS, **CONTROL_FUNCTIONS, **MISC_FUNCTIONS)
 

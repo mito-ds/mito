@@ -13,10 +13,10 @@ from typing import Any, Callable
 import pandas as pd
 from mitosheet.errors import (MitoError, make_function_error,
                               make_invalid_arguments_error)
-from mitosheet.sheet_functions.sheet_function_utils import \
+from mitosheet.public.v1.sheet_functions.sheet_function_utils import \
     is_series_of_constant
-from mitosheet.sheet_functions.types import get_function_to_convert_to_series
-from mitosheet.sheet_functions.types.utils import (get_nan_indexes_metadata,
+from mitosheet.public.v1.sheet_functions.types import get_function_to_convert_to_series
+from mitosheet.public.v1.sheet_functions.types.utils import (get_nan_indexes_metadata,
                                                    put_nan_indexes_back)
 
 

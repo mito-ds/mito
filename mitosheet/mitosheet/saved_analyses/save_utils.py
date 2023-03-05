@@ -120,13 +120,13 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
 
-def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], version: str=__version__) -> None:
+def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], public_interface_version: int, version: str=__version__) -> None:
     with open(analysis_path, 'w+') as f:
         saved_analysis = {
             'version': version,
-            'steps_data': steps_data
+            'steps_data': steps_data,
+            'public_interface_version': public_interface_version
         }
-
         f.write(json.dumps(saved_analysis, cls=NpEncoder))
 
 
@@ -205,12 +205,4 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]
     steps = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     # Actually write the file
-    write_saved_analysis(analysis_path, steps)
-
-
-def register_analysis(analysis_name):
-    """
-    A helper function that is used in the frontend
-    to save which analysis is being run (so it can be replayed)
-    """
-    log('ran_generated_code', {'analysis_name': analysis_name}) 
+    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version)

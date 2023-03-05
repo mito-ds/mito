@@ -10,7 +10,7 @@ Contains tests for the MID function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.string_functions import MID
+from mitosheet.public.v1.sheet_functions.string_functions import MID
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

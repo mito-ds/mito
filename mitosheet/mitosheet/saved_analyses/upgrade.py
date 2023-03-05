@@ -21,7 +21,7 @@ from mitosheet.saved_analyses.schema_utils import (upgrade_saved_analysis_format
 from mitosheet.saved_analyses.step_upgraders.add_column import \
     upgrade_add_column_1_to_add_column_2
 from mitosheet.saved_analyses.step_upgraders.change_column_dtype import (
-    upgrade_change_column_dtype_1_to_2, upgrade_change_column_dtype_2_to_3)
+    upgrade_change_column_dtype_1_to_2, upgrade_change_column_dtype_2_to_3, upgrade_change_column_dtype_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.change_column_format import \
     upgrade_change_column_format_1_to_remove
 from mitosheet.saved_analyses.step_upgraders.delete_column import (
@@ -36,13 +36,13 @@ from mitosheet.saved_analyses.step_upgraders.merge import (
 from mitosheet.saved_analyses.step_upgraders.pivot import (
     upgrade_group_1_to_pivot_2, upgrade_pivot_2_to_pivot_3,
     upgrade_pivot_3_to_4, upgrade_pivot_4_to_5_and_rename,
-    upgrade_pivot_5_to_6, upgrade_pivot_6_to_7, upgrade_pivot_7_to_8)
+    upgrade_pivot_5_to_6, upgrade_pivot_6_to_7, upgrade_pivot_7_to_8, upgrade_pivot_8_to_9)
 from mitosheet.saved_analyses.step_upgraders.rename_column import \
     upgrade_rename_column_1_to_2
 from mitosheet.saved_analyses.step_upgraders.reorder_column import \
     upgrade_reorder_column_1_to_2
 from mitosheet.saved_analyses.step_upgraders.set_column_formula import \
-    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3, upgrade_set_column_formula_3_to_4
+    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3, upgrade_set_column_formula_3_to_4, upgrade_set_column_formula_4_to_5
 from mitosheet.saved_analyses.step_upgraders.set_dataframe_format import \
     upgrade_set_dataframe_format_1_to_2
 from mitosheet.saved_analyses.step_upgraders.simple_import import \
@@ -93,7 +93,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     },
     'change_column_dtype': {
         1: upgrade_change_column_dtype_1_to_2,
-        2: upgrade_change_column_dtype_2_to_3
+        2: upgrade_change_column_dtype_2_to_3,
+        3: upgrade_change_column_dtype_3_to_4
     },
     'delete_column': {
         1: upgrade_delete_column_1_to_2,
@@ -108,7 +109,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         4: upgrade_pivot_4_to_5_and_rename,
         5: upgrade_pivot_5_to_6,
         6: upgrade_pivot_6_to_7,
-        7: upgrade_pivot_7_to_8
+        7: upgrade_pivot_7_to_8,
+        8: upgrade_pivot_8_to_9
     },
     'rename_column': {
         1: upgrade_rename_column_1_to_2
@@ -119,7 +121,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     'set_column_formula': {
         1: upgrade_set_column_formula_1_to_2,
         2: upgrade_set_column_formula_2_to_3,
-        3: upgrade_set_column_formula_3_to_4
+        3: upgrade_set_column_formula_3_to_4,
+        4: upgrade_set_column_formula_4_to_5
     },
     'sort': {
         1: upgrade_sort_1_to_2
@@ -301,6 +304,23 @@ def upgrade_steps_for_new_format(saved_analysis: Optional[Dict[str, Any]]) -> Op
         'steps_data': new_steps_data
     }
 
+def upgrade_saved_analysis_to_have_public_interface_version(saved_analysis: Optional[Dict[str, Any]], public_interface_version: Optional[int]) -> Optional[Dict[str, Any]]:
+    
+    if saved_analysis is None:
+        return None
+    
+    # If there is already a public interface version, we just make sure to set it (as it was not carried through from previous ugprade
+    # functions which only take speciifc params
+    if public_interface_version is not None:
+        saved_analysis['public_interface_version'] = public_interface_version
+    else:
+        # Otherwise, we have to add it to the analysis as default 1
+        saved_analysis['public_interface_version'] = 1
+    
+    return saved_analysis
+    
+
+
 def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
     Upgrades a saved analysis to the current version.
@@ -308,6 +328,7 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     Notable, changes to the saved analysis take two types:
     1. Changes to the format of the saved analysis itself. 
     2. Changes to the format of the specific steps in the saved analysis.
+    3. Adds the public interface version and sets it to 1, if it's not already there (we also have to add to all steps)
 
     See mitosheet/upgrade/schemas.py, but as we only have 1 format change
     in the saved analyses, we process the specific step upgrades first if
@@ -315,7 +336,10 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     """
     saved_analysis = upgrade_steps_for_old_format(saved_analysis)
     new_format_saved_analysis = upgrade_saved_analysis_format_to_steps_data(saved_analysis)
-    saved_analysis = upgrade_steps_for_new_format(new_format_saved_analysis)
+    saved_analysis_with_new_step_format = upgrade_steps_for_new_format(new_format_saved_analysis)
+    final_upgraded_saved_analysis = upgrade_saved_analysis_to_have_public_interface_version(
+        saved_analysis_with_new_step_format, 
+        saved_analysis.get('public_interface_version', None) if saved_analysis is not None else None
+    )
 
-    return saved_analysis
-    
+    return final_upgraded_saved_analysis

@@ -83,3 +83,28 @@ def upgrade_change_column_dtype_2_to_3(step: Dict[str, Any], later_steps: List[D
         "step_type": "change_column_dtype", 
         "params": params
     }] + later_steps
+
+def upgrade_change_column_dtype_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Adds public interface version
+
+    NEW: {
+        'step_version': 4, 
+        'step_type': "change_column_dtype",
+        'params': {
+            sheet_index: 0,
+            column_ids: List[ColumnID],
+            old_dtypes: Dict[ColumnID, str],
+            new_dtype: str,
+            public_interface_version: 1
+        }
+    }
+    """
+    params = step['params']
+    params['public_interface_version'] = 1
+
+    return [{
+        "step_version": 4, 
+        "step_type": "change_column_dtype", 
+        "params": params
+    }] + later_steps

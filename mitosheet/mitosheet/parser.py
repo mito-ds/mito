@@ -17,7 +17,7 @@ import pandas as pd
 
 from mitosheet.column_headers import get_column_header_display
 from mitosheet.errors import make_invalid_formula_error
-from mitosheet.sheet_functions.types.utils import (is_datetime_dtype,
+from mitosheet.is_type_utils import (is_datetime_dtype,
                                                    is_number_dtype,
                                                    is_string_dtype)
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, IndexLabel
@@ -597,6 +597,7 @@ def replace_functions(
             # may remain lower case. 
             function = word.upper()
             functions.add(function)
+
             return function
         else:
             return word

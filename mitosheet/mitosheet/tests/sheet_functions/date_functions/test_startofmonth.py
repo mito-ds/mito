@@ -10,7 +10,7 @@ Contains tests for the STARTOFMONTH function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import STARTOFMONTH
+from mitosheet.public.v1.sheet_functions.date_functions import STARTOFMONTH
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 START_OF_MONTH_TESTS = [

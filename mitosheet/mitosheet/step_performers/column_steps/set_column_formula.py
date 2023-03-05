@@ -12,12 +12,11 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
     SetColumnFormulaCodeChunk
-from mitosheet.errors import (MitoError, make_execution_error,
+from mitosheet.errors import (MitoError, get_recent_traceback, make_execution_error,
                               make_operator_type_error,
                               make_unsupported_function_error,
                               raise_error_if_column_ids_do_not_exist)
 from mitosheet.parser import get_frontend_formula, parse_formula
-from mitosheet.sheet_functions import FUNCTIONS
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -54,10 +53,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             params['new_formula'] = '=0'
         else:
             try:
-                # Try and parse the formula, letting it throw errors if it
-                # is invalid
+                # Try and parse the formula, letting it throw errors if it is invalid
                 parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index], throw_errors=True)
-            except Exception as e:                
+            except Exception as e:
                 params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index])
 
         return params
@@ -69,6 +67,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')
         index_labels_formula_is_applied_to: FormulaAppliedToType = get_param(params, 'index_labels_formula_is_applied_to')
         new_formula: str = get_param(params, 'new_formula')
+        public_interface_version: int = get_param(params, 'public_interface_version')
 
         raise_error_if_column_ids_do_not_exist(
             'set column formula',
@@ -85,8 +84,15 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             column_header,
             formula_label,
             index_labels_formula_is_applied_to,
-            prev_state.dfs[sheet_index]
+            prev_state.dfs[sheet_index],
         )
+
+        if public_interface_version == 1:
+            from mitosheet.public.v1 import FUNCTIONS
+        elif public_interface_version == 2:
+            from mitosheet.public.v2 import FUNCTIONS
+        else:
+            raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 
         # The formula can only reference known formulas
         missing_functions = new_functions.difference(set(FUNCTIONS.keys()))
@@ -99,7 +105,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             pandas_start_time = perf_counter()
-            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula)
+            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -132,6 +138,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
                 get_param(params, 'formula_label'),
                 get_param(params, 'index_labels_formula_is_applied_to'),
                 get_param(params, 'new_formula'),
+                get_param(params, 'public_interface_version'),
             )
         ]
 
@@ -145,7 +152,7 @@ def _get_fixed_invalid_formula(
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
-        df: pd.DataFrame
+        df: pd.DataFrame,
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -237,7 +244,8 @@ def exec_column_formula(
     column_id: ColumnID, 
     formula_label: Union[str, bool, int, float], 
     index_labels_formula_is_applied_to: FormulaAppliedToType,
-    spreadsheet_code: str
+    spreadsheet_code: str,
+    public_interface_version: int
 ) -> None:
     """
     Helper function for refreshing the column when the formula is set
@@ -254,16 +262,23 @@ def exec_column_formula(
         column_header,
         formula_label,
         index_labels_formula_is_applied_to,
-        post_state.dfs[sheet_index]
+        post_state.dfs[sheet_index],
     )
 
     try:
+        if public_interface_version == 1:
+            from mitosheet.public.v1 import FUNCTIONS as locals_for_exec
+        elif public_interface_version == 2:
+            from mitosheet.public.v2 import FUNCTIONS as locals_for_exec
+        else:
+            raise Exception(f'Please add support for public_interface_version={public_interface_version}')
+
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         exec(
             python_code,
             {'df': df, 'pd': pd}, 
-            FUNCTIONS
+            locals_for_exec
         )
         # Then, update the column spreadsheet code
         frontend_formula = get_frontend_formula(

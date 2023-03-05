@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 from mitosheet.errors import MitoError
-from mitosheet.sheet_functions.number_functions import INT
+from mitosheet.public.v1.sheet_functions.number_functions import INT
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

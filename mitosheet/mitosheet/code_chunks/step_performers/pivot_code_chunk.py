@@ -24,14 +24,17 @@ from mitosheet.utils import is_prev_version
 
 USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
 
-# Helpful constants for code formatting. The in_place parameter was depricated
-# since 1.5.0, so we use a different method for formatting in this case. We keep
-# it for earlier versions, as the set_axis functioned required this on pre 1.0 to
-# avoid ending up with a dataframe with no axis
-if USE_INPLACE_PIVOT:
-    FLATTEN_CODE = f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
-else:
-    FLATTEN_CODE = f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
+
+def get_flatten_code(use_inplace_pivot: bool) -> str:
+    # Helpful constants for code formatting. The in_place parameter was depricated
+    # since 1.5.0, so we use a different method for formatting in this case. We keep
+    # it for earlier versions, as the set_axis functioned required this on pre 1.0 to
+    # avoid ending up with a dataframe with no axis
+    if use_inplace_pivot:
+        return f'pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1, inplace=True)'
+    else:
+        return f'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)'
+
 
 def values_to_functions_code(values: Dict[ColumnHeader, Collection[str]]) -> str:
     """
@@ -90,7 +93,8 @@ class PivotCodeChunk(CodeChunk):
         pivot_filters: List[ColumnIDWithFilter],
         values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: Optional[bool],
-        was_series: Optional[bool]
+        was_series: Optional[bool],
+        public_interface_version: int
     ):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
@@ -101,6 +105,7 @@ class PivotCodeChunk(CodeChunk):
         self.values_column_ids_map = values_column_ids_map
         self.flatten_column_headers = flatten_column_headers
         self.was_series = was_series
+        self.public_interface_version = public_interface_version
 
         self.old_df_name = self.post_state.df_names[self.sheet_index]
         if self.destination_sheet_index is None:
@@ -178,7 +183,7 @@ class PivotCodeChunk(CodeChunk):
 
         if self.flatten_column_headers:
             # Flatten column headers, which we always do because it's hard to tell when we should
-            transpiled_code.append(FLATTEN_CODE)
+            transpiled_code.append(get_flatten_code(USE_INPLACE_PIVOT))
 
         # Finially, reset the column name, and the indexes!
         transpiled_code.append(f'{self.new_df_name} = pivot_table.reset_index()')
@@ -205,7 +210,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series
+                pivot_code_chunk.was_series,
+                pivot_code_chunk.public_interface_version
             )
 
         # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
@@ -222,7 +228,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series
+                pivot_code_chunk.was_series,
+                pivot_code_chunk.public_interface_version
             )
 
         return None
@@ -252,7 +259,8 @@ class PivotCodeChunk(CodeChunk):
                 self.pivot_filters_ids,
                 self.values_column_ids_map,
                 self.flatten_column_headers,
-                self.was_series
+                self.was_series,
+                self.public_interface_version
             )
 
         return None

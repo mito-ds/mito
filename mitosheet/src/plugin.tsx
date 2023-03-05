@@ -14,6 +14,7 @@ import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
+import { PublicInterfaceVersion } from './types';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './utils/code';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
@@ -124,8 +125,9 @@ function activateMitosheetExtension(
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
+            const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
 
-            const code = getCodeString(analysisName, codeLines, telemetryEnabled);
+            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately

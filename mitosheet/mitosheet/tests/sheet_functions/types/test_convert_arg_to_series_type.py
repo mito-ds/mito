@@ -8,7 +8,7 @@ Contains tests for the convert_arg_to_series_type decorator.
 """
 import pandas as pd
 import pytest
-from mitosheet.sheet_functions.types.decorators import \
+from mitosheet.public.v1.sheet_functions.types.decorators import \
     convert_arg_to_series_type
 
 CONVERT_ARGS_TESTS = [

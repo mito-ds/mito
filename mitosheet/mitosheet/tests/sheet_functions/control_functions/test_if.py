@@ -10,7 +10,7 @@ Contains tests for the IF function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.control_functions import IF
+from mitosheet.public.v1.sheet_functions.control_functions import IF
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 # Raw function tests

@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 from math import factorial
 
-from mitosheet.sheet_functions.number_functions import MULTIPLY
+from mitosheet.public.v1.sheet_functions.number_functions import MULTIPLY
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests

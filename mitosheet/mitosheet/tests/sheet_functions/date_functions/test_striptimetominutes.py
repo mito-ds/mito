@@ -10,7 +10,7 @@ Contains tests for the STRIPTIMETOMINUTES function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import STRIPTIMETOMINUTES
+from mitosheet.public.v1.sheet_functions.date_functions import STRIPTIMETOMINUTES
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 STRP_TO_MINUTES_TESTS = [

@@ -817,7 +817,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)))
+        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)), 1)
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix

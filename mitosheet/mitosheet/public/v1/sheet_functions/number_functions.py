@@ -18,8 +18,8 @@ from typing import Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from mitosheet.sheet_functions.types.decorators import fill_nans, filter_nans, convert_args_to_series_type, convert_arg_to_series_type, handle_sheet_function_errors
-from mitosheet.sheet_functions.sheet_function_utils import try_extend_series_to_index, fill_series_with_one_index, fill_series_with_one_index
+from mitosheet.public.v1.sheet_functions.types.decorators import fill_nans, filter_nans, convert_args_to_series_type, convert_arg_to_series_type, handle_sheet_function_errors
+from mitosheet.public.v1.sheet_functions.sheet_function_utils import try_extend_series_to_index, fill_series_with_one_index, fill_series_with_one_index
 
 @handle_sheet_function_errors
 @convert_arg_to_series_type(

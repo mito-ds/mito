@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 import pandas as pd
 from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import get_split_param_dict
-from mitosheet.sheet_functions.types.utils import is_datetime_dtype, is_timedelta_dtype
+from mitosheet.is_type_utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_row_data_array
 

@@ -10,7 +10,7 @@ Contains tests for the MINUTE function.
 import pytest
 import pandas as pd
 
-from mitosheet.sheet_functions.date_functions import MINUTE
+from mitosheet.public.v1.sheet_functions.date_functions import MINUTE
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 MINUTE_TESTS = [

@@ -684,11 +684,14 @@ export enum MitoEnterpriseConfigKey {
     ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
 }
 
+export type PublicInterfaceVersion = 1 | 2;
+
 
 /**
  * An object representing all the data about the analysis that is occuring currently.
  * 
  * @param analysisName - the name of the analysis id that is for writing to the cell (after the analysis has been replayed)
+ * @param publicInterfaceVersion - the version of the public interface being used by this analysi
  * @param analysisToReplay - the analysis that was passed through the analysis_to_replay parameter to the mitosheet.sheet call
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
@@ -707,6 +710,7 @@ export enum MitoEnterpriseConfigKey {
  */
 export interface AnalysisData {
     analysisName: string,
+    publicInterfaceVersion: PublicInterfaceVersion,
     analysisToReplay: {
         analysisName: string,
         existsOnDisk: boolean,
