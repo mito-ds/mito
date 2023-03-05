@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression
+from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression, replace_last_instance_in_string
 
 from mitosheet.errors import make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
@@ -63,8 +63,8 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         has_last_line_expression_value = False
     else:
         has_last_line_expression_value = True
-        last_expression_string = get_code_string_from_last_expression(code, last_expression)
-        code = code.replace(last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
+        last_expression_string = get_code_string_from_last_expression(code)
+        code = replace_last_instance_in_string(code, last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [
         df_name for df_name in original_df_map if 
@@ -197,9 +197,12 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
         # Then, actually set the dataframe
         new_state.dfs[sheet_index] = new_df
 
-    # For the last value, if is a dataframe, then add it to the state as well
+    # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
+    # is a _newly_ created dataframe that is already given a name
     last_line_expression_value = recon_data['last_line_expression_value']
-    if isinstance(last_line_expression_value, pd.DataFrame) or isinstance(last_line_expression_value, pd.Series):
+    last_line_expression_code = get_code_string_from_last_expression(code)
+    last_line_expression_is_previously_created_dataframe = last_line_expression_code in recon_data['created_dataframes']
+    if (isinstance(last_line_expression_value, pd.DataFrame) or isinstance(last_line_expression_value, pd.Series)) and not last_line_expression_is_previously_created_dataframe:
 
         # If we get a series, we turn it into a dataframe for the user
         if isinstance(last_line_expression_value, pd.Series):
