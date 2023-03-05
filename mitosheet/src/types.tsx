@@ -750,14 +750,17 @@ export interface UserProfile {
 
     isPro: boolean;
     isEnterprise: boolean;
+
     pandasVersion: string;
     pythonVersion: string;
+
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     snowflakeCredentials: SnowflakeCredentials | null;
     openAIAPIKey: string | null | undefined
+    aiPrivacyPolicy: boolean,
     mitoConfig: {
         [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
         [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
