@@ -64,7 +64,8 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         has_last_line_expression_value = False
     else:
         has_last_line_expression_value = True
-        last_expression_string = get_code_string_from_last_expression(code)
+        # (The type ignore is b/c we know this has a value b/c of above check, mypy is not smart enough)
+        last_expression_string: str = get_code_string_from_last_expression(code) #type: ignore
         code = replace_last_instance_in_string(code, last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [

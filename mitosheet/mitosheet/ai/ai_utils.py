@@ -49,6 +49,9 @@ def get_code_string_from_last_expression(code: str) -> Optional[str]:
 def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> str:
     
     last_expression_string = get_code_string_from_last_expression(code)
+
+    if last_expression_string is None:
+        return code
     
     # We only want to replace the last instance, so we have to 
     # reverse the string, replace the dataframe name with the reverse, and then reverse it back again
