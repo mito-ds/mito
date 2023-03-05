@@ -48,7 +48,8 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
             'created_dataframes': {},
             'deleted_dataframes': [],
             'modified_dataframes': {},
-            'last_line_expression_value': None
+            'last_line_expression_value': None,
+            'prints': []
         }
 
     df_map = {df_name: df.copy(deep=True) for df_name, df in original_df_map.items()}
@@ -74,8 +75,13 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
+    # Setup a function to capture all the prints
+    prints = []
+    def print_with_capture(*args, **kwargs):
+        prints.append(" ".join(map(str, args)))
+
     try:
-        exec(code, {}, locals())
+        exec(code, {'print': print_with_capture}, locals())
     except Exception as e:
         raise make_exec_error(e)
         
@@ -108,7 +114,8 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'created_dataframes': created_dataframes,
         'deleted_dataframes': deleted_dataframes,
         'modified_dataframes': modified_dataframes,
-        'last_line_expression_value': last_line_expression_value
+        'last_line_expression_value': last_line_expression_value,
+        'prints': prints
     }
 
 def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnReconData:

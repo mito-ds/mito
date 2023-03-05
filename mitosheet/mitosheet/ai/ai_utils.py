@@ -25,9 +25,12 @@ def fix_up_missing_imports(code: str) -> str:
         
     return code
 
-def get_code_string_from_last_expression(code: str) -> str:
+def get_code_string_from_last_expression(code: str) -> Optional[str]:
 
     ast_before = ast.parse(code)
+    if len(ast_before.body) == 0:
+        return None
+    
     last_expression = ast_before.body[-1]
 
     code_lines = code.splitlines()

@@ -236,6 +236,7 @@ if sys.version_info[:3] > (3, 8, 0):
         deleted_dataframes: List[str]
         modified_dataframes: Dict[str, pd.DataFrame]
         last_line_expression_value: Optional[Any]
+        prints: List[str]
 
     class ColumnReconData(TypedDict):
         created_columns: List[ColumnHeader]
