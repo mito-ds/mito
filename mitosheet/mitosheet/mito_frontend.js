@@ -39071,8 +39071,11 @@ fig.write_html("${props.graphTabName}.html")`
         numColumns,
         " column)"
       );
-    }), Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
+    }), Object.entries(result.modified_dataframes_recons).map(([dfName, modifiedDataframeRecon]) => {
+      const columnReconData = modifiedDataframeRecon.column_recon;
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
+      const rowChange = modifiedDataframeRecon.num_added_or_removed_rows;
+      const rowChangeTest = rowChange !== 0 ? rowChange < 0 ? `(Removed ${rowChange * -1} rows)` : `(Added ${rowChange} rows)` : void 0;
       return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, /* @__PURE__ */ import_react172.default.createElement(
         "div",
         {
@@ -39086,7 +39089,9 @@ fig.write_html("${props.graphTabName}.html")`
         },
         /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Modified:"),
         " ",
-        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName)
+        /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-underline" }, dfName),
+        " ",
+        rowChangeTest
       ), columnReconData.created_columns.map((ch, index) => {
         return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName + "added" + index, className: "ml-5px" }, "Added column: ", getDisplayColumnHeader(ch));
       }), columnReconData.modified_columns.map((ch, index) => {
@@ -39098,7 +39103,7 @@ fig.write_html("${props.graphTabName}.html")`
       }));
     }), result.deleted_dataframe_names.map((dfName) => {
       return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Deleted:"), " ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
-    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "No changes"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "How did Mito AI Assistant do?")), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react172.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement(
+    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "No changes"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "How did Mito AI Assistant do?")), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react172.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement(
       "p",
       {
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Up" }),

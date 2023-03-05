@@ -6,10 +6,10 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
 
-from mitosheet.ai.recon import exec_for_recon, get_column_recon_data, exec_and_get_new_state_and_result
+from mitosheet.ai.recon import exec_for_recon, get_modified_dataframe_recon_data, exec_and_get_new_state_and_result
 from mitosheet.errors import MitoError
 from mitosheet.state import State
-from mitosheet.types import ColumnReconData, DataframeReconData
+from mitosheet.types import ColumnReconData, DataframeReconData, ModifiedDataframeReconData
 from mitosheet.utils import df_to_json_dumpsable
 
 EXEC_FOR_RECON_TESTS: List[Tuple[str, Dict[str, pd.DataFrame], DataframeReconData]] = [
@@ -401,26 +401,33 @@ def test_exec_for_recon(code, dfs, recon_data):
 
     assert recon['prints'] == recon_data['prints']  
 
-COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
+COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ModifiedDataframeReconData]] = [
     (
         pd.DataFrame(),
         pd.DataFrame(),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
         }
+        
     ),
     # Remove 1
     (
         pd.DataFrame({'A': [123]}),
         pd.DataFrame(),
         {
-            'created_columns': [],
-            'deleted_columns': ['A'],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': ['A'],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': -1
         }
     ),
     # Remove multiple
@@ -428,10 +435,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], 'B': [123]}),
         pd.DataFrame(),
         {
-            'created_columns': [],
-            'deleted_columns': ['A', 'B'],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': ['A', 'B'],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': -1
         }
     ),
     # Add 1
@@ -439,10 +449,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame(),
         pd.DataFrame({'A': [123]}),
         {
-            'created_columns': ['A'],
-            'deleted_columns': [],            
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': ['A'],
+                'deleted_columns': [],            
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 1
         }
     ),
     # Add multiple
@@ -450,10 +463,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123]}),
         pd.DataFrame({'A': [123], 'B': [123], 'C': [123]}),
         {
-            'created_columns': ['B', 'C'],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': ['B', 'C'],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # Rename 1
@@ -461,10 +477,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123]}),
         pd.DataFrame({'B': [123]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {'A': 'B'}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {'A': 'B'}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # Rename multiple
@@ -472,10 +491,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [123], False: [456], 4: [789]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {True: False, 3: 4}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {True: False, 3: 4}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # Reorder them
@@ -483,10 +505,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({True: [456], 3: [789], 'A': [123]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # Modify a column
@@ -494,10 +519,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [1], True: [456], 3: [789]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': ['A'],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': ['A'],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # Modify multiple columns
@@ -505,10 +533,13 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [123], True: [456], 3: [789]}),
         pd.DataFrame({'A': [1], True: [4], 3: [2]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': ['A', True, 3],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': ['A', True, 3],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
         }
     ),
     # No modify with NaN
@@ -516,17 +547,48 @@ COLUMN_RECON_TESTS: List[Tuple[pd.DataFrame, pd.DataFrame, ColumnReconData]] = [
         pd.DataFrame({'A': [None], True: [None], 3: [789]}),
         pd.DataFrame({'A': [None], True: [None], 3: [789]}),
         {
-            'created_columns': [],
-            'deleted_columns': [],
-            'modified_columns': [],
-            'renamed_columns': {}
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 0
+        }
+    ),
+    # Add rows, only sees rows as added and nothing modified
+    (
+        pd.DataFrame({'A': [1], 'B': [2], 'C': [3]}),
+        pd.DataFrame({'A': [1, 2], 'B': [2, 3], 'C': [3, 4]}),
+        {
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': 1
+        }
+    ),
+    # Remove rows, only sees rows as removed and nothing modified
+    (
+        pd.DataFrame({'A': [1, 2], 'B': [2, 3], 'C': [3, 4]}),
+        pd.DataFrame({'A': [1], 'B': [2], 'C': [3]}),
+        {
+            'column_recon': {
+                'created_columns': [],
+                'deleted_columns': [],
+                'modified_columns': [],
+                'renamed_columns': {}
+            }, 
+            'num_added_or_removed_rows': -1
         }
     ),
 ]
 @pytest.mark.parametrize("old_df, new_df, recon", COLUMN_RECON_TESTS)
 def test_get_column_recon(old_df, new_df, recon):
     print("OLD DF", type(old_df))
-    _recon = get_column_recon_data(old_df, new_df)
+    _recon = get_modified_dataframe_recon_data(old_df, new_df)
     assert recon == _recon
 
 

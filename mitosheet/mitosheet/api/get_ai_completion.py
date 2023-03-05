@@ -20,6 +20,13 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         selection: Optional[Selection] = params.get('selection', None)
         user_input: str = params['user_input']
 
+        return json.dumps({
+                'user_input': user_input,
+                'prompt_version': 'df-creation-prompt-1',
+                'prompt': '123',
+                'completion': 'df = pd.DataFrame({"A": [123]})',
+        })
+
         prompt = get_prompt(
                 steps_manager.curr_step.final_defined_state.df_names,
                 steps_manager.curr_step.final_defined_state.dfs,
