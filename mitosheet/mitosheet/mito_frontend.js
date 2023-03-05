@@ -39045,7 +39045,9 @@ fig.write_html("${props.graphTabName}.html")`
       completion: props.params.completion.split("\n"),
       edited_completion: props.params.edited_completion.split("\n")
     };
-    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.created_dataframe_names.map((dfName) => {
+    return /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, result.last_line_value !== void 0 && result.last_line_value !== null && /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Value:"), " ", result.last_line_value), result.prints.length > 0 && /* @__PURE__ */ import_react172.default.createElement(import_react172.default.Fragment, null, /* @__PURE__ */ import_react172.default.createElement("p", null, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Printed:")), result.prints.map((print) => {
+      return /* @__PURE__ */ import_react172.default.createElement("div", { key: print, className: "ml-5px" }, print);
+    })), result.created_dataframe_names.map((dfName) => {
       const sheetIndex = props.sheetDataArray.findIndex((sd) => sd.dfName === dfName);
       const sheetData = props.sheetDataArray[sheetIndex];
       const numRows = (sheetData == null ? void 0 : sheetData.numRows) || 0;
@@ -39103,7 +39105,7 @@ fig.write_html("${props.graphTabName}.html")`
       }));
     }), result.deleted_dataframe_names.map((dfName) => {
       return /* @__PURE__ */ import_react172.default.createElement("div", { key: dfName }, /* @__PURE__ */ import_react172.default.createElement("span", { className: "text-bold" }, "Deleted:"), " ", /* @__PURE__ */ import_react172.default.createElement("span", null, dfName));
-    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_recons).length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "No changes"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "How did Mito AI Assistant do?")), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react172.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement(
+    }), !(result.last_line_value !== void 0 && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_recons).length === 0 && result.prints.length === 0 && result.deleted_dataframe_names.length === 0 && /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "No changes"), /* @__PURE__ */ import_react172.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement("p", { className: "text-bold" }, "How did Mito AI Assistant do?")), /* @__PURE__ */ import_react172.default.createElement(Col_default, { offsetRight: 0.5 }, /* @__PURE__ */ import_react172.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react172.default.createElement(Col_default, null, /* @__PURE__ */ import_react172.default.createElement(
       "p",
       {
         className: classNames("ai-transformation-feedback-button", { "ai-transformation-feedback-button-selected": sentFeedback === "Up" }),
@@ -39193,6 +39195,17 @@ fig.write_html("${props.graphTabName}.html")`
       newPreviousParams.push(newParams);
     }
     return newPreviousParams;
+  };
+  var getAdditionalErrorHelp = (error) => {
+    if (error === void 0) {
+      return void 0;
+    }
+    if (error.startsWith("ModuleNotFoundError:") && error.includes("seaborn")) {
+      return /* @__PURE__ */ import_react173.default.createElement("p", null, "Click the Graph button in the toolbar to generate graphs in Mito.");
+    } else if (error.startsWith("ModuleNotFoundError:") && error.includes("matplotlib")) {
+      return /* @__PURE__ */ import_react173.default.createElement("p", null, "Click the Graph button in the toolbar to generate graphs in Mito.");
+    }
+    return void 0;
   };
   var AITransformationTaskpane = (props) => {
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === void 0;
@@ -39314,7 +39327,7 @@ fig.write_html("${props.graphTabName}.html")`
         disabled: params.edited_completion.length === 0 || promptState.loading
       },
       "Execute Generated Code"
-    ), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error), previousParams.length > 1 && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-around", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(Col_default, { className: "text-subtext-1" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(
+    ), error !== void 0 && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, error), getAdditionalErrorHelp(error)), previousParams.length > 1 && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-around", align: "center", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(Col_default, { className: "text-subtext-1" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react173.default.createElement(
       Col_default,
       {
         onClick: () => {

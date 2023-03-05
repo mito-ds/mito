@@ -40,6 +40,14 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             {result.last_line_value !== undefined && result.last_line_value !== null && 
                 <p><span className="text-bold">Value:</span> {result.last_line_value}</p>
             }
+            {result.prints.length > 0 && 
+                <>
+                    <p><span className="text-bold">Printed:</span></p>
+                    {result.prints.map(print => {
+                        return <div key={print} className="ml-5px">{print}</div>
+                    })}
+                </>
+            }
             {result.created_dataframe_names.map(dfName => {
                 const sheetIndex = props.sheetDataArray.findIndex(sd => sd.dfName === dfName);
                 const sheetData = props.sheetDataArray[sheetIndex];
@@ -60,8 +68,11 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </div>
                 )
             })}
-            {Object.entries(result.modified_dataframes_column_recons).map(([dfName, columnReconData]) => {
+            {Object.entries(result.modified_dataframes_recons).map(([dfName, modifiedDataframeRecon]) => {
+                const columnReconData = modifiedDataframeRecon.column_recon;
                 const sheetIndex = props.sheetDataArray.findIndex(sd => sd.dfName === dfName);
+                const rowChange = modifiedDataframeRecon.num_added_or_removed_rows;
+                const rowChangeTest = rowChange !== 0 ? (rowChange < 0 ? `(Removed ${rowChange * -1} rows)` : `(Added ${rowChange} rows)`) : undefined;
                 return (
                     <div key={dfName}>
                         <div 
@@ -73,7 +84,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     }
                                 })
                             }}>
-                            <span className="text-bold">Modified:</span> <span className="text-underline">{dfName}</span> 
+                            <span className="text-bold">Modified:</span> <span className="text-underline">{dfName}</span> {rowChangeTest}
                         </div>
                         {columnReconData.created_columns.map((ch, index) => {
                             return <div key={dfName + 'added' + index} className="ml-5px">Added column: {getDisplayColumnHeader(ch)}</div>
@@ -97,7 +108,11 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </div>
                 )
             })}
-            {!(result.last_line_value !== undefined && result.last_line_value !== null) && result.created_dataframe_names.length === 0 && Object.entries(result.modified_dataframes_column_recons).length === 0 && result.deleted_dataframe_names.length === 0 && 
+            {!(result.last_line_value !== undefined && result.last_line_value !== null) 
+                && result.created_dataframe_names.length === 0 
+                && Object.entries(result.modified_dataframes_recons).length === 0 
+                && result.prints.length === 0
+                && result.deleted_dataframe_names.length === 0 && 
                 <p className="text-bold">
                     No changes
                 </p>

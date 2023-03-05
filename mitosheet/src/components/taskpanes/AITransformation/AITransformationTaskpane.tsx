@@ -47,7 +47,11 @@ export interface AITransformationResult {
     last_line_value: string | boolean | number | undefined | null,
     created_dataframe_names: string[],
     deleted_dataframe_names: string[],
-    modified_dataframes_column_recons: Record<string, ColumnReconData>,
+    modified_dataframes_recons: Record<string, {
+        'column_recon': ColumnReconData,
+        'num_added_or_removed_rows': number
+    }>,
+    prints: string[]
 }
 
 interface PromptState {
@@ -145,6 +149,20 @@ const getNewPreviousParams = (previousParams: AITransformationParams[], currPara
     }
 
     return newPreviousParams;
+}
+
+const getAdditionalErrorHelp = (error: string | undefined): JSX.Element | undefined => {
+    if (error === undefined) {
+        return undefined;
+    }
+
+    if (error.startsWith("ModuleNotFoundError:") && error.includes('seaborn')) {
+        return <p>Click the Graph button in the toolbar to generate graphs in Mito.</p>
+    } else if (error.startsWith("ModuleNotFoundError:") && error.includes('matplotlib')) {
+        return <p>Click the Graph button in the toolbar to generate graphs in Mito.</p>
+    }
+
+    return undefined;
 }
 
 
@@ -308,7 +326,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         Execute Generated Code
                     </TextButton>
                     {error !== undefined &&
-                        <p className="text-color-error">{error}</p>
+                        <>
+                            <p className="text-color-error">{error}</p> 
+                            {getAdditionalErrorHelp(error)}
+                        </>
                     }
                     {previousParams.length > 1 && 
                         <Row justify="space-around" align="center" suppressTopBottomMargin>
