@@ -20,7 +20,7 @@ import pandas as pd
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
 
-@cast_values_in_arg_to_type('float') # TODO: do we want number type
+@cast_values_in_arg_to_type('number')
 def SUM(*argv: Union[pd.Series, int, float]):
     
     result: Union[pd.Series, float, int] = 0

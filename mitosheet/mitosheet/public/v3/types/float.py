@@ -1,7 +1,6 @@
 
-from typing import Any, Callable, Dict, Optional, Union
-
-from mitosheet.types import PrimitiveTypeName
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
 
 def get_million_identifier_in_string(string: str) -> Union[str, None]:
@@ -107,12 +106,14 @@ def cast_string_to_float(
         except:
             return None
         
+def cast_to_float(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[float]:
+    if isinstance(unknown, str):
+        return cast_string_to_float(unknown)
+    elif isinstance(unknown, int):
+        return float(unknown)
+    elif isinstance(unknown, float):
+        return unknown
+    elif isinstance(unknown, bool):
+        return float(unknown)
 
-CAST_TO_FLOAT: Dict[PrimitiveTypeName, Optional[Callable[[Any], Optional[float]]]] = {
-    'str': cast_string_to_float, 
-    'int': float, 
-    'float': float, 
-    'bool': float, 
-    'datetime': None, 
-    'timedelta': None
-}
+    return None

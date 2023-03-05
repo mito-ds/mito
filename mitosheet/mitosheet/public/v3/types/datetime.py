@@ -1,12 +1,7 @@
-
-from datetime import datetime
-from typing import Any, Callable, Dict, Optional, Union
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
 import pandas as pd
-import numpy as np
-
-from mitosheet.types import PrimitiveTypeName
-
 
 
 def get_datetime_format(s: str) -> Optional[str]:
@@ -73,12 +68,14 @@ def cast_string_to_datetime(
     else:
         return result # type: ignore
 
+def cast_to_datetime(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[Union[datetime, pd.Timestamp]]:
+    if isinstance(unknown, str):
+        return cast_string_to_datetime(unknown)
+    elif isinstance(unknown, int):
+        return datetime.fromtimestamp(unknown)
+    elif isinstance(unknown, float):
+        return datetime.fromtimestamp(unknown)
+    elif isinstance(unknown, datetime) or isinstance(unknown, pd.Timestamp):
+        return unknown
 
-CAST_TO_DATETIME: Dict[PrimitiveTypeName, Optional[Callable[[Any], Optional[datetime]]]] = {
-    'str': cast_string_to_datetime, 
-    'int': datetime.fromtimestamp, 
-    'float': datetime.fromtimestamp, 
-    'bool': None, 
-    'datetime': lambda dt: dt, 
-    'timedelta': None
-}
+    return None

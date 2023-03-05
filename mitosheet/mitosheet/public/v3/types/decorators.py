@@ -4,12 +4,12 @@
 
 
 
-from functools import partial, wraps
+from functools import wraps
 from typing import Any, Callable
 from datetime import datetime, timedelta
 
 import pandas as pd
-from mitosheet.public.v3.types.utils import CONVERSION_FUNCTIONS, get_primitive_type_name_from_primitive_value, get_primitive_type_name_from_series
+from mitosheet.public.v3.types.utils import CONVERSION_FUNCTIONS
 
 from mitosheet.types import PrimitiveTypeName
 
@@ -29,30 +29,17 @@ def cast_values_in_arg_to_type(
     def wrap(sheet_function):
         @wraps(sheet_function)
         def wrapped_sheet_function(*args):   
-            
-            conversion_functions = CONVERSION_FUNCTIONS[target_primitive_type_name]
 
             final_args = []
+            conversion_function = CONVERSION_FUNCTIONS[target_primitive_type_name]
 
             for arg in args:
                 
-                # If the argument is a series, find it's type and apply the conversion functions element-wise
                 if isinstance(arg, pd.Series):
-                    series_primitive_type = get_primitive_type_name_from_series(arg)
-                    conversion_function = conversion_functions[series_primitive_type]
-                    if conversion_function is not None:
-                        final_args.append(arg.apply(conversion_function)) # Why doesn't type work?
-                    else:
-                        raise Exception(f"Cannot convert from {series_primitive_type} series to {target_primitive_type_name}")
+                    final_args.append(arg.apply(conversion_function)) # Why doesn't type work?
                 
-                # If the arguement is a primitive value, then just do the cast on the value
                 elif is_primitive_value(arg):
-                    primitive_type = get_primitive_type_name_from_primitive_value(arg)
-                    conversion_function = conversion_functions[primitive_type]
-                    if conversion_function is not None:
-                        final_args.append(conversion_function(arg))
-                    else:
-                        raise Exception(f"Cannot convert from {primitive_type} series to {target_primitive_type_name}")
+                    final_args.append(conversion_function(arg))
 
             return sheet_function(*final_args)        
         return wrapped_sheet_function

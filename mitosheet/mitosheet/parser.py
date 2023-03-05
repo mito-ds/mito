@@ -181,7 +181,7 @@ def safe_replace(
     string_matches = get_string_matches(formula)
 
     # And we also do not edit inside column headers that aren't this column header
-    parser_matches = get_column_header_and_index_matches(
+    parser_matches = get_range_column_header_and_index_matches(
         formula,
         formula_label,
         string_matches,
@@ -378,7 +378,7 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
 
 
 
-def get_column_header_and_index_matches(
+def get_range_column_header_and_index_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
         string_matches: List[Any],
@@ -498,6 +498,7 @@ def get_column_header_and_index_matches(
     parser_matches = sorted(parser_matches, key=lambda x: x['match_range'][0], reverse=True)
 
     return parser_matches
+
                 
 def replace_column_headers_and_indexes(
         formula: str,
@@ -516,7 +517,7 @@ def replace_column_headers_and_indexes(
     it the same relative amount. 
     """
     # We get all the matches first, from end to start order
-    parser_matches = get_column_header_and_index_matches(
+    parser_matches = get_range_column_header_and_index_matches(
         formula,
         formula_label,
         string_matches,
@@ -692,7 +693,7 @@ def get_frontend_formula(
         return []
 
     # First, we get the parser matches, which are notably in reverse order, and put them back in order
-    parser_matches = get_column_header_and_index_matches(
+    parser_matches = get_range_column_header_and_index_matches(
         formula,
         formula_label,
         get_string_matches(formula),

@@ -1,13 +1,5 @@
-from typing import Any, Callable, Dict, Optional
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
-from mitosheet.types import PrimitiveTypeName
-
-
-CAST_TO_STR: Dict[PrimitiveTypeName, Optional[Callable[[Any], Optional[str]]]] = {
-    'str': str, 
-    'int': str, 
-    'float': str, 
-    'bool': str, 
-    'datetime': str, 
-    'timedelta': str
-}
+def cast_to_string(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[str]:
+    return str(unknown)

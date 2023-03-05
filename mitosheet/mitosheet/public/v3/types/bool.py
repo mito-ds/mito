@@ -1,8 +1,6 @@
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
-from typing import Any, Callable, Dict, Optional
-from mitosheet.public.v3.types.float import cast_string_to_float
-
-from mitosheet.types import PrimitiveTypeName
 
 def cast_string_to_bool(
         s: str,
@@ -46,11 +44,14 @@ def cast_string_to_bool(
         return None # TODO: maybe we should default to False
 
 
-CAST_TO_BOOL: Dict[PrimitiveTypeName, Optional[Callable[[Any], Optional[bool]]]] = {
-    'str': cast_string_to_bool, 
-    'int': bool, 
-    'float': bool, 
-    'bool': bool, 
-    'datetime': None, 
-    'timedelta': None
-}
+def cast_to_bool(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[bool]:
+    if isinstance(unknown, str):
+        return cast_string_to_bool(unknown)
+    elif isinstance(unknown, int):
+        return bool(unknown)
+    elif isinstance(unknown, float):
+        return bool(unknown)
+    elif isinstance(unknown, bool):
+        return unknown
+
+    return None

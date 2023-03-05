@@ -1,16 +1,17 @@
 
-from datetime import timedelta
-from typing import Any, Callable, Dict, Optional
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
 import pandas as pd
 
-from mitosheet.types import PrimitiveTypeName
+def cast_to_timedelta(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[timedelta]:
+    if isinstance(unknown, str):
+        return pd.to_timedelta(unknown)
+    elif isinstance(unknown, int):
+        return pd.to_timedelta(unknown)
+    elif isinstance(unknown, float):
+        return pd.to_timedelta(unknown)
+    elif isinstance(unknown, timedelta):
+        return unknown
 
-CAST_TO_TIMEDELTA: Dict[PrimitiveTypeName, Optional[Callable[[Any], Optional[timedelta]]]] = {
-    'str': pd.to_timedelta, 
-    'int': pd.to_timedelta, 
-    'float': pd.to_timedelta, 
-    'bool': lambda x: x, 
-    'datetime': None, 
-    'timedelta': lambda x: x
-}
+    return None
