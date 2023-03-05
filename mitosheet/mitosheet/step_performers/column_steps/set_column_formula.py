@@ -68,7 +68,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         index_labels_formula_is_applied_to: FormulaAppliedToType = get_param(params, 'index_labels_formula_is_applied_to')
         new_formula: str = get_param(params, 'new_formula')
         public_interface_version: int = get_param(params, 'public_interface_version')
-        print(params)
 
         raise_error_if_column_ids_do_not_exist(
             'set column formula',
