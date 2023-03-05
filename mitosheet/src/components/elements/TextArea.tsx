@@ -65,6 +65,11 @@ const TextArea = (props: {
         * @param [onKeyDown] - Function to be called when a key is pressed down
     */
     onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+
+    /** 
+        * @param [spellcheck] - Turn off spellcheck
+    */
+    spellCheck?: boolean;
 }): JSX.Element => {
 
     // Create better default values to handle optional params 
@@ -86,6 +91,7 @@ const TextArea = (props: {
             value={props.value}
             disabled={props.disabled}
             onKeyDown={props.onKeyDown}
+            spellCheck={props.spellCheck}
         />
     )
 } 

@@ -236,6 +236,7 @@ if sys.version_info[:3] > (3, 8, 0):
         deleted_dataframes: List[str]
         modified_dataframes: Dict[str, pd.DataFrame]
         last_line_expression_value: Optional[Any]
+        prints: str
 
     class ColumnReconData(TypedDict):
         created_columns: List[ColumnHeader]
@@ -243,11 +244,16 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
 
+    class ModifiedDataframeReconData(TypedDict):
+        column_recon: ColumnReconData
+        num_added_or_removed_rows: int
+
     class AITransformFrontendResult(TypedDict):
         last_line_value: Optional[Union[str, bool, int, float, np.number]]
         created_dataframe_names: List[str]
         deleted_dataframe_names: List[str]
-        modified_dataframes_column_recons: Dict[str, ColumnReconData]
+        modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
+        prints: str
 
 else:
     Filter = Any #type: ignore
@@ -274,6 +280,7 @@ else:
     Selection = Any # type:ignore
     DataframeReconData = Any # type: ignore
     ColumnReconData = Any # type: ignore
+    ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
 
 

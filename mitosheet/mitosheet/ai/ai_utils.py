@@ -25,7 +25,14 @@ def fix_up_missing_imports(code: str) -> str:
         
     return code
 
-def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
+def get_code_string_from_last_expression(code: str) -> Optional[str]:
+
+    ast_before = ast.parse(code)
+    if len(ast_before.body) == 0:
+        return None
+    
+    last_expression = ast_before.body[-1]
+
     code_lines = code.splitlines()
     # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
     # we can actually get the line with our slice. Also, on earlier versions of Python, the end_lineno is
@@ -40,17 +47,25 @@ def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -
     return "\n".join(relevant_lines)
 
 def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> str:
-    ast_before = ast.parse(code)
-    last_expression = ast_before.body[-1]
+    
+    last_expression_string = get_code_string_from_last_expression(code)
 
-    last_expression_string = get_code_string_from_last_expression(code, last_expression)
-
+    if last_expression_string is None:
+        return code
+    
     if not is_series:
-        # If it's a dataframe, just add the name
-        code = code.replace(last_expression_string, f'{new_df_name} = {last_expression_string}')
+        # If it's a dataframe, just add the name. 
+        return replace_last_instance_in_string(code, last_expression_string, f'{new_df_name} = {last_expression_string}')
     else:
         # If it's a series, create a dataframe
-        code = code.replace(last_expression_string, f'series = {last_expression_string}\n{new_df_name} = pd.DataFrame(series, index=series.index)')
+        return replace_last_instance_in_string(code, last_expression_string, f'series = {last_expression_string}\n{new_df_name} = pd.DataFrame(series, index=series.index)')
 
-    return code
+
+def replace_last_instance_in_string(string: str, to_find: str, to_replace: str) -> str:
+    # We only want to replace the last instance, so we have to 
+    # reverse the strings and use count 1
+    reversed_string = string[::-1]
+    reversed_to_find = to_find[::-1]
+    reversed_to_replace = to_replace[::-1]
+    return reversed_string.replace(reversed_to_find, reversed_to_replace, 1)[::-1]
 

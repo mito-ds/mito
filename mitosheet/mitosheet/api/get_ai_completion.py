@@ -56,7 +56,9 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
 
         if res.status_code == 200:
                 res_json = res.json()
-                completion = res_json['choices'][0]['message']["content"]
+                completion: str = res_json['choices'][0]['message']["content"]
+                # We strip all blank lines from the generated code, if they are at the start or end
+                completion = completion.strip()
                 return json.dumps({
                         'user_input': user_input,
                         'prompt_version': 'df-creation-prompt-1',
