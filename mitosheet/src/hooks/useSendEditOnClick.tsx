@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { AnalysisData } from "../types";
 import { isMitoError } from "../utils/errors";
@@ -33,11 +33,13 @@ function useSendEditOnClick<ParamType, ResultType>(
         editApplied: boolean; // True if any edit is applied. E.g. the user has clicked a button, created a step, and not undone it.
         attemptedEditWithTheseParamsMultipleTimes: boolean; // True if the user applies the edit, and then clicks the edit button again without changing the params
         result: ResultType | undefined; // The result of this edit. Undefined if no edit is applied (or if the step has no result)
+        appliedEditInLastTwoSeconds: boolean // if the edit has been applied in the last two seconds - useful for success messages
     } {
 
     const [params, _setParams] = useState(defaultParams);
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+    const [appliedEditInLastTwoSeconds, setAppliedEditInLastTwoSeconds] = useState(false);
 
     // We store a list of all the step IDs that have been applied or
     // are sitting inside of the redo buffer waiting to reapplied. We
@@ -61,6 +63,15 @@ function useSendEditOnClick<ParamType, ResultType>(
     useEffectOnRedo(() => {
         void refreshOnRedo();
     }, analysisData)
+
+    useEffect(() => {
+        if (appliedEditInLastTwoSeconds) {
+            const timeout = setTimeout(() => {
+                setAppliedEditInLastTwoSeconds(false)
+            }, 2000)
+            return () => clearTimeout(timeout);
+        }
+    }, [appliedEditInLastTwoSeconds])
 
     // NOTE: all edit events are the name of the step + _edit
     const editEvent = stepType + '_edit';
@@ -124,6 +135,7 @@ function useSendEditOnClick<ParamType, ResultType>(
             // Clear the error and mark the params as having been applied
             setError(undefined)
             setParamsApplied(true);
+            setAppliedEditInLastTwoSeconds(true);
         }
     }
 
@@ -216,7 +228,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         edit: edit,
         editApplied: paramsApplied,
         attemptedEditWithTheseParamsMultipleTimes: attemptedEditWithTheseParamsMultipleTimes,
-        result: result
+        result: result,
+        appliedEditInLastTwoSeconds: appliedEditInLastTwoSeconds
     }
 }
 

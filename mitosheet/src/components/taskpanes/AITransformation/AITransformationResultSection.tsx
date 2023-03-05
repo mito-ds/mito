@@ -106,7 +106,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </div>
                 )
             })}
-            {!(result.last_line_value !== undefined && result.last_line_value !== null) 
+            {(result.last_line_value === undefined || result.last_line_value === null) 
                 && result.created_dataframe_names.length === 0 
                 && Object.entries(result.modified_dataframes_recons).length === 0 
                 && result.prints.length === 0

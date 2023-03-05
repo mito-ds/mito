@@ -709,6 +709,14 @@ del df
         """,
         {'df1': pd.DataFrame({'a': [1]})},
     ),
+    # Create dataframe, delete a different row
+    (
+        {'df': pd.DataFrame({'a': [1, 2], 'b': [3, 4]})},
+        """
+df.drop(labels=[0], inplace=True)
+        """,
+       {'df': pd.DataFrame({'a': [2], 'b': [4]}, index=[1])},
+    ),
 ]
 
 @pytest.mark.parametrize("old_dfs_map, code, new_df_map", EXEC_AND_GET_NEW_STATE_TESTS)

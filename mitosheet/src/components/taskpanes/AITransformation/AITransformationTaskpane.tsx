@@ -188,7 +188,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         loading: false
     });
 
-    const {params, setParams, edit, result, error} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
+    const {params, setParams, edit, result, error, appliedEditInLastTwoSeconds} = useSendEditOnClick<AITransformationParams, AITransformationResult>(
         () => getDefaultParams(),
         StepType.AiTransformation, 
         props.mitoAPI,
@@ -340,6 +340,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             <p className="text-color-error">{error}</p> 
                             {getAdditionalErrorHelp(error)}
                         </>
+                    }
+                    {appliedEditInLastTwoSeconds && 
+                        <p className="text-subtext-1">Successfully Executed Code</p>
                     }
                     {props.previousAITransformParams.length > 1 && 
                         <Row justify="space-around" align="center" suppressTopBottomMargin>

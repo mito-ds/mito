@@ -53,8 +53,6 @@ def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> st
     if last_expression_string is None:
         return code
     
-    # We only want to replace the last instance, so we have to 
-    # reverse the string, replace the dataframe name with the reverse, and then reverse it back again
     if not is_series:
         # If it's a dataframe, just add the name. 
         return replace_last_instance_in_string(code, last_expression_string, f'{new_df_name} = {last_expression_string}')
@@ -64,6 +62,8 @@ def fix_final_dataframe_name(code: str, new_df_name: str, is_series: bool) -> st
 
 
 def replace_last_instance_in_string(string: str, to_find: str, to_replace: str) -> str:
+    # We only want to replace the last instance, so we have to 
+    # reverse the strings and use count 1
     reversed_string = string[::-1]
     reversed_to_find = to_find[::-1]
     reversed_to_replace = to_replace[::-1]

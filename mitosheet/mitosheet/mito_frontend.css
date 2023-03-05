@@ -2265,6 +2265,9 @@ a:visited {
   border: 1px solid #ACACAD;
   border-radius: 3px;
 }
+.ai-transformation-example:hover {
+  border: 1px solid var(--mito-light-purple);
+}
 .ai-transformation-feedback-button {
   padding: 5px;
   border-radius: 3px;
