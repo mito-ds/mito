@@ -1,7 +1,9 @@
 
-from typing import Callable, Tuple, Union
-import pandas as pd
 from datetime import datetime, timedelta
+from typing import Callable, Tuple, Union
+
+import pandas as pd
+
 
 class RollingRange():
     """
@@ -33,8 +35,7 @@ class RollingRange():
         self.window = window
         self.offset = offset
 
-
-    def apply(self, func: Callable[..., Union[str, float, int, bool, datetime, timedelta]], default_value: Union[str, float, int, bool, datetime, timedelta]=0) -> pd.Series:
+    def apply(self, func: Callable[[pd.DataFrame], Union[str, float, int, bool, datetime, timedelta]], default_value: Union[str, float, int, bool, datetime, timedelta]=0) -> pd.Series:
         """
         Calls the func with each of the windows, and returns a series with
         the same index as the original dataframe.
@@ -45,20 +46,14 @@ class RollingRange():
         start = 0 + self.offset
         end = start + self.window
 
-        while (start - self.offset) < len(self.obj):
-            print(f"{start=}, {end=}")
+        while (start - self.offset) < len(self.obj):            
             df_subset = self.obj[max(0, start):end] # avoid negative start, as this wraps around to the end
-            args = df_subset.values.flatten().tolist()
 
-            # If it's not long-enough, we add the default value num_cols * num_rows times
-            if len(df_subset) < self.window:
-                num_missing_rows = self.window - len(df_subset)
-                num_columns = len(self.obj.columns)
-                args.extend(default_value for _ in range(num_missing_rows * num_columns))
-
-            print("FInal args", args)
-
-            result.append(func(args))
+            # We manually detect the default value case, as it messes up types otherwise (e.g. .sum().sum() returns a float with an empty df)
+            if len(df_subset) == 0:
+                result.append(default_value)
+            else:
+                result.append(func(df_subset))
 
             start, end = start + 1, end + 1
 

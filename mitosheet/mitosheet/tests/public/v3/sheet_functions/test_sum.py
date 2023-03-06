@@ -9,12 +9,13 @@ Contains tests for the SUM function.
 
 import pytest
 import pandas as pd
+import numpy as np
 from mitosheet.public.v3.rolling_range import RollingRange
 
 from mitosheet.public.v3.sheet_functions.number_functions import SUM
 
 
-SUM_NUMBER_TESTS = [
+SUM_VALID_TESTS = [
     # Just constant tests
     ([2, 3], 5),
     ([2.0, 3.0], 5.0),
@@ -41,13 +42,32 @@ SUM_NUMBER_TESTS = [
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([13, 22, 17])), #A1 = B0:C2 + 1
 ]
 
-@pytest.mark.parametrize("_argv,expected", SUM_NUMBER_TESTS)
-def test_sum_works_for_series_and_number(_argv, expected):
+SUM_INVALID_CAST_TESTS = [
+    # Constants
+    (['abc', 2], 2),
+    (['abc', 'def'], 0),
+
+    # Series
+    ([2, 'abc', pd.Series([1,2,3])], pd.Series([3,4,5])),
+    (['abc', pd.Series([1,2,3])], pd.Series([1,2,3])),
+    ([2, pd.Series(['abc',2,3])], pd.Series([np.NaN,4.0,5.0])),
+
+    # Dataframes
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,3])], pd.Series([8.0,9.0,10.0])),
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([8.0,9.0,np.NaN])),
+
+    # Rolling ranges
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([13.0, 14.0, 7.0])),
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,3])], pd.Series([14.0, 16.0, 10.0])),
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,None])], pd.Series([14.0, 16.0, None])),
+]
+
+@pytest.mark.parametrize("_argv,expected", SUM_VALID_TESTS + SUM_INVALID_CAST_TESTS)
+def test_sum(_argv, expected):
     result = SUM(*_argv)
+    print(result)
     if isinstance(result, pd.Series):
-        print(result)
         assert result.equals(expected)
     else: 
-        print(result)
         assert result == expected
 

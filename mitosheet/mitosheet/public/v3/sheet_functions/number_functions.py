@@ -22,7 +22,7 @@ from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
 
 @cast_values_in_arg_to_type('number')
-def SUM(*argv: Union[pd.Series, int, float, RollingRange]):
+def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]):
     
     result: Union[pd.Series, float, int] = 0
 
@@ -31,8 +31,8 @@ def SUM(*argv: Union[pd.Series, int, float, RollingRange]):
         if isinstance(arg, pd.DataFrame):
             result += arg.sum().sum()
         elif isinstance(arg, RollingRange):
-            result += arg.apply(sum)
-        else:
+            result += arg.apply(lambda df: df.sum().sum())
+        elif arg is not None:
             result += arg
 
     return result 
