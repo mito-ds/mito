@@ -22,9 +22,38 @@ from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
 @cast_values_in_arg_to_type('number')
+def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]):
+
+    # Calculate the sum using the SUM function
+    sum_for_avg = SUM(*argv)
+
+    # Then, we count the number of entries in the arguements. To match Excel's behavior, we do not count 
+    # nan values, and we do not count when a RollingRange runs off the end of the sum
+    num_entries: Union[pd.Series,int] = 0
+
+    for arg in argv:
+        if isinstance(arg, pd.DataFrame):
+            num_non_null_values = arg.count().sum()
+            num_entries += num_non_null_values
+
+        elif isinstance(arg, RollingRange):
+            num_non_null_values_series = arg.apply(lambda df: df.count().sum())
+            num_entries += num_non_null_values_series
+            
+        elif isinstance(arg, pd.Series):
+            # Because series are summed row-wise, this actually is only contributing 1 to each denominator
+            num_entries += 1 
+            
+        elif arg is not None:
+            num_entries += 1
+
+    return sum_for_avg / num_entries if num_entries is not 0 else 0
+
+
+@cast_values_in_arg_to_type('number')
 def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]):
     
-    result: Union[pd.Series, float, int] = -sys.maxsize - 1 # TODO: we need a new minimum value
+    result: Union[pd.Series, float, int] = -sys.maxsize - 1
 
     def get_new_result(_result: Union[pd.Series, float, int], new_value: Union[pd.Series, float, int]) -> Union[pd.Series, float, int]:
         if isinstance(_result, pd.Series):
@@ -77,6 +106,7 @@ def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]):
 
 # TODO: we should see if we can list these automatically!
 NUMBER_FUNCTIONS = {
+    'AVG': AVG,
     'MAX': MAX,
     'SUM': SUM,
 }

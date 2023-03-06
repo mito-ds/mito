@@ -65,9 +65,8 @@ MAX_INVALID_CAST_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", MAX_VALID_TESTS + MAX_INVALID_CAST_TESTS)
-def test_sum(_argv, expected):
+def test_max(_argv, expected):
     result = MAX(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
