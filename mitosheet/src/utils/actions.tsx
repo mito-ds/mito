@@ -1373,12 +1373,20 @@ export const createActions = (
         },
         [ActionEnum.AI_TRANSFORMATION]: {
             type: ActionEnum.AI_TRANSFORMATION,
-            shortTitle: 'AI Transformation',
+            shortTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
-                // TODO
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                        selectedTabType: 'data'
+                    }
+                })
             },
-            isDisabled: () => {return 'This feature is in closed beta. Email aaron@sagacollab.com for access.'},
+            isDisabled: () => {return undefined},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },

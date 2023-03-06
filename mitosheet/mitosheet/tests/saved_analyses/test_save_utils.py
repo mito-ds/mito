@@ -342,7 +342,6 @@ def test_save_and_replay_different_interface_version_works():
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
     assert saved_analysis['public_interface_version'] == 100
-    print(saved_analysis)
 
     new_mito = create_mito_wrapper([1, 2, 3])
     new_mito.replay_analysis(random_name)

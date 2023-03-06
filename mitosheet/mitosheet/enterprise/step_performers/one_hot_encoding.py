@@ -63,9 +63,6 @@ class OneHotEncodingStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'new_column_headers': new_column_headers,
-            'result': {
-                # TODO: fill in the result
-            }
         }
 
     @classmethod

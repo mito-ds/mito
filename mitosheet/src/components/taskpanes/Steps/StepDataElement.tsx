@@ -24,6 +24,7 @@ import UndoIcon from '../../icons/UndoIcon';
 import RedoIcon from '../../icons/RedoIcon';
 import ClearIcon from '../../icons/ClearIcon';
 import OneHotEncodingIcon from '../../icons/OneHotEncodingIcon';
+import AIIcon from '../../icons/AIIcon';
 
 
 export type StepDataElementProps = {
@@ -42,6 +43,9 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
     switch (stepType) {
         case StepType.Initialize: return (
             <MitoIcon/>
+        )
+        case StepType.AiTransformation: return (
+            <AIIcon/>
         )
         case StepType.AddColumn: return (
             <AddColumnIcon/>

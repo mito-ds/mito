@@ -5,6 +5,7 @@ import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
+import { AICompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -14,7 +15,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnHeader, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, IndexLabel, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -67,6 +68,7 @@ export enum UserJsonFields {
     UJ_MITOSHEET_ENTERPRISE = 'mitosheet_enterprise',
     UJ_EXPERIMENT = 'experiment',
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
+    UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy',
 }
 
 interface MitoSuccessOrInplaceErrorResponse {
@@ -725,14 +727,28 @@ export default class MitoAPI {
         return undefined;
     }
 
-
     
-    async getAICompletion(params: {user_input: string, selection: {'selected_df_name': string, 'selected_column_headers': ColumnHeader[], 'selected_index_labels': IndexLabel[]} | undefined}): Promise<{error: string,} | undefined> {
+    async getAICompletion(
+        user_input: string, 
+        selection: AICompletionSelection | undefined
+    ): Promise<
+        {error: string} | 
+        {
+            user_input: string,
+            prompt_version: string,
+            prompt: string,
+            completion: string
+        } | 
+        undefined
+        > {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_ai_completion',
-            'params': params
+            'params': {
+                'user_input': user_input,
+                'selection': selection
+            }
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
@@ -1497,6 +1513,17 @@ export default class MitoAPI {
                 'field': UserJsonFields.UJ_MITOSHEET_LAST_UPGRADED_DATE,
                 // Taken from https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
                 'value': tenDaysAgoDate.toISOString().split('T')[0]
+            }
+        }, {});
+    }
+
+    async updateAcceptAITransformationPrivacyPolicy(): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'set_user_field_update',
+            'params': {
+                'field': UserJsonFields.UJ_AI_PRIVACY_POLICY,
+                'value': true
             }
         }, {});
     }

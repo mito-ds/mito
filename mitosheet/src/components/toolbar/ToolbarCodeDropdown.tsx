@@ -34,6 +34,7 @@ const ToolbarCodeDropdown = (props: ToolbarCodeDropdownProps): JSX.Element => {
                 })}
                 width='medium'
             >
+                {makeToolbarDropdownItem(props.actions[ActionEnum.AI_TRANSFORMATION], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.CODESNIPPETS], props.userProfile)}
             </Dropdown>
         </>

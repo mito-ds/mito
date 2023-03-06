@@ -2,17 +2,22 @@ import ast
 import traceback
 from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
-
+import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mitosheet.errors import make_exec_error
+from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_last_expression, replace_last_instance_in_string
 
+from io import StringIO
+from contextlib import redirect_stdout
+
+from mitosheet.errors import make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.column_steps.delete_column import \
     delete_column_ids
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
-from mitosheet.types import ColumnHeader, ColumnReconData, DataframeReconData
+from mitosheet.types import (AITransformFrontendResult, ColumnHeader,
+                             ColumnReconData, DataframeReconData, ModifiedDataframeReconData)
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -20,20 +25,6 @@ def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
         return False
     except AssertionError:
         return True
-
-def get_code_string_from_last_expression(code: str, last_expression: ast.stmt) -> str:
-    code_lines = code.splitlines()
-    # NOTE; these are 1-indexed, and we need make sure we add one if they are the same, so that 
-    # we can actually get the line with our slice. Also, on earlier versions of Python, the end_lineno is
-    # not defined; thus, we must access it through the attribute getter
-    lineno = last_expression.lineno - 1
-    end_lineno = last_expression.__dict__.get('end_lineno', None)
-    if end_lineno is not None:
-        end_lineno -= 1
-        if end_lineno == lineno:
-            end_lineno += 1
-    relevant_lines = code_lines[lineno:end_lineno] 
-    return "\n".join(relevant_lines)
 
 def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> DataframeReconData:
     """
@@ -60,20 +51,25 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
             'created_dataframes': {},
             'deleted_dataframes': [],
             'modified_dataframes': {},
-            'last_line_expression_value': None
+            'last_line_expression_value': None,
+            'prints': ''
         }
 
     df_map = {df_name: df.copy(deep=True) for df_name, df in original_df_map.items()}
     locals_before = copy(locals())
-    ast_before = ast.parse(code)
+    try:
+        ast_before = ast.parse(code)
+    except SyntaxError as e:
+        raise make_exec_error(e)
 
     last_expression = ast_before.body[-1]
     if not isinstance(last_expression, ast.Expr):
         has_last_line_expression_value = False
     else:
         has_last_line_expression_value = True
-        last_expression_string = get_code_string_from_last_expression(code, last_expression)
-        code = code.replace(last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
+        # (The type ignore is b/c we know this has a value b/c of above check, mypy is not smart enough)
+        last_expression_string: str = get_code_string_from_last_expression(code) #type: ignore
+        code = replace_last_instance_in_string(code, last_expression_string, f'FAKE_VAR_NAME = {last_expression_string}')
     
     potentially_modified_df_names = [
         df_name for df_name in original_df_map if 
@@ -83,8 +79,12 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
+    # Capture the output as well
+    output_string_io = StringIO()
+
     try:
-        exec(code, {}, locals())
+        with redirect_stdout(output_string_io):
+            exec(code, {}, locals())
     except Exception as e:
         raise make_exec_error(e)
         
@@ -117,10 +117,11 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'created_dataframes': created_dataframes,
         'deleted_dataframes': deleted_dataframes,
         'modified_dataframes': modified_dataframes,
-        'last_line_expression_value': last_line_expression_value
+        'last_line_expression_value': last_line_expression_value,
+        'prints': output_string_io.getvalue()
     }
 
-def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnReconData:
+def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ModifiedDataframeReconData:
     """
     Given a dataframe and a modified dataframe, this function tries to figure out what has happened
     to column headers dataframe. Specifically, because our state maps column headers to do others based on column
@@ -132,6 +133,8 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
 
     old_df_head = old_df.head(5)
     new_df_head = new_df.head(5)
+
+    rows_added_or_removed = len(old_df) != len(new_df)
 
     # First, preserving the order, we remove any columns that are in both the old
     # and the new dataframe
@@ -153,17 +156,42 @@ def get_column_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ColumnR
     removed_columns = [ch for ch in old_columns_without_shared if ch not in renamed_columns]
 
     shared_columns = list(filter(lambda ch: ch in new_columns, old_columns))
-    modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
+
+    if not rows_added_or_removed:
+        modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
+    else:
+        # If rows were added or removed, then we don't want to detect every column as having changed
+        # and instead we'd just like to report the row changes. As such, we only compare the rows not added or removed
+        # NOTE: this is not perfect, as you may have modified columns and removed rows in one go -- but this 
+        # is ok for most of what we see
+        try:
+            if len(old_df) < len(new_df):
+                df1 = old_df
+                df2 = new_df.iloc[old_df.index]
+            else:
+                df1 = old_df.iloc[new_df.index]
+                df2 = new_df
+
+            modified_columns = [ch for ch in shared_columns if not df1[ch].equals(df2[ch])]
+        except IndexError:
+            modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
 
     return {
-        'added_columns': added_columns,
-        'removed_columns': removed_columns,
-        'modified_columns': modified_columns,
-        'renamed_columns': renamed_columns,
+        'column_recon': {
+            'created_columns': added_columns,
+            'deleted_columns': removed_columns,
+            'modified_columns': modified_columns,
+            'renamed_columns': renamed_columns,
+        },
+        'num_added_or_removed_rows': len(new_df) - len(old_df)
     }
+    
 
 
-def exec_and_get_new_state_and_last_line_expression_value(state: State, code: str) -> Tuple[State, Optional[Any]]:
+def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
+
+    # Fix up the code, so we can ensure that we execute it properly
+    code = fix_up_missing_imports(code)
 
     # Make deep copies of all dataframes here, so we can manipulate them without fear
     # TODO: in the future, we could just do the modified ones
@@ -181,32 +209,59 @@ def exec_and_get_new_state_and_last_line_expression_value(state: State, code: st
         delete_dataframe_from_state(new_state, new_state.df_names.index(df_name))
     
     # For modified dataframes, we update all the column variables
+    modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
         old_df = df_map[df_name]
-        column_recon = get_column_recon_data(old_df, new_df)
+        modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
+        modified_dataframes_recons[df_name] = modified_dataframe_recon
 
         # Add new columns to the state
-        new_state.add_columns_to_state(sheet_index, column_recon['added_columns'])
+        new_state.add_columns_to_state(sheet_index, modified_dataframe_recon['column_recon']['created_columns'])
 
         # Delete removed columns from the state
-        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, column_recon['removed_columns'])
+        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, modified_dataframe_recon['column_recon']['deleted_columns'])
         delete_column_ids(new_state, sheet_index, deleted_column_ids)
 
         # Rename renamed columns in the state
-        for old_ch, new_ch in column_recon['renamed_columns'].items():
+        for old_ch, new_ch in modified_dataframe_recon['column_recon']['renamed_columns'].items():
             column_id = new_state.column_ids.get_column_id_by_header(sheet_index, old_ch)
             new_state.column_ids.set_column_header(sheet_index, column_id, new_ch)
 
         # Then, actually set the dataframe
         new_state.dfs[sheet_index] = new_df
 
-    # For the last value, if is a dataframe, then add it to the state as well
-    # TODO: we have to take special care to handle this in the generated code (maybe we want to do it in one place?)
-    if isinstance(recon_data['last_line_expression_value'], pd.DataFrame):
-        new_state.add_df_to_state(recon_data['last_line_expression_value'], DATAFRAME_SOURCE_AI)
+    # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
+    # is a _newly_ created dataframe that is already given a name
+    last_line_expression_value = recon_data['last_line_expression_value']
+    last_line_expression_code = get_code_string_from_last_expression(code)
+    last_line_expression_is_previously_created_dataframe = last_line_expression_code in recon_data['created_dataframes']
+    if (isinstance(last_line_expression_value, pd.DataFrame) or isinstance(last_line_expression_value, pd.Series)) and not last_line_expression_is_previously_created_dataframe:
 
-    return (new_state, recon_data['last_line_expression_value'])
+        # If we get a series, we turn it into a dataframe for the user
+        if isinstance(last_line_expression_value, pd.Series):
+            last_line_expression_value = pd.DataFrame(last_line_expression_value, index=last_line_expression_value.index)
+
+        new_state.add_df_to_state(last_line_expression_value, DATAFRAME_SOURCE_AI)
+        # We also need to add this to the list of created dataframes, as we didn't know it's name till now
+        recon_data['created_dataframes'][new_state.df_names[-1]] = last_line_expression_value
+
+    # If the last line value is a primitive, we return it as a result for the frontend
+    result_last_line_value = None
+    if isinstance(last_line_expression_value, str) or isinstance(last_line_expression_value, bool) \
+        or isinstance(last_line_expression_value, int) or isinstance(last_line_expression_value, float) \
+            or isinstance(last_line_expression_value, np.number):
+        result_last_line_value = last_line_expression_value
+
+    frontend_result: AITransformFrontendResult = {
+        'last_line_value': result_last_line_value,
+        'created_dataframe_names': list(recon_data['created_dataframes'].keys()),
+        'deleted_dataframe_names': recon_data['deleted_dataframes'],
+        'modified_dataframes_recons': modified_dataframes_recons,
+        'prints': recon_data['prints']
+    }
+
+    return (new_state, recon_data['last_line_expression_value'], frontend_result)
 
         
         

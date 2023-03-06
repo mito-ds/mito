@@ -92,9 +92,6 @@ class SnowflakeImportStepPerformer(StepPerformer):
             'pandas_processing_time': pandas_processing_time,
             'connection_params_dict': connection_params_dict,
             'sql_query': sql_query,
-            'result': {
-                # TODO: fill in the result
-            }
         }
 
     @classmethod

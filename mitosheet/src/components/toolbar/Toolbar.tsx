@@ -343,7 +343,12 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={props.actions[ActionEnum.Graph].isDisabled()}
-
+                    />
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.AI_TRANSFORMATION}
+                        action={props.actions[ActionEnum.AI_TRANSFORMATION]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
                     />
 
                 </div>
