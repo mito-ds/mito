@@ -65,9 +65,7 @@ SUM_INVALID_CAST_TESTS = [
 @pytest.mark.parametrize("_argv,expected", SUM_VALID_TESTS + SUM_INVALID_CAST_TESTS)
 def test_sum(_argv, expected):
     result = SUM(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
         assert result == expected
-

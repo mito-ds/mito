@@ -14,12 +14,48 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 from typing import Union
+import sys
 
 import pandas as pd
 
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
+@cast_values_in_arg_to_type('number')
+def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]):
+    
+    result: Union[pd.Series, float, int] = -sys.maxsize - 1 # TODO: we need a new minimum value
+
+    def get_new_result(_result: Union[pd.Series, float, int], new_value: Union[pd.Series, float, int]) -> Union[pd.Series, float, int]:
+        if isinstance(_result, pd.Series):
+            if isinstance(new_value, pd.Series):
+                return pd.concat([_result, new_value], axis=1).max(axis=1)
+            else:
+                return _result.apply(lambda v: max(v, new_value))
+        else:
+            if isinstance(new_value, pd.Series):
+                return new_value.apply(lambda v: max(v, _result))
+            else:
+                return max(_result, new_value)
+
+    for arg in argv:
+        if isinstance(arg, pd.DataFrame):
+            df_sum = arg.sum().sum()
+            result = get_new_result(result, df_sum)
+
+        elif isinstance(arg, RollingRange):
+            new_series = arg.apply(lambda df: df.sum().sum())
+            result = get_new_result(result, new_series)
+            
+        elif isinstance(arg, pd.Series):
+            result = get_new_result(result, arg)
+            
+        elif arg is not None:
+            result = get_new_result(result, arg)
+
+    # If we don't find any arguements, we default to 0 -- like Excel
+    kept_default_min_value = not isinstance(result, pd.Series) and result == (-sys.maxsize - 1)
+    return result if not kept_default_min_value else 0
 
 @cast_values_in_arg_to_type('number')
 def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]):
@@ -37,7 +73,10 @@ def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]):
 
     return result 
 
+
+
 # TODO: we should see if we can list these automatically!
 NUMBER_FUNCTIONS = {
+    'MAX': MAX,
     'SUM': SUM,
 }
