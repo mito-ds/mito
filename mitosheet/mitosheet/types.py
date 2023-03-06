@@ -141,6 +141,7 @@ if sys.version_info[:3] > (3, 8, 0):
         'str', 
         'int', 
         'float', 
+        'number',
         'bool', 
         'datetime', 
         'timedelta'

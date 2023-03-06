@@ -21,8 +21,10 @@ import pandas as pd
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
+NumberFunctionReturnType = Union[pd.Series[int], pd.Series[float], int, float]
+
 @cast_values_in_arg_to_type('number')
-def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]):
+def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
 
     # Calculate the sum using the SUM function
     sum_for_avg = SUM(*argv)
@@ -51,7 +53,7 @@ def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]):
 
 
 @cast_values_in_arg_to_type('number')
-def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]):
+def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
     
     result: Union[pd.Series, float, int] = -sys.maxsize - 1
 
@@ -87,7 +89,7 @@ def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]):
     return result if not kept_default_min_value else 0
 
 @cast_values_in_arg_to_type('number')
-def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]):
+def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
     
     result: Union[pd.Series, float, int] = 0
 
