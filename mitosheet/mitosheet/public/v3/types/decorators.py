@@ -4,15 +4,16 @@
 
 
 
+from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Callable
-from datetime import datetime, timedelta
 
 import pandas as pd
-from pandas.core.window import Rolling
-from mitosheet.public.v3.types.utils import CONVERSION_FUNCTIONS
 
+from mitosheet.public.v3.rolling_range import RollingRange
+from mitosheet.public.v3.types.utils import CONVERSION_FUNCTIONS
 from mitosheet.types import PrimitiveTypeName
+
 
 def is_primitive_value(value: Any) -> bool:
     return isinstance(value, str) or \
@@ -46,14 +47,10 @@ def cast_values_in_arg_to_type(
                 elif isinstance(arg, pd.DataFrame):
                     final_args.append(arg.apply(lambda c: c.apply(conversion_function)))
 
-                elif isinstance(arg, Rolling):
+                elif isinstance(arg, RollingRange):
                     obj = arg.obj
-                    if isinstance(obj, pd.Series):
-                        new_obj = obj.apply(conversion_function)
-                    else:
-                        new_obj = obj.apply(lambda c: c.apply(conversion_function))
-
-                    final_args.append(new_obj.rolling(window=arg.window))
+                    new_obj = obj.apply(lambda c: c.apply(conversion_function))
+                    final_args.append(RollingRange(new_obj, arg.window, arg.offset))
                 
             return sheet_function(*final_args)        
         return wrapped_sheet_function
