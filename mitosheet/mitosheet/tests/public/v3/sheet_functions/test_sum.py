@@ -3,9 +3,6 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-"""
-Contains tests for the SUM function.
-"""
 
 import pytest
 import pandas as pd
@@ -25,7 +22,7 @@ SUM_VALID_TESTS = [
     # Constants and series
     ([2, pd.Series([1,2,3])], pd.Series([3,4,5])),
     ([2.0, pd.Series([1,2,3])], pd.Series([3.0,4.0,5.0])),
-    ([2.0, pd.Series([1,2,None])], pd.Series([3.0,4.0,None])),
+    ([2.0, pd.Series([1,2,None])], pd.Series([3.0,4.0,2.0])),
     ([2.0, pd.Series(['1', '2', '3'])], pd.Series([3.0, 4.0, 5.0])),
     ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([3.0, 4.0, 5.0])),
     ([2.0, pd.Series(['$1.00', '$2.00', '$3.00'])], pd.Series([3.0, 4.0, 5.0])),
@@ -65,16 +62,16 @@ SUM_INVALID_CAST_TESTS = [
     # Series
     ([2, 'abc', pd.Series([1,2,3])], pd.Series([3,4,5])),
     (['abc', pd.Series([1,2,3])], pd.Series([1,2,3])),
-    ([2, pd.Series(['abc',2,3])], pd.Series([np.NaN,4.0,5.0])),
+    ([2, pd.Series(['abc',2,3])], pd.Series([2.0,4.0,5.0])),
 
     # Dataframes
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,3])], pd.Series([8.0,9.0,10.0])),
-    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([8.0,9.0,np.NaN])),
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([8.0,9.0,7.0])),
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([13.0, 14.0, 7.0])),
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,3])], pd.Series([14.0, 16.0, 10.0])),
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,None])], pd.Series([14.0, 16.0, None])),
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,None])], pd.Series([14.0, 16.0, 7.0])),
 ]
 
 @pytest.mark.parametrize("_argv,expected", SUM_VALID_TESTS + SUM_INVALID_CAST_TESTS)

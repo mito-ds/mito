@@ -3,9 +3,6 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-"""
-Contains tests for the SUM function.
-"""
 
 import pytest
 import pandas as pd

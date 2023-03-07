@@ -15,6 +15,7 @@ NOTE: This file is alphabetical order!
 """
 from typing import Union
 import sys
+import numpy as np
 
 import pandas as pd
 
@@ -62,10 +63,10 @@ def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
             if isinstance(new_value, pd.Series):
                 return pd.concat([_result, new_value], axis=1).max(axis=1)
             else:
-                return _result.apply(lambda v: max(v, new_value))
+                return _result.apply(lambda v: np.nanmax([v, new_value]))
         else:
             if isinstance(new_value, pd.Series):
-                return new_value.apply(lambda v: max(v, _result))
+                return new_value.apply(lambda v: np.nanmax([v, _result]))
             else:
                 return max(_result, new_value)
 
@@ -99,6 +100,8 @@ def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
             result += arg.sum().sum()
         elif isinstance(arg, RollingRange):
             result += arg.apply(lambda df: df.sum().sum())
+        elif isinstance(arg, pd.Series):
+            result += arg.fillna(0)
         elif arg is not None:
             result += arg
 
