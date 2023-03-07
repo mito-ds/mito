@@ -27,7 +27,7 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
                              DataframeFormat, FormulaAppliedToType, GraphID,
-                             MultiLevelColumnHeader, Filter, FilterGroup, Operator)
+                             MultiLevelColumnHeader, Filter, FilterGroup, OperatorType)
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -755,7 +755,7 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: Operator,
+            operator: OperatorType,
             condition: str, 
             value: Any
         ) -> bool:
@@ -789,7 +789,7 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: Operator,
+            operator: OperatorType,
             filters: List[Union[Filter, FilterGroup]]
         ) -> bool:
 

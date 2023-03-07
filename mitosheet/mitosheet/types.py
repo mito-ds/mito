@@ -132,8 +132,20 @@ if sys.version_info[:3] > (3, 8, 0):
         'most_frequent',
         'least_frequent'
     ]
-
-    Operator = Literal['And', 'Or']
+    OperatorType = Literal[
+        'And', 
+        'Or'
+    ]
+    
+    PrimitiveTypeName = Literal[
+        'str', 
+        'int', 
+        'float', 
+        'number',
+        'bool', 
+        'datetime', 
+        'timedelta'
+    ]
 
     class Filter(TypedDict):
         condition: Union[BooleanFilterCondition, StringFilterCondition, NumberFilterCondition, DatetimeFilterCondition, SharedFilterCondition]
@@ -142,7 +154,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FilterGroup(TypedDict):
         # NOTE: this is a recursive type. The filter group can contain a filter group
         filters: List[Union[Filter, "FilterGroup"]]
-        operator: Operator #type:ignore
+        operator: OperatorType #type:ignore
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
@@ -258,7 +270,8 @@ if sys.version_info[:3] > (3, 8, 0):
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
-    Operator = Any #type:ignore
+    OperatorType = Any #type:ignore
+    PrimitiveTypeName = None # type: ignore
     ColumnIDWithFilter = Any # type:ignore
     ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
