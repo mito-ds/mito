@@ -39,6 +39,8 @@ AVG_VALID_TESTS = [
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, -1), 1], pd.Series([6/3, 13/5, 17/5])), #A1 = AVG(B0:C1, 1)
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 1), 1], pd.Series([17/5, 10/3, 1/1])), #A0 = AVG(B1:C2, 1)
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([13/5, 22/7, 17/5])), #A1 = AVG(B0:C2, 1)
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [1, 2, None]}), 3, 0)], pd.Series([9/5, 7/3, 3/1])), #A0 = AVG(B0:C2)
+
 ]
 
 AVG_INVALID_CAST_TESTS = [

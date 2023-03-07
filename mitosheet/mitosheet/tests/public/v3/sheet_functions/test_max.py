@@ -21,6 +21,7 @@ MAX_VALID_TESTS = [
     ([2.0, 3.0], 3.0),
     ([2.0, '$3.0'], 3.0),
     ([2.0, True], 2.0),
+    ([-1.0, True], 1.0),
 
     # Constants and series
     ([2, pd.Series([1,2,3])], pd.Series([2,2,3])),
@@ -30,6 +31,7 @@ MAX_VALID_TESTS = [
     ([2.0, pd.Series([1,2,None])], pd.Series([2.0,2.0,None])),
     ([2.0, pd.Series(['1', '2', '3'])], pd.Series([2.0, 2.0, 3.0])),
     ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([2.0, 2.0, 3.0])),
+    ([2.0, pd.Series([None, '2.0', '3.0'])], pd.Series([2.0, 2.0, 3.0])),
     
     # Dataframes
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([1,2,3])], pd.Series([9, 9, 9])),
@@ -37,10 +39,10 @@ MAX_VALID_TESTS = [
     ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([7.0, 7.0, 7.0])),
 
     # Rolling ranges
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([12, 16, 9])), #A0 = MIN(B0:C1, 1)
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, -1), 1], pd.Series([5, 12, 16])), #A1 = MIN(B0:C1, 1)
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 1), 1], pd.Series([16, 9, 1])), #A0 = MIN(B1:C2, 1)
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([12, 21, 16])), #A1 = MIN(B0:C2, 1)
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([12, 16, 9])), #A0 = MAX(B0:C1, 1)
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, -1), 1], pd.Series([5, 12, 16])), #A1 = MAX(B0:C1, 1)
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 1), 1], pd.Series([16, 9, 1])), #A0 = MAX(B1:C2, 1)
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([12, 21, 16])), #A1 = MAX(B0:C2, 1)
 ]
 
 MAX_INVALID_CAST_TESTS = [

@@ -21,7 +21,7 @@ import pandas as pd
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
-NumberFunctionReturnType = Union[pd.Series[int], pd.Series[float], int, float]
+NumberFunctionReturnType = Union[pd.Series, int, float]
 
 @cast_values_in_arg_to_type('number')
 def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
