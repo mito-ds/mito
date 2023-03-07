@@ -10,6 +10,7 @@ import titleStyles from '../styles/Title.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
+import TextButton from '../components/TextButton/TextButton';
 
 const Home: NextPage = () => {
 
@@ -122,6 +123,21 @@ const Home: NextPage = () => {
               <div className={homeStyles.functionality_media}>
                 <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
               </div>
+            </div>
+          </section>
+
+          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
+            <div>
+              <h2 className={homeStyles.case_study_text}>
+                Enigma’s Director of Finance saves 16 hours per month with Mito
+              </h2>
+              <TextButton 
+                text="Read Tom's Story"
+                href="https://blog.trymito.io/enigma-case-study/"
+              />
+            </div>
+            <div className={homeStyles.case_study_headshot}>
+              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
             </div>
           </section>
 
