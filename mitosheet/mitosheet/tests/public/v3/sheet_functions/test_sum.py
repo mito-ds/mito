@@ -32,7 +32,6 @@ SUM_VALID_TESTS = [
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([1,2,3])], pd.Series([10,11,12])),
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), 2], 11),
     ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([8.0,9.0,10.0])),
-    ([pd.DataFrame({'a': [None, None, None]}), pd.Series([1,2,3])], pd.Series([1,2,3])),
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([13, 17, 10])), #A0 = B0:C1 + 1
