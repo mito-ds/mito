@@ -44,8 +44,9 @@ def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
             num_entries += num_non_null_values_series
             
         elif isinstance(arg, pd.Series):
-            # Because series are summed row-wise, this actually is only contributing 1 to each denominator
-            num_entries += 1 
+            # Because series are summed row-wise, we need to count the number of non-null
+            # values in the row, which we do with this little type cast
+            num_entries += (~arg.isna()).astype(int)
             
         elif arg is not None:
             num_entries += 1

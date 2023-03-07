@@ -22,7 +22,7 @@ AVG_VALID_TESTS = [
     ([2, pd.Series([1,2,3])], pd.Series([1.5,2,2.5])),
     ([2, pd.Series([1,2,3])], pd.Series([1.5,2,2.5])),
     ([2.0, pd.Series([1,2,3])], pd.Series([1.5,2,2.5])),
-    ([2.0, pd.Series([1,2,None])], pd.Series([1.5,2,None])),
+    ([2.0, pd.Series([1,2,None])], pd.Series([1.5,2,2.0])),
     ([2.0, pd.Series(['1', '2', '3'])], pd.Series([1.5,2,2.5])),
     ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([1.5,2,2.5])),
     
@@ -48,21 +48,22 @@ AVG_INVALID_CAST_TESTS = [
     # Series
     ([2, 'abc', pd.Series([1,2,3])], pd.Series([1.5,2,2.5])),
     (['abc', pd.Series([1,2,3])], pd.Series([1.0,2.0,3.0])),
-    ([2, pd.Series(['abc',2,3])], pd.Series([np.NaN,2.0,2.5])),
+    ([2, pd.Series(['abc',2,3])], pd.Series([2.0,2.0,2.5])),
 
     # Dataframes
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,3])], pd.Series([8.0/6,9.0/6,10.0/6])),
-    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([8.0/6,9.0/6,np.NaN])),
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([8.0/6,9.0/6,7.0/5])),
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([13.0/5, 14.0/4, 7.0/2])),
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,3])], pd.Series([14.0/6, 16.0/5, 10.0/3])),
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,None])], pd.Series([14.0/6, 16.0/5, None])),
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 1, pd.Series([1,2,None])], pd.Series([14.0/6, 16.0/5, 7.0/2])),
 ]
 
 @pytest.mark.parametrize("_argv,expected", AVG_VALID_TESTS + AVG_INVALID_CAST_TESTS)
 def test_avg(_argv, expected):
     result = AVG(*_argv)
+    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
