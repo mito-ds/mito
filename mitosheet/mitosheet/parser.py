@@ -29,10 +29,6 @@ from mitosheet.types import (ColumnHeader, FrontendFormula,
 from mitosheet.user.utils import get_pandas_version
 from mitosheet.utils import is_prev_version
 
-COLUMN_HEADER_MATCH_TYPE = '{HEADER}'
-INDEX_LABEL_MATCH_TYPE = '{INDEX}'
-
-
 def is_quote(char: str) -> bool:
     """
     A helper to detect if a character is a quote
@@ -53,7 +49,7 @@ def get_string_matches(
     can still be detected as a valid column header.
     """
     if formula is None:
-        return None
+        return []
 
     # We find the ranges of the formula that are string constants;
     # we do not edit these! Taken from: https://stackoverflow.com/a/63707053/13113837
@@ -160,44 +156,6 @@ def safe_count_function(formula: str, substring: str) -> int:
             count += 1
     
     return count
-
-
-def safe_replace(
-        formula: str, 
-        old_column_header: ColumnHeader, 
-        new_column_header: ColumnHeader,
-        formula_label: Union[str, bool, int, float],
-        df: pd.DataFrame
-    ) -> str:
-    """
-    Given a raw spreadsheet formula, will replace all instances of old_column_header
-    with new_column_header. However, will avoid replacing the column header within
-    strings, or within other column headers.
-
-    NOTE: this assumes the formula is valid!
-    """
-
-    # Get the string literals, so we don't edit inside of them
-    string_matches = get_string_matches(formula)
-
-    # And we also do not edit inside column headers that aren't this column header
-    parser_matches = get_column_header_and_index_matches(
-        formula,
-        formula_label,
-        string_matches,
-        df
-    )
-
-    # Then, go through from the end to the start, and actually replace all the column headers
-    for parser_match in parser_matches:
-        if parser_match['type'] == COLUMN_HEADER_MATCH_TYPE:
-            column_header = parser_match['parsed']
-            if column_header == old_column_header:
-                start = parser_match['substring_range'][0]
-                end = parser_match['substring_range'][1]
-                formula = formula[:start] + str(new_column_header) + formula[end:]
-
-    return formula
 
 
 def check_common_errors(
@@ -377,15 +335,14 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
     return None
 
 
-
-def get_column_header_and_index_matches(
+def get_raw_parser_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
         string_matches: List[Any],
         df: pd.DataFrame
     ) -> List[RawParserMatch]:
     """
-    Returns a list of ParserMatch, which are either column header matches
+    Returns a list of RawParserMatch, which are either column header matches
     or matches on the index. 
 
     The parsing strategy generally can be described as follows:
@@ -397,8 +354,6 @@ def get_column_header_and_index_matches(
     to a parsed value is then done, and we can determine the row offset 
     of the match.
 
-    This formula is the main workhorse of the parser. With the inputs:
-
     formula = "=A0"
     formula_label = 1 (aka formula was written in B1)
     string_matches = []
@@ -406,14 +361,14 @@ def get_column_header_and_index_matches(
 
     We would get the matches: 
     {
-                        'type': COLUMN_HEADER_MATCH_TYPE,
+                        'type': '{HEADER}',
                         'substring_range': (1, 1),
                         'unparsed':'A',
                         'parsed': 'A',
                         'row_offset': 0
     }
     {
-                        'type': INDEX_LABEL_MATCH_TYPE,
+                        'type': '{INDEX}',
                         'substring_range': (2, 2),
                         'unparsed':'0',
                         'parsed': 0,
@@ -494,9 +449,6 @@ def get_column_header_and_index_matches(
         # that we make on the frontend
         re.sub(re.escape(get_column_header_display(column_header)), find_column_headers, formula)
 
-    # Sort the matches from end to start, so that we don't need to shift the indexes
-    parser_matches = sorted(parser_matches, key=lambda x: x['substring_range'][0], reverse=True)
-
     return parser_matches
 
 def get_parser_matches(
@@ -505,6 +457,18 @@ def get_parser_matches(
         string_matches: List[Any],
         df: pd.DataFrame
     ) -> List[ParserMatch]:
+    """
+    This function takes raw parser matches and turns them into ParserMatches, which are either:
+    - {HEADER} which is a single header by itself (legacy)
+    - {HEADER}{INDEX} which is how a user references a specific cell
+    - {HEADER}:{HEADER} which is how a user references an entire column
+    - {HEADER}{INDEX}:{HEADER}{INDEX} which is how a user references a range of specific cells
+
+    We take special care to match the longest options first, so that we don't match a {HEADER}{INDEX}
+    when it is actual part of a {HEADER}{INDEX}:{HEADER}{INDEX}.
+
+    This is also returned in reverse order, so that it is easy to work with.
+    """
     
 
     def get_header_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
@@ -604,15 +568,12 @@ def get_parser_matches(
 
     parser_matches: List[ParserMatch] = []
 
-    column_header_and_index_matches = get_column_header_and_index_matches(
+    column_header_and_index_matches = get_raw_parser_matches(
         formula,
         formula_label,
         string_matches,
         df
     )
-
-    # Reverse the matches so they are in the front-to-back order
-    column_header_and_index_matches.reverse()
 
     match_index = 0
     while match_index < len(column_header_and_index_matches):
@@ -641,7 +602,7 @@ def get_parser_matches(
             match_index += 1
             continue
 
-    # Put the parser matches in back-to-front order so we can work with them easily
+    # Put the parser matches in back-to-front order so we can work with them easily in consuming functions
     parser_matches.reverse()
 
     return parser_matches
@@ -874,13 +835,12 @@ def get_frontend_formula(
         return []
 
     # First, we get the parser matches, which are notably in reverse order, and put them back in order
-    parser_matches = get_column_header_and_index_matches(
+    parser_matches = get_raw_parser_matches(
         formula,
         formula_label,
         get_string_matches(formula),
         df
     )
-    parser_matches.reverse()
         
     frontend_formula: FrontendFormula = []
     start = 0
@@ -890,7 +850,7 @@ def get_frontend_formula(
 
         frontend_string_part = formula[start: parser_match_start]
         
-        if parser_match['type'] == COLUMN_HEADER_MATCH_TYPE:
+        if parser_match['type'] == '{HEADER}':
             if len(frontend_string_part) > 0:
                 frontend_formula.append({
                     'type': 'string part',

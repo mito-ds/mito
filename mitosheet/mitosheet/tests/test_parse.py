@@ -9,7 +9,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.errors import MitoError
-from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_replace, safe_contains, get_frontend_formula
+from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_contains, get_frontend_formula
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
 
@@ -907,25 +907,6 @@ def test_parse_errors(formula, address, error_type, to_fix_substr):
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix
-
-
-SAFE_REPLACE_TESTS = [
-    ('=A', 'A', 'B', ['A', 'B'], '=B'),
-    ('=A + A', 'A', 'B', ['A', 'B'], '=B + B'),
-    ('=A + B', 'A', 'B', ['A', 'B'], '=B + B'),
-    ('=A + B + A', 'A', 'B', ['A', 'B'], '=B + B + B'),
-    ('=This is a test', 'test', 'B', ['This is a test'], '=This is a test'),
-    ('="test with spaces"', 'test with spaces', 'B', ['test with spaces'], '="test with spaces"'),
-    ('=A + B + \"A\"', 'A', 'B', ['A', 'B'], '=B + B + \"A\"'),
-    ('=A + B + \'A\'', 'A', 'B', ['A', 'B'], '=B + B + \'A\''),
-    ('=A + B + \'A\'', 'A', 'B', ['A', 'B'], '=B + B + \'A\''),
-    ('=FUNC(A, B, A) + TEST(FUNC(A, \'A\', \'B\')) + \'A\'', 'A', 'B', ['A', 'B'], '=FUNC(B, B, B) + TEST(FUNC(B, \'A\', \'B\')) + \'A\''),
-    ('=APPLE(A, B, A) + AARON(AAA(A, \'A\', \'B\')) + \'A\'', 'A', 'B', ['A', 'B'], '=APPLE(B, B, B) + AARON(AAA(B, \'A\', \'B\')) + \'A\''),
-]
-
-@pytest.mark.parametrize('formula,old_column_header,new_column_header,column_headers,new_formula', SAFE_REPLACE_TESTS)
-def test_safe_replace(formula, old_column_header, new_column_header, column_headers, new_formula):
-    assert safe_replace(formula, old_column_header, new_column_header, 0, pd.DataFrame(get_number_data_for_df(column_headers, 2))) == new_formula
 
 
 SAFE_CONTAINS_TESTS = [

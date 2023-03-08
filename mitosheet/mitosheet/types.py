@@ -236,7 +236,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaReference(TypedDict):
         type: Literal['reference part']
         display_column_header: str
-        row_offset: int
+        row_offset: Optional[int]
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
