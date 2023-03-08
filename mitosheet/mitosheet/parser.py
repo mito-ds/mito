@@ -292,7 +292,6 @@ def get_index_match_from_number_index(formula: str, formula_label: Union[str, bo
     if is_number_index(index):
         number_chars = ''
         for char in formula[index_label_start:]:
-            print("CHAR", char)
             # We allow it to start with a negative (must be first char)
             if len(number_chars) == 0 and char == '-':
                 number_chars += char
@@ -441,7 +440,6 @@ def get_column_header_and_index_matches(
             start = match.start()
             end = match.end()
             match_range = (start, end)
-            print("found", found_column_header, match_range)
 
             # Do not replace the column header if it is in a string
             if match_covered_by_matches(string_matches, match_range):
@@ -450,14 +448,12 @@ def get_column_header_and_index_matches(
                 ends_with_quote = is_quote(str(column_header)[-1])
 
                 if is_string and not (starts_with_quote and ends_with_quote):
-                    print("HERE")
                     return found_column_header
 
             # If this column header was already covered by another column header
             # that has been found, then this column header is just a substring
             # of another column header, so we avoid matching it
             if match_covered_by_matches([match['substring_range'] for match in parser_matches], match_range):
-                print("HERE1")
                 return found_column_header
 
             # First, we check if it's an unqualified column header with no index
@@ -487,8 +483,6 @@ def get_column_header_and_index_matches(
                 })
                 parser_matches.append(index_label_match)
                 return 
-
-            print("FINIALLY HERE")
             
             # NOTE: we add the column_header, not the found column header
             # as the found column header is a string, and the column_header 
@@ -513,7 +507,7 @@ def get_parser_matches(
     ) -> List[ParserMatch]:
     
 
-    def get_solo_column_header_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
+    def get_header_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
         if match_index >= len(column_header_and_index_matches):
             return None
 
@@ -545,7 +539,7 @@ def get_parser_matches(
         
         return None
     
-    def get_specific_cell_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
+    def get_header_index_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
         curr_match = column_header_and_index_matches[match_index]
         if match_index + 1 >= len(column_header_and_index_matches):
             return None
@@ -564,7 +558,7 @@ def get_parser_matches(
         
         return None
     
-    def get_entire_column_range_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
+    def get_header_header_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
         curr_match = column_header_and_index_matches[match_index]
         if match_index + 1 >= len(column_header_and_index_matches):
             return None
@@ -583,13 +577,13 @@ def get_parser_matches(
         
         return None
     
-    def get_range_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
+    def get_header_index_header_index_match(formula: str, column_header_and_index_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
 
         if match_index + 3 >= len(column_header_and_index_matches):
             return None
 
-        first_specific_cell_match = get_specific_cell_match(formula, column_header_and_index_matches, match_index)
-        second_specific_cell_match = get_specific_cell_match(formula, column_header_and_index_matches, match_index + 2)
+        first_specific_cell_match = get_header_index_match(formula, column_header_and_index_matches, match_index)
+        second_specific_cell_match = get_header_index_match(formula, column_header_and_index_matches, match_index + 2)
 
         if first_specific_cell_match is None or second_specific_cell_match is None:
             return None
@@ -620,33 +614,30 @@ def get_parser_matches(
     # Reverse the matches so they are in the front-to-back order
     column_header_and_index_matches.reverse()
 
-    print("RAW", column_header_and_index_matches)
-
     match_index = 0
     while match_index < len(column_header_and_index_matches):
 
-        range_match = get_range_match(formula, column_header_and_index_matches, match_index)
-        print("RANGE", range_match, match_index)
-        if range_match is not None:
-            parser_matches.append(range_match)
+        header_index_header_index_match = get_header_index_header_index_match(formula, column_header_and_index_matches, match_index)
+        if header_index_header_index_match is not None:
+            parser_matches.append(header_index_header_index_match)
             match_index += 4
             continue
 
-        entire_column_range_match = get_entire_column_range_match(formula, column_header_and_index_matches, match_index)
-        if entire_column_range_match is not None:
-            parser_matches.append(entire_column_range_match)
+        header_header_match = get_header_header_match(formula, column_header_and_index_matches, match_index)
+        if header_header_match is not None:
+            parser_matches.append(header_header_match)
             match_index += 2
             continue
 
-        specific_cell_match = get_specific_cell_match(formula, column_header_and_index_matches, match_index)
-        if specific_cell_match is not None:
-            parser_matches.append(specific_cell_match)
+        header_index_match = get_header_index_match(formula, column_header_and_index_matches, match_index)
+        if header_index_match is not None:
+            parser_matches.append(header_index_match)
             match_index += 2
             continue
 
-        solo_column_header_match = get_solo_column_header_match(formula, column_header_and_index_matches, match_index)
-        if solo_column_header_match is not None:
-            parser_matches.append(solo_column_header_match)
+        header_match = get_header_match(formula, column_header_and_index_matches, match_index)
+        if header_match is not None:
+            parser_matches.append(header_match)
             match_index += 1
             continue
 
@@ -679,9 +670,6 @@ def replace_column_headers_and_indexes(
         string_matches,
         df
     )
-
-    print("FORMULA", formula)
-    print("PARSER MATCHES", parser_matches)
 
     column_headers = set()
     index_labels = set()
