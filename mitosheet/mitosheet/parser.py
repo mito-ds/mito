@@ -602,7 +602,7 @@ def get_parser_matches(
                 'substring_range': (first_specific_cell_match['substring_range'][0], second_specific_cell_match['substring_range'][1]),
                 'unparsed': first_specific_cell_match['unparsed'] + second_specific_cell_match['unparsed'],
                 'parsed': (first_specific_cell_match['parsed'], second_specific_cell_match['parsed']),
-                'row_offset': (first_specific_cell_match['row_offset'], second_specific_cell_match['row_offset'])
+                'row_offset': (first_specific_cell_match['row_offset'], second_specific_cell_match['row_offset']) # type: ignore
             }
 
         return None
@@ -721,7 +721,7 @@ def replace_column_headers_and_indexes(
             column_headers.add(column_header)
 
             transpiled_column_header = column_header_to_transpiled_code(column_header)
-            replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}'
+            replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}' # type: ignore
 
         elif match_type == '{HEADER}{INDEX}':
             (column_header, index_label) = match['parsed']
@@ -732,7 +732,7 @@ def replace_column_headers_and_indexes(
             index_labels.add(index_label)
 
             transpiled_column_header = column_header_to_transpiled_code(column_header)
-            replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}'
+            replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}' # type: ignore
         
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
@@ -745,7 +745,7 @@ def replace_column_headers_and_indexes(
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
             ((column_header_one, index_label_one), (column_header_two, index_label_two)) = match['parsed']
-            (row_offset_one, row_offset_two) = match['row_offset']
+            (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
             column_dtype = str(df[column_header_one].dtype) # TODO: fill value might be weird on ranges
 
             column_headers.add(column_header_one)
