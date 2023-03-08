@@ -288,6 +288,7 @@ else:
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
     RawParserMatch = Any # type:ignore
+    ParserMatch = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
     SnowflakeTableLocationAndWarehouseOptional = Any #type:ignore
