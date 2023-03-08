@@ -825,6 +825,16 @@ HEADER_HEADER_RANGE_TEST_CASES = [
         set(['SUM']),
         set(['A', "B"])
     ),
+    # One range across two headers, with as well as other specific cell reference and header ref
+    (
+        '=SUM(A:B, A, A0)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'], df['A'])",
+        set(['SUM']),
+        set(['A', "B"])
+    ),
 ]
 
 HEADER_INDEX_HEADER_INDEX_MATCHES = [
@@ -865,6 +875,26 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
         "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1))",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+    # Header index header index reference with offset and two columns in function, as well as other specific cell reference and header ref
+    (
+        '=SUM(A1:B2, A, A0)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1), df['A'], df['A'])",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+    # Header index header index as well as header header
+    (
+        '=SUM(A1:B2, A:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1), df.loc[:, 'A':'B'])",
         set(['SUM']),
         set(['A', 'B'])
     ),
