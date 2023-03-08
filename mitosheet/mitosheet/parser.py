@@ -181,7 +181,7 @@ def safe_replace(
     string_matches = get_string_matches(formula)
 
     # And we also do not edit inside column headers that aren't this column header
-    parser_matches = get_range_column_header_and_index_matches(
+    parser_matches = get_column_header_and_index_matches(
         formula,
         formula_label,
         string_matches,
@@ -292,6 +292,7 @@ def get_index_match_from_number_index(formula: str, formula_label: Union[str, bo
     if is_number_index(index):
         number_chars = ''
         for char in formula[index_label_start:]:
+            print("CHAR", char)
             # We allow it to start with a negative (must be first char)
             if len(number_chars) == 0 and char == '-':
                 number_chars += char
@@ -300,7 +301,7 @@ def get_index_match_from_number_index(formula: str, formula_label: Union[str, bo
                 number_chars += char
             else:
                 break
-
+            
         if number_chars != '':
             if '.' in number_chars:
                 parsed_label = float(number_chars)
@@ -378,7 +379,7 @@ def get_index_match_from_string_index(formula: str, formula_label: Union[str, bo
 
 
 
-def get_range_column_header_and_index_matches(
+def get_column_header_and_index_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
         string_matches: List[Any],
@@ -440,6 +441,7 @@ def get_range_column_header_and_index_matches(
             start = match.start()
             end = match.end()
             match_range = (start, end)
+            print("found", found_column_header, match_range)
 
             # Do not replace the column header if it is in a string
             if match_covered_by_matches(string_matches, match_range):
@@ -448,12 +450,14 @@ def get_range_column_header_and_index_matches(
                 ends_with_quote = is_quote(str(column_header)[-1])
 
                 if is_string and not (starts_with_quote and ends_with_quote):
+                    print("HERE")
                     return found_column_header
 
             # If this column header was already covered by another column header
             # that has been found, then this column header is just a substring
             # of another column header, so we avoid matching it
             if match_covered_by_matches([match['substring_range'] for match in parser_matches], match_range):
+                print("HERE1")
                 return found_column_header
 
             # First, we check if it's an unqualified column header with no index
@@ -483,6 +487,8 @@ def get_range_column_header_and_index_matches(
                 })
                 parser_matches.append(index_label_match)
                 return 
+
+            print("FINIALLY HERE")
             
             # NOTE: we add the column_header, not the found column header
             # as the found column header is a string, and the column_header 
@@ -564,7 +570,7 @@ def get_parser_matches(
             return None
 
         next_match = column_header_and_index_matches[match_index + 1]
-        seperated_by_colon_from_next_match = curr_match['substring_range'][1] == next_match['substring_range'][0] - 1 and formula[curr_match['substring_range'][1] + 1] == ':'
+        seperated_by_colon_from_next_match = curr_match['substring_range'][1] == next_match['substring_range'][0] - 1 and formula[curr_match['substring_range'][1]] == ':'
 
         if curr_match['type'] == '{HEADER}' and seperated_by_colon_from_next_match and next_match['type'] == '{HEADER}':
             return {
@@ -588,7 +594,7 @@ def get_parser_matches(
         if first_specific_cell_match is None or second_specific_cell_match is None:
             return None
         
-        specific_cell_matches_seperated_by_colon = first_specific_cell_match['substring_range'][1] == second_specific_cell_match['substring_range'][0] - 1 and formula[first_specific_cell_match['substring_range'][1] + 1] == ':'
+        specific_cell_matches_seperated_by_colon = first_specific_cell_match['substring_range'][1] == second_specific_cell_match['substring_range'][0] - 1 and formula[first_specific_cell_match['substring_range'][1]] == ':'
         
         if specific_cell_matches_seperated_by_colon:
             return {
@@ -596,17 +602,15 @@ def get_parser_matches(
                 'substring_range': (first_specific_cell_match['substring_range'][0], second_specific_cell_match['substring_range'][1]),
                 'unparsed': first_specific_cell_match['unparsed'] + second_specific_cell_match['unparsed'],
                 'parsed': (first_specific_cell_match['parsed'], second_specific_cell_match['parsed']),
-                'row_offset': first_specific_cell_match['row_offset']
+                'row_offset': (first_specific_cell_match['row_offset'], second_specific_cell_match['row_offset'])
             }
-
 
         return None
      
 
-    
     parser_matches: List[ParserMatch] = []
 
-    column_header_and_index_matches = get_range_column_header_and_index_matches(
+    column_header_and_index_matches = get_column_header_and_index_matches(
         formula,
         formula_label,
         string_matches,
@@ -616,10 +620,13 @@ def get_parser_matches(
     # Reverse the matches so they are in the front-to-back order
     column_header_and_index_matches.reverse()
 
+    print("RAW", column_header_and_index_matches)
+
     match_index = 0
     while match_index < len(column_header_and_index_matches):
 
         range_match = get_range_match(formula, column_header_and_index_matches, match_index)
+        print("RANGE", range_match, match_index)
         if range_match is not None:
             parser_matches.append(range_match)
             match_index += 4
@@ -673,6 +680,9 @@ def replace_column_headers_and_indexes(
         df
     )
 
+    print("FORMULA", formula)
+    print("PARSER MATCHES", parser_matches)
+
     column_headers = set()
     index_labels = set()
 
@@ -684,6 +694,14 @@ def replace_column_headers_and_indexes(
             return f'.shift({row_offset}, fill_value=0)'
         else:
             return f'.shift({row_offset})'
+    
+    def get_selection_code(column_header_one: ColumnHeader, column_header_two: ColumnHeader) -> str:
+        # If the column headers are the same, we can generate much simpler code
+        # TODO: we potentially can do better if the columnns are next to eachother as well
+        if column_header_one == column_header_two:
+            return f'[[{column_header_to_transpiled_code(column_header_two)}]]'
+        else:
+            return f'.loc[:, {column_header_to_transpiled_code(column_header_one)}:{column_header_to_transpiled_code(column_header_two)}]'
     
     # Then, go through from the end to the start, and actually replace all the column headers
     # and remove all of the index labels
@@ -718,19 +736,16 @@ def replace_column_headers_and_indexes(
         
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
-            row_offset = match['row_offset']
             column_dtype = str(df[column_header_one].dtype) # TODO: fill value might be weird on ranges
 
             column_headers.add(column_header_one)
             column_headers.add(column_header_two)
 
-            transpiled_column_header_one = column_header_to_transpiled_code(column_header_one)
-            transpiled_column_header_two = column_header_to_transpiled_code(column_header_two)
-            replace_string = f'{df_name}.loc[:, {transpiled_column_header_one}:{transpiled_column_header_two}]{get_shift_string(column_dtype, row_offset)}'
+            replace_string = f'{df_name}{get_selection_code(column_header_one, column_header_two)}'
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
             ((column_header_one, index_label_one), (column_header_two, index_label_two)) = match['parsed']
-            row_offset = match['row_offset']
+            (row_offset_one, row_offset_two) = match['row_offset']
             column_dtype = str(df[column_header_one].dtype) # TODO: fill value might be weird on ranges
 
             column_headers.add(column_header_one)
@@ -738,9 +753,7 @@ def replace_column_headers_and_indexes(
             index_labels.add(index_label_one)
             index_labels.add(index_label_two)
 
-            transpiled_column_header_one = column_header_to_transpiled_code(column_header_one)
-            transpiled_column_header_two = column_header_to_transpiled_code(column_header_two)
-            replace_string = f'{df_name}.loc[:, {transpiled_column_header_one}:{transpiled_column_header_two}]{get_shift_string(column_dtype, row_offset)}'
+            replace_string = f'RollingRange({df_name}{get_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {row_offset_one})'
         
         formula = formula[:start] + replace_string + formula[end:]
 
@@ -768,7 +781,7 @@ def replace_functions(
         # If this is to_datetime or to_timedelta we skip this, as this is us casting to a datetime or 
         # timedetla for a column header. Similarly, we skip shift, as this is a function call b/c of a
         # row offset
-        if word == 'to_datetime' or word == 'to_timedelta' or word == 'shift':
+        if word == 'to_datetime' or word == 'to_timedelta' or word == 'shift' or word == 'RollingRange':
             return word
 
         # Function
@@ -873,7 +886,7 @@ def get_frontend_formula(
         return []
 
     # First, we get the parser matches, which are notably in reverse order, and put them back in order
-    parser_matches = get_range_column_header_and_index_matches(
+    parser_matches = get_column_header_and_index_matches(
         formula,
         formula_label,
         get_string_matches(formula),

@@ -227,7 +227,7 @@ if sys.version_info[:3] > (3, 8, 0):
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
-        row_offset: RowOffset
+        row_offset: Union[RowOffset, Tuple[RowOffset, RowOffset]]
 
     class FrontendFormulaString(TypedDict):
         type: Literal['string part']

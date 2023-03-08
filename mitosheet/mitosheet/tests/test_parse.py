@@ -784,6 +784,92 @@ INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY = [
     ),
 ]
 
+HEADER_HEADER_RANGE_TEST_CASES = [
+    # Simple header header reference
+    (
+        '=A:A',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = df[[\'A\']]',
+        set([]),
+        set(['A'])
+    ),
+    # Header header reference in a formula
+    (
+        '=SUM(A:A)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df[[\'A\']])',
+        set(['SUM']),
+        set(['A'])
+    ),
+    # Multiple header header references
+    (
+        '=SUM(A:A, B:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df[[\'A\']], df[[\'B\']])',
+        set(['SUM']),
+        set(['A', "B"])
+    ),
+    # One range across two headers
+    (
+        '=SUM(A:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'])',
+        set(['SUM']),
+        set(['A', "B"])
+    ),
+]
+
+HEADER_INDEX_HEADER_INDEX_MATCHES = [
+    # Simple header index header index reference
+    (
+        '=A0:A1',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        "df['B'] = RollingRange(df[['A']], 2, 0)",
+        set([]),
+        set(['A'])
+    ),
+    # Header index header index reference with offset
+    (
+        '=A1:A2',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = RollingRange(df[['A']], 2, -1)",
+        set([]),
+        set(['A'])
+    ),
+    # Header index header index reference with offset and two columns
+    (
+        '=A1:B2',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = RollingRange(df.loc[:, 'A':'B'], 2, -1)",
+        set([]),
+        set(['A', 'B'])
+    ),
+    # Header index header index reference with offset and two columns in function
+    (
+        '=SUM(A1:B2)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1))",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+]
+
 
 """
 PARSE_TESTS contains a variety of tests that make sure
@@ -794,11 +880,10 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
     code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
-    print("CODE", code)
     assert (code, funcs, cols) == \
         (
             python_code, 
