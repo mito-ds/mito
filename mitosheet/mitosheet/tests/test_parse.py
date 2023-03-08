@@ -295,7 +295,7 @@ FUNCTION_TEST_CASES = [
         'J',
         0,
         pd.DataFrame(get_number_data_for_df(['abc', 456, 'this is a string \' that has a quote', "J"], 2)),
-        'df[\'J\'] = FUNC(df[\'this is a string \' that has a quote\'], df[456], df[\'abc\'])',
+        'df[\'J\'] = FUNC(df["this is a string \' that has a quote"], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \' that has a quote'])
     ),
@@ -305,7 +305,7 @@ FUNCTION_TEST_CASES = [
         'J',
         0,
         pd.DataFrame(get_number_data_for_df(['abc', 456, 'this is a string \'test\' that has a quote', "J"], 2)),
-        'df[\'J\'] = FUNC(df[\'this is a string \'test\' that has a quote\'], df[456], df[\'abc\'])',
+        'df[\'J\'] = FUNC(df["this is a string \'test\' that has a quote"], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \'test\' that has a quote'])
     ),
@@ -798,6 +798,7 @@ PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + 
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
     code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
+    print("CODE", code)
     assert (code, funcs, cols) == \
         (
             python_code, 
