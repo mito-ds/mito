@@ -898,6 +898,16 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         set(['SUM']),
         set(['A', 'B'])
     ),
+    # Header index header index reference with offset
+    (
+        '=A3:A7',
+        'B',
+        5,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 10), index=pd.RangeIndex(0, 10)),
+        "df['B'] = RollingRange(df[['A']], 5, -2)",
+        set([]),
+        set(['A'])
+    ),
 ]
 
 

@@ -577,7 +577,6 @@ def get_parser_matches(
         string_matches,
         df
     )
-    print("RAW MATCHES", raw_parser_matches)
 
     match_index = 0
     while match_index < len(raw_parser_matches):
