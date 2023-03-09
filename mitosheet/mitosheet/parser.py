@@ -577,7 +577,6 @@ def get_parser_matches(
         string_matches,
         df
     )
-    print("RAW MATCHES", raw_parser_matches)
 
     match_index = 0
     while match_index < len(raw_parser_matches):
@@ -648,7 +647,7 @@ def replace_column_headers_and_indexes(
         else:
             return f'.shift({row_offset})'
     
-    def get_selection_code(column_header_one: ColumnHeader, column_header_two: ColumnHeader) -> str:
+    def get_header_header_selection_code(column_header_one: ColumnHeader, column_header_two: ColumnHeader) -> str:
         # If the column headers are the same, we can generate much simpler code
         # TODO: we potentially can do better if the columnns are next to eachother as well
         if column_header_one == column_header_two:
@@ -689,24 +688,22 @@ def replace_column_headers_and_indexes(
         
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
-            column_dtype = str(df[column_header_one].dtype) # TODO: fill value might be weird on ranges
 
             column_headers.add(column_header_one)
             column_headers.add(column_header_two)
 
-            replace_string = f'{df_name}{get_selection_code(column_header_one, column_header_two)}'
+            replace_string = f'{df_name}{get_header_header_selection_code(column_header_one, column_header_two)}'
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
             ((column_header_one, index_label_one), (column_header_two, index_label_two)) = match['parsed']
             (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
-            column_dtype = str(df[column_header_one].dtype) # TODO: fill value might be weird on ranges
 
             column_headers.add(column_header_one)
             column_headers.add(column_header_two)
             index_labels.add(index_label_one)
             index_labels.add(index_label_two)
 
-            replace_string = f'RollingRange({df_name}{get_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {row_offset_one})'
+            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {row_offset_one})'
         
         formula = formula[:start] + replace_string + formula[end:]
 
