@@ -8,6 +8,8 @@ from typing import Any, Dict, Optional, Union
 import os
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
+from mitosheet.user.utils import is_enterprise
+from mitosheet._version import package_name
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
@@ -18,6 +20,8 @@ MITO_CONFIG_CODE_SNIPPETS_VERSION  = 'MITO_CONFIG_CODE_SNIPPETS_VERSION'
 MITO_CONFIG_CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL'
 MITO_CONFIG_DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
 MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
+MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT'
+MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -53,7 +57,9 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
         MITO_CONFIG_CODE_SNIPPETS_URL: None,
         MITO_CONFIG_DISABLE_TOURS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: None
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: None,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: None,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: None
     }
 
 """
@@ -98,7 +104,9 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_CODE_SNIPPETS_VERSION,
         MITO_CONFIG_CODE_SNIPPETS_URL, 
         MITO_CONFIG_DISABLE_TOURS,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION
     ]
 }
 
@@ -156,6 +164,47 @@ class MitoConfig:
 
         enable_snowflake_import = is_env_variable_set_to_true(self.mec[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT])
         return enable_snowflake_import
+    
+    def get_display_ai_transform(self) -> bool:
+        """
+        We display AI transformation on the frontend if:
+        1. The user is not on Mito Enterprise
+        2. The user is not on mitosheet-private
+        3. MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION is not False
+
+        Note that this means that MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION not being set
+        means we get a default value is True.
+        """
+        on_enterprise = is_enterprise()
+        on_mitosheet_private = package_name == 'mitosheet-private'
+
+        if on_enterprise or on_mitosheet_private:
+            return False
+        
+        if self.mec is not None:
+            raw_display_ai_transform = self.mec[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION]
+            display_ai_transform = is_env_variable_set_to_true(raw_display_ai_transform)
+            return display_ai_transform if raw_display_ai_transform is not None else True # default to True
+        
+        return True
+    
+    def get_display_snowflake_import(self) -> bool:
+        """
+        We display AI transformation on the frontend if the user is not on mitosheet-private, and 
+        the MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION is not set to False
+        """
+        on_mitosheet_private = package_name == 'mitosheet-private'
+
+        if on_mitosheet_private:
+            return False
+        
+        if self.mec is not None:
+            raw_display_snowflake_import = self.mec[MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT]
+            display_snowflake_import = is_env_variable_set_to_true(raw_display_snowflake_import)
+            return display_snowflake_import if raw_display_snowflake_import is not None else True # default to True
+        
+        return True
+        
 
     def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_VERSION] is None:
@@ -207,6 +256,8 @@ class MitoConfig:
             MITO_CONFIG_SUPPORT_EMAIL: self.get_support_email(),
             MITO_CONFIG_DISABLE_TOURS: self.get_disable_tours(),
             MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets(),
-            MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.get_enable_snowflake_import()
+            MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.get_enable_snowflake_import(),
+            MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.get_display_snowflake_import(),
+            MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.get_display_ai_transform()
         }
 
