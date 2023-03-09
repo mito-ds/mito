@@ -48,13 +48,13 @@ const Toolbar = (
 
 
     const importDropdownItems: JSX.Element[] = [
-        <DropdownItem title='Import Files' onClick={() => {props.setUIState(prevUIState => {
+        <DropdownItem title='Import Files' key='Import Files' onClick={() => {props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
             }
         })}}/>,
-        <DropdownItem title='Import Dataframes' onClick={() => {props.setUIState(prevUIState => {
+        <DropdownItem title='Import Dataframes' key='Import Dataframes' onClick={() => {props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
@@ -64,7 +64,7 @@ const Toolbar = (
 
     if (props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
         importDropdownItems.push(
-            <DropdownItem title='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
+            <DropdownItem title='Import from Snowflake' key='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
                 return {
                     ...prevUIState,
                     currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT}
