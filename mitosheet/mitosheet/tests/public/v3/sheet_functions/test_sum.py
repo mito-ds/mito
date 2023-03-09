@@ -34,15 +34,16 @@ SUM_VALID_TESTS = [
     ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([8.0,9.0,10.0])),
 
     # Rolling ranges
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3]}), 2, -1)], pd.Series([1, 3, 5])), #A1 = B0:B1
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([13, 17, 10])), #A0 = B0:C1 + 1
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, -1), 1], pd.Series([6, 13, 17])), #A1 = B0:C1 + 1
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 1), 1], pd.Series([17, 10, 1])), #A0 = B1:C2 + 1
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([13, 22, 17])), #A1 = B0:C2 + 1
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 0), 1], pd.Series([22, 17, 10])), #A1 = B0:C10 + 1
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 10), 1], pd.Series([1, 1, 1])), #A1 = B11:C21 + 1
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 10)], pd.Series([0, 0, 0])), #A1 = B11:C21
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 0), 1], pd.Series([22, 17, 10])), #A1 = B0:C9 + 1
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 10), 1], pd.Series([1, 1, 1])), #A1 = B11:C20 + 1
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 10, 10)], pd.Series([0, 0, 0])), #A1 = B11:C20
     ([RollingRange(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}), 3, 0), 1], pd.Series([19, 16, 10])), #A0 = A0:C2 + 1
-
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 3, 4, 5, 6, 7, 8, 9]}), 5, -2)], pd.Series([6, 10, 15, 20, 25, 30, 35, 30, 24])), #A5 = B3:B7
 
     # Rolling ranges, series, dataframes, and constants
     # A0 = SUM(B0:C1, C, D, 4)

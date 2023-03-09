@@ -72,7 +72,7 @@ ConditionalFormattingResult = Dict[str, Union[
 PivotColumnTransformation = str
 
 RowOffset = int
-ParserMatchRange = Tuple[int, int] # start, end
+ParserMatchSubstringRange = Tuple[int, int] # start, end
 
 # If the user does not have the snowflake.connector python package installed,
 # we take extra care to make sure that our mypy typing will still pass even though
@@ -215,12 +215,19 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_URL: str
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
-    class ParserMatch(TypedDict):
-        type: Literal['column header match type', 'index label match type']
-        match_range: ParserMatchRange
+    class RawParserMatch(TypedDict):
+        type: Literal['{HEADER}', '{INDEX}']
+        substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
+
+    class ParserMatch(TypedDict):
+        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}']
+        substring_range: ParserMatchSubstringRange
+        unparsed: str
+        parsed: Any
+        row_offset: Union[RowOffset, Tuple[RowOffset, RowOffset]]
 
     class FrontendFormulaString(TypedDict):
         type: Literal['string part']
@@ -229,7 +236,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaReference(TypedDict):
         type: Literal['reference part']
         display_column_header: str
-        row_offset: int
+        row_offset: Optional[int]
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
@@ -280,6 +287,7 @@ else:
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+    RawParserMatch = Any # type:ignore
     ParserMatch = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
