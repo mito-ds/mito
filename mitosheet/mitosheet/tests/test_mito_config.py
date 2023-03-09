@@ -19,6 +19,8 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_SUPPORT_EMAIL, 
     MITO_CONFIG_VERSION, 
     MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
+    MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
+    MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
     MitoConfig
 )
 def delete_env_var_if_exists(env_var: str) -> None: 
@@ -57,7 +59,9 @@ def test_none_works():
         MITO_CONFIG_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_SUPPORT_EMAIL,
         MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True
     }
 
 def test_none_config_version_is_string():
@@ -88,8 +92,10 @@ def test_version_2_works():
             MITO_CONFIG_CODE_SNIPPETS_URL: 'url',
             MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: "jake@sagacollab.com"
         },
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False
-    }    
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True
+    }
 
     # Delete the environmnet variables for the next test
     delete_all_mito_config_environment_variables()
@@ -106,7 +112,9 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True
     }    
 
     # Delete the environmnet variables for the next test
@@ -124,7 +132,47 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True
+    }    
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_config_dont_display_snowflake_import():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_SUPPORT_EMAIL] = "aaron@sagacollab.com"
+    os.environ[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT] = "True"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT] = "False"
+    
+    mito_config = MitoConfig()
+    assert mito_config.get_mito_config() == {
+        MITO_CONFIG_VERSION: '2',
+        MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
+        MITO_CONFIG_DISABLE_TOURS: False,
+        MITO_CONFIG_CODE_SNIPPETS: None,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: False,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True
+    }    
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_config_dont_display_ai_transform():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION] = "False"
+    
+    mito_config = MitoConfig()
+    assert mito_config.get_mito_config() == {
+        MITO_CONFIG_VERSION: '2',
+        MITO_CONFIG_SUPPORT_EMAIL: 'founders@sagacollab.com',
+        MITO_CONFIG_DISABLE_TOURS: False,
+        MITO_CONFIG_CODE_SNIPPETS: None,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: False
     }    
 
     delete_all_mito_config_environment_variables()
