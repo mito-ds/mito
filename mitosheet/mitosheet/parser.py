@@ -703,7 +703,7 @@ def replace_column_headers_and_indexes(
             index_labels.add(index_label_one)
             index_labels.add(index_label_two)
 
-            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {row_offset_one})'
+            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {-1 * row_offset_one})'
         
         formula = formula[:start] + replace_string + formula[end:]
 

@@ -854,7 +854,7 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = RollingRange(df[['A']], 2, -1)",
+        "df['B'] = RollingRange(df[['A']], 2, 1)",
         set([]),
         set(['A'])
     ),
@@ -864,7 +864,7 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = RollingRange(df.loc[:, 'A':'B'], 2, -1)",
+        "df['B'] = RollingRange(df.loc[:, 'A':'B'], 2, 1)",
         set([]),
         set(['A', 'B'])
     ),
@@ -874,7 +874,7 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1))",
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1))",
         set(['SUM']),
         set(['A', 'B'])
     ),
@@ -884,7 +884,7 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1), df['A'], df['A'])",
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'], df['A'])",
         set(['SUM']),
         set(['A', 'B'])
     ),
@@ -894,7 +894,7 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, -1), df.loc[:, 'A':'B'])",
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df.loc[:, 'A':'B'])",
         set(['SUM']),
         set(['A', 'B'])
     ),
