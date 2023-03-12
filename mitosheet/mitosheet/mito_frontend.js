@@ -31083,7 +31083,7 @@ ${finalCode}`;
         },
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
-        proAction: true
+        requiredPlan: "enterprise"
       },
       ["AI_Transformation" /* AI_TRANSFORMATION */]: {
         type: "AI_Transformation" /* AI_TRANSFORMATION */,
@@ -40296,8 +40296,11 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var getToolbarDropdownItemRightText = (action, userProfile2) => {
     var _a, _b;
-    if (action.proAction && !userProfile2.isPro) {
+    if (action.requiredPlan === "pro" && !userProfile2.isPro) {
       return "Mito Pro";
+    }
+    if (action.requiredPlan === "enterprise" && !userProfile2.isEnterprise) {
+      return "Mito Enterprise";
     }
     return window.navigator.userAgent.toUpperCase().includes("MAC") ? (_a = action.displayKeyboardShortcuts) == null ? void 0 : _a.mac : (_b = action.displayKeyboardShortcuts) == null ? void 0 : _b.windows;
   };
@@ -40614,14 +40617,14 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
     const importDropdownItems = [
-      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
+      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", key: "Import Files", onClick: () => {
         props.setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
             currOpenTaskpane: { type: "import files" /* IMPORT_FILES */ }
           });
         });
       } }),
-      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
+      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Dataframes", key: "Import Dataframes", onClick: () => {
         props.setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
             currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
@@ -40631,7 +40634,7 @@ fig.write_html("${props.graphTabName}.html")`
     ];
     if (props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
       importDropdownItems.push(
-        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import from Snowflake", key: "Import from Snowflake", onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), {
               currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }

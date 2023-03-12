@@ -1371,7 +1371,7 @@ export const createActions = (
             }, 
             searchTerms: ['SQL', 'database', 'snowflake', 'import'],
             tooltip: "Import dataframe from a Snowflake data warehouse",
-            proAction: true
+            requiredPlan: 'enterprise',
         },
         [ActionEnum.AI_TRANSFORMATION]: {
             type: ActionEnum.AI_TRANSFORMATION,

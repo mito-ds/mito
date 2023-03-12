@@ -1018,7 +1018,7 @@ export interface Action {
     }
 
     // If this action is only available for pro users
-    proAction?: boolean
+    requiredPlan?: 'pro' | 'enterprise'
 }
 
 export enum GraphSidebarTab {
