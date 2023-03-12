@@ -1360,7 +1360,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return userProfile.mitoConfig.MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT ? undefined : 'Snowflake Import is deactivated for this version of Mito. Please contact your admin with any questions.'},
+            isDisabled: () => {return userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT ? undefined : 'Snowflake Import is deactivated for this version of Mito. Please contact your admin with any questions.'},
             searchTerms: ['SQL', 'database', 'snowflake', 'import'],
             tooltip: "Import dataframe from a Snowflake data warehouse",
             requiredPlan: 'enterprise',
