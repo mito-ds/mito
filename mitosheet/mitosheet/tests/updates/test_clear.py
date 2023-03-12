@@ -10,8 +10,11 @@ import pytest
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only, pandas_post_1_2_only
 
+TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
+TEST_FILE_PATH = "test_file.xlsx"
+TEST_SHEET_NAME = 'sheet1'
 
 def test_clear_undoes_mulitple_steps_on_passed_dataframes():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5, 6]})
@@ -140,3 +143,19 @@ def test_clear_resets_excel_imports():
 
     # Remove the test file
     os.remove('test.xlsx')
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_does_not_undo_excel_range_import():
+    mito = create_mito_wrapper_dfs()
+
+    TEST_DF_1.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}])
+
+    assert len(mito.dfs) == 1
+    assert TEST_DF_1.equals(mito.dfs[0])
+
+    mito.clear()
+
+    assert TEST_DF_1.equals(mito.dfs[0])
+
