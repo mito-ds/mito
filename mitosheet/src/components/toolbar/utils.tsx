@@ -116,8 +116,12 @@ export const makeToolbarDropdownItem = (action: Action, userProfile: UserProfile
 }
 
 const getToolbarDropdownItemRightText = (action: Action, userProfile: UserProfile): string | undefined => {
-    if (action.proAction && !userProfile.isPro) {
+    if (action.requiredPlan === 'pro' && !userProfile.isPro) {
         return 'Mito Pro'
+    }
+
+    if (action.requiredPlan === 'enterprise' && !userProfile.isEnterprise) {
+        return 'Mito Enterprise'
     }
 
     return window.navigator.userAgent.toUpperCase().includes('MAC')

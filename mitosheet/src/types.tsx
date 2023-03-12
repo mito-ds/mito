@@ -681,7 +681,9 @@ export enum MitoEnterpriseConfigKey {
     CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
     CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
     DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS',
-    ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
+    ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT',
+    DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT',
+    DISPLAY_AI_TRANSFORM = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 }
 
 export type PublicInterfaceVersion = 1 | 2;
@@ -728,6 +730,20 @@ export interface AnalysisData {
     experiment: Experiment | undefined;
 }
 
+export interface MitoConfig {
+    [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
+    [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+    [MitoEnterpriseConfigKey.DISABLE_TOURS]: boolean,
+    [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
+    } | null | undefined
+    [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
+    [MitoEnterpriseConfigKey.DISPLAY_SNOWFLAKE_IMPORT]: boolean
+    [MitoEnterpriseConfigKey.DISPLAY_AI_TRANSFORM]: boolean
+}
+
 /**
  * An object represending this user
  * 
@@ -761,17 +777,7 @@ export interface UserProfile {
     snowflakeCredentials: SnowflakeCredentials | null;
     openAIAPIKey: string | null | undefined
     aiPrivacyPolicy: boolean,
-    mitoConfig: {
-        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
-        [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
-        [MitoEnterpriseConfigKey.DISABLE_TOURS]: boolean,
-        [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
-        } | null | undefined
-        [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
-    };
+    mitoConfig: MitoConfig;
 }
 
 
@@ -1012,7 +1018,7 @@ export interface Action {
     }
 
     // If this action is only available for pro users
-    proAction?: boolean
+    requiredPlan?: 'pro' | 'enterprise'
 }
 
 export enum GraphSidebarTab {

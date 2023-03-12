@@ -29764,12 +29764,42 @@ ${finalCode}`;
   };
   var ConditionalFormattingTaskpane_default = ConditionalFormattingTaskpane;
 
+  // src/components/elements/GetSupportButton.tsx
+  var import_react83 = __toESM(require_react());
+
   // src/data/documentationLinks.tsx
   var DOCUMENTATION_LINK_INSTALL = "https://docs.trymito.io/getting-started/installing-mito";
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
   var DOCUMENTATION_LINK_AI_TRANSFORM = "https://docs.trymito.io/how-to/ai-transformations";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
+
+  // src/components/elements/GetSupportButton.tsx
+  var DEFAULT_SUPPORT_EMAIL = "founders@sagacollab.com";
+  var GetSupportButton = (props) => {
+    return /* @__PURE__ */ import_react83.default.createElement(
+      TextButton_default,
+      {
+        className: classNames(props.className, "cursor-pointer"),
+        variant: "dark",
+        width: props.width || "medium",
+        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
+        target: "_blank",
+        onClick: () => {
+          var _a;
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenModal: { type: "None" /* None */ }
+            });
+          });
+          void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_get_support_button"));
+          return true;
+        }
+      },
+      "Get Support"
+    );
+  };
+  var GetSupportButton_default = GetSupportButton;
 
   // src/utils/copy.tsx
   var getCopyStringForValue = (value, columnDtype, columnFormatType) => {
@@ -29877,34 +29907,6 @@ ${finalCode}`;
       });
     }
   };
-
-  // src/components/elements/GetSupportButton.tsx
-  var import_react83 = __toESM(require_react());
-  var DEFAULT_SUPPORT_EMAIL = "founders@sagacollab.com";
-  var GetSupportButton = (props) => {
-    return /* @__PURE__ */ import_react83.default.createElement(
-      TextButton_default,
-      {
-        className: classNames(props.className, "cursor-pointer"),
-        variant: "dark",
-        width: props.width || "medium",
-        href: props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`,
-        target: "_blank",
-        onClick: () => {
-          var _a;
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenModal: { type: "None" /* None */ }
-            });
-          });
-          void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_get_support_button"));
-          return true;
-        }
-      },
-      "Get Support"
-    );
-  };
-  var GetSupportButton_default = GetSupportButton;
 
   // src/utils/actions.tsx
   var getDefaultActionsDisabledMessage = (uiState, commCreationStatus) => {
@@ -31071,15 +31073,11 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          if (!userProfile2.isPro) {
-            return "Only available in Mito Pro and Mito Enterprise";
-          } else {
-            return void 0;
-          }
+          return void 0;
         },
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
-        proAction: true
+        requiredPlan: "enterprise"
       },
       ["AI_Transformation" /* AI_TRANSFORMATION */]: {
         type: "AI_Transformation" /* AI_TRANSFORMATION */,
@@ -31095,7 +31093,7 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          return void 0;
+          return userProfile2.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? void 0 : "AI Transformation is deactivated for this version of Mito. Please contact your admin with any questions.";
         },
         searchTerms: ["AI Transformation"],
         tooltip: "AI Transformation"
@@ -40292,8 +40290,11 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var getToolbarDropdownItemRightText = (action, userProfile2) => {
     var _a, _b;
-    if (action.proAction && !userProfile2.isPro) {
+    if (action.requiredPlan === "pro" && !userProfile2.isPro) {
       return "Mito Pro";
+    }
+    if (action.requiredPlan === "enterprise" && !userProfile2.isEnterprise) {
+      return "Mito Enterprise";
     }
     return window.navigator.userAgent.toUpperCase().includes("MAC") ? (_a = action.displayKeyboardShortcuts) == null ? void 0 : _a.mac : (_b = action.displayKeyboardShortcuts) == null ? void 0 : _b.windows;
   };
@@ -40609,6 +40610,33 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
+    const importDropdownItems = [
+      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", key: "Import Files", onClick: () => {
+        props.setUIState((prevUIState) => {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenTaskpane: { type: "import files" /* IMPORT_FILES */ }
+          });
+        });
+      } }),
+      /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Dataframes", key: "Import Dataframes", onClick: () => {
+        props.setUIState((prevUIState) => {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
+          });
+        });
+      } })
+    ];
+    if (props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+      importDropdownItems.push(
+        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import from Snowflake", key: "Import from Snowflake", onClick: () => {
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
+            });
+          });
+        } })
+      );
+    }
     return /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react222.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react222.default.createElement(
       ToolbarEditDropdown_default,
       {
@@ -40743,27 +40771,7 @@ fig.write_html("${props.graphTabName}.html")`
           }),
           width: "medium"
         },
-        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", onClick: () => {
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "import files" /* IMPORT_FILES */ }
-            });
-          });
-        } }),
-        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Dataframes", onClick: () => {
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "DataframeImport" /* DATAFRAMEIMPORT */ }
-            });
-          });
-        } }),
-        /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import from Snowflake", onClick: () => {
-          props.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenTaskpane: { type: "SnowflakeImport" /* SNOWFLAKEIMPORT */ }
-            });
-          });
-        } })
+        importDropdownItems
       )
     ), /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
@@ -40906,7 +40914,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["graph" /* Graph */].isDisabled()
       }
-    ), /* @__PURE__ */ import_react222.default.createElement(
+    ), props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "AI_TRANSFORMATION" /* AI_TRANSFORMATION */,

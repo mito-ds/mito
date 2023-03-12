@@ -1,5 +1,5 @@
 import fscreen from "fscreen";
-import MitoAPI, { getRandomId } from "../jupyter/api";
+import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
@@ -9,13 +9,13 @@ import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
-import { Action, DFSource, EditorState, GridState, SheetData, UIState, ActionEnum, AnalysisData, DataframeFormat, UserProfile } from "../types"
-import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
-import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
-import { writeTextToClipboard, getCopyStringForClipboard } from "./copy";
-import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
+import MitoAPI, { getRandomId } from "../jupyter/api";
 import { CommCreationStatus } from "../jupyter/comm";
+import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
+import { Action, ActionEnum, AnalysisData, DataframeFormat, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
+import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
+import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
 
 
 export const getDefaultActionsDisabledMessage = (
@@ -51,7 +51,7 @@ export const createActions = (
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     analysisData: AnalysisData,
     userProfile: UserProfile,
-    commCreationStatus: CommCreationStatus
+    commCreationStatus: CommCreationStatus,
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -1361,15 +1361,13 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                if (!userProfile.isPro) {
-                    return 'Only available in Mito Pro and Mito Enterprise'
-                } else {
-                    return undefined
-                }
+                // We always want the Snowfake Import button to be clickable if it is displayed. 
+                // We let the taskpane handle disabling functionality
+                return undefined 
             }, 
             searchTerms: ['SQL', 'database', 'snowflake', 'import'],
             tooltip: "Import dataframe from a Snowflake data warehouse",
-            proAction: true
+            requiredPlan: 'enterprise',
         },
         [ActionEnum.AI_TRANSFORMATION]: {
             type: ActionEnum.AI_TRANSFORMATION,
@@ -1386,7 +1384,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? undefined : 'AI Transformation is deactivated for this version of Mito. Please contact your admin with any questions.'},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },

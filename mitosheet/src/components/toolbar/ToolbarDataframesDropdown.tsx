@@ -37,7 +37,10 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
             >
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Import_Files], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Dataframe_Import], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.SNOWFLAKEIMPORT], props.userProfile)}
+                {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT ?
+                    makeToolbarDropdownItem(props.actions[ActionEnum.SNOWFLAKEIMPORT], props.userProfile)
+                    : <></>
+                }
                 {makeToolbarDropdownItem(props.actions[ActionEnum.UPDATEIMPORTS], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Export], props.userProfile)}
