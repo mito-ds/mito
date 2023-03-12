@@ -10,7 +10,7 @@ import pytest
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only
+from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only, pandas_post_1_2_only
 
 TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
 TEST_FILE_PATH = "test_file.xlsx"
@@ -144,7 +144,8 @@ def test_clear_resets_excel_imports():
     # Remove the test file
     os.remove('test.xlsx')
 
-
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_does_not_undo_excel_range_import():
     mito = create_mito_wrapper_dfs()
 
