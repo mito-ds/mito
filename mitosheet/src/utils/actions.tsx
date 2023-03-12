@@ -1361,13 +1361,9 @@ export const createActions = (
                 })
             },
             isDisabled: () => {
-                if (userProfile.mitoConfig.MITO_CONFIG_DISABLE_TOURS || !userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
-                    return 'Snowflake import is disabled on your version of Mito. Please contact your administrator if you have any questions.'
-                } else if (!userProfile.isPro) {
-                    return 'Only available in Mito Pro and Mito Enterprise'
-                } else {
-                    return undefined
-                }
+                // We always want the Snowfake Import button to be clickable if it is displayed. 
+                // We let the taskpane handle disabling functionality
+                return undefined 
             }, 
             searchTerms: ['SQL', 'database', 'snowflake', 'import'],
             tooltip: "Import dataframe from a Snowflake data warehouse",

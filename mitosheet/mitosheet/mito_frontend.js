@@ -31073,13 +31073,7 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          if (userProfile2.mitoConfig.MITO_CONFIG_DISABLE_TOURS || !userProfile2.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
-            return "Snowflake import is disabled on your version of Mito. Please contact your administrator if you have any questions.";
-          } else if (!userProfile2.isPro) {
-            return "Only available in Mito Pro and Mito Enterprise";
-          } else {
-            return void 0;
-          }
+          return void 0;
         },
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",

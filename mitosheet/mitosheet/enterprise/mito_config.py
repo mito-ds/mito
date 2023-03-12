@@ -190,8 +190,11 @@ class MitoConfig:
     
     def get_display_snowflake_import(self) -> bool:
         """
-        We display AI transformation on the frontend if the user is not on mitosheet-private, and 
-        the MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION is not set to False
+        We display the snowflake import on the frontend if the user is not on mitosheet-private, and 
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT is not set to False.
+
+        Note: That this just determines if the feature is __visible__ in the frontend, not if its enabled/disabled.
+        To set the snowflake import as enabled, use MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT or be on Enterprise.
         """
         on_mitosheet_private = package_name == 'mitosheet-private'
 
