@@ -15,6 +15,7 @@ NOTE: This file is alphabetical order!
 import pandas as pd
 import numpy as np
 import datetime
+from mitosheet.is_type_utils import is_bool_dtype, is_float_dtype, is_int_dtype, is_string_dtype
 
 from mitosheet.public.v1.sheet_functions.sheet_function_utils import try_extend_series_to_index
 from mitosheet.public.v1.sheet_functions.types.decorators import filter_nans, convert_arg_to_series_type, handle_sheet_function_errors
@@ -113,8 +114,62 @@ def TYPE(series: pd.Series) -> pd.Series:
     return series.apply(get_element_type).astype('str')
 
 
+
+@handle_sheet_function_errors
+@convert_arg_to_series_type(
+    0,
+    'series',
+    'error',
+    'error'
+)
+@convert_arg_to_series_type(
+    1,
+    'bool', 
+    'error', 
+    ('default', True)
+)
+def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
+    """
+    {
+        "function": "GETPREVIOUSVALUE",
+        "description": "TODO",
+        "search_terms": ["type", "dtype"],
+        "examples": [
+            "TYPE(Nums_and_Strings)",
+            "IF(TYPE(Account_Numbers) != 'NaN', Account_Numbers, 0)"
+        ],
+        "syntax": "TYPE(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to get the type of each element of."
+            }
+        ]
+    }
+    """
+
+    # Default to a different last occurence depending on the type
+    column_dtype = str(series.dtype)
+    if is_int_dtype(column_dtype) or is_float_dtype(column_dtype):
+        last_occurrence = -1
+    elif is_string_dtype(column_dtype):
+        last_occurrence = ''
+    elif is_bool_dtype(column_dtype):
+        last_occurrence = False
+    else:
+        last_occurrence = -1
+
+    result = []
+    for index, value in condition.iteritems():
+        if value:
+            last_occurrence = series[index]
+        result.append(last_occurrence)
+
+    return pd.Series(result, index=series.index)
+
+
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
     'FILLNAN': FILLNAN,
-    'TYPE': TYPE
+    'GETPREVIOUSVALUE': GETPREVIOUSVALUE,
+    'TYPE': TYPE,
 }
