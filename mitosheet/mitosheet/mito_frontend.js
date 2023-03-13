@@ -40534,7 +40534,13 @@ fig.write_html("${props.graphTabName}.html")`
         width: "large"
       },
       allActions.map((action) => {
-        return makeToolbarDropdownItem(action, props.userProfile);
+        if (action.type == "AI_Transformation" /* AI_TRANSFORMATION */ && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+          return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null);
+        } else if (action.type == "SnowflakeImport" /* SNOWFLAKEIMPORT */ && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+          return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null);
+        } else {
+          return makeToolbarDropdownItem(action, props.userProfile);
+        }
       })
     ));
   };
