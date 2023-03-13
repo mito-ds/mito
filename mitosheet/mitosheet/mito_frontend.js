@@ -31073,7 +31073,7 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          return void 0;
+          return userProfile2.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT ? void 0 : "Snowflake Import is deactivated for this version of Mito. Please contact your admin with any questions.";
         },
         searchTerms: ["SQL", "database", "snowflake", "import"],
         tooltip: "Import dataframe from a Snowflake data warehouse",
@@ -40389,7 +40389,7 @@ fig.write_html("${props.graphTabName}.html")`
       },
       makeToolbarDropdownItem(props.actions["import files" /* Import_Files */], props.userProfile),
       makeToolbarDropdownItem(props.actions["Dataframe_Import" /* Dataframe_Import */], props.userProfile),
-      makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */], props.userProfile),
+      props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT ? makeToolbarDropdownItem(props.actions["SnowflakeImport" /* SNOWFLAKEIMPORT */], props.userProfile) : /* @__PURE__ */ import_react213.default.createElement(import_react213.default.Fragment, null),
       makeToolbarDropdownItem(props.actions["updateImports" /* UPDATEIMPORTS */], props.userProfile),
       /* @__PURE__ */ import_react213.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
       makeToolbarDropdownItem(props.actions["export" /* Export */], props.userProfile),
@@ -40534,7 +40534,13 @@ fig.write_html("${props.graphTabName}.html")`
         width: "large"
       },
       allActions.map((action) => {
-        return makeToolbarDropdownItem(action, props.userProfile);
+        if (action.type == "AI_Transformation" /* AI_TRANSFORMATION */ && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+          return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null);
+        } else if (action.type == "SnowflakeImport" /* SNOWFLAKEIMPORT */ && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+          return /* @__PURE__ */ import_react218.default.createElement(import_react218.default.Fragment, null);
+        } else {
+          return makeToolbarDropdownItem(action, props.userProfile);
+        }
       })
     ));
   };
@@ -40602,7 +40608,7 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
-      makeToolbarDropdownItem(props.actions["AI_Transformation" /* AI_TRANSFORMATION */], props.userProfile),
+      props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? makeToolbarDropdownItem(props.actions["AI_Transformation" /* AI_TRANSFORMATION */], props.userProfile) : /* @__PURE__ */ import_react221.default.createElement(import_react221.default.Fragment, null),
       makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */], props.userProfile)
     ));
   };

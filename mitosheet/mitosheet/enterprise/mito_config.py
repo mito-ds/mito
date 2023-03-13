@@ -175,16 +175,20 @@ class MitoConfig:
         Note that this means that MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION not being set
         means we get a default value is True.
         """
-        on_enterprise = is_enterprise()
-        on_mitosheet_private = package_name == 'mitosheet-private'
-
-        if on_enterprise or on_mitosheet_private:
-            return False
         
         if self.mec is not None:
             raw_display_ai_transform = self.mec[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION]
             display_ai_transform = is_env_variable_set_to_true(raw_display_ai_transform)
-            return display_ai_transform if raw_display_ai_transform is not None else True # default to True
+
+            if raw_display_ai_transform is not None:
+                return display_ai_transform
+            
+        else:
+            on_enterprise = is_enterprise()
+            on_mitosheet_private = package_name == 'mitosheet-private'
+
+            if on_enterprise or on_mitosheet_private:
+                return False
         
         return True
     
@@ -196,15 +200,16 @@ class MitoConfig:
         Note: That this just determines if the feature is __visible__ in the frontend, not if its enabled/disabled.
         To set the snowflake import as enabled, use MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT or be on Enterprise.
         """
-        on_mitosheet_private = package_name == 'mitosheet-private'
-
-        if on_mitosheet_private:
-            return False
         
         if self.mec is not None:
             raw_display_snowflake_import = self.mec[MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT]
             display_snowflake_import = is_env_variable_set_to_true(raw_display_snowflake_import)
             return display_snowflake_import if raw_display_snowflake_import is not None else True # default to True
+        else:
+            on_mitosheet_private = package_name == 'mitosheet-private'
+
+            if on_mitosheet_private:
+                return False
         
         return True
         
