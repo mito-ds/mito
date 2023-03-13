@@ -14,8 +14,10 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
 
     If this value does not exist in the tab, will return None. 
 
-    If the value does exist, then this function will walk down the column until it hits an empty row. Then,
-    it will walk down the final row until it hits an empty column. Then it will return the range that 
+    If the value does exist, then this function will walk down the column until it hits the bottom_left_value. 
+    If the bottom_left_value is defined but does not exist, will take to the end of the defined row.
+    
+    Then, will walk down the first row until it hits an empty column. Then it will return the range that 
     defines that rectangular of defined data (with value in the upper left corner).
     """
     workbook = load_workbook(file_path)
@@ -63,7 +65,7 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
 
     # Then we find find where the rows are defined to
     max_found_col_index = None
-    for row in sheet.iter_rows(min_row=max_found_row_index - 1, max_row=max_found_row_index - 1, min_col=min_found_col_index):
+    for row in sheet.iter_rows(min_row=min_found_row_index, max_row=min_found_row_index, min_col=min_found_col_index):
         for cell in row:
             if cell.value is None:
                 max_found_col_index = cell.column - 1 # minus b/c this is one past the end

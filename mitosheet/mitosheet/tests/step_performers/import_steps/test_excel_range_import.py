@@ -122,17 +122,33 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'range', 'df_name': 'a bad dataframe name', 'value': 'A1:B2'}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2],
     ),
+    # End before end of dataframe
     (
         ['A1:B4'],
         [TEST_DF_3],
         [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 200}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
         [TEST_DF_3.iloc[0:2]],
     ),
+    # Have a NaN value in the middle
     (
         ['A1:B2', 'A4:B5'],
         [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
         [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 100}, 'df_name': 'dataframe_1', 'value': 'A'}],
         [pd.DataFrame({'A': [1, None, 'B', 100]})],
+    ),
+    # End on a string
+    (
+        ['A1:B2', 'A4:B5'],
+        [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [pd.DataFrame({'A': [1, None, 'B']})],
+    ),
+    # Have empty cells in the final row
+    (
+        ['A1:B2', 'A4:B5'],
+        [pd.DataFrame({'A': [1], 'D': [1]}), pd.DataFrame({'B': [100], 'C': [None]})],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [pd.DataFrame({'A': [1, None, 'B'], 'D': [1, None, 'C']})],
     ),
 ]
 @pandas_post_1_2_only
@@ -152,6 +168,8 @@ def test_excel_range_import(range, input_dfs, imports, output_dfs):
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
     os.remove(TEST_FILE_PATH)
