@@ -12,6 +12,7 @@ in more detail in docs/README.md.
 
 NOTE: This file is alphabetical order!
 """
+from typing import Any
 import pandas as pd
 import numpy as np
 import datetime
@@ -151,14 +152,13 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
 
     # Default to a different last occurence depending on the type
     column_dtype = str(series.dtype)
+    last_occurrence: Any = -1
     if is_int_dtype(column_dtype) or is_float_dtype(column_dtype):
         last_occurrence = -1
     elif is_string_dtype(column_dtype):
         last_occurrence = ''
     elif is_bool_dtype(column_dtype):
         last_occurrence = False
-    else:
-        last_occurrence = -1
 
     result = []
     for index, value in condition.iteritems():
