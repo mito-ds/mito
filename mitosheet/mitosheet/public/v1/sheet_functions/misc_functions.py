@@ -132,16 +132,18 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
     """
     {
         "function": "GETPREVIOUSVALUE",
-        "description": "TODO",
-        "search_terms": ["type", "dtype"],
+        "description": "Returns the value from series that meets the condition.",
+        "search_terms": ["ffill"],
         "examples": [
-            "TYPE(Nums_and_Strings)",
-            "IF(TYPE(Account_Numbers) != 'NaN', Account_Numbers, 0)"
+            "GETPREVIOUSVALUE(Max_Balances, Max_Balances > 0)",
         ],
-        "syntax": "TYPE(series)",
+        "syntax": "GETPREVIOUSVALUE(series, condition)",
         "syntax_elements": [{
                 "element": "series",
-                "description": "The series to get the type of each element of."
+                "description": "The series to get the previous value from.."
+            }, {
+                "element": "condition",
+                "description": "When condition is True, a new previous value is set, and carried forward until the condition is True again."
             }
         ]
     }
