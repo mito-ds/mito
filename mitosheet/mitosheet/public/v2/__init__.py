@@ -6,3 +6,4 @@ from mitosheet.public.v1 import (
 )
 from mitosheet.public.v1.sheet_functions import *
 from mitosheet.public.v1 import register_analysis
+from mitosheet.public.v2.excel_utils import get_table_range_from_upper_left_corner_value, get_read_excel_params_from_range

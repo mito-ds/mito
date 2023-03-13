@@ -440,6 +440,17 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}]
         }
     ),
+    # Upgrades the Excel range import
+    (
+        {
+            "version": "0.3.131", 
+            "steps_data": [{"step_version": 1, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "range_imports": [{"type": "upper left corner value", "df_name": "df2", "value": 1}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2
+        },
+        {
+            "version": __version__, 
+            "steps_data": [{"step_version": 2, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "range_imports": [{"type": "upper left corner value", "df_name": "df2", "value": 1, "end_condition": {"type": 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2
+        }
+    )
 ]
 @pytest.mark.parametrize("old, new", UPGRADE_TESTS)
 def test_upgrades_saved_analysis_properly(old, new):
