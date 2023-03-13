@@ -40,7 +40,13 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
                 width='large'
             >
                 {allActions.map((action) => {
-                    return makeToolbarDropdownItem(action, props.userProfile)
+                    if (action.type == ActionEnum.AI_TRANSFORMATION && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+                        return <></>
+                    } else if (action.type == ActionEnum.SNOWFLAKEIMPORT && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+                        return <></>
+                    } else {
+                        return makeToolbarDropdownItem(action, props.userProfile)
+                    }
                 })}
             </Dropdown>
         </>
