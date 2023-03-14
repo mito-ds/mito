@@ -34,6 +34,10 @@ const ToolbarCodeDropdown = (props: ToolbarCodeDropdownProps): JSX.Element => {
                 })}
                 width='medium'
             >
+                {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ?
+                    makeToolbarDropdownItem(props.actions[ActionEnum.AI_TRANSFORMATION], props.userProfile)
+                    : <></>
+                }
                 {makeToolbarDropdownItem(props.actions[ActionEnum.CODESNIPPETS], props.userProfile)}
             </Dropdown>
         </>

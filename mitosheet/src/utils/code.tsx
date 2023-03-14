@@ -1,9 +1,19 @@
 // Utilities for working with the generated code
 
+import { PublicInterfaceVersion } from "../types";
+
+
+const IMPORT_STATEMENTS: Record<PublicInterfaceVersion, string> = {
+    1: 'from mitosheet.public.v1 import *',
+    2: 'from mitosheet.public.v2 import *'
+}
+
+
 export function getCodeString(
     analysisName: string,
     code: string[],
-    telemetryEnabled: boolean
+    telemetryEnabled: boolean,
+    publicInterfaceVersion: PublicInterfaceVersion
 ): string {
 
     if (code.length == 0) {
@@ -29,13 +39,15 @@ export function getCodeString(
         }
     }
 
+    const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion]
+
     // If telemetry not enabled, we want to be clear about this by
     // simply not calling a func w/ the analysis name
     if (telemetryEnabled) {
-        return `from mitosheet import *; register_analysis("${analysisName}");
+        return `${importStatement}; register_analysis("${analysisName}");
 ${finalCode}`
     } else {
-        return `from mitosheet import *; # Analysis Name:${analysisName};
+        return `${importStatement}; # Analysis Name:${analysisName};
 ${finalCode}`
     }
 }
@@ -97,11 +109,21 @@ export function isMitosheetCallCode(codeText: string): boolean {
 
 // Returns true iff a the given cell is a cell containing the generated code
 export function isMitoAnalysisCode(codeText: string): boolean {
+
+    // Check if it starts with any import statement from the versioned interface
+    let startsWithPublicVersionImport = false;
+    Object.values(IMPORT_STATEMENTS).forEach(importStatement => {
+        if (codeText.startsWith(importStatement + '; register_analysis(' ) || codeText.startsWith(importStatement + '; # Analysis Name:' )) {
+            startsWithPublicVersionImport = true;
+        } 
+    })
+
     // Handle the old and new Mito boilerplate code
     return codeText.startsWith('# MITO CODE START') 
         || codeText.startsWith('from mitosheet import *; register_analysis(')
         || codeText.startsWith('from mitosheet import *; # Analysis:')
         || codeText.startsWith('from mitosheet import *; # Analysis Name:')
+        || startsWithPublicVersionImport
 }
 
 

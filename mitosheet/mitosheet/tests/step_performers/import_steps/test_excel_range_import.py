@@ -13,7 +13,8 @@ import pandas as pd
 import pytest
 
 from mitosheet.errors import MitoError
-from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_table_range_from_upper_left_corner_value
+from mitosheet.excel_utils import get_col_and_row_indexes_from_range
+from mitosheet.public.v2 import get_table_range_from_upper_left_corner_value
 from mitosheet.tests.decorators import (pandas_post_1_2_only,
                                         python_post_3_6_only)
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
@@ -33,97 +34,142 @@ TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
 EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B2'],
+        [TEST_DF_1],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:B2'}],
-        [TEST_DF_1]
+        [TEST_DF_1],
     ),
     (
         ['A1:B2'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
-        [TEST_DF_1]
+        [TEST_DF_1],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [TEST_DF_1],
     ),
     (   
         ['AA100:AB101'],
+        [TEST_DF_1],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'AA100:AB101'}],
-        [TEST_DF_1]
+        [TEST_DF_1],
     ),
     (
         ['AA100:AB101'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
-        [TEST_DF_1]
+        [TEST_DF_1],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [TEST_DF_1],
     ),
     (
         ['A1:E3'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
-        [TEST_DF_5]
+        [TEST_DF_5],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [TEST_DF_5],
     ),
     (
         ['A1:G100'],
+        [TEST_DF_1],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:G100'}],
-        [TEST_DF_1]
+        [TEST_DF_1],
     ),
     (
         ['A1:G100'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
-        [TEST_DF_1]
+        [TEST_DF_1],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [TEST_DF_1],
     ),
     (   
         ['B2:A1'],
+        [TEST_DF_1],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'B2:A1'}],
-        [TEST_DF_1]
+        [TEST_DF_1],
     ),
     (
         ['A1:B4'],
+        [TEST_DF_3],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:B4'}],
-        [TEST_DF_3]
+        [TEST_DF_3],
     ),
     (
         ['A1:B4'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
-        [TEST_DF_3]
+        [TEST_DF_3],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
+        [TEST_DF_3],
     ),
     (
         ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_2],
         [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:B2'}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
-        [TEST_DF_1, TEST_DF_2]
+        [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'upper left corner value', 'df_name': 'dataframe_2', 'value': TEST_DF_2.columns[0]}],
-        [TEST_DF_1, TEST_DF_2]
+        [TEST_DF_1, TEST_DF_2],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_2', 'value': TEST_DF_2.columns[0]}],
+        [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
-        [TEST_DF_1, TEST_DF_2]
+        [TEST_DF_1, TEST_DF_2],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
+        [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
-        [{'type': 'upper left corner value', 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
-        [TEST_DF_1, TEST_DF_2]
+        [TEST_DF_1, TEST_DF_2],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
+        [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_2],
         [{'type': 'range', 'df_name': 'a bad dataframe name', 'value': 'A1:B2'}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
-        [TEST_DF_1, TEST_DF_2]
+        [TEST_DF_1, TEST_DF_2],
+    ),
+    # End before end of dataframe
+    (
+        ['A1:B4'],
+        [TEST_DF_3],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 200}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
+        [TEST_DF_3.iloc[0:2]],
+    ),
+    # Have a NaN value in the middle
+    (
+        ['A1:B2', 'A4:B5'],
+        [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 100}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [pd.DataFrame({'A': [1, None, 'B', 100]})],
+    ),
+    # End on a string
+    (
+        ['A1:B2', 'A4:B5'],
+        [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [pd.DataFrame({'A': [1, None, 'B']})],
+    ),
+    # Have empty cells in the final row
+    (
+        ['A1:B2', 'A4:B5'],
+        [pd.DataFrame({'A': [1], 'D': [1]}), pd.DataFrame({'B': [100], 'C': [None]})],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [pd.DataFrame({'A': [1, None, 'B'], 'D': [1, None, 'C']})],
     ),
 ]
 @pandas_post_1_2_only
 @python_post_3_6_only
-@pytest.mark.parametrize("range, imports, dfs", EXCEL_RANGE_IMPORT_TESTS)
-def test_excel_range_import(range, imports, dfs):
+@pytest.mark.parametrize("range, input_dfs, imports, output_dfs", EXCEL_RANGE_IMPORT_TESTS)
+def test_excel_range_import(range, input_dfs, imports, output_dfs):
 
     # Write an Excel file
     with pd.ExcelWriter(TEST_FILE_PATH) as writer:
         for index, _range in enumerate(range):
             ((startcol, startrow), _) = get_col_and_row_indexes_from_range(_range)
-            dfs[index].to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
+            input_dfs[index].to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
     mito = create_mito_wrapper_dfs()
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, imports)
 
     assert len(mito.dfs) == len(imports)
-    for actual, expected in zip(mito.dfs, dfs):
+    for actual, expected in zip(mito.dfs, output_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
     os.remove(TEST_FILE_PATH)
@@ -216,6 +262,32 @@ def test_excel_range_upper_left_detection_works(ranges, dfs):
 
 @pandas_post_1_2_only
 @python_post_3_6_only
+@pytest.mark.parametrize("ranges, dfs", EXCEL_UPPER_LEFT_CORNER_DETECTION_TESTS)
+def test_excel_range_upper_left_with_end_condition(ranges, dfs):
+
+    # Write an Excel file
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        for r, df in zip(ranges, dfs):
+            ((startcol, startrow), _) = get_col_and_row_indexes_from_range(r)
+            df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
+
+    for r, df in zip(ranges, dfs):
+        upper_left_value = df.columns[0]
+        column = df[upper_left_value]
+        ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(r)
+        for idx, value in enumerate(column):
+            recovered_range = get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value, bottom_left_value=value)
+            print(r, recovered_range)
+            ((start_col_index_recovered, start_row_index_recovered), (end_col_index_recovered, end_row_index_recovered)) = get_col_and_row_indexes_from_range(recovered_range)
+            assert start_col_index == start_col_index_recovered
+            assert end_col_index == end_col_index_recovered
+            assert start_row_index == start_row_index_recovered
+            assert end_row_index == end_row_index_recovered + (len(df) - idx) - 1
+
+    os.remove(TEST_FILE_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_excel_range_upper_left_detection_finds_first_match():
     ranges = ['A1:B4']
     dfs = [TEST_DF_6]
@@ -227,7 +299,7 @@ def test_excel_range_upper_left_detection_finds_first_match():
             df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)
 
     mito = create_mito_wrapper_dfs()
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'df_name': 'df1', 'value': 1}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'df1', 'value': 1}])
 
     assert mito.dfs[0].equals(TEST_DF_6)
 

@@ -42,14 +42,34 @@ const TextArea = (props: {
     required?: boolean;
 
     /** 
+        * @param [disabled] - When true, does't let the user select the text input or type in it
+    */
+    disabled?: boolean;
+
+    /** 
         * @param [autoFocus] - When true, the button automatically gets focused on. Defaults to False.
     */
     autoFocus?: boolean;
 
     /** 
+        * @param [darkBorder] - Makes the border darker, in case this is a dark container
+    */
+    darkBorder?: boolean;
+
+    /** 
         * @param [className] - Optional class to apply to the text area
     */
     className?: string;
+
+    /** 
+        * @param [onKeyDown] - Function to be called when a key is pressed down
+    */
+    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+
+    /** 
+        * @param [spellcheck] - Turn off spellcheck
+    */
+    spellCheck?: boolean;
 }): JSX.Element => {
 
     // Create better default values to handle optional params 
@@ -63,14 +83,16 @@ const TextArea = (props: {
 
     return (
         <textarea 
-            className={classNames('text-area', 'text-body-2', widthClass, heightClass, props.className)}
+            className={classNames('text-area', 'text-body-2', widthClass, heightClass, props.className, {'text-area-dark-border': props.darkBorder})}
             onChange={props.onChange} 
             autoFocus={autoFocus}
             required={required}
             placeholder={props.placeholder}
-        >
-            {props.value}
-        </textarea>
+            value={props.value}
+            disabled={props.disabled}
+            onKeyDown={props.onKeyDown}
+            spellCheck={props.spellCheck}
+        />
     )
 } 
 

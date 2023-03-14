@@ -26,31 +26,28 @@ NOTE: if you have any issues with installation, please email jake@sagacollab.com
 import os
 import pandas as pd
 
-from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.user import initialize_user
-from mitosheet.mito_backend import MitoBackend, sheet
-from mitosheet.saved_analyses import register_analysis
-from mitosheet.errors import MitoError
+# Public interface we want users to rely on
+from mitosheet.mito_backend import sheet
 from mitosheet._version import __version__
-from mitosheet.column_headers import flatten_column_header
+
+# NOTE: We always export v1 sheet functions and types as unqualified exports, as we did
+# this when we started Mito. This allows us to not break existing user analyses. We should
+# never add to these -- see mitosheet/public/README.md for more info
+from mitosheet.public.v1 import register_analysis
+from mitosheet.public.v1.sheet_functions import *
+from mitosheet.public.v1.sheet_functions.types import *
+from mitosheet.public.v1.utils import flatten_column_header
 
 # We export depricated utilities, so that users can still use them if they used to
+from mitosheet.api.get_column_summary_graph import (
+    filter_df_to_safe_size_external as filter_df_to_safe_size,
+)
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
     make_valid_header_external as make_valid_header,
 )
 
-# Export all the sheet functions
-from mitosheet.sheet_functions import *
-
-# And the functions for changing types
-from mitosheet.sheet_functions.types import *
-
-# Export the graph filtering code with a deprecation warning, so that it can be used in the code that generates graphs
-from mitosheet.api.get_column_summary_graph import (
-    filter_df_to_safe_size_external as filter_df_to_safe_size,
-)
-
 # Make sure the user is initalized
+from mitosheet.user import initialize_user
 initialize_user()
 
 # This function is only necessary for mitosheet3, as it is used

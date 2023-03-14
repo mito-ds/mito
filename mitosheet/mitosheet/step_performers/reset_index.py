@@ -48,9 +48,6 @@ class ResetIndexStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'result': {
-                # TODO: fill in the result
-            }
         }
 
     @classmethod

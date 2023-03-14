@@ -27,7 +27,7 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
                              DataframeFormat, FormulaAppliedToType, GraphID,
-                             MultiLevelColumnHeader, Filter, FilterGroup, Operator)
+                             MultiLevelColumnHeader, Filter, FilterGroup, OperatorType)
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id
 
 
@@ -80,7 +80,18 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     )
 
     import mitosheet
-    print(code)
+
+    public_interface = test_wrapper.mito_backend.steps_manager.public_interface_version
+    if public_interface == 1:
+        import mitosheet.public.v1 as v1
+        local_vars = v1.__dict__
+    elif public_interface == 2:
+        import mitosheet.public.v2 as v2
+        local_vars = v2.__dict__
+    else:
+        import mitosheet as original
+        local_vars = original.__dict__
+
     try:
         exec(code, 
             {
@@ -88,7 +99,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
                 # Make sure all the mitosheet functions are defined, which replaces the
                 # `from mitosheet import *` code that is at the top of all
                 # transpiled code 
-                **mitosheet.__dict__,
+                **local_vars,
             }, 
             original_dfs
         )
@@ -528,7 +539,7 @@ class MitoWidgetTestWrapper:
             }
         )
 
-        
+    @check_transpiled_code_after_call
     def excel_range_import(
             self, 
             file_path: str,
@@ -755,7 +766,7 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: Operator,
+            operator: OperatorType,
             condition: str, 
             value: Any
         ) -> bool:
@@ -789,7 +800,7 @@ class MitoWidgetTestWrapper:
             self, 
             sheet_index: int, 
             column_header: ColumnHeader,
-            operator: Operator,
+            operator: OperatorType,
             filters: List[Union[Filter, FilterGroup]]
         ) -> bool:
 

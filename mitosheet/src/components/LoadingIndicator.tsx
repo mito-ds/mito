@@ -131,7 +131,7 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
             return 'Resetting Index'
         }
         case StepType.AiTransformation: {
-            return 'AI Transformation'
+            return 'Transforming with AI'
         }
         case UpdateType.Undo: {
             return 'Undoing previous edit'

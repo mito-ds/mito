@@ -9,7 +9,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.errors import MitoError
-from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_replace, safe_contains, get_frontend_formula
+from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_contains, get_frontend_formula
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
 
@@ -295,7 +295,7 @@ FUNCTION_TEST_CASES = [
         'J',
         0,
         pd.DataFrame(get_number_data_for_df(['abc', 456, 'this is a string \' that has a quote', "J"], 2)),
-        'df[\'J\'] = FUNC(df[\'this is a string \' that has a quote\'], df[456], df[\'abc\'])',
+        'df[\'J\'] = FUNC(df["this is a string \' that has a quote"], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \' that has a quote'])
     ),
@@ -305,7 +305,7 @@ FUNCTION_TEST_CASES = [
         'J',
         0,
         pd.DataFrame(get_number_data_for_df(['abc', 456, 'this is a string \'test\' that has a quote', "J"], 2)),
-        'df[\'J\'] = FUNC(df[\'this is a string \'test\' that has a quote\'], df[456], df[\'abc\'])',
+        'df[\'J\'] = FUNC(df["this is a string \'test\' that has a quote"], df[456], df[\'abc\'])',
         set(['FUNC']),
         set(['abc', 456, 'this is a string \'test\' that has a quote'])
     ),
@@ -784,6 +784,132 @@ INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY = [
     ),
 ]
 
+HEADER_HEADER_RANGE_TEST_CASES = [
+    # Simple header header reference
+    (
+        '=A:A',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = df[[\'A\']]',
+        set([]),
+        set(['A'])
+    ),
+    # Header header reference in a formula
+    (
+        '=SUM(A:A)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df[[\'A\']])',
+        set(['SUM']),
+        set(['A'])
+    ),
+    # Multiple header header references
+    (
+        '=SUM(A:A, B:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df[[\'A\']], df[[\'B\']])',
+        set(['SUM']),
+        set(['A', "B"])
+    ),
+    # One range across two headers
+    (
+        '=SUM(A:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        'df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'])',
+        set(['SUM']),
+        set(['A', "B"])
+    ),
+    # One range across two headers, with as well as other specific cell reference and header ref
+    (
+        '=SUM(A:B, A, A0)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'], df['A'])",
+        set(['SUM']),
+        set(['A', "B"])
+    ),
+]
+
+HEADER_INDEX_HEADER_INDEX_MATCHES = [
+    # Simple header index header index reference
+    (
+        '=A0:A1',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
+        "df['B'] = RollingRange(df[['A']], 2, 0)",
+        set([]),
+        set(['A'])
+    ),
+    # Header index header index reference with offset
+    (
+        '=A1:A2',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = RollingRange(df[['A']], 2, 1)",
+        set([]),
+        set(['A'])
+    ),
+    # Header index header index reference with offset and two columns
+    (
+        '=A1:B2',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = RollingRange(df.loc[:, 'A':'B'], 2, 1)",
+        set([]),
+        set(['A', 'B'])
+    ),
+    # Header index header index reference with offset and two columns in function
+    (
+        '=SUM(A1:B2)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1))",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+    # Header index header index reference with offset and two columns in function, as well as other specific cell reference and header ref
+    (
+        '=SUM(A1:B2, A, A0)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'], df['A'])",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+    # Header index header index as well as header header
+    (
+        '=SUM(A1:B2, A:B)',
+        'B',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df.loc[:, 'A':'B'])",
+        set(['SUM']),
+        set(['A', 'B'])
+    ),
+    # Header index header index reference with offset
+    (
+        '=A3:A7',
+        'B',
+        5,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 10), index=pd.RangeIndex(0, 10)),
+        "df['B'] = RollingRange(df[['A']], 5, -2)",
+        set([]),
+        set(['A'])
+    ),
+]
+
 
 """
 PARSE_TESTS contains a variety of tests that make sure
@@ -794,7 +920,7 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
     code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
@@ -817,29 +943,10 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)))
+        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)), 1)
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix
-
-
-SAFE_REPLACE_TESTS = [
-    ('=A', 'A', 'B', ['A', 'B'], '=B'),
-    ('=A + A', 'A', 'B', ['A', 'B'], '=B + B'),
-    ('=A + B', 'A', 'B', ['A', 'B'], '=B + B'),
-    ('=A + B + A', 'A', 'B', ['A', 'B'], '=B + B + B'),
-    ('=This is a test', 'test', 'B', ['This is a test'], '=This is a test'),
-    ('="test with spaces"', 'test with spaces', 'B', ['test with spaces'], '="test with spaces"'),
-    ('=A + B + \"A\"', 'A', 'B', ['A', 'B'], '=B + B + \"A\"'),
-    ('=A + B + \'A\'', 'A', 'B', ['A', 'B'], '=B + B + \'A\''),
-    ('=A + B + \'A\'', 'A', 'B', ['A', 'B'], '=B + B + \'A\''),
-    ('=FUNC(A, B, A) + TEST(FUNC(A, \'A\', \'B\')) + \'A\'', 'A', 'B', ['A', 'B'], '=FUNC(B, B, B) + TEST(FUNC(B, \'A\', \'B\')) + \'A\''),
-    ('=APPLE(A, B, A) + AARON(AAA(A, \'A\', \'B\')) + \'A\'', 'A', 'B', ['A', 'B'], '=APPLE(B, B, B) + AARON(AAA(B, \'A\', \'B\')) + \'A\''),
-]
-
-@pytest.mark.parametrize('formula,old_column_header,new_column_header,column_headers,new_formula', SAFE_REPLACE_TESTS)
-def test_safe_replace(formula, old_column_header, new_column_header, column_headers, new_formula):
-    assert safe_replace(formula, old_column_header, new_column_header, 0, pd.DataFrame(get_number_data_for_df(column_headers, 2))) == new_formula
 
 
 SAFE_CONTAINS_TESTS = [

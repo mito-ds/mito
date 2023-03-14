@@ -14,10 +14,10 @@ from mitosheet.ai.prompt import get_prompt
 
 import requests
 
-URL = 'https://api.openai.com/v1/completions'
+URL = 'https://api.openai.com/v1/chat/completions'
 
 def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-        selection: Optional[Selection] = params['selection']
+        selection: Optional[Selection] = params.get('selection', None)
         user_input: str = params['user_input']
 
         prompt = get_prompt(
@@ -35,8 +35,8 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 })
 
         data = {
-                "model": "code-davinci-002",
-                "prompt": prompt,
+                "model": "gpt-3.5-turbo",
+                "messages": [{"role": "user", "content": prompt}],
                 "max_tokens": 7,
                 "temperature": .2,
                 'max_tokens': 200,
@@ -47,11 +47,18 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 'Authorization': f'Bearer {OPENAI_API_KEY}' 
         }
 
-        res = requests.post(URL, headers=headers, json=data)
+        try:
+                res = requests.post(URL, headers=headers, json=data)
+        except:
+                return json.dumps({
+                        'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
+                })
 
         if res.status_code == 200:
                 res_json = res.json()
-                completion = res_json['choices'][0]['text']
+                completion: str = res_json['choices'][0]['message']["content"]
+                # We strip all blank lines from the generated code, if they are at the start or end
+                completion = completion.strip()
                 return json.dumps({
                         'user_input': user_input,
                         'prompt_version': 'df-creation-prompt-1',

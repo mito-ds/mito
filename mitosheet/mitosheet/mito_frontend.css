@@ -1063,6 +1063,9 @@ input:checked + .toggle:after {
   background-color: var(--mito-light-blue);
   border-radius: 5px;
 }
+.mito-blue-container-disabled {
+  opacity: 50%;
+}
 .mito-collapsible-content-card-container {
   background-color: var(--mito-light-blue);
   border-radius: 5px;
@@ -2227,6 +2230,55 @@ a:visited {
   overflow: scroll;
 }
 
+/* css/elements/TextArea.css */
+.text-area {
+  resize: none;
+  margin: 0px;
+  padding: 5px;
+  background-color: var(--mito-very-light-gray);
+  border: 1px solid var(--mito-lighter-gray);
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.text-area:focus {
+  border-color: var(--mito-medium-purple);
+}
+.text-area-dark-border {
+  border: 1px solid #ACACAD;
+}
+.text-area::placeholder {
+  color: var(--mito-medium-gray);
+}
+.text-area:hover:not(:disabled) {
+  border-color: var(--mito-medium-purple);
+}
+
+/* css/taskpanes/AITransformation/AITransformation.css */
+.ai-transformation-example {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 3px 5px;
+  gap: 10px;
+  background: #F5F5F5;
+  border: 1px solid #ACACAD;
+  border-radius: 3px;
+}
+.ai-transformation-example:hover {
+  border: 1px solid var(--mito-light-purple);
+}
+.ai-transformation-feedback-button {
+  padding: 5px;
+  border-radius: 3px;
+}
+.ai-transformation-feedback-button:hover {
+  background-color: var(--mito-light-gray);
+}
+.ai-transformation-feedback-button-selected {
+  background-color: var(--mito-light-gray);
+}
+
 /* css/loading-indicator.css */
 .loading-indicator-header {
   background-color: var(--mito-purple);
@@ -2441,6 +2493,7 @@ a:visited {
 .toolbar-button-label {
   font-size: 11px;
   height: 13px;
+  text-align: center !important;
 }
 .toolbar-vertical-line {
   border-left: 1px solid var(--toolbar-seperator-color);

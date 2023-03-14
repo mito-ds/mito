@@ -13,6 +13,7 @@ continous integration
 """
 
 import pandas as pd
+import numpy as np
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
 
 GraphID = str
@@ -71,7 +72,7 @@ ConditionalFormattingResult = Dict[str, Union[
 PivotColumnTransformation = str
 
 RowOffset = int
-ParserMatchRange = Tuple[int, int] # start, end
+ParserMatchSubstringRange = Tuple[int, int] # start, end
 
 # If the user does not have the snowflake.connector python package installed,
 # we take extra care to make sure that our mypy typing will still pass even though
@@ -131,8 +132,20 @@ if sys.version_info[:3] > (3, 8, 0):
         'most_frequent',
         'least_frequent'
     ]
-
-    Operator = Literal['And', 'Or']
+    OperatorType = Literal[
+        'And', 
+        'Or'
+    ]
+    
+    PrimitiveTypeName = Literal[
+        'str', 
+        'int', 
+        'float', 
+        'number',
+        'bool', 
+        'datetime', 
+        'timedelta'
+    ]
 
     class Filter(TypedDict):
         condition: Union[BooleanFilterCondition, StringFilterCondition, NumberFilterCondition, DatetimeFilterCondition, SharedFilterCondition]
@@ -141,7 +154,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FilterGroup(TypedDict):
         # NOTE: this is a recursive type. The filter group can contain a filter group
         filters: List[Union[Filter, "FilterGroup"]]
-        operator: Operator #type:ignore
+        operator: OperatorType #type:ignore
 
     class ColumnIDWithFilter(TypedDict):
         column_id: ColumnID
@@ -163,10 +176,22 @@ if sys.version_info[:3] > (3, 8, 0):
         column_header: ColumnHeader
         transformation: PivotColumnTransformation
 
-    class ExcelRangeImport(TypedDict):
-        type: str
+    class ExcelRangeRangeImport(TypedDict):
+        type: Literal['range']
         df_name: str
         value: str
+
+    class ExcelRangeEndCondition(TypedDict):
+        type: Literal['first empty cell', 'bottom left corner value']
+        value: Optional[str]
+
+    class ExcelRangeUpperLeftImport(TypedDict):
+        type: Literal['upper left corner value']
+        df_name: str
+        value: str
+        end_condition: ExcelRangeEndCondition
+
+    ExcelRangeImport = Union[ExcelRangeRangeImport, ExcelRangeUpperLeftImport]
 
     class CodeSnippet(TypedDict):
         Id: str
@@ -202,12 +227,19 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_URL: str
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
-    class ParserMatch(TypedDict):
-        type: Literal['column header match type', 'index label match type']
-        match_range: ParserMatchRange
+    class RawParserMatch(TypedDict):
+        type: Literal['{HEADER}', '{INDEX}']
+        substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
+
+    class ParserMatch(TypedDict):
+        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}']
+        substring_range: ParserMatchSubstringRange
+        unparsed: str
+        parsed: Any
+        row_offset: Union[RowOffset, Tuple[RowOffset, RowOffset]]
 
     class FrontendFormulaString(TypedDict):
         type: Literal['string part']
@@ -216,7 +248,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaReference(TypedDict):
         type: Literal['reference part']
         display_column_header: str
-        row_offset: int
+        row_offset: Optional[int]
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
@@ -235,17 +267,30 @@ if sys.version_info[:3] > (3, 8, 0):
         deleted_dataframes: List[str]
         modified_dataframes: Dict[str, pd.DataFrame]
         last_line_expression_value: Optional[Any]
+        prints: str
 
     class ColumnReconData(TypedDict):
-        added_columns: List[ColumnHeader]
-        removed_columns: List[ColumnHeader]
+        created_columns: List[ColumnHeader]
+        deleted_columns: List[ColumnHeader]
         modified_columns: List[ColumnHeader]
         renamed_columns: Dict[ColumnHeader, ColumnHeader]
+
+    class ModifiedDataframeReconData(TypedDict):
+        column_recon: ColumnReconData
+        num_added_or_removed_rows: int
+
+    class AITransformFrontendResult(TypedDict):
+        last_line_value: Optional[Union[str, bool, int, float, np.number]]
+        created_dataframe_names: List[str]
+        deleted_dataframe_names: List[str]
+        modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
+        prints: str
 
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
-    Operator = Any #type:ignore
+    OperatorType = Any #type:ignore
+    PrimitiveTypeName = None # type: ignore
     ColumnIDWithFilter = Any # type:ignore
     ColumnIDWithFilterGroup = Any # type:ignore
     ColumnHeaderWithFilter = Any # type:ignore
@@ -254,6 +299,7 @@ else:
     ExcelRangeImport = Any # type:ignore
     CodeSnippet = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
+    RawParserMatch = Any # type:ignore
     ParserMatch = Any # type:ignore
     SnowflakeCredentials = Any # type:ignore
     SnowflakeTableLocationAndWarehouse = Any # type:ignore
@@ -267,6 +313,8 @@ else:
     Selection = Any # type:ignore
     DataframeReconData = Any # type: ignore
     ColumnReconData = Any # type: ignore
+    ModifiedDataframeReconData = Any # type: ignore
+    AITransformFrontendResult = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]

@@ -19,6 +19,7 @@ import DropdownItem from '../elements/DropdownItem';
 import { Action, UserProfile } from '../../types';
 import MoreIcon from '../icons/MoreIcon';
 import LessIcon from '../icons/LessIcon';
+import AIIcon from '../icons/AIIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -54,6 +55,9 @@ export enum ToolbarButtonType {
 
     PIVOT = "PIVOT",
     GRAPH = "GRAPH",
+    AI_TRANSFORMATION = "AI_TRANSFORMATION",
+
+
     CATCH_UP = "CATCH UP",
     STEPS = "STEPS",
     OPEN_FULLSCREEN = "OPEN FULLSCREEN",
@@ -83,6 +87,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
 
         case ToolbarButtonType.PIVOT: {return <PivotIcon />}
         case ToolbarButtonType.GRAPH: {return <GraphIcon />}
+        case ToolbarButtonType.AI_TRANSFORMATION: {return <AIIcon />}
 
         case ToolbarButtonType.CATCH_UP: {return <CatchUpIcon />}
         case ToolbarButtonType.STEPS: {return <StepsIcon />}
@@ -111,8 +116,12 @@ export const makeToolbarDropdownItem = (action: Action, userProfile: UserProfile
 }
 
 const getToolbarDropdownItemRightText = (action: Action, userProfile: UserProfile): string | undefined => {
-    if (action.proAction && !userProfile.isPro) {
+    if (action.requiredPlan === 'pro' && !userProfile.isPro) {
         return 'Mito Pro'
+    }
+
+    if (action.requiredPlan === 'enterprise' && !userProfile.isEnterprise) {
+        return 'Mito Enterprise'
     }
 
     return window.navigator.userAgent.toUpperCase().includes('MAC')

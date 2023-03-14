@@ -46,6 +46,33 @@ const Toolbar = (
         sheetIndex: number
     }): JSX.Element => {  
 
+
+    const importDropdownItems: JSX.Element[] = [
+        <DropdownItem title='Import Files' key='Import Files' onClick={() => {props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
+            }
+        })}}/>,
+        <DropdownItem title='Import Dataframes' key='Import Dataframes' onClick={() => {props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
+            }
+        })}}/>,
+    ]
+
+    if (props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+        importDropdownItems.push(
+            <DropdownItem title='Import from Snowflake' key='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT}
+                }
+            })}}/>
+        )
+    }
+
     return (
         <div className='toolbar-container'>
             <div className='toolbar-top'>
@@ -184,24 +211,7 @@ const Toolbar = (
                             }
                             width='medium'
                         >
-                            <DropdownItem title='Import Files' onClick={() => {props.setUIState(prevUIState => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenTaskpane: {type: TaskpaneType.IMPORT_FILES}
-                                }
-                            })}}/>
-                            <DropdownItem title='Import Dataframes' onClick={() => {props.setUIState(prevUIState => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenTaskpane: {type: TaskpaneType.DATAFRAMEIMPORT}
-                                }
-                            })}}/>
-                            <DropdownItem title='Import from Snowflake' onClick={() => {props.setUIState(prevUIState => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenTaskpane: {type: TaskpaneType.SNOWFLAKEIMPORT}
-                                }
-                            })}}/>
+                            {importDropdownItems}
                         </Dropdown>
                     </ToolbarButton>
                     <ToolbarButton
@@ -343,9 +353,15 @@ const Toolbar = (
                         action={props.actions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
                         disabledTooltip={props.actions[ActionEnum.Graph].isDisabled()}
-
                     />
-
+                    {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
+                        <ToolbarButton
+                            toolbarButtonType={ToolbarButtonType.AI_TRANSFORMATION}
+                            action={props.actions[ActionEnum.AI_TRANSFORMATION]}
+                            setEditorState={props.setEditorState}
+                            disabledTooltip={props.actions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
+                        />
+                    }
                 </div>
                 <div className='toolbar-bottom-right-half'>
                     {/* 

@@ -65,7 +65,7 @@ class State:
         column_formulas: Optional[List[Dict[ColumnID, List[FrontendFormulaAndLocation]]]]=None,
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
-        graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None
+        graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None,
     ):
 
         # The dataframes that are in the state

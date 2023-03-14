@@ -16,6 +16,7 @@ from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -33,8 +34,6 @@ from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
-from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE_EVENT
-
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
@@ -263,6 +262,9 @@ class StepsManager:
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
 
+        # The version of the public interface used by this analysis
+        self.public_interface_version = 2
+
     @property
     def curr_step(self) -> Step:
         """
@@ -316,6 +318,7 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
+                "publicInterfaceVersion": self.public_interface_version,
                 "analysisToReplay": {
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
@@ -331,7 +334,8 @@ class StepsManager:
                 'renderCount': self.render_count,
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
-            }
+            },
+            cls=NpEncoder
         )
 
     @property
@@ -395,7 +399,10 @@ class StepsManager:
 
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
-        # First, we make a new step
+        # First, we add the public interface to the params, as we might need it for any step
+        edit_event["params"]['public_interface_version'] = self.public_interface_version
+
+        # Then, we make a new step
         new_step = Step(
             step_performer.step_type(), edit_event["step_id"], edit_event["params"]
         )
@@ -568,6 +575,7 @@ class StepsManager:
                 or step.step_type == ExcelImportStepPerformer.step_type()
                 or step.step_type == DataframeImportStepPerformer.step_type()
                 or step.step_type == SnowflakeImportStepPerformer.step_type()
+                or step.step_type == ExcelRangeImportStepPerformer.step_type()
             )
         ]
 

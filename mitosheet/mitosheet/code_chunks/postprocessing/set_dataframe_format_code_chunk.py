@@ -7,13 +7,12 @@
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FAKE_COLUMN_HEADER, get_entire_filter_string
-from mitosheet.sheet_functions.types.utils import is_int_dtype
+from mitosheet.is_type_utils import is_int_dtype, is_float_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader
 from mitosheet.utils import MAX_ROWS
 from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
-from mitosheet.sheet_functions.types import is_float_dtype
 
 OPEN_BRACKET = "{"
 CLOSE_BRACKET = "}"

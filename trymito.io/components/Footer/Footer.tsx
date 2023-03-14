@@ -21,7 +21,7 @@ const Footer = (): JSX.Element => {
                     </Link>
                 </div>
                 <p>
-                    © Saga, Inc. 2021
+                    © Saga, Inc. 2023
                 </p>
                 <div className={footerStyle.footer_link}>
                     <a className={pageStyle.link} href={"mailto:founders@sagacollab.com"}>

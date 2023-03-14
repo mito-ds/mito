@@ -17,7 +17,7 @@
 
 
 import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
-import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, SheetData, UserProfile } from "../types"
+import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile } from "../types"
 import MitoAPI from "./api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
@@ -69,15 +69,16 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
             code: code,
             telemetryEnabled: telemetryEnabled,
+            publicInterfaceVersion: publicInterfaceVersion
         });
     } else if (isInJupyterNotebook()) {
-        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled);
+        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }

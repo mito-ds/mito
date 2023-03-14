@@ -681,14 +681,19 @@ export enum MitoEnterpriseConfigKey {
     CODE_SNIPPETS_VERSION = 'MITO_CONFIG_CODE_SNIPPETS_VERSION',
     CODE_SNIPPETS_URL = 'MITO_CONFIG_CODE_SNIPPETS_URL',
     DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS',
-    ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
+    ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT',
+    DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT',
+    DISPLAY_AI_TRANSFORM = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 }
+
+export type PublicInterfaceVersion = 1 | 2;
 
 
 /**
  * An object representing all the data about the analysis that is occuring currently.
  * 
  * @param analysisName - the name of the analysis id that is for writing to the cell (after the analysis has been replayed)
+ * @param publicInterfaceVersion - the version of the public interface being used by this analysi
  * @param analysisToReplay - the analysis that was passed through the analysis_to_replay parameter to the mitosheet.sheet call
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
@@ -707,6 +712,7 @@ export enum MitoEnterpriseConfigKey {
  */
 export interface AnalysisData {
     analysisName: string,
+    publicInterfaceVersion: PublicInterfaceVersion,
     analysisToReplay: {
         analysisName: string,
         existsOnDisk: boolean,
@@ -722,6 +728,20 @@ export interface AnalysisData {
     renderCount: number;
     lastResult: any;
     experiment: Experiment | undefined;
+}
+
+export interface MitoConfig {
+    [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
+    [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
+    [MitoEnterpriseConfigKey.DISABLE_TOURS]: boolean,
+    [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
+        [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
+    } | null | undefined
+    [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
+    [MitoEnterpriseConfigKey.DISPLAY_SNOWFLAKE_IMPORT]: boolean
+    [MitoEnterpriseConfigKey.DISPLAY_AI_TRANSFORM]: boolean
 }
 
 /**
@@ -746,24 +766,18 @@ export interface UserProfile {
 
     isPro: boolean;
     isEnterprise: boolean;
+
     pandasVersion: string;
     pythonVersion: string;
+
     telemetryEnabled: boolean;
     isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     snowflakeCredentials: SnowflakeCredentials | null;
-    mitoConfig: {
-        [MitoEnterpriseConfigKey.MEC_VERSION]: number | undefined | null
-        [MitoEnterpriseConfigKey.SUPPORT_EMAIL]: string
-        [MitoEnterpriseConfigKey.DISABLE_TOURS]: boolean,
-        [MitoEnterpriseConfigKey.CODE_SNIPPETS]: {
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_VERSION]: string,
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_URL]: string
-            [MitoEnterpriseConfigKey.CODE_SNIPPETS_SUPPORT_EMAIL]: string | undefined | null
-        } | null | undefined
-        [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
-    };
+    openAIAPIKey: string | null | undefined
+    aiPrivacyPolicy: boolean,
+    mitoConfig: MitoConfig;
 }
 
 
@@ -1004,7 +1018,7 @@ export interface Action {
     }
 
     // If this action is only available for pro users
-    proAction?: boolean
+    requiredPlan?: 'pro' | 'enterprise'
 }
 
 export enum GraphSidebarTab {

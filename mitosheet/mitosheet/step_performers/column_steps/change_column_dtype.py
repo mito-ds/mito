@@ -10,14 +10,8 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.change_column_dtype_code_chunk import ChangeColumnDtypeCodeChunk
 
-from mitosheet.errors import get_recent_traceback, make_invalid_column_type_change_error, raise_error_if_column_ids_do_not_exist
-from mitosheet.sheet_functions.types import to_int_series
-from mitosheet.sheet_functions.types.to_boolean_series import to_boolean_series
-from mitosheet.sheet_functions.types.to_float_series import to_float_series
-from mitosheet.sheet_functions.types.to_timedelta_series import \
-    to_timedelta_series
-from mitosheet.sheet_functions.types.utils import (get_datetime_format,
-                                                   is_bool_dtype,
+from mitosheet.errors import make_invalid_column_type_change_error, raise_error_if_column_ids_do_not_exist
+from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_datetime_dtype,
                                                    is_float_dtype,
                                                    is_int_dtype, is_number_dtype,
@@ -66,6 +60,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
         old_dtypes: Dict[ColumnID, str] = get_param(params, 'old_dtypes')
         new_dtype: str = get_param(params, 'new_dtype')
+        public_interface_version: str = get_param(params, 'public_interface_version')
 
         raise_error_if_column_ids_do_not_exist(
             'change column dtype',
@@ -73,6 +68,13 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             sheet_index,
             column_ids
         )
+
+        if public_interface_version == 1:
+            from mitosheet.public.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        elif public_interface_version == 2:
+            from mitosheet.public.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        else:
+            raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         pandas_processing_time: float = 0
@@ -261,7 +263,8 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 get_param(params, 'old_dtypes'),
                 get_param(params, 'new_dtype'),
                 get_param(execution_data if execution_data is not None else {}, 'changed_column_ids'),
-                execution_data.get('datetime_formats', None) if execution_data is not None else None
+                execution_data.get('datetime_formats', None) if execution_data is not None else None,
+                get_param(params, 'public_interface_version')
             )
         ]
 
