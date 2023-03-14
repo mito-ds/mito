@@ -136,7 +136,7 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
         "description": "Returns the value from series that meets the condition.",
         "search_terms": ["ffill"],
         "examples": [
-            "GETPREVIOUSVALUE(Max_Balances, Max_Balances > 0)",
+            "GETPREVIOUSVALUE(Max_Balances, Max_Balances > 0)"
         ],
         "syntax": "GETPREVIOUSVALUE(series, condition)",
         "syntax_elements": [{
@@ -163,7 +163,7 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
         last_occurrence = pd.NaT
 
     result = []
-    for index, value in condition.iteritems():
+    for index, value in condition.items():
         if value:
             last_occurrence = series[index]
         result.append(last_occurrence)
