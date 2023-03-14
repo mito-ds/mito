@@ -249,7 +249,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             <DefaultTaskpaneBody>
                 {apiKeyNotDefined && 
                     <p className="text-color-error">
-                        You do not have an OPEN_AI_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
+                        You do not have an OPENAI_API_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
                     </p>
                 }
                 {(!apiKeyNotDefined && aiPrivacyPolicyNotAccepted) && 
