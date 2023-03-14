@@ -89,7 +89,8 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         import mitosheet.public.v2 as v2
         local_vars = v2.__dict__
     else:
-        raise Exception(f'Please support interface {public_interface}')
+        import mitosheet as original
+        local_vars = original.__dict__
 
     try:
         exec(code, 
