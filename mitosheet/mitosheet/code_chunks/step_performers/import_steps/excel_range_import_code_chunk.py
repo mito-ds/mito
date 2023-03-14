@@ -75,6 +75,10 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                     f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
                 )
 
+            # Add a new line in between different imports otherwise the code looks bad
+            if idx < len(self.range_imports) - 1:
+                code.append('')
+
         return code, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
