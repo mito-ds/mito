@@ -16,7 +16,7 @@ from typing import Any
 import pandas as pd
 import numpy as np
 import datetime
-from mitosheet.is_type_utils import is_bool_dtype, is_float_dtype, is_int_dtype, is_string_dtype
+from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_dtype, is_int_dtype, is_string_dtype
 
 from mitosheet.public.v1.sheet_functions.sheet_function_utils import try_extend_series_to_index
 from mitosheet.public.v1.sheet_functions.types.decorators import filter_nans, convert_arg_to_series_type, handle_sheet_function_errors
@@ -141,7 +141,7 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
         "syntax": "GETPREVIOUSVALUE(series, condition)",
         "syntax_elements": [{
                 "element": "series",
-                "description": "The series to get the previous value from.."
+                "description": "The series to get the previous value from."
             }, {
                 "element": "condition",
                 "description": "When condition is True, a new previous value is set, and carried forward until the condition is True again."
@@ -159,6 +159,8 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: pd.Series) -> pd.Series:
         last_occurrence = ''
     elif is_bool_dtype(column_dtype):
         last_occurrence = False
+    elif is_datetime_dtype(column_dtype):
+        last_occurrence = pd.NaT
 
     result = []
     for index, value in condition.iteritems():

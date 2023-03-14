@@ -24,6 +24,11 @@ GETPREVIOUSVALUE_TESTS = [
         pd.Series([-1, 2, 2])
     ),
     (
+        pd.Series([1.5, 2.5, 3.5]), 
+        pd.Series([False, True, False]),  
+        pd.Series([-1.0, 2.5, 2.5])
+    ),
+    (
         pd.Series(['a', 'b', 'c']), 
         pd.Series([False, True, False]),  
         pd.Series(['', 'b', 'b'])
@@ -32,6 +37,16 @@ GETPREVIOUSVALUE_TESTS = [
         pd.Series(['a', 'b', 'c']), 
         pd.Series([False, False, False]),  
         pd.Series(['', '', ''])
+    ),
+    (
+        pd.Series([True, False, False]), 
+        pd.Series([True, False, True]),  
+        pd.Series([True, True, False])
+    ),
+    (
+        pd.Series(pd.to_datetime(['1/2/23', '1/2/23', '1/2/23'])), 
+        pd.Series([False, True, True]),  
+        pd.Series(pd.to_datetime([pd.NaT, '1/2/23', '1/2/23']))
     ),
 ]
 
