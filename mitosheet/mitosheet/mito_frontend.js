@@ -38818,7 +38818,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         },
-        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Dataframe Name")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Input_default,
           {
             width: "medium",
@@ -38837,7 +38837,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38853,13 +38853,13 @@ fig.write_html("${props.graphTabName}.html")`
                   newRangeImport = {
                     "type": newRangeImportType,
                     "df_name": previousRangeImport.df_name,
-                    "value": isNew ? "" : previousRangeImport.df_name
+                    "value": isNew ? "" : previousRangeImport.value
                   };
                 } else {
                   newRangeImport = {
                     "type": newRangeImportType,
                     "df_name": previousRangeImport.df_name,
-                    "value": isNew ? "" : previousRangeImport.df_name,
+                    "value": isNew ? "" : previousRangeImport.value,
                     "end_condition": { "type": "first empty cell" }
                   };
                 }
@@ -38913,7 +38913,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", null, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38922,10 +38922,11 @@ fig.write_html("${props.graphTabName}.html")`
               setParams((prevParams) => {
                 const newRangeImports = window.structuredClone(prevParams.range_imports);
                 const newRangeImport = window.structuredClone(range_import);
-                if (newType === "first empty cell") {
-                  newRangeImport.end_condition = { "type": newType };
+                const newEndConditionType = newType;
+                if (newEndConditionType === "first empty cell") {
+                  newRangeImport.end_condition = { "type": newEndConditionType };
                 } else {
-                  newRangeImport.end_condition = { "type": "bottom left corner value", value: "" };
+                  newRangeImport.end_condition = { "type": newEndConditionType, value: "" };
                 }
                 newRangeImports[index] = newRangeImport;
                 return __spreadProps(__spreadValues({}, prevParams), {
@@ -39010,6 +39011,7 @@ fig.write_html("${props.graphTabName}.html")`
               return finalRangeImport;
             });
             finalRangeImports.reverse();
+            console.log("FINAL IMPORTS", finalRangeImports);
             return __spreadProps(__spreadValues({}, params2), {
               range_imports: finalRangeImports
             });

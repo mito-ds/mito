@@ -17,7 +17,7 @@ from mitosheet.types import ExcelRangeImport
 
 
 EXCEL_RANGE_IMPORT_TYPE_RANGE = 'range'
-EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT = 'upper left corner value'
+EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT_VALUE = 'upper left corner value'
 EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE = 'first empty cell'
 EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE = 'bottom left corner value'
 

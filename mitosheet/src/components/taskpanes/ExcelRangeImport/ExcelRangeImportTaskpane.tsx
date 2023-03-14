@@ -167,9 +167,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 }
                             }}
                         >
-                            <Row justify="space-between">
+                            <Row justify="space-between" align="center">
                                 <Col>
-                                    <p>
+                                    <p className="text-body-1">
                                         Dataframe Name
                                     </p>
                                 </Col>
@@ -193,9 +193,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     />
                                 </Col>
                             </Row>
-                            <Row justify="space-between">
+                            <Row justify="space-between" align="center">
                                 <Col>
-                                    <p>
+                                    <p className="text-body-1">
                                         Locate Dataframe By
                                     </p>
                                 </Col>
@@ -217,13 +217,13 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                                     newRangeImport = {
                                                         'type': newRangeImportType,
                                                         'df_name': previousRangeImport.df_name,
-                                                        'value': isNew ? '' : previousRangeImport.df_name,
+                                                        'value': isNew ? '' : previousRangeImport.value,
                                                     }
                                                 } else {
                                                     newRangeImport = {
                                                         'type': newRangeImportType,
                                                         'df_name': previousRangeImport.df_name,
-                                                        'value': isNew ? '' : previousRangeImport.df_name,
+                                                        'value': isNew ? '' : previousRangeImport.value,
                                                         'end_condition': {'type': 'first empty cell'}
                                                     }
                                                 }
@@ -286,9 +286,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             </Row>
                             {range_import.type === 'upper left corner value' && 
                                 <>
-                                    <Row justify="space-between">
+                                    <Row justify="space-between" align="center">
                                         <Col>
-                                            <p>
+                                            <p className="text-body-1">
                                                 Table End Condition
                                             </p>
                                         </Col>
@@ -301,10 +301,12 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                                         const newRangeImports = window.structuredClone(prevParams.range_imports);
                                                         const newRangeImport: ExcelRangeUpperLeftCornerValueImport = window.structuredClone(range_import);
 
-                                                        if (newType === 'first empty cell') {
-                                                            newRangeImport.end_condition = {'type': newType}
+                                                        const newEndConditionType = newType as 'first empty cell' | 'bottom left corner value';
+
+                                                        if (newEndConditionType === 'first empty cell') {
+                                                            newRangeImport.end_condition = {'type': newEndConditionType}
                                                         } else {
-                                                            newRangeImport.end_condition = {'type': 'bottom left corner value', value: ''}
+                                                            newRangeImport.end_condition = {'type': newEndConditionType, value: ''}
 
                                                         }
 
@@ -417,6 +419,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                             // We then reverse the range imports, so they appear in the order that they were added
                             finalRangeImports.reverse()
+
+                            console.log("FINAL IMPORTS", finalRangeImports);
 
                             return {
                                 ...params,

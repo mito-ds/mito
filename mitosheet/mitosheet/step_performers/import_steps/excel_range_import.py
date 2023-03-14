@@ -107,5 +107,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {-1}
+        # Because this step is live updating, we need to just reset all of the dataframes
+        # when the user overwrites a step
+        return set()
     
