@@ -285,7 +285,7 @@ def test_params_static():
 
     check_step(
         ExcelRangeImportStepPerformer,
-        1,
+        2,
         'excel_range_import'
     )
 

@@ -80,7 +80,18 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     )
 
     import mitosheet
-    print(code)
+
+    public_interface = test_wrapper.mito_backend.steps_manager.public_interface_version
+    if public_interface == 1:
+        import mitosheet.public.v1 as v1
+        local_vars = v1.__dict__
+    elif public_interface == 2:
+        import mitosheet.public.v2 as v2
+        local_vars = v2.__dict__
+    else:
+        import mitosheet as original
+        local_vars = original.__dict__
+
     try:
         exec(code, 
             {
@@ -88,7 +99,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
                 # Make sure all the mitosheet functions are defined, which replaces the
                 # `from mitosheet import *` code that is at the top of all
                 # transpiled code 
-                **mitosheet.__dict__,
+                **local_vars,
             }, 
             original_dfs
         )
@@ -528,7 +539,7 @@ class MitoWidgetTestWrapper:
             }
         )
 
-        
+    @check_transpiled_code_after_call
     def excel_range_import(
             self, 
             file_path: str,

@@ -50,6 +50,7 @@ from mitosheet.saved_analyses.step_upgraders.simple_import import \
 from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     INITIAL_BULK_OLD_RENAME_STEP
+from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2
 from mitosheet.utils import is_prev_version
 
 """
@@ -137,6 +138,9 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     },
     'set_dataframe_format': {
         1: upgrade_set_dataframe_format_1_to_2
+    },
+    'excel_range_import': {
+        1: upgrade_excel_range_import_1_to_2
     }
 }
 

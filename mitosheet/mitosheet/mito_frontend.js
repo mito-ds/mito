@@ -38775,7 +38775,11 @@ fig.write_html("${props.graphTabName}.html")`
           setParams((prevParams) => {
             const newRangeImports = window.structuredClone(prevParams.range_imports);
             const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : "range";
-            newRangeImports.unshift({ "type": previousType, "df_name": "", "value": "" });
+            if (previousType === "range") {
+              newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
+            } else {
+              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" } });
+            }
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
             });
@@ -38814,7 +38818,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         },
-        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", null, "Dataframe Name")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Dataframe Name")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Input_default,
           {
             width: "medium",
@@ -38833,7 +38837,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", null, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38842,10 +38846,24 @@ fig.write_html("${props.graphTabName}.html")`
               setParams((prevParams) => {
                 const isNew = prevParams.range_imports[index].type !== newType;
                 const newRangeImports = window.structuredClone(prevParams.range_imports);
-                newRangeImports[index].type = newType;
-                if (isNew) {
-                  newRangeImports[index].value = "";
+                const newRangeImportType = newType;
+                const previousRangeImport = prevParams.range_imports[index];
+                let newRangeImport = prevParams.range_imports[index];
+                if (newRangeImportType === "range") {
+                  newRangeImport = {
+                    "type": newRangeImportType,
+                    "df_name": previousRangeImport.df_name,
+                    "value": isNew ? "" : previousRangeImport.value
+                  };
+                } else {
+                  newRangeImport = {
+                    "type": newRangeImportType,
+                    "df_name": previousRangeImport.df_name,
+                    "value": isNew ? "" : previousRangeImport.value,
+                    "end_condition": { "type": "first empty cell" }
+                  };
                 }
+                newRangeImports[index] = newRangeImport;
                 return __spreadProps(__spreadValues({}, prevParams), {
                   range_imports: newRangeImports
                 });
@@ -38865,7 +38883,7 @@ fig.write_html("${props.graphTabName}.html")`
             {
               title: "Upper Left Corner",
               id: "upper left corner value",
-              subtext: "Give the value in the upper left corner of the table to import, and Mito will automatically determine the bounds of the table."
+              subtext: "Give the value in the upper left corner of the table to import."
             }
           )
         ))),
@@ -38894,7 +38912,74 @@ fig.write_html("${props.graphTabName}.html")`
               });
             }
           }
-        )))
+        ))),
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: range_import.end_condition.type,
+            onChange: (newType) => {
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                const newEndConditionType = newType;
+                if (newEndConditionType === "first empty cell") {
+                  newRangeImport.end_condition = { "type": newEndConditionType };
+                } else {
+                  newRangeImport.end_condition = { "type": newEndConditionType, value: "" };
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          },
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "First Empty Cell",
+              id: "first empty cell",
+              subtext: "Mito will continue take all rows until it hits an empty cell."
+            }
+          ),
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Bottom Left Corner",
+              id: "bottom left corner value",
+              subtext: "Give the value in the bottom left corner of the table to import, and Mito will find the end of the table."
+            }
+          )
+        ))), range_import.end_condition.type === "bottom left corner value" && /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          LabelAndTooltip_default,
+          {
+            textBody: true,
+            tooltip: "The end of the dataframe will be detected when this value is found in the first column"
+          },
+          "Bottom Left Corner Value"
+        )), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Input_default,
+          {
+            width: "medium",
+            placeholder: "final value",
+            value: "" + range_import.end_condition.value,
+            onChange: (e) => {
+              const newValue = e.target.value;
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                if (newRangeImport.end_condition.type === "bottom left corner value") {
+                  newRangeImport.end_condition.value = newValue;
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          }
+        ))))
       );
     })), /* @__PURE__ */ import_react169.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react169.default.createElement(
       TextButton_default,
@@ -38904,17 +38989,29 @@ fig.write_html("${props.graphTabName}.html")`
         onClick: () => {
           edit((params2) => {
             const finalRangeImports = params2.range_imports.map((rangeImport) => {
-              if (rangeImport.type === "upper left corner value" && typeof rangeImport.value === "string") {
-                const parsedValue = parseFloat(rangeImport.value);
+              let finalRangeImport = rangeImport;
+              if (finalRangeImport.type === "upper left corner value" && typeof finalRangeImport.value === "string") {
+                const parsedValue = parseFloat(finalRangeImport.value);
                 if (!isNaN(parsedValue)) {
-                  return __spreadProps(__spreadValues({}, rangeImport), {
+                  finalRangeImport = __spreadProps(__spreadValues({}, rangeImport), {
                     value: parsedValue
                   });
                 }
               }
-              return rangeImport;
+              if (finalRangeImport.type === "upper left corner value" && finalRangeImport.end_condition.type === "bottom left corner value" && typeof finalRangeImport.end_condition.value === "string") {
+                const parsedValue = parseFloat(finalRangeImport.end_condition.value);
+                if (!isNaN(parsedValue)) {
+                  finalRangeImport = __spreadProps(__spreadValues({}, finalRangeImport), {
+                    end_condition: __spreadProps(__spreadValues({}, finalRangeImport.end_condition), {
+                      value: parsedValue
+                    })
+                  });
+                }
+              }
+              return finalRangeImport;
             });
             finalRangeImports.reverse();
+            console.log("FINAL IMPORTS", finalRangeImports);
             return __spreadProps(__spreadValues({}, params2), {
               range_imports: finalRangeImports
             });

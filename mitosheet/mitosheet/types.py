@@ -176,10 +176,22 @@ if sys.version_info[:3] > (3, 8, 0):
         column_header: ColumnHeader
         transformation: PivotColumnTransformation
 
-    class ExcelRangeImport(TypedDict):
-        type: str
+    class ExcelRangeRangeImport(TypedDict):
+        type: Literal['range']
         df_name: str
         value: str
+
+    class ExcelRangeEndCondition(TypedDict):
+        type: Literal['first empty cell', 'bottom left corner value']
+        value: Optional[str]
+
+    class ExcelRangeUpperLeftImport(TypedDict):
+        type: Literal['upper left corner value']
+        df_name: str
+        value: str
+        end_condition: ExcelRangeEndCondition
+
+    ExcelRangeImport = Union[ExcelRangeRangeImport, ExcelRangeUpperLeftImport]
 
     class CodeSnippet(TypedDict):
         Id: str

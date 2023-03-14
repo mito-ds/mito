@@ -11,18 +11,19 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import \
-    ExcelRangeImportCodeChunk
+from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import (
+    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE,
+    EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_IMPORT_TYPE_RANGE,
+    ExcelRangeImportCodeChunk)
 from mitosheet.errors import make_upper_left_corner_value_not_found_error
-from mitosheet.excel_utils import get_column_from_column_index, get_col_and_row_indexes_from_range, get_table_range_from_upper_left_corner_value
+from mitosheet.excel_utils import (get_col_and_row_indexes_from_range,
+                                   get_column_from_column_index)
+from mitosheet.public.v2 import get_table_range_from_upper_left_corner_value
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ExcelRangeImport
 from mitosheet.utils import get_valid_dataframe_name
-
-EXCEL_RANGE_IMPORT_TYPE_RANGE = 'range'
-EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT = 'upper left corner value'
 
 
 class ExcelRangeImportStepPerformer(StepPerformer):
@@ -32,7 +33,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 2
 
     @classmethod
     def step_type(cls) -> str:
@@ -54,7 +55,13 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
                 _range = range_import['value']
             else:
-                _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, range_import['value'])
+                end_condition = range_import['end_condition'] #type: ignore
+                if end_condition['type'] == EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE:
+                    _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, range_import['value'])
+                elif end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE:
+                    _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, range_import['value'], bottom_left_value=end_condition['value'])
+                else:
+                    raise Exception(f"End condition {end_condition} is not a valid type.")
 
             if _range is None:
                 raise make_upper_left_corner_value_not_found_error(range_import['value'], False)
@@ -94,11 +101,13 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'file_path'),
                 get_param(params, 'sheet_name'),
-                (execution_data if execution_data is not None else dict()).get('new_sheet_index_to_df_range', {})
+                get_param(params, 'range_imports')
             )
         ]
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {-1}
+        # Because this step is live updating, we need to just reset all of the dataframes
+        # when the user overwrites a step
+        return set()
     

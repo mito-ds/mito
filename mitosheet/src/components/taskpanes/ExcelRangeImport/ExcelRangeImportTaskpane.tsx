@@ -31,7 +31,10 @@ interface ExcelRangeImportTaskpaneProps {
 }
 
 export type ExcelRangeImportType = 'range' | 'upper left corner value';
-export type ExcelRangeImport = {type: ExcelRangeImportType, df_name: string, value: string | number};
+export type ExcelRangeRangeImport = {type: 'range', df_name: string, value: string | number};
+export type ExcelRangeUpperLeftCornerValueImport = {type: 'upper left corner value', df_name: string, value: string | number, end_condition: {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number}};
+export type ExcelRangeImport = ExcelRangeRangeImport | ExcelRangeUpperLeftCornerValueImport
+
 
 export interface ExcelRangeImportParams {
     file_path: string,
@@ -110,7 +113,11 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 setParams((prevParams) => {
                                     const newRangeImports = window.structuredClone(prevParams.range_imports);
                                     const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : 'range'; // add whatever the previous range is
-                                    newRangeImports.unshift({'type': previousType, 'df_name': '', 'value': ''}) // add to the start
+                                    if (previousType === 'range') {
+                                        newRangeImports.unshift({'type': 'range', 'df_name': '', 'value': ''})
+                                    } else {
+                                        newRangeImports.unshift({'type': 'upper left corner value', 'df_name': '', 'value': '', 'end_condition': {'type': 'first empty cell'}})
+                                    }
                                     return {
                                         ...prevParams,
                                         range_imports: newRangeImports
@@ -160,9 +167,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 }
                             }}
                         >
-                            <Row justify="space-between">
+                            <Row justify="space-between" align="center">
                                 <Col>
-                                    <p>
+                                    <p className="text-body-1">
                                         Dataframe Name
                                     </p>
                                 </Col>
@@ -186,9 +193,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     />
                                 </Col>
                             </Row>
-                            <Row justify="space-between">
+                            <Row justify="space-between" align="center">
                                 <Col>
-                                    <p>
+                                    <p className="text-body-1">
                                         Locate Dataframe By
                                     </p>
                                 </Col>
@@ -199,12 +206,30 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         onChange={(newType) => {
                                             setParams((prevParams) => {
                                                 const isNew = prevParams.range_imports[index].type !== newType;
-                                                const newRangeImports = window.structuredClone(prevParams.range_imports);
-                                                newRangeImports[index].type = newType as ExcelRangeImportType;
+                                                const newRangeImports: ExcelRangeImport[] = window.structuredClone(prevParams.range_imports);
 
-                                                if (isNew) {
-                                                    newRangeImports[index].value = ''
+                                                const newRangeImportType = newType as ExcelRangeImportType;  
+
+                                                const previousRangeImport = prevParams.range_imports[index];
+                                                let newRangeImport = prevParams.range_imports[index];
+                                                
+                                                if (newRangeImportType === 'range') {
+                                                    newRangeImport = {
+                                                        'type': newRangeImportType,
+                                                        'df_name': previousRangeImport.df_name,
+                                                        'value': isNew ? '' : previousRangeImport.value,
+                                                    }
+                                                } else {
+                                                    newRangeImport = {
+                                                        'type': newRangeImportType,
+                                                        'df_name': previousRangeImport.df_name,
+                                                        'value': isNew ? '' : previousRangeImport.value,
+                                                        'end_condition': {'type': 'first empty cell'}
+                                                    }
                                                 }
+
+                                                newRangeImports[index] = newRangeImport
+
                                                 return {
                                                     ...prevParams,
                                                     range_imports: newRangeImports,
@@ -220,7 +245,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         <DropdownItem
                                             title="Upper Left Corner"
                                             id='upper left corner value'
-                                            subtext="Give the value in the upper left corner of the table to import, and Mito will automatically determine the bounds of the table."
+                                            subtext="Give the value in the upper left corner of the table to import."
                                         />
                                         
                                     </Select>
@@ -259,7 +284,96 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     />
                                 </Col>
                             </Row>
+                            {range_import.type === 'upper left corner value' && 
+                                <>
+                                    <Row justify="space-between" align="center">
+                                        <Col>
+                                            <p className="text-body-1">
+                                                Table End Condition
+                                            </p>
+                                        </Col>
+                                        <Col>
+                                            <Select
+                                                width="medium"
+                                                value={range_import.end_condition.type}
+                                                onChange={(newType) => {
+                                                    setParams((prevParams) => {
+                                                        const newRangeImports = window.structuredClone(prevParams.range_imports);
+                                                        const newRangeImport: ExcelRangeUpperLeftCornerValueImport = window.structuredClone(range_import);
 
+                                                        const newEndConditionType = newType as 'first empty cell' | 'bottom left corner value';
+
+                                                        if (newEndConditionType === 'first empty cell') {
+                                                            newRangeImport.end_condition = {'type': newEndConditionType}
+                                                        } else {
+                                                            newRangeImport.end_condition = {'type': newEndConditionType, value: ''}
+
+                                                        }
+
+                                                        newRangeImports[index] = newRangeImport;
+
+                                                        return {
+                                                            ...prevParams,
+                                                            range_imports: newRangeImports,
+                                                        }
+                                                    })
+                                                }}
+                                            >
+                                                <DropdownItem
+                                                    title='First Empty Cell'
+                                                    id='first empty cell'
+                                                    subtext="Mito will continue take all rows until it hits an empty cell."
+                                                />
+                                                <DropdownItem
+                                                    title="Bottom Left Corner"
+                                                    id='bottom left corner value'
+                                                    subtext="Give the value in the bottom left corner of the table to import, and Mito will find the end of the table."
+                                                />
+                                                
+                                            </Select>
+                                        </Col>
+                                    </Row>
+                                    {range_import.end_condition.type === 'bottom left corner value' &&
+                                    
+                                        <Row justify="space-between" align="center">
+                                            <Col>
+                                                <LabelAndTooltip 
+                                                    textBody
+                                                    tooltip="The end of the dataframe will be detected when this value is found in the first column"
+                                                >
+                                                    Bottom Left Corner Value
+                                                </LabelAndTooltip>
+                                            </Col>
+                                            <Col>
+                                                <Input
+                                                    width="medium"
+                                                    placeholder={'final value'}
+                                                    value={'' + range_import.end_condition.value}
+                                                    onChange={(e) => {
+                                                        const newValue = e.target.value;
+                                                        setParams((prevParams) => {
+                                                            const newRangeImports = window.structuredClone(prevParams.range_imports);
+                                                            const newRangeImport: ExcelRangeUpperLeftCornerValueImport = window.structuredClone(range_import);
+                                                            if (newRangeImport.end_condition.type === 'bottom left corner value') {
+                                                                newRangeImport.end_condition.value = newValue;
+                                                            } 
+
+                                                            newRangeImports[index] = newRangeImport;
+                                                            
+                                                            return {
+                                                                ...prevParams,
+                                                                range_imports: newRangeImports
+                                                            }
+                                                        })
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    }
+                                </>
+                            
+                            
+                            }
                         </ExpandableContentCard>
                     )
                 })}
@@ -275,21 +389,38 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                             const finalRangeImports: ExcelRangeImport[] = params.range_imports.map((rangeImport) => {
 
-                                if (rangeImport.type === 'upper left corner value' && typeof rangeImport.value === 'string') {
-                                    const parsedValue = parseFloat(rangeImport.value);
+                                let finalRangeImport = rangeImport;
+
+                                if (finalRangeImport.type === 'upper left corner value' && typeof finalRangeImport.value === 'string') {
+                                    const parsedValue = parseFloat(finalRangeImport.value);
                                     if (!isNaN(parsedValue)) {
-                                        return {
+                                        finalRangeImport = {
                                             ...rangeImport,
                                             value: parsedValue
                                         }
                                     }
                                 }
 
-                                return rangeImport;
+                                if (finalRangeImport.type === 'upper left corner value' && finalRangeImport.end_condition.type === 'bottom left corner value' && typeof finalRangeImport.end_condition.value === 'string') {
+                                    const parsedValue = parseFloat(finalRangeImport.end_condition.value);
+                                    if (!isNaN(parsedValue)) {
+                                        finalRangeImport = {
+                                            ...finalRangeImport,
+                                            end_condition: {
+                                                ...finalRangeImport.end_condition,
+                                                value: parsedValue
+                                            }
+                                        }
+                                    }
+                                }
+
+                                return finalRangeImport;
                             });
 
                             // We then reverse the range imports, so they appear in the order that they were added
                             finalRangeImports.reverse()
+
+                            console.log("FINAL IMPORTS", finalRangeImports);
 
                             return {
                                 ...params,
