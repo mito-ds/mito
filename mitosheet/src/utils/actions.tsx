@@ -1284,7 +1284,7 @@ export const createActions = (
         },
         [ActionEnum.CODESNIPPETS]: {
             type: ActionEnum.CODESNIPPETS,
-            shortTitle: 'Code Snippets',
+            shortTitle: 'Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
