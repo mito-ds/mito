@@ -22,3 +22,4 @@ These don't require upgrading as they don't break or change previous analyses.
 1. Add a new folder (e.g. `v3`)
 2. Fix up all the steps so they support the new version of the public interface (and make sure to upgrade them to take this as a parameter in the step upgrader)
 3. Add code-gen on the frontend so that the new import statement are from the new public interface
+4. Make sure to add new functions to the old interfaces as well for forward compatibility on those analyses

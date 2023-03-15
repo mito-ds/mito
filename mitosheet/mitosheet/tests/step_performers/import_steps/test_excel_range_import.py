@@ -168,8 +168,26 @@ def test_excel_range_import(range, input_dfs, imports, output_dfs):
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
+        assert actual.equals(expected)
+
+    os.remove(TEST_FILE_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_excel_range_import_works_on_public_interface_1():
+
+    # Write an Excel file
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        ((startcol, startrow), _) = get_col_and_row_indexes_from_range('A1:B2')
+        pd.DataFrame({'A': [1], "B": [2]}).to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
+
+    mito = create_mito_wrapper_dfs()
+    mito.mito_backend.steps_manager.public_interface_version = 1
+
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}])
+
+    assert len(mito.dfs) == 1
+    for actual, expected in zip(mito.dfs, [pd.DataFrame({'A': [1], "B": [2]})]):
         assert actual.equals(expected)
 
     os.remove(TEST_FILE_PATH)
