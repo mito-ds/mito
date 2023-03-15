@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
@@ -196,6 +196,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         props.analysisData,
         {allowSameParamsToReapplyTwice: true, doNotRefreshParamsOnUndoAndRedo: true}
     )
+
+    useEffect(() => {
+        void props.mitoAPI.log('opened_ai_transformation', {apiKeyNotDefined: apiKeyNotDefined, aiPrivacyPolicyNotAccepted: aiPrivacyPolicyNotAccepted})
+    }, [])
 
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>

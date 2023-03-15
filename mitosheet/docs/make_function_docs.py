@@ -56,7 +56,7 @@ def main():
 
     command = sys.argv[1]
 
-    from mitosheet.sheet_functions import FUNCTIONS
+    from mitosheet.public.v2 import FUNCTIONS
 
     function_doc_objects = []
     invalid = []
