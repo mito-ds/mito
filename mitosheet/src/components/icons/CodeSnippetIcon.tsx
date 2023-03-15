@@ -9,9 +9,7 @@ const CodeSnippetIcon = (): JSX.Element => {
             <line y1="1" x2="13" y2="1" stroke="#494650"/>
             <line y1="5" x2="13" y2="5" stroke="#494650"/>
             <line y1="9" x2="13" y2="9" stroke="#494650"/>
-            <line y1="13" x2="13" y2="13" stroke="#494650"/>
         </svg>
-
     )
 }
 

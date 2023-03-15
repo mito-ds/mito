@@ -30997,7 +30997,7 @@ ${finalCode}`;
       },
       ["CodeSnippets" /* CODESNIPPETS */]: {
         type: "CodeSnippets" /* CODESNIPPETS */,
-        shortTitle: "Code Snippets",
+        shortTitle: "Snippets",
         longTitle: "Code Snippets",
         actionFunction: () => {
           setEditorState(void 0);
@@ -38360,7 +38360,7 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/icons/CodeSnippetIcon.tsx
   var import_react166 = __toESM(require_react());
   var CodeSnippetIcon = () => {
-    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "13", x2: "13", y2: "13", stroke: "#494650" }));
+    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }));
   };
   var CodeSnippetIcon_default = CodeSnippetIcon;
 
@@ -40357,6 +40357,9 @@ fig.write_html("${props.graphTabName}.html")`
       case "AI_TRANSFORMATION" /* AI_TRANSFORMATION */: {
         return /* @__PURE__ */ import_react210.default.createElement(AIIcon_default, null);
       }
+      case "CODE_SNIPPETS" /* CODE_SNIPPETS */: {
+        return /* @__PURE__ */ import_react210.default.createElement(CodeSnippetIcon_default, null);
+      }
       case "CATCH UP" /* CATCH_UP */: {
         return /* @__PURE__ */ import_react210.default.createElement(CatchUpIcon_default, null);
       }
@@ -40713,6 +40716,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
+    var _a;
     const importDropdownItems = [
       /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", key: "Import Files", onClick: () => {
         props.setUIState((prevUIState) => {
@@ -41024,6 +41028,14 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["AI_Transformation" /* AI_TRANSFORMATION */],
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["AI_Transformation" /* AI_TRANSFORMATION */].isDisabled()
+      }
+    ), ((_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_URL) !== void 0 && /* @__PURE__ */ import_react222.default.createElement(
+      ToolbarButton_default,
+      {
+        toolbarButtonType: "CODE_SNIPPETS" /* CODE_SNIPPETS */,
+        action: props.actions["CodeSnippets" /* CODESNIPPETS */],
+        setEditorState: props.setEditorState,
+        disabledTooltip: props.actions["CodeSnippets" /* CODESNIPPETS */].isDisabled()
       }
     )), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
