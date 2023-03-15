@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import MitoAPI from "../../../jupyter/api";
 import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
@@ -197,6 +197,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         {allowSameParamsToReapplyTwice: true, doNotRefreshParamsOnUndoAndRedo: true}
     )
 
+    useEffect(() => {
+        void props.mitoAPI.log('opened_ai_transformation', {apiKeyNotDefined: apiKeyNotDefined, aiPrivacyPolicyNotAccepted: aiPrivacyPolicyNotAccepted})
+    }, [])
+
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
@@ -259,7 +263,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         </p>
                         <Spacer px={5}/>
                         <p className="text-body-1">
-                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>.
+                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here</a>.
                         </p>
                         <Spacer px={5}/>
                         <p className="text-body-1">
