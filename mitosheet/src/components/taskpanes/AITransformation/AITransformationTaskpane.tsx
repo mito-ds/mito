@@ -263,7 +263,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         </p>
                         <Spacer px={5}/>
                         <p className="text-body-1">
-                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>.
+                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here</a>.
                         </p>
                         <Spacer px={5}/>
                         <p className="text-body-1">
