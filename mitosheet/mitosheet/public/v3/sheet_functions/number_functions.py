@@ -87,8 +87,46 @@ def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
             result = get_new_result(result, arg)
 
     # If we don't find any arguements, we default to 0 -- like Excel
-    kept_default_min_value = not isinstance(result, pd.Series) and result == (-sys.maxsize - 1)
+    kept_default_max_value = not isinstance(result, pd.Series) and result == (-sys.maxsize - 1)
+    return result if not kept_default_max_value else 0
+
+
+@cast_values_in_arg_to_type('number')
+def MIN(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+    
+    result: Union[pd.Series, float, int] = sys.maxsize
+
+    def get_new_result(_result: Union[pd.Series, float, int], new_value: Union[pd.Series, float, int]) -> Union[pd.Series, float, int]:
+        if isinstance(_result, pd.Series):
+            if isinstance(new_value, pd.Series):
+                return pd.concat([_result, new_value], axis=1).min(axis=1)
+            else:
+                return _result.apply(lambda v: np.nanmin([v, new_value]))
+        else:
+            if isinstance(new_value, pd.Series):
+                return new_value.apply(lambda v: np.nanmin([v, _result]))
+            else:
+                return min(_result, new_value)
+
+    for arg in argv:
+        if isinstance(arg, pd.DataFrame):
+            df_sum = arg.sum().sum()
+            result = get_new_result(result, df_sum)
+
+        elif isinstance(arg, RollingRange):
+            new_series = arg.apply(lambda df: df.sum().sum())
+            result = get_new_result(result, new_series)
+            
+        elif isinstance(arg, pd.Series):
+            result = get_new_result(result, arg)
+            
+        elif arg is not None:
+            result = get_new_result(result, arg)
+
+    # If we don't find any arguements, we default to 0 -- like Excel
+    kept_default_min_value = not isinstance(result, pd.Series) and result == sys.maxsize
     return result if not kept_default_min_value else 0
+
 
 @cast_values_in_arg_to_type('number')
 def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
@@ -114,5 +152,6 @@ def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
 NUMBER_FUNCTIONS = {
     'AVG': AVG,
     'MAX': MAX,
+    'MIN': MIN,
     'SUM': SUM,
 }
