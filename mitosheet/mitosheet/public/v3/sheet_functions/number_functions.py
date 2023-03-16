@@ -88,6 +88,18 @@ def MIN(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
 
 
 @cast_values_in_arg_to_type('number')
+def MULTIPLY(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+
+    return get_final_result_series_or_primitive(
+        1,
+        argv,
+        lambda df: df.prod().prod(),
+        lambda previous_value, new_value: previous_value * new_value,
+        lambda previous_series, new_series: previous_series * new_series
+    )
+
+
+@cast_values_in_arg_to_type('number')
 def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
 
     return get_final_result_series_or_primitive(
@@ -105,5 +117,6 @@ NUMBER_FUNCTIONS = {
     'AVG': AVG,
     'MAX': MAX,
     'MIN': MIN,
+    'MULTIPLY': MULTIPLY,
     'SUM': SUM,
 }
