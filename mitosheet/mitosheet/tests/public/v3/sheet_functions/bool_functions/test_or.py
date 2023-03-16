@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from typing import Any
 import pytest
 import pandas as pd
 import numpy as np
@@ -12,7 +13,7 @@ from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.sheet_functions.bool_functions import OR
 
 
-OR_VALID_TESTS = [
+OR_VALID_TESTS: Any = [
     # Just constant tests
     ([True, True], True),
     ([True, False], True),
@@ -37,7 +38,7 @@ OR_VALID_TESTS = [
 
 ]
 
-OR_INVALID_CAST_TESTS = [
+OR_INVALID_CAST_TESTS: Any = [
     # Constants
     (['abc', 1], True),
     (['abc', 'def'], False), # Excel throws a value error here...
