@@ -49,13 +49,11 @@ def AND(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturn
     """
 
     # If we don't find any arguements, we default to True. Excel in practice
-    # defaults to a value error if there are no args, but it's ok
+    # defaults to a value error if there are no args
     return get_final_result_series_or_primitive(
         True,
         argv,
         lambda df: df.all().all(),
-        # Note the handling we do here to ensure that None's don't get propagated forward. We fill None
-        # values with None
         lambda previous_value, new_value: previous_value and new_value,
         lambda previous_series, new_series: previous_series & new_series
     )
@@ -86,7 +84,7 @@ def OR(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturnT
     """
 
     # If we don't find any arguements, we default to True. Excel in practice
-    # defaults to a value error if there are no args, but it's ok
+    # defaults to a value error if there are no args
     return get_final_result_series_or_primitive(
         False,
         argv,
