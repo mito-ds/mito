@@ -32,7 +32,7 @@ MIN_VALID_TESTS = [
     # Dataframes
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([1,2,3])], pd.Series([1, 2, 3])),
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), 2], 2),
-    ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([1.0, 2.0, 3.0])),
+    ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([1, 2, 3])),
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [1, 1, 1]}), pd.Series([5,6,7])], pd.Series([5, 6, 6])),
 
     # Rolling ranges
@@ -50,15 +50,15 @@ MIN_INVALID_CAST_TESTS = [
     # Series
     ([2, 'abc', pd.Series([1,2,3])], pd.Series([1,2,2])),
     (['abc', pd.Series([1,2,3])], pd.Series([1,2,3])),
-    ([2, pd.Series(['abc',2,3])], pd.Series([2.0,2.0,2.0])),
+    ([2, pd.Series(['abc',2,3])], pd.Series([2,2,2])),
 
     # Dataframes
-    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,3])], pd.Series([1.0, 2.0, 3.0])),
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,3])], pd.Series([1, 2, 3])),
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 'abc']}), pd.Series([1,2,'abc'])], pd.Series([1.0,2.0,7.0])),
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 13], pd.Series([12.0, 13.0, 6.0])),
-    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 3, pd.Series([1,2,3])], pd.Series([1.0, 2.0, 3.0])),
+    ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), 3, pd.Series([1,2,3])], pd.Series([1, 2, 3])),
     ([RollingRange(pd.DataFrame({'B': [1, 2, 'abc'], 'C': [4, 5, 6]}), 2, 0), pd.Series([1,2,'abc'])], pd.Series([1.0, 2.0, 6.0])),
 ]
 
