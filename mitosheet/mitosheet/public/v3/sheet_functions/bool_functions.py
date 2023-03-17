@@ -89,7 +89,7 @@ def OR(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturnT
         False,
         argv,
         lambda df: df.any().any(),
-        lambda previous_value, new_value: (previous_value or new_value),
+        lambda previous_value, new_value: previous_value or new_value,
         lambda previous_series, new_series: previous_series | new_series
     )
 
