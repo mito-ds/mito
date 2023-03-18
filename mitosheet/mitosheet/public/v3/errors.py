@@ -36,7 +36,7 @@ def make_invalid_arg_error(sheet_function_name: str, arg_name: str, type_name: s
     )
 
 
-def handle_sheet_function_errors(sheet_function) -> Callable:
+def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
 
     @wraps(sheet_function)
     def wrapped_sheet_function(*args):   
