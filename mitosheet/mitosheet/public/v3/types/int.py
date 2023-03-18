@@ -2,6 +2,9 @@
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
+import numpy as np
+
+from mitosheet.public.v3.errors import make_invalid_param_type_conversion_error
 from mitosheet.public.v3.types.float import cast_string_to_float
 
 
@@ -18,6 +21,9 @@ def cast_to_int(unknown: Union[str, int, float, bool, datetime, timedelta]) -> O
     elif isinstance(unknown, int):
         return unknown
     elif isinstance(unknown, float):
+        if np.isnan(unknown):
+            raise make_invalid_param_type_conversion_error(unknown, 'int')
+
         return int(unknown)
     elif isinstance(unknown, bool):
         return int(unknown)
