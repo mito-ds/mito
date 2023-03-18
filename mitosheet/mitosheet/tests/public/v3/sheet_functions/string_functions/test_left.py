@@ -25,6 +25,7 @@ LEFT_VALID_TESTS: Any = [
     ([pd.Series(['a', 'ab', 'abc']), 2], pd.Series(['a', 'ab', 'ab'])),
     ([pd.Series(['a', 'ab', 'abc']), 10], pd.Series(['a', 'ab', 'abc'])),
     ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([0, 1, 2, 3, 4, 5])], pd.Series(['', '1', 'Tr', '199', '1 da'])),
+    ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([1000, 1000, 1000, 1000, 1000, 1000])], pd.Series(['10000', '10.0', 'True', '1997-12-22 00:00:00', '1 day, 0:00:00'])),
 ]
 
 # There aren't really any invalid types for strings
