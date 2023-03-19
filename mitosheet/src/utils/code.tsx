@@ -131,7 +131,9 @@ export function isMitoAnalysisCode(codeText: string): boolean {
     Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
 */
 export function containsMitosheetCallWithSpecificAnalysisToReplay(codeText: string, analysisName: string): boolean {
-    return codeText.includes('sheet(') && codeText.includes(`analysis_to_replay="${analysisName}"`)
+    // Remove any whitespace from codeText
+    const codeTextCleaned = codeText.replace(/\s/g, '');
+    return codeTextCleaned.includes('sheet(') && codeTextCleaned.includes(`analysis_to_replay="${analysisName}"`)
 }
 
 
@@ -139,7 +141,9 @@ export function containsMitosheetCallWithSpecificAnalysisToReplay(codeText: stri
     Returns true if the cell contains a mitosheet.sheet(analysis_to_replay={analysisName})
 */
 export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): boolean {
-    return isMitosheetCallCode(codeText) && codeText.includes(`analysis_to_replay=`)
+    // Remove any whitespace from codeText
+    const codeTextCleaned = codeText.replace(/\s/g, '');
+    return isMitosheetCallCode(codeTextCleaned) && codeTextCleaned.includes(`analysis_to_replay=`)
 }
 
 

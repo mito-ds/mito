@@ -22661,10 +22661,12 @@ ${finalCode}`;
     return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:") || startsWithPublicVersionImport;
   }
   function containsMitosheetCallWithSpecificAnalysisToReplay(codeText, analysisName) {
-    return codeText.includes("sheet(") && codeText.includes(`analysis_to_replay="${analysisName}"`);
+    const codeTextCleaned = codeText.replace(/\s/g, "");
+    return codeTextCleaned.includes("sheet(") && codeTextCleaned.includes(`analysis_to_replay="${analysisName}"`);
   }
   function containsMitosheetCallWithAnyAnalysisToReplay(codeText) {
-    return isMitosheetCallCode(codeText) && codeText.includes(`analysis_to_replay=`);
+    const codeTextCleaned = codeText.replace(/\s/g, "");
+    return isMitosheetCallCode(codeTextCleaned) && codeTextCleaned.includes(`analysis_to_replay=`);
   }
   function containsGeneratedCodeOfAnalysis(codeText, analysisName) {
     return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
@@ -22741,8 +22743,8 @@ ${finalCode}`;
     if (isMitosheetCallCode(getCellText(cell)) && containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), oldAnalysisName)) {
       const currentCode = getCellText(cell);
       const newCode = currentCode.replace(
-        `analysis_to_replay="${oldAnalysisName}")`,
-        `analysis_to_replay="${newAnalysisName}")`
+        RegExp(`analysis_to_replay\\s*=\\s*"${oldAnalysisName}"`),
+        `analysis_to_replay="${newAnalysisName}"`
       );
       writeToCell(cell, newCode);
       return true;
