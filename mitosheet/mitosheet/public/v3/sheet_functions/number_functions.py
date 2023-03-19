@@ -22,10 +22,10 @@ import pandas as pd
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
-from mitosheet.public.v3.types.decorators import cast_values_in_args_to_type
+from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type
 from mitosheet.public.v3.types.sheet_function_types import NumberFunctionReturnType, NumberInputType
 
-@cast_values_in_args_to_type('number')
+@cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
 
@@ -56,7 +56,7 @@ def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
     return sum_for_avg / num_entries if num_entries is not 0 else 0
 
 
-@cast_values_in_args_to_type('number')
+@cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
     
@@ -73,7 +73,7 @@ def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
     return result if not kept_default_max_value else 0
 
 
-@cast_values_in_args_to_type('number')
+@cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
 
@@ -90,7 +90,7 @@ def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
     return result if not kept_default_min_value else 0
 
 
-@cast_values_in_args_to_type('number')
+@cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MULTIPLY(*argv: NumberInputType) -> NumberFunctionReturnType:
 
@@ -103,7 +103,7 @@ def MULTIPLY(*argv: NumberInputType) -> NumberFunctionReturnType:
     )
 
 
-@cast_values_in_args_to_type('number')
+@cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def SUM(*argv: NumberInputType) -> NumberFunctionReturnType:
 

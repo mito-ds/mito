@@ -21,10 +21,11 @@ def cast_to_int(unknown: Union[str, int, float, bool, datetime, timedelta]) -> O
     elif isinstance(unknown, int):
         return unknown
     elif isinstance(unknown, float):
-        if np.isnan(unknown):
+        try:
+            return int(unknown)
+        except:
             raise make_invalid_param_type_conversion_error(unknown, 'int')
 
-        return int(unknown)
     elif isinstance(unknown, bool):
         return int(unknown)
 

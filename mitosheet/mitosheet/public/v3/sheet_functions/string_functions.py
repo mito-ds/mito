@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
-from mitosheet.public.v3.types.decorators import cast_values_in_args_to_type, cast_values_in_arg_to_type
+from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType
 
 
@@ -48,37 +48,37 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
 
     if string is None:
         return ''
-    else:
+    elif isinstance(string, pd.Series):
+        string = string.fillna('')
 
-        if num_chars is None:
-            num_chars = 1
-        elif isinstance(num_chars, pd.Series):
-            num_chars = num_chars.fillna(1)
+    if num_chars is None:
+        num_chars = 1
+    elif isinstance(num_chars, pd.Series):
+        num_chars = num_chars.fillna(0)
 
-        if isinstance(string, str):
-            if isinstance(num_chars, int):
-                return string[:num_chars]
-            else:
-                print(num_chars)
-                return pd.Series(
-                    [string[:nc] for nc in num_chars],
-                    index=num_chars.index
-                )
+
+    if isinstance(string, str):
+        if isinstance(num_chars, int):
+            return string[:num_chars]
         else:
-            if isinstance(num_chars, int):
-                print("HERE!", num_chars, [s[:num_chars] for s in string])
-                return pd.Series(
-                    [s[:min(num_chars, len(s))] for s in string],
-                    index=string.index
-                )
-            else:
-                return pd.Series(
-                    [s[:nc] for s, nc in zip(string, num_chars)],
-                    index=string.index
-                )
+            return pd.Series(
+                [string[:nc] for nc in num_chars],
+                index=num_chars.index
+            )
+    else:
+        if isinstance(num_chars, int):
+            return pd.Series(
+                [s[:min(num_chars, len(s))] for s in string],
+                index=string.index
+            )
+        else:
+            return pd.Series(
+                [s[:nc] for s, nc in zip(string, num_chars)],
+                index=string.index
+            )
 
 
-@cast_values_in_args_to_type('str')
+@cast_values_in_all_args_to_type('str')
 @handle_sheet_function_errors
 def CONCAT(*argv: StringInputType) -> StringFunctionReturnType:
     """

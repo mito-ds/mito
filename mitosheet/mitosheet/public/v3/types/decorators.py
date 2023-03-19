@@ -4,18 +4,15 @@
 
 
 
-from datetime import datetime, timedelta
-from functools import wraps
 import inspect
-from typing import Any, Callable
+from functools import wraps
+from typing import Callable
 
-import pandas as pd
-
-from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.types.utils import CONVERSION_FUNCTIONS, get_arg_cast_to_type
+from mitosheet.public.v3.types.utils import get_arg_cast_to_type
 from mitosheet.types import PrimitiveTypeName
 
-def cast_values_in_args_to_type(
+
+def cast_values_in_all_args_to_type(
     target_primitive_type_name: PrimitiveTypeName,
 ) -> Callable:
 
@@ -39,7 +36,6 @@ def cast_values_in_arg_to_type(
     target_primitive_type_name: PrimitiveTypeName,
 ) -> Callable:
     def wrap(sheet_function):
-        print(sheet_function)
 
         @wraps(sheet_function)
         def wrapped_sheet_function(*args):   
