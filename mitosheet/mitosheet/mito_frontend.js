@@ -38424,7 +38424,7 @@ fig.write_html("${props.graphTabName}.html")`
       let openLocation = DISCORD_INVITE_LINK;
       const codeSnippetSupportEmail = (_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL;
       if (codeSnippetSupportEmail !== void 0 && codeSnippetSupportEmail !== null) {
-        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support. Snippet Name: "${codeSnippet.Name}" Snippet ID: "${codeSnippet.Id}"`;
       }
       return /* @__PURE__ */ import_react167.default.createElement(
         Row_default,
