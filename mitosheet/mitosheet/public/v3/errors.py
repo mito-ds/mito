@@ -5,7 +5,7 @@
 
 from functools import wraps
 import inspect
-from typing import Any, Callable, get_args
+from typing import Any, Callable, Tuple
 
 from mitosheet.errors import MitoError
 
@@ -36,6 +36,21 @@ def make_invalid_arg_error(sheet_function_name: str, arg_name: str, type_name: s
     )
 
 
+def get_type_args(tp) -> Tuple[Any, ...]:
+    try:
+        from typing import get_args
+        return get_args(tp)
+    except:
+        if hasattr(tp, '__args__'):
+            return tp.__args__
+        elif hasattr(tp, '__orig_bases__'):
+            return tp.__orig_bases__[0].__args__
+        elif hasattr(tp, '__union_params__'): # handle Union types
+            return tp.__union_params__
+        else:
+            return ()
+
+
 def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
 
     @wraps(sheet_function)
@@ -45,7 +60,7 @@ def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
 
         # We ensure that all of the paramters match the type that is given to them
         for parameter, arg in zip(parameters.values(), args):
-            if not any(isinstance(arg, t) for t in get_args(parameter.annotation)):
+            if not any(isinstance(arg, t) for t in get_type_args(parameter.annotation)):
                 raise make_invalid_arg_error(sheet_function.__name__, parameter.name, type(arg).__name__)
         
         try:
