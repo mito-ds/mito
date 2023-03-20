@@ -36,7 +36,7 @@ def make_invalid_arg_error(sheet_function_name: str, arg_name: str, type_name: s
     )
 
 
-def get_type_args(tp) -> Tuple[Any, ...]:
+def get_type_args(tp: Any) -> Tuple[Any, ...]:
     try:
         from typing import get_args
         return get_args(tp)
