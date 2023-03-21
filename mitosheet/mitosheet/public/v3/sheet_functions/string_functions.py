@@ -190,9 +190,9 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
 
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('string', 'str')
 @handle_sheet_function_errors
-def LEN(series: StringRestrictedInputType) -> IntFunctionReturnType:
+def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "LEN",
@@ -210,12 +210,12 @@ def LEN(series: StringRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if series is None:
+    if string is None:
         return 0
-    elif isinstance(series, str):
-        return len(series)
+    elif isinstance(string, str):
+        return len(string)
     
-    return series.fillna('').str.len()
+    return string.fillna('').str.len()
 
 
 @cast_values_in_arg_to_type('series', 'str')
