@@ -635,6 +635,7 @@ def make_exec_error(e: Exception) -> MitoError:
         error_modal=False
     )
 
+
 def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
     """
     Helper function for creating a upper_left_corner_value_not_found_error.

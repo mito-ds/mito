@@ -101,7 +101,7 @@ def __get_new_result_series_or_primitive(
 
 def get_final_result_series_or_primitive(
         default_value: PrimitiveType,
-        argv: Tuple[Union[PrimitiveType, None, pd.Series, RollingRange], ...], 
+        argv: Tuple[Union[PrimitiveType, None, pd.Series, RollingRange, pd.DataFrame], ...], 
         get_primitive_value_from_dataframe: Callable[[pd.DataFrame], PrimitiveType],
         get_new_result_from_primitive_values: Callable[[PrimitiveType, PrimitiveType], PrimitiveType],
         get_new_result_from_series: Callable[[pd.Series, pd.Series], pd.Series]

@@ -29,6 +29,7 @@ CONCAT_VALID_TESTS: Any = [
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), True], pd.Series(['ab12True', 'bc23True', 'c3True'])),
+    ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), True, None], pd.Series(['ab12True', 'bc23True', 'c3True'])),
 ]
 
 # There aren't really any invalid types for strings

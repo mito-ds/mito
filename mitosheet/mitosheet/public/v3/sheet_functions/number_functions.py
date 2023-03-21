@@ -19,14 +19,15 @@ import numpy as np
 
 import pandas as pd
 
+from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
-from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import NumberFunctionReturnType
+from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type
+from mitosheet.public.v3.types.sheet_function_types import NumberFunctionReturnType, NumberInputType
 
-
-@cast_values_in_arg_to_type('number')
-def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     # Calculate the sum using the SUM function
     sum_for_avg = SUM(*argv)
@@ -55,8 +56,9 @@ def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
     return sum_for_avg / num_entries if num_entries is not 0 else 0
 
 
-@cast_values_in_arg_to_type('number')
-def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
     
     result = get_final_result_series_or_primitive(
         -sys.maxsize - 1,
@@ -71,8 +73,9 @@ def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
     return result if not kept_default_max_value else 0
 
 
-@cast_values_in_arg_to_type('number')
-def MIN(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     result = get_final_result_series_or_primitive(
         sys.maxsize,
@@ -87,8 +90,9 @@ def MIN(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
     return result if not kept_default_min_value else 0
 
 
-@cast_values_in_arg_to_type('number')
-def MULTIPLY(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MULTIPLY(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     return get_final_result_series_or_primitive(
         1,
@@ -99,8 +103,9 @@ def MULTIPLY(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberF
     )
 
 
-@cast_values_in_arg_to_type('number')
-def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def SUM(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     return get_final_result_series_or_primitive(
         0,

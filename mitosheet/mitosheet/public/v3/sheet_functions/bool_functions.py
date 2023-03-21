@@ -18,13 +18,15 @@ from typing import Union
 import pandas as pd
 
 from mitosheet.public.v3.rolling_range import RollingRange
+from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
-from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import BoolFunctionReturnType
+from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type
+from mitosheet.public.v3.types.sheet_function_types import BoolFunctionReturnType, BoolInputType
 
 
-@cast_values_in_arg_to_type('bool')
-def AND(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturnType:
+@cast_values_in_all_args_to_type('bool')
+@handle_sheet_function_errors
+def AND(*argv: BoolInputType) -> BoolFunctionReturnType:
     """
     {
         "function": "AND",
@@ -59,8 +61,9 @@ def AND(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturn
     )
 
 
-@cast_values_in_arg_to_type('bool')
-def OR(*argv: Union[bool, None, pd.Series, RollingRange]) -> BoolFunctionReturnType:
+@cast_values_in_all_args_to_type('bool')
+@handle_sheet_function_errors
+def OR(*argv: BoolInputType) -> BoolFunctionReturnType:
     """
     {
         "function": "OR",
