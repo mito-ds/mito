@@ -17,7 +17,70 @@ import pandas as pd
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType, IntFunctionReturnType
+
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "CLEAN",
+        "description": "Returns the text with the non-printable ASCII characters removed.",
+        "search_terms": ["clean", "trim", "remove"],
+        "examples": [
+            "CLEAN(A)"
+        ],
+        "syntax": "CLEAN(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series whose non-printable characters are to be removed."
+            }
+        ]
+    }
+    """
+    clean_helper = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
+
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return clean_helper(series)
+    
+    return series.fillna('').apply(clean_helper)
+
+
+@cast_values_in_all_args_to_type('str')
+@handle_sheet_function_errors
+def CONCAT(*argv: StringInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "CONCAT",
+        "description": "Returns the passed strings and series appended together.",
+        "search_terms": ["&", "concatenate", "append", "combine"],
+        "examples": [
+            "CONCAT('Bite', 'the bullet')",
+            "CONCAT(A, B)"
+        ],
+        "syntax": "CONCAT(string1, [string2, ...])",
+        "syntax_elements": [{
+                "element": "string1",
+                "description": "The first string or series."
+            },
+            {
+                "element": "string2, ... [OPTIONAL]",
+                "description": "Additional strings or series to append in sequence."
+            }
+        ]
+    }
+    """
+
+    return get_final_result_series_or_primitive(
+        '',
+        argv,
+        lambda df: df.sum().sum(), # Concats in the same order as Excel - yay!
+        lambda previous_value, new_value: previous_value + new_value,
+        lambda previous_series, new_series: previous_series + new_series
+    )
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -73,46 +136,242 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
             )
         else:
             return pd.Series(
-                [s[:nc] for s, nc in zip(string, num_chars)],
+                [s[:min(nc, len(s))] for s, nc in zip(string, num_chars)], #TODO: add test for this min
                 index=string.index
             )
 
 
-@cast_values_in_all_args_to_type('str')
+
+@cast_values_in_arg_to_type('series', 'str')
 @handle_sheet_function_errors
-def CONCAT(*argv: StringInputType) -> StringFunctionReturnType:
+def LEN(series: StringRestrictedInputType) -> IntFunctionReturnType:
     """
     {
-        "function": "CONCAT",
-        "description": "Returns the passed strings and series appended together.",
-        "search_terms": ["&", "concatenate", "append", "combine"],
+        "function": "LEN",
+        "description": "Returns the length of a string.",
+        "search_terms": ["length", "size"],
         "examples": [
-            "CONCAT('Bite', 'the bullet')",
-            "CONCAT(A, B)"
+            "LEN(A)",
+            "LEN('This is 21 characters')"
         ],
-        "syntax": "CONCAT(string1, [string2, ...])",
+        "syntax": "LEN(string)",
         "syntax_elements": [{
-                "element": "string1",
-                "description": "The first string or series."
-            },
-            {
-                "element": "string2, ... [OPTIONAL]",
-                "description": "Additional strings or series to append in sequence."
+                "element": "string",
+                "description": "The string or series whose length will be returned."
             }
         ]
     }
     """
+    if series is None:
+        return 0
+    elif isinstance(series, str):
+        return len(series)
+    
+    return series.fillna('').str.len()
 
-    return get_final_result_series_or_primitive(
-        '',
-        argv,
-        lambda df: df.sum().sum(), # Concats in the same order as Excel - yay!
-        lambda previous_value, new_value: previous_value + new_value,
-        lambda previous_series, new_series: previous_series + new_series
-    )
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "LOWER",
+        "description": "Converts a given string to lowercase.",
+        "search_terms": ["lowercase", "uppercase"],
+        "examples": [
+            "=LOWER('ABC')",
+            "=LOWER(A)",
+            "=LOWER('Nate Rush')"
+        ],
+        "syntax": "LOWER(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series to convert to lowercase."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return series.lower()
+
+    return series.fillna('').str.lower()
+
+
+@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('num_chars', 'int')
+@handle_sheet_function_errors
+def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=None) -> StringFunctionReturnType:
+
+    """
+    {
+        "function": "RIGHT",
+        "description": "Returns a substring from the beginning of a specified string.",
+        "search_terms": [],
+        "examples": [
+            "RIGHT(A, 2)",
+            "RIGHT('The last character!')"
+        ],
+        "syntax": "RIGHT(string, [number_of_characters])",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series from which the right portion will be returned."
+            },
+            {
+                "element": "number_of_characters [OPTIONAL, 1 by default]",
+                "description": "The number of characters to return from the end of string."
+            }
+        ]
+    }
+    """
+    if string is None:
+        return ''
+    elif isinstance(string, pd.Series):
+        string = string.fillna('')
+
+    if num_chars is None:
+        num_chars = 1
+    elif isinstance(num_chars, pd.Series):
+        num_chars = num_chars.fillna(0)
+
+
+    if isinstance(string, str):
+        if isinstance(num_chars, int):
+            return string[-num_chars:]
+        else:
+            return pd.Series(
+                [string[-nc:] for nc in num_chars],
+                index=num_chars.index
+            )
+    else:
+        if isinstance(num_chars, int):
+            return pd.Series(
+                [s[max(-num_chars, len(s)):] for s in string],
+                index=string.index
+            )
+        else:
+            return pd.Series(
+                [s[max(-nc, len(s)):] for s, nc in zip(string, num_chars)],
+                index=string.index
+            )
+
+
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "PROPER",
+        "description": "Capitalizes the first letter of each word in a specified string.",
+        "search_terms": ["proper", "capitalize"],
+        "examples": [
+            "=PROPER('nate nush')",
+            "=PROPER(A)"
+        ],
+        "syntax": "PROPER(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The value or series to convert to convert to proper case."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return series.title()
+
+    return series.fillna('').str.title()
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "TEXT",
+        "description": "Turns the passed series into a string.",
+        "search_terms": ["string", "dtype"],
+        "examples": [
+            "=TEXT(Product_Number)",
+            "=TEXT(Start_Date)"
+        ],
+        "syntax": "TEXT(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to convert to a string."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    
+    return series
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "TRIM",
+        "description": "Returns a string with the leading and trailing whitespace removed.",
+        "search_terms": ["trim", "whitespace", "spaces"],
+        "examples": [
+            "=TRIM('  ABC')",
+            "=TRIM('  ABC  ')",
+            "=TRIM(A)"
+        ],
+        "syntax": "TRIM(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The value or series to remove the leading and trailing whitespace from."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return series.strip()
+
+    return series.fillna('').str.strip()
+
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "UPPER",
+        "description": "Converts a given string to uppercase.",
+        "search_terms": ["uppercase", "capitalize"],
+        "examples": [
+            "=UPPER('abc')",
+            "=UPPER(A)",
+            "=UPPER('Nate Rush')"
+        ],
+        "syntax": "UPPER(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series to convert to uppercase."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return series.upper()
+
+    return series.fillna('').str.upper()
+
 
 
 # TODO: we should see if we can list these automatically!
 STRING_FUNCTIONS = {
     'CONCAT': CONCAT,
+    'LEFT': LEFT,
+    'LEN': LEN,
 }
