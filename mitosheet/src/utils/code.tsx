@@ -143,7 +143,7 @@ export function containsMitosheetCallWithSpecificAnalysisToReplay(codeText: stri
 export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): boolean {
     // Remove any whitespace from codeText
     const codeTextCleaned = codeText.replace(/\s/g, '');
-    return isMitosheetCallCode(codeTextCleaned) && codeTextCleaned.includes(`analysis_to_replay=`)
+    return isMitosheetCallCode(codeText) && codeTextCleaned.includes(`analysis_to_replay=`)
 }
 
 

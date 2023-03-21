@@ -22666,7 +22666,7 @@ ${finalCode}`;
   }
   function containsMitosheetCallWithAnyAnalysisToReplay(codeText) {
     const codeTextCleaned = codeText.replace(/\s/g, "");
-    return isMitosheetCallCode(codeTextCleaned) && codeTextCleaned.includes(`analysis_to_replay=`);
+    return isMitosheetCallCode(codeText) && codeTextCleaned.includes(`analysis_to_replay=`);
   }
   function containsGeneratedCodeOfAnalysis(codeText, analysisName) {
     return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
