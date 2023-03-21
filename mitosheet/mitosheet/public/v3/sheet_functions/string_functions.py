@@ -612,8 +612,6 @@ def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
     elif isinstance(series, str):
         return series.upper()
     
-    print(series.fillna('')) # TODO: need to find a better way to fill NaNs
-
     return series.fillna('').str.upper()
 
 
