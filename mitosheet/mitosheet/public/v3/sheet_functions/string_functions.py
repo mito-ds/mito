@@ -82,6 +82,54 @@ def CONCAT(*argv: StringInputType) -> StringFunctionReturnType:
         lambda previous_series, new_series: previous_series + new_series
     )
 
+@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('substrings', 'str')
+@handle_sheet_function_errors
+def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputType) -> IntFunctionReturnType:
+    """
+    {
+        "function": "FIND",
+        "description": "Returns the position at which a string is first found within text, case-sensitive. Returns 0 if not found.",
+        "search_terms": ["find", "search"],
+        "examples": [
+            "FIND(A, 'Jack')",
+            "FIND('Ben has a friend Jack', 'Jack')"
+        ],
+        "syntax": "FIND(text_to_search, search_for)",
+        "syntax_elements": [{
+                "element": "text_to_search",
+                "description": "The text or series to search for the first occurrence of search_for."
+            },
+            {
+                "element": "search_for",
+                "description": "The string to look for within text_to_search."
+            }
+        ]
+    }
+    """
+
+    if string is None or substrings is None:
+        return 0
+    elif isinstance(string, str):
+        if isinstance(substrings, str):
+            return string.find(substrings) + 1
+        else:
+            return pd.Series(
+                [string.find(s) + 1 for s in substrings],
+                index=substrings.index
+            )
+    else:
+        if isinstance(substrings, str):
+            return pd.Series(
+                [s.find(substrings) + 1 for s in string],
+                index=string.index
+            )
+        else:
+            return pd.Series(
+                [s.find(ss) + 1 for s, ss in zip(string, substrings)],
+                index=string.index
+            )
+
 
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
@@ -199,6 +247,94 @@ def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
     return series.fillna('').str.lower()
 
 
+
+@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('start_loc', 'int')
+@cast_values_in_arg_to_type('num_chars', 'int')
+@handle_sheet_function_errors
+def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, num_chars: IntRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "MID",
+        "description": "Returns a segment of a string.",
+        "search_terms": ["middle"],
+        "examples": [
+            "MID(A, 2, 2)",
+            "MID('Some middle characters!', 3, 4)"
+        ],
+        "syntax": "MID(string, starting_at, extract_length)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series to extract the segment from."
+            },
+            {
+                "element": "starting_at",
+                "description": "The index from the left of string from which to begin extracting."
+            },
+            {
+                "element": "extract_length",
+                "description": "The length of the segment to extract."
+            }
+        ]
+    }
+    """
+
+    if string is None:
+        return ''
+    elif isinstance(string, pd.Series):
+        string = string.fillna('')
+
+    if start_loc is None:
+        start_loc = 0
+    elif isinstance(start_loc, pd.Series):
+        start_loc = start_loc.fillna(0)
+
+    if num_chars is None:
+        num_chars = 1
+    elif isinstance(num_chars, pd.Series):
+        num_chars = num_chars.fillna(0)
+
+    if isinstance(string, str):
+        if isinstance(start_loc, int) and isinstance(num_chars, int):
+            return string[start_loc - 1:start_loc + num_chars - 1]
+        elif isinstance(start_loc, int) and isinstance(num_chars, pd.Series):
+            return pd.Series(
+                [string[start_loc-1:start_loc+nc-1] for nc in num_chars],
+                index=num_chars.index
+            )
+        elif isinstance(start_loc, pd.Series) and isinstance(num_chars, int):
+            return pd.Series(
+                [string[sl-1:sl+num_chars-1] for sl in start_loc],
+                index=start_loc.index
+            )
+        else:
+            return pd.Series(
+                [string[sl-1:sl+nc-1] for sl, nc in zip(start_loc, num_chars)],
+                index=start_loc.index
+            )
+    else:
+        if isinstance(start_loc, int) and isinstance(num_chars, int):
+            return pd.Series(
+                [s[start_loc-1:start_loc+num_chars-1] for s in string],
+                index=string.index
+            )
+        elif isinstance(start_loc, int) and isinstance(num_chars, pd.Series):
+            return pd.Series(
+                [s[start_loc-1:start_loc+nc-1] for s, nc in zip(string, num_chars)],
+                index=string.index
+            )
+        elif isinstance(start_loc, pd.Series) and isinstance(num_chars, int):
+            return pd.Series(
+                [s[sl-1:sl+num_chars-1] for s, sl in zip(string, start_loc)],
+                index=string.index
+            )
+        else:
+            return pd.Series(
+                [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
+                index=string.index
+            )
+
+
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
 @handle_sheet_function_errors
@@ -225,6 +361,8 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
         ]
     }
     """
+    right_helper = lambda s, nc: s[-min(nc, len(s)):] if nc != 0 else ''
+
     if string is None:
         return ''
     elif isinstance(string, pd.Series):
@@ -235,24 +373,23 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
     elif isinstance(num_chars, pd.Series):
         num_chars = num_chars.fillna(0)
 
-
     if isinstance(string, str):
         if isinstance(num_chars, int):
-            return string[-num_chars:]
+            return right_helper(string, num_chars)
         else:
             return pd.Series(
-                [string[-nc:] for nc in num_chars],
+                [right_helper(string, nc) for nc in num_chars],
                 index=num_chars.index
             )
     else:
         if isinstance(num_chars, int):
             return pd.Series(
-                [s[max(-num_chars, len(s)):] for s in string],
+                [right_helper(s, num_chars) for s in string],
                 index=string.index
             )
         else:
             return pd.Series(
-                [s[max(-nc, len(s)):] for s, nc in zip(string, num_chars)],
+                [right_helper(s, nc) for s, nc in zip(string, num_chars)],
                 index=string.index
             )
 
@@ -285,6 +422,114 @@ def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
 
     return series.fillna('').str.title()
 
+
+@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('old_text', 'str')
+@cast_values_in_arg_to_type('new_text', 'str')
+@cast_values_in_arg_to_type('count', 'int')
+@handle_sheet_function_errors
+def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInputType, new_text: StringRestrictedInputType, count: IntRestrictedInputType=None) -> StringFunctionReturnType:
+    """
+    {
+        "function": "SUBSTITUTE",
+        "description": "Replaces existing text with new text in a string.",
+        "search_terms": ["replace", "find and replace"],
+        "examples": [
+            "SUBSTITUTE('Better great than never', 'great', 'late')",
+            "SUBSTITUTE(A, 'dog', 'cat')"
+        ],
+        "syntax": "SUBSTITUTE(text_to_search, search_for, replace_with, [count])",
+        "syntax_elements": [{
+                "element": "text_to_search",
+                "description": "The text within which to search and replace."
+            },
+            {
+                "element": "search_for",
+                "description": " The string to search for within text_to_search."
+            },
+            {
+                "element": "replace_with",
+                "description": "The string that will replace search_for."
+            },
+            {
+                "element": "count",
+                "description": "The number of times to perform the substitute. Default is all."
+            }
+        ]
+    }
+    """
+    if string is None:
+        return ''
+    elif isinstance(string, pd.Series):
+        string = string.fillna('')
+
+    if old_text is None:
+        return string
+    elif isinstance(old_text, pd.Series):
+        old_text = old_text.fillna('')
+
+    if new_text is None:
+        return string
+    elif isinstance(new_text, pd.Series):
+        new_text = new_text.fillna('')
+
+    if count is None:
+        count = -1
+    elif isinstance(count, pd.Series):
+        count = count.fillna(0)
+
+    if isinstance(string, str):
+        if isinstance(old_text, str) and isinstance(new_text, str):
+            if isinstance(count, int):
+                return string.replace(old_text, new_text, count)
+            else:
+                return pd.Series(
+                    [string.replace(old_text, new_text, c) for c in count],
+                    index=count.index
+                )
+        elif isinstance(old_text, str) and isinstance(new_text, pd.Series):
+            return pd.Series(
+                [string.replace(old_text, nt) for nt in new_text],
+                index=new_text.index
+            )
+        elif isinstance(old_text, pd.Series) and isinstance(new_text, str):
+            return pd.Series(
+                [string.replace(ot, new_text) for ot in old_text],
+                index=old_text.index
+            )
+        else:
+            return pd.Series(
+                [string.replace(ot, nt) for ot, nt in zip(old_text, new_text)],
+                index=old_text.index
+            )
+    else:
+        if isinstance(old_text, str) and isinstance(new_text, str):
+            if isinstance(count, int):
+                return pd.Series(
+                    [s.replace(old_text, new_text, count) for s in string],
+                    index=string.index
+                )
+            else:
+                return pd.Series(
+                    [s.replace(old_text, new_text, c) for s, c in zip(string, count)],
+                    index=string.index
+                )
+        elif isinstance(old_text, str) and isinstance(new_text, pd.Series):
+            return pd.Series(
+                [s.replace(old_text, nt) for s, nt in zip(string, new_text)],
+                index=string.index
+            )
+        elif isinstance(old_text, pd.Series) and isinstance(new_text, str):
+            return pd.Series(
+                [s.replace(ot, new_text) for s, ot in zip(string, old_text)],
+                index=string.index
+            )
+        else:
+            return pd.Series(
+                [s.replace(ot, nt) for s, ot, nt in zip(string, old_text, new_text)],
+                index=string.index
+            )
+
 @cast_values_in_arg_to_type('series', 'str')
 @handle_sheet_function_errors
 def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
@@ -307,8 +552,10 @@ def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     if series is None:
         return ''
+    elif isinstance(series, str):
+        return series
     
-    return series
+    return series.fillna('')
 
 @cast_values_in_arg_to_type('series', 'str')
 @handle_sheet_function_errors
@@ -371,7 +618,17 @@ def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
 
 # TODO: we should see if we can list these automatically!
 STRING_FUNCTIONS = {
+    'CLEAN': CLEAN,
     'CONCAT': CONCAT,
+    'FIND': FIND,
     'LEFT': LEFT,
     'LEN': LEN,
+    'LOWER': LOWER,
+    'MID': MID,
+    'PROPER': PROPER,
+    'RIGHT': RIGHT,
+    'SUBSTITUTE': SUBSTITUTE,
+    'TEXT': TEXT,
+    'TRIM': TRIM,
+    'UPPER': UPPER,
 }
