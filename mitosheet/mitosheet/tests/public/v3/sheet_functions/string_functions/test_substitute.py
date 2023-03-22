@@ -32,6 +32,8 @@ SUBSTITUTE_VALID_TESTS: Any = [
     (['aaa', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), pd.Series([1, 2, 3])], pd.Series(['daa', 'eea', 'fff'])),
     (['aaa', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), pd.Series([1, 2, 0])], pd.Series(['daa', 'eea', 'aaa'])),
     ([pd.Series([np.nan, 'bba', np.nan]), pd.Series(['a', 'b', 'd']), pd.Series(['d', 'e', 'f']), pd.Series([1, 2, 0])], pd.Series(['', 'eea', ''])),
+    (['aaa', pd.Series(['a', 'a', 'a']), pd.Series([np.nan, np.nan, np.nan]), None], pd.Series(['', '', ''])),
+    #(['aaa', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), pd.Series([np.nan, np.nan, np.nan])], pd.Series(['ddd', 'eee', 'fff'])), TODO: Fix this. We can't cast a nan to an int
 ]
 
 # There aren't really any invalid types for strings
