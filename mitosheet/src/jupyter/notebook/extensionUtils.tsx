@@ -125,8 +125,8 @@ export function tryOverwriteAnalysisToReplayParameter(cell: CellType | undefined
         const currentCode = getCellText(cell);
 
         const newCode = currentCode.replace(
-            `analysis_to_replay="${oldAnalysisName}")`,
-            `analysis_to_replay="${newAnalysisName}")`
+            RegExp(`analysis_to_replay\\s*=\\s*"${oldAnalysisName}"`),
+            `analysis_to_replay="${newAnalysisName}"`
         )
         writeToCell(cell, newCode);
         return true;
