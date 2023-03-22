@@ -478,57 +478,27 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
     elif isinstance(count, pd.Series):
         count = count.fillna(0)
 
-    if isinstance(string, str):
-        if isinstance(old_text, str) and isinstance(new_text, str):
-            if isinstance(count, int):
-                return string.replace(old_text, new_text, count)
-            else:
-                return pd.Series(
-                    [string.replace(old_text, new_text, c) for c in count],
-                    index=count.index
-                )
-        elif isinstance(old_text, str) and isinstance(new_text, pd.Series):
-            return pd.Series(
-                [string.replace(old_text, nt) for nt in new_text],
-                index=new_text.index
-            )
-        elif isinstance(old_text, pd.Series) and isinstance(new_text, str):
-            return pd.Series(
-                [string.replace(ot, new_text) for ot in old_text],
-                index=old_text.index
-            )
-        else:
-            return pd.Series(
-                [string.replace(ot, nt) for ot, nt in zip(old_text, new_text)],
-                index=old_text.index
-            )
+
+    if isinstance(string, str) and isinstance(old_text, str) and isinstance(new_text, str) and isinstance(count, int):
+        return string.replace(old_text, new_text, count)
     else:
-        if isinstance(old_text, str) and isinstance(new_text, str):
-            if isinstance(count, int):
-                return pd.Series(
-                    [s.replace(old_text, new_text, count) for s in string],
-                    index=string.index
-                )
-            else:
-                return pd.Series(
-                    [s.replace(old_text, new_text, c) for s, c in zip(string, count)],
-                    index=string.index
-                )
-        elif isinstance(old_text, str) and isinstance(new_text, pd.Series):
-            return pd.Series(
-                [s.replace(old_text, nt) for s, nt in zip(string, new_text)],
-                index=string.index
-            )
-        elif isinstance(old_text, pd.Series) and isinstance(new_text, str):
-            return pd.Series(
-                [s.replace(ot, new_text) for s, ot in zip(string, old_text)],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [s.replace(ot, nt) for s, ot, nt in zip(string, old_text, new_text)],
-                index=string.index
-            )
+        # To make the cases easier here, we'll just convert everything to a series of the same length if any of them are a series
+        index = string.index if isinstance(string, pd.Series) else old_text.index if isinstance(old_text, pd.Series) else new_text.index if isinstance(new_text, pd.Series) else count.index if isinstance(count, pd.Series) else []
+        if isinstance(string, str):
+            string = pd.Series([string] * len(index), index=index)
+        if isinstance(old_text, str):
+            old_text = pd.Series([old_text] * len(index), index=index)
+        if isinstance(new_text, str):
+            new_text = pd.Series([new_text] * len(index), index=index)
+        if isinstance(count, int):
+            count = pd.Series([count] * len(index), index=index)
+
+
+        return pd.Series(
+            [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
+            index=index
+        )
+    
 
 @cast_values_in_arg_to_type('series', 'str')
 @handle_sheet_function_errors
