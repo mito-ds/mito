@@ -294,45 +294,51 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     elif isinstance(num_chars, pd.Series):
         num_chars = num_chars.fillna(0)
 
-    if isinstance(string, str):
-        if isinstance(start_loc, int) and isinstance(num_chars, int):
-            return string[start_loc - 1:start_loc + num_chars - 1]
-        elif isinstance(start_loc, int) and isinstance(num_chars, pd.Series):
-            return pd.Series(
-                [string[start_loc-1:start_loc+nc-1] for nc in num_chars],
-                index=num_chars.index
-            )
-        elif isinstance(start_loc, pd.Series) and isinstance(num_chars, int):
-            return pd.Series(
-                [string[sl-1:sl+num_chars-1] for sl in start_loc],
-                index=start_loc.index
-            )
-        else:
-            return pd.Series(
-                [string[sl-1:sl+nc-1] for sl, nc in zip(start_loc, num_chars)],
-                index=start_loc.index
-            )
+
+    if isinstance(string, str) and isinstance(start_loc, int) and isinstance(num_chars, int):
+        return string[start_loc - 1:start_loc + num_chars - 1]
     else:
-        if isinstance(start_loc, int) and isinstance(num_chars, int):
-            return pd.Series(
-                [s[start_loc-1:start_loc+num_chars-1] for s in string],
-                index=string.index
-            )
-        elif isinstance(start_loc, int) and isinstance(num_chars, pd.Series):
-            return pd.Series(
-                [s[start_loc-1:start_loc+nc-1] for s, nc in zip(string, num_chars)],
-                index=string.index
-            )
-        elif isinstance(start_loc, pd.Series) and isinstance(num_chars, int):
-            return pd.Series(
-                [s[sl-1:sl+num_chars-1] for s, sl in zip(string, start_loc)],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
-                index=string.index
-            )
+        # Turn all of them into a series to simplify things
+        index = string.index if isinstance(string, pd.Series) else start_loc.index if isinstance(start_loc, pd.Series) else num_chars.index
+        if isinstance(string, str):
+            string = pd.Series([string] * len(index), index=index)
+        if isinstance(start_loc, int):
+            start_loc = pd.Series([start_loc] * len(index), index=index)
+        if isinstance(num_chars, int):
+            num_chars = pd.Series([num_chars] * len(index), index=index)
+        
+        return pd.Series(
+            [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
+            index=index
+        )
+
+
+@cast_values_in_arg_to_type('series', 'str')
+@handle_sheet_function_errors
+def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "PROPER",
+        "description": "Capitalizes the first letter of each word in a specified string.",
+        "search_terms": ["proper", "capitalize"],
+        "examples": [
+            "=PROPER('nate nush')",
+            "=PROPER(A)"
+        ],
+        "syntax": "PROPER(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The value or series to convert to convert to proper case."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return ''
+    elif isinstance(series, str):
+        return series.title()
+
+    return series.fillna('').str.title()
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -392,35 +398,6 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
                 [right_helper(s, nc) for s, nc in zip(string, num_chars)],
                 index=string.index
             )
-
-
-
-@cast_values_in_arg_to_type('series', 'str')
-@handle_sheet_function_errors
-def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
-    """
-    {
-        "function": "PROPER",
-        "description": "Capitalizes the first letter of each word in a specified string.",
-        "search_terms": ["proper", "capitalize"],
-        "examples": [
-            "=PROPER('nate nush')",
-            "=PROPER(A)"
-        ],
-        "syntax": "PROPER(string)",
-        "syntax_elements": [{
-                "element": "string",
-                "description": "The value or series to convert to convert to proper case."
-            }
-        ]
-    }
-    """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series.title()
-
-    return series.fillna('').str.title()
 
 
 @cast_values_in_arg_to_type('string', 'str')
