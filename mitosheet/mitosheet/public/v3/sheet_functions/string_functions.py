@@ -107,28 +107,33 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
         ]
     }
     """
-
-    if string is None or substrings is None:
+    if string is None:
         return 0
-    elif isinstance(string, str):
-        if isinstance(substrings, str):
-            return string.find(substrings) + 1
-        else:
-            return pd.Series(
-                [string.find(s) + 1 for s in substrings],
-                index=substrings.index
-            )
+    elif isinstance(string, pd.Series):
+        string = string.fillna('')
+
+    if substrings is None:
+        return 0
+    elif isinstance(substrings, pd.Series):
+        substrings = substrings.fillna('XTREME_MITOSHEET_NULL_VALUE_1234567890_0987654321_NULL_VALUE_MITOSHEET_XTREME') # This is a hack to make sure that the find function returns 0 for null values
+
+    if isinstance(string, str) and isinstance(substrings, str):
+        if substrings == '':
+            return 0
+        
+        return string.find(substrings) + 1
     else:
-        if isinstance(substrings, str):
-            return pd.Series(
-                [s.find(substrings) + 1 for s in string],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [s.find(ss) + 1 for s, ss in zip(string, substrings)],
-                index=string.index
-            )
+        # otherwise, turn them into series
+        index = string.index if isinstance(string, pd.Series) else substrings.index
+        if isinstance(string, str):
+            string = pd.Series([string] * len(substrings), index=index)
+        elif isinstance(substrings, str):
+            substrings = pd.Series([substrings] * len(string), index=index)
+        
+        return pd.Series(
+            [s.find(ss) + 1 for s, ss in zip(string, substrings)],
+            index=index
+        )
 
 
 @cast_values_in_arg_to_type('string', 'str')
