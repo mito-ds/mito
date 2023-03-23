@@ -20,6 +20,10 @@ MID_VALID_TESTS: Any = [
     (['a', 1, 1], 'a'),
     (['abc', 2, 1], 'b'),
     (['abc', 2, 2], 'bc'),
+    ([None, 2, 2], ''),
+    (['abc', None, 2], ''),
+    (['abc', 2, None], 'b'),
+
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2]), pd.Series([0, 1, 2])], pd.Series(['', 'a', 'bc'])),

@@ -21,6 +21,7 @@ LEN_VALID_TESTS: Any = [
     (['ABC'], 3),
     ([1.0], 3),
     ([True], 4),
+    ([None], 0),
 
     # Constants and series
     ([pd.Series(['ABC', '123', np.nan])], pd.Series([3, 3, 0])),

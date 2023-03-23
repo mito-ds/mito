@@ -20,6 +20,7 @@ TRIM_VALID_TESTS: Any = [
     ([' a '], 'a'),
     (['--abc '], '--abc'),
     ([' --abc'], '--abc'),
+    ([None], ''),
 
     # Constants and series
     ([pd.Series([' abc', '123 ', np.nan])], pd.Series(['abc', '123', ''])),

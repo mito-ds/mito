@@ -24,6 +24,10 @@ SUBSTITUTE_VALID_TESTS: Any = [
     (['this is a test this', 'this', True, None], 'True is a test True'),
     (['this is a test this', 'this', True, 1], 'True is a test this'),
     (['this is a test this', 'this', True, 1000], 'True is a test True'),
+    ([None, 'a', 'c', 2], ''),
+    (['abc', None, 'c', 2], 'abc'),
+    (['abc', 'a', None, 2], 'abc'),
+
 
     # Constants and series
     (['a', pd.Series(['a', 'b', 'c']), pd.Series(['d', 'e', 'f']), None], pd.Series(['d', 'a', 'a'])),

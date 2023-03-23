@@ -21,6 +21,7 @@ LOWER_VALID_TESTS: Any = [
     (['ABC'], 'abc'),
     ([1.0], '1.0'),
     ([True], 'true'),
+    ([None], ''),
 
     # Constants and series
     ([pd.Series(['ABC', '123', np.nan])], pd.Series(['abc', '123', ''])),
