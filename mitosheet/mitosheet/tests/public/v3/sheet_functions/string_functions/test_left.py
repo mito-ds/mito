@@ -19,7 +19,8 @@ LEFT_VALID_TESTS: Any = [
     # Just constant tests
     (['a', 1], 'a'),
     (['abc', 2], 'ab'),
-    ([None, 2], ''),
+    ([None, 1], ''),
+    (['abc', None], 'a'),
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2])], pd.Series(['', 'a', 'ab'])),
@@ -33,7 +34,6 @@ LEFT_VALID_TESTS: Any = [
     ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([1000, 1000, 1000, 1000, 1000, 1000])], pd.Series(['10000', '10.0', 'True', '1997-12-22 00:00:00', '1 day, 0:00:00'])),
     ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), None], pd.Series(['1', '1', 'T', '1', '1'])),
 ]
-
 # There aren't really any invalid types for strings
 
 @pytest.mark.parametrize("_argv,expected", LEFT_VALID_TESTS)

@@ -19,6 +19,8 @@ RIGHT_VALID_TESTS: Any = [
     # Just constant tests
     (['a', 1], 'a'),
     (['abc', 2], 'bc'),
+    ([None, 2], ''),
+    (['abc', None], 'c'),
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2, 3])], pd.Series(['', 'c', 'bc', 'abc'])),
@@ -38,7 +40,6 @@ RIGHT_VALID_TESTS: Any = [
 @pytest.mark.parametrize("_argv,expected", RIGHT_VALID_TESTS)
 def test_right(_argv, expected):
     result = RIGHT(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

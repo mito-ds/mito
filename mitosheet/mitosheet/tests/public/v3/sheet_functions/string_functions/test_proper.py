@@ -21,6 +21,7 @@ PROPER_VALID_TESTS: Any = [
     (['first name last name'], 'First Name Last Name'),
     ([1.0], '1.0'),
     ([True], 'True'),
+    ([None], ''),
 
     # Constants and series
     ([pd.Series(['first name', '123', np.nan])], pd.Series(['First Name', '123', ''])),

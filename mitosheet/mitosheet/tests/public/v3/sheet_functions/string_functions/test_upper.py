@@ -19,6 +19,7 @@ UPPER_VALID_TESTS: Any = [
     # Just constant tests
     (['a'], 'A'),
     (['abc'], 'ABC'),
+    ([None], ''),
 
     # Constants and series
     ([pd.Series(['abc', '123', np.nan])], pd.Series(['ABC', '123', ''])),

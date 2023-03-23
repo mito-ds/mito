@@ -20,6 +20,7 @@ TEXT_VALID_TESTS: Any = [
     ([' a '], ' a '),
     ([1.0], '1.0'),
     ([True], 'True'),
+    ([None], ''),
 
     # Constants and series
     ([pd.Series(['abc', '123', np.nan])], pd.Series(['abc', '123', ''])),
