@@ -8,7 +8,7 @@ Contains all functions that can be used in a sheet that operate on strings.
 
 NOTE: This file is alphabetical order!
 """
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 import sys
 import numpy as np
 
@@ -39,7 +39,7 @@ def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    clean_helper = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
+    clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
 
     if series is None:
         return ''
@@ -119,21 +119,21 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
 
     if isinstance(string, str) and isinstance(substrings, str):
         if substrings == '':
-            return 0
+            return 1
         
         return string.find(substrings) + 1
-    else:
-        # otherwise, turn them into series
-        index = string.index if isinstance(string, pd.Series) else substrings.index
-        if isinstance(string, str):
-            string = pd.Series([string] * len(substrings), index=index)
-        elif isinstance(substrings, str):
-            substrings = pd.Series([substrings] * len(string), index=index)
-        
-        return pd.Series(
-            [s.find(ss) + 1 for s, ss in zip(string, substrings)],
-            index=index
-        )
+    
+    # otherwise, turn them into series
+    index = string.index if isinstance(string, pd.Series) else substrings.index
+    if isinstance(string, str):
+        string = pd.Series([string] * len(substrings), index=index)
+    elif isinstance(substrings, str):
+        substrings = pd.Series([substrings] * len(string), index=index)
+    
+    return pd.Series(
+        [s.find(ss) + 1 for s, ss in zip(string, substrings)],
+        index=index
+    )
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -302,20 +302,20 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
 
     if isinstance(string, str) and isinstance(start_loc, int) and isinstance(num_chars, int):
         return string[start_loc - 1:start_loc + num_chars - 1]
-    else:
-        # Turn all of them into a series to simplify things
-        index = string.index if isinstance(string, pd.Series) else start_loc.index if isinstance(start_loc, pd.Series) else num_chars.index
-        if isinstance(string, str):
-            string = pd.Series([string] * len(index), index=index)
-        if isinstance(start_loc, int):
-            start_loc = pd.Series([start_loc] * len(index), index=index)
-        if isinstance(num_chars, int):
-            num_chars = pd.Series([num_chars] * len(index), index=index)
-        
-        return pd.Series(
-            [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
-            index=index
-        )
+
+    # Turn all of them into a series to simplify things
+    index = string.index if isinstance(string, pd.Series) else start_loc.index if isinstance(start_loc, pd.Series) else num_chars.index # type: ignore
+    if isinstance(string, str):
+        string = pd.Series([string] * len(index), index=index)
+    if isinstance(start_loc, int):
+        start_loc = pd.Series([start_loc] * len(index), index=index)
+    if isinstance(num_chars, int):
+        num_chars = pd.Series([num_chars] * len(index), index=index)
+    
+    return pd.Series(
+        [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
+        index=index
+    )
 
 
 @cast_values_in_arg_to_type('series', 'str')
@@ -372,7 +372,7 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
         ]
     }
     """
-    right_helper = lambda s, nc: s[-min(nc, len(s)):] if nc != 0 else ''
+    right_helper: Callable[[str, int], str] = lambda s, nc: s[-min(nc, len(s)):] if nc != 0 else ''
 
     if string is None:
         return ''

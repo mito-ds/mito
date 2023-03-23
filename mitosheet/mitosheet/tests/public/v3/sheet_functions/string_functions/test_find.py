@@ -20,7 +20,7 @@ FIND_VALID_TESTS: Any = [
     (['a', 'b'], 0),
     (['a', 'a'], 1),
     (['bca', 'a'], 3),
-    (['bca', ''], 0),
+    (['bca', ''], 1),
     (['bcaaa', 'aaa'], 3),
     ([True, 'e'], 4),
     ([None, 'e'], 0),
@@ -41,7 +41,6 @@ FIND_VALID_TESTS: Any = [
 @pytest.mark.parametrize("_argv,expected", FIND_VALID_TESTS)
 def test_find(_argv, expected):
     result = FIND(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
