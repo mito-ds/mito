@@ -2,6 +2,7 @@
 
 
 
+from datetime import datetime
 from typing import Union
 
 import pandas as pd
@@ -24,9 +25,15 @@ NumberInputType = Union[IntInputType, FloatInputType]
 BoolRestrictedInputType = Union[pd.Series, bool, None]
 BoolInputType = Union[pd.DataFrame, RollingRange, BoolRestrictedInputType]
 
+DatetimeRestrictedInputType = Union[pd.Series, datetime, pd.Timestamp, None]
+DatetimeInputType = Union[pd.DataFrame, RollingRange, DatetimeRestrictedInputType]
+
+
 
 # Return types
 StringFunctionReturnType = Union[pd.Series, str]
 IntFunctionReturnType = Union[pd.Series, int]
+FloatFunctonReturnType = Union[pd.Series, float]
 NumberFunctionReturnType = Union[pd.Series, int, float]
 BoolFunctionReturnType = Union[pd.Series, bool]
+DatetimeFunctionReturnType = Union[pd.Series, datetime]

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
-from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
+from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType, IntFunctionReturnType
 
@@ -124,11 +124,9 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
         return string.find(substrings) + 1
     
     # otherwise, turn them into series
-    index = string.index if isinstance(string, pd.Series) else substrings.index
-    if isinstance(string, str):
-        string = pd.Series([string] * len(substrings), index=index)
-    elif isinstance(substrings, str):
-        substrings = pd.Series([substrings] * len(string), index=index)
+    index = get_index_from_series(string, substrings)
+    string = get_series_from_primitive_or_series(string, index)
+    substrings = get_series_from_primitive_or_series(substrings, index)
     
     return pd.Series(
         [s.find(ss) + 1 for s, ss in zip(string, substrings)],
@@ -299,18 +297,14 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     elif isinstance(num_chars, pd.Series):
         num_chars = num_chars.fillna(0)
 
-
     if isinstance(string, str) and isinstance(start_loc, int) and isinstance(num_chars, int):
         return string[start_loc - 1:start_loc + num_chars - 1]
 
     # Turn all of them into a series to simplify things
-    index = string.index if isinstance(string, pd.Series) else start_loc.index if isinstance(start_loc, pd.Series) else num_chars.index # type: ignore
-    if isinstance(string, str):
-        string = pd.Series([string] * len(index), index=index)
-    if isinstance(start_loc, int):
-        start_loc = pd.Series([start_loc] * len(index), index=index)
-    if isinstance(num_chars, int):
-        num_chars = pd.Series([num_chars] * len(index), index=index)
+    index = get_index_from_series(string, start_loc, num_chars)
+    string = get_series_from_primitive_or_series(string, index)
+    start_loc = get_series_from_primitive_or_series(start_loc, index)
+    num_chars = get_series_from_primitive_or_series(num_chars, index)
     
     return pd.Series(
         [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
