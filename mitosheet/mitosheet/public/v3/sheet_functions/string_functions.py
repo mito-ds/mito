@@ -160,6 +160,8 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
     }
     """
 
+    left_helper: Callable[[str, int], str] = lambda s, nc: s[:min(nc, len(s))]
+
     if string is None:
         return ''
     elif isinstance(string, pd.Series):
@@ -170,26 +172,17 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
     elif isinstance(num_chars, pd.Series):
         num_chars = num_chars.fillna(0)
 
+    if isinstance(string, str) and isinstance(num_chars, int):
+        return left_helper(string, num_chars)
+    
+    index = get_index_from_series(string, num_chars)
+    string = get_series_from_primitive_or_series(string, index)
+    num_chars = get_series_from_primitive_or_series(num_chars, index)
 
-    if isinstance(string, str):
-        if isinstance(num_chars, int):
-            return string[:num_chars]
-        else:
-            return pd.Series(
-                [string[:nc] for nc in num_chars],
-                index=num_chars.index
-            )
-    else:
-        if isinstance(num_chars, int):
-            return pd.Series(
-                [s[:min(num_chars, len(s))] for s in string],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [s[:min(nc, len(s))] for s, nc in zip(string, num_chars)], #TODO: add test for this min
-                index=string.index
-            )
+    return pd.Series(
+        [left_helper(s, nc) for s, nc in zip(string, num_chars)],
+        index=string.index
+    )
 
 
 
@@ -378,25 +371,17 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
     elif isinstance(num_chars, pd.Series):
         num_chars = num_chars.fillna(0)
 
-    if isinstance(string, str):
-        if isinstance(num_chars, int):
-            return right_helper(string, num_chars)
-        else:
-            return pd.Series(
-                [right_helper(string, nc) for nc in num_chars],
-                index=num_chars.index
-            )
-    else:
-        if isinstance(num_chars, int):
-            return pd.Series(
-                [right_helper(s, num_chars) for s in string],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [right_helper(s, nc) for s, nc in zip(string, num_chars)],
-                index=string.index
-            )
+    if isinstance(string, str) and isinstance(num_chars, int):
+        return right_helper(string, num_chars)
+    
+    index = get_index_from_series(string, num_chars)
+    string = get_series_from_primitive_or_series(string, index)
+    num_chars = get_series_from_primitive_or_series(num_chars, index)
+
+    return pd.Series(
+        [right_helper(s, nc) for s, nc in zip(string, num_chars)],
+        index=string.index
+    )
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -457,24 +442,18 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
 
     if isinstance(string, str) and isinstance(old_text, str) and isinstance(new_text, str) and isinstance(count, int):
         return string.replace(old_text, new_text, count)
-    else:
-        # To make the cases easier here, we'll just convert everything to a series of the same length if any of them are a series
-        index = string.index if isinstance(string, pd.Series) else old_text.index if isinstance(old_text, pd.Series) else new_text.index if isinstance(new_text, pd.Series) else count.index if isinstance(count, pd.Series) else []
-        if isinstance(string, str):
-            string = pd.Series([string] * len(index), index=index)
-        if isinstance(old_text, str):
-            old_text = pd.Series([old_text] * len(index), index=index)
-        if isinstance(new_text, str):
-            new_text = pd.Series([new_text] * len(index), index=index)
-        if isinstance(count, int):
-            count = pd.Series([count] * len(index), index=index)
 
+    index = get_index_from_series(string, old_text, new_text, count)
+    string = get_series_from_primitive_or_series(string, index)
+    old_text = get_series_from_primitive_or_series(old_text, index)
+    new_text = get_series_from_primitive_or_series(new_text, index)
+    count = get_series_from_primitive_or_series(count, index)
 
-        return pd.Series(
-            [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
-            index=index
-        )
-    
+    return pd.Series(
+        [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
+        index=index
+    )
+
 
 @cast_values_in_arg_to_type('series', 'str')
 @handle_sheet_function_errors

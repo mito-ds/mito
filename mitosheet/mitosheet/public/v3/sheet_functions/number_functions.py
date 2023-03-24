@@ -22,7 +22,7 @@ import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.sheet_functions.utils import get_args_as_series_if_any_is_series, get_final_result_series_or_primitive
+from mitosheet.public.v3.sheet_functions.utils import get_args_as_series_if_any_is_series, get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
 
@@ -84,6 +84,66 @@ def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     return sum_for_avg / num_entries if num_entries is not 0 else 0
 
+@cast_values_in_arg_to_type('s1', 'number')
+@cast_values_in_arg_to_type('s2', 'number')
+@handle_sheet_function_errors
+def CORR(s1: NumberRestrictedInputType, s2: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "CORR",
+        "description": "Computes the correlation between two series, excluding missing values.",
+        "search_terms": ["corr", "correlation", "r^2"],
+        "examples": [
+            "=CORR(A, B)",
+            "=CORR(B, A)"
+        ],
+        "syntax": "CORR(series_one, series_two)",
+        "syntax_elements": [{
+                "element": "series_one",
+                "description": "The number series to convert to calculate the correlation."
+            }, {
+                "element": "series_two",
+                "description": "The number series to convert to calculate the correlation."
+            }
+        ]
+    }
+    """
+    if s1 is None or s2 is None:
+        return 0
+    elif isinstance(s1, int) or isinstance(s1, float) or isinstance(s2, int) or isinstance(s2, float):
+        return 0
+    
+    return s1.corr(s2, method='pearson')
+
+
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "EXP",
+        "description": "Returns e, the base of the natural logarithm, raised to the power of passed series.",
+        "search_terms": ["exp", "exponent", "log", "natural log"],
+        "examples": [
+            "=EXP(data)",
+            "=EXP(A)"
+        ],
+        "syntax": "EXP(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to raise e to."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    elif isinstance(series, int) or isinstance(series, float):
+        return math.exp(series)
+    
+    return np.exp(series)
+
+
 @cast_values_in_arg_to_type('series', 'number')
 @handle_sheet_function_errors
 def FLOAT(series: NumberRestrictedInputType) -> FloatFunctonReturnType:
@@ -137,6 +197,35 @@ def INT(series: NumberRestrictedInputType) -> IntFunctionReturnType:
     return series
     
 
+
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def KURT(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "KURT",
+        "description": "Computes the unbiased kurtosis, a measure of tailedness, of a series, excluding missing values.",
+        "search_terms": ["kurtosis"],
+        "examples": [
+            "=KURT(A)",
+            "=KURT(A * B)"
+        ],
+        "syntax": "KURT(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to calculate the unbiased kurtosis of."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    elif isinstance(series, int) or isinstance(series, float):
+        return 0
+        
+    return series.kurt() # type: ignore
+
+
 @cast_values_in_arg_to_type('series', 'number')
 @cast_values_in_arg_to_type('base', 'number')
 @handle_sheet_function_errors
@@ -164,11 +253,19 @@ def LOG(series: NumberRestrictedInputType, base: NumberRestrictedInputType=None)
     """
     if series is None:
         return 0
-    elif base is None:
-        return np.log(series)
+    
+    if base is None:
+        base = math.e
+
+    if (isinstance(series, int) or isinstance(series, float)) and (isinstance(base, int) or isinstance(base, float)):
+        return math.log(series, base)
+    
+    index = get_index_from_series(series base)
+    series = get_series_from_primitive_or_series(series, index)
+    base = get_series_from_primitive_or_series(base, index)
     
     # See here: https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
-    return np.log(series) / np.log(base)
+    return pd.Series(np.log(series) / np.log(base))
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
@@ -246,7 +343,8 @@ def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -
         return 0
     elif power is None:
         return series
-    elif isinstance(series, int) or isinstance(series, float):
+    
+    if isinstance(series, int) or isinstance(series, float):
         return series ** power
     
     return series.pow(power)
@@ -284,16 +382,69 @@ def ROUND(series: NumberRestrictedInputType, decimals: IntRestrictedInputType=No
     if decimals is None:
         decimals = 0
 
-    _series, _decimals = get_args_as_series_if_any_is_series(series, decimals)
+    index = get_index_from_series(series, decimals)
+    series = get_series_from_primitive_or_series(series, index)
+    decimals = get_series_from_primitive_or_series(decimals, index)
 
-    if isinstance(_series, pd.Series) and isinstance(_decimals, pd.Series):
-        return pd.Series(
-            [round(num, dec) for num, dec in zip(_series, _decimals)],
-            index=_series.index
-        )
-    else:
-        return round(_series, _decimals)
-    
+    return pd.Series(
+        [round(num, dec) for num, dec in zip(series, decimals)],
+        index=series.index
+    )
+
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def SKEW(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "SKEW",
+        "description": "Computes the skew of a series, excluding missing values.",
+        "search_terms": [],
+        "examples": [
+            "=SKEW(A)",
+            "=SKEW(A * B)"
+        ],
+        "syntax": "SKEW(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to calculate the skew of."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    elif isinstance(series, int) or isinstance(series, float):
+        return 0
+        
+    return series.skew() # type: ignore
+
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def STDEV(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "STDEV",
+        "description": "Computes the standard deviation of a series, excluding missing values.",
+        "search_terms": ["standard", "deviation", "standard", "distribution"],
+        "examples": [
+            "=STDEV(A)",
+            "=STDEV(A * B)"
+        ],
+        "syntax": "STDEV(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to calculate the standard deviation of."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    elif isinstance(series, int) or isinstance(series, float):
+        return 0
+        
+    return series.std() # type: ignore
+
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
@@ -308,12 +459,77 @@ def SUM(*argv: NumberInputType) -> NumberFunctionReturnType:
     )
 
 
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def VALUE(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "VALUE",
+        "description": "Converts a string series to a number series. Any values that fail to convert will return an NaN.",
+        "search_terms": ["number", "to number", "dtype", "convert", "parse"],
+        "examples": [
+            "=VALUE(A)",
+            "=VALUE('123')"
+        ],
+        "syntax": "VALUE(string)",
+        "syntax_elements": [{
+                "element": "string",
+                "description": "The string or series to convert to a number."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    
+    return series
 
-# TODO: we should see if we can list these automatically!
+
+@cast_values_in_arg_to_type('series', 'number')
+@handle_sheet_function_errors
+def VAR(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "VAR",
+        "description": "Computes the variance of a series, excluding missing values.",
+        "search_terms": ["variance"],
+        "examples": [
+            "=VAR(A)",
+            "=VAR(A - B)"
+        ],
+        "syntax": "VAR(series)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to calculate the variance of."
+            }
+        ]
+    }
+    """
+    if series is None:
+        return 0
+    elif isinstance(series, int) or isinstance(series, float):
+        return 0
+        
+    return series.var() # type: ignore
+
+
 NUMBER_FUNCTIONS = {
+    'ABS': ABS,
     'AVG': AVG,
+    'CORR': CORR,
+    'FLOAT': FLOAT,
+    'INT': INT,
+    'EXP': EXP,
+    'KURT': KURT,
+    'LOG': LOG,
     'MAX': MAX,
     'MIN': MIN,
     'MULTIPLY': MULTIPLY,
+    'POWER': POWER,
+    'ROUND': ROUND,
+    'SKEW': SKEW,
     'SUM': SUM,
+    'STDEV': STDEV,
+    'VALUE': VALUE,
+    'VAR': VAR
 }
