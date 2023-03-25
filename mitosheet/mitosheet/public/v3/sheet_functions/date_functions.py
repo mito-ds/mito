@@ -48,9 +48,6 @@ def DATEVALUE(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return None
-
     return date
 
 
@@ -74,12 +71,10 @@ def DAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
         return date.day
-    else:
-        return date.dt.day
+    
+    return date.dt.day
     
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -102,6 +97,10 @@ def ENDOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionRet
         ]
     }
     """
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+        # TODO: fix this 
+        raise Exception("ENDOFBUSINESSMONTH only works on date series, not single dates.")
+    
     return (date + pd.tseries.offsets.BusinessMonthEnd(n=0)).dt.floor('D')
 
 
@@ -125,6 +124,10 @@ def ENDOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         ]
     }
     """
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+        # TODO: fix this 
+        raise Exception("ENDOFMONTH only works on date series, not single dates.")
+    
     return (date + pd.tseries.offsets.MonthEnd(n=0)).dt.floor('D')
 
 
@@ -148,13 +151,10 @@ def HOUR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        # NOTE; Excel errors in some cases here (e.g. HOUR("A")), but not in others (e.g. HOUR("1") where it returns 0) - we're going with the latter
-        return 0
-    elif isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
         return date.hour
-    else:
-        return date.dt.hour
+    
+    return date.dt.hour
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -177,12 +177,10 @@ def MINUTE(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
         return date.minute
-    else:
-        return date.dt.minute
+    
+    return date.dt.minute
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -205,12 +203,10 @@ def MONTH(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
         return date.month
-    else:
-        return date.dt.month
+    
+    return date.dt.month
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -233,14 +229,12 @@ def QUARTER(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime):
+    if isinstance(date, datetime):
         return pd.Timestamp(date).quarter
     elif isinstance(date, pd.Timestamp):
         return date.quarter
-    else:
-        return date.dt.quarter
+    
+    return date.dt.quarter
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -263,14 +257,12 @@ def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> Optional[Datetime
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return to_start(date, pd.tseries.offsets.MonthBegin(n=1))
     elif isinstance(date, datetime):
         return to_start(pd.Timestamp(date), pd.tseries.offsets.MonthBegin(n=1))
-    else:
-        return date.apply(lambda t: to_start(t, pd.tseries.offsets.BMonthBegin(n=1)))
+    
+    return date.apply(lambda t: to_start(t, pd.tseries.offsets.BMonthBegin(n=1)))
     
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -293,14 +285,12 @@ def STARTOFMONTH(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunction
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return to_start(date, pd.tseries.offsets.MonthBegin(n=1))
     elif isinstance(date, datetime):
         return to_start(pd.Timestamp(date), pd.tseries.offsets.MonthBegin(n=1))
-    else:
-        return date.apply(lambda t: to_start(t, pd.tseries.offsets.MonthBegin(n=1)))
+    
+    return date.apply(lambda t: to_start(t, pd.tseries.offsets.MonthBegin(n=1)))
 
 
 
@@ -324,14 +314,12 @@ def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> Optional[DatetimeFu
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return date.floor('Min')
     elif isinstance(date, datetime):
         return pd.Timestamp(date).floor('Min')
-    else:
-        return date.dt.floor('Min')
+    
+    return date.dt.floor('Min')
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -354,14 +342,12 @@ def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunc
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return date.floor('H')
     elif isinstance(date, datetime):
         return pd.Timestamp(date).floor('H')
-    else:
-        return date.dt.floor('H')
+    
+    return date.dt.floor('H')
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -384,14 +370,12 @@ def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunct
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return date.floor('D')
     elif isinstance(date, datetime):
         return pd.Timestamp(date).floor('D')
-    else:
-        return date.dt.floor('D')
+    
+    return date.dt.floor('D')
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -414,14 +398,12 @@ def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFun
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return date.floor('D') - pd.tseries.offsets.MonthBegin()
     elif isinstance(date, datetime):
         return pd.Timestamp(date).floor('D') - pd.tseries.offsets.MonthBegin()
-    else:
-        return date.dt.floor('D') - pd.tseries.offsets.MonthBegin()
+    
+    return date.dt.floor('D') - pd.tseries.offsets.MonthBegin()
 
 
 
@@ -445,14 +427,12 @@ def STRIPTIMETOYEARS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunc
         ]
     }
     """
-    if date is None:
-        return None
-    elif isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
         return date.floor('D') - pd.tseries.offsets.YearBegin()
     elif isinstance(date, datetime):
         return pd.Timestamp(date).floor('D') - pd.tseries.offsets.YearBegin()
-    else:
-        return date.dt.floor('D') - pd.tseries.offsets.YearBegin()
+    
+    return date.dt.floor('D') - pd.tseries.offsets.YearBegin()
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -475,14 +455,12 @@ def SECOND(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime):
+    if isinstance(date, datetime):
         return pd.Timestamp(date).second
     elif isinstance(date, pd.Timestamp):
         return date.second
-    else:
-        return date.dt.second
+
+    return date.dt.second
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -505,14 +483,12 @@ def WEEK(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime):
+    if isinstance(date, datetime):
         return pd.Timestamp(date).week
     elif isinstance(date, pd.Timestamp):
         return date.week
-    else:
-        return date.dt.isocalendar().week
+
+    return date.dt.isocalendar().week
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -535,14 +511,12 @@ def WEEKDAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime):
+    if isinstance(date, datetime):
         return pd.Timestamp(date).weekday() + 1
     elif isinstance(date, pd.Timestamp):
         return date.weekday() + 1
-    else:
-        return date.dt.weekday + 1
+
+    return date.dt.weekday + 1
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -565,14 +539,12 @@ def YEAR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if date is None:
-        return 0
-    elif isinstance(date, datetime):
+    if isinstance(date, datetime):
         return pd.Timestamp(date).year
     elif isinstance(date, pd.Timestamp):
         return date.year
-    else:
-        return date.dt.year
+
+    return date.dt.year
 
 
 DATE_FUNCTIONS = {

@@ -24,14 +24,10 @@ SUBSTITUTE_VALID_TESTS: Any = [
     (['this is a test this', 'this', True, None], 'True is a test True'),
     (['this is a test this', 'this', True, 1], 'True is a test this'),
     (['this is a test this', 'this', True, 1000], 'True is a test True'),
-    ([None, 'a', 'c', 2], ''),
-    (['abc', None, 'c', 2], 'abc'),
-    (['abc', 'a', None, 2], 'abc'),
 
 
     # Constants and series
     (['a', pd.Series(['a', 'b', 'c']), pd.Series(['d', 'e', 'f']), None], pd.Series(['d', 'a', 'a'])),
-    ([None, pd.Series(['a', 'b', 'c']), pd.Series(['d', 'e', 'f']), None], ''),
     (['a', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), None], pd.Series(['d', 'e', 'f'])),
     (['aaa', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), pd.Series([1, 2, 3])], pd.Series(['daa', 'eea', 'fff'])),
     (['aaa', pd.Series(['a', 'a', 'a']), pd.Series(['d', 'e', 'f']), pd.Series([1, 2, 0])], pd.Series(['daa', 'eea', 'aaa'])),
@@ -54,10 +50,11 @@ def test_substitute(_argv, expected):
 
 
 SUBSTITUTE_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None, 'a', 'c', 2], ''),
+    (['abc', None, 'c', 2], 'abc'),
+    (['abc', 'a', None, 2], 'abc'),
+    ([None, pd.Series(['a', 'b', 'c']), pd.Series(['d', 'e', 'f']), None], ''),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 'a', 'b', None]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 'a', 'b', None]),
 ]
 @pytest.mark.parametrize("_argv", SUBSTITUTE_INVALID_TESTS)

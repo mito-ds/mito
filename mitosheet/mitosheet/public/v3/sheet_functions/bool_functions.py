@@ -13,11 +13,10 @@ in more detail in docs/README.md.
 
 NOTE: This file is alphabetical order!
 """
-from typing import Union
 
+from typing import Optional
 import pandas as pd
 
-from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
@@ -26,7 +25,7 @@ from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesI
 
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
-def AND(*argv: BoolInputType) -> BoolFunctionReturnType:
+def AND(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
     """
     {
         "function": "AND",
@@ -123,7 +122,7 @@ def IF(condition: AnySeriesInputType, true_series: AnyPrimitiveOrSeriesInputType
 
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
-def OR(*argv: BoolInputType) -> BoolFunctionReturnType:
+def OR(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
     """
     {
         "function": "OR",
@@ -160,6 +159,7 @@ def OR(*argv: BoolInputType) -> BoolFunctionReturnType:
 # TODO: we should see if we can list these automatically!
 CONTROL_FUNCTIONS = {
     'AND': AND,
+    'BOOL': BOOL,
     'IF': IF,
     'OR': OR,
 }

@@ -103,11 +103,6 @@ def GETPREVIOUSVALUE(series: AnySeriesInputType, condition: BoolRestrictedInputT
         ]
     }
     """
-    # Should just error
-    if condition is None:
-        return series
-
-
     # Default to a different last occurence depending on the type
     column_dtype = str(series.dtype)
     last_occurrence: Any = -1

@@ -14,7 +14,7 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 import math
-from typing import Union
+from typing import Optional, Union
 import sys
 import numpy as np
 
@@ -46,9 +46,7 @@ def ABS(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return abs(series)
 
     return series.abs()
@@ -56,7 +54,7 @@ def ABS(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
-def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
+def AVG(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 
     # Calculate the sum using the SUM function
     sum_for_avg = SUM(*argv)
@@ -108,9 +106,7 @@ def CORR(s1: NumberRestrictedInputType, s2: NumberRestrictedInputType) -> Number
         ]
     }
     """
-    if s1 is None or s2 is None:
-        return 0
-    elif isinstance(s1, int) or isinstance(s1, float) or isinstance(s2, int) or isinstance(s2, float):
+    if isinstance(s1, int) or isinstance(s1, float) or isinstance(s2, int) or isinstance(s2, float):
         return 0
     
     return s1.corr(s2, method='pearson')
@@ -136,12 +132,10 @@ def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return math.exp(series)
     
-    return np.exp(series)
+    return pd.Series(np.exp(series))
 
 
 @cast_values_in_arg_to_type('series', 'number')
@@ -164,15 +158,14 @@ def FLOAT(series: NumberRestrictedInputType) -> FloatFunctonReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return float(series)
+    
     return series
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('series', 'int')
 @handle_sheet_function_errors
-def INT(series: NumberRestrictedInputType) -> IntFunctionReturnType:
+def INT(series: IntRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "INT",
@@ -190,10 +183,9 @@ def INT(series: NumberRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
-        return int(series)
+    if isinstance(series, int):
+        return series
+    
     return series
     
 
@@ -218,9 +210,7 @@ def KURT(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return 0
         
     return series.kurt() # type: ignore
@@ -229,7 +219,7 @@ def KURT(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
 @cast_values_in_arg_to_type('series', 'number')
 @cast_values_in_arg_to_type('base', 'number')
 @handle_sheet_function_errors
-def LOG(series: NumberRestrictedInputType, base: NumberRestrictedInputType=None) -> NumberFunctionReturnType:
+def LOG(series: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType]=None) -> NumberFunctionReturnType:
     """
     {
         "function": "LOG",
@@ -251,8 +241,6 @@ def LOG(series: NumberRestrictedInputType, base: NumberRestrictedInputType=None)
         ]
     }
     """
-    if series is None:
-        return 0
     
     if base is None:
         base = math.e
@@ -260,7 +248,7 @@ def LOG(series: NumberRestrictedInputType, base: NumberRestrictedInputType=None)
     if (isinstance(series, int) or isinstance(series, float)) and (isinstance(base, int) or isinstance(base, float)):
         return math.log(series, base)
     
-    index = get_index_from_series(series base)
+    index = get_index_from_series(series, base)
     series = get_series_from_primitive_or_series(series, index)
     base = get_series_from_primitive_or_series(base, index)
     
@@ -269,7 +257,7 @@ def LOG(series: NumberRestrictedInputType, base: NumberRestrictedInputType=None)
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
-def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
+def MAX(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
     
     result = get_final_result_series_or_primitive(
         -sys.maxsize - 1,
@@ -286,7 +274,7 @@ def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
-def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
+def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 
     result = get_final_result_series_or_primitive(
         sys.maxsize,
@@ -303,7 +291,7 @@ def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
-def MULTIPLY(*argv: NumberInputType) -> NumberFunctionReturnType:
+def MULTIPLY(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 
     return get_final_result_series_or_primitive(
         1,
@@ -339,11 +327,6 @@ def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -
         ]
     }
     """
-    if series is None:
-        return 0
-    elif power is None:
-        return series
-    
     if isinstance(series, int) or isinstance(series, float):
         return series ** power
     
@@ -352,7 +335,7 @@ def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -
 @cast_values_in_arg_to_type('series', 'number')
 @cast_values_in_arg_to_type('decimals', 'number')
 @handle_sheet_function_errors
-def ROUND(series: NumberRestrictedInputType, decimals: IntRestrictedInputType=None) -> NumberFunctionReturnType:
+def ROUND(series: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputType]=None) -> NumberFunctionReturnType:
     """
     {
         "function": "ROUND",
@@ -375,8 +358,6 @@ def ROUND(series: NumberRestrictedInputType, decimals: IntRestrictedInputType=No
     }
     """
 
-    if series is None:
-        return 0
 
     # If no decimals option is passed, round to no decimals
     if decimals is None:
@@ -411,9 +392,7 @@ def SKEW(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return 0
         
     return series.skew() # type: ignore
@@ -438,9 +417,7 @@ def STDEV(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return 0
         
     return series.std() # type: ignore
@@ -448,7 +425,7 @@ def STDEV(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
-def SUM(*argv: NumberInputType) -> NumberFunctionReturnType:
+def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 
     return get_final_result_series_or_primitive(
         0,
@@ -479,9 +456,6 @@ def VALUE(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    
     return series
 
 
@@ -505,9 +479,7 @@ def VAR(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return 0
-    elif isinstance(series, int) or isinstance(series, float):
+    if isinstance(series, int) or isinstance(series, float):
         return 0
         
     return series.var() # type: ignore

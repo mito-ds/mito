@@ -41,9 +41,7 @@ def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
 
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return clean_helper(series)
     
     return series.fillna('').apply(clean_helper)
@@ -107,26 +105,17 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
         ]
     }
     """
-    if string is None:
-        return 0
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if substrings is None:
-        return 0
-    elif isinstance(substrings, pd.Series):
-        substrings = substrings.fillna('XTREME_MITOSHEET_NULL_VALUE_1234567890_0987654321_NULL_VALUE_MITOSHEET_XTREME') # This is a hack to make sure that the find function returns 0 for null values
 
     if isinstance(string, str) and isinstance(substrings, str):
         if substrings == '':
             return 1
         
         return string.find(substrings) + 1
-    
+
     # otherwise, turn them into series
     index = get_index_from_series(string, substrings)
-    string = get_series_from_primitive_or_series(string, index)
-    substrings = get_series_from_primitive_or_series(substrings, index)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    substrings = get_series_from_primitive_or_series(substrings, index).fillna('XTREME_MITOSHEET_NULL_VALUE_1234567890_0987654321_NULL_VALUE_MITOSHEET_XTREME') # This is a hack to make sure that the find function returns 0 for null values
     
     return pd.Series(
         [s.find(ss) + 1 for s, ss in zip(string, substrings)],
@@ -137,7 +126,7 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
 @handle_sheet_function_errors
-def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
     """
     {
         "function": "LEFT",
@@ -162,22 +151,16 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
 
     left_helper: Callable[[str, int], str] = lambda s, nc: s[:min(nc, len(s))]
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
     if num_chars is None:
         num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
 
     if isinstance(string, str) and isinstance(num_chars, int):
         return left_helper(string, num_chars)
-    
+
+    # otherwise, turn them into series for simplicity
     index = get_index_from_series(string, num_chars)
-    string = get_series_from_primitive_or_series(string, index)
-    num_chars = get_series_from_primitive_or_series(num_chars, index)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
 
     return pd.Series(
         [left_helper(s, nc) for s, nc in zip(string, num_chars)],
@@ -206,9 +189,7 @@ def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if string is None:
-        return 0
-    elif isinstance(string, str):
+    if isinstance(string, str):
         return len(string)
     
     return string.fillna('').str.len()
@@ -235,9 +216,7 @@ def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return series.lower()
 
     return series.fillna('').str.lower()
@@ -275,29 +254,14 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     }
     """
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if start_loc is None:
-        start_loc = 0
-    elif isinstance(start_loc, pd.Series):
-        start_loc = start_loc.fillna(0)
-
-    if num_chars is None:
-        num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
-
     if isinstance(string, str) and isinstance(start_loc, int) and isinstance(num_chars, int):
         return string[start_loc - 1:start_loc + num_chars - 1]
 
     # Turn all of them into a series to simplify things
     index = get_index_from_series(string, start_loc, num_chars)
-    string = get_series_from_primitive_or_series(string, index)
-    start_loc = get_series_from_primitive_or_series(start_loc, index)
-    num_chars = get_series_from_primitive_or_series(num_chars, index)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    start_loc = get_series_from_primitive_or_series(start_loc, index).fillna(0)
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
     
     return pd.Series(
         [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
@@ -325,9 +289,7 @@ def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return series.title()
 
     return series.fillna('').str.title()
@@ -336,7 +298,7 @@ def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
 @handle_sheet_function_errors
-def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def RIGHT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
 
     """
     {
@@ -361,22 +323,15 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
     """
     right_helper: Callable[[str, int], str] = lambda s, nc: s[-min(nc, len(s)):] if nc != 0 else ''
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
     if num_chars is None:
         num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
 
     if isinstance(string, str) and isinstance(num_chars, int):
         return right_helper(string, num_chars)
     
     index = get_index_from_series(string, num_chars)
-    string = get_series_from_primitive_or_series(string, index)
-    num_chars = get_series_from_primitive_or_series(num_chars, index)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
 
     return pd.Series(
         [right_helper(s, nc) for s, nc in zip(string, num_chars)],
@@ -389,7 +344,7 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
 @cast_values_in_arg_to_type('new_text', 'str')
 @cast_values_in_arg_to_type('count', 'int')
 @handle_sheet_function_errors
-def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInputType, new_text: StringRestrictedInputType, count: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInputType, new_text: StringRestrictedInputType, count: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
     """
     {
         "function": "SUBSTITUTE",
@@ -419,35 +374,18 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
         ]
     }
     """
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if old_text is None:
-        return string
-    elif isinstance(old_text, pd.Series):
-        old_text = old_text.fillna('')
-
-    if new_text is None:
-        return string
-    elif isinstance(new_text, pd.Series):
-        new_text = new_text.fillna('')
 
     if count is None:
         count = -1
-    elif isinstance(count, pd.Series):
-        count = count.fillna(0)
-
 
     if isinstance(string, str) and isinstance(old_text, str) and isinstance(new_text, str) and isinstance(count, int):
         return string.replace(old_text, new_text, count)
 
     index = get_index_from_series(string, old_text, new_text, count)
-    string = get_series_from_primitive_or_series(string, index)
-    old_text = get_series_from_primitive_or_series(old_text, index)
-    new_text = get_series_from_primitive_or_series(new_text, index)
-    count = get_series_from_primitive_or_series(count, index)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    old_text = get_series_from_primitive_or_series(old_text, index).fillna('')
+    new_text = get_series_from_primitive_or_series(new_text, index).fillna('')
+    count = get_series_from_primitive_or_series(count, index).fillna(0)
 
     return pd.Series(
         [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
@@ -475,9 +413,7 @@ def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return series
     
     return series.fillna('')
@@ -503,9 +439,7 @@ def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return series.strip()
 
     return series.fillna('').str.strip()
@@ -532,9 +466,7 @@ def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
+    if isinstance(series, str):
         return series.upper()
     
     return series.fillna('').str.upper()

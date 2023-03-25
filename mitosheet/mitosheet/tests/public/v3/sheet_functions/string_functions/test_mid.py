@@ -20,10 +20,6 @@ MID_VALID_TESTS: Any = [
     (['a', 1, 1], 'a'),
     (['abc', 2, 1], 'b'),
     (['abc', 2, 2], 'bc'),
-    ([None, 2, 2], ''),
-    (['abc', None, 2], ''),
-    (['abc', 2, None], 'b'),
-
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2]), pd.Series([0, 1, 2])], pd.Series(['', 'a', 'bc'])),
@@ -35,7 +31,6 @@ MID_VALID_TESTS: Any = [
     ([pd.Series([1.0, None, None]), pd.Series([1, 1, 1]), pd.Series([1, 1, 1])], pd.Series(['1', '', ''])),
     ([pd.Series([1.0, None, None]), pd.Series([None, None, None]), pd.Series([None, None, None])], pd.Series(['', '', ''])),
     ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([0, 1, 2, 3, 4, 5]), pd.Series([0, 1, 2, 3, 4, 5])], pd.Series(['', '1', 'ru', '97-', 'ay, '])),
-    ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([1000, 1000, 1000, 1000, 1000, 1000]), None], pd.Series(['', '', '', '', ''])),
 ]
 
 # There aren't really any invalid types for strings
@@ -53,10 +48,11 @@ def test_left(_argv, expected):
 
 
 MID_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None, 2, 2], ''),
+    (['abc', None, 2], ''),
+    (['abc', 2, None], 'b'),
+    ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1)]), pd.Series([1000, 1000, 1000, 1000, 1000, 1000]), None], pd.Series(['', '', '', '', ''])),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", MID_INVALID_TESTS)
