@@ -20,7 +20,7 @@ import pandas as pd
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, AnySeriesFunctionReturnType, AnySeriesInputType, BoolFunctionReturnType, BoolInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, AnySeriesFunctionReturnType, AnySeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType
 
 
 @cast_values_in_all_args_to_type('bool')
@@ -59,9 +59,9 @@ def AND(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
         lambda previous_series, new_series: previous_series & new_series
     )
 
-@cast_values_in_arg_to_type('condition', 'bool')
+@cast_values_in_arg_to_type('series', 'bool')
 @handle_sheet_function_errors
-def BOOL(series: pd.Series) -> pd.Series:
+def BOOL(series: BoolRestrictedInputType) -> BoolFunctionReturnType:
     """
     {
         "function": "BOOL",
@@ -79,7 +79,10 @@ def BOOL(series: pd.Series) -> pd.Series:
         ]
     }
     """
-    return series.fillna(False).astype(bool)
+    if isinstance(series, bool):
+        return series
+
+    return series.fillna(False)
 
 @cast_values_in_arg_to_type('condition', 'bool')
 @handle_sheet_function_errors
@@ -112,10 +115,10 @@ def IF(condition: AnySeriesInputType, true_series: AnyPrimitiveOrSeriesInputType
     """
 
     true_series = get_series_from_primitive_or_series(true_series, condition.index)
-    false_series = get_series_from_primitive_or_series(true_series, condition.index)
+    false_series = get_series_from_primitive_or_series(false_series, condition.index)
 
     return pd.Series(
-        data=[true_series.loc[i] if c else false_series.loc[i] for i, c in condition.iteritems()],
+        data=[true_series.loc[i] if c else false_series.loc[i] for i, c in condition.items()],
         index=condition.index
     )
 

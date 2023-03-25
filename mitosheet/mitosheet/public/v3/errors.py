@@ -37,10 +37,16 @@ def make_invalid_arg_error(sheet_function_name: str, arg_name: str, type_name: s
 
 
 def get_type_args(tp: Any) -> Tuple[Any, ...]:
+
+    # If the type is just a single class, then we just return this type
+    if inspect.isclass(tp):
+        return (tp,)
+
     try:
         from typing import get_args
         return get_args(tp)
     except:
+        # Handle older versions of Python without the get_args function
         if hasattr(tp, '__args__'):
             return tp.__args__
         elif hasattr(tp, '__orig_bases__'):

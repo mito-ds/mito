@@ -358,7 +358,6 @@ def ROUND(series: NumberRestrictedInputType, decimals: Optional[IntRestrictedInp
     }
     """
 
-
     # If no decimals option is passed, round to no decimals
     if decimals is None:
         decimals = 0

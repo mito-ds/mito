@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
+import numpy as np
+
 
 def cast_string_to_bool(
         s: str,
@@ -50,6 +52,10 @@ def cast_to_bool(unknown: Union[str, int, float, bool, datetime, timedelta]) -> 
     elif isinstance(unknown, int):
         return bool(unknown)
     elif isinstance(unknown, float):
+        # We cast NaN's to false
+        if np.isnan(unknown):
+            return False
+
         return bool(unknown)
     elif isinstance(unknown, bool):
         return unknown
