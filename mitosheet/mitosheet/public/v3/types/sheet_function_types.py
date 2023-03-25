@@ -2,7 +2,7 @@
 
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 
 import pandas as pd
@@ -28,6 +28,9 @@ BoolInputType = Union[pd.DataFrame, RollingRange, BoolRestrictedInputType]
 DatetimeRestrictedInputType = Union[pd.Series, datetime, pd.Timestamp, None]
 DatetimeInputType = Union[pd.DataFrame, RollingRange, DatetimeRestrictedInputType]
 
+AnyPrimitiveInputType = Union[str, int, float, bool, datetime, timedelta]
+AnySeriesInputType = pd.Series
+AnyPrimitiveOrSeriesInputType = Union[AnyPrimitiveInputType, AnySeriesInputType]
 
 
 # Return types
@@ -37,3 +40,4 @@ FloatFunctonReturnType = Union[pd.Series, float]
 NumberFunctionReturnType = Union[pd.Series, int, float]
 BoolFunctionReturnType = Union[pd.Series, bool]
 DatetimeFunctionReturnType = Union[pd.Series, datetime]
+AnySeriesFunctionReturnType = pd.Series
