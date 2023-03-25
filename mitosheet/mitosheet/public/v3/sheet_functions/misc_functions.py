@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta
+import numpy as np
 
 import pandas as pd
 from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_dtype, is_int_dtype, is_string_dtype
@@ -56,19 +57,14 @@ def TYPE(series: AnySeriesInputType) -> AnySeriesFunctionReturnType:
     """
 
     def get_element_type(element):
-        try:
-            # Try nan first, this may fail
-            if np.isnan(element):
-                return 'NaN'
-        except:
-            pass 
-
         # Start with bool!
         if isinstance(element, bool):
             return 'bool'
         elif isinstance(element, int):
             return 'number'
         elif isinstance(element, float):
+            if np.isnan(element):
+                return 'NaN'
             return 'number'
         elif isinstance(element, str):
             return 'string'
