@@ -27,5 +27,6 @@ BoolInputType = Union[pd.DataFrame, RollingRange, BoolRestrictedInputType]
 
 # Return types
 StringFunctionReturnType = Union[pd.Series, str]
+IntFunctionReturnType = Union[pd.Series, int]
 NumberFunctionReturnType = Union[pd.Series, int, float]
 BoolFunctionReturnType = Union[pd.Series, bool]

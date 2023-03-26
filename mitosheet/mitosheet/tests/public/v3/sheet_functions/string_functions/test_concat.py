@@ -18,6 +18,8 @@ CONCAT_VALID_TESTS: Any = [
     # Just constant tests
     (['a', 'b'], 'ab'),
     (['a', 1, True], 'a1True'),
+    (['a', 1, True, None], 'a1True'),
+    ([None], ''),
 
     # Constants and series
     (['a', pd.Series(['a', 'b', 'c'])], pd.Series(['aa', 'ab', 'ac'])),
