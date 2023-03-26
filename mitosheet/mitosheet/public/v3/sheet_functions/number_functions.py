@@ -22,7 +22,7 @@ import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.sheet_functions.utils import get_args_as_series_if_any_is_series, get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
+from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
 
@@ -135,6 +135,8 @@ def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
     if isinstance(series, int) or isinstance(series, float):
         return math.exp(series)
     
+    print("HERE", series)
+
     return pd.Series(np.exp(series))
 
 
@@ -250,7 +252,7 @@ def LOG(series: NumberRestrictedInputType, base: Optional[NumberRestrictedInputT
     
     index = get_index_from_series(series, base)
     series = get_series_from_primitive_or_series(series, index)
-    base = get_series_from_primitive_or_series(base, index)
+    base = get_series_from_primitive_or_series(base, index).fillna(math.e)
     
     # See here: https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
     return pd.Series(np.log(series) / np.log(base))

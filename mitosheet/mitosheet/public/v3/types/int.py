@@ -16,7 +16,9 @@ def cast_str_to_int(s: str) -> Optional[int]:
         return int(f)
 
 def cast_to_int(unknown: Union[str, int, float, bool, datetime, timedelta]) -> Optional[int]:
-    if isinstance(unknown, str):
+    if isinstance(unknown, bool):
+        return int(unknown)
+    elif isinstance(unknown, str):
         return cast_str_to_int(unknown)
     elif isinstance(unknown, int):
         return unknown
@@ -25,8 +27,5 @@ def cast_to_int(unknown: Union[str, int, float, bool, datetime, timedelta]) -> O
             return int(unknown)
         except:
             raise make_invalid_param_type_conversion_error(unknown, 'int')
-
-    elif isinstance(unknown, bool):
-        return int(unknown)
 
     return None

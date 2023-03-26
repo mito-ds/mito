@@ -43,6 +43,8 @@ def cast_values_in_arg_to_type(
             arg_names = list(inspect.signature(sheet_function).parameters.keys())
             arg_index = arg_names.index(arg_name)
 
+            print(arg_index, arg_names, args, target_primitive_type_name, sheet_function)
+
             final_args = [
                 get_arg_cast_to_type(target_primitive_type_name, arg) if index == arg_index else arg
                 for index, arg in enumerate(args)
