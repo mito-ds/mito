@@ -49,7 +49,7 @@ def ABS(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
     if isinstance(series, int) or isinstance(series, float):
         return abs(series)
 
-    return series.abs()
+    return series.abs() # type: ignore
 
 
 @cast_values_in_all_args_to_type('number')
@@ -109,8 +109,8 @@ def CORR(s1: NumberRestrictedInputType, s2: NumberRestrictedInputType) -> Number
     if isinstance(s1, int) or isinstance(s1, float) or isinstance(s2, int) or isinstance(s2, float):
         return 0
     
-    return s1.corr(s2, method='pearson')
-
+    return s1.corr(s2, method='pearson') # type: ignore
+ 
 
 @cast_values_in_arg_to_type('series', 'number')
 @handle_sheet_function_errors
@@ -255,7 +255,7 @@ def LOG(series: NumberRestrictedInputType, base: Optional[NumberRestrictedInputT
     base = get_series_from_primitive_or_series(base, index).fillna(math.e)
     
     # See here: https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
-    return pd.Series(np.log(series) / np.log(base))
+    return pd.Series(np.log(series) / np.log(base)) # type: ignore
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
@@ -332,7 +332,7 @@ def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -
     if isinstance(series, int) or isinstance(series, float):
         return series ** power
     
-    return series.pow(power)
+    return series.pow(power) # type: ignore
 
 @cast_values_in_arg_to_type('series', 'number')
 @cast_values_in_arg_to_type('decimals', 'number')
@@ -369,8 +369,8 @@ def ROUND(series: NumberRestrictedInputType, decimals: Optional[IntRestrictedInp
     decimals = get_series_from_primitive_or_series(decimals, index)
 
     return pd.Series(
-        [round(num, dec) for num, dec in zip(series, decimals)],
-        index=series.index
+        [round(num, dec) for num, dec in zip(series, decimals)], # type: ignore
+        index=series.index # type: ignore
     )
 
 @cast_values_in_arg_to_type('series', 'number')

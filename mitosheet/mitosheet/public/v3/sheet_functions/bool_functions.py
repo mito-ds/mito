@@ -20,7 +20,7 @@ import pandas as pd
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, AnySeriesFunctionReturnType, AnySeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType
 
 
 @cast_values_in_all_args_to_type('bool')
@@ -86,7 +86,7 @@ def BOOL(series: BoolRestrictedInputType) -> BoolFunctionReturnType:
 
 @cast_values_in_arg_to_type('condition', 'bool')
 @handle_sheet_function_errors
-def IF(condition: AnySeriesInputType, true_series: AnyPrimitiveOrSeriesInputType, false_series: AnyPrimitiveOrSeriesInputType) -> AnySeriesFunctionReturnType:
+def IF(condition: pd.Series, true_series: AnyPrimitiveOrSeriesInputType, false_series: AnyPrimitiveOrSeriesInputType) -> pd.Series:
     """
     {
         "function": "IF",

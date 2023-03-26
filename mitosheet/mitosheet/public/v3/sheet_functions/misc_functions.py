@@ -1,17 +1,18 @@
 
 from datetime import datetime, timedelta
 import numpy as np
+from typing import Any
 
 import pandas as pd
 from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_dtype, is_int_dtype, is_string_dtype
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, AnySeriesInputType, AnySeriesFunctionReturnType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType
 
 
 @handle_sheet_function_errors
-def FILLNAN(series: AnySeriesInputType, replacement: AnyPrimitiveOrSeriesInputType) -> AnySeriesFunctionReturnType:
+def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
     """
     {
         "function": "FILLNAN",
@@ -37,7 +38,7 @@ def FILLNAN(series: AnySeriesInputType, replacement: AnyPrimitiveOrSeriesInputTy
 
 
 @handle_sheet_function_errors
-def TYPE(series: AnySeriesInputType) -> AnySeriesFunctionReturnType:
+def TYPE(series: pd.Series) -> pd.Series:
     """
     {
         "function": "TYPE",
@@ -79,7 +80,7 @@ def TYPE(series: AnySeriesInputType) -> AnySeriesFunctionReturnType:
 
 
 @handle_sheet_function_errors
-def GETPREVIOUSVALUE(series: AnySeriesInputType, condition: BoolRestrictedInputType) -> AnySeriesFunctionReturnType:
+def GETPREVIOUSVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Series:
     """
     {
         "function": "GETPREVIOUSVALUE",
