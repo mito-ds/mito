@@ -65,7 +65,6 @@ MIN_INVALID_CAST_TESTS = [
 @pytest.mark.parametrize("_argv,expected", MIN_VALID_TESTS + MIN_INVALID_CAST_TESTS)
 def test_min(_argv, expected):
     result = MIN(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

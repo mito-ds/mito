@@ -27,6 +27,12 @@ def to_start(t: pd.Timestamp, freq: pd.DateOffset) -> pd.Timestamp:
     except ValueError: # if freq is variable, we fall into here...
         return freq.rollback(t.floor("D"))
 
+def to_end(t: pd.Timestamp, freq: pd.DateOffset) -> pd.Timestamp:
+    try:
+        return t.ceil(freq) # fixed frequencies should just ceil the date/time
+    except ValueError: # if freq is variable, we fall into here...
+        return freq.rollforward(t.ceil("D"))
+
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
@@ -97,11 +103,14 @@ def ENDOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionRet
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
+        return to_end(date, pd.tseries.offsets.BMonthEnd(n=0))
+    if isinstance(date, datetime):
         # TODO: fix this 
-        raise Exception("ENDOFBUSINESSMONTH only works on date series, not single dates.")
+        return to_end(pd.Timestamp(date), pd.tseries.offsets.BMonthEnd(n=0))
     
-    return (date + pd.tseries.offsets.BusinessMonthEnd(n=0)).dt.floor('D')
+    return date.apply(lambda t: to_end(t, pd.tseries.offsets.BMonthEnd(n=0)))
+
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -124,11 +133,13 @@ def ENDOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
+    if isinstance(date, pd.Timestamp):
+        return to_end(date, pd.tseries.offsets.MonthEnd(n=0))
+    if isinstance(date, datetime):
         # TODO: fix this 
-        raise Exception("ENDOFMONTH only works on date series, not single dates.")
+        return to_end(pd.Timestamp(date), pd.tseries.offsets.MonthEnd(n=0))
     
-    return (date + pd.tseries.offsets.MonthEnd(n=0)).dt.floor('D')
+    return date.apply(lambda t: to_end(t, pd.tseries.offsets.MonthEnd(n=0)))
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
@@ -258,9 +269,9 @@ def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> Optional[Datetime
     }
     """
     if isinstance(date, pd.Timestamp):
-        return to_start(date, pd.tseries.offsets.MonthBegin(n=1))
+        return to_start(date, pd.tseries.offsets.BMonthBegin(n=1))
     elif isinstance(date, datetime):
-        return to_start(pd.Timestamp(date), pd.tseries.offsets.MonthBegin(n=1))
+        return to_start(pd.Timestamp(date), pd.tseries.offsets.BMonthBegin(n=1))
     
     return date.apply(lambda t: to_start(t, pd.tseries.offsets.BMonthBegin(n=1)))
     
@@ -488,7 +499,7 @@ def WEEK(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     elif isinstance(date, pd.Timestamp):
         return date.week
 
-    return date.dt.isocalendar().week
+    return date.dt.week
 
 
 @cast_values_in_arg_to_type('date', 'datetime')
