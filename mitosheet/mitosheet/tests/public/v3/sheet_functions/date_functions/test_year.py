@@ -24,7 +24,7 @@ YEAR_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", YEAR_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_year(_argv, expected):
     result = YEAR(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

@@ -25,7 +25,7 @@ SECOND_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", SECOND_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_second(_argv, expected):
     result = SECOND(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

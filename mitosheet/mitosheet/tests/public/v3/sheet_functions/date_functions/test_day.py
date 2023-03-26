@@ -25,7 +25,7 @@ DAY_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", DAY_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_day(_argv, expected):
     result = DAY(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
