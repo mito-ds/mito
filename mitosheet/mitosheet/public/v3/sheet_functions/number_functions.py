@@ -135,8 +135,6 @@ def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
     if isinstance(series, int) or isinstance(series, float):
         return math.exp(series)
     
-    print("HERE", series)
-
     return pd.Series(np.exp(series))
 
 
