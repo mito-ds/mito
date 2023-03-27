@@ -9,12 +9,16 @@ Contains tests for the IF function.
 
 import pytest
 import pandas as pd
+from mitosheet.errors import MitoError
 
 from mitosheet.public.v3.sheet_functions.bool_functions import IF
 
 # Raw function tests
 
 IF_TESTS = [
+    ([pd.Series([True, False]), 1, 2], pd.Series([1, 2])),
+    ([pd.Series([True, False]), pd.Series([1, 2]), 2], pd.Series([1, 2])),
+
     ([pd.Series([True]), pd.Series([1]), pd.Series([2])], pd.Series([1])),
     ([pd.Series([False]), pd.Series([1]), pd.Series([2])], pd.Series([2])),
     ([pd.Series([True, False]), pd.Series([1, 2]), pd.Series([3, 4])], pd.Series([1, 4])),
@@ -30,10 +34,18 @@ IF_TESTS = [
 @pytest.mark.parametrize("_argv, expected", IF_TESTS)
 def test_if_direct(_argv, expected):
     result = IF(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
         assert result == expected
+
+
+
+IF_INVALID_TESTS = [
+    ([True, 1, 2]),
+]
+@pytest.mark.parametrize("_argv", IF_INVALID_TESTS)
+def test_invalid_args_error(_argv):
+    with pytest.raises(MitoError) as e_info:
+        IF(*_argv)
 

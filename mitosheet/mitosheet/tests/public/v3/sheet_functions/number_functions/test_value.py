@@ -54,3 +54,6 @@ VALUE_VALID_TESTS = [
 def test_VALUE_valid_input_direct(data, value):
     series = pd.Series(data=data)
     assert VALUE(series).tolist() == value
+
+def test_nan():
+    assert VALUE(pd.Series([np.nan])).equals(pd.Series([np.nan]))

@@ -32,6 +32,7 @@ ROUND_VALID_TESTS = [
     ([pd.Series([.1111]), pd.Series([2])], pd.Series([.11])),
     ([pd.Series([.11]), pd.Series([0])], pd.Series([0.0])),
     ([pd.Series([.11, 1.1]), None], pd.Series([0.0, 1.0])),
+    ([pd.Series([.11, 1.1, None]), None], pd.Series([0.0, 1.0, None])),
 ]
 @pytest.mark.parametrize("_argv, expected", ROUND_VALID_TESTS)
 def test_round_valid_input_direct(_argv, expected):

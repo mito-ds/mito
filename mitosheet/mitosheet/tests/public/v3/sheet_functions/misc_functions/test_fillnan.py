@@ -24,8 +24,6 @@ FILLNAN_VALID_TESTS = [
 @pytest.mark.parametrize("_argv, expected", FILLNAN_VALID_TESTS)
 def test_bool_direct(_argv, expected):
     result = FILLNAN(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

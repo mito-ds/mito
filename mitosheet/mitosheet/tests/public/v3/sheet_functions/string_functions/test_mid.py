@@ -38,8 +38,6 @@ MID_VALID_TESTS: Any = [
 @pytest.mark.parametrize("_argv,expected", MID_VALID_TESTS)
 def test_left(_argv, expected):
     result = MID(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

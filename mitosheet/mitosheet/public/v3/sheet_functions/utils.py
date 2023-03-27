@@ -140,16 +140,6 @@ def get_final_result_series_or_primitive(
         )
 
     return result 
-
-
-def get_args_as_series_if_any_is_series(*args: Union[PrimitiveType, pd.Series]) -> Union[List[PrimitiveType], List[pd.Series]]:
-
-    if any(isinstance(arg, pd.Series) for arg in args):
-        # Search for the first series and use its index
-        index = next(arg.index for arg in args if isinstance(arg, pd.Series))
-        return [pd.Series(arg, index=index) if not isinstance(arg, pd.Series) else arg for arg in args]
-    else:
-        return list(args)
     
 
 def get_index_from_series(*args: Union[PrimitiveType, pd.Series]) -> pd.Index:

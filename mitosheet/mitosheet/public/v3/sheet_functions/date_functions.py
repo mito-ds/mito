@@ -106,7 +106,6 @@ def ENDOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionRet
     if isinstance(date, pd.Timestamp):
         return to_end(date, pd.tseries.offsets.BMonthEnd(n=0))
     if isinstance(date, datetime):
-        # TODO: fix this 
         return to_end(pd.Timestamp(date), pd.tseries.offsets.BMonthEnd(n=0))
     
     return date.apply(lambda t: to_end(t, pd.tseries.offsets.BMonthEnd(n=0)))
@@ -136,7 +135,6 @@ def ENDOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     if isinstance(date, pd.Timestamp):
         return to_end(date, pd.tseries.offsets.MonthEnd(n=0))
     if isinstance(date, datetime):
-        # TODO: fix this 
         return to_end(pd.Timestamp(date), pd.tseries.offsets.MonthEnd(n=0))
     
     return date.apply(lambda t: to_end(t, pd.tseries.offsets.MonthEnd(n=0)))
@@ -250,7 +248,7 @@ def QUARTER(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STARTOFBUSINESSMONTH",
@@ -278,7 +276,7 @@ def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> Optional[Datetime
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STARTOFMONTH(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STARTOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STARTOFMONTH",
@@ -307,7 +305,7 @@ def STARTOFMONTH(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunction
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOMINUTES",
@@ -335,7 +333,7 @@ def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> Optional[DatetimeFu
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOHOURS",
@@ -363,7 +361,7 @@ def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunc
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETODAYS",
@@ -391,7 +389,7 @@ def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunct
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOMONTHS",
@@ -420,7 +418,7 @@ def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFun
 
 @cast_values_in_arg_to_type('date', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOYEARS(date: DatetimeRestrictedInputType) -> Optional[DatetimeFunctionReturnType]:
+def STRIPTIMETOYEARS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOYEARS",

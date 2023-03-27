@@ -29,5 +29,4 @@ def test_datevalue_works_on_inputs(_argv, expected):
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
-        print(result)
         assert result == expected

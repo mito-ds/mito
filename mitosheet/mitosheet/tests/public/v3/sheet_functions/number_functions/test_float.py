@@ -54,3 +54,7 @@ FLOAT_VALID_TESTS = [
 def test_float_valid_input_direct(data, value):
     series = pd.Series(data=data)
     assert FLOAT(series).tolist() == list(map(float, value))
+
+
+def test_nan():
+    assert FLOAT(pd.Series([np.nan])).equals(pd.Series([np.nan]))

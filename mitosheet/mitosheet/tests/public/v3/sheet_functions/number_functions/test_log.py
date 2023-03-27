@@ -47,9 +47,6 @@ LOG_VALID_TESTS = [
 @pytest.mark.parametrize("_argv, expected", LOG_VALID_TESTS)
 def test_round_valid_input_direct(_argv, expected):
     result = LOG(*_argv)
-    print(result)
-    print(expected)
-    print(np.isclose(result, expected, rtol=1e-10, atol=1e-10))
     if isinstance(result, pd.Series):
         # Due to precision issues, and needing to check nans
         # we need to use np.isclose and a mask

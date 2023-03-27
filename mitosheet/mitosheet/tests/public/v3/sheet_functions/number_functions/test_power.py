@@ -28,8 +28,6 @@ POWER_VALID_TESTS = [
 @pytest.mark.parametrize("_argv, expected", POWER_VALID_TESTS)
 def test_power_valid_input_direct(_argv, expected):
     result = POWER(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

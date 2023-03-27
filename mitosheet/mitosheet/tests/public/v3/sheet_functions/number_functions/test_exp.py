@@ -26,7 +26,6 @@ EXP_VALID_TESTS = [
 @pytest.mark.parametrize("_argv, expected", EXP_VALID_TESTS)
 def test_exp_input_direct(_argv, expected):
     result = EXP(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

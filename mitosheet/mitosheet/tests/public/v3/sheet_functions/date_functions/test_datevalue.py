@@ -7,6 +7,7 @@
 Contains tests for the DATEVALUE function.
 """
 
+import numpy as np
 import pytest
 import pandas as pd
 
@@ -25,6 +26,7 @@ DATEVALUE_TESTS = [
     ([pd.Series(data=['13/12/2005'])], pd.Series(pd.Timestamp('2005-12-13 00:00:00'))),
     ([pd.Series(data=['12/13/2005'])], pd.Series(pd.Timestamp('2005-12-13 00:00:00'))),
     ([pd.Series(data=['2005/12/13'])], pd.Series(pd.Timestamp('2005-12-13 00:00:00'))),
+    ([pd.Series(data=['2005/12/13', None])], pd.Series([pd.Timestamp('2005-12-13 00:00:00'), np.nan])),
 ]
 
 @pytest.mark.parametrize("_argv,expected", DATEVALUE_TESTS)
