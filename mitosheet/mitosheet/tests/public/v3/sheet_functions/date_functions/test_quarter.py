@@ -24,7 +24,7 @@ QUARTER_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", QUARTER_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_quarter(_argv, expected):
     result = QUARTER(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

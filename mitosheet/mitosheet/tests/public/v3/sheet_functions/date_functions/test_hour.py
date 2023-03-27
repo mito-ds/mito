@@ -24,7 +24,7 @@ HOUR_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", HOUR_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_hour(_argv, expected):
     result = HOUR(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

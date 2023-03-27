@@ -30,7 +30,7 @@ DATEVALUE_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", DATEVALUE_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_datevalue(_argv, expected):
     result = DATEVALUE(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

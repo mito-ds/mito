@@ -24,7 +24,7 @@ MONTH_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", MONTH_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_month(_argv, expected):
     result = MONTH(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)

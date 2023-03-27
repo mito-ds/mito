@@ -24,7 +24,7 @@ WEEKDAY_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv,expected", WEEKDAY_TESTS)
-def test_datevalue_works_on_inputs(_argv, expected):
+def test_weekday(_argv, expected):
     result = WEEKDAY(*_argv)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
