@@ -211,7 +211,7 @@ def test_excel_range_import_works_on_public_interface_1():
     mito = create_mito_wrapper_dfs()
     mito.mito_backend.steps_manager.public_interface_version = 1
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}])
 
     assert len(mito.dfs) == 1
     for actual, expected in zip(mito.dfs, [pd.DataFrame({'A': [1], "B": [2]})]):
