@@ -34,7 +34,7 @@ TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE = {
     'warehouse': 'COMPUTE_WH',
     'database': 'PYTESTDATABASE',
     'schema': 'PYTESTSCHEMA',
-    'table': 'SIMPLE_PYTEST_TABLE'
+    'table_or_view': 'SIMPLE_PYTEST_TABLE'
 }
 
 TEST_SNOWFLAKE_QUERY_PARAMS = {
@@ -59,6 +59,33 @@ def test_snowflake_import_integration():
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(expected_df)
+
+
+@requires_snowflake_dependencies_and_credentials
+@python_post_3_6_only
+def test_snowflake_import_view_integration():
+    mito = create_mito_wrapper_dfs()
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+
+    query_params = {
+        'columns': ['COLUMNA', 'COLUMNB'],
+        'limit': 2,
+    }
+
+    table_loc_and_warehouse = {
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table_or_view': 'SIMPLE_PYTEST_TABLE_VIEW'
+    }
+
+    mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
+
+    expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate'], 'COLUMNB': ["DR", "Rush",]})
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(expected_df)
+
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
@@ -89,7 +116,7 @@ def test_integration_success_empty_table():
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
-        'table': 'NOROWS',
+        'table_or_view': 'NOROWS',
     }
 
     query_params = {
@@ -116,7 +143,7 @@ def test_integration_no_table():
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
-        'table': 'nonexistant table',
+        'table_or_view': 'nonexistant table',
     }
 
     with pytest.raises(MitoError) as e_info:
@@ -174,7 +201,7 @@ def test_snowflake_import_integration_type_test_simple():
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
-        'table': 'TYPETEST_SIMPLE',
+        'table_or_view': 'TYPETEST_SIMPLE',
     }
 
     query_params = {
@@ -202,7 +229,7 @@ def test_snowflake_import_integration_column_headers():
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
-        'table': 'COLUMNHEADER_TEST',
+        'table_or_view': 'COLUMNHEADER_TEST',
     }
 
     params = {

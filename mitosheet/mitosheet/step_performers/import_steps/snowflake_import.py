@@ -55,7 +55,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         post_state = prev_state.copy()
 
         pandas_start_time = perf_counter()
-        table = table_loc_and_warehouse['table']
+        table_or_view = table_loc_and_warehouse['table_or_view']
 
         connection_params_dict = get_connection_param_dict(credentials, table_loc_and_warehouse)
         
@@ -70,7 +70,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
         try:
             # Second execute the query
             cur = con.cursor()
-            sql_query = create_query(table, query_params)
+            sql_query = create_query(table_or_view, query_params)
             cur.execute(sql_query)
             df = cur.fetch_pandas_all()
         except Exception as e: 
@@ -79,7 +79,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
            # If we've created the connection, then make sure to close it
            con.close() # type: ignore
 
-        new_df_name = get_valid_dataframe_name(post_state.df_names, table.lower())
+        new_df_name = get_valid_dataframe_name(post_state.df_names, table_or_view.lower())
         post_state.add_df_to_state(
             df, 
             DATAFRAME_SOURCE_IMPORTED, 
@@ -126,12 +126,12 @@ def get_connection_param_dict (credentials: SnowflakeCredentials, table_loc_and_
         'schema': table_loc_and_warehouse['schema'],
     }
 
-def create_query(table: Optional[str], query_params: SnowflakeQueryParams) -> str:
+def create_query(table_or_view: Optional[str], query_params: SnowflakeQueryParams) -> str:
     transpiled_column_headers = [get_snowflake_column_header(ch) for ch in query_params["columns"]]
     # TODO: When we add more options, let's make a helper function for building these strings
     limit = query_params.get('limit')
     limit_string = f' limit {limit}' if limit is not None else ''
-    return f'SELECT {", ".join(transpiled_column_headers)} FROM {table}{limit_string}'
+    return f'SELECT {", ".join(transpiled_column_headers)} FROM {table_or_view}{limit_string}'
 
 def get_snowflake_column_header(column_header: ColumnHeader) -> str:
     return f'\"{column_header}\"'

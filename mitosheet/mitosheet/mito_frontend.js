@@ -37552,7 +37552,7 @@ fig.write_html("${props.graphTabName}.html")`
     } else if (dataframeCreationData.step_type === "excel_range_import") {
       return /* @__PURE__ */ import_react157.default.createElement("div", null, /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name), " ", /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "from "), " ", getFileNameSpanFromFilePath(dataframeCreationData.params.file_path));
     } else if (dataframeCreationData.step_type === "snowflake_import") {
-      return /* @__PURE__ */ import_react157.default.createElement("div", null, /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table), " ", /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "from Snowflake "));
+      return /* @__PURE__ */ import_react157.default.createElement("div", null, /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "Imported "), " ", getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table_or_view), " ", /* @__PURE__ */ import_react157.default.createElement("span", { className: "text-color-medium-gray-important" }, "from Snowflake "));
     } else {
       return /* @__PURE__ */ import_react157.default.createElement("div", null, /* @__PURE__ */ import_react157.default.createElement(import_react157.default.Fragment, null));
     }
@@ -38502,17 +38502,17 @@ fig.write_html("${props.graphTabName}.html")`
   var LIMIT_TOOLTIP = "Used to specify the number of rows to return. When working with large datasets, it might be helpful to begin with a subset of your data.";
   var getDefaultParams7 = () => {
     return {
-      table_loc_and_warehouse: { warehouse: void 0, database: void 0, schema: void 0, table: void 0 },
+      table_loc_and_warehouse: { warehouse: void 0, database: void 0, schema: void 0, table_or_view: void 0 },
       query_params: { columns: [], limit: void 0 }
     };
   };
-  var getNewParams = (prevParams, database, schema, table) => {
+  var getNewParams = (prevParams, database, schema, tableOrView) => {
     const paramsCopy = window.structuredClone(prevParams);
     const newParams = __spreadProps(__spreadValues({}, paramsCopy), {
       "table_loc_and_warehouse": __spreadProps(__spreadValues({}, paramsCopy.table_loc_and_warehouse), {
         "database": database,
         "schema": schema,
-        "table": table
+        "table_or_view": tableOrView
       }),
       "query_params": {
         "columns": [],
@@ -38654,15 +38654,15 @@ fig.write_html("${props.graphTabName}.html")`
           Select_default,
           {
             width: "medium",
-            value: params.table_loc_and_warehouse.table || "None available",
+            value: params.table_loc_and_warehouse.table_or_view || "None available",
             disabled: loadingAvailableOptionsAndDefaults,
-            onChange: (newTable) => {
-              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable);
+            onChange: (newTableOrView) => {
+              const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTableOrView);
               setParamsAndRefreshOptionsAndDefaults(newParams);
             }
           },
-          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
-            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: table, id: table, title: table });
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView, idx) => {
+            return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: tableOrView, title: tableOrView });
           }) : []
         ))),
         loadingAvailableOptionsAndDefaults && /* @__PURE__ */ import_react168.default.createElement(Row_default, { className: classNames("text-subtext-1") }, /* @__PURE__ */ import_react168.default.createElement("p", null, "Loading Snowflake options"), /* @__PURE__ */ import_react168.default.createElement(LoadingCounter_default, null))
@@ -38719,7 +38719,7 @@ fig.write_html("${props.graphTabName}.html")`
       /* @__PURE__ */ import_react168.default.createElement(Row_default, null, /* @__PURE__ */ import_react168.default.createElement(
         TextButton_default,
         {
-          disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table === void 0 || params.query_params.columns.length === 0,
+          disabled: !validCredentials || params.table_loc_and_warehouse.warehouse === void 0 || params.table_loc_and_warehouse.database === void 0 || params.table_loc_and_warehouse.schema === void 0 || params.table_loc_and_warehouse.table_or_view === void 0 || params.query_params.columns.length === 0,
           disabledTooltip: "Fill out all required fields",
           onClick: () => edit(),
           variant: "dark"

@@ -53,7 +53,7 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
     } else if (dataframeCreationData.step_type === 'snowflake_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table)} <span className='text-color-medium-gray-important'>from Snowflake </span>
+                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table_or_view)} <span className='text-color-medium-gray-important'>from Snowflake </span>
             </div>
         )
     } else {

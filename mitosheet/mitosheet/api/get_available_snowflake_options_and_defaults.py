@@ -64,7 +64,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         _warehouse = table_loc_and_warehouse.get('warehouse')
         _database = table_loc_and_warehouse.get('database') 
         _schema = table_loc_and_warehouse.get('schema')
-        _table = table_loc_and_warehouse.get('table')
+        _table_or_view = table_loc_and_warehouse.get('table_or_view')
 
         warehouses = get_warehouses(con)
         warehouse = _warehouse if _warehouse is not None else get_default_warehouse(warehouses)
@@ -76,9 +76,11 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         schema = _schema if _schema is not None else get_default_schema(schemas)
 
         tables = get_tables(con, database, schema)
-        table = _table if _table is not None else get_default_table(tables)
+        views = get_views(con, database, schema)
+        tables_and_views = tables + views
+        table_or_view = _table_or_view if _table_or_view is not None else get_default_table(tables_and_views)
 
-        columns = get_columns(con, database, schema, table)
+        columns = get_columns(con, database, schema, table_or_view)
 
 
         return json.dumps({
@@ -87,14 +89,14 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                         'warehouses': warehouses,    
                         'databases': databases,    
                         'schemas': schemas,    
-                        'tables': tables,
+                        'tables_and_views': tables_and_views,
                         'columns': columns
                 },
                 'default_values': {
                         'warehouse': warehouse,
                         'database': database,
                         'schema': schema,
-                        'table': table,
+                        'table_or_view': table_or_view,
                 },
         })
                 
@@ -150,6 +152,19 @@ def get_tables(con: MitoSafeSnowflakeConnection, database: Optional[str], schema
 
         tables = cur.fetchall() # type: ignore
         return [table[1] for table in tables] # type: ignore
+
+def get_views(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str]) -> List[str]:
+        if con is None or database is None or schema is None:
+                return []
+
+        # List all of the tables in a schema
+        cur = con.cursor().execute(f'SHOW VIEWS in {database}.{schema}')
+
+        if cur is None:
+                return []
+
+        views = cur.fetchall() # type: ignore
+        return [view[1] for view in views] # type: ignore
 
 def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
         if con is None or database is None or schema is None or table is None:

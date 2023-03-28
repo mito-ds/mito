@@ -42,7 +42,7 @@ export type SnowflakeTableLocationAndWarehouse = {
     warehouse: string | undefined | null, 
     database: string | undefined | null, 
     schema: string | undefined | null,
-    table: string | undefined | null
+    table_or_view: string | undefined | null
 }
 
 export type SnowflakeQueryParams = {
@@ -54,7 +54,7 @@ export type SnowflakeConfigOptions = {
     warehouses: string[],
     databases: string[],
     schemas: string[],
-    tables: string[]
+    tables_and_views: string[]
     columns: string[]
 }
 
@@ -65,7 +65,7 @@ export interface SnowflakeImportParams {
 
 const getDefaultParams = (): SnowflakeImportParams => {
     return {
-        table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table: undefined},
+        table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table_or_view: undefined},
         query_params: {columns: [], limit: undefined},
     }
 }
@@ -80,7 +80,7 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 }
 
 
-const getNewParams = (prevParams: SnowflakeImportParams, database?: string | null, schema?: string | null, table?: string | null) => {
+const getNewParams = (prevParams: SnowflakeImportParams, database?: string | null, schema?: string | null, tableOrView?: string | null) => {
     const paramsCopy: SnowflakeImportParams = window.structuredClone(prevParams);
     const newParams = {
         ...paramsCopy, 
@@ -88,7 +88,7 @@ const getNewParams = (prevParams: SnowflakeImportParams, database?: string | nul
             ...paramsCopy.table_loc_and_warehouse,
             'database': database,
             'schema': schema,
-            'table': table,
+            'table_or_view': tableOrView,
         },
         'query_params': {
             'columns': [],
@@ -280,16 +280,16 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                         <Col>
                             <Select
                                 width="medium"
-                                value={params.table_loc_and_warehouse.table || 'None available'}
+                                value={params.table_loc_and_warehouse.table_or_view || 'None available'}
                                 disabled={loadingAvailableOptionsAndDefaults}
-                                onChange={(newTable) => {
-                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTable)
+                                onChange={(newTableOrView) => {
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTableOrView)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
-                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables.map((table) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView, idx) => {
                                     return (
-                                        <DropdownItem key={table} id={table} title={table}/>
+                                        <DropdownItem key={tableOrView} title={tableOrView}/>
                                     )
                                 }) : []}
                             </Select>
@@ -386,7 +386,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             params.table_loc_and_warehouse.warehouse === undefined || 
                             params.table_loc_and_warehouse.database === undefined || 
                             params.table_loc_and_warehouse.schema === undefined ||
-                            params.table_loc_and_warehouse.table === undefined ||
+                            params.table_loc_and_warehouse.table_or_view === undefined ||
                             params.query_params.columns.length === 0
                         }
                         disabledTooltip='Fill out all required fields'
