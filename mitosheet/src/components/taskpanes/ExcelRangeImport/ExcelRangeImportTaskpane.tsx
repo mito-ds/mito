@@ -233,7 +233,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                                         'df_name': previousRangeImport.df_name,
                                                         'value': isNew ? '' : previousRangeImport.value,
                                                         'end_condition': {'type': 'first empty cell'},
-                                                        'column_end_condition': {'type': 'first empty cell'},
+                                                        'column_end_condition': previousRangeImport.type === 'upper left corner value' && previousRangeImport.column_end_condition !== undefined ? previousRangeImport.column_end_condition : {'type': 'first empty cell'},
                                                     }
                                                 }
 
@@ -393,7 +393,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         <Col>
                                             <Select
                                                 width="medium"
-                                                value={range_import.end_condition.type}
+                                                value={range_import.column_end_condition.type}
                                                 onChange={(newType) => {
                                                     setParams((prevParams) => {
                                                         const newRangeImports = window.structuredClone(prevParams.range_imports);
@@ -404,7 +404,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                                         if (newEndConditionType === 'first empty cell') {
                                                             newRangeImport.column_end_condition = {'type': newEndConditionType}
                                                         } else {
-                                                            newRangeImport.column_end_condition = {'type': newEndConditionType, value: 3}
+                                                            newRangeImport.column_end_condition = {'type': newEndConditionType, value: ''}
 
                                                         }
 

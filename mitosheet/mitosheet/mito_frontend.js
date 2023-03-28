@@ -38868,7 +38868,7 @@ fig.write_html("${props.graphTabName}.html")`
                     "df_name": previousRangeImport.df_name,
                     "value": isNew ? "" : previousRangeImport.value,
                     "end_condition": { "type": "first empty cell" },
-                    "column_end_condition": { "type": "first empty cell" }
+                    "column_end_condition": previousRangeImport.type === "upper left corner value" && previousRangeImport.column_end_condition !== void 0 ? previousRangeImport.column_end_condition : { "type": "first empty cell" }
                   };
                 }
                 newRangeImports[index] = newRangeImport;
@@ -38992,7 +38992,7 @@ fig.write_html("${props.graphTabName}.html")`
           Select_default,
           {
             width: "medium",
-            value: range_import.end_condition.type,
+            value: range_import.column_end_condition.type,
             onChange: (newType) => {
               setParams((prevParams) => {
                 const newRangeImports = window.structuredClone(prevParams.range_imports);
@@ -39001,7 +39001,7 @@ fig.write_html("${props.graphTabName}.html")`
                 if (newEndConditionType === "first empty cell") {
                   newRangeImport.column_end_condition = { "type": newEndConditionType };
                 } else {
-                  newRangeImport.column_end_condition = { "type": newEndConditionType, value: 3 };
+                  newRangeImport.column_end_condition = { "type": newEndConditionType, value: "" };
                 }
                 newRangeImports[index] = newRangeImport;
                 return __spreadProps(__spreadValues({}, prevParams), {
