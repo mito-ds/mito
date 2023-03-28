@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 """
-Contains all functions that can be used in a sheet that operate on strings.
+Contains all functions that can be used in a sheet that operate on dates.
 
 NOTE: This file is alphabetical order!
 """
@@ -34,9 +34,9 @@ def to_end(t: pd.Timestamp, freq: pd.DateOffset) -> pd.Timestamp:
         return freq.rollforward(t.ceil("D"))
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def DATEVALUE(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def DATEVALUE(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "DATEVALUE",
@@ -54,12 +54,12 @@ def DATEVALUE(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         ]
     }
     """
-    return date
+    return arg
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def DAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def DAY(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "DAY",
@@ -77,15 +77,15 @@ def DAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
-        return date.day
+    if isinstance(arg, datetime) or isinstance(arg, pd.Timestamp):
+        return arg.day
     
-    return date.dt.day
+    return arg.dt.day
     
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def ENDOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def ENDOFBUSINESSMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "ENDOFBUSINESSMONTH",
@@ -103,18 +103,18 @@ def ENDOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionRet
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return to_end(date, pd.tseries.offsets.BMonthEnd(n=0))
-    if isinstance(date, datetime):
-        return to_end(pd.Timestamp(date), pd.tseries.offsets.BMonthEnd(n=0))
+    if isinstance(arg, pd.Timestamp):
+        return to_end(arg, pd.tseries.offsets.BMonthEnd(n=0))
+    if isinstance(arg, datetime):
+        return to_end(pd.Timestamp(arg), pd.tseries.offsets.BMonthEnd(n=0))
     
-    return date.apply(lambda t: to_end(t, pd.tseries.offsets.BMonthEnd(n=0)))
+    return arg.apply(lambda t: to_end(t, pd.tseries.offsets.BMonthEnd(n=0)))
 
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def ENDOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def ENDOFMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "ENDOFMONTH",
@@ -132,17 +132,17 @@ def ENDOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return to_end(date, pd.tseries.offsets.MonthEnd(n=0))
-    if isinstance(date, datetime):
-        return to_end(pd.Timestamp(date), pd.tseries.offsets.MonthEnd(n=0))
+    if isinstance(arg, pd.Timestamp):
+        return to_end(arg, pd.tseries.offsets.MonthEnd(n=0))
+    if isinstance(arg, datetime):
+        return to_end(pd.Timestamp(arg), pd.tseries.offsets.MonthEnd(n=0))
     
-    return date.apply(lambda t: to_end(t, pd.tseries.offsets.MonthEnd(n=0)))
+    return arg.apply(lambda t: to_end(t, pd.tseries.offsets.MonthEnd(n=0)))
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def HOUR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def HOUR(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "HOUR",
@@ -160,15 +160,15 @@ def HOUR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
-        return date.hour
+    if isinstance(arg, datetime) or isinstance(arg, pd.Timestamp):
+        return arg.hour
     
-    return date.dt.hour
+    return arg.dt.hour
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def MINUTE(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def MINUTE(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "MINUTE",
@@ -186,15 +186,15 @@ def MINUTE(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
-        return date.minute
+    if isinstance(arg, datetime) or isinstance(arg, pd.Timestamp):
+        return arg.minute
     
-    return date.dt.minute
+    return arg.dt.minute
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def MONTH(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def MONTH(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "MONTH",
@@ -212,15 +212,15 @@ def MONTH(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime) or isinstance(date, pd.Timestamp):
-        return date.month
+    if isinstance(arg, datetime) or isinstance(arg, pd.Timestamp):
+        return arg.month
     
-    return date.dt.month
+    return arg.dt.month
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def QUARTER(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def QUARTER(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "QUARTER",
@@ -238,17 +238,17 @@ def QUARTER(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime):
-        return pd.Timestamp(date).quarter
-    elif isinstance(date, pd.Timestamp):
-        return date.quarter
+    if isinstance(arg, datetime):
+        return pd.Timestamp(arg).quarter
+    elif isinstance(arg, pd.Timestamp):
+        return arg.quarter
     
-    return date.dt.quarter
+    return arg.dt.quarter
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STARTOFBUSINESSMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STARTOFBUSINESSMONTH",
@@ -266,17 +266,17 @@ def STARTOFBUSINESSMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionR
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return to_start(date, pd.tseries.offsets.BMonthBegin(n=1))
-    elif isinstance(date, datetime):
-        return to_start(pd.Timestamp(date), pd.tseries.offsets.BMonthBegin(n=1))
+    if isinstance(arg, pd.Timestamp):
+        return to_start(arg, pd.tseries.offsets.BMonthBegin(n=1))
+    elif isinstance(arg, datetime):
+        return to_start(pd.Timestamp(arg), pd.tseries.offsets.BMonthBegin(n=1))
     
-    return date.apply(lambda t: to_start(t, pd.tseries.offsets.BMonthBegin(n=1)))
+    return arg.apply(lambda t: to_start(t, pd.tseries.offsets.BMonthBegin(n=1)))
     
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STARTOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STARTOFMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STARTOFMONTH",
@@ -294,18 +294,18 @@ def STARTOFMONTH(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnTyp
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return to_start(date, pd.tseries.offsets.MonthBegin(n=1))
-    elif isinstance(date, datetime):
-        return to_start(pd.Timestamp(date), pd.tseries.offsets.MonthBegin(n=1))
+    if isinstance(arg, pd.Timestamp):
+        return to_start(arg, pd.tseries.offsets.MonthBegin(n=1))
+    elif isinstance(arg, datetime):
+        return to_start(pd.Timestamp(arg), pd.tseries.offsets.MonthBegin(n=1))
     
-    return date.apply(lambda t: to_start(t, pd.tseries.offsets.MonthBegin(n=1)))
+    return arg.apply(lambda t: to_start(t, pd.tseries.offsets.MonthBegin(n=1)))
 
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STRIPTIMETOMINUTES(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOMINUTES",
@@ -323,17 +323,17 @@ def STRIPTIMETOMINUTES(date: DatetimeRestrictedInputType) -> DatetimeFunctionRet
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return date.floor('Min')
-    elif isinstance(date, datetime):
-        return pd.Timestamp(date).floor('Min')
+    if isinstance(arg, pd.Timestamp):
+        return arg.floor('Min')
+    elif isinstance(arg, datetime):
+        return pd.Timestamp(arg).floor('Min')
     
-    return date.dt.floor('Min')
+    return arg.dt.floor('Min')
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STRIPTIMETOHOURS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOHOURS",
@@ -351,17 +351,17 @@ def STRIPTIMETOHOURS(date: DatetimeRestrictedInputType) -> DatetimeFunctionRetur
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return date.floor('H')
-    elif isinstance(date, datetime):
-        return pd.Timestamp(date).floor('H')
+    if isinstance(arg, pd.Timestamp):
+        return arg.floor('H')
+    elif isinstance(arg, datetime):
+        return pd.Timestamp(arg).floor('H')
     
-    return date.dt.floor('H')
+    return arg.dt.floor('H')
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STRIPTIMETODAYS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETODAYS",
@@ -379,17 +379,17 @@ def STRIPTIMETODAYS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturn
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return date.floor('D')
-    elif isinstance(date, datetime):
-        return pd.Timestamp(date).floor('D')
+    if isinstance(arg, pd.Timestamp):
+        return arg.floor('D')
+    elif isinstance(arg, datetime):
+        return pd.Timestamp(arg).floor('D')
     
-    return date.dt.floor('D')
+    return arg.dt.floor('D')
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STRIPTIMETOMONTHS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOMONTHS",
@@ -407,18 +407,18 @@ def STRIPTIMETOMONTHS(date: DatetimeRestrictedInputType) -> DatetimeFunctionRetu
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return date.floor('D') - pd.tseries.offsets.MonthBegin()
-    elif isinstance(date, datetime):
-        return pd.Timestamp(date).floor('D') - pd.tseries.offsets.MonthBegin()
+    if isinstance(arg, pd.Timestamp):
+        return arg.floor('D') - pd.tseries.offsets.MonthBegin()
+    elif isinstance(arg, datetime):
+        return pd.Timestamp(arg).floor('D') - pd.tseries.offsets.MonthBegin()
     
-    return date.dt.floor('D') - pd.tseries.offsets.MonthBegin()
+    return arg.dt.floor('D') - pd.tseries.offsets.MonthBegin()
 
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def STRIPTIMETOYEARS(date: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
+def STRIPTIMETOYEARS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
     """
     {
         "function": "STRIPTIMETOYEARS",
@@ -436,17 +436,17 @@ def STRIPTIMETOYEARS(date: DatetimeRestrictedInputType) -> DatetimeFunctionRetur
         ]
     }
     """
-    if isinstance(date, pd.Timestamp):
-        return date.floor('D') - pd.tseries.offsets.YearBegin()
-    elif isinstance(date, datetime):
-        return pd.Timestamp(date).floor('D') - pd.tseries.offsets.YearBegin()
+    if isinstance(arg, pd.Timestamp):
+        return arg.floor('D') - pd.tseries.offsets.YearBegin()
+    elif isinstance(arg, datetime):
+        return pd.Timestamp(arg).floor('D') - pd.tseries.offsets.YearBegin()
     
-    return date.dt.floor('D') - pd.tseries.offsets.YearBegin()
+    return arg.dt.floor('D') - pd.tseries.offsets.YearBegin()
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def SECOND(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def SECOND(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "SECOND",
@@ -464,17 +464,17 @@ def SECOND(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime):
-        return pd.Timestamp(date).second
-    elif isinstance(date, pd.Timestamp):
-        return date.second
+    if isinstance(arg, datetime):
+        return pd.Timestamp(arg).second
+    elif isinstance(arg, pd.Timestamp):
+        return arg.second
 
-    return date.dt.second
+    return arg.dt.second
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def WEEK(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def WEEK(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "WEEK",
@@ -492,17 +492,17 @@ def WEEK(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime):
-        return pd.Timestamp(date).week
-    elif isinstance(date, pd.Timestamp):
-        return date.week
+    if isinstance(arg, datetime):
+        return pd.Timestamp(arg).week
+    elif isinstance(arg, pd.Timestamp):
+        return arg.week
 
-    return date.dt.week
+    return arg.dt.week
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def WEEKDAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def WEEKDAY(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "WEEKDAY",
@@ -520,17 +520,17 @@ def WEEKDAY(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime):
-        return pd.Timestamp(date).weekday() + 1
-    elif isinstance(date, pd.Timestamp):
-        return date.weekday() + 1
+    if isinstance(arg, datetime):
+        return pd.Timestamp(arg).weekday() + 1
+    elif isinstance(arg, pd.Timestamp):
+        return arg.weekday() + 1
 
-    return date.dt.weekday + 1
+    return arg.dt.weekday + 1
 
 
-@cast_values_in_arg_to_type('date', 'datetime')
+@cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
-def YEAR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
+def YEAR(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "YEAR",
@@ -548,12 +548,12 @@ def YEAR(date: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(date, datetime):
-        return pd.Timestamp(date).year
-    elif isinstance(date, pd.Timestamp):
-        return date.year
+    if isinstance(arg, datetime):
+        return pd.Timestamp(arg).year
+    elif isinstance(arg, pd.Timestamp):
+        return arg.year
 
-    return date.dt.year
+    return arg.dt.year
 
 
 DATE_FUNCTIONS = {

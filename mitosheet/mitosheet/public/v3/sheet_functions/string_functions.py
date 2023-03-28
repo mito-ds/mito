@@ -20,9 +20,9 @@ from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type
 from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType, IntFunctionReturnType
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def CLEAN(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "CLEAN",
@@ -41,10 +41,10 @@ def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
 
-    if isinstance(series, str):
-        return clean_helper(series)
+    if isinstance(arg, str):
+        return clean_helper(arg)
     
-    return series.fillna('').apply(clean_helper)
+    return arg.fillna('').apply(clean_helper)
 
 
 @cast_values_in_all_args_to_type('str')
@@ -169,9 +169,9 @@ def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInp
 
 
 
-@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
+def LEN(arg: StringRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "LEN",
@@ -189,15 +189,15 @@ def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(string, str):
-        return len(string)
+    if isinstance(arg, str):
+        return len(arg)
     
-    return string.fillna('').str.len()
+    return arg.fillna('').str.len()
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def LOWER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "LOWER",
@@ -216,10 +216,10 @@ def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, str):
-        return series.lower()
+    if isinstance(arg, str):
+        return arg.lower()
 
-    return series.fillna('').str.lower()
+    return arg.fillna('').str.lower()
 
 
 
@@ -269,9 +269,9 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     )
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def PROPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "PROPER",
@@ -289,10 +289,10 @@ def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, str):
-        return series.title()
+    if isinstance(arg, str):
+        return arg.title()
 
-    return series.fillna('').str.title()
+    return arg.fillna('').str.title()
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -393,9 +393,9 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
     )
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def TEXT(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "TEXT",
@@ -413,14 +413,14 @@ def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, str):
-        return series
+    if isinstance(arg, str):
+        return arg
     
-    return series.fillna('')
+    return arg.fillna('')
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def TRIM(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "TRIM",
@@ -439,15 +439,15 @@ def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, str):
-        return series.strip()
+    if isinstance(arg, str):
+        return arg.strip()
 
-    return series.fillna('').str.strip()
+    return arg.fillna('').str.strip()
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def UPPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "UPPER",
@@ -466,10 +466,10 @@ def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, str):
-        return series.upper()
+    if isinstance(arg, str):
+        return arg.upper()
     
-    return series.fillna('').str.upper()
+    return arg.fillna('').str.upper()
 
 
 

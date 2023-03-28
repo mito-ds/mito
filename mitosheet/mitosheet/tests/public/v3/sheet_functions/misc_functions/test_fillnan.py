@@ -19,6 +19,8 @@ FILLNAN_VALID_TESTS = [
     ([pd.Series(['1', None, '3']), '5'],  pd.Series(['1', '5', '3'])),
     ([pd.Series([None, 2, 3]), 5],  pd.Series([5.0, 2.0, 3.0])),
     ([pd.Series([None, '2', '3']), '5'],  pd.Series(['5', '2', '3'])),
+    ([pd.Series([None, 2, 3]), '5'],  pd.Series(['5', 2, 3])),
+    ([pd.Series([None, '2', '3']), 5],  pd.Series([5, '2', '3'])),
 ]
 
 @pytest.mark.parametrize("_argv, expected", FILLNAN_VALID_TESTS)

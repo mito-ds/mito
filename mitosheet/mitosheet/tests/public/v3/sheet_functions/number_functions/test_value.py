@@ -15,45 +15,54 @@ from mitosheet.public.v3.sheet_functions.number_functions import VALUE
 
 # Raw function tests
 VALUE_VALID_TESTS = [
-    (['123'], [123]),
-    (['  123   '], [123]),
-    (['123.123'], [123.123]),
+    (['123'], 123),
+    (['$123'], 123),
+    ([pd.Series(['abc'])], pd.Series([np.nan])),
+    ([pd.Series(['123'])], pd.Series([123])),
+    ([pd.Series(['  123   '])], pd.Series([123])),
+    ([pd.Series(['123.123'])], pd.Series([123.123])),
     # NOTE: we do our best to handle european conventions, but there
     # is no sure way to tell (e.g. three decimals).
-    (['123,12'], [123.12]),
-    (['123,1245'], [123.1245]),
-    (['123,123'], [123123]),
-    (['123,123.00'], [123123]),
-    (['$123.12'], [123.12]),
-    (['$-123.12'], [-123.12]),
-    (['-$123.12'], [-123.12]),
-    (['$123,123.00'], [123123]),
-    (['(123.00)'], [-123]),
-    (['(123.12)'], [-123.12]),
-    (['$(123.12)'], [-123.12]),
-    (['$(123,123.12)'], [-123123.12]),
-    (['-$123,123.12'], [-123123.12]),
-    (['$(123123,12)'], [-123123.12]),
-    ([123], [123]),
-    ([123.123], [123.123]),
-    ([123.123000], [123.123]),
-    (['-$123,123.12 M'], [-123123120000]),
-    (['-$123,123.12 m'], [-123123120000]),
-    (['-$123,123.12 Mil'], [-123123120000]),
-    (['-$123,123.12 mil'], [-123123120000]),
-    (['-$123,123.12 Million'], [-123123120000]),
-    (['-$123,123.12 million'], [-123123120000]),
-    (['-$123,123.12 B'], [-123123120000000]),
-    (['-$123,123.12 b'], [-123123120000000]),
-    (['-$123,123.12 Bil'], [-123123120000000]),
-    (['-$123,123.12 bil'], [-123123120000000]),
-    (['-$123,123.12 Billion'], [-123123120000000]),
-    (['-$123,123.12 billion'], [-123123120000000]),
+    ([pd.Series(['123,12'])], pd.Series([123.12])),
+    ([pd.Series(['123,1245'])], pd.Series([123.1245])),
+    ([pd.Series(['123,123'])], pd.Series([123123])),
+    ([pd.Series(['123,123.00'])], pd.Series([123123])),
+    ([pd.Series(['$123.12'])], pd.Series([123.12])),
+    ([pd.Series(['$-123.12'])], pd.Series([-123.12])),
+    ([pd.Series(['-$123.12'])], pd.Series([-123.12])),
+    ([pd.Series(['$123,123.00'])], pd.Series([123123])),
+    ([pd.Series(['(123.00)'])], pd.Series([-123])),
+    ([pd.Series(['(123.12)'])], pd.Series([-123.12])),
+    ([pd.Series(['$(123.12)'])], pd.Series([-123.12])),
+    ([pd.Series(['$(123,123.12)'])], pd.Series([-123123.12])),
+    ([pd.Series(['-$123,123.12'])], pd.Series([-123123.12])),
+    ([pd.Series(['$(123123,12)'])], pd.Series([-123123.12])),
+    ([pd.Series([123])], pd.Series([123])),
+    ([pd.Series([123.123])], pd.Series([123.123])),
+    ([pd.Series([123.123000])], pd.Series([123.123])),
+    ([pd.Series(['-$123,123.12 M'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 m'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 Mil'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 mil'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 Million'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 million'])], pd.Series([-123123120000])),
+    ([pd.Series(['-$123,123.12 B'])], pd.Series([-123123120000000])),
+    ([pd.Series(['-$123,123.12 b'])], pd.Series([-123123120000000])),
+    ([pd.Series(['-$123,123.12 Bil'])], pd.Series([-123123120000000])),
+    ([pd.Series(['-$123,123.12 bil'])], pd.Series([-123123120000000])),
+    ([pd.Series(['-$123,123.12 Billion'])], pd.Series([-123123120000000])),
+    ([pd.Series(['-$123,123.12 billion'])], pd.Series([-123123120000000])),
+    ([pd.Series([np.nan, '1'])], pd.Series([np.nan, 1])),
 ]
-@pytest.mark.parametrize("data,value", VALUE_VALID_TESTS)
-def test_VALUE_valid_input_direct(data, value):
-    series = pd.Series(data=data)
-    assert VALUE(series).tolist() == value
-
-def test_nan():
-    assert VALUE(pd.Series([np.nan])).equals(pd.Series([np.nan]))
+@pytest.mark.parametrize("_argv, expected", VALUE_VALID_TESTS)
+def test_value(_argv, expected):
+    result = VALUE(*_argv)
+    if isinstance(result, pd.Series):
+        print(result)
+        # Check if the two series are close to equal using np.isclose, while also handling nan values
+        assert np.allclose(result, expected, equal_nan=True)
+    else: 
+        if np.isnan(result) :
+            assert np.isnan(expected)
+        else:
+            assert result == expected

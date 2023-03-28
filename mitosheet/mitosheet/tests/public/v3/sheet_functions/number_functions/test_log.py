@@ -7,6 +7,7 @@
 Contains tests for the LOG function.
 """
 
+import math
 import pytest
 import pandas as pd
 import numpy as np
@@ -21,7 +22,7 @@ LOG_VALID_TESTS = [
     ),
     (
         [pd.Series([e, e ** 2, e ** 3]), None],
-        pd.Series([1.0, 2.0, 3.0]),
+        pd.Series([math.log(e, 10), math.log(e ** 2, 10), math.log(e ** 3, 10)]),
     ),
     (
         [pd.Series([e, e ** 2, e ** 3]), e],
@@ -36,8 +37,8 @@ LOG_VALID_TESTS = [
         pd.Series([1.0, 1.0, 1.0]),
     ),
     (
-        [pd.Series([10, 100, e]), pd.Series([10, 100, np.nan])],
-        pd.Series([1.0, 1.0, 1.0]),
+        [pd.Series([10, 100, 100]), pd.Series([10, 100, np.nan])],
+        pd.Series([1.0, 1.0, 2.0]),
     ),
     (
         [pd.Series([10, 100, np.nan]), pd.Series([10, 100, np.nan])],

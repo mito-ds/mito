@@ -26,9 +26,9 @@ from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def ABS(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def ABS(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "ABS",
@@ -46,10 +46,10 @@ def ABS(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
-        return abs(series)
+    if isinstance(arg, int) or isinstance(arg, float):
+        return abs(arg)
 
-    return series.abs() # type: ignore
+    return arg.abs() # type: ignore
 
 
 @cast_values_in_all_args_to_type('number')
@@ -112,9 +112,9 @@ def CORR(s1: NumberRestrictedInputType, s2: NumberRestrictedInputType) -> Number
     return s1.corr(s2, method='pearson') # type: ignore
  
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def EXP(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "EXP",
@@ -132,15 +132,15 @@ def EXP(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
-        return math.exp(series)
+    if isinstance(arg, int) or isinstance(arg, float):
+        return math.exp(arg)
     
-    return pd.Series(np.exp(series))
+    return pd.Series(np.exp(arg))
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'float')
 @handle_sheet_function_errors
-def FLOAT(series: NumberRestrictedInputType) -> FloatFunctonReturnType:
+def FLOAT(arg: NumberRestrictedInputType) -> FloatFunctonReturnType:
     """
     {
         "function": "FLOAT",
@@ -158,14 +158,14 @@ def FLOAT(series: NumberRestrictedInputType) -> FloatFunctonReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
-        return float(series)
+    if isinstance(arg, int) or isinstance(arg, float):
+        return float(arg)
     
-    return series
+    return arg.fillna(np.nan)
 
-@cast_values_in_arg_to_type('series', 'int')
+@cast_values_in_arg_to_type('arg', 'int')
 @handle_sheet_function_errors
-def INT(series: IntRestrictedInputType) -> IntFunctionReturnType:
+def INT(arg: IntRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "INT",
@@ -183,16 +183,13 @@ def INT(series: IntRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int):
-        return series
-    
-    return series
+    return arg
     
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def KURT(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def KURT(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "KURT",
@@ -210,23 +207,23 @@ def KURT(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
+    if isinstance(arg, int) or isinstance(arg, float):
         return 0
         
-    return series.kurt() # type: ignore
+    return arg.kurt() # type: ignore
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @cast_values_in_arg_to_type('base', 'number')
 @handle_sheet_function_errors
-def LOG(series: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType]=None) -> NumberFunctionReturnType:
+def LOG(arg: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType]=None) -> NumberFunctionReturnType:
     """
     {
         "function": "LOG",
         "description": "Calculates the logarithm of the passed series with an optional base.",
         "search_terms": ["log", "logarithm", "natural log"],
         "examples": [
-            "LOG(e) = 1",
+            "LOG(10) = 1",
             "LOG(100, 10) = 2"
         ],
         "syntax": "LOG(series, [base])",
@@ -236,24 +233,24 @@ def LOG(series: NumberRestrictedInputType, base: Optional[NumberRestrictedInputT
             },
             {
                 "element": "base [OPTIONAL]",
-                "description": "The base of the logarithm to use. Defaults to the natural logarithm if no base is passed."
+                "description": "The base of the logarithm to use. Defaults to 10 if no base is passed."
             }
         ]
     }
     """
     
     if base is None:
-        base = math.e
+        base = 10
 
-    if (isinstance(series, int) or isinstance(series, float)) and (isinstance(base, int) or isinstance(base, float)):
-        return math.log(series, base)
+    if (isinstance(arg, int) or isinstance(arg, float)) and (isinstance(base, int) or isinstance(base, float)):
+        return math.log(arg, base)
     
-    index = get_index_from_series(series, base)
-    series = get_series_from_primitive_or_series(series, index)
-    base = get_series_from_primitive_or_series(base, index).fillna(math.e)
+    index = get_index_from_series(arg, base)
+    arg = get_series_from_primitive_or_series(arg, index)
+    base = get_series_from_primitive_or_series(base, index).fillna(10)
     
     # See here: https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
-    return pd.Series(np.log(series) / np.log(base)) # type: ignore
+    return pd.Series(np.log(arg) / np.log(base)) # type: ignore
 
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
@@ -302,10 +299,10 @@ def MULTIPLY(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
     )
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @cast_values_in_arg_to_type('power', 'number')
 @handle_sheet_function_errors
-def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def POWER(arg: NumberRestrictedInputType, power: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "POWER",
@@ -327,15 +324,15 @@ def POWER(series: NumberRestrictedInputType, power: NumberRestrictedInputType) -
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
-        return series ** power
+    if isinstance(arg, int) or isinstance(arg, float):
+        return arg ** power
     
-    return series.pow(power) # type: ignore
+    return arg.pow(power) # type: ignore
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @cast_values_in_arg_to_type('decimals', 'number')
 @handle_sheet_function_errors
-def ROUND(series: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputType]=None) -> NumberFunctionReturnType:
+def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputType]=None) -> NumberFunctionReturnType:
     """
     {
         "function": "ROUND",
@@ -362,18 +359,18 @@ def ROUND(series: NumberRestrictedInputType, decimals: Optional[IntRestrictedInp
     if decimals is None:
         decimals = 0
 
-    index = get_index_from_series(series, decimals)
-    series = get_series_from_primitive_or_series(series, index)
+    index = get_index_from_series(arg, decimals)
+    arg = get_series_from_primitive_or_series(arg, index)
     decimals = get_series_from_primitive_or_series(decimals, index)
 
     return pd.Series(
-        [round(num, dec) for num, dec in zip(series, decimals)], # type: ignore
-        index=series.index # type: ignore
+        [round(num, dec) for num, dec in zip(arg, decimals)], # type: ignore
+        index=arg.index # type: ignore
     )
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def SKEW(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def SKEW(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "SKEW",
@@ -391,14 +388,14 @@ def SKEW(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
+    if isinstance(arg, int) or isinstance(arg, float):
         return 0
         
-    return series.skew() # type: ignore
+    return arg.skew() # type: ignore
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def STDEV(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def STDEV(arg: NumberInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "STDEV",
@@ -416,10 +413,14 @@ def STDEV(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
+    if isinstance(arg, int) or isinstance(arg, float):
         return 0
-        
-    return series.std() # type: ignore
+    elif isinstance(arg, pd.Series):
+        return arg.std() # type: ignore
+    elif isinstance(arg, pd.DataFrame):
+        return arg.stack().std() # We have to compute them all together
+    else:
+        return arg.apply(lambda x: x.stack().std()) # type: ignore
 
 
 @cast_values_in_all_args_to_type('number')
@@ -435,9 +436,9 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
     )
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def VALUE(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def VALUE(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "VALUE",
@@ -455,12 +456,14 @@ def VALUE(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    return series
+    if isinstance(arg, int) or isinstance(arg, float):
+        return arg
+    return arg.fillna(np.nan) # Normalize with nan
 
 
-@cast_values_in_arg_to_type('series', 'number')
+@cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
-def VAR(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
+def VAR(arg: NumberInputType) -> NumberFunctionReturnType:
     """
     {
         "function": "VAR",
@@ -478,10 +481,14 @@ def VAR(series: NumberRestrictedInputType) -> NumberFunctionReturnType:
         ]
     }
     """
-    if isinstance(series, int) or isinstance(series, float):
+    if isinstance(arg, int) or isinstance(arg, float):
         return 0
-        
-    return series.var() # type: ignore
+    elif isinstance(arg, pd.Series):
+        return arg.var() # type: ignore
+    elif isinstance(arg, pd.DataFrame):
+        return arg.stack().var() # type: ignore
+    else:
+        return arg.apply(lambda x: x.stack().var()) # type: ignore
 
 
 NUMBER_FUNCTIONS = {

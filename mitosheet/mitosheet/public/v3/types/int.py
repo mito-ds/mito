@@ -11,7 +11,7 @@ from mitosheet.public.v3.types.float import cast_string_to_float
 def cast_str_to_int(s: str) -> Optional[int]:
     f = cast_string_to_float(s)
     if f is None:
-        return None
+        raise make_invalid_param_type_conversion_error(s, 'int')
     else:
         return int(f)
 
