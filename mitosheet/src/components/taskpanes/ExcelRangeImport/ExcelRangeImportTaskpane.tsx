@@ -33,7 +33,13 @@ interface ExcelRangeImportTaskpaneProps {
 
 export type ExcelRangeImportType = 'range' | 'upper left corner value';
 export type ExcelRangeRangeImport = {type: 'range', df_name: string, value: string | number};
-export type ExcelRangeUpperLeftCornerValueImport = {type: 'upper left corner value', df_name: string, value: string | number, end_condition: {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number}};
+export type ExcelRangeUpperLeftCornerValueImport = {
+    type: 'upper left corner value', 
+    df_name: string, 
+    value: string | number, 
+    end_condition: {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number}
+    column_end_condition: {type: 'first empty cell'} | {type: 'num columns', value: string | number}
+};
 export type ExcelRangeImport = ExcelRangeRangeImport | ExcelRangeUpperLeftCornerValueImport
 
 
@@ -117,7 +123,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     if (previousType === 'range') {
                                         newRangeImports.unshift({'type': 'range', 'df_name': '', 'value': ''})
                                     } else {
-                                        newRangeImports.unshift({'type': 'upper left corner value', 'df_name': '', 'value': '', 'end_condition': {'type': 'first empty cell'}})
+                                        newRangeImports.unshift({'type': 'upper left corner value', 'df_name': '', 'value': '', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}})
                                     }
                                     return {
                                         ...prevParams,
@@ -226,7 +232,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                                         'type': newRangeImportType,
                                                         'df_name': previousRangeImport.df_name,
                                                         'value': isNew ? '' : previousRangeImport.value,
-                                                        'end_condition': {'type': 'first empty cell'}
+                                                        'end_condition': {'type': 'first empty cell'},
+                                                        'column_end_condition': {'type': 'first empty cell'},
                                                     }
                                                 }
 
@@ -292,7 +299,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     <Row justify="space-between" align="center">
                                         <Col>
                                             <p className="text-body-1">
-                                                Final Row Condition
+                                                Ending Row Condition
                                             </p>
                                         </Col>
                                         <Col>
@@ -373,8 +380,95 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         </Row>
                                     }
                                 </>
-                            
-                            
+                            }
+                            {range_import.type === 'upper left corner value' && 
+                                <>
+                                    <Spacer px={10} seperatingLine/>
+                                    <Row justify="space-between" align="center">
+                                        <Col>
+                                            <p className="text-body-1">
+                                                Ending Column Condition
+                                            </p>
+                                        </Col>
+                                        <Col>
+                                            <Select
+                                                width="medium"
+                                                value={range_import.end_condition.type}
+                                                onChange={(newType) => {
+                                                    setParams((prevParams) => {
+                                                        const newRangeImports = window.structuredClone(prevParams.range_imports);
+                                                        const newRangeImport: ExcelRangeUpperLeftCornerValueImport = window.structuredClone(range_import);
+
+                                                        const newEndConditionType = newType as 'first empty cell' | 'num columns';
+
+                                                        if (newEndConditionType === 'first empty cell') {
+                                                            newRangeImport.column_end_condition = {'type': newEndConditionType}
+                                                        } else {
+                                                            newRangeImport.column_end_condition = {'type': newEndConditionType, value: 3}
+
+                                                        }
+
+                                                        newRangeImports[index] = newRangeImport;
+
+                                                        return {
+                                                            ...prevParams,
+                                                            range_imports: newRangeImports,
+                                                        }
+                                                    })
+                                                }}
+                                            >
+                                                <DropdownItem
+                                                    title='First Empty Cell'
+                                                    id='first empty cell'
+                                                    subtext="Mito will continue take all columns until it hits an empty cell."
+                                                />
+                                                <DropdownItem
+                                                    title="Num Columns"
+                                                    id='num columns'
+                                                    subtext="Specify a static number of columns to read in."
+                                                />
+                                                
+                                            </Select>
+                                        </Col>
+                                    </Row>
+                                    {range_import.column_end_condition.type === 'num columns' &&
+                                        <Row justify="space-between" align="center">
+                                            <Col>
+                                                <LabelAndTooltip 
+                                                    textBody
+                                                    tooltip="Specify a static number of columns to read in."
+                                                >
+                                                    Number of Columns
+                                                </LabelAndTooltip>
+                                            </Col>
+                                            <Col>
+                                                <Input
+                                                    type="number"
+                                                    width="medium"
+                                                    placeholder={'4'}
+                                                    value={'' + range_import.column_end_condition.value}
+                                                    onChange={(e) => {
+                                                        const newValue = e.target.value;
+                                                        setParams((prevParams) => {
+                                                            const newRangeImports = window.structuredClone(prevParams.range_imports);
+                                                            const newRangeImport: ExcelRangeUpperLeftCornerValueImport = window.structuredClone(range_import);
+                                                            if (newRangeImport.column_end_condition.type === 'num columns') {
+                                                                newRangeImport.column_end_condition.value = newValue;
+                                                            } 
+
+                                                            newRangeImports[index] = newRangeImport;
+                                                            
+                                                            return {
+                                                                ...prevParams,
+                                                                range_imports: newRangeImports
+                                                            }
+                                                        })
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    }
+                                </>
                             }
                         </ExpandableContentCard>
                     )
@@ -416,13 +510,24 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     }
                                 }
 
+                                if (finalRangeImport.type === 'upper left corner value' && finalRangeImport.column_end_condition.type === 'num columns' && typeof finalRangeImport.column_end_condition.value === 'string') {
+                                    const parsedValue = parseInt(finalRangeImport.column_end_condition.value);
+                                    if (!isNaN(parsedValue)) {
+                                        finalRangeImport = {
+                                            ...finalRangeImport,
+                                            column_end_condition: {
+                                                ...finalRangeImport.column_end_condition,
+                                                value: parsedValue
+                                            }
+                                        }
+                                    }
+                                }
+
                                 return finalRangeImport;
                             });
 
                             // We then reverse the range imports, so they appear in the order that they were added
                             finalRangeImports.reverse()
-
-                            console.log("FINAL IMPORTS", finalRangeImports);
 
                             return {
                                 ...params,
