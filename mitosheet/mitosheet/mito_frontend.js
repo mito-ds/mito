@@ -38784,7 +38784,7 @@ fig.write_html("${props.graphTabName}.html")`
             if (previousType === "range") {
               newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
             } else {
-              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" } });
+              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" }, "column_end_condition": { "type": "first empty cell" } });
             }
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
@@ -38867,7 +38867,8 @@ fig.write_html("${props.graphTabName}.html")`
                     "type": newRangeImportType,
                     "df_name": previousRangeImport.df_name,
                     "value": isNew ? "" : previousRangeImport.value,
-                    "end_condition": { "type": "first empty cell" }
+                    "end_condition": { "type": "first empty cell" },
+                    "column_end_condition": { "type": "first empty cell" }
                   };
                 }
                 newRangeImports[index] = newRangeImport;

@@ -8,6 +8,7 @@ Contains tests for Excel Range Import
 """
 
 import os
+import numpy as np
 
 import pandas as pd
 import pytest
@@ -41,7 +42,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B2'],
         [TEST_DF_1],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1],
     ),
     (   
@@ -53,13 +54,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['AA100:AB101'],
         [TEST_DF_1],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1],
     ),
     (
         ['A1:E3'],
         [TEST_DF_5],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
         [TEST_DF_5],
     ),
     (
@@ -71,7 +72,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:G100'],
         [TEST_DF_1],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1],
     ),
     (   
@@ -89,7 +90,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B4'],
         [TEST_DF_3],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
         [TEST_DF_3],
     ),
     (
@@ -101,19 +102,19 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B2', 'A4:B5'],
         [TEST_DF_1, TEST_DF_2],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_2', 'value': TEST_DF_2.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_2', 'value': TEST_DF_2.columns[0]}],
         [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
         [TEST_DF_1, TEST_DF_2],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': 'dataframe_2',  'value': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2],
     ),
     (
         ['A1:B2', 'A4:B5'],
         [TEST_DF_1, TEST_DF_2],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'a bad dataframe name', 'value': TEST_DF_1.columns[0]}, {'type': 'range', 'df_name': '97 also bad', 'value': 'A4:B5'}],
         [TEST_DF_1, TEST_DF_2],
     ),
     (
@@ -126,29 +127,48 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B4'],
         [TEST_DF_3],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 200}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 200}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_3.columns[0]}],
         [TEST_DF_3.iloc[0:2]],
     ),
     # Have a NaN value in the middle
     (
         ['A1:B2', 'A4:B5'],
         [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 100}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 100}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}],
         [pd.DataFrame({'A': [1, None, 'B', 100]})],
     ),
     # End on a string
     (
         ['A1:B2', 'A4:B5'],
         [pd.DataFrame({'A': [1]}), pd.DataFrame({'B': [100]})],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}],
         [pd.DataFrame({'A': [1, None, 'B']})],
     ),
     # Have empty cells in the final row
     (
         ['A1:B2', 'A4:B5'],
         [pd.DataFrame({'A': [1], 'D': [1]}), pd.DataFrame({'B': [100], 'C': [None]})],
-        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'df_name': 'dataframe_1', 'value': 'A'}],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'B'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': 'A'}],
         [pd.DataFrame({'A': [1, None, 'B'], 'D': [1, None, 'C']})],
+    ),
+    (
+        ['A1:E3'],
+        [TEST_DF_5],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 1}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [TEST_DF_5.iloc[:, :1]],
+    ),
+    (
+        ['A1:E3'],
+        [TEST_DF_5],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 3}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [TEST_DF_5.iloc[:, :3]],
+    ),
+    # Can't go where there are no data in the rows, so we put some fake data in J3
+    (
+        ['A1:E3', 'J3:K4'],
+        [TEST_DF_5, TEST_DF_1],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 10}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [pd.concat([TEST_DF_5, pd.DataFrame([[np.nan if i != 4 or j != 1 else "header 1" for i in range(5)] for j in range(2)], columns=['Unnamed: 5', 'Unnamed: 6', 'Unnamed: 7', 'Unnamed: 8', 'Unnamed: 9'])], axis=1)],
     ),
 ]
 @pandas_post_1_2_only
@@ -299,7 +319,7 @@ def test_excel_range_upper_left_detection_finds_first_match():
             df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)
 
     mito = create_mito_wrapper_dfs()
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'df_name': 'df1', 'value': 1}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'df1', 'value': 1}])
 
     assert mito.dfs[0].equals(TEST_DF_6)
 

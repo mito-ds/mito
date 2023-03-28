@@ -20,6 +20,7 @@ EXCEL_RANGE_IMPORT_TYPE_RANGE = 'range'
 EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT_VALUE = 'upper left corner value'
 EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE = 'first empty cell'
 EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE = 'bottom left corner value'
+EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS = 'num columns'
 
 
 class ExcelRangeImportCodeChunk(CodeChunk):
@@ -58,22 +59,25 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
                 end_condition = range_import['end_condition'] # type: ignore
 
-                if end_condition['type'] == EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE:
-                    code.extend([
-                        f'_range = get_table_range_from_upper_left_corner_value({column_header_to_transpiled_code(self.file_path)}, {column_header_to_transpiled_code(self.sheet_name)}, {column_header_to_transpiled_code(range_import["value"])})',
-                        'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)'
-                    ])
-                elif end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE:
-                    code.extend([
-                        f'_range = get_table_range_from_upper_left_corner_value({column_header_to_transpiled_code(self.file_path)}, {column_header_to_transpiled_code(self.sheet_name)}, {column_header_to_transpiled_code(range_import["value"])}, {column_header_to_transpiled_code(end_condition["value"])})',
-                        'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)'
-                    ])
-                else:
-                    raise Exception(f"End condition {end_condition} is not a valid type.")
-                
-                code.append(
+                end_condition = range_import['end_condition'] #type: ignore
+                column_end_condition = range_import['column_end_condition'] #type: ignore
+
+                assert end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE]
+                assert column_end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS]
+
+                upper_left_value = range_import['value']
+                bottom_left_value = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE else None
+                num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
+
+                bottom_left_value_string = f', bottom_left_value={column_header_to_transpiled_code(bottom_left_value)}' if bottom_left_value else ''
+                num_columns_string = f', num_columns={column_header_to_transpiled_code(num_columns)}' if num_columns else ''
+    
+                code.extend([
+                    f'_range = get_table_range_from_upper_left_corner_value({column_header_to_transpiled_code(self.file_path)}, {column_header_to_transpiled_code(self.sheet_name)}, {column_header_to_transpiled_code(upper_left_value)}{bottom_left_value_string}{num_columns_string})',
+                    'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)',
                     f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
-                )
+                ])
+                
 
             # Add a new line in between different imports otherwise the code looks bad
             if idx < len(self.range_imports) - 1:
