@@ -489,7 +489,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                                 if (finalRangeImport.type === 'upper left corner value' && typeof finalRangeImport.value === 'string') {
                                     const parsedValue = parseFloat(finalRangeImport.value);
-                                    if (!isNaN(parsedValue)) {
+                                    const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.value);
+                                    if (!isNaN(parsedValue) && isOnlyNumber) {
                                         finalRangeImport = {
                                             ...rangeImport,
                                             value: parsedValue
@@ -499,7 +500,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                                 if (finalRangeImport.type === 'upper left corner value' && finalRangeImport.end_condition.type === 'bottom left corner value' && typeof finalRangeImport.end_condition.value === 'string') {
                                     const parsedValue = parseFloat(finalRangeImport.end_condition.value);
-                                    if (!isNaN(parsedValue)) {
+                                    const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.end_condition.value);
+                                    if (!isNaN(parsedValue) && isOnlyNumber) {
                                         finalRangeImport = {
                                             ...finalRangeImport,
                                             end_condition: {
@@ -512,7 +514,8 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                                 if (finalRangeImport.type === 'upper left corner value' && finalRangeImport.column_end_condition.type === 'num columns' && typeof finalRangeImport.column_end_condition.value === 'string') {
                                     const parsedValue = parseInt(finalRangeImport.column_end_condition.value);
-                                    if (!isNaN(parsedValue)) {
+                                    const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.column_end_condition.value);
+                                    if (!isNaN(parsedValue)&& isOnlyNumber) {
                                         finalRangeImport = {
                                             ...finalRangeImport,
                                             column_end_condition: {
