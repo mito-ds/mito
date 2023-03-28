@@ -105,7 +105,7 @@ def upgrade_excel_range_import_2_to_3(step: Dict[str, Any], later_steps: List[Di
                 "df_name": str,
                 "value": str,
                 "end_condition": {'type': 'first empty cell'} | {'type': 'bottom left corner value', 'value': Any},
-                'column_end_condition': {'type': 'first empty cell'} | {'type': 'num columns', 'value': Any}
+                'column_end_condition': {'type': 'first empty cell'} | {'type': 'num columns', 'value': int}
             }[]
         }
     }

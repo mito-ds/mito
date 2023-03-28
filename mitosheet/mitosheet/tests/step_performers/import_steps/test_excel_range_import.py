@@ -163,6 +163,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 3}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
         [TEST_DF_5.iloc[:, :3]],
     ),
+    # we have a bottom left corner value as well as a number of columns
+    (
+        ['A1:E3'],
+        [TEST_DF_5],
+        [{'type': 'upper left corner value', 'end_condition': {'type': 'bottom left corner value', 'value': 'abc'}, 'column_end_condition': {'type': 'num columns', 'value': 3}, 'df_name': 'dataframe_1', 'value': TEST_DF_5.columns[0]}],
+        [TEST_DF_5.iloc[:1, :3]],
+    ),
     # Can't go where there are no data in the rows, so we put some fake data in J3
     (
         ['A1:E3', 'J3:K4'],
