@@ -29131,7 +29131,11 @@ ${finalCode}`;
   // src/components/layout/Spacer.tsx
   var import_react67 = __toESM(require_react());
   var Spacer = (props) => {
-    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop: `${props.px}px` } });
+    const px = props.seperatingLine ? props.px / 2 : props.px;
+    const marginTop = `${px}px`;
+    const border = props.seperatingLine ? ".5px solid var(--mito-light-gray)" : "none";
+    const marginBottom = props.seperatingLine ? `${px}px` : "none";
+    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop, border, marginBottom } });
   };
   var Spacer_default = Spacer;
 
@@ -38780,7 +38784,7 @@ fig.write_html("${props.graphTabName}.html")`
             if (previousType === "range") {
               newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
             } else {
-              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" } });
+              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" }, "column_end_condition": { "type": "first empty cell" } });
             }
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
@@ -38839,6 +38843,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
+        /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }),
         /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
@@ -38862,7 +38867,8 @@ fig.write_html("${props.graphTabName}.html")`
                     "type": newRangeImportType,
                     "df_name": previousRangeImport.df_name,
                     "value": isNew ? "" : previousRangeImport.value,
-                    "end_condition": { "type": "first empty cell" }
+                    "end_condition": { "type": "first empty cell" },
+                    "column_end_condition": previousRangeImport.type === "upper left corner value" && previousRangeImport.column_end_condition !== void 0 ? previousRangeImport.column_end_condition : { "type": "first empty cell" }
                   };
                 }
                 newRangeImports[index] = newRangeImport;
@@ -38915,7 +38921,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }), /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Ending Row Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38981,6 +38987,74 @@ fig.write_html("${props.graphTabName}.html")`
               });
             }
           }
+        )))),
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }), /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Ending Column Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: range_import.column_end_condition.type,
+            onChange: (newType) => {
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                const newEndConditionType = newType;
+                if (newEndConditionType === "first empty cell") {
+                  newRangeImport.column_end_condition = { "type": newEndConditionType };
+                } else {
+                  newRangeImport.column_end_condition = { "type": newEndConditionType, value: "" };
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          },
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "First Empty Cell",
+              id: "first empty cell",
+              subtext: "Mito will continue take all columns until it hits an empty cell."
+            }
+          ),
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Num Columns",
+              id: "num columns",
+              subtext: "Specify a static number of columns to read in."
+            }
+          )
+        ))), range_import.column_end_condition.type === "num columns" && /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          LabelAndTooltip_default,
+          {
+            textBody: true,
+            tooltip: "Specify a static number of columns to read in."
+          },
+          "Number of Columns"
+        )), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Input_default,
+          {
+            type: "number",
+            width: "medium",
+            placeholder: "4",
+            value: "" + range_import.column_end_condition.value,
+            onChange: (e) => {
+              const newValue = e.target.value;
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                if (newRangeImport.column_end_condition.type === "num columns") {
+                  newRangeImport.column_end_condition.value = newValue;
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          }
         ))))
       );
     })), /* @__PURE__ */ import_react169.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react169.default.createElement(
@@ -39010,10 +39084,19 @@ fig.write_html("${props.graphTabName}.html")`
                   });
                 }
               }
+              if (finalRangeImport.type === "upper left corner value" && finalRangeImport.column_end_condition.type === "num columns" && typeof finalRangeImport.column_end_condition.value === "string") {
+                const parsedValue = parseInt(finalRangeImport.column_end_condition.value);
+                if (!isNaN(parsedValue)) {
+                  finalRangeImport = __spreadProps(__spreadValues({}, finalRangeImport), {
+                    column_end_condition: __spreadProps(__spreadValues({}, finalRangeImport.column_end_condition), {
+                      value: parsedValue
+                    })
+                  });
+                }
+              }
               return finalRangeImport;
             });
             finalRangeImports.reverse();
-            console.log("FINAL IMPORTS", finalRangeImports);
             return __spreadProps(__spreadValues({}, params2), {
               range_imports: finalRangeImports
             });

@@ -12,6 +12,7 @@ import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import (
+    EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS,
     EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE,
     EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_IMPORT_TYPE_RANGE,
     ExcelRangeImportCodeChunk)
@@ -33,7 +34,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 2
+        return 3
 
     @classmethod
     def step_type(cls) -> str:
@@ -55,13 +56,19 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
                 _range = range_import['value']
             else:
+
                 end_condition = range_import['end_condition'] #type: ignore
-                if end_condition['type'] == EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE:
-                    _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, range_import['value'])
-                elif end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE:
-                    _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, range_import['value'], bottom_left_value=end_condition['value'])
-                else:
-                    raise Exception(f"End condition {end_condition} is not a valid type.")
+                column_end_condition = range_import['column_end_condition'] #type: ignore
+
+                assert end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE]
+                assert column_end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS]
+
+                # Otherwise, we might have bottom_left_value and num_columns that define the range of the table. So we get them if they exist
+                upper_left_value = range_import['value']
+                bottom_left_value = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE else None
+                num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
+
+                _range = get_table_range_from_upper_left_corner_value(file_path, sheet_name, upper_left_value, bottom_left_value=bottom_left_value, num_columns=num_columns)
 
             if _range is None:
                 raise make_upper_left_corner_value_not_found_error(range_import['value'], False)
