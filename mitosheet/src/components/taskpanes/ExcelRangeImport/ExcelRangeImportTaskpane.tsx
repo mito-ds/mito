@@ -18,6 +18,7 @@ import { getBaseOfPath } from "../UpdateImports/updateImportsUtils";
 import Select from "../../elements/Select";
 import DropdownItem from "../../elements/DropdownItem";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
+import Spacer from "../../layout/Spacer";
 
 
 interface ExcelRangeImportTaskpaneProps {
@@ -193,6 +194,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                     />
                                 </Col>
                             </Row>
+                            <Spacer px={10} seperatingLine/>
                             <Row justify="space-between" align="center">
                                 <Col>
                                     <p className="text-body-1">
@@ -286,10 +288,11 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             </Row>
                             {range_import.type === 'upper left corner value' && 
                                 <>
+                                    <Spacer px={10} seperatingLine/>
                                     <Row justify="space-between" align="center">
                                         <Col>
                                             <p className="text-body-1">
-                                                Table End Condition
+                                                Final Row Condition
                                             </p>
                                         </Col>
                                         <Col>
@@ -334,7 +337,6 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                         </Col>
                                     </Row>
                                     {range_import.end_condition.type === 'bottom left corner value' &&
-                                    
                                         <Row justify="space-between" align="center">
                                             <Col>
                                                 <LabelAndTooltip 

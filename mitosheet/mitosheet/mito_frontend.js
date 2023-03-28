@@ -29131,7 +29131,11 @@ ${finalCode}`;
   // src/components/layout/Spacer.tsx
   var import_react67 = __toESM(require_react());
   var Spacer = (props) => {
-    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop: `${props.px}px` } });
+    const px = props.seperatingLine ? props.px / 2 : props.px;
+    const marginTop = `${px}px`;
+    const border = props.seperatingLine ? ".5px solid var(--mito-light-gray)" : "none";
+    const marginBottom = props.seperatingLine ? `${px}px` : "none";
+    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop, border, marginBottom } });
   };
   var Spacer_default = Spacer;
 
@@ -38839,6 +38843,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
+        /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }),
         /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
@@ -38915,7 +38920,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }), /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Final Row Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
