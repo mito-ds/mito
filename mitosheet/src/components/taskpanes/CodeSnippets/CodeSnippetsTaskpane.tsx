@@ -107,7 +107,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     let openLocation = DISCORD_INVITE_LINK
                     const codeSnippetSupportEmail = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL
                     if (codeSnippetSupportEmail !== undefined && codeSnippetSupportEmail !== null) {
-                        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`
+                        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support. Snippet Name: "${codeSnippet.Name}" Snippet ID: "${codeSnippet.Id}"`
                     }
                     
                     return (

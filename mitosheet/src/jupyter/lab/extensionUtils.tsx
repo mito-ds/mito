@@ -168,9 +168,11 @@ export function tryOverwriteAnalysisToReplayParameter(cell: ICellModel | undefin
     if (isMitosheetCallCode(getCellText(cell)) && containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), oldAnalysisName)) {
         const currentCode = getCellText(cell);
 
+
+
         const newCode = currentCode.replace(
-            `analysis_to_replay="${oldAnalysisName}")`,
-            `analysis_to_replay="${newAnalysisName}")`
+            RegExp(`analysis_to_replay\\s*=\\s*"${oldAnalysisName}"`),
+            `analysis_to_replay="${newAnalysisName}"`
         )
         writeToCell(cell, newCode);
         return true;

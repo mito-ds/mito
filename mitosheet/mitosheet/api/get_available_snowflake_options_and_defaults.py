@@ -109,8 +109,8 @@ def get_warehouses(con: MitoSafeSnowflakeConnection) -> List[str]:
         if cur is None:
                 return []
 
-        warehouses = cur.fetchall()
-        return [wh[0] for wh in warehouses]
+        warehouses = cur.fetchall() # type: ignore
+        return [wh[0] for wh in warehouses] # type: ignore
 
 def get_databases(con: MitoSafeSnowflakeConnection) -> List[str]:
         if con is None:
@@ -122,8 +122,8 @@ def get_databases(con: MitoSafeSnowflakeConnection) -> List[str]:
         if cur is None:
                 return []
 
-        databases = cur.fetchall()
-        return [db[1] for db in databases]
+        databases = cur.fetchall() # type: ignore
+        return [db[1] for db in databases] # type: ignore
 
 def get_schemas(con: MitoSafeSnowflakeConnection, database: Optional[str]) -> List[str]:
         if con is None: 
@@ -135,8 +135,8 @@ def get_schemas(con: MitoSafeSnowflakeConnection, database: Optional[str]) -> Li
         if cur is None:
                 return []
 
-        schemas = cur.fetchall()
-        return [s[1] for s in schemas]
+        schemas = cur.fetchall() # type: ignore
+        return [s[1] for s in schemas] # type: ignore
 
 def get_tables(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str]) -> List[str]:
         if con is None or database is None or schema is None:
@@ -148,8 +148,8 @@ def get_tables(con: MitoSafeSnowflakeConnection, database: Optional[str], schema
         if cur is None:
                 return []
 
-        tables = cur.fetchall()
-        return [table[1] for table in tables]
+        tables = cur.fetchall() # type: ignore
+        return [table[1] for table in tables] # type: ignore
 
 def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schema: Optional[str], table: Optional[str]) -> List[str]:
         if con is None or database is None or schema is None or table is None:
@@ -161,8 +161,8 @@ def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schem
         if cur is None:
                 return []
 
-        columns = cur.fetchall()
-        return [column[2] for column in columns]
+        columns = cur.fetchall() # type: ignore
+        return [column[2] for column in columns] # type: ignore
 
 def get_default_warehouse(warehouses: List[str]) -> Optional[str]:
         return warehouses[0] if len(warehouses) > 0 else None 

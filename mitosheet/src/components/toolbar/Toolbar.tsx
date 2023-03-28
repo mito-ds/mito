@@ -362,6 +362,14 @@ const Toolbar = (
                             disabledTooltip={props.actions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
                         />
                     }
+                    {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
+                        <ToolbarButton
+                            toolbarButtonType={ToolbarButtonType.CODE_SNIPPETS}
+                            action={props.actions[ActionEnum.CODESNIPPETS]}
+                            setEditorState={props.setEditorState}
+                            disabledTooltip={props.actions[ActionEnum.CODESNIPPETS].isDisabled()}
+                        />
+                    }
                 </div>
                 <div className='toolbar-bottom-right-half'>
                     {/* 

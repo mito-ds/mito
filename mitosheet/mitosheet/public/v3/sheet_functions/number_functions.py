@@ -19,13 +19,15 @@ import numpy as np
 
 import pandas as pd
 
+from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
+from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
+from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type
+from mitosheet.public.v3.types.sheet_function_types import NumberFunctionReturnType, NumberInputType
 
-NumberFunctionReturnType = Union[pd.Series, int, float]
-
-@cast_values_in_arg_to_type('number')
-def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def AVG(*argv: NumberInputType) -> NumberFunctionReturnType:
 
     # Calculate the sum using the SUM function
     sum_for_avg = SUM(*argv)
@@ -54,59 +56,64 @@ def AVG(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
     return sum_for_avg / num_entries if num_entries is not 0 else 0
 
 
-@cast_values_in_arg_to_type('number')
-def MAX(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MAX(*argv: NumberInputType) -> NumberFunctionReturnType:
     
-    result: Union[pd.Series, float, int] = -sys.maxsize - 1
-
-    def get_new_result(_result: Union[pd.Series, float, int], new_value: Union[pd.Series, float, int]) -> Union[pd.Series, float, int]:
-        if isinstance(_result, pd.Series):
-            if isinstance(new_value, pd.Series):
-                return pd.concat([_result, new_value], axis=1).max(axis=1)
-            else:
-                return _result.apply(lambda v: np.nanmax([v, new_value]))
-        else:
-            if isinstance(new_value, pd.Series):
-                return new_value.apply(lambda v: np.nanmax([v, _result]))
-            else:
-                return max(_result, new_value)
-
-    for arg in argv:
-        if isinstance(arg, pd.DataFrame):
-            df_sum = arg.sum().sum()
-            result = get_new_result(result, df_sum)
-
-        elif isinstance(arg, RollingRange):
-            new_series = arg.apply(lambda df: df.sum().sum())
-            result = get_new_result(result, new_series)
-            
-        elif isinstance(arg, pd.Series):
-            result = get_new_result(result, arg)
-            
-        elif arg is not None:
-            result = get_new_result(result, arg)
+    result = get_final_result_series_or_primitive(
+        -sys.maxsize - 1,
+        argv,
+        lambda df: df.sum().sum(),
+        lambda previous_value, new_value: max(previous_value, new_value),
+        lambda previous_series, new_series: pd.concat([previous_series, new_series], axis=1).max(axis=1)
+    )
 
     # If we don't find any arguements, we default to 0 -- like Excel
-    kept_default_min_value = not isinstance(result, pd.Series) and result == (-sys.maxsize - 1)
+    kept_default_max_value = not isinstance(result, pd.Series) and result == (-sys.maxsize - 1)
+    return result if not kept_default_max_value else 0
+
+
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MIN(*argv: NumberInputType) -> NumberFunctionReturnType:
+
+    result = get_final_result_series_or_primitive(
+        sys.maxsize,
+        argv,
+        lambda df: df.sum().sum(),
+        lambda previous_value, new_value: min(previous_value, new_value),
+        lambda previous_series, new_series: pd.concat([previous_series, new_series], axis=1).min(axis=1)
+    )
+
+    # If we don't find any arguements, we default to 0 -- like Excel
+    kept_default_min_value = not isinstance(result, pd.Series) and result == sys.maxsize
     return result if not kept_default_min_value else 0
 
-@cast_values_in_arg_to_type('number')
-def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFunctionReturnType:
-    
-    result: Union[pd.Series, float, int] = 0
 
-    for arg in argv:
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def MULTIPLY(*argv: NumberInputType) -> NumberFunctionReturnType:
 
-        if isinstance(arg, pd.DataFrame):
-            result += arg.sum().sum()
-        elif isinstance(arg, RollingRange):
-            result += arg.apply(lambda df: df.sum().sum())
-        elif isinstance(arg, pd.Series):
-            result += arg.fillna(0)
-        elif arg is not None:
-            result += arg
+    return get_final_result_series_or_primitive(
+        1,
+        argv,
+        lambda df: df.prod().prod(),
+        lambda previous_value, new_value: previous_value * new_value,
+        lambda previous_series, new_series: previous_series * new_series
+    )
 
-    return result 
+
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def SUM(*argv: NumberInputType) -> NumberFunctionReturnType:
+
+    return get_final_result_series_or_primitive(
+        0,
+        argv,
+        lambda df: df.sum().sum(),
+        lambda previous_value, new_value: previous_value + new_value,
+        lambda previous_series, new_series: previous_series + new_series
+    )
 
 
 
@@ -114,5 +121,7 @@ def SUM(*argv: Union[int, float, None, pd.Series, RollingRange]) -> NumberFuncti
 NUMBER_FUNCTIONS = {
     'AVG': AVG,
     'MAX': MAX,
+    'MIN': MIN,
+    'MULTIPLY': MULTIPLY,
     'SUM': SUM,
 }

@@ -54,11 +54,6 @@ def print_success_message():
 
 FINAL_INSTALLER_STEPS = [
     InstallerStep(
-        'Create import mito startup file',
-        create_startup_file,
-        optional=True
-    ),
-    InstallerStep(
         'Creating a Mitosheet starter notebook',
         try_create_starter_notebook
     ),

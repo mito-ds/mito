@@ -22661,10 +22661,12 @@ ${finalCode}`;
     return codeText.startsWith("# MITO CODE START") || codeText.startsWith("from mitosheet import *; register_analysis(") || codeText.startsWith("from mitosheet import *; # Analysis:") || codeText.startsWith("from mitosheet import *; # Analysis Name:") || startsWithPublicVersionImport;
   }
   function containsMitosheetCallWithSpecificAnalysisToReplay(codeText, analysisName) {
-    return codeText.includes("sheet(") && codeText.includes(`analysis_to_replay="${analysisName}"`);
+    const codeTextCleaned = codeText.replace(/\s/g, "");
+    return codeTextCleaned.includes("sheet(") && codeTextCleaned.includes(`analysis_to_replay="${analysisName}"`);
   }
   function containsMitosheetCallWithAnyAnalysisToReplay(codeText) {
-    return isMitosheetCallCode(codeText) && codeText.includes(`analysis_to_replay=`);
+    const codeTextCleaned = codeText.replace(/\s/g, "");
+    return isMitosheetCallCode(codeText) && codeTextCleaned.includes(`analysis_to_replay=`);
   }
   function containsGeneratedCodeOfAnalysis(codeText, analysisName) {
     return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
@@ -22741,8 +22743,8 @@ ${finalCode}`;
     if (isMitosheetCallCode(getCellText(cell)) && containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), oldAnalysisName)) {
       const currentCode = getCellText(cell);
       const newCode = currentCode.replace(
-        `analysis_to_replay="${oldAnalysisName}")`,
-        `analysis_to_replay="${newAnalysisName}")`
+        RegExp(`analysis_to_replay\\s*=\\s*"${oldAnalysisName}"`),
+        `analysis_to_replay="${newAnalysisName}"`
       );
       writeToCell(cell, newCode);
       return true;
@@ -29129,7 +29131,11 @@ ${finalCode}`;
   // src/components/layout/Spacer.tsx
   var import_react67 = __toESM(require_react());
   var Spacer = (props) => {
-    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop: `${props.px}px` } });
+    const px = props.seperatingLine ? props.px / 2 : props.px;
+    const marginTop = `${px}px`;
+    const border = props.seperatingLine ? ".5px solid var(--mito-light-gray)" : "none";
+    const marginBottom = props.seperatingLine ? `${px}px` : "none";
+    return /* @__PURE__ */ import_react67.default.createElement("div", { style: { marginTop, border, marginBottom } });
   };
   var Spacer_default = Spacer;
 
@@ -30997,7 +31003,7 @@ ${finalCode}`;
       },
       ["CodeSnippets" /* CODESNIPPETS */]: {
         type: "CodeSnippets" /* CODESNIPPETS */,
-        shortTitle: "Code Snippets",
+        shortTitle: "Snippets",
         longTitle: "Code Snippets",
         actionFunction: () => {
           setEditorState(void 0);
@@ -38360,7 +38366,7 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/icons/CodeSnippetIcon.tsx
   var import_react166 = __toESM(require_react());
   var CodeSnippetIcon = () => {
-    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "13", x2: "13", y2: "13", stroke: "#494650" }));
+    return /* @__PURE__ */ import_react166.default.createElement("svg", { width: "20", height: "20", viewBox: "0 0 13 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react166.default.createElement("line", { y1: "1", x2: "13", y2: "1", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "5", x2: "13", y2: "5", stroke: "#494650" }), /* @__PURE__ */ import_react166.default.createElement("line", { y1: "9", x2: "13", y2: "9", stroke: "#494650" }));
   };
   var CodeSnippetIcon_default = CodeSnippetIcon;
 
@@ -38424,7 +38430,7 @@ fig.write_html("${props.graphTabName}.html")`
       let openLocation = DISCORD_INVITE_LINK;
       const codeSnippetSupportEmail = (_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL;
       if (codeSnippetSupportEmail !== void 0 && codeSnippetSupportEmail !== null) {
-        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support: ID ${codeSnippet.Id}`;
+        openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support. Snippet Name: "${codeSnippet.Name}" Snippet ID: "${codeSnippet.Id}"`;
       }
       return /* @__PURE__ */ import_react167.default.createElement(
         Row_default,
@@ -38778,7 +38784,7 @@ fig.write_html("${props.graphTabName}.html")`
             if (previousType === "range") {
               newRangeImports.unshift({ "type": "range", "df_name": "", "value": "" });
             } else {
-              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" } });
+              newRangeImports.unshift({ "type": "upper left corner value", "df_name": "", "value": "", "end_condition": { "type": "first empty cell" }, "column_end_condition": { "type": "first empty cell" } });
             }
             return __spreadProps(__spreadValues({}, prevParams), {
               range_imports: newRangeImports
@@ -38837,6 +38843,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
+        /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }),
         /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Locate Dataframe By")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
@@ -38860,7 +38867,8 @@ fig.write_html("${props.graphTabName}.html")`
                     "type": newRangeImportType,
                     "df_name": previousRangeImport.df_name,
                     "value": isNew ? "" : previousRangeImport.value,
-                    "end_condition": { "type": "first empty cell" }
+                    "end_condition": { "type": "first empty cell" },
+                    "column_end_condition": previousRangeImport.type === "upper left corner value" && previousRangeImport.column_end_condition !== void 0 ? previousRangeImport.column_end_condition : { "type": "first empty cell" }
                   };
                 }
                 newRangeImports[index] = newRangeImport;
@@ -38913,7 +38921,7 @@ fig.write_html("${props.graphTabName}.html")`
             }
           }
         ))),
-        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Table End Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }), /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Ending Row Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38979,6 +38987,74 @@ fig.write_html("${props.graphTabName}.html")`
               });
             }
           }
+        )))),
+        range_import.type === "upper left corner value" && /* @__PURE__ */ import_react169.default.createElement(import_react169.default.Fragment, null, /* @__PURE__ */ import_react169.default.createElement(Spacer_default, { px: 10, seperatingLine: true }), /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement("p", { className: "text-body-1" }, "Ending Column Condition")), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Select_default,
+          {
+            width: "medium",
+            value: range_import.column_end_condition.type,
+            onChange: (newType) => {
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                const newEndConditionType = newType;
+                if (newEndConditionType === "first empty cell") {
+                  newRangeImport.column_end_condition = { "type": newEndConditionType };
+                } else {
+                  newRangeImport.column_end_condition = { "type": newEndConditionType, value: "" };
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          },
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "First Empty Cell",
+              id: "first empty cell",
+              subtext: "Mito will continue take all columns until it hits an empty cell."
+            }
+          ),
+          /* @__PURE__ */ import_react169.default.createElement(
+            DropdownItem_default,
+            {
+              title: "Num Columns",
+              id: "num columns",
+              subtext: "Specify a static number of columns to read in."
+            }
+          )
+        ))), range_import.column_end_condition.type === "num columns" && /* @__PURE__ */ import_react169.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          LabelAndTooltip_default,
+          {
+            textBody: true,
+            tooltip: "Specify a static number of columns to read in."
+          },
+          "Number of Columns"
+        )), /* @__PURE__ */ import_react169.default.createElement(Col_default, null, /* @__PURE__ */ import_react169.default.createElement(
+          Input_default,
+          {
+            type: "number",
+            width: "medium",
+            placeholder: "4",
+            value: "" + range_import.column_end_condition.value,
+            onChange: (e) => {
+              const newValue = e.target.value;
+              setParams((prevParams) => {
+                const newRangeImports = window.structuredClone(prevParams.range_imports);
+                const newRangeImport = window.structuredClone(range_import);
+                if (newRangeImport.column_end_condition.type === "num columns") {
+                  newRangeImport.column_end_condition.value = newValue;
+                }
+                newRangeImports[index] = newRangeImport;
+                return __spreadProps(__spreadValues({}, prevParams), {
+                  range_imports: newRangeImports
+                });
+              });
+            }
+          }
         ))))
       );
     })), /* @__PURE__ */ import_react169.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react169.default.createElement(
@@ -38992,7 +39068,8 @@ fig.write_html("${props.graphTabName}.html")`
               let finalRangeImport = rangeImport;
               if (finalRangeImport.type === "upper left corner value" && typeof finalRangeImport.value === "string") {
                 const parsedValue = parseFloat(finalRangeImport.value);
-                if (!isNaN(parsedValue)) {
+                const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.value);
+                if (!isNaN(parsedValue) && isOnlyNumber) {
                   finalRangeImport = __spreadProps(__spreadValues({}, rangeImport), {
                     value: parsedValue
                   });
@@ -39000,9 +39077,21 @@ fig.write_html("${props.graphTabName}.html")`
               }
               if (finalRangeImport.type === "upper left corner value" && finalRangeImport.end_condition.type === "bottom left corner value" && typeof finalRangeImport.end_condition.value === "string") {
                 const parsedValue = parseFloat(finalRangeImport.end_condition.value);
-                if (!isNaN(parsedValue)) {
+                const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.end_condition.value);
+                if (!isNaN(parsedValue) && isOnlyNumber) {
                   finalRangeImport = __spreadProps(__spreadValues({}, finalRangeImport), {
                     end_condition: __spreadProps(__spreadValues({}, finalRangeImport.end_condition), {
+                      value: parsedValue
+                    })
+                  });
+                }
+              }
+              if (finalRangeImport.type === "upper left corner value" && finalRangeImport.column_end_condition.type === "num columns" && typeof finalRangeImport.column_end_condition.value === "string") {
+                const parsedValue = parseInt(finalRangeImport.column_end_condition.value);
+                const isOnlyNumber = /^[+-]?\d+(\.\d+)?$/.test(finalRangeImport.column_end_condition.value);
+                if (!isNaN(parsedValue) && isOnlyNumber) {
+                  finalRangeImport = __spreadProps(__spreadValues({}, finalRangeImport), {
+                    column_end_condition: __spreadProps(__spreadValues({}, finalRangeImport.column_end_condition), {
                       value: parsedValue
                     })
                   });
@@ -39011,7 +39100,6 @@ fig.write_html("${props.graphTabName}.html")`
               return finalRangeImport;
             });
             finalRangeImports.reverse();
-            console.log("FINAL IMPORTS", finalRangeImports);
             return __spreadProps(__spreadValues({}, params2), {
               range_imports: finalRangeImports
             });
@@ -40360,6 +40448,9 @@ fig.write_html("${props.graphTabName}.html")`
       case "AI_TRANSFORMATION" /* AI_TRANSFORMATION */: {
         return /* @__PURE__ */ import_react210.default.createElement(AIIcon_default, null);
       }
+      case "CODE_SNIPPETS" /* CODE_SNIPPETS */: {
+        return /* @__PURE__ */ import_react210.default.createElement(CodeSnippetIcon_default, null);
+      }
       case "CATCH UP" /* CATCH_UP */: {
         return /* @__PURE__ */ import_react210.default.createElement(CatchUpIcon_default, null);
       }
@@ -40716,6 +40807,7 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/components/toolbar/Toolbar.tsx
   var Toolbar = (props) => {
+    var _a;
     const importDropdownItems = [
       /* @__PURE__ */ import_react222.default.createElement(DropdownItem_default, { title: "Import Files", key: "Import Files", onClick: () => {
         props.setUIState((prevUIState) => {
@@ -41027,6 +41119,14 @@ fig.write_html("${props.graphTabName}.html")`
         action: props.actions["AI_Transformation" /* AI_TRANSFORMATION */],
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["AI_Transformation" /* AI_TRANSFORMATION */].isDisabled()
+      }
+    ), ((_a = props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS) == null ? void 0 : _a.MITO_CONFIG_CODE_SNIPPETS_URL) !== void 0 && /* @__PURE__ */ import_react222.default.createElement(
+      ToolbarButton_default,
+      {
+        toolbarButtonType: "CODE_SNIPPETS" /* CODE_SNIPPETS */,
+        action: props.actions["CodeSnippets" /* CODESNIPPETS */],
+        setEditorState: props.setEditorState,
+        disabledTooltip: props.actions["CodeSnippets" /* CODESNIPPETS */].isDisabled()
       }
     )), /* @__PURE__ */ import_react222.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react222.default.createElement(
       ToolbarButton_default,
