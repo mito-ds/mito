@@ -38650,7 +38650,7 @@ fig.write_html("${props.graphTabName}.html")`
             return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: schema, id: schema, title: schema });
           }) : []
         ))),
-        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
+        /* @__PURE__ */ import_react168.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement("p", { className: classNames({ "text-color-gray-disabled": loadingAvailableOptionsAndDefaults }) }, "Table/View")), /* @__PURE__ */ import_react168.default.createElement(Col_default, null, /* @__PURE__ */ import_react168.default.createElement(
           Select_default,
           {
             width: "medium",
@@ -38661,7 +38661,7 @@ fig.write_html("${props.graphTabName}.html")`
               setParamsAndRefreshOptionsAndDefaults(newParams);
             }
           },
-          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView, idx) => {
+          (availableSnowflakeOptionsAndDefaults == null ? void 0 : availableSnowflakeOptionsAndDefaults.type) === "success" ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView) => {
             return /* @__PURE__ */ import_react168.default.createElement(DropdownItem_default, { key: tableOrView, title: tableOrView });
           }) : []
         ))),

@@ -274,7 +274,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <Row justify="space-between">
                         <Col>
                             <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
-                                Table
+                                Table/View 
                             </p>
                         </Col>
                         <Col>
@@ -287,7 +287,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
-                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView, idx) => {
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.tables_and_views.map((tableOrView) => {
                                     return (
                                         <DropdownItem key={tableOrView} title={tableOrView}/>
                                     )
