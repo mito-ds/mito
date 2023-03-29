@@ -20,7 +20,6 @@ TRIM_VALID_TESTS: Any = [
     ([' a '], 'a'),
     (['--abc '], '--abc'),
     ([' --abc'], '--abc'),
-    ([None], ''),
 
     # Constants and series
     ([pd.Series([' abc', '123 ', np.nan])], pd.Series(['abc', '123', ''])),
@@ -42,10 +41,8 @@ def test_trim(_argv, expected):
 
 
 TRIM_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None], ''),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", TRIM_INVALID_TESTS)

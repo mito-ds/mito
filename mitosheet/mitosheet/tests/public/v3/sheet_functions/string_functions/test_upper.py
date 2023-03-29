@@ -19,7 +19,6 @@ UPPER_VALID_TESTS: Any = [
     # Just constant tests
     (['a'], 'A'),
     (['abc'], 'ABC'),
-    ([None], ''),
 
     # Constants and series
     ([pd.Series(['abc', '123', np.nan])], pd.Series(['ABC', '123', ''])),
@@ -41,10 +40,8 @@ def test_upper(_argv, expected):
 
 
 UPPER_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None], ''),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", UPPER_INVALID_TESTS)

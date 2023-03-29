@@ -63,7 +63,6 @@ AVG_INVALID_CAST_TESTS = [
 @pytest.mark.parametrize("_argv,expected", AVG_VALID_TESTS + AVG_INVALID_CAST_TESTS)
 def test_avg(_argv, expected):
     result = AVG(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

@@ -21,7 +21,6 @@ LEN_VALID_TESTS: Any = [
     (['ABC'], 3),
     ([1.0], 3),
     ([True], 4),
-    ([None], 0),
 
     # Constants and series
     ([pd.Series(['ABC', '123', np.nan])], pd.Series([3, 3, 0])),
@@ -43,10 +42,8 @@ def test_len(_argv, expected):
 
 
 LEN_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None], 0),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", LEN_INVALID_TESTS)

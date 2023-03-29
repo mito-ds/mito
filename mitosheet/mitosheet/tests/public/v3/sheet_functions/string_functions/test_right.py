@@ -19,8 +19,6 @@ RIGHT_VALID_TESTS: Any = [
     # Just constant tests
     (['a', 1], 'a'),
     (['abc', 2], 'bc'),
-    ([None, 2], ''),
-    (['abc', None], 'c'),
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2, 3])], pd.Series(['', 'c', 'bc', 'abc'])),
@@ -48,10 +46,9 @@ def test_right(_argv, expected):
 
 
 RIGHT_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None, 2], ''),
+    (['abc', None], 'c'),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", RIGHT_INVALID_TESTS)

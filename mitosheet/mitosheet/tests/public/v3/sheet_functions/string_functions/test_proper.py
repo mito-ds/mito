@@ -21,7 +21,6 @@ PROPER_VALID_TESTS: Any = [
     (['first name last name'], 'First Name Last Name'),
     ([1.0], '1.0'),
     ([True], 'True'),
-    ([None], ''),
 
     # Constants and series
     ([pd.Series(['first name', '123', np.nan])], pd.Series(['First Name', '123', ''])),
@@ -43,10 +42,8 @@ def test_proper(_argv, expected):
 
 
 PROPER_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None], ''),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", PROPER_INVALID_TESTS)

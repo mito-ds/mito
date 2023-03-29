@@ -19,8 +19,6 @@ LEFT_VALID_TESTS: Any = [
     # Just constant tests
     (['a', 1], 'a'),
     (['abc', 2], 'ab'),
-    ([None, 1], ''),
-    (['abc', None], 'a'),
 
     # Constants and series
     (['abc', pd.Series([0, 1, 2])], pd.Series(['', 'a', 'ab'])),
@@ -47,10 +45,9 @@ def test_left(_argv, expected):
 
 
 LEFT_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None, 1], ''),
+    (['abc', None], 'a'),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", LEFT_INVALID_TESTS)
