@@ -161,7 +161,7 @@ def FLOAT(arg: NumberRestrictedInputType) -> FloatFunctonReturnType:
     if isinstance(arg, int) or isinstance(arg, float):
         return float(arg)
     
-    return arg.fillna(np.nan)
+    return arg.fillna(np.nan) # type: ignore
 
 @cast_values_in_arg_to_type('arg', 'int')
 @handle_sheet_function_errors
@@ -458,7 +458,8 @@ def VALUE(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
     """
     if isinstance(arg, int) or isinstance(arg, float):
         return arg
-    return arg.fillna(np.nan) # Normalize with nan
+    
+    return arg.fillna(np.nan) # type: ignore
 
 
 @cast_values_in_arg_to_type('arg', 'number')
