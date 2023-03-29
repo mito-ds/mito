@@ -55,6 +55,6 @@ def upgrade_snowflake_import_1_to_2(step: Dict[str, Any], later_steps: List[Dict
 
     return [{
         "step_version": 2, 
-        "step_type": "excel_range_import", 
+        "step_type": "snowflake_import", 
         "params": params
     }] + later_steps
