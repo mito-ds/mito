@@ -54,6 +54,8 @@ test.describe('Mitosheet Tests', () => {
   });
   
   test('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
+    test.slow();
+
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
     await clickToolbarButton(page, 'Add Col');
@@ -64,9 +66,7 @@ test.describe('Mitosheet Tests', () => {
     await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
   });
 
-  test('Can run the generated code', async ({ page, tmpPath }) => {
-    test.slow();
-    
+  test('Can run the generated code', async ({ page, tmpPath }) => {    
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
     await clickToolbarButton(page, 'Add Col');
