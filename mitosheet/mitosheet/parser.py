@@ -689,9 +689,10 @@ def replace_column_headers_and_indexes(
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
 
-            column_headers.add(column_header_one)
-            column_headers.add(column_header_two)
-
+            # We add all of the column headers that are between these two headers
+            cols = df.loc[:, column_header_one:column_header_two].columns.tolist()
+            column_headers.update(cols)
+            
             replace_string = f'{df_name}{get_header_header_selection_code(column_header_one, column_header_two)}'
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':

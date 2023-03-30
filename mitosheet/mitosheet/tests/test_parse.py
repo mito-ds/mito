@@ -835,6 +835,16 @@ HEADER_HEADER_RANGE_TEST_CASES = [
         set(['SUM']),
         set(['A', "B"])
     ),
+    # One range across three headers, includes the middle one
+    (
+        '=SUM(A:C)',
+        'D',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'D\'] = SUM(df.loc[:, \'A\':\'C\'])",
+        set(['SUM']),
+        set(['A', "B", "C"])
+    ),
 ]
 
 HEADER_INDEX_HEADER_INDEX_MATCHES = [
