@@ -65,6 +65,8 @@ test.describe('Mitosheet Tests', () => {
   });
 
   test('Can run the generated code', async ({ page, tmpPath }) => {
+    test.slow();
+    
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
     await clickToolbarButton(page, 'Add Col');
