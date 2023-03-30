@@ -54,10 +54,3 @@ UPPER_STRING_TESTS = [
 @pytest.mark.parametrize("data,upper", UPPER_STRING_TESTS)
 def test_UPPER_valid_input_direct_str(data, upper):
     assert UPPER(data).tolist() == [upper]
-
-
-@pytest.mark.parametrize("data,upper", UPPER_VALID_TESTS)
-def test_UPPER_valid_input_sheet_function(data, upper):
-    mito = create_mito_wrapper(data)
-    mito.set_formula('=UPPER(A)', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == upper

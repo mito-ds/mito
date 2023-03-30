@@ -22599,7 +22599,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // src/utils/code.tsx
   var IMPORT_STATEMENTS = {
     1: "from mitosheet.public.v1 import *",
-    2: "from mitosheet.public.v2 import *"
+    2: "from mitosheet.public.v2 import *",
+    3: "from mitosheet.public.v3 import *"
   };
   function getCodeString(analysisName, code, telemetryEnabled, publicInterfaceVersion) {
     if (code.length == 0) {
@@ -24976,28 +24977,20 @@ ${finalCode}`;
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData, rowIndex) => {
-    const columnHeadersAndIndexLabels = [];
+    const selectionStrings = [];
     selections.forEach((selection) => {
-      if (isSelectionEntireSelectedColumn(selection)) {
-        const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
-        entireSelectedColumns.forEach((columnID) => {
-          const columnHeader = sheetData.columnIDsMap[columnID];
-          const formulaIndexLabel = sheetData.index[rowIndex];
-          if (columnHeader !== void 0 && formulaIndexLabel !== void 0) {
-            columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
-          }
-        });
+      const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+      if (upperLeftColumnHeader === void 0 && upperLeftIndexLabel === void 0 && bottomRightColumnHeader === void 0 && bottomRightIndexLabel === void 0) {
         return;
+      } else if (upperLeftIndexLabel === void 0 && bottomRightIndexLabel === void 0 && (upperLeftColumnHeader !== void 0 && bottomRightColumnHeader !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+      } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+      } else if (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0 && bottomRightColumnHeader !== void 0 && bottomRightIndexLabel !== void 0) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
       }
-      const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
-      const indexLabels = getIndexLabelsInSelection(selection, sheetData);
-      columnHeaders.forEach((columnHeader) => {
-        indexLabels.forEach((indexLabel) => {
-          columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel));
-        });
-      });
     });
-    return columnHeadersAndIndexLabels.join(", ");
+    return selectionStrings.join(", ");
   };
   var getFullFormula = (formula, pendingSelections, sheetData, rowIndex) => {
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
@@ -25185,6 +25178,8 @@ ${finalCode}`;
     formula.frontend_formula.forEach((formulaPart) => {
       if (formulaPart.type === "string part") {
         formulaString += formulaPart.string;
+      } else if (formulaPart.type === "{HEADER}") {
+        formulaString += formulaPart.display_column_header;
       } else {
         const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
         if (newIndexLabel !== void 0) {
@@ -27247,6 +27242,25 @@ ${finalCode}`;
       }
     });
     return isOnlyIndexHeaders;
+  };
+  var _getUpperLeftOfSelection = (selection, sheetData) => {
+    const minColumnIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+    const minRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    const columnHeader = sheetData.data[minColumnIndex].columnHeader;
+    const indexLabel = sheetData.index[minRowIndex];
+    return [columnHeader, indexLabel];
+  };
+  var _getBottomRightOfSelection = (selection, sheetData) => {
+    const maxColumnIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+    const maxRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    const columnHeader = sheetData.data[maxColumnIndex].columnHeader;
+    const indexLabel = sheetData.index[maxRowIndex];
+    return [columnHeader, indexLabel];
+  };
+  var getUpperLeftAndBottomRight = (selection, sheetData) => {
+    const upperLeft = _getUpperLeftOfSelection(selection, sheetData);
+    const bottomRight = _getBottomRightOfSelection(selection, sheetData);
+    return [upperLeft, bottomRight];
   };
   var COPIED_BORDER_STYLE = "1px dashed black";
   var SELECTED_BORDER_STYLE = "1px solid var(--mito-purple)";

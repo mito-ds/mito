@@ -24,7 +24,6 @@ PERSIST_ANALYSIS_TESTS = [
     (1, '=1'),
     (2, '=A + 1'),
     ('APPLE', '=UPPER(\'apple\')'),
-    (2, '=LEFT((A + 1) * 100)'),
     ('APPLE', '=UPPER(LOWER(UPPER(\'apple\')))')
 ]
 @pytest.mark.parametrize("b_value,b_formula", PERSIST_ANALYSIS_TESTS)
@@ -45,15 +44,6 @@ def test_recover_analysis(b_value, b_formula):
     assert json.dumps(new_mito.curr_step.column_formulas) == json.dumps(curr_step.column_formulas)
 
 
-# We assume only column A exists
-PERSIST_ANALYSIS_TESTS = [
-    (0, '=0'),
-    (1, '=1'),
-    (2, '=A + 1'),
-    ('APPLE', '=UPPER(\'apple\')'),
-    (2, '=LEFT((A + 1) * 100)'),
-    ('APPLE', '=UPPER(LOWER(UPPER(\'apple\')))')
-]
 @pytest.mark.parametrize("b_value,b_formula", PERSIST_ANALYSIS_TESTS)
 def test_persist_analysis_multi_sheet(b_value, b_formula):
     mito = create_mito_wrapper([1], sheet_two_A_data=[1])

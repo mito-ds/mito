@@ -825,13 +825,13 @@ HEADER_HEADER_RANGE_TEST_CASES = [
         set(['SUM']),
         set(['A', "B"])
     ),
-    # One range across two headers, with as well as other specific cell reference and header ref
+    # One range across two headers, with as well as other specific cell reference
     (
-        '=SUM(A:B, A, A0)',
+        '=SUM(A:B, A0)',
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
-        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'], df['A'])",
+        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'])",
         set(['SUM']),
         set(['A', "B"])
     ),
@@ -890,11 +890,11 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
     ),
     # Header index header index reference with offset and two columns in function, as well as other specific cell reference and header ref
     (
-        '=SUM(A1:B2, A, A0)',
+        '=SUM(A1:B2, A0)',
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'], df['A'])",
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'])",
         set(['SUM']),
         set(['A', 'B'])
     ),
@@ -970,7 +970,8 @@ def test_safe_contains(formula, substring, contains):
     assert safe_contains(formula, substring, ['A', 'B']) == contains
 
 
-@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES)
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES)
 def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,df,python_code,functions,columns):
     frontend_formula = get_frontend_formula(formula, formula_label, df)
+    print(frontend_formula)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula

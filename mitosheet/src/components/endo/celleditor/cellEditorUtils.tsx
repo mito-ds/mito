@@ -1,43 +1,36 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnHeader, ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
-import { getColumnHeadersInSelection, getIndexLabelsInSelection, getSelectedColumnIDsWithEntireSelectedColumn, isSelectionEntireSelectedColumn } from "../selectionUtils";
+import { getUpperLeftAndBottomRight } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
 
 
 export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, rowIndex: any): string => {
     // For each of the selections, we turn them into a string that goes into the formula
-    const columnHeadersAndIndexLabels: string[] = []
+    const selectionStrings: string[] = []
 
     selections.forEach(selection => {
-        // If we have selections that reference the column header, we have to handle them special
-        if (isSelectionEntireSelectedColumn(selection)) {
-            const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
-            entireSelectedColumns.forEach((columnID) => {
-                const columnHeader: ColumnHeader | undefined = sheetData.columnIDsMap[columnID];
-                const formulaIndexLabel: IndexLabel | undefined = sheetData.index[rowIndex];
-                if (columnHeader !== undefined && formulaIndexLabel !== undefined) {
-                    columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
-                }
-            })
+
+        const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+
+        if (upperLeftColumnHeader === undefined && upperLeftIndexLabel === undefined && bottomRightColumnHeader === undefined && bottomRightIndexLabel === undefined) {
+            // If none are defined, skip this selection
             return;
+        } else if (upperLeftIndexLabel === undefined && bottomRightIndexLabel === undefined && (upperLeftColumnHeader !== undefined && bottomRightColumnHeader !== undefined)) {
+            // Handle selections that are just column headers
+            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+        } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined)) {
+            // Then, we handle the case where there is just a single cell selected
+            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+        } else if (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined && bottomRightColumnHeader !== undefined && bottomRightIndexLabel !== undefined) {
+            // Then, handle the case where they are all defined
+            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
         }
-
-        // Otherwise, we need to get the column 
-        const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
-        const indexLabels = getIndexLabelsInSelection(selection, sheetData);
-
-        // Then, because it's a rectangle, we combine _all_ of them together
-        columnHeaders.forEach(columnHeader => {
-            indexLabels.forEach(indexLabel => {
-                columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel));
-            })
-        })
     })
 
-    return columnHeadersAndIndexLabels.join(', ');
+    return selectionStrings.join(', ');
 }
 
 /* 
@@ -375,14 +368,11 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
     formula.frontend_formula.forEach(formulaPart => {
         if (formulaPart.type === 'string part') {
             formulaString += formulaPart.string
+        } else if (formulaPart.type === '{HEADER}') {
+            formulaString += formulaPart.display_column_header
         } else {
-
             const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {
-                /**
-                 * We add the reference to the column header and then we need to add the correct index label.
-                 * Notably, this is the index label that is the formulaPart.rowOffset from the current indexLabel
-                 */
                 formulaString += formulaPart.display_column_header
                 formulaString += getDisplayColumnHeader(newIndexLabel);
             } else {

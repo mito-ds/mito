@@ -91,6 +91,8 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             from mitosheet.public.v1 import FUNCTIONS
         elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS
+        elif public_interface_version == 3:
+            from mitosheet.public.v3 import FUNCTIONS
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 
@@ -270,9 +272,12 @@ def exec_column_formula(
             from mitosheet.public.v1 import FUNCTIONS as locals_for_exec
         elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS as locals_for_exec
+        elif public_interface_version == 3:
+            from mitosheet.public.v3 import FUNCTIONS, RollingRange
+            locals_for_exec = {**FUNCTIONS, 'RollingRange': RollingRange}
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
-
+        
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
         exec(

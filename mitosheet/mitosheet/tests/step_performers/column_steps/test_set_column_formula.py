@@ -85,7 +85,7 @@ def test_edit_to_same_formula_no_error():
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'][0]['frontend_formula'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}]
+    assert mito.curr_step.column_formulas[0]['B'][0]['frontend_formula'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': '{HEADER}{INDEX}'}]
 
 
 def test_formulas_fill_missing_parens():

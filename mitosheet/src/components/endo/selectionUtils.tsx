@@ -393,6 +393,34 @@ export const isSelectionsOnlyIndexHeaders = (selections: MitoSelection[]): boole
 }
 
 
+const _getUpperLeftOfSelection = (selection: MitoSelection, sheetData: SheetData): [ColumnHeader | undefined, IndexLabel | undefined] => {
+    const minColumnIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex)
+    const minRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex)
+
+    const columnHeader = sheetData.data[minColumnIndex].columnHeader;
+    const indexLabel = sheetData.index[minRowIndex];
+
+    return [columnHeader, indexLabel];
+}
+
+const _getBottomRightOfSelection = (selection: MitoSelection, sheetData: SheetData): [ColumnHeader | undefined, IndexLabel | undefined] => {
+    const maxColumnIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex)
+    const maxRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex)
+
+    const columnHeader = sheetData.data[maxColumnIndex].columnHeader;
+    const indexLabel = sheetData.index[maxRowIndex];
+
+    return [columnHeader, indexLabel];
+}
+
+export const getUpperLeftAndBottomRight = (selection: MitoSelection, sheetData: SheetData): [[ColumnHeader | undefined, IndexLabel | undefined], [ColumnHeader | undefined, IndexLabel | undefined]] => {
+    const upperLeft = _getUpperLeftOfSelection(selection, sheetData);
+    const bottomRight = _getBottomRightOfSelection(selection, sheetData);
+    return [upperLeft, bottomRight]
+}
+
+
+
 const COPIED_BORDER_STYLE = '1px dashed black';
 const SELECTED_BORDER_STYLE = '1px solid var(--mito-purple)';
 export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-light-gray)';

@@ -69,18 +69,3 @@ RIGHT_VALID_TESTS_ONE_DEFAULT = [
 def test_RIGHT_valid_input_direct_defaults_to_one(data, trimmed):
     series = pd.Series(data=data)
     assert RIGHT(series).tolist() == trimmed
-
-
-# Tests of function in Mito
-@pytest.mark.parametrize("data,trimmed", RIGHT_VALID_TESTS_ONE_DEFAULT)
-def test_RIGHT_valid_input_sheet_formula_defaults_to_one(data, trimmed):
-    mito = create_mito_wrapper(data)
-    mito.set_formula('=RIGHT(A)', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == trimmed
-
-
-@pytest.mark.parametrize("data,length,trimmed", RIGHT_VALID_TESTS)
-def test_RIGHT_valid_input_sheet_formula_defaults_length(data, length, trimmed):
-    mito = create_mito_wrapper(data)
-    mito.set_formula(f'=RIGHT(A, {length})', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == trimmed

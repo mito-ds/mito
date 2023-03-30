@@ -379,6 +379,8 @@ def _execute_pivot(
             from mitosheet.public.v1 import flatten_column_header
         elif public_interface_version == 2:
             from mitosheet.public.v2 import flatten_column_header
+        elif public_interface_version == 3:
+            from mitosheet.public.v3 import flatten_column_header
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 
