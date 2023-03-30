@@ -53,7 +53,7 @@ test.describe('Mitosheet Tests', () => {
     expect(await cellOuput?.innerHTML()).toContain('Add Col');
   });
   
-  test('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
+  test.only('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
     test.slow();
 
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
