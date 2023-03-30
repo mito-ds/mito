@@ -250,8 +250,8 @@ export type ConditionalFormattingResult = {
 }
 
 type FormulaPart = {type: 'string part', string: string} 
-    | {type: '{HEADER}', display_column_header: string}
-    | {type: '{HEADER}{INDEX}', display_column_header: string, row_offset: number}
+| {type: '{HEADER}', display_column_header: string}
+| {type: '{HEADER}{INDEX}', display_column_header: string, row_offset: number}
 
 export type Formula = FormulaPart[]
 export type IndexLabel = string | number;

@@ -7,7 +7,7 @@ import { getUpperLeftAndBottomRight } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
 
 
-export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, rowIndex: any): string => {
+export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
     // For each of the selections, we turn them into a string that goes into the formula
     const selectionStrings: string[] = []
 
