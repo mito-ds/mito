@@ -56,7 +56,6 @@ FLOAT_VALID_TESTS = [
 def test_value(_argv, expected):
     result = INT(*_argv)
     if isinstance(result, pd.Series):
-        print(result)
         # Check if the two series are close to equal using np.isclose, while also handling nan values
         assert np.allclose(result, expected, equal_nan=True)
         assert result.dtype == 'int64'

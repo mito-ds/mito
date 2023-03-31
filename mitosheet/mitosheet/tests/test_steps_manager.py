@@ -61,7 +61,6 @@ def test_steps_manager_cell_edit_errors(formula,error_type):
                 'new_formula': formula
             }
         })
-    print(e_info)
     assert e_info.value.type_ == error_type
 
 

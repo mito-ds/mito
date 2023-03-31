@@ -88,7 +88,7 @@ const CellEditor = (props: {
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
                 // TODO: use the correct funciton, rather than JSON.stringify
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )

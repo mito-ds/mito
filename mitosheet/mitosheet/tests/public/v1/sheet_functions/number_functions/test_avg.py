@@ -68,7 +68,6 @@ def test_AVG_formula_non_numbers(b_formula, non_number_formula, result):
     # Make sure column doesn't change with invalid formula
     mito.set_formula(non_number_formula, 0, 'C', add_column=True)
     if pd.isna(result):
-        print(mito.get_value(0, 'C', 1))
         assert pd.isna(mito.get_value(0, 'C', 1))
     else:
         assert mito.get_value(0, 'C', 1) == result

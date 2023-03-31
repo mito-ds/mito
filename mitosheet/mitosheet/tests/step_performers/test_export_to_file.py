@@ -66,7 +66,6 @@ def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name,
 
     for sheet_index, final_file_name_part in zip(sheet_indexes, final_file_names):
         final_file_name = str(tmp_path / final_file_name_part)
-        print(os.listdir(tmp_path), final_file_name)
         assert pd.read_csv(final_file_name).equals(input_dfs[sheet_index])
 
     # Remove the files, run generated code, and check that things are still equal

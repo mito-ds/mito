@@ -520,3 +520,25 @@ def test_set_specific_indexes_twice_overwrites_delete_column():
     mito.set_formula('=A1', 0, 'B', index_labels=[0])
 
     assert len(mito.optimized_code_chunks) == 2
+
+def test_set_formula_entire_column_reference():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A:A)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 6, 6]}))
+
+
+def test_set_formula_rolling_range_reference():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A0:A1)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 3, 1]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A0:A1)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))

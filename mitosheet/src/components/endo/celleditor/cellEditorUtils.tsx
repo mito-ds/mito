@@ -53,7 +53,7 @@ export const getFullFormula = (
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);

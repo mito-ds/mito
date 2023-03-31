@@ -101,7 +101,6 @@ def execute_replay_analysis_update(
     try:
         # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
-        print('public interface version', steps_manager.public_interface_version)
 
         steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
 

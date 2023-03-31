@@ -973,5 +973,4 @@ def test_safe_contains(formula, substring, contains):
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES)
 def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,df,python_code,functions,columns):
     frontend_formula = get_frontend_formula(formula, formula_label, df)
-    print(frontend_formula)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula

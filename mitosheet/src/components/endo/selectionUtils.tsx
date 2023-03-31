@@ -397,7 +397,7 @@ const _getUpperLeftOfSelection = (selection: MitoSelection, sheetData: SheetData
     const minColumnIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex)
     const minRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex)
 
-    const columnHeader = sheetData.data[minColumnIndex].columnHeader;
+    const columnHeader = sheetData.data[minColumnIndex]?.columnHeader;
     const indexLabel = sheetData.index[minRowIndex];
 
     return [columnHeader, indexLabel];
@@ -407,7 +407,7 @@ const _getBottomRightOfSelection = (selection: MitoSelection, sheetData: SheetDa
     const maxColumnIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex)
     const maxRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex)
 
-    const columnHeader = sheetData.data[maxColumnIndex].columnHeader;
+    const columnHeader = sheetData.data[maxColumnIndex]?.columnHeader;
     const indexLabel = sheetData.index[maxRowIndex];
 
     return [columnHeader, indexLabel];

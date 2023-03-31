@@ -322,7 +322,6 @@ def test_excel_range_upper_left_with_end_condition(ranges, dfs):
         ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(r)
         for idx, value in enumerate(column):
             recovered_range = get_table_range_from_upper_left_corner_value(TEST_FILE_PATH, TEST_SHEET_NAME, upper_left_value, bottom_left_value=value)
-            print(r, recovered_range)
             ((start_col_index_recovered, start_row_index_recovered), (end_col_index_recovered, end_row_index_recovered)) = get_col_and_row_indexes_from_range(recovered_range)
             assert start_col_index == start_col_index_recovered
             assert end_col_index == end_col_index_recovered

@@ -27244,16 +27244,18 @@ ${finalCode}`;
     return isOnlyIndexHeaders;
   };
   var _getUpperLeftOfSelection = (selection, sheetData) => {
+    var _a;
     const minColumnIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
     const minRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
-    const columnHeader = sheetData.data[minColumnIndex].columnHeader;
+    const columnHeader = (_a = sheetData.data[minColumnIndex]) == null ? void 0 : _a.columnHeader;
     const indexLabel = sheetData.index[minRowIndex];
     return [columnHeader, indexLabel];
   };
   var _getBottomRightOfSelection = (selection, sheetData) => {
+    var _a;
     const maxColumnIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
     const maxRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
-    const columnHeader = sheetData.data[maxColumnIndex].columnHeader;
+    const columnHeader = (_a = sheetData.data[maxColumnIndex]) == null ? void 0 : _a.columnHeader;
     const indexLabel = sheetData.index[maxRowIndex];
     return [columnHeader, indexLabel];
   };

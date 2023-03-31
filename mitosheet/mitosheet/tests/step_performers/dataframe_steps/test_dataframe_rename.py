@@ -219,7 +219,6 @@ def test_excel_import_then_rename_same_df_optimizes():
     mito.rename_dataframe(0, 'abc')
 
     assert mito.df_names[0] == 'abc'
-    print(mito.dfs[0])
     assert mito.dfs[0].equals(df)
     assert len(mito.optimized_code_chunks) == 1
 
