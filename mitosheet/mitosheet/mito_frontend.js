@@ -24976,7 +24976,7 @@ ${finalCode}`;
   };
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
-  var getSelectionFormulaString = (selections, sheetData, rowIndex) => {
+  var getSelectionFormulaString = (selections, sheetData) => {
     const selectionStrings = [];
     selections.forEach((selection) => {
       const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
