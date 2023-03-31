@@ -24996,7 +24996,7 @@ ${finalCode}`;
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
       return formula;
     }
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
     return beforeSelection + selectionFormulaString + afterSelection;
@@ -25468,7 +25468,7 @@ ${finalCode}`;
         var _a2, _b;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
-          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
+          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
           (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
             index,
             index
