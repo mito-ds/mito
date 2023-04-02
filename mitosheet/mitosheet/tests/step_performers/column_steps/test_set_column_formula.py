@@ -376,6 +376,14 @@ INDEX_TEST_CASES = [
         '2007-01-23 00:00:00',
         pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [0, 1]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
     ),
+    # Range listed in inverse order
+    (
+        pd.DataFrame({'A': [1, 2, 3, 4, 5]}, index=pd.RangeIndex(0, 5)),
+        '=SUM(A1:A0)',
+        'B',
+        0,
+        pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [3, 5, 7, 9, 5]}, index=pd.RangeIndex(0, 5)),
+    ),
 ]
 
 @pytest.mark.parametrize("input_df, formula, column_header, formula_label,output_df", INDEX_TEST_CASES)

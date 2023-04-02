@@ -411,6 +411,7 @@ const CellEditor = (props: {
                 ? {'type': 'entire_column'}
                 : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
 
+
             errorMessage = await props.mitoAPI.editSetColumnFormula(
                 props.sheetIndex,
                 columnID,

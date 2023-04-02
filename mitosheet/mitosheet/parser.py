@@ -557,13 +557,21 @@ def get_parser_matches(
         
         specific_cell_matches_seperated_by_colon = first_specific_cell_match['substring_range'][1] == second_specific_cell_match['substring_range'][0] - 1 and formula[first_specific_cell_match['substring_range'][1]] == ':'
         
+        # Ensure the range is constructed with ascending index labels
+        if first_specific_cell_match['row_offset'] >= second_specific_cell_match['row_offset']:
+            start_of_range_specific_cell_match = first_specific_cell_match
+            end_of_range_specific_cell_match = second_specific_cell_match  
+        else:
+            start_of_range_specific_cell_match = second_specific_cell_match
+            end_of_range_specific_cell_match = first_specific_cell_match
+
         if specific_cell_matches_seperated_by_colon:
             return {
                 'type': '{HEADER}{INDEX}:{HEADER}{INDEX}',
                 'substring_range': (first_specific_cell_match['substring_range'][0], second_specific_cell_match['substring_range'][1]),
                 'unparsed': first_specific_cell_match['unparsed'] + second_specific_cell_match['unparsed'],
-                'parsed': (first_specific_cell_match['parsed'], second_specific_cell_match['parsed']),
-                'row_offset': (first_specific_cell_match['row_offset'], second_specific_cell_match['row_offset']) # type: ignore
+                'parsed': (start_of_range_specific_cell_match['parsed'], end_of_range_specific_cell_match['parsed']),
+                'row_offset': (start_of_range_specific_cell_match['row_offset'], end_of_range_specific_cell_match['row_offset']) # type: ignore
             }
 
         return None
