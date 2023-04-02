@@ -552,7 +552,7 @@ def get_parser_matches(
         first_specific_cell_match = get_header_index_match(formula, raw_parser_matches, match_index)
         second_specific_cell_match = get_header_index_match(formula, raw_parser_matches, match_index + 2)
 
-        if first_specific_cell_match is None or second_specific_cell_match is None:
+        if first_specific_cell_match is None or second_specific_cell_match is None or isinstance(first_specific_cell_match['row_offset'], tuple) or isinstance(second_specific_cell_match['row_offset'], tuple):
             return None
         
         specific_cell_matches_seperated_by_colon = first_specific_cell_match['substring_range'][1] == second_specific_cell_match['substring_range'][0] - 1 and formula[first_specific_cell_match['substring_range'][1]] == ':'
