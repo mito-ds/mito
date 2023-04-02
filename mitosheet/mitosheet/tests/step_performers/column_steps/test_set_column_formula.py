@@ -536,9 +536,28 @@ def test_set_formula_rolling_range_reference():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
 
-def test_set_formula_rolling_range_reference_unsorted_indexes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 3, 1]))
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_first():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[1, 2, 0]))
     mito.add_column(0, 'B')
-    mito.set_formula('=SUM(A0:A1)', 0, 'B')
+    mito.set_formula('=SUM(A1:A2)', 0, 'B')
 
-    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
+def test_set_formula_rolling_range_reference_string_columns():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(Aa:Ab)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=['a', 'b', 'c']))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_backwards():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A2:A1)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=[2, 1, 0]))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_not_next_to_eachother():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A2:A0)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 5, 3]}, index=[2, 1, 0]))

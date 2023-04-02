@@ -46,7 +46,6 @@ export const getFullFormula = (
         inputSelectionEnd: number,
     } | undefined,
     sheetData: SheetData,
-    rowIndex: number
 ): string => {
 
     if (pendingSelections === undefined || pendingSelections.selections.length === 0) {

@@ -24992,7 +24992,7 @@ ${finalCode}`;
     });
     return selectionStrings.join(", ");
   };
-  var getFullFormula = (formula, pendingSelections, sheetData, rowIndex) => {
+  var getFullFormula = (formula, pendingSelections, sheetData) => {
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
       return formula;
     }
@@ -25490,7 +25490,7 @@ ${finalCode}`;
     if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
       return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
     }
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
     const documentationFunction = getDocumentationFunction(fullFormula);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
@@ -25537,8 +25537,7 @@ ${finalCode}`;
       let fullFormula2 = getFullFormula(
         props.editorState.formula,
         props.editorState.pendingSelections,
-        props.sheetData,
-        props.editorState.rowIndex
+        props.sheetData
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
@@ -25645,8 +25644,7 @@ ${finalCode}`;
         const fullFormula2 = getFullFormula(
           props.editorState.formula,
           props.editorState.pendingSelections,
-          props.sheetData,
-          props.editorState.rowIndex
+          props.sheetData
         );
         props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
           formula: fullFormula2,
@@ -25663,7 +25661,7 @@ ${finalCode}`;
       }
       const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
       const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
       const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
       setLoading(true);
       let errorMessage = void 0;
@@ -25707,7 +25705,7 @@ ${finalCode}`;
               arrowKeysScrollInFormula: true
             }));
           },
-          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex),
+          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
           onKeyDown,
           onChange: (e) => {
             const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
@@ -25807,7 +25805,7 @@ ${finalCode}`;
         formulaBarValue = originalFormulaBarValue;
       }
     } else {
-      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     }
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     return /* @__PURE__ */ import_react40.default.createElement(
