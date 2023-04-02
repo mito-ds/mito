@@ -210,13 +210,13 @@ if sys.version_info[:3] > (3, 8, 0):
         warehouse: Optional[str] 
         database: Optional[str]
         schema: Optional[str]
-        table: Optional[str] 
+        table_or_view: Optional[str] 
 
     class SnowflakeTableLocationAndWarehouse(TypedDict):
         warehouse: str
         database: str
         schema: str
-        table: str
+        table_or_view: str
 
     class SnowflakeQueryParams(TypedDict):
         columns: List[str]
