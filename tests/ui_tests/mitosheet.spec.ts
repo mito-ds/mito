@@ -47,13 +47,13 @@ const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellIndex: n
 }
 
 test.describe('Mitosheet Tests', () => {
-  test('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
+  test.only('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
     await createNewNotebook(page, 'import mitosheet\nmitosheet.sheet()');
     const cellOuput = await page.notebook.getCellOutput(0)
     expect(await cellOuput?.innerHTML()).toContain('Add Col');
   });
   
-  test.only('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
+  test('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
     test.slow();
 
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
