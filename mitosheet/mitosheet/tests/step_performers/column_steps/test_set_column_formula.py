@@ -569,3 +569,10 @@ def test_set_formula_rolling_range_reference_unsorted_indexes_refences_not_next_
     mito.set_formula('=SUM(A2:A0)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 5, 3]}, index=[2, 1, 0]))
+
+def test_set_formula_wrong_order():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A1:A0)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
