@@ -3,6 +3,7 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
+from distutils.version import LooseVersion
 import pandas as pd
 import pytest
 import json
@@ -56,9 +57,17 @@ def test_sheet_json_holds_timed_deltas():
         'dob2': ['2004-10-23 10:15:15','2002-10-2','2001-07-14 14:15:00', '2005-07-14 14:15:00']
     })
 
+    # Check if we're on pandas 2.0, and if so, use the mixed format
+    # to parse the dates.
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        format = None
+    else:
+        format = 'mixed'
+
+
     # Parse date with format YYYY-MM-DD HH:MM:SS
-    df['dob'] = pd.to_datetime(df['dob'], format='mixed')
-    df['dob2'] = pd.to_datetime(df['dob2'], format='mixed')
+    df['dob'] = pd.to_datetime(df['dob'], format=format)
+    df['dob2'] = pd.to_datetime(df['dob2'], format=format)
 
     mito = create_mito_wrapper_dfs(df)
 
