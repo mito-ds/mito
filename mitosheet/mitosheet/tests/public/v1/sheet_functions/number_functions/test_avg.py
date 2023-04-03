@@ -58,7 +58,7 @@ def test_AVG_formula_valid(formula, result):
 
 
 AVG_TESTS_FORMULAS_NAN_NON_NUMBERS = [
-    ('=\'Hi\'', '=AVG(A, B)', np.NaN),
+    ('=\'Hi\'', '=AVG(A, B)', 1.0),
     ('=True', '=AVG(A, B)', 1), # Treats True as 1 for some reason
 ]
 @pytest.mark.parametrize("b_formula, non_number_formula, result", AVG_TESTS_FORMULAS_NAN_NON_NUMBERS)

@@ -5,7 +5,8 @@ import { PublicInterfaceVersion } from "../types";
 
 const IMPORT_STATEMENTS: Record<PublicInterfaceVersion, string> = {
     1: 'from mitosheet.public.v1 import *',
-    2: 'from mitosheet.public.v2 import *'
+    2: 'from mitosheet.public.v2 import *',
+    3: 'from mitosheet.public.v3 import *'
 }
 
 

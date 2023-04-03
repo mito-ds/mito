@@ -249,8 +249,10 @@ export type ConditionalFormattingResult = {
     'results': Record<ColumnID, Record<number | string, {color: string | undefined, backgroundColor: string | undefined} | undefined> | undefined>
 }
 
-type FormulaPart = {'type': 'string part', 'string': string} 
-| {'type': 'reference part', 'display_column_header': string, 'row_offset': number} 
+type FormulaPart = {type: 'string part', string: string} 
+| {type: '{HEADER}', display_column_header: string}
+| {type: '{HEADER}{INDEX}', display_column_header: string, row_offset: number}
+
 export type Formula = FormulaPart[]
 export type IndexLabel = string | number;
 
@@ -686,7 +688,7 @@ export enum MitoEnterpriseConfigKey {
     DISPLAY_AI_TRANSFORM = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 }
 
-export type PublicInterfaceVersion = 1 | 2;
+export type PublicInterfaceVersion = 1 | 2 | 3;
 
 
 /**

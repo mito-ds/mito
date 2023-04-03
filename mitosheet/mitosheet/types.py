@@ -245,10 +245,14 @@ if sys.version_info[:3] > (3, 8, 0):
         type: Literal['string part']
         string: str
 
-    class FrontendFormulaReference(TypedDict):
-        type: Literal['reference part']
+    class FrontendFormulaHeaderIndexReference(TypedDict):
+        type: Literal['{HEADER}{INDEX}']
         display_column_header: str
         row_offset: Optional[int]
+
+    class FrontendFormulaHeaderReference(TypedDict):
+        type: Literal['{HEADER}']
+        display_column_header: str
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
@@ -307,7 +311,8 @@ else:
     SnowflakeQueryParams = Any # type:ignore
     CodeSnippetEnvVars = Any # type:ignore
     FrontendFormulaString = Any # type:ignore
-    FrontendFormulaReference = Any # type:ignore
+    FrontendFormulaHeaderIndexReference = Any # type:ignore
+    FrontendFormulaHeaderReference = Any # type:ignore
     FormulaLocationEntireColumn = Any # type:ignore
     FormulaLocationToSpecificIndexLabels = Any # type:ignore
     Selection = Any # type:ignore
@@ -317,7 +322,7 @@ else:
     AITransformFrontendResult = Any # type: ignore
 
 
-FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaReference]
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]
 FrontendFormula = List[FrontendFormulaPart]
 
 FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]

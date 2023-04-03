@@ -72,7 +72,7 @@ class PivotStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 8
+        return 9
 
     @classmethod
     def step_type(cls) -> str:
@@ -379,6 +379,8 @@ def _execute_pivot(
             from mitosheet.public.v1 import flatten_column_header
         elif public_interface_version == 2:
             from mitosheet.public.v2 import flatten_column_header
+        elif public_interface_version == 3:
+            from mitosheet.public.v3 import flatten_column_header
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 

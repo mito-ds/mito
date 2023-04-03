@@ -85,7 +85,7 @@ def test_edit_to_same_formula_no_error():
     })
 
     assert 'B' in mito.dfs[0]
-    assert mito.curr_step.column_formulas[0]['B'][0]['frontend_formula'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': 'reference part'}]
+    assert mito.curr_step.column_formulas[0]['B'][0]['frontend_formula'] == [{'string': '=', 'type': 'string part'}, {'display_column_header': 'A', 'row_offset': 0, 'type': '{HEADER}{INDEX}'}]
 
 
 def test_formulas_fill_missing_parens():
@@ -376,6 +376,14 @@ INDEX_TEST_CASES = [
         '2007-01-23 00:00:00',
         pd.DataFrame({'A': [1, 2], 'B': [4, 5], 'C': [0, 1]}, index=pd.Index(pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00']))),
     ),
+    # Range listed in inverse order
+    (
+        pd.DataFrame({'A': [1, 2, 3, 4, 5]}, index=pd.RangeIndex(0, 5)),
+        '=SUM(A1:A0)',
+        'B',
+        0,
+        pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [3, 5, 7, 9, 5]}, index=pd.RangeIndex(0, 5)),
+    ),
 ]
 
 @pytest.mark.parametrize("input_df, formula, column_header, formula_label,output_df", INDEX_TEST_CASES)
@@ -520,3 +528,51 @@ def test_set_specific_indexes_twice_overwrites_delete_column():
     mito.set_formula('=A1', 0, 'B', index_labels=[0])
 
     assert len(mito.optimized_code_chunks) == 2
+
+def test_set_formula_entire_column_reference():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A:A)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 6, 6]}))
+
+
+def test_set_formula_rolling_range_reference():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A0:A1)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_first():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[1, 2, 0]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A1:A2)', 0, 'B')
+
+def test_set_formula_rolling_range_reference_string_columns():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(Aa:Ab)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=['a', 'b', 'c']))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_backwards():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A2:A1)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=[2, 1, 0]))
+
+def test_set_formula_rolling_range_reference_unsorted_indexes_refences_not_next_to_eachother():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A2:A0)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 5, 3]}, index=[2, 1, 0]))
+
+def test_set_formula_wrong_order():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A1:A0)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))

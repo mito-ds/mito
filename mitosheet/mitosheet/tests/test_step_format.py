@@ -110,7 +110,7 @@ def test_params_static():
     
     check_step(
         PivotStepPerformer,
-        8,
+        9,
         'pivot'
     )
 
@@ -128,7 +128,7 @@ def test_params_static():
 
     check_step(
         SetColumnFormulaStepPerformer,
-        4,
+        5,
         'set_column_formula'
     )
 
@@ -141,7 +141,7 @@ def test_params_static():
 
     check_step(
         ChangeColumnDtypeStepPerformer,
-        3,
+        4,
         'change_column_dtype'
     )
 

@@ -22599,7 +22599,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // src/utils/code.tsx
   var IMPORT_STATEMENTS = {
     1: "from mitosheet.public.v1 import *",
-    2: "from mitosheet.public.v2 import *"
+    2: "from mitosheet.public.v2 import *",
+    3: "from mitosheet.public.v3 import *"
   };
   function getCodeString(analysisName, code, telemetryEnabled, publicInterfaceVersion) {
     if (code.length == 0) {
@@ -24975,35 +24976,27 @@ ${finalCode}`;
   };
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
-  var getSelectionFormulaString = (selections, sheetData, rowIndex) => {
-    const columnHeadersAndIndexLabels = [];
+  var getSelectionFormulaString = (selections, sheetData) => {
+    const selectionStrings = [];
     selections.forEach((selection) => {
-      if (isSelectionEntireSelectedColumn(selection)) {
-        const entireSelectedColumns = getSelectedColumnIDsWithEntireSelectedColumn([selection], sheetData);
-        entireSelectedColumns.forEach((columnID) => {
-          const columnHeader = sheetData.columnIDsMap[columnID];
-          const formulaIndexLabel = sheetData.index[rowIndex];
-          if (columnHeader !== void 0 && formulaIndexLabel !== void 0) {
-            columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(formulaIndexLabel));
-          }
-        });
+      const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+      if (upperLeftColumnHeader === void 0 && upperLeftIndexLabel === void 0 && bottomRightColumnHeader === void 0 && bottomRightIndexLabel === void 0) {
         return;
+      } else if (upperLeftIndexLabel === void 0 && bottomRightIndexLabel === void 0 && (upperLeftColumnHeader !== void 0 && bottomRightColumnHeader !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+      } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+      } else if (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0 && bottomRightColumnHeader !== void 0 && bottomRightIndexLabel !== void 0) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
       }
-      const columnHeaders = getColumnHeadersInSelection(selection, sheetData);
-      const indexLabels = getIndexLabelsInSelection(selection, sheetData);
-      columnHeaders.forEach((columnHeader) => {
-        indexLabels.forEach((indexLabel) => {
-          columnHeadersAndIndexLabels.push(getDisplayColumnHeader(columnHeader) + getDisplayColumnHeader(indexLabel));
-        });
-      });
     });
-    return columnHeadersAndIndexLabels.join(", ");
+    return selectionStrings.join(", ");
   };
-  var getFullFormula = (formula, pendingSelections, sheetData, rowIndex) => {
+  var getFullFormula = (formula, pendingSelections, sheetData) => {
     if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
       return formula;
     }
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, rowIndex);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
     return beforeSelection + selectionFormulaString + afterSelection;
@@ -25185,6 +25178,8 @@ ${finalCode}`;
     formula.frontend_formula.forEach((formulaPart) => {
       if (formulaPart.type === "string part") {
         formulaString += formulaPart.string;
+      } else if (formulaPart.type === "{HEADER}") {
+        formulaString += formulaPart.display_column_header;
       } else {
         const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
         if (newIndexLabel !== void 0) {
@@ -25473,7 +25468,7 @@ ${finalCode}`;
         var _a2, _b;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
-          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
+          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
           (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
             index,
             index
@@ -25495,7 +25490,7 @@ ${finalCode}`;
     if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
       return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
     }
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
     const documentationFunction = getDocumentationFunction(fullFormula);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
@@ -25542,8 +25537,7 @@ ${finalCode}`;
       let fullFormula2 = getFullFormula(
         props.editorState.formula,
         props.editorState.pendingSelections,
-        props.sheetData,
-        props.editorState.rowIndex
+        props.sheetData
       );
       fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
       fullFormula2 += suggestion;
@@ -25650,8 +25644,7 @@ ${finalCode}`;
         const fullFormula2 = getFullFormula(
           props.editorState.formula,
           props.editorState.pendingSelections,
-          props.sheetData,
-          props.editorState.rowIndex
+          props.sheetData
         );
         props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
           formula: fullFormula2,
@@ -25668,7 +25661,7 @@ ${finalCode}`;
       }
       const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
       const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
       const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
       setLoading(true);
       let errorMessage = void 0;
@@ -25712,7 +25705,7 @@ ${finalCode}`;
               arrowKeysScrollInFormula: true
             }));
           },
-          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex),
+          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
           onKeyDown,
           onChange: (e) => {
             const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
@@ -25812,7 +25805,7 @@ ${finalCode}`;
         formulaBarValue = originalFormulaBarValue;
       }
     } else {
-      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+      formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     }
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     return /* @__PURE__ */ import_react40.default.createElement(
@@ -27247,6 +27240,27 @@ ${finalCode}`;
       }
     });
     return isOnlyIndexHeaders;
+  };
+  var _getUpperLeftOfSelection = (selection, sheetData) => {
+    var _a;
+    const minColumnIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+    const minRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    const columnHeader = (_a = sheetData.data[minColumnIndex]) == null ? void 0 : _a.columnHeader;
+    const indexLabel = sheetData.index[minRowIndex];
+    return [columnHeader, indexLabel];
+  };
+  var _getBottomRightOfSelection = (selection, sheetData) => {
+    var _a;
+    const maxColumnIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+    const maxRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    const columnHeader = (_a = sheetData.data[maxColumnIndex]) == null ? void 0 : _a.columnHeader;
+    const indexLabel = sheetData.index[maxRowIndex];
+    return [columnHeader, indexLabel];
+  };
+  var getUpperLeftAndBottomRight = (selection, sheetData) => {
+    const upperLeft = _getUpperLeftOfSelection(selection, sheetData);
+    const bottomRight = _getBottomRightOfSelection(selection, sheetData);
+    return [upperLeft, bottomRight];
   };
   var COPIED_BORDER_STYLE = "1px dashed black";
   var SELECTED_BORDER_STYLE = "1px solid var(--mito-purple)";

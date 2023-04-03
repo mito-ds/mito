@@ -359,9 +359,12 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     if decimals is None:
         decimals = 0
 
+    if (isinstance(arg, int) or isinstance(arg, float)) and isinstance(decimals, int):
+        return round(arg, decimals) 
+
     index = get_index_from_series(arg, decimals)
-    arg = get_series_from_primitive_or_series(arg, index)
-    decimals = get_series_from_primitive_or_series(decimals, index)
+    arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
+    decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
 
     return pd.Series(
         [round(num, dec) for num, dec in zip(arg, decimals)], # type: ignore

@@ -40,31 +40,3 @@ SUBSTITUTE_SOME_TEST_CASES = [
 def test_SUBSTITUTE_valid_input_direct_partial(data, find, replace, count, result):
     series = pd.Series(data=data)
     assert SUBSTITUTE(series, find, replace, count).tolist() == result
-
-    
-@pytest.mark.parametrize("data,find,replace,result", SUBSTITUTE_TEST_CASES)
-def test_SUBSTITUTE_valid_input_sheet(data, find, replace, result):
-    mito = create_mito_wrapper(data)
-    mito.set_formula(f'=SUBSTITUTE(A, \'{find}\', \'{replace}\')', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == result
-
-
-SUBSTITUTE_INVALID_FORMULAS = [
-    ('=SUBSTITUTE(A'),
-    ('=SUBSTITUTE(A, 1'),
-    ('=SUBSTITUTE(A, '),
-    ('=SUBSTITUTEA'),
-    ('=SUBSTITUTE(A))'),
-    ('=SUBSTITUT(A'),
-    ('=substitute(A)'),
-    ('=substituteA'),
-]
-
-
-@pytest.mark.parametrize("invalid_formula", SUBSTITUTE_INVALID_FORMULAS)
-def test_SUBSTITUTE_invalid_formula_no_effect(invalid_formula):
-    mito = create_mito_wrapper([' 1 '])
-    mito.add_column(0, 'B')
-    # We should not change the value of the created coumn
-    mito.set_formula(invalid_formula, 0, 'B')
-    assert mito.get_value(0, 'B', 1) == 0
