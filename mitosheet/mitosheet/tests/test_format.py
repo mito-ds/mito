@@ -56,8 +56,9 @@ def test_sheet_json_holds_timed_deltas():
         'dob2': ['2004-10-23 10:15:15','2002-10-2','2001-07-14 14:15:00', '2005-07-14 14:15:00']
     })
 
-    df['dob'] = pd.to_datetime(df['dob'])
-    df['dob2'] = pd.to_datetime(df['dob2'])
+    # Parse date with format YYYY-MM-DD HH:MM:SS
+    df['dob'] = pd.to_datetime(df['dob'], format='mixed')
+    df['dob2'] = pd.to_datetime(df['dob2'], format='mixed')
 
     mito = create_mito_wrapper_dfs(df)
 
@@ -74,7 +75,7 @@ def test_sheet_json_holds_timed_deltas_non_standard_dtype():
     december = pd.Series(pd.date_range("20121201", periods=4))
     january = pd.Series(pd.date_range("20130101", periods=4))
     td = january - december
-    td.astype("timedelta64[D]")
+    td.astype("timedelta64[s]")
 
     df = pd.DataFrame({
         'delta': td,

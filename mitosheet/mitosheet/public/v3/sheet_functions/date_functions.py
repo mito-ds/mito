@@ -497,7 +497,11 @@ def WEEK(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
     elif isinstance(arg, pd.Timestamp):
         return arg.week
 
-    return arg.dt.week
+    # Handle if we're on pandas version < 2.0
+    if hasattr(arg.dt, 'week'):
+        return arg.dt.week
+    
+    return arg.dt.isocalendar().week
 
 
 @cast_values_in_arg_to_type('arg', 'datetime')

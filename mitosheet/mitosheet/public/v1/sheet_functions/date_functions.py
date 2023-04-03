@@ -520,7 +520,12 @@ def WEEK(datetime_series: pd.Series) -> pd.Series:
         ]
     }
     """
-    return datetime_series.dt.week
+    if hasattr(datetime_series.dt, 'week'):
+        # If we're on pandas version < 2.0
+        return datetime_series.dt.week
+    else:
+        # If we're on pandas version >= 2.0
+        return datetime_series.dt.isocalendar().week
 
 
 @handle_sheet_function_errors

@@ -7,10 +7,16 @@
 Contains tests for the YEAR function.
 """
 
+from distutils.version import LooseVersion
 import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.date_functions import YEAR
+
+if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    dtype = 'int64'
+else:
+    dtype = 'int32'
 
 YEAR_TESTS = [
     # Just constant tests
@@ -18,7 +24,7 @@ YEAR_TESTS = [
     ([pd.to_datetime('2020-03-27 13:12:11')], 2020),
 
     # Just series tests
-    ([pd.Series(data=['2023-03-26 12:45:00', '2023-03-08 13:12:11'])], pd.Series([2023, 2023])),
+    ([pd.Series(data=['2023-03-26 12:45:00', '2023-03-08 13:12:11'])], pd.Series([2023, 2023], dtype=dtype)),
     ([pd.Series(data=['2021-03-26 12:45:00', '2023-03-08 13:12:11', None])], pd.Series([2021, 2023, None])),
     ([pd.Series(data=['2023-03-26 12:45:00', 'abc', '2023-03-08 13:12:11'])], pd.Series([2023, None, 2023])),
 ]

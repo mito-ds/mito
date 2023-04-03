@@ -39,8 +39,8 @@ def test_TYPE_works_on_timedeltas():
         'dob2': ['2004-10-23 10:15:15','2002-10-2','2001-07-14 14:15:00', '2005-07-14 14:15:00']
     })
 
-    df['dob'] = pd.to_datetime(df['dob'])
-    df['dob2'] = pd.to_datetime(df['dob2'])
+    df['dob'] = pd.to_datetime(df['dob'], format='mixed')
+    df['dob2'] = pd.to_datetime(df['dob2'], format='mixed')
 
     mito = create_mito_wrapper_dfs(df)
 
