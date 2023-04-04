@@ -63,7 +63,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
                 res = requests.post(MITO_AI_URL, headers=headers, json=data)
         except:
                 return json.dumps({
-                        'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
+                        'error': f'There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall.'
                 })
         
 
