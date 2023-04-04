@@ -134,7 +134,7 @@ def IF(condition: pd.Series, true_series: pd.Series, false_series: pd.Series) ->
     false_series = try_extend_series_to_index(false_series, condition.index)
 
     return pd.Series(
-        data=[true_series.loc[i] if c else false_series.loc[i] for i, c in condition.iteritems()],
+        data=[true_series.loc[i] if c else false_series.loc[i] for i, c in condition.items()],
         index=condition.index
     )
 

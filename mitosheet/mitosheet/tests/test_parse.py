@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from distutils.version import LooseVersion
 from typing import Any, Dict, List
 import warnings
 import pytest
@@ -383,9 +384,14 @@ FUNCTION_TEST_CASES = [
 
 # To supress warnings, we create these variables here
 with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    unit64_index = pd.UInt64Index(range(10))
-    float64_index = pd.Float64Index(range(10))
+    # Check that the pandas verison is < 2.0
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        warnings.simplefilter('ignore')
+        unit64_index = pd.UInt64Index(range(10))
+        float64_index = pd.Float64Index(range(10))
+    else:
+        unit64_index = pd.Index(range(10), dtype='uint64')
+        float64_index = pd.Index(range(10), dtype='float64')
 
 
 INDEX_TEST_CASES = [

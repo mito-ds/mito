@@ -7,10 +7,17 @@
 Contains tests for the SECOND function.
 """
 
+from distutils.version import LooseVersion
 import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.date_functions import SECOND
+
+if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    dtype = 'int64'
+else:
+    dtype = 'int32'
+
 
 SECOND_TESTS = [
     # Just constant tests
@@ -19,7 +26,7 @@ SECOND_TESTS = [
     ([pd.to_datetime('2000-4-2 13:12:11')], 11),
 
     # Just series tests
-    ([pd.Series(data=['2000-1-2 12:45:00', '2000-11-2 15:12:05'])], pd.Series([0, 5])),
+    ([pd.Series(data=['2000-1-2 12:45:00', '2000-11-2 15:12:05'])], pd.Series([0, 5], dtype=dtype)),
     ([pd.Series(data=['2000-1-2 12:45:00', '2000-7-2 15:45:10', None])], pd.Series([0, 10, None])),
     ([pd.Series(data=['1/2/2000', 'abc', '4/1/2000 15:12:01'])], pd.Series([0, None, 1])),
 ]
