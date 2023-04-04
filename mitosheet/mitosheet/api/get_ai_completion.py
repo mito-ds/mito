@@ -14,8 +14,9 @@ from mitosheet.ai.prompt import get_prompt
 
 import requests
 
-from mitosheet.user.db import get_user_field
-from mitosheet.user.schemas import UJ_STATIC_USER_ID, UJ_USER_EMAIL # type: ignore
+from mitosheet.user.db import get_user_field, set_user_field
+from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
+from mitosheet.user.utils import is_pro # type: ignore
 
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
@@ -34,6 +35,17 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
 def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         user_email = get_user_field(UJ_USER_EMAIL)
         user_id = get_user_field(UJ_STATIC_USER_ID)
+        num_completions = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+        if num_completions is None:
+                num_completions = 0
+
+        pro = is_pro()
+
+        if not pro and num_completions >= 3:
+                return json.dumps({
+                        'error': f'You have used Mito AI 20 times. Please upgrade to Mito Pro to use Mito AI more, or set your own OPENAI_API key in your enviornment variables.'
+                })
+                
 
         data = {
                 'user_input': user_input,
@@ -56,6 +68,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         
 
         if res.status_code == 200:
+                set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_completions + 1)
                 return json.dumps(res.json())
         
         return json.dumps({

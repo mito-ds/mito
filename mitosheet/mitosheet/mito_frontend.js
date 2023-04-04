@@ -29791,6 +29791,7 @@ ${finalCode}`;
   var DOCUMENTATION_LINK_INSTALL = "https://docs.trymito.io/getting-started/installing-mito";
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
+  var DOCUMENTATION_LINK_AI_TRANSFORM = "https://docs.trymito.io/how-to/ai-transformations";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
 
   // src/components/elements/GetSupportButton.tsx
@@ -39442,6 +39443,7 @@ fig.write_html("${props.graphTabName}.html")`
     return void 0;
   };
   var AITransformationTaskpane = (props) => {
+    var _a;
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === void 0;
     const aiPrivacyPolicyNotAccepted = !props.userProfile.aiPrivacyPolicy;
     const [openSections, setOpenSections] = (0, import_react173.useState)({
@@ -39548,7 +39550,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark"
       },
       "Generate Code"
-    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
+    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error, " \xA0", ((_a = promptState.error) == null ? void 0 : _a.includes("You have used Mito AI 20 times")) && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, "Follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")))), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: params.edited_completion,

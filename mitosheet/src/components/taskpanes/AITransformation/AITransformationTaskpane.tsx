@@ -17,6 +17,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { shallowEqual } from "../../../utils/objects";
+import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -311,7 +312,15 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         Generate Code
                     </TextButton>
                     {promptState.error !== undefined && 
-                        <p className="text-color-error">{promptState.error}</p>
+                        <>
+                            <p className="text-color-error">{promptState.error} &nbsp;
+                            {promptState.error?.includes('You have used Mito AI 20 times') && 
+                                <>
+                                    Follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
+                                </>
+                            }
+                            </p>
+                        </>
                     }
                     {promptState.loading && 
                         <p className="text-subtext-1">{promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
