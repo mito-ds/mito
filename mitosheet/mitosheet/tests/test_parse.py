@@ -849,7 +849,7 @@ HEADER_HEADER_RANGE_TEST_CASES = [
         pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2)),
         "df[\'D\'] = SUM(df.loc[:, \'A\':\'C\'])",
         set(['SUM']),
-        set(['A', "B", "C"])
+        set(["A", "B", "C"])
     ),
 ]
 
@@ -923,6 +923,26 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         "df['B'] = RollingRange(df[['A']], 5, -2)",
         set([]),
         set(['A'])
+    ),
+    # Headers in incorrect direction in rolling range
+    (
+        '=SUM(B0:A0)',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['C'] = SUM(RollingRange(df.loc[:, 'A':'B'], 1, 0))",
+        set(['SUM']),
+        set(['B', 'A'])
+    ),
+    # One range across three headers, includes the middle one
+    (
+        '=SUM(C0:A0)',
+        'D',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'D\'] = SUM(RollingRange(df.loc[:, 'A':'C'], 1, 0))",
+        set(['SUM']),
+        set(["A", "B", "C"])
     ),
 ]
 

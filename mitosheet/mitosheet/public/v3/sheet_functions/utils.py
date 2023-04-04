@@ -129,7 +129,6 @@ def get_final_result_series_or_primitive(
     result: ResultType = default_value
 
     for arg in argv:
-
         result = __get_new_result_series_or_primitive(
             default_value,
             result,
