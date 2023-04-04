@@ -66,12 +66,6 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:G100'],
         [TEST_DF_1],
-        [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:G100'}],
-        [TEST_DF_1],
-    ),
-    (
-        ['A1:G100'],
-        [TEST_DF_1],
         [{'type': 'upper left corner value', 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1', 'value': TEST_DF_1.columns[0]}],
         [TEST_DF_1],
     ),

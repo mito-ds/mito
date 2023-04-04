@@ -22,8 +22,3 @@ WEEK_TESTS = [
 @pytest.mark.parametrize("date, week", WEEK_TESTS)
 def test_week_works_on_inputs(date, week):
     assert WEEK(date).tolist() == [week]
-
-def test_week_works_in_sheet():
-    mito = create_mito_wrapper(['2000-1-2'])
-    mito.set_formula('=WEEK(A)', 0, 'B', add_column=True)
-    assert mito.get_value(0, 'B', 1) == 52

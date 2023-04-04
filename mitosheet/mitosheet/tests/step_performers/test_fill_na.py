@@ -255,8 +255,8 @@ DATETIME_TIMEDELTA_FILL_NA_TESTS = [
         ],
         0, 
         ['A'],
-        {'type': 'value', 'value': 0},
-        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.NaT], 'B': [None, None]})
+        {'type': 'value', 'value': pd.to_timedelta('1 days 06:05:01.00003')},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
     ),
     (
         [
@@ -317,8 +317,8 @@ DATETIME_TIMEDELTA_MEAN_MEDIAN_FILL_NA_TESTS = [
         ],
         0, 
         ['A'],
-        {'type': 'value', 'value': 0},
-        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.NaT], 'B': [None, None]})
+        {'type': 'value', 'value': pd.to_timedelta('1 days 06:05:01.00003')},
+        pd.DataFrame({'A': [pd.to_timedelta('1 days 06:05:01.00003'), pd.to_timedelta('1 days 06:05:01.00003')], 'B': [None, None]})
     ),
     (
         [

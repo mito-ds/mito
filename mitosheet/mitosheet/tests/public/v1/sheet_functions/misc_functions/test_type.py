@@ -7,6 +7,7 @@
 Contains tests for the TYPE function.
 """
 
+from distutils.version import LooseVersion
 import pytest
 import pandas as pd
 import numpy as np
@@ -39,8 +40,15 @@ def test_TYPE_works_on_timedeltas():
         'dob2': ['2004-10-23 10:15:15','2002-10-2','2001-07-14 14:15:00', '2005-07-14 14:15:00']
     })
 
-    df['dob'] = pd.to_datetime(df['dob'])
-    df['dob2'] = pd.to_datetime(df['dob2'])
+    # Check if we're on pandas 2.0, and if so, use the mixed format
+    # to parse the dates.
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        format = None
+    else:
+        format = 'mixed'
+
+    df['dob'] = pd.to_datetime(df['dob'], format=format)
+    df['dob2'] = pd.to_datetime(df['dob2'], format=format)
 
     mito = create_mito_wrapper_dfs(df)
 
