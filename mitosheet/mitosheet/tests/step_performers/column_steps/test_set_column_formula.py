@@ -570,13 +570,19 @@ def test_set_formula_rolling_range_reference_unsorted_indexes_refences_not_next_
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 5, 3]}, index=[2, 1, 0]))
 
-def test_set_formula_wrong_order():
+def test_set_formula_wrong_index_order():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A1:A0)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
 
+def test_set_formula_wrong_column_order():
+    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
+    mito.add_column(0, 'D')
+    mito.set_formula('=SUM(C:A)', 0, 'D')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3], 'D': [18, 18, 18]}))
 
 def test_set_formula_wrong_column_order_wrong_index_order():
     mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
@@ -584,11 +590,3 @@ def test_set_formula_wrong_column_order_wrong_index_order():
     mito.set_formula('=SUM(C1:A0)', 0, 'D')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3], 'D': [9, 15, 9]}))
-
-
-def test_set_formula_wrong_column_order_wrong_index_order():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
-    mito.add_column(0, 'D')
-    mito.set_formula('=SUM(C:A)', 0, 'D')
-
-    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3], 'D': [18, 18, 18]}))
