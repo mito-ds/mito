@@ -34,7 +34,6 @@ DAY_TESTS = [
 @pytest.mark.parametrize("_argv,expected", DAY_TESTS)
 def test_day(_argv, expected):
     result = DAY(*_argv)
-    print("REsult", result)
     if isinstance(result, pd.Series):
         # Check two series are equal, ignoring dtype
         assert result.equals(expected)
