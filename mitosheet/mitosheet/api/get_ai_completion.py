@@ -12,9 +12,56 @@ import os
 from mitosheet.ai.prompt import get_prompt
 
 
-import requests # type: ignore
+import requests
 
-URL = 'https://api.openai.com/v1/chat/completions'
+from mitosheet.user.db import get_user_field
+from mitosheet.user.schemas import UJ_STATIC_USER_ID, UJ_USER_EMAIL # type: ignore
+
+OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
+MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
+
+def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
+        return {
+                "model": "gpt-3.5-turbo",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 7,
+                "temperature": .2,
+                'max_tokens': 200,
+                'stop': ['```']
+        }
+
+
+def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
+        user_email = get_user_field(UJ_USER_EMAIL)
+        user_id = get_user_field(UJ_STATIC_USER_ID)
+
+        data = {
+                'user_input': user_input,
+                'prompt': prompt,
+                'email': user_email,
+                'user_id': user_id,
+                'data': _get_ai_completion_data(prompt)
+        }
+
+        headers = {
+                'Content-Type': 'application/json',
+        }
+
+        try:
+                res = requests.post(MITO_AI_URL, headers=headers, json=data)
+        except:
+                return json.dumps({
+                        'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
+                })
+        
+
+        if res.status_code == 200:
+                return json.dumps(res.json())
+        
+        return json.dumps({
+                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]}'
+        })
+
 
 def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
         selection: Optional[Selection] = params.get('selection', None)
@@ -29,26 +76,19 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
+        # If they don't have an Open AI key, we use the mito server to get a completion
         if OPENAI_API_KEY is None:
-                return json.dumps({
-                        'error': 'Please acquire an OPENAI_API_KEY and set it as an environmental variable.'
-                })
+                return _get_ai_completion_from_mito_server(user_input, prompt)
 
-        data = {
-                "model": "gpt-3.5-turbo",
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 7,
-                "temperature": .2,
-                'max_tokens': 200,
-                'stop': ['```']
-        }
+
+        data = _get_ai_completion_data(prompt)
         headers = {
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {OPENAI_API_KEY}' 
         }
 
         try:
-                res = requests.post(URL, headers=headers, json=data)
+                res = requests.post(OPEN_AI_URL, headers=headers, json=data)
         except:
                 return json.dumps({
                         'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'

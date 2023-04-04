@@ -17,7 +17,6 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { shallowEqual } from "../../../utils/objects";
-import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -242,7 +241,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
 
 
-    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted;
 
     return (
         <DefaultTaskpane>
@@ -251,12 +250,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {apiKeyNotDefined && 
-                    <p className="text-color-error">
-                        You do not have an OPENAI_API_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
-                    </p>
-                }
-                {(!apiKeyNotDefined && aiPrivacyPolicyNotAccepted) && 
+                {(aiPrivacyPolicyNotAccepted) && 
                     <>
                         <p className="text-body-1">
                             Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values.

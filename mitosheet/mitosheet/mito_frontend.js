@@ -29791,7 +29791,6 @@ ${finalCode}`;
   var DOCUMENTATION_LINK_INSTALL = "https://docs.trymito.io/getting-started/installing-mito";
   var DOCUMENTATION_LINK_TUTORIAL = "https://docs.trymito.io/getting-started/tutorial";
   var DOCUMENTATION_LINK_SPREADSHEET_FORMULAS = "https://docs.trymito.io/how-to/interacting-with-your-data";
-  var DOCUMENTATION_LINK_AI_TRANSFORM = "https://docs.trymito.io/how-to/ai-transformations";
   var DISCORD_INVITE_LINK = "https://discord.gg/XdJSZyejJU";
 
   // src/components/elements/GetSupportButton.tsx
@@ -39505,14 +39504,14 @@ fig.write_html("${props.graphTabName}.html")`
       });
     };
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
-    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted;
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "AI Transformation",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPENAI_API_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), !apiKeyNotDefined && aiPrivacyPolicyNotAccepted && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://openai.com/policies/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here"), "."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "You can see our ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here.")), /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, aiPrivacyPolicyNotAccepted && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://openai.com/policies/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here"), "."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "You can see our ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here.")), /* @__PURE__ */ import_react173.default.createElement(
       TextButton_default,
       {
         onClick: () => {
