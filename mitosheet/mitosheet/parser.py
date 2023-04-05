@@ -704,12 +704,7 @@ def replace_column_headers_and_indexes(
             (column_header_one, column_header_two) = match['parsed']
 
             # Ensure that the column headers are in the order they appear in the dataframe
-            if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two):
-                first_column_header = column_header_one
-                second_column_header = column_header_two  
-            else:
-                first_column_header = column_header_two
-                second_column_header = column_header_one  
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one) 
 
             # We add all of the column headers that are between these two headers
             cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
@@ -722,12 +717,7 @@ def replace_column_headers_and_indexes(
             (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
 
             # Ensure that the column headers are in the order they appear in the dataframe
-            if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two):
-                first_column_header = column_header_one
-                second_column_header = column_header_two  
-            else:
-                first_column_header = column_header_two
-                second_column_header = column_header_one            
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one)           
             
             # We add all of the column headers that are between these two headers
             cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
