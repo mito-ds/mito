@@ -703,22 +703,30 @@ def replace_column_headers_and_indexes(
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
 
+            # Ensure that the column headers are in the order they appear in the dataframe
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one) 
+
             # We add all of the column headers that are between these two headers
-            cols = df.loc[:, column_header_one:column_header_two].columns.tolist()
+            cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
             column_headers.update(cols)
             
-            replace_string = f'{df_name}{get_header_header_selection_code(column_header_one, column_header_two)}'
+            replace_string = f'{df_name}{get_header_header_selection_code(first_column_header, second_column_header)}'
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
             ((column_header_one, index_label_one), (column_header_two, index_label_two)) = match['parsed']
             (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
 
-            column_headers.add(column_header_one)
-            column_headers.add(column_header_two)
+            # Ensure that the column headers are in the order they appear in the dataframe
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one)           
+            
+            # We add all of the column headers that are between these two headers
+            cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
+            column_headers.update(cols)
+
             index_labels.add(index_label_one)
             index_labels.add(index_label_two)
 
-            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {-1 * row_offset_one})'
+            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(first_column_header, second_column_header)}, {row_offset_one - row_offset_two + 1}, {-1 * row_offset_one})'
         
         formula = formula[:start] + replace_string + formula[end:]
 

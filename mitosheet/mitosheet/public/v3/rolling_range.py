@@ -46,7 +46,7 @@ class RollingRange():
         start = 0 + self.offset
         end = start + self.window
 
-        while (start - self.offset) < len(self.obj):            
+        while (start - self.offset) < len(self.obj): 
             df_subset = self.obj[max(0, start):end] # avoid negative start, as this wraps around to the end
 
             # We manually detect the default value case, as it messes up types otherwise (e.g. .sum().sum() returns a float with an empty df)
