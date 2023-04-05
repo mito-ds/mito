@@ -84,8 +84,6 @@ def test_reset_index(input_dfs, sheet_index, drop, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
 
 def test_reset_index_twice_works():

@@ -15,14 +15,14 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
-from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive
+from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType, IntFunctionReturnType
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def CLEAN(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "CLEAN",
@@ -41,12 +41,10 @@ def CLEAN(series: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
 
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return clean_helper(series)
+    if isinstance(arg, str):
+        return clean_helper(arg)
     
-    return series.fillna('').apply(clean_helper)
+    return arg.fillna('').apply(clean_helper)
 
 
 @cast_values_in_all_args_to_type('str')
@@ -107,28 +105,17 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
         ]
     }
     """
-    if string is None:
-        return 0
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if substrings is None:
-        return 0
-    elif isinstance(substrings, pd.Series):
-        substrings = substrings.fillna('XTREME_MITOSHEET_NULL_VALUE_1234567890_0987654321_NULL_VALUE_MITOSHEET_XTREME') # This is a hack to make sure that the find function returns 0 for null values
 
     if isinstance(string, str) and isinstance(substrings, str):
         if substrings == '':
             return 1
         
         return string.find(substrings) + 1
-    
+
     # otherwise, turn them into series
-    index = string.index if isinstance(string, pd.Series) else substrings.index
-    if isinstance(string, str):
-        string = pd.Series([string] * len(substrings), index=index)
-    elif isinstance(substrings, str):
-        substrings = pd.Series([substrings] * len(string), index=index)
+    index = get_index_from_series(string, substrings)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    substrings = get_series_from_primitive_or_series(substrings, index).fillna('XTREME_MITOSHEET_NULL_VALUE_1234567890_0987654321_NULL_VALUE_MITOSHEET_XTREME') # This is a hack to make sure that the find function returns 0 for null values
     
     return pd.Series(
         [s.find(ss) + 1 for s, ss in zip(string, substrings)],
@@ -139,7 +126,7 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
 @handle_sheet_function_errors
-def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
     """
     {
         "function": "LEFT",
@@ -162,42 +149,29 @@ def LEFT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=No
     }
     """
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
+    left_helper: Callable[[str, int], str] = lambda s, nc: s[:min(nc, len(s))]
 
     if num_chars is None:
         num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
 
+    if isinstance(string, str) and isinstance(num_chars, int):
+        return left_helper(string, num_chars)
 
-    if isinstance(string, str):
-        if isinstance(num_chars, int):
-            return string[:num_chars]
-        else:
-            return pd.Series(
-                [string[:nc] for nc in num_chars],
-                index=num_chars.index
-            )
-    else:
-        if isinstance(num_chars, int):
-            return pd.Series(
-                [s[:min(num_chars, len(s))] for s in string],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [s[:min(nc, len(s))] for s, nc in zip(string, num_chars)], #TODO: add test for this min
-                index=string.index
-            )
+    # otherwise, turn them into series for simplicity
+    index = get_index_from_series(string, num_chars)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
+
+    return pd.Series(
+        [left_helper(s, nc) for s, nc in zip(string, num_chars)],
+        index=string.index
+    )
 
 
 
-@cast_values_in_arg_to_type('string', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
+def LEN(arg: StringRestrictedInputType) -> IntFunctionReturnType:
     """
     {
         "function": "LEN",
@@ -215,17 +189,15 @@ def LEN(string: StringRestrictedInputType) -> IntFunctionReturnType:
         ]
     }
     """
-    if string is None:
-        return 0
-    elif isinstance(string, str):
-        return len(string)
+    if isinstance(arg, str):
+        return len(arg)
     
-    return string.fillna('').str.len()
+    return arg.fillna('').str.len()
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def LOWER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "LOWER",
@@ -244,12 +216,10 @@ def LOWER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series.lower()
+    if isinstance(arg, str):
+        return arg.lower()
 
-    return series.fillna('').str.lower()
+    return arg.fillna('').str.lower()
 
 
 
@@ -284,33 +254,14 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     }
     """
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if start_loc is None:
-        start_loc = 0
-    elif isinstance(start_loc, pd.Series):
-        start_loc = start_loc.fillna(0)
-
-    if num_chars is None:
-        num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
-
-
     if isinstance(string, str) and isinstance(start_loc, int) and isinstance(num_chars, int):
         return string[start_loc - 1:start_loc + num_chars - 1]
 
     # Turn all of them into a series to simplify things
-    index = string.index if isinstance(string, pd.Series) else start_loc.index if isinstance(start_loc, pd.Series) else num_chars.index # type: ignore
-    if isinstance(string, str):
-        string = pd.Series([string] * len(index), index=index)
-    if isinstance(start_loc, int):
-        start_loc = pd.Series([start_loc] * len(index), index=index)
-    if isinstance(num_chars, int):
-        num_chars = pd.Series([num_chars] * len(index), index=index)
+    index = get_index_from_series(string, start_loc, num_chars)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    start_loc = get_series_from_primitive_or_series(start_loc, index).fillna(0)
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
     
     return pd.Series(
         [s[sl-1:sl+nc-1] for s, sl, nc in zip(string, start_loc, num_chars)],
@@ -318,9 +269,9 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
     )
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def PROPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "PROPER",
@@ -338,18 +289,16 @@ def PROPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series.title()
+    if isinstance(arg, str):
+        return arg.title()
 
-    return series.fillna('').str.title()
+    return arg.fillna('').str.title()
 
 
 @cast_values_in_arg_to_type('string', 'str')
 @cast_values_in_arg_to_type('num_chars', 'int')
 @handle_sheet_function_errors
-def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def RIGHT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
 
     """
     {
@@ -374,35 +323,20 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
     """
     right_helper: Callable[[str, int], str] = lambda s, nc: s[-min(nc, len(s)):] if nc != 0 else ''
 
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
     if num_chars is None:
         num_chars = 1
-    elif isinstance(num_chars, pd.Series):
-        num_chars = num_chars.fillna(0)
 
-    if isinstance(string, str):
-        if isinstance(num_chars, int):
-            return right_helper(string, num_chars)
-        else:
-            return pd.Series(
-                [right_helper(string, nc) for nc in num_chars],
-                index=num_chars.index
-            )
-    else:
-        if isinstance(num_chars, int):
-            return pd.Series(
-                [right_helper(s, num_chars) for s in string],
-                index=string.index
-            )
-        else:
-            return pd.Series(
-                [right_helper(s, nc) for s, nc in zip(string, num_chars)],
-                index=string.index
-            )
+    if isinstance(string, str) and isinstance(num_chars, int):
+        return right_helper(string, num_chars)
+    
+    index = get_index_from_series(string, num_chars)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    num_chars = get_series_from_primitive_or_series(num_chars, index).fillna(0)
+
+    return pd.Series(
+        [right_helper(s, nc) for s, nc in zip(string, num_chars)],
+        index=string.index
+    )
 
 
 @cast_values_in_arg_to_type('string', 'str')
@@ -410,7 +344,7 @@ def RIGHT(string: StringRestrictedInputType, num_chars: IntRestrictedInputType=N
 @cast_values_in_arg_to_type('new_text', 'str')
 @cast_values_in_arg_to_type('count', 'int')
 @handle_sheet_function_errors
-def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInputType, new_text: StringRestrictedInputType, count: IntRestrictedInputType=None) -> StringFunctionReturnType:
+def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInputType, new_text: StringRestrictedInputType, count: Optional[IntRestrictedInputType]=None) -> StringFunctionReturnType:
     """
     {
         "function": "SUBSTITUTE",
@@ -440,51 +374,28 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
         ]
     }
     """
-    if string is None:
-        return ''
-    elif isinstance(string, pd.Series):
-        string = string.fillna('')
-
-    if old_text is None:
-        return string
-    elif isinstance(old_text, pd.Series):
-        old_text = old_text.fillna('')
-
-    if new_text is None:
-        return string
-    elif isinstance(new_text, pd.Series):
-        new_text = new_text.fillna('')
 
     if count is None:
         count = -1
-    elif isinstance(count, pd.Series):
-        count = count.fillna(0)
-
 
     if isinstance(string, str) and isinstance(old_text, str) and isinstance(new_text, str) and isinstance(count, int):
         return string.replace(old_text, new_text, count)
-    else:
-        # To make the cases easier here, we'll just convert everything to a series of the same length if any of them are a series
-        index = string.index if isinstance(string, pd.Series) else old_text.index if isinstance(old_text, pd.Series) else new_text.index if isinstance(new_text, pd.Series) else count.index if isinstance(count, pd.Series) else []
-        if isinstance(string, str):
-            string = pd.Series([string] * len(index), index=index)
-        if isinstance(old_text, str):
-            old_text = pd.Series([old_text] * len(index), index=index)
-        if isinstance(new_text, str):
-            new_text = pd.Series([new_text] * len(index), index=index)
-        if isinstance(count, int):
-            count = pd.Series([count] * len(index), index=index)
+
+    index = get_index_from_series(string, old_text, new_text, count)
+    string = get_series_from_primitive_or_series(string, index).fillna('')
+    old_text = get_series_from_primitive_or_series(old_text, index).fillna('')
+    new_text = get_series_from_primitive_or_series(new_text, index).fillna('')
+    count = get_series_from_primitive_or_series(count, index).fillna(0)
+
+    return pd.Series(
+        [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
+        index=index
+    )
 
 
-        return pd.Series(
-            [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text, new_text, count)],
-            index=index
-        )
-    
-
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def TEXT(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "TEXT",
@@ -502,16 +413,14 @@ def TEXT(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series
+    if isinstance(arg, str):
+        return arg
     
-    return series.fillna('')
+    return arg.fillna('')
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def TRIM(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "TRIM",
@@ -530,17 +439,15 @@ def TRIM(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series.strip()
+    if isinstance(arg, str):
+        return arg.strip()
 
-    return series.fillna('').str.strip()
+    return arg.fillna('').str.strip()
 
 
-@cast_values_in_arg_to_type('series', 'str')
+@cast_values_in_arg_to_type('arg', 'str')
 @handle_sheet_function_errors
-def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
+def UPPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
     """
     {
         "function": "UPPER",
@@ -559,12 +466,10 @@ def UPPER(series: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    if series is None:
-        return ''
-    elif isinstance(series, str):
-        return series.upper()
+    if isinstance(arg, str):
+        return arg.upper()
     
-    return series.fillna('').str.upper()
+    return arg.fillna('').str.upper()
 
 
 

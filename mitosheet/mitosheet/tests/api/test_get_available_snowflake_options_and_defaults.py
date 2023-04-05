@@ -32,7 +32,7 @@ def test_integration_success():
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
-        'table': 'SIMPLE_PYTEST_TABLE',
+        'table_or_view': 'SIMPLE_PYTEST_TABLE',
     }
 
     params = {
@@ -49,7 +49,7 @@ def test_integration_success():
                 'warehouses': ['COMPUTE_WH'],    
                 'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
                 'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
-                'tables': ["COLUMNHEADER_TEST", "NOROWS", "SIMPLE_PYTEST_TABLE", "TYPETEST", "TYPETEST_SIMPLE"],
+                'tables_and_views': ["COLUMNHEADER_TEST", "NOROWS", "SIMPLE_PYTEST_TABLE", "TYPETEST", "TYPETEST_SIMPLE", "SIMPLE_PYTEST_TABLE_VIEW"],
                 'columns': ['COLUMNA', 'COLUMNB']
         },
         'default_values': table_loc_and_warehouse

@@ -61,10 +61,3 @@ TRIM_STRING_TESTS = [
 @pytest.mark.parametrize("data,trimmed", TRIM_STRING_TESTS)
 def test_TRIM_valid_input_direct_string(data, trimmed):
     assert TRIM(data).tolist() == [trimmed]
-
-
-@pytest.mark.parametrize("data,trimmed", TRIM_VALID_TESTS)
-def test_TRIM_valid_input_sheet_function(data, trimmed):
-    mito = create_mito_wrapper(data)
-    mito.set_formula('=TRIM(A)', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == trimmed

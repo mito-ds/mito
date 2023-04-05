@@ -8,6 +8,7 @@ from typing import Any
 import pytest
 import pandas as pd
 import numpy as np
+from mitosheet.errors import MitoError
 from mitosheet.public.v3.rolling_range import RollingRange
 from datetime import datetime
 
@@ -19,7 +20,6 @@ CONCAT_VALID_TESTS: Any = [
     (['a', 'b'], 'ab'),
     (['a', 1, True], 'a1True'),
     (['a', 1, True, None], 'a1True'),
-    ([None], ''),
 
     # Constants and series
     (['a', pd.Series(['a', 'b', 'c'])], pd.Series(['aa', 'ab', 'ac'])),
@@ -43,3 +43,13 @@ def test_concat(_argv, expected):
         assert result.equals(expected)
     else: 
         assert result == expected
+
+
+
+CONCAT_INVALID_TESTS: Any = [
+    ([None], ''),
+]
+@pytest.mark.parametrize("_argv", CONCAT_INVALID_TESTS)
+def test_invalid_args_error(_argv):
+    with pytest.raises(MitoError) as e_info:
+        CONCAT(*_argv)

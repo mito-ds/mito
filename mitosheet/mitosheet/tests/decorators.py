@@ -16,7 +16,12 @@ from mitosheet.ai.ai_utils import is_open_ai_credentials_available
 from mitosheet.utils import is_prev_version, is_snowflake_connector_python_installed, is_snowflake_credentials_available
 
 pandas_pre_1_only = pytest.mark.skipif(
-    pd.__version__.startswith('1.'), 
+    not pd.__version__.startswith('0.'), 
+    reason='This test only runs on earlier versions of Pandas. API inconsistencies make it fail on earlier versions'
+)
+
+pandas_pre_2_only = pytest.mark.skipif(
+    pd.__version__.startswith('2.'), 
     reason='This test only runs on earlier versions of Pandas. API inconsistencies make it fail on earlier versions'
 )
 

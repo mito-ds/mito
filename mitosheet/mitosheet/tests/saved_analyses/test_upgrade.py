@@ -450,6 +450,17 @@ UPGRADE_TESTS = [
             "version": __version__, 
             "steps_data": [{"step_version": 3, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "range_imports": [{"type": "upper left corner value", "df_name": "df2", "value": 1, "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2
         }
+    ),
+    # Upgrade the Snowflake import step
+    (
+        {
+            "version": "0.1.469", 
+            "steps_data": [{"step_version": 1, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2
+        },
+        {
+            "version":  __version__, 
+            "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2
+        }
     )
 ]
 @pytest.mark.parametrize("old, new", UPGRADE_TESTS)

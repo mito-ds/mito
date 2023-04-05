@@ -129,7 +129,6 @@ def get_final_result_series_or_primitive(
     result: ResultType = default_value
 
     for arg in argv:
-
         result = __get_new_result_series_or_primitive(
             default_value,
             result,
@@ -140,3 +139,21 @@ def get_final_result_series_or_primitive(
         )
 
     return result 
+    
+
+def get_index_from_series(*args: Union[PrimitiveType, pd.Series]) -> pd.Index:
+    if any(isinstance(arg, pd.Series) for arg in args):
+        # Search for the first series and use its index
+        return next(arg.index for arg in args if isinstance(arg, pd.Series))
+    else:
+        raise Exception("No series found in args")
+    
+
+def get_series_from_primitive_or_series(
+        arg: Union[PrimitiveType, pd.Series], 
+        index: pd.Index
+    ) -> pd.Series:
+    if isinstance(arg, pd.Series):
+        return arg
+    else:
+        return pd.Series([arg] * len(index), index=index)

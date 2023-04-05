@@ -88,6 +88,9 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     elif public_interface == 2:
         import mitosheet.public.v2 as v2
         local_vars = v2.__dict__
+    elif public_interface == 3:
+        import mitosheet.public.v3 as v3
+        local_vars = v3.__dict__
     else:
         import mitosheet as original
         local_vars = original.__dict__

@@ -40,7 +40,6 @@ LOG_VALID_TESTS = [
 @pytest.mark.parametrize("series1, base, output", LOG_VALID_TESTS)
 def test_LOG_valid_input_direct(series1, base, output):
     log = LOG(series1, base)
-    print(log)
     assert np.isclose(output, log).all()
 
 def test_log_with_nan():

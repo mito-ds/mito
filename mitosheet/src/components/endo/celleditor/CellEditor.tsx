@@ -88,7 +88,7 @@ const CellEditor = (props: {
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
                 // TODO: use the correct funciton, rather than JSON.stringify
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.rowIndex).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
@@ -115,7 +115,7 @@ const CellEditor = (props: {
         return <></>;
     }
 
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
     const documentationFunction = getDocumentationFunction(fullFormula);
@@ -181,7 +181,6 @@ const CellEditor = (props: {
             props.editorState.formula, 
             props.editorState.pendingSelections, 
             props.sheetData,
-            props.editorState.rowIndex
         );
 
         // Strip the prefix, and append the suggestion, and the current index label as well
@@ -363,7 +362,6 @@ const CellEditor = (props: {
                 props.editorState.formula, 
                 props.editorState.pendingSelections,
                 props.sheetData,
-                props.editorState.rowIndex
             );
                 
             props.setEditorState({
@@ -394,7 +392,7 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)
+        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
         const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
@@ -412,6 +410,7 @@ const CellEditor = (props: {
             const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
                 ? {'type': 'entire_column'}
                 : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+
 
             errorMessage = await props.mitoAPI.editSetColumnFormula(
                 props.sheetIndex,
@@ -455,7 +454,7 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula: true
                         })
                     }}
-                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData, props.editorState.rowIndex)}
+                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)}
                     onKeyDown={onKeyDown}
                     onChange={(e) => {
 

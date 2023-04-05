@@ -12,7 +12,7 @@ import os
 from mitosheet.ai.prompt import get_prompt
 
 
-import requests
+import requests # type: ignore
 
 URL = 'https://api.openai.com/v1/chat/completions'
 

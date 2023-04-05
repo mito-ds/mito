@@ -11,6 +11,7 @@ from mitosheet.types import CodeSnippetEnvVars
 from mitosheet.user.utils import is_enterprise
 from mitosheet._version import package_name
 
+
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
 MITO_CONFIG_VERSION = 'MITO_CONFIG_VERSION'
@@ -183,12 +184,11 @@ class MitoConfig:
             if raw_display_ai_transform is not None:
                 return display_ai_transform
             
-        else:
-            on_enterprise = is_enterprise()
-            on_mitosheet_private = package_name == 'mitosheet-private'
+        on_enterprise = is_enterprise()
+        on_mitosheet_private = package_name == 'mitosheet-private'
 
-            if on_enterprise or on_mitosheet_private:
-                return False
+        if on_enterprise or on_mitosheet_private:
+            return False
         
         return True
     

@@ -21,12 +21,12 @@ ARITHMETIC_COMPOSITION_TESTS: List[Tuple[Any, ...]] = [
     (4, 4, '=SUM(AVG(A, B), AVG(A, B)) + SUM(A, 10)', 22),
     (4, 4, '=AVG(SUM(AVG(A, B), AVG(A, B)) + SUM(A, 10), 0)', 11),
     (4, 4, '=MULTIPLY(AVG(SUM(AVG(A, B), AVG(A, B)) + SUM(A, 10), 0), 2)', 22),
-    (4, 4, '=SUBSTITUTE(A, 4, 2) * B', 8),
-    (50, 4, '=LEFT(A) * B', 20),
-    (51, 4, '=RIGHT(A) * B', 4),
-    (5, 4, '=PROPER(A) * B', 20),
-    (5, 4, '=UPPER(A) * B', 20),
-    (5, 4, '=LOWER(A) * B', 20),
+    (4, 4, '=INT(SUBSTITUTE(A, 4, 2)) * B', 8),
+    (50, 4, '=INT(LEFT(A)) * B', 20),
+    (51, 4, '=INT(RIGHT(A)) * B', 4),
+    (5, 4, '=INT(PROPER(A)) * B', 20),
+    (5, 4, '=INT(UPPER(A)) * B', 20),
+    (5, 4, '=INT(LOWER(A)) * B', 20),
 ]
 
 """

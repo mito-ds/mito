@@ -39,14 +39,6 @@ def test_MID_works_for_series_and_number(data, start, num, result):
     assert MID(series, start, num).tolist() == result
 
 
-@pytest.mark.parametrize("data,start,num,result", MID_VALID_TESTS)
-def test_MID_valid_input_sheet_function(data, start, num, result):
-    mito = create_mito_wrapper(data)
-    formula = "=MID(A, {0}, {1})".format(start, num)
-    mito.set_formula(formula, 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == result
-
-
 MID_SERIES_TESTS = [
     (["ABCDEF"], pd.Series([2]), pd.Series([2]), ['BC']),
     (["ABCDEF"], pd.Series([2]), pd.Series([100]), ['BCDEF']),
@@ -59,22 +51,3 @@ def test_MID_works_for_series_and_series(data, start, num, result):
     series = pd.Series(data=data)
     assert MID(series, start, num).tolist() == result
 
-
-MID_INVALID_FORMULAS = [
-    ('=MID(A'),
-    ('=MID(A, 1'),
-    ('=MID(A, 1)'),
-    ('=MIDA'),
-    ('=MID(A))'),
-    ('=MIDDLE(A'),
-    ('=MID(A1'),
-    ('=MIDA')]
-
-
-@pytest.mark.parametrize("invalid_formula", MID_INVALID_FORMULAS)
-def test_MID_invalid_formula_no_effect(invalid_formula):
-    mito = create_mito_wrapper([' 1 '])
-    mito.add_column(0, 'B')
-    # We should not change the value of the created column
-    mito.set_formula(invalid_formula, 0, 'B')
-    assert mito.get_value(0, 'B', 1) == 0

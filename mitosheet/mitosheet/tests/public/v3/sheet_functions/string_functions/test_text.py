@@ -20,7 +20,6 @@ TEXT_VALID_TESTS: Any = [
     ([' a '], ' a '),
     ([1.0], '1.0'),
     ([True], 'True'),
-    ([None], ''),
 
     # Constants and series
     ([pd.Series(['abc', '123', np.nan])], pd.Series(['abc', '123', ''])),
@@ -42,10 +41,9 @@ def test_text(_argv, expected):
 
 
 TEXT_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None], ''),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 1]),
 
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 1]),
 ]
 @pytest.mark.parametrize("_argv", TEXT_INVALID_TESTS)

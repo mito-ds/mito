@@ -10,13 +10,14 @@ def cast_to_number(unknown: Union[str, int, float, bool, datetime, timedelta]) -
     A super-type of int and float, this number type will keep ints as ints and floats
     as floats. It will cast strings to floats by default.
     """
-    if isinstance(unknown, str):
+    if isinstance(unknown, bool):
+        return int(unknown)
+    elif isinstance(unknown, str):
         return cast_string_to_float(unknown)
     elif isinstance(unknown, int):
         return unknown
     elif isinstance(unknown, float):
         return unknown
-    elif isinstance(unknown, bool):
-        return int(unknown)
+    
 
     return None

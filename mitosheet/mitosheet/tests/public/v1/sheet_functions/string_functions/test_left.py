@@ -70,18 +70,3 @@ LEFT_VALID_TESTS_ONE_DEFAULT = [
 def test_LEFT_valid_input_direct_defaults_to_one(data, trimmed):
     series = pd.Series(data=data)
     assert LEFT(series, 1).tolist() == trimmed
-
-
-# Tests of function in Mito
-@pytest.mark.parametrize("data,trimmed", LEFT_VALID_TESTS_ONE_DEFAULT)
-def test_LEFT_valid_input_sheet_formula_defaults_to_one(data, trimmed):
-    mito = create_mito_wrapper(data)
-    mito.set_formula('=LEFT(A)', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == trimmed
-
-
-@pytest.mark.parametrize("data, length,trimmed", LEFT_VALID_TESTS)
-def test_LEFT_valid_input_sheet_formula_length(data, length, trimmed):
-    mito = create_mito_wrapper(data)
-    mito.set_formula(f'=LEFT(A, {length})', 0, 'B', add_column=True)
-    assert mito.get_column(0, 'B', as_list=True) == trimmed

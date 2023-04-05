@@ -23,8 +23,6 @@ FIND_VALID_TESTS: Any = [
     (['bca', ''], 1),
     (['bcaaa', 'aaa'], 3),
     ([True, 'e'], 4),
-    ([None, 'e'], 0),
-    (['e', None], 0),
 
 
     # Constants and series
@@ -50,10 +48,9 @@ def test_find(_argv, expected):
 
 
 FIND_INVALID_TESTS: Any = [
-    # Dataframes
+    ([None, 'e'], 0),
+    (['e', None], 0),
     ([pd.DataFrame({'a': ['a', 'b', 'c'], 'b': [1, 2, 3]}), 'a', 'b', None]),
-
-    # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': ['a', 'b', 'c'], 'C': [1, 2, 3]}), 2, 0), 'a', 'b', None]),
 ]
 @pytest.mark.parametrize("_argv", FIND_INVALID_TESTS)

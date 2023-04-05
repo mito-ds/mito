@@ -9,6 +9,7 @@ as well as the original dataframe, and returns the current state
 of the sheet as a dataframe
 """
 import datetime
+from distutils.version import LooseVersion
 import re
 import warnings
 from typing import Any, List, Optional, Set, Tuple, Union
@@ -20,7 +21,7 @@ from mitosheet.errors import make_invalid_formula_error
 from mitosheet.is_type_utils import (is_datetime_dtype,
                                                    is_number_dtype,
                                                    is_string_dtype)
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, IndexLabel
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference, IndexLabel
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import (ColumnHeader, FrontendFormula,
@@ -237,9 +238,14 @@ def get_row_offset(index: pd.Index, formula_label: Union[str, bool, int, float, 
 
 def is_number_index(index: pd.Index) -> bool:
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        if isinstance(index, pd.RangeIndex) or isinstance(index, pd.Int64Index) or isinstance(index, pd.UInt64Index) or isinstance(index, pd.Float64Index):
-            return True
+        # Check pandas version is < 2.0
+        if LooseVersion(pd.__version__) < LooseVersion('2.0.0'):
+            warnings.simplefilter("ignore")
+            if isinstance(index, pd.RangeIndex) or isinstance(index, pd.Int64Index) or isinstance(index, pd.UInt64Index) or isinstance(index, pd.Float64Index):
+                return True
+        else:
+            index_dtype = str(index.dtype)
+            return is_number_dtype(index_dtype)
     
     if is_number_dtype(str(index.dtype)):
         return True
@@ -552,18 +558,26 @@ def get_parser_matches(
         first_specific_cell_match = get_header_index_match(formula, raw_parser_matches, match_index)
         second_specific_cell_match = get_header_index_match(formula, raw_parser_matches, match_index + 2)
 
-        if first_specific_cell_match is None or second_specific_cell_match is None:
+        if first_specific_cell_match is None or second_specific_cell_match is None or isinstance(first_specific_cell_match['row_offset'], tuple) or isinstance(second_specific_cell_match['row_offset'], tuple):
             return None
         
         specific_cell_matches_seperated_by_colon = first_specific_cell_match['substring_range'][1] == second_specific_cell_match['substring_range'][0] - 1 and formula[first_specific_cell_match['substring_range'][1]] == ':'
         
+        # Ensure the range is constructed with ascending index labels
+        if first_specific_cell_match['row_offset'] >= second_specific_cell_match['row_offset']:
+            start_of_range_specific_cell_match = first_specific_cell_match
+            end_of_range_specific_cell_match = second_specific_cell_match  
+        else:
+            start_of_range_specific_cell_match = second_specific_cell_match
+            end_of_range_specific_cell_match = first_specific_cell_match
+
         if specific_cell_matches_seperated_by_colon:
             return {
                 'type': '{HEADER}{INDEX}:{HEADER}{INDEX}',
                 'substring_range': (first_specific_cell_match['substring_range'][0], second_specific_cell_match['substring_range'][1]),
                 'unparsed': first_specific_cell_match['unparsed'] + second_specific_cell_match['unparsed'],
-                'parsed': (first_specific_cell_match['parsed'], second_specific_cell_match['parsed']),
-                'row_offset': (first_specific_cell_match['row_offset'], second_specific_cell_match['row_offset']) # type: ignore
+                'parsed': (start_of_range_specific_cell_match['parsed'], end_of_range_specific_cell_match['parsed']),
+                'row_offset': (start_of_range_specific_cell_match['row_offset'], end_of_range_specific_cell_match['row_offset']) # type: ignore
             }
 
         return None
@@ -689,21 +703,30 @@ def replace_column_headers_and_indexes(
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
 
-            column_headers.add(column_header_one)
-            column_headers.add(column_header_two)
+            # Ensure that the column headers are in the order they appear in the dataframe
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one) 
 
-            replace_string = f'{df_name}{get_header_header_selection_code(column_header_one, column_header_two)}'
+            # We add all of the column headers that are between these two headers
+            cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
+            column_headers.update(cols)
+            
+            replace_string = f'{df_name}{get_header_header_selection_code(first_column_header, second_column_header)}'
 
         elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
             ((column_header_one, index_label_one), (column_header_two, index_label_two)) = match['parsed']
             (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
 
-            column_headers.add(column_header_one)
-            column_headers.add(column_header_two)
+            # Ensure that the column headers are in the order they appear in the dataframe
+            first_column_header, second_column_header = (column_header_one, column_header_two) if df.columns.get_loc(column_header_one) <= df.columns.get_loc(column_header_two) else (column_header_two, column_header_one)           
+            
+            # We add all of the column headers that are between these two headers
+            cols = df.loc[:, first_column_header:second_column_header].columns.tolist()
+            column_headers.update(cols)
+
             index_labels.add(index_label_one)
             index_labels.add(index_label_two)
 
-            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(column_header_one, column_header_two)}, {row_offset_one - row_offset_two + 1}, {-1 * row_offset_one})'
+            replace_string = f'RollingRange({df_name}{get_header_header_selection_code(first_column_header, second_column_header)}, {row_offset_one - row_offset_two + 1}, {-1 * row_offset_one})'
         
         formula = formula[:start] + replace_string + formula[end:]
 
@@ -823,6 +846,26 @@ def parse_formula(
     return final_code, functions, column_header_dependencies, index_label_dependencies
 
 
+def get_frontend_formula_header_index_reference(
+        column_header: ColumnHeader,
+        row_offset: int,
+    ) -> FrontendFormulaHeaderIndexReference:
+    return {
+        'type': '{HEADER}{INDEX}',
+        'display_column_header': get_column_header_display(column_header),
+        'row_offset': row_offset,
+    }
+
+def get_frontend_formula_header_reference(
+        column_header: ColumnHeader,
+    ) -> FrontendFormulaHeaderReference:
+    return {
+        'type': '{HEADER}',
+        'display_column_header': get_column_header_display(column_header),
+    }
+
+
+
 def get_frontend_formula(
     formula: Optional[str], 
     formula_label: Union[str, bool, int, float],
@@ -835,7 +878,7 @@ def get_frontend_formula(
     if formula is None or formula == '':
         return []
 
-    raw_parser_matches = get_raw_parser_matches(
+    parser_matches = get_parser_matches(
         formula,
         formula_label,
         get_string_matches(formula),
@@ -844,24 +887,38 @@ def get_frontend_formula(
         
     frontend_formula: FrontendFormula = []
     start = 0
-    for raw_parser_match in raw_parser_matches:
-        parser_match_start = raw_parser_match['substring_range'][0]
-        parser_match_end = raw_parser_match['substring_range'][1]
+    for match in reversed(parser_matches):
+        match_type = match['type']
+        parser_match_start = match['substring_range'][0]
+        parser_match_end = match['substring_range'][1]
 
         frontend_string_part = formula[start: parser_match_start]
-        
-        if raw_parser_match['type'] == '{HEADER}':
-            if len(frontend_string_part) > 0:
-                frontend_formula.append({
-                    'type': 'string part',
-                    'string': frontend_string_part
-                })
 
-            frontend_formula.append({
-                'type': 'reference part',
-                'display_column_header': raw_parser_match['unparsed'],
-                'row_offset': raw_parser_match['row_offset']
-            })
+        if len(frontend_string_part) > 0:
+            frontend_formula.append({'type': 'string part', 'string': frontend_string_part})
+
+        if match_type == '{HEADER}':
+            column_header = match['parsed']
+            row_offset: int = match['row_offset'] # type: ignore
+            frontend_formula.append(get_frontend_formula_header_index_reference(column_header, row_offset))
+
+        elif match_type == '{HEADER}{INDEX}':
+            column_header, _ = match['parsed']
+            row_offset: int = match['row_offset'] # type: ignore
+            frontend_formula.append(get_frontend_formula_header_index_reference(column_header, row_offset))
+
+        elif match_type == '{HEADER}:{HEADER}':
+            (column_header_one, column_header_two) = match['parsed']
+            frontend_formula.append(get_frontend_formula_header_reference(column_header_one))
+            frontend_formula.append({'type': 'string part', 'string': ':'})
+            frontend_formula.append(get_frontend_formula_header_reference(column_header_two))
+
+        elif match_type == '{HEADER}{INDEX}:{HEADER}{INDEX}':
+            ((column_header_one, _), (column_header_two, _)) = match['parsed']
+            (row_offset_one, row_offset_two) = match['row_offset'] # type: ignore
+            frontend_formula.append(get_frontend_formula_header_index_reference(column_header_one, row_offset_one))
+            frontend_formula.append({'type': 'string part', 'string': ':'})
+            frontend_formula.append(get_frontend_formula_header_index_reference(column_header_two, row_offset_two))
 
         start = parser_match_end 
 
@@ -887,6 +944,8 @@ def get_backend_formula_from_frontend_formula(
     for formula_part in frontend_formula:
         if formula_part['type'] == 'string part':
             formula += formula_part['string'] # type: ignore
+        elif formula_part['type'] == '{HEADER}':
+            formula += formula_part['display_column_header']
         else:
             formula += formula_part['display_column_header'] # type: ignore
             formula += get_column_header_display(df.index[df.index.get_indexer([formula_label])[0] - formula_part['row_offset']]) # type: ignore

@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+from distutils.version import LooseVersion
 from typing import Any, Dict, List
 import warnings
 import pytest
@@ -383,9 +384,14 @@ FUNCTION_TEST_CASES = [
 
 # To supress warnings, we create these variables here
 with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    unit64_index = pd.UInt64Index(range(10))
-    float64_index = pd.Float64Index(range(10))
+    # Check that the pandas verison is < 2.0
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        warnings.simplefilter('ignore')
+        unit64_index = pd.UInt64Index(range(10))
+        float64_index = pd.Float64Index(range(10))
+    else:
+        unit64_index = pd.Index(range(10), dtype='uint64')
+        float64_index = pd.Index(range(10), dtype='float64')
 
 
 INDEX_TEST_CASES = [
@@ -825,15 +831,25 @@ HEADER_HEADER_RANGE_TEST_CASES = [
         set(['SUM']),
         set(['A', "B"])
     ),
-    # One range across two headers, with as well as other specific cell reference and header ref
+    # One range across two headers, with as well as other specific cell reference
     (
-        '=SUM(A:B, A, A0)',
+        '=SUM(A:B, A0)',
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2)),
-        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'], df['A'])",
+        "df[\'B\'] = SUM(df.loc[:, \'A\':\'B\'], df['A'])",
         set(['SUM']),
         set(['A', "B"])
+    ),
+    # One range across three headers, includes the middle one
+    (
+        '=SUM(A:C)',
+        'D',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'D\'] = SUM(df.loc[:, \'A\':\'C\'])",
+        set(['SUM']),
+        set(["A", "B", "C"])
     ),
 ]
 
@@ -880,11 +896,11 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
     ),
     # Header index header index reference with offset and two columns in function, as well as other specific cell reference and header ref
     (
-        '=SUM(A1:B2, A, A0)',
+        '=SUM(A1:B2, A0)',
         'B',
         0,
         pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
-        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'], df['A'])",
+        "df['B'] = SUM(RollingRange(df.loc[:, 'A':'B'], 2, 1), df['A'])",
         set(['SUM']),
         set(['A', 'B'])
     ),
@@ -907,6 +923,26 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
         "df['B'] = RollingRange(df[['A']], 5, -2)",
         set([]),
         set(['A'])
+    ),
+    # Headers in incorrect direction in rolling range
+    (
+        '=SUM(B0:A0)',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B'], 3), index=pd.RangeIndex(0, 3)),
+        "df['C'] = SUM(RollingRange(df.loc[:, 'A':'B'], 1, 0))",
+        set(['SUM']),
+        set(['B', 'A'])
+    ),
+    # One range across three headers, includes the middle one
+    (
+        '=SUM(C0:A0)',
+        'D',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2)),
+        "df[\'D\'] = SUM(RollingRange(df.loc[:, 'A':'C'], 1, 0))",
+        set(['SUM']),
+        set(["A", "B", "C"])
     ),
 ]
 
@@ -960,7 +996,7 @@ def test_safe_contains(formula, substring, contains):
     assert safe_contains(formula, substring, ['A', 'B']) == contains
 
 
-@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES)
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES)
 def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,df,python_code,functions,columns):
     frontend_formula = get_frontend_formula(formula, formula_label, df)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula

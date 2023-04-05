@@ -33,7 +33,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 3
+        return 4
 
     @classmethod
     def step_type(cls) -> str:
@@ -73,6 +73,8 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             from mitosheet.public.v1 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
         elif public_interface_version == 2:
             from mitosheet.public.v2 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
+        elif public_interface_version == 3:
+            from mitosheet.public.v3 import to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 

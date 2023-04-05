@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from pandas.testing import assert_frame_equal
+
 from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE,
                                               FC_DATETIME_EXACTLY,
@@ -832,7 +834,9 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
 
     assert mito.dfs[0].equals(original_df)
-    assert mito.dfs[1].equals(pivoted_df)
+
+    # Check dataframes are equal without checking dtypes, which is an issue as date transformations result in different types on new pandas versions
+    assert_frame_equal(mito.dfs[1], pivoted_df, check_dtype=False)
 
 
 def test_pivot_transform_with_filter_source_column():
@@ -850,7 +854,7 @@ def test_pivot_transform_with_filter_source_column():
     ])
 
     assert mito.dfs[0].equals(df)
-    assert mito.dfs[1].equals(pd.DataFrame({'date (year)': [2000], 'value sum': [1]}))
+    assert_frame_equal(mito.dfs[1], pd.DataFrame({'date (year)': [2000], 'value sum': [1]}), check_dtype=False)
 
 def test_pivot_followed_by_edit_optimizes_creation_one():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
