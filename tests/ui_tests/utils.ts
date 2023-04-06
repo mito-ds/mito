@@ -15,6 +15,19 @@ export const createNewNotebook = async (page: IJupyterLabPageFixture, firstCellC
   }
 }
 
+// If the test just interacts with the mitosheet, and not JupyterLab
+export const createNewMitosheetOnlyTest = async (page: IJupyterLabPageFixture, firstCellCode: string) => {
+    const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
+    await page.notebook.createNew(randomFileName);
+  
+    if (firstCellCode) {
+      await page.notebook.setCell(0, 'code', firstCellCode);
+      await page.notebook.runCell(0);
+    }
+
+    await page.locator('.mito-container').click();
+}
+
 export const clickToolbarButton = async (page: IJupyterLabPageFixture, button: ToolbarButton) => {
   await page.click(`text=${button}`);
 };
