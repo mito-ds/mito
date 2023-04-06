@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 from mitosheet.types import Selection, StepsManagerType
 import os
 
-from mitosheet.ai.prompt import get_prompt
+from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
 
 
 import requests
@@ -31,25 +31,34 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
                 'stop': ['```']
         }
 
+user_email = None
+user_id = None
+num_usages = None
+
 
 def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
-        user_email = get_user_field(UJ_USER_EMAIL)
-        user_id = get_user_field(UJ_STATIC_USER_ID)
-        num_completions = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-        if num_completions is None:
-                num_completions = 0
+        global user_email, user_id, num_usages
+
+        if user_email is None:
+                user_email = get_user_field(UJ_USER_EMAIL)
+        if user_id is None:
+                user_id = get_user_field(UJ_STATIC_USER_ID)
+        if num_usages is None:
+                num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+
+
+        if num_usages is None:
+                num_usages = 0
 
         pro = is_pro()
 
-        if not pro and num_completions >= 3:
+        if not pro and num_usages >= 20:
                 return json.dumps({
-                        'error': f'You have used Mito AI 20 times. Please upgrade to Mito Pro to use Mito AI more, or set your own OPENAI_API key in your enviornment variables.'
+                        'error': f'You have used Mito AI 20 times.'
                 })
                 
 
         data = {
-                'user_input': user_input,
-                'prompt': prompt,
                 'email': user_email,
                 'user_id': user_id,
                 'data': _get_ai_completion_data(prompt)
@@ -68,8 +77,15 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         
 
         if res.status_code == 200:
-                set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_completions + 1)
-                return json.dumps(res.json())
+                num_usages = num_usages + 1
+                set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages + 1)
+                return json.dumps({
+                        'user_input': user_input,
+                        'prompt_version': PROMPT_VERSION,
+                        'prompt': prompt,
+                        'completion': res.json()['completion'],
+                })
+                return 
         
         return json.dumps({
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]}'
@@ -114,7 +130,7 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 completion = completion.strip()
                 return json.dumps({
                         'user_input': user_input,
-                        'prompt_version': 'df-creation-prompt-1',
+                        'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': completion,
                 })
