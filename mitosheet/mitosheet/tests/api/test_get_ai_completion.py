@@ -3,7 +3,7 @@
 import os
 import json
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
-from mitosheet.api.get_ai_completion import get_ai_completion
+import mitosheet.api.get_ai_completion as ai
 from mitosheet.tests.decorators import requires_open_ai_credentials
 from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES
@@ -12,7 +12,7 @@ from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES
 def test_get_ai_completion():
     mito = create_mito_wrapper_dfs()
 
-    completion = get_ai_completion({
+    completion = ai.get_ai_completion({
         'user_input': 'test',
         'selection': None
     }, mito.mito_backend.steps_manager)
@@ -40,7 +40,7 @@ def test_get_ai_completion_with_no_api_key_works():
 
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
 
-    completion = get_ai_completion({
+    completion = ai.get_ai_completion({
         'user_input': 'test',
         'selection': None
     }, mito.mito_backend.steps_manager)
@@ -55,6 +55,8 @@ def test_get_ai_completion_with_no_api_key_works():
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages)
 
 def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
+    set_user_field(UJ_AI_MITO_API_NUM_USAGES, 20)
+
     mito = create_mito_wrapper_dfs()
 
     if 'OPENAI_API_KEY' in os.environ:
@@ -65,9 +67,11 @@ def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
         key = None
         num_usages = 0
 
-    set_user_field(UJ_AI_MITO_API_NUM_USAGES, 20)
+    # Reload it to refresh variables stored
+    import importlib
+    importlib.reload(ai)
 
-    completion = get_ai_completion({
+    completion = ai.get_ai_completion({
         'user_input': 'test',
         'selection': None
     }, mito.mito_backend.steps_manager)
