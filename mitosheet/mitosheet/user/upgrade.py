@@ -35,7 +35,7 @@ from mitosheet.experiments.experiment_utils import get_current_experiment, get_n
 from mitosheet._version import package_name
 
 from mitosheet.user.db import get_user_json_object, set_user_json_object
-from mitosheet.user.schemas import (UJ_AI_PRIVACY_POLICY, UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBACKS_V2,
+from mitosheet.user.schemas import (UJ_AI_MITO_API_NUM_USAGES, UJ_AI_PRIVACY_POLICY, UJ_CLOSED_FEEDBACK, UJ_EXPERIMENT, UJ_FEEDBACKS_V2,
                                     UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_ENTERPRISE,
                                     UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_MITOSHEET_LAST_FIVE_USAGES,
@@ -209,6 +209,16 @@ def upgrade_user_json_version_8_to_9(user_json_version_8: Dict[str, Any]) -> Dic
 
     return user_json_version_8
 
+def upgrade_user_json_version_9_to_10(user_json_version_9: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Adds the U key, and sets it to False
+    """
+    user_json_version_9[UJ_USER_JSON_VERSION] = 10
+
+    user_json_version_9[UJ_AI_MITO_API_NUM_USAGES] = 0
+
+    return user_json_version_9
+
 def try_upgrade_user_json_to_current_version() -> None:
     user_json_object = get_user_json_object()
 
@@ -240,6 +250,8 @@ def try_upgrade_user_json_to_current_version() -> None:
         user_json_object = upgrade_user_json_version_7_to_8(user_json_object)
     if user_json_object[UJ_USER_JSON_VERSION] == 8:
         user_json_object = upgrade_user_json_version_8_to_9(user_json_object)
+    if user_json_object[UJ_USER_JSON_VERSION] == 9:
+        user_json_object = upgrade_user_json_version_9_to_10(user_json_object)
 
     # We always make sure that the experiment is the most up to date
     # version of the experiment

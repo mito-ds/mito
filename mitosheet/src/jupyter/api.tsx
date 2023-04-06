@@ -69,6 +69,7 @@ export enum UserJsonFields {
     UJ_EXPERIMENT = 'experiment',
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
     UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy',
+    UJ_AI_MITO_API_NUM_USAGES = 'ai_mito_api_num_usages',
 }
 
 interface MitoSuccessOrInplaceErrorResponse {

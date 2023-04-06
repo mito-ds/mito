@@ -44,6 +44,7 @@ UJ_MITOSHEET_ENTERPRISE = 'mitosheet_enterprise'
 UJ_EXPERIMENT = 'experiment'
 UJ_RECEIVED_CHECKLISTS = 'received_checklists'
 UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy'
+UJ_AI_MITO_API_NUM_USAGES = 'ai_mito_api_num_usages'
 
 
 # This was the final version of the user.json with user_json_version == 1
@@ -304,7 +305,36 @@ USER_JSON_VERSION_9 = {
     UJ_AI_PRIVACY_POLICY: False
 }
 
+"""
+Adds UJ_AI_MITO_API_NUM_USAGES and sets it equal to 0
+"""
+USER_JSON_VERSION_10 = {
+    # The new version of the user json object
+    UJ_USER_JSON_VERSION: 10,
+    # The static id of the user
+    UJ_STATIC_USER_ID: get_random_id(),
+    # A random secret that the user can use as salt when hashing things
+    UJ_USER_SALT: get_random_id(),
+    # Email of the user
+    UJ_USER_EMAIL: '',
+    # Tours that the user has received
+    UJ_RECEIVED_TOURS: [],
+    # A list of all the feedback the user has given
+    UJ_FEEDBACKS: [],
+    UJ_FEEDBACKS_V2: {},
+    UJ_MITOSHEET_CURRENT_VERSION: __version__,
+    UJ_MITOSHEET_LAST_UPGRADED_DATE: datetime.today().strftime('%Y-%m-%d'),
+    UJ_MITOSHEET_LAST_FIFTY_USAGES: [datetime.today().strftime('%Y-%m-%d')],
+    UJ_MITOSHEET_TELEMETRY: True,
+    UJ_MITOSHEET_PRO: False,
+    UJ_MITOSHEET_ENTERPRISE: False,
+    UJ_EXPERIMENT: get_new_experiment(),
+    UJ_RECEIVED_CHECKLISTS: {},
+    UJ_AI_PRIVACY_POLICY: False,
+    UJ_AI_MITO_API_NUM_USAGES: 0
+}
+
 
 # This is the most up to date user json, and you must update it when
 # you add a new schema
-USER_JSON_DEFAULT = USER_JSON_VERSION_9
+USER_JSON_DEFAULT = USER_JSON_VERSION_10
