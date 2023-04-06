@@ -1,85 +1,30 @@
-import { expect, IJupyterLabPageFixture, test } from '@jupyterlab/galata';
+import { expect, test } from '@jupyterlab/galata';
+import { clickToolbarButton, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
 
-const dfCreationCode = `import pandas as pd
-df = pd.DataFrame({'a': [1], 'b': [4]})\n`;
-
-type ToolbarButton = 'Add Col'
-
-const createNewNotebook = async (page: IJupyterLabPageFixture, firstCellCode?: string) => {
-  const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
-  await page.notebook.createNew(randomFileName);
-
-  if (firstCellCode) {
-    await page.notebook.setCell(0, 'code', firstCellCode);
-    await page.notebook.runCell(0);
-  }
-}
-
-const clickToolbarButton = async (page: IJupyterLabPageFixture, button: ToolbarButton) => {
-  await page.click(`text=${button}`);
-};
-
-const getNumberOfColumns = async (page: IJupyterLabPageFixture, cellNumber: number) => {
-  const cellOuput = await page.notebook.getCellOutput(cellNumber)
-  const columns = await cellOuput?.$$('.column-header-container')
-  return columns?.length || 0;
-}
-
-const waitForIdle = async (page: IJupyterLabPageFixture) => {
-  const idleLocator = page.locator('#jp-main-statusbar >> text=Idle');
-  await idleLocator.waitFor();
-}
-
-const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellIndex: number) => {
-  await waitForIdle(page);
-  const cellInput = await page.notebook.getCellInput(cellIndex);
-  let cellCode = (await cellInput?.innerText())?.trim();
-  // We wait until there's any code in the cell
-  while (!/[a-zA-Z]/g.test(cellCode || '')) {
-    // Wait 20 ms
-    await page.waitForTimeout(20);
-    await waitForIdle(page);
-    const cellInput = await page.notebook.getCellInput(cellIndex);
-    cellCode = (await cellInput?.innerText())?.trim();
-  }
-}
-
-test.describe('Mitosheet Tests', () => {
-  test.only('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
-    await createNewNotebook(page, 'import mitosheet\nmitosheet.sheet()');
-    const cellOuput = await page.notebook.getCellOutput(0)
-    expect(await cellOuput?.innerHTML()).toContain('Add Col');
-  });
-  
-  test.skip('create an analysis to replay, and replays it', async ({ page, tmpPath }) => {
-
+test.describe('Mitosheet functionality', () => {
+  test('pass a dataframe', async ({ page, tmpPath }) => {
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
-
-    await clickToolbarButton(page, 'Add Col');
-    await waitForIdle(page);
-    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
-    
-    // This line fails because of a bug in the runCell function. Namely, when the mitosheet is selected
-    // in cell 0's output, the selectCells function in the notebook.ts file will try and run, but for some
-    // reason fail to select the first cell. This causes the runCell function to fail, and in turn the 
-    // test to fail. We can work around this by running cell 1 and then going back to cell 0, but this
-    // is a hack... so I'm pausing on these for now...
-    await page.notebook.runCell(0);
-    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
+    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(2));
   });
 
-  test('Can run the generated code', async ({ page, tmpPath }) => {    
-    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+  test('import a CSV', async ({ page, tmpPath }) => {    
+    await createNewNotebook(page, `${dfCreationCode}df.to_csv('df.csv', index=False)\nimport mitosheet\nmitosheet.sheet()`);
+    await page.locator('.mito-container').click();
+    await page.getByRole('button', { name: 'Import Files', disabled: false }).click();
 
-    await clickToolbarButton(page, 'Add Col');
+    await page.locator('.file-browser-element-list > div:nth-child(2)').dblclick();
 
     await waitForCodeToBeWritten(page, 1);
-    await page.notebook.runCell(1);
+    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(2));
 
-    await page.notebook.setCell(2, 'code', `mitosheet.sheet(df)`);
-    await page.notebook.runCell(2);
-    await getNumberOfColumns(page, 2).then((num) => expect(num).toBe(3));
+  });
+
+  test('delete a col', async ({ page, tmpPath }) => {
+    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    await clickToolbarButton(page, 'Del Col');
+    await waitForIdle(page);
+    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(1));
   });
 });
