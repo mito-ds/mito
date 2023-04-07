@@ -16,6 +16,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await clickToolbarButton(page, 'Add Col');
 
     await waitForCodeToBeWritten(page, 1);
+    await page.notebook.selectCells(1);
     await page.notebook.runCell(1);
 
     await page.notebook.setCell(2, 'code', `mitosheet.sheet(df)`);
