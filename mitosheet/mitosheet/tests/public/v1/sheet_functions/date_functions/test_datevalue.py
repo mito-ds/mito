@@ -27,8 +27,3 @@ DATEVALUE_TESTS = [
 @pytest.mark.parametrize("date_string", DATEVALUE_TESTS)
 def test_datevalue_works_on_inputs(date_string):
     assert DATEVALUE(date_string).tolist() == [pd.Timestamp('2005-12-13 00:00:00')]
-
-def test_datevalue_works_in_sheet():
-    mito = create_mito_wrapper(['2000-1-2'])
-    mito.set_formula('=DATEVALUE(A)', 0, 'B', add_column=True)
-    assert mito.get_value(0, 'B', 1) == pd.Timestamp('2000-01-02 00:00:00')

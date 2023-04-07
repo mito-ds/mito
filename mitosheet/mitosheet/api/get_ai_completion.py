@@ -46,6 +46,8 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         if num_usages is None:
                 num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
+        print(num_usages)
+
 
         if num_usages is None:
                 num_usages = 0
