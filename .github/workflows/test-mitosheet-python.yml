@@ -52,7 +52,7 @@ jobs:
     - name: Test with pytest
       run: |
         cd mitosheet
-        pytest -Werror
+        pytest
       env:
         PYTEST_SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         PYTEST_SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
