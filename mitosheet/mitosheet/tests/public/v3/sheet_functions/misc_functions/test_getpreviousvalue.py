@@ -38,8 +38,8 @@ GETPREVIOUSVALUE_VALID_TESTS = [
         pd.Series([True, True, False])
     ),
     (
-        [pd.Series(pd.to_datetime(['1/2/23', '1/2/23', '1/2/23'])), pd.Series([False, True, True])],  
-        pd.Series(pd.to_datetime([pd.NaT, '1/2/23', '1/2/23']))
+        [pd.Series(pd.to_datetime(['1/2/23', '1/2/23', '1/2/23'], format='%m/%d/%y')), pd.Series([False, True, True])],  
+        pd.Series(pd.to_datetime([pd.NaT, '1/2/23', '1/2/23'], format='%m/%d/%y'))
     ),
 ]
 @pytest.mark.parametrize("_argv, expected", GETPREVIOUSVALUE_VALID_TESTS)

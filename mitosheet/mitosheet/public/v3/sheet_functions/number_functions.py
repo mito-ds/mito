@@ -80,7 +80,9 @@ def AVG(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         elif arg is not None:
             num_entries += 1
 
-    return sum_for_avg / num_entries if num_entries is not 0 else 0
+    there_are_entries = (isinstance(num_entries, int) and num_entries == 0) or isinstance(num_entries, pd.Series)
+
+    return sum_for_avg / num_entries if there_are_entries else 0
 
 @cast_values_in_arg_to_type('s1', 'number')
 @cast_values_in_arg_to_type('s2', 'number')
