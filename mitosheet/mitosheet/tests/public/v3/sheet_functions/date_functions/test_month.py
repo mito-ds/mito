@@ -27,14 +27,12 @@ MONTH_TESTS = [
     # Just series tests
     ([pd.Series(data=['2000-1-2 12:45:00', '2000-11-2 15:12:00'])], pd.Series([1, 11], dtype=dtype)),
     ([pd.Series(data=['2000-1-2 12:45:00', '2000-12-2 15:45:00', None])], pd.Series([1, 12, None])),
-    ([pd.Series(data=['1/2/2000', 'abc', '4/1/2000 15:12:0'])], pd.Series([1,None,1])),
+    ([pd.Series(data=['1/2/2000', 'abc', '4/1/2000 15:12:0'])], pd.Series([1,None,4])),
 ]
 
 @pytest.mark.parametrize("_argv,expected", MONTH_TESTS)
 def test_month(_argv, expected):
     result = MONTH(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
