@@ -22,7 +22,7 @@ import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
+from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_list_from_primitive_series_and_dataframes, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
 
@@ -493,7 +493,7 @@ def VAR(arg: NumberInputType) -> NumberFunctionReturnType:
         return arg.stack().var() # type: ignore
     else:
         return arg.apply(lambda x: x.stack().var()) # type: ignore
-
+    
 
 NUMBER_FUNCTIONS = {
     'ABS': ABS,
@@ -513,5 +513,5 @@ NUMBER_FUNCTIONS = {
     'SUM': SUM,
     'STDEV': STDEV,
     'VALUE': VALUE,
-    'VAR': VAR
+    'VAR': VAR,
 }

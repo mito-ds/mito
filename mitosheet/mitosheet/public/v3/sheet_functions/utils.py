@@ -14,13 +14,14 @@ PrimitiveType = TypeVar('PrimitiveType', bound=Union[str, float, int, bool, date
 
 ResultType = Union[pd.Series, PrimitiveType]
 
+def is_value_nan_or_none(value: PrimitiveType) -> bool:
+    return value is None or (isinstance(value, float) and np.isnan(value))
 
 def __get_default_value_if_value_is_none_or_nan(value: PrimitiveType, default_value: PrimitiveType) -> PrimitiveType:
-    if value is None or (isinstance(value, float) and np.isnan(value)):
+    if is_value_nan_or_none(value):
         return default_value
     
     return value
-
 
 def __get_new_result_series_or_primitive_helper(
         default_value: PrimitiveType,
@@ -157,3 +158,17 @@ def get_series_from_primitive_or_series(
         return arg
     else:
         return pd.Series([arg] * len(index), index=index)
+
+def get_list_from_primitive_series_and_dataframes(argv: Union[PrimitiveType, pd.Series, pd.DataFrame]) -> List[PrimitiveType]:
+    values = []
+
+    for arg in argv:
+        print(arg)
+        if isinstance(arg, pd.Series):
+            values.extend(arg.values)
+        elif isinstance(arg, pd.DataFrame):
+            values.extend(arg.values.flatten())
+        else:
+            values.append(arg)
+
+    return values
