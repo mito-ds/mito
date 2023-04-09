@@ -46,13 +46,17 @@ def NPV(rate: NumberRestrictedInputType, *argv: NumberInputType) -> NumberFuncti
             }
         ]
     """
-    
     if rate is None:
         return 0
 
     # Create the list in the same order Excel does, nice!
+    # Note: This does not work for rolling ranges. In order to support rolling ranges, we need to recalculate this list
+    # for every index because the list should be different. ie: If the argv are (.1, RollingRange(A1:A2)), then index 1
+    # should be .1, A1, A2, index two should be .1, A2, A3, etc.
     cash_flows = get_list_from_primitive_series_and_dataframes(list(argv))
-    # Remove pd.NaN values from cash_flows
+    
+    
+    # Remove pd.NaN values from cash_flows because that is how Excel handles them. 
     cash_flows = [cash_flow for cash_flow in cash_flows if not is_value_nan_or_none(cash_flow)]
 
     def npv(rate, cash_flows):
