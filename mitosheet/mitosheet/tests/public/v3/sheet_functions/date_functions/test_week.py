@@ -35,7 +35,6 @@ WEEK_TESTS = [
 @pytest.mark.parametrize("_argv,expected", WEEK_TESTS)
 def test_week(_argv, expected):
     result = WEEK(*_argv)
-    print(result)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 

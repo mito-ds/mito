@@ -60,7 +60,6 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
 def get_to_datetime_params(string_series: pd.Series) -> Dict[str, Any]:
 
     detected_format = get_datetime_format(string_series)
-    print("FOUND FORMAT", detected_format)
 
     # If we detect a format, we return that. This works for all pandas versions
     if detected_format is not None:
@@ -118,13 +117,11 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
         if seperator in sample_string_datetime:
             for _format in FORMATS:
                 format = _format.format(s=seperator)
-                print("TESTING", format)
                 # If we fail to convert to a specific format,keep trying
                 try:
                     if test_datetime_format(non_null_inputs, format):
                         return format
                 except:
-                    print("ERROR")
                     pass
 
     log('unable_to_determine_datetime_format_on_cast')

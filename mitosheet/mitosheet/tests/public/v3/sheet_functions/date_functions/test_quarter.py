@@ -33,8 +33,6 @@ QUARTER_TESTS = [
 @pytest.mark.parametrize("_argv,expected", QUARTER_TESTS)
 def test_quarter(_argv, expected):
     result = QUARTER(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
