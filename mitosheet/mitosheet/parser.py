@@ -12,7 +12,7 @@ import datetime
 from distutils.version import LooseVersion
 import re
 import warnings
-from typing import Any, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -732,6 +732,25 @@ def replace_column_headers_and_indexes(
 
     return formula, column_headers, index_labels
 
+
+    
+def replace_newlines(
+        formula: str,
+    ) -> str:
+    """
+    Removes all newlines that aren't in column headers
+    """
+    string_matches = get_string_matches(formula)
+
+    def replace_newlines_internal(match):
+        if not match_covered_by_matches(string_matches, (match.start(), match.end())):
+            return ''
+        else:
+            return match.group()
+    
+    return re.sub(r'\n', replace_newlines_internal, formula)
+    
+
 def replace_functions(
         formula: str,
     ) -> Tuple[str, Set[str]]:
@@ -801,9 +820,6 @@ def parse_formula(
     if throw_errors:
         check_common_errors(formula, df)
 
-    # Remove all newlines
-    formula = formula.replace('\n', '')
-
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals
     if formula.startswith('='):
@@ -821,9 +837,9 @@ def parse_formula(
         df_name
     )
 
-    code_with_functions, functions = replace_functions(
-        code_with_column_headers,
-    )
+    code_without_newlines = replace_newlines(code_with_column_headers)
+
+    code_with_functions, functions = replace_functions(code_without_newlines)
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
