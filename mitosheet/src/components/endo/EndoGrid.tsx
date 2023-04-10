@@ -570,6 +570,7 @@ function EndoGrid(props: {
 
                     const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
                     
+                    console.log(startingColumnFormula)
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
                         columnIndex: lastSelection.startingColumnIndex,

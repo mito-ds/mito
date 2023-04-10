@@ -363,11 +363,11 @@ const CellEditor = (props: {
                 props.editorState.pendingSelections,
                 props.sheetData,
             );
-                
+
             props.setEditorState({
                 ...props.editorState,
                 formula: fullFormula,
-                pendingSelections: undefined
+                pendingSelections: undefined,
             })
         }
     }
@@ -463,7 +463,8 @@ const CellEditor = (props: {
                             ',',
                             '(', ')',
                             '-', '+', '*', '/',
-                            '='
+                            '=',
+                            ':'
                         ]
 
                         let arrowKeysScrollInFormula = true
@@ -479,6 +480,7 @@ const CellEditor = (props: {
                             arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
                         }
                         
+
                         props.setEditorState({
                             ...props.editorState,
                             formula: e.target.value,
