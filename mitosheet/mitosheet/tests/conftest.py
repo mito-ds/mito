@@ -32,20 +32,3 @@ def cleanup_files():
     new_analysis_filenames = curr_analysis_filenames.difference(old_analysis_filenames)
     # Delete them
     _delete_analyses(new_analysis_filenames)
-
-
-import pytest
-
-def pytest_configure(config):
-    config.addinivalue_line(
-        "filterwarnings",
-        "ignore::DeprecationWarning:jupyter_core.paths"
-    )
-    config.addinivalue_line(
-        "filterwarnings",
-        "ignore::ImportWarning:pandas.*"
-    )
-    config.addinivalue_line(
-        "filterwarnings",
-        "ignore::DeprecationWarning:zmq.eventloop.ioloop"
-    )
