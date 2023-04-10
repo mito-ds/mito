@@ -24975,222 +24975,52 @@ ${finalCode}`;
     }
   };
 
-  // src/components/endo/celleditor/cellEditorUtils.tsx
-  var getSelectionFormulaString = (selections, sheetData) => {
-    const selectionStrings = [];
-    selections.forEach((selection) => {
-      const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
-      if (upperLeftColumnHeader === void 0 && upperLeftIndexLabel === void 0 && bottomRightColumnHeader === void 0 && bottomRightIndexLabel === void 0) {
-        return;
-      } else if (upperLeftIndexLabel === void 0 && bottomRightIndexLabel === void 0 && (upperLeftColumnHeader !== void 0 && bottomRightColumnHeader !== void 0)) {
-        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
-      } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0)) {
-        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
-      } else if (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0 && bottomRightColumnHeader !== void 0 && bottomRightIndexLabel !== void 0) {
-        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
-      }
-    });
-    return selectionStrings.join(", ");
+  // src/components/endo/celleditor/CellEditor.tsx
+  var import_react39 = __toESM(require_react());
+
+  // src/components/elements/LoadingDots.tsx
+  var import_react38 = __toESM(require_react());
+  var LoadingDots = () => {
+    const [indicatorState, setIndicatorState] = (0, import_react38.useState)(1);
+    (0, import_react38.useEffect)(() => {
+      const interval = setInterval(() => {
+        setIndicatorState((indicatorState2) => indicatorState2 + 1);
+      }, 500);
+      return () => clearInterval(interval);
+    }, []);
+    const someNumberOfDots = ".".repeat(indicatorState % 4);
+    return /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, someNumberOfDots);
   };
-  var getFullFormula = (formula, pendingSelections, sheetData) => {
-    if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
-      return formula;
-    }
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
-    const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
-    const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
-    return beforeSelection + selectionFormulaString + afterSelection;
-  };
-  var getCellEditorInputCurrentSelection = (containerDiv) => {
-    const cellEditorElement = containerDiv == null ? void 0 : containerDiv.querySelector(".cell-editor-input");
-    if (cellEditorElement === null) {
-      return {
-        selectionStart: 0,
-        selectionEnd: 0
-      };
-    }
-    const cellEditorInput = cellEditorElement;
-    return {
-      selectionStart: cellEditorInput.selectionStart || 0,
-      selectionEnd: cellEditorInput.selectionEnd || 0
-    };
-  };
-  var KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
-    "Enter",
-    "Backspace"
-  ];
-  var getStartingFormula = (sheetData, editorState, rowIndex, columnIndex, e) => {
-    if (editorState !== void 0 && editorState.columnIndex === columnIndex) {
-      return {
-        startingColumnFormula: editorState.formula,
-        arrowKeysScrollInFormula: true,
-        editingMode: editorState.editingMode
-      };
-    }
-    const { columnFormula, columnHeader, columnFormulaLocation } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
-    if (columnHeader === void 0) {
-      return {
-        startingColumnFormula: "",
-        arrowKeysScrollInFormula: false,
-        editingMode: "entire_column"
-      };
-    }
-    let originalValue = "";
-    if (rowIndex <= -1) {
-      if (columnHeader === void 0) {
-        originalValue = "";
-      } else if (isPrimitiveColumnHeader(columnHeader)) {
-        originalValue = getDisplayColumnHeader(columnHeader);
-      } else {
-        originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
-      }
-    } else {
-      if (columnFormula === void 0 || columnFormula === "") {
-        originalValue = "=" + getDisplayColumnHeader(columnHeader);
-      } else {
-        originalValue = columnFormula;
-      }
-    }
-    if (e !== void 0) {
-      if (e.key === "Backspace") {
-        originalValue = originalValue.substr(0, originalValue.length - 1);
-      } else {
-        originalValue += KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY.includes(e.key) ? "" : e.key;
-      }
-    }
-    const defaultFormula = `=${getDisplayColumnHeader(columnHeader)}`;
-    if (originalValue === defaultFormula) {
-      return {
-        startingColumnFormula: "",
-        arrowKeysScrollInFormula: false,
-        editingMode: "entire_column"
-      };
-    }
-    return {
-      startingColumnFormula: originalValue,
-      arrowKeysScrollInFormula: true,
-      editingMode: columnFormulaLocation || "entire_column"
-    };
-  };
-  var formulaEndsInReference = (formula, indexLabel, sheetData) => {
-    const possibleReferences = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
-    const endingReferences = possibleReferences.filter((reference) => formula.toLowerCase().endsWith(reference.toLowerCase()));
-    return endingReferences.length > 0;
-  };
-  var getSuggestedColumnHeaders = (formula, columnID, sheetData) => {
-    const columnHeadersAndIDs = sheetData.data.map((c) => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
-    const maxColumnHeaderLength = Math.min(Math.max(...columnHeadersAndIDs.map(([, columnHeader]) => columnHeader.length), formula.length), 50);
-    for (let i = maxColumnHeaderLength; i > 0; i--) {
-      const substring = formula.substring(formula.length - i).toLowerCase();
-      const charBeforeSubstringStarts = formula[formula.length - i - 1];
-      if (substring === "" || charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i)) {
-        continue;
-      }
-      const foundColumns = columnHeadersAndIDs.filter(([, columnHeader]) => columnHeader.toLowerCase().startsWith(substring));
-      const suggestedColumnHeaders = foundColumns.map(([columnID2, columnHeader]) => {
-        const columnDtype = sheetData.columnDtypeMap[columnID2];
-        const subtextType = columnDtype === void 0 ? "series" : columnDtype + " series";
-        return [columnHeader, `A ${subtextType} in your dataset`];
-      });
-      if (suggestedColumnHeaders.length > 0) {
-        return [substring.length, suggestedColumnHeaders];
-      }
-    }
-    return [0, []];
-  };
-  var getSuggestedFunctions = (formula, minLength) => {
-    if (formula.length === 0) {
-      const placeholders = functionDocumentationObjects.filter((f) => f.function === "LEFT" || f.function === "DAY" || f.function === "VALUE");
-      const temp = placeholders[0];
-      placeholders[0] = placeholders[1];
-      placeholders[1] = temp;
-      return [0, placeholders.map((f) => {
-        return [f.function, f.description];
-      })];
-    }
-    const maxFunctionNameLength = Math.max(...functionDocumentationObjects.map((f) => f.function.length));
-    for (let i = maxFunctionNameLength; i > minLength - 1; i--) {
-      const substring = formula.substring(formula.length - i).toLowerCase();
-      const charBeforeSubstringStarts = formula[formula.length - i - 1];
-      if (substring === "" || charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i)) {
-        continue;
-      }
-      const foundFunctionObjects = functionDocumentationObjects.filter((f) => {
-        if (f.function.toLowerCase().startsWith(substring)) {
-          return true;
-        } else {
-          for (let i2 = 0; i2 < f.search_terms.length; i2++) {
-            const searchTerm = f.search_terms[i2];
-            if (searchTerm.toLowerCase().startsWith(substring)) {
-              return true;
-            }
-          }
+  var LoadingDots_default = LoadingDots;
+
+  // src/components/endo/columnHeaderUtils.tsx
+  var submitRenameColumnHeader = (columnHeader, finalColumnHeader, columnID, sheetIndex, editorState, setUIState, mitoAPI) => {
+    const newColumnHeader = (editorState == null ? void 0 : editorState.formula) || getDisplayColumnHeader(finalColumnHeader);
+    const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
+    if (newColumnHeader !== oldColumnHeader) {
+      const levelIndex = isPrimitiveColumnHeader(columnHeader) ? void 0 : rowIndexToColumnHeaderLevel(columnHeader, -1);
+      void mitoAPI.editRenameColumn(
+        sheetIndex,
+        columnID,
+        newColumnHeader,
+        levelIndex
+      );
+      setUIState((prevUIState) => {
+        if (prevUIState.currOpenTaskpane.type !== "control_panel" /* CONTROL_PANEL */) {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenTaskpane: { type: "none" /* NONE */ }
+          });
         }
-        return false;
+        return prevUIState;
       });
-      const suggestedFunctions = foundFunctionObjects.map((f) => {
-        return [f.function, f.description];
-      });
-      if (suggestedFunctions.length > 0) {
-        return [substring.length, suggestedFunctions];
-      }
-    }
-    return [0, []];
-  };
-  var getDocumentationFunction = (formula) => {
-    const finalParenIndex = formula.lastIndexOf("(");
-    if (finalParenIndex === -1) {
-      return void 0;
-    }
-    let finalFunction = "";
-    for (let i = finalParenIndex - 1; i >= 0; i--) {
-      const char = formula[i].toLowerCase();
-      if (char.match(/^[a-z]+$/i)) {
-        finalFunction += char;
-      } else {
-        break;
-      }
-    }
-    finalFunction = finalFunction.split("").reverse().join("").toLowerCase();
-    const matchingFunctions = functionDocumentationObjects.filter((functionDocumentationObject) => functionDocumentationObject.function.toLowerCase() === finalFunction);
-    if (matchingFunctions.length !== 1) {
-      return void 0;
-    } else {
-      return matchingFunctions[0];
     }
   };
-  var getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (index, indexLabel, rowOffset) => {
-    if (indexLabel === void 0) {
-      return void 0;
+
+  // src/components/endo/focusUtils.tsx
+  var focusGrid = (containerDiv) => {
+    if (containerDiv) {
+      containerDiv.focus();
     }
-    const indexOfIndexLabel = index.indexOf(indexLabel);
-    if (indexOfIndexLabel === -1) {
-      return void 0;
-    }
-    const indexOfNewLabel = indexOfIndexLabel - rowOffset;
-    return index[indexOfNewLabel];
-  };
-  var getFormulaStringFromFrontendFormula = (formula, indexLabel, sheetData) => {
-    let formulaString = "";
-    if (!formula || !sheetData) {
-      return formulaString;
-    }
-    formula.frontend_formula.forEach((formulaPart) => {
-      if (formulaPart.type === "string part") {
-        formulaString += formulaPart.string;
-      } else if (formulaPart.type === "{HEADER}") {
-        formulaString += formulaPart.display_column_header;
-      } else {
-        const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
-        if (newIndexLabel !== void 0) {
-          formulaString += formulaPart.display_column_header;
-          formulaString += getDisplayColumnHeader(newIndexLabel);
-        } else {
-          formulaString += "0";
-        }
-      }
-    });
-    return formulaString;
   };
 
   // src/components/endo/domUtils.tsx
@@ -25336,54 +25166,6 @@ ${finalCode}`;
     return nodeList[0];
   };
 
-  // src/components/endo/celleditor/CellEditor.tsx
-  var import_react39 = __toESM(require_react());
-
-  // src/components/elements/LoadingDots.tsx
-  var import_react38 = __toESM(require_react());
-  var LoadingDots = () => {
-    const [indicatorState, setIndicatorState] = (0, import_react38.useState)(1);
-    (0, import_react38.useEffect)(() => {
-      const interval = setInterval(() => {
-        setIndicatorState((indicatorState2) => indicatorState2 + 1);
-      }, 500);
-      return () => clearInterval(interval);
-    }, []);
-    const someNumberOfDots = ".".repeat(indicatorState % 4);
-    return /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, someNumberOfDots);
-  };
-  var LoadingDots_default = LoadingDots;
-
-  // src/components/endo/columnHeaderUtils.tsx
-  var submitRenameColumnHeader = (columnHeader, finalColumnHeader, columnID, sheetIndex, editorState, setUIState, mitoAPI) => {
-    const newColumnHeader = (editorState == null ? void 0 : editorState.formula) || getDisplayColumnHeader(finalColumnHeader);
-    const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
-    if (newColumnHeader !== oldColumnHeader) {
-      const levelIndex = isPrimitiveColumnHeader(columnHeader) ? void 0 : rowIndexToColumnHeaderLevel(columnHeader, -1);
-      void mitoAPI.editRenameColumn(
-        sheetIndex,
-        columnID,
-        newColumnHeader,
-        levelIndex
-      );
-      setUIState((prevUIState) => {
-        if (prevUIState.currOpenTaskpane.type !== "control_panel" /* CONTROL_PANEL */) {
-          return __spreadProps(__spreadValues({}, prevUIState), {
-            currOpenTaskpane: { type: "none" /* NONE */ }
-          });
-        }
-        return prevUIState;
-      });
-    }
-  };
-
-  // src/components/endo/focusUtils.tsx
-  var focusGrid = (containerDiv) => {
-    if (containerDiv) {
-      containerDiv.focus();
-    }
-  };
-
   // src/components/endo/visibilityUtils.tsx
   var scrollRowIntoView = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex) => {
     if (rowIndex === -1) {
@@ -25446,9 +25228,10 @@ ${finalCode}`;
 
   // src/components/endo/celleditor/CellEditor.tsx
   var MAX_SUGGESTIONS = 4;
-  var CELL_EDITOR_WIDTH = 250;
+  var CELL_EDITOR_DEFAULT_WIDTH = 250;
+  var CELL_EDITOR_MAX_WIDTH = 500;
   var CellEditor = (props) => {
-    var _a;
+    var _a, _b;
     const cellEditorInputRef = (0, import_react39.useRef)(null);
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react39.useState)(-1);
     const [loading, setLoading] = (0, import_react39.useState)(false);
@@ -25465,11 +25248,11 @@ ${finalCode}`;
     }, []);
     (0, import_react39.useEffect)(() => {
       setTimeout(() => {
-        var _a2, _b;
+        var _a2, _b2;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
           const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
-          (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
+          (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.setSelectionRange(
             index,
             index
           );
@@ -25492,7 +25275,7 @@ ${finalCode}`;
     }
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-    const documentationFunction = getDocumentationFunction(fullFormula);
+    const documentationFunction = getDocumentationFunction(fullFormula, (_a = cellEditorInputRef.current) == null ? void 0 : _a.selectionStart);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
     const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
@@ -25586,11 +25369,11 @@ ${finalCode}`;
         } else if (!arrowKeysScrollInFormula) {
           e.preventDefault();
           props.setGridState((gridState) => {
-            var _a2, _b, _c, _d;
+            var _a2, _b2, _c, _d;
             const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
             const newInputSelectionStart = firstNonNullOrUndefined(
               (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
-              (_b = cellEditorInputRef.current) == null ? void 0 : _b.selectionStart,
+              (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.selectionStart,
               0
             );
             const newInputSelectionEnd = firstNonNullOrUndefined(
@@ -25661,7 +25444,7 @@ ${finalCode}`;
       }
       const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
       const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+      const formula2 = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
       const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
       setLoading(true);
       let errorMessage = void 0;
@@ -25674,7 +25457,7 @@ ${finalCode}`;
           props.sheetIndex,
           columnID2,
           formulaLabel,
-          formula,
+          formula2,
           index_labels_formula_is_applied_to,
           props.editorState.editorLocation
         );
@@ -25687,6 +25470,8 @@ ${finalCode}`;
         props.closeOpenEditingPopups();
       }
     };
+    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
     return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react39.default.createElement(
       "form",
       {
@@ -25717,7 +25502,8 @@ ${finalCode}`;
               "+",
               "*",
               "/",
-              "="
+              "=",
+              ":"
             ];
             let arrowKeysScrollInFormula = true;
             if (props.editorState.editorLocation === "cell") {
@@ -25734,7 +25520,7 @@ ${finalCode}`;
           }
         }
       )
-    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: props.editorState.editorLocation === "cell" ? `${CELL_EDITOR_WIDTH}px` : "300px" } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
+    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: `${cellEditorWidth}px` } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
       Toggle_default,
       {
         className: "mr-5px",
@@ -25775,7 +25561,7 @@ ${finalCode}`;
         /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
         selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
       );
-    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
+    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_b = documentationFunction.examples) == null ? void 0 : _b.map((example, index) => {
       return /* @__PURE__ */ import_react39.default.createElement(
         "p",
         {
@@ -25787,6 +25573,235 @@ ${finalCode}`;
     })))));
   };
   var CellEditor_default = CellEditor;
+
+  // src/components/endo/celleditor/cellEditorUtils.tsx
+  var getSelectionFormulaString = (selections, sheetData) => {
+    const selectionStrings = [];
+    selections.forEach((selection) => {
+      const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+      if (upperLeftColumnHeader === void 0 && upperLeftIndexLabel === void 0 && bottomRightColumnHeader === void 0 && bottomRightIndexLabel === void 0) {
+        return;
+      } else if (upperLeftIndexLabel === void 0 && bottomRightIndexLabel === void 0 && (upperLeftColumnHeader !== void 0 && bottomRightColumnHeader !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+      } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0)) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+      } else if (upperLeftColumnHeader !== void 0 && upperLeftIndexLabel !== void 0 && bottomRightColumnHeader !== void 0 && bottomRightIndexLabel !== void 0) {
+        selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
+      }
+    });
+    return selectionStrings.join(", ");
+  };
+  var getFullFormula = (formula, pendingSelections, sheetData) => {
+    if (pendingSelections === void 0 || pendingSelections.selections.length === 0) {
+      return formula;
+    }
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
+    const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
+    const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
+    return beforeSelection + selectionFormulaString + afterSelection;
+  };
+  var getCellEditorInputCurrentSelection = (containerDiv) => {
+    const cellEditorElement = containerDiv == null ? void 0 : containerDiv.querySelector(".cell-editor-input");
+    if (cellEditorElement === null) {
+      return {
+        selectionStart: 0,
+        selectionEnd: 0
+      };
+    }
+    const cellEditorInput = cellEditorElement;
+    return {
+      selectionStart: cellEditorInput.selectionStart || 0,
+      selectionEnd: cellEditorInput.selectionEnd || 0
+    };
+  };
+  var KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA = [
+    "Enter",
+    "F2"
+  ];
+  var getStartingFormula = (sheetData, editorState, rowIndex, columnIndex, e) => {
+    if (editorState !== void 0 && editorState.columnIndex === columnIndex) {
+      return {
+        startingColumnFormula: editorState.formula,
+        arrowKeysScrollInFormula: true,
+        editingMode: editorState.editingMode
+      };
+    }
+    const { columnFormula, columnHeader, columnFormulaLocation } = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
+    if (columnHeader === void 0) {
+      return {
+        startingColumnFormula: "",
+        arrowKeysScrollInFormula: false,
+        editingMode: "entire_column"
+      };
+    }
+    let originalValue = "";
+    if (rowIndex <= -1) {
+      if (columnHeader === void 0) {
+        originalValue = "";
+      } else if (isPrimitiveColumnHeader(columnHeader)) {
+        originalValue = getDisplayColumnHeader(columnHeader);
+      } else {
+        originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
+      }
+    } else {
+      if (columnFormula === void 0 || columnFormula === "") {
+        originalValue = "=" + getDisplayColumnHeader(columnHeader);
+      } else {
+        originalValue = columnFormula;
+      }
+    }
+    if (e !== void 0 && !KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA.includes(e.key)) {
+      if (e.key === "Backspace") {
+        originalValue = originalValue.substr(0, originalValue.length - 1);
+      } else {
+        originalValue = e.key;
+      }
+    }
+    const defaultFormula = `=${getDisplayColumnHeader(columnHeader)}`;
+    if (originalValue === defaultFormula) {
+      return {
+        startingColumnFormula: "",
+        arrowKeysScrollInFormula: false,
+        editingMode: "entire_column"
+      };
+    }
+    return {
+      startingColumnFormula: originalValue,
+      arrowKeysScrollInFormula: true,
+      editingMode: columnFormulaLocation || "entire_column"
+    };
+  };
+  var formulaEndsInReference = (formula, indexLabel, sheetData) => {
+    const possibleReferences = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
+    const endingReferences = possibleReferences.filter((reference) => formula.toLowerCase().endsWith(reference.toLowerCase()));
+    return endingReferences.length > 0;
+  };
+  var getSuggestedColumnHeaders = (formula, columnID, sheetData) => {
+    const columnHeadersAndIDs = sheetData.data.map((c) => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
+    const maxColumnHeaderLength = Math.min(Math.max(...columnHeadersAndIDs.map(([, columnHeader]) => columnHeader.length), formula.length), 50);
+    for (let i = maxColumnHeaderLength; i > 0; i--) {
+      const substring = formula.substring(formula.length - i).toLowerCase();
+      const charBeforeSubstringStarts = formula[formula.length - i - 1];
+      if (substring === "" || charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i)) {
+        continue;
+      }
+      const foundColumns = columnHeadersAndIDs.filter(([, columnHeader]) => columnHeader.toLowerCase().startsWith(substring));
+      const suggestedColumnHeaders = foundColumns.map(([columnID2, columnHeader]) => {
+        const columnDtype = sheetData.columnDtypeMap[columnID2];
+        const subtextType = columnDtype === void 0 ? "series" : columnDtype + " series";
+        return [columnHeader, `A ${subtextType} in your dataset`];
+      });
+      if (suggestedColumnHeaders.length > 0) {
+        return [substring.length, suggestedColumnHeaders];
+      }
+    }
+    return [0, []];
+  };
+  var getSuggestedFunctions = (formula, minLength) => {
+    if (formula.length === 0) {
+      const placeholders = functionDocumentationObjects.filter((f) => f.function === "LEFT" || f.function === "DAY" || f.function === "VALUE");
+      const temp = placeholders[0];
+      placeholders[0] = placeholders[1];
+      placeholders[1] = temp;
+      return [0, placeholders.map((f) => {
+        return [f.function, f.description];
+      })];
+    }
+    const maxFunctionNameLength = Math.max(...functionDocumentationObjects.map((f) => f.function.length));
+    for (let i = maxFunctionNameLength; i > minLength - 1; i--) {
+      const substring = formula.substring(formula.length - i).toLowerCase();
+      const charBeforeSubstringStarts = formula[formula.length - i - 1];
+      if (substring === "" || charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i)) {
+        continue;
+      }
+      const foundFunctionObjects = functionDocumentationObjects.filter((f) => {
+        if (f.function.toLowerCase().startsWith(substring)) {
+          return true;
+        } else {
+          for (let i2 = 0; i2 < f.search_terms.length; i2++) {
+            const searchTerm = f.search_terms[i2];
+            if (searchTerm.toLowerCase().startsWith(substring)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+      const suggestedFunctions = foundFunctionObjects.map((f) => {
+        return [f.function, f.description];
+      });
+      if (suggestedFunctions.length > 0) {
+        return [substring.length, suggestedFunctions];
+      }
+    }
+    return [0, []];
+  };
+  var getDocumentationFunction = (formula, selectionStart) => {
+    const finalParenIndex = formula.substring(0, selectionStart || void 0).lastIndexOf("(");
+    if (finalParenIndex === -1) {
+      return void 0;
+    }
+    let finalFunction = "";
+    for (let i = finalParenIndex - 1; i >= 0; i--) {
+      const char = formula[i].toLowerCase();
+      if (char.match(/^[a-z]+$/i)) {
+        finalFunction += char;
+      } else {
+        break;
+      }
+    }
+    finalFunction = finalFunction.split("").reverse().join("").toLowerCase();
+    const matchingFunctions = functionDocumentationObjects.filter((functionDocumentationObject) => functionDocumentationObject.function.toLowerCase() === finalFunction);
+    if (matchingFunctions.length !== 1) {
+      return void 0;
+    } else {
+      return matchingFunctions[0];
+    }
+  };
+  var getNewIndexLabelAtRowOffsetFromOtherIndexLabel = (index, indexLabel, rowOffset) => {
+    if (indexLabel === void 0) {
+      return void 0;
+    }
+    const indexOfIndexLabel = index.indexOf(indexLabel);
+    if (indexOfIndexLabel === -1) {
+      return void 0;
+    }
+    const indexOfNewLabel = indexOfIndexLabel - rowOffset;
+    return index[indexOfNewLabel];
+  };
+  var getFormulaStringFromFrontendFormula = (formula, indexLabel, sheetData) => {
+    let formulaString = "";
+    if (!formula || !sheetData) {
+      return formulaString;
+    }
+    formula.frontend_formula.forEach((formulaPart) => {
+      if (formulaPart.type === "string part") {
+        formulaString += formulaPart.string;
+      } else if (formulaPart.type === "{HEADER}") {
+        formulaString += formulaPart.display_column_header;
+      } else {
+        const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
+        if (newIndexLabel !== void 0) {
+          formulaString += formulaPart.display_column_header;
+          formulaString += getDisplayColumnHeader(newIndexLabel);
+        } else {
+          formulaString += "0";
+        }
+      }
+    });
+    return formulaString;
+  };
+  var getCellEditorWidth = (formula, editorLocation) => {
+    let cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+    if (editorLocation === "cell") {
+      if (formula.length > 30) {
+        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+      }
+    } else {
+      cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+    }
+    return cellEditorWidth;
+  };
 
   // src/components/endo/FormulaBar.tsx
   var FormulaBar = (props) => {
@@ -26386,6 +26401,8 @@ ${finalCode}`;
     });
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const { columnID, columnHeader } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation);
     (0, import_react48.useEffect)(() => {
       const updateCellEditorPosition = () => {
         var _a;
@@ -26410,7 +26427,7 @@ ${finalCode}`;
         }
         const defaultLeft = cellInColumnRect ? cellInColumnRect.x : props.editorState.columnIndex < currentSheetView.startingColumnIndex ? 0 : scrollAndRenderedContainerRect.x * 100;
         left = Math.min(Math.max(0, defaultLeft - scrollAndRenderedContainerRect.x) + 80, scrollAndRenderedContainerRect.width);
-        if (left + CELL_EDITOR_WIDTH >= scrollAndRenderedContainerRect.width) {
+        if (left + cellEditorWidth >= scrollAndRenderedContainerRect.width) {
           left = void 0;
           right = 0;
         }
@@ -26428,7 +26445,7 @@ ${finalCode}`;
       setTimeout(updateCellEditorPosition);
       fscreen_esm_default.addEventListener("fullscreenchange", updateCellEditorPosition);
       return () => fscreen_esm_default.removeEventListener("fullscreenchange", updateCellEditorPosition);
-    }, []);
+    }, [cellEditorWidth]);
     if (columnID === void 0 || columnHeader === void 0) {
       return /* @__PURE__ */ import_react48.default.createElement(import_react48.default.Fragment, null);
     }
@@ -26437,7 +26454,7 @@ ${finalCode}`;
       {
         className: "floating-cell-editor",
         style: __spreadProps(__spreadValues({}, editorStyle), {
-          width: `${CELL_EDITOR_WIDTH}px`
+          width: `${cellEditorWidth}px`
         })
       },
       /* @__PURE__ */ import_react48.default.createElement(
