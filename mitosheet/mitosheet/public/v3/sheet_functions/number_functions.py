@@ -55,6 +55,28 @@ def ABS(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def AVG(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "AVG",
+        "description": "Returns the numerical mean value of the passed numbers and series.",
+        "search_terms": ["avg", "average", "mean"],
+        "examples": [
+            "AVG(1, 2)",
+            "AVG(A, B)",
+            "AVG(A, 2)"
+        ],
+        "syntax": "AVG(value1, [value2, ...])",
+        "syntax_elements": [{
+                "element": "value1",
+                "description": "The first number or series to consider when calculating the average."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional numbers or series to consider when calculating the average."
+            }
+        ]
+    }
+    """
 
     # Calculate the sum using the SUM function
     sum_for_avg = SUM(*argv)
@@ -257,7 +279,28 @@ def LOG(arg: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MAX(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
-    
+    """
+    {
+        "function": "MAX",
+        "description": "Returns the maximum value among the passed arguments.",
+        "search_terms": ["max", "maximum", "minimum"],
+        "examples": [
+            "MAX(10, 11)",
+            "MAX(Old_Data, New_Data)"
+        ],
+        "syntax": "MAX(value1, [value2, ...])",
+        "syntax_elements": [{
+                "element": "value1",
+                "description": "The first number or column to consider for the maximum value."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional numbers or columns to compute the maximum value from."
+            }
+        ]
+    }
+    """
+
     result = get_final_result_series_or_primitive(
         -sys.maxsize - 1,
         argv,
@@ -274,6 +317,27 @@ def MAX(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "MIN",
+        "description": "Returns the minimum value among the passed arguments.",
+        "search_terms": ["min", "minimum", "maximum"],
+        "examples": [
+            "MIN(10, 11)",
+            "MIN(Old_Data, New_Data)"
+        ],
+        "syntax": "MIN(value1, [value2, ...])",
+        "syntax_elements": [{
+                "element": "value1",
+                "description": "The first number or column to consider for the minumum value."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional numbers or columns to compute the minumum value from."
+            }
+        ]
+    }
+    """
 
     result = get_final_result_series_or_primitive(
         sys.maxsize,
@@ -291,6 +355,27 @@ def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def MULTIPLY(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "MULTIPLY",
+        "description": "Returns the product of two numbers.",
+        "search_terms": ["mulitply", "product"],
+        "examples": [
+            "MULTIPLY(2,3)",
+            "MULTIPLY(A,3)"
+        ],
+        "syntax": "MULTIPLY(factor1, [factor2, ...])",
+        "syntax_elements": [{
+                "element": "factor1",
+                "description": "The first number to multiply."
+            },
+            {
+                "element": "factor2, ... [OPTIONAL]",
+                "description": "Additional numbers or series to multiply."
+            }
+        ]
+    }
+    """
 
     return get_final_result_series_or_primitive(
         1,
@@ -431,6 +516,28 @@ def STDEV(arg: NumberInputType) -> NumberFunctionReturnType:
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "SUM",
+        "description": "Returns the sum of the given numbers and series.",
+        "search_terms": ["add"],
+        "examples": [
+            "SUM(10, 11)",
+            "SUM(A, B, D, F)",
+            "SUM(A, B, D, F)"
+        ],
+        "syntax": "SUM(value1, [value2, ...])",
+        "syntax_elements": [{
+                "element": "value1",
+                "description": "The first number or column to add together."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional numbers or columns to sum."
+            }
+        ]
+    }
+    """
 
     return get_final_result_series_or_primitive(
         0,
