@@ -25435,6 +25435,37 @@ ${finalCode}`;
         }));
       }
     };
+    const onChange = (e) => {
+      const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
+        " ",
+        ",",
+        "(",
+        ")",
+        "-",
+        "+",
+        "*",
+        "/",
+        "=",
+        ":"
+      ];
+      let arrowKeysScrollInFormula = true;
+      if (props.editorState.editorLocation === "cell") {
+        const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+        const finalChar = e.target.value.substring(e.target.value.length - 1);
+        const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar);
+        const isEmpty = e.target.value.length === 0;
+        arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== void 0 && !endsInResetCharacter && !isEmpty;
+      }
+      props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+        formula: e.target.value,
+        arrowKeysScrollInFormula
+      }));
+    };
+    const onClick = () => {
+      props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+        arrowKeysScrollInFormula: true
+      }));
+    };
     const onSubmit = async (e) => {
       e.preventDefault();
       if (selectedSuggestionIndex !== -1 && !endsInReference) {
@@ -25472,6 +25503,7 @@ ${finalCode}`;
     };
     const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+    const showingSuggestions = cellEditorError === void 0 && !loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
     return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react39.default.createElement(
       "form",
       {
@@ -25479,45 +25511,50 @@ ${finalCode}`;
         onSubmit,
         autoComplete: "off"
       },
-      /* @__PURE__ */ import_react39.default.createElement(
+      props.editorState.editorLocation === "cell" && /* @__PURE__ */ import_react39.default.createElement(
         "input",
         {
           ref: setRef,
           id: "cell-editor-input",
           className: "cell-editor-input",
-          onClick: () => {
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              arrowKeysScrollInFormula: true
-            }));
-          },
-          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
+          onClick,
+          value: fullFormula,
           onKeyDown,
-          onChange: (e) => {
-            const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
-              " ",
-              ",",
-              "(",
-              ")",
-              "-",
-              "+",
-              "*",
-              "/",
-              "=",
-              ":"
-            ];
-            let arrowKeysScrollInFormula = true;
-            if (props.editorState.editorLocation === "cell") {
-              const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-              const finalChar = e.target.value.substring(e.target.value.length - 1);
-              const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar);
-              const isEmpty = e.target.value.length === 0;
-              arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== void 0 && !endsInResetCharacter && !isEmpty;
+          onChange
+        }
+      ),
+      props.editorState.editorLocation === "formula bar" && /* @__PURE__ */ import_react39.default.createElement(
+        "textarea",
+        {
+          ref: setRef,
+          id: "cell-editor-input",
+          className: "cell-editor-input",
+          style: { "resize": "vertical" },
+          onClick,
+          value: fullFormula,
+          onKeyDown: (e) => {
+            if (e.key === "Enter") {
+              if (!e.metaKey) {
+                e.preventDefault();
+                onSubmit(e);
+                return;
+              } else {
+                props.setEditorState((prevEditingState) => {
+                  if (prevEditingState === void 0) {
+                    return void 0;
+                  }
+                  return __spreadProps(__spreadValues({}, prevEditingState), {
+                    formula: prevEditingState.formula + "\n"
+                  });
+                });
+              }
             }
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              formula: e.target.value,
-              arrowKeysScrollInFormula
-            }));
-          }
+            if (showingSuggestions && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+              e.preventDefault();
+            }
+            onKeyDown(e);
+          },
+          onChange
         }
       )
     ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: `${cellEditorWidth}px` } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
@@ -25538,7 +25575,7 @@ ${finalCode}`;
         },
         height: "20px"
       }
-    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
+    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), showingSuggestions && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
       if (idx > MAX_SUGGESTIONS) {
         return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
       }

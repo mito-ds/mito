@@ -801,6 +801,9 @@ def parse_formula(
     if throw_errors:
         check_common_errors(formula, df)
 
+    # Remove all newlines
+    formula = formula.replace('\n', '')
+
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals
     if formula.startswith('='):

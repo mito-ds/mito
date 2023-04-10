@@ -47,7 +47,7 @@ const CellEditor = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
-    const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
+    const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ const CellEditor = (props: {
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
-    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
+    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement | HTMLTextAreaElement | null) => {
         if (unsavedInputAnchor !== null) {
             // Save this node, so that we can update 
             cellEditorInputRef.current = unsavedInputAnchor;
@@ -205,7 +205,7 @@ const CellEditor = (props: {
         )
     }
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         // Don't let the key down go anywhere else
         e.stopPropagation();
 
@@ -373,8 +373,50 @@ const CellEditor = (props: {
         }
     }
 
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
+            ' ',
+            ',',
+            '(', ')',
+            '-', '+', '*', '/',
+            '=',
+            ':'
+        ]
+
+        let arrowKeysScrollInFormula = true
+        if (props.editorState.editorLocation === 'cell') {
+            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
+            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
+            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
+            // This attempts to match what Excel and Google Sheets do
+            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+            const finalChar = e.target.value.substring(e.target.value.length - 1);
+            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
+            const isEmpty = e.target.value.length === 0;
+            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
+        }
+        
+
+        props.setEditorState({
+            ...props.editorState,
+            formula: e.target.value,
+            arrowKeysScrollInFormula: arrowKeysScrollInFormula
+        })
+    }
+
+    const onClick = () => {
+        // As in Excel or Google Sheets, if you click the input, then
+        // the arrow keys now navigate within the formula, rather than
+        // selecting columns in the sheet
+        props.setEditorState({
+            ...props.editorState,
+            arrowKeysScrollInFormula: true
+        })
+    }
+
+
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>) => {
 
         // Don't refresh the page
         e.preventDefault();
@@ -435,9 +477,9 @@ const CellEditor = (props: {
         }
     }
 
-    // TODO: improve
     const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+    const showingSuggestions = cellEditorError === undefined && !loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
 
     return (
         <div className='cell-editor'>
@@ -445,54 +487,61 @@ const CellEditor = (props: {
                 className='cell-editor-form'
                 onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
-            >
-                <input
-                    ref={setRef}
-                    id='cell-editor-input'
-                    className='cell-editor-input'
-                    onClick={() => {
-                        // As in Excel or Google Sheets, if you click the input, then
-                        // the arrow keys now navigate within the formula, rather than
-                        // selecting columns in the sheet
-                        props.setEditorState({
-                            ...props.editorState,
-                            arrowKeysScrollInFormula: true
-                        })
-                    }}
-                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)}
-                    onKeyDown={onKeyDown}
-                    onChange={(e) => {
+            >   
+                
+                {/** If we're in the formula bar, then we show a text area */}
+                {props.editorState.editorLocation === 'cell' && 
+                    <input
+                        ref={setRef}
+                        id='cell-editor-input'
+                        className='cell-editor-input'
+                        onClick={onClick}
+                        value={fullFormula}
+                        onKeyDown={onKeyDown}
+                        onChange={onChange}
+                    />
+                }
+                {props.editorState.editorLocation === 'formula bar' && 
+                    <textarea
+                        ref={setRef}
+                        id='cell-editor-input'
+                        className='cell-editor-input'
+                        style={{'resize': 'vertical'}}
+                        onClick={onClick}
+                        value={fullFormula}
+                        onKeyDown={(e) => {
+                            // If we press enter and the meta key is not pressed, we want to add a new line
+                            if (e.key === 'Enter') {
+                                if (!e.metaKey) {
+                                    e.preventDefault();
+                                    onSubmit(e);
+                                    return;
+                                } else {
+                                    // Otherwise, add a new line
+                                    props.setEditorState(prevEditingState => {
+                                        if (prevEditingState === undefined) {
+                                            return undefined
+                                        }
+                                        return {
+                                            ...prevEditingState,
+                                            formula: prevEditingState.formula + '\n'
+                                        }
+                                    })
+                                }
+                            }
 
-                        const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
-                            ' ',
-                            ',',
-                            '(', ')',
-                            '-', '+', '*', '/',
-                            '=',
-                            ':'
-                        ]
+                            // If up and down arrow key is pressed, and there are suggestions, we skip the default behavior
+                            // and do not move the cursor. This is because we want to use the arrow keys to navigate
+                            // the suggestions, rather than moving the cursor
+                            if (showingSuggestions && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                                e.preventDefault();
+                            }
 
-                        let arrowKeysScrollInFormula = true
-                        if (props.editorState.editorLocation === 'cell') {
-                            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
-                            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
-                            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
-                            // This attempts to match what Excel and Google Sheets do
-                            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-                            const finalChar = e.target.value.substring(e.target.value.length - 1);
-                            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
-                            const isEmpty = e.target.value.length === 0;
-                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
-                        }
-                        
-
-                        props.setEditorState({
-                            ...props.editorState,
-                            formula: e.target.value,
-                            arrowKeysScrollInFormula: arrowKeysScrollInFormula
-                        })}
-                    }
-                />
+                            onKeyDown(e);
+                        }}
+                        onChange={onChange}
+                    />
+                }
             </form>
             {/* 
                 In the dropdown box, we either show an error, a loading message, suggestions
@@ -546,7 +595,7 @@ const CellEditor = (props: {
                     </p>
                 }
                 {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInReference &&
+                {showingSuggestions &&
                     <>
                         {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
                             // We only show at most 4 suggestions
