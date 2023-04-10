@@ -15,11 +15,12 @@ import { focusGrid } from '../focusUtils';
 import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
-import { formulaEndsInReference, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import { formulaEndsInReference, getCellEditorWidth, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
 const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
-export const CELL_EDITOR_WIDTH = 250;
+export const CELL_EDITOR_DEFAULT_WIDTH = 250;
+export const CELL_EDITOR_MAX_WIDTH = 500;
 
 /* 
     A CellEditor allows the user to edit the formula or value of a cell.
@@ -434,6 +435,10 @@ const CellEditor = (props: {
         }
     }
 
+    // TODO: improve
+    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+    const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+
     return (
         <div className='cell-editor'>
             <form
@@ -493,7 +498,7 @@ const CellEditor = (props: {
                 In the dropdown box, we either show an error, a loading message, suggestions
                 or the documentation for the last function, depending on the cases below
             */}
-            <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
+            <div className='cell-editor-dropdown-box' style={{width: `${cellEditorWidth}px`}}>
                 {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
                     <Row justify='space-between' align='center' className='cell-editor-label'>
                         <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>

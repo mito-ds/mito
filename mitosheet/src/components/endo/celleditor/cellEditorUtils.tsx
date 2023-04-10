@@ -5,6 +5,7 @@ import { ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSele
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
+import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
 export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
@@ -389,4 +390,20 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
 
     })
     return formulaString;
+}
+
+export const getCellEditorWidth = (formula: string, editorLocation: 'cell' | 'formula bar'): number => {
+
+
+    let cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+
+    if (editorLocation === 'cell') {
+        if (formula.length > 30) {
+            cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+        }
+    } else {
+        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+    }
+
+    return cellEditorWidth;
 }
