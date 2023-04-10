@@ -359,7 +359,7 @@ def test_reapply_filter(test1, test2):
 
     # if both dataframes are empty, then it passes
     if filtered_df.empty and mito.dfs[0].empty:
-        return True
+        return
 
     assert mito.dfs[0].equals(filtered_df)
 

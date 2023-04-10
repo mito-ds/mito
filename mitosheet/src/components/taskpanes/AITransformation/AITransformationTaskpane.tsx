@@ -242,7 +242,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
 
 
-    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted;
 
     return (
         <DefaultTaskpane>
@@ -251,12 +251,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {apiKeyNotDefined && 
-                    <p className="text-color-error">
-                        You do not have an OPENAI_API_KEY set in your enviornment variables. To activate this feature, follow the <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">instructions here.</a>
-                    </p>
-                }
-                {(!apiKeyNotDefined && aiPrivacyPolicyNotAccepted) && 
+                {(aiPrivacyPolicyNotAccepted) && 
                     <>
                         <p className="text-body-1">
                             Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values.
@@ -317,7 +312,15 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         Generate Code
                     </TextButton>
                     {promptState.error !== undefined && 
-                        <p className="text-color-error">{promptState.error}</p>
+                        <>
+                            <p className="text-color-error">{promptState.error} &nbsp;
+                            {promptState.error?.includes('You have used Mito AI 20 times') && 
+                                <>
+                                    Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
+                                </>
+                            }
+                            </p>
+                        </>
                     }
                     {promptState.loading && 
                         <p className="text-subtext-1">{promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>

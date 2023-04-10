@@ -18,7 +18,7 @@ from mitosheet import __version__
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.user import is_running_test
 from mitosheet.user.db import USER_JSON_PATH, get_user_field, get_user_json_object
-from mitosheet.user.schemas import UJ_AI_PRIVACY_POLICY, UJ_EXPERIMENT, UJ_FEEDBACKS_V2, UJ_MITOSHEET_ENTERPRISE, UJ_RECEIVED_CHECKLISTS, USER_JSON_DEFAULT
+from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES, UJ_AI_PRIVACY_POLICY, UJ_EXPERIMENT, UJ_FEEDBACKS_V2, UJ_MITOSHEET_ENTERPRISE, UJ_RECEIVED_CHECKLISTS, USER_JSON_DEFAULT
 from mitosheet.user.schemas import (
     UJ_USER_JSON_VERSION, UJ_STATIC_USER_ID, UJ_USER_SALT, UJ_USER_EMAIL, 
     UJ_RECEIVED_TOURS, UJ_FEEDBACKS, UJ_MITOSHEET_CURRENT_VERSION, 
@@ -82,6 +82,7 @@ def check_user_json(
         mitosheet_experiment_id=None,
         received_checklists={'onboarding_checklist': ['signup', 'import', 'filter','pivot','graph','finalize']},
         ai_privacy_policy=False,
+        ai_mito_api_num_usages=0
     ):
     """
     This is the main helper function that does sanity checks about the 
@@ -91,7 +92,7 @@ def check_user_json(
     """
     assert set(get_user_json_object().keys()) == set(USER_JSON_DEFAULT.keys())
 
-    assert get_user_field(UJ_USER_JSON_VERSION) == 9
+    assert get_user_field(UJ_USER_JSON_VERSION) == 10
     assert len(get_user_field(UJ_STATIC_USER_ID)) > 0
     assert len(get_user_field(UJ_USER_SALT)) > 0
     assert (get_user_field(UJ_USER_EMAIL) == user_email or (get_user_field(UJ_USER_EMAIL) == 'github@action.com' and is_running_test()))
@@ -107,6 +108,7 @@ def check_user_json(
     assert get_user_field(UJ_EXPERIMENT) is not None
     assert get_user_field(UJ_RECEIVED_CHECKLISTS) == received_checklists or (get_user_field(UJ_RECEIVED_CHECKLISTS) == {})
     assert get_user_field(UJ_AI_PRIVACY_POLICY) == ai_privacy_policy
+    assert get_user_field(UJ_AI_MITO_API_NUM_USAGES) == ai_mito_api_num_usages
     if mitosheet_experiment_id:
         assert get_user_field(UJ_EXPERIMENT)['experiment_id'] == mitosheet_experiment_id
 

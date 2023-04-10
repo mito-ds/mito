@@ -9,7 +9,7 @@ For going to a datetime series.
 
 
 from typing import Any
-from mitosheet.public.v1.sheet_functions.types.utils import get_datetime_format
+from mitosheet.public.v1.sheet_functions.types.utils import get_datetime_format, get_to_datetime_params
 
 import numpy as np
 import pandas as pd
@@ -41,18 +41,12 @@ def to_datetime_series(
         return None
     elif is_string_dtype(column_dtype):
         # TODO: improve this to work element wise!
-        datetime_format = get_datetime_format(unknown_object)
-        if datetime_format is not None:
-            return pd.to_datetime(
-                unknown_object,
-                format=datetime_format,
-                errors='coerce'
-            )
-        else:
-            return pd.to_datetime(
-                unknown_object,
-                infer_datetime_format=True,
-                errors='coerce'
-            )
+        to_datetime_params = get_to_datetime_params(unknown_object)
+        return pd.to_datetime(
+            unknown_object,
+            errors='coerce',
+            **to_datetime_params
+        )
+    
     else:
         return None

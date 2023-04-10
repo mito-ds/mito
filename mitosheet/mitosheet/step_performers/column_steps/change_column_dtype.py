@@ -17,6 +17,7 @@ from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_int_dtype, is_number_dtype,
                                                    is_string_dtype,
                                                    is_timedelta_dtype)
+from mitosheet.public.v1.sheet_functions.types.utils import get_to_datetime_params
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -82,7 +83,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         pandas_processing_time: float = 0
 
         changed_column_ids: List[ColumnID] = []
-        datetime_formats: Dict[ColumnID, Optional[str]] = {}
+        to_datetime_params_map: Dict[ColumnID, Dict[str, Any]] = {}
         for column_id in column_ids:
 
             old_dtype = old_dtypes[column_id]
@@ -160,25 +161,15 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                     elif is_string_dtype(new_dtype):
                         changed_this_column = False
                     elif is_datetime_dtype(new_dtype):
-                        # Guess the datetime format to the best of Pandas abilities
-                        datetime_format = get_datetime_format(column)
-
-                        # Save the datetime_format for use in the code chunk
-                        datetime_formats[column_id] = datetime_format
-
-                        # If it's None, then infer_datetime_format is enough to figure it out
-                        if datetime_format is not None:
-                            new_column = pd.to_datetime(
-                                column,
-                                format=datetime_format,
-                                errors='coerce'
-                            )
-                        else:
-                            new_column = pd.to_datetime(
-                                column,
-                                infer_datetime_format=True,
-                                errors='coerce'
-                            )
+                        # We need to detect the correct params to pass to the to_datetime function, and save them for use in the code chunk
+                        to_datetime_params = get_to_datetime_params(column)
+                        to_datetime_params_map[column_id] = to_datetime_params
+                        
+                        new_column = pd.to_datetime(
+                            column,
+                            errors='coerce',
+                            **to_datetime_params
+                        )
                     elif is_timedelta_dtype(new_dtype):
                         new_column = to_timedelta_series(column)
                 elif is_datetime_dtype(old_dtype):
@@ -242,8 +233,8 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
             'changed_column_ids': changed_column_ids
         }
 
-        if len(datetime_formats) > 0:
-            execution_data['datetime_formats'] = datetime_formats
+        if len(to_datetime_params_map) > 0:
+            execution_data['to_datetime_params_map'] = to_datetime_params_map
 
         return post_state, execution_data
         
@@ -265,7 +256,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
                 get_param(params, 'old_dtypes'),
                 get_param(params, 'new_dtype'),
                 get_param(execution_data if execution_data is not None else {}, 'changed_column_ids'),
-                execution_data.get('datetime_formats', None) if execution_data is not None else None,
+                execution_data.get('to_datetime_params_map', None) if execution_data is not None else None,
                 get_param(params, 'public_interface_version')
             )
         ]

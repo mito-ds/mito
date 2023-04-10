@@ -39443,6 +39443,7 @@ fig.write_html("${props.graphTabName}.html")`
     return void 0;
   };
   var AITransformationTaskpane = (props) => {
+    var _a;
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === void 0;
     const aiPrivacyPolicyNotAccepted = !props.userProfile.aiPrivacyPolicy;
     const [openSections, setOpenSections] = (0, import_react173.useState)({
@@ -39505,14 +39506,14 @@ fig.write_html("${props.graphTabName}.html")`
       });
     };
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
-    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted || apiKeyNotDefined;
+    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted;
     return /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react173.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "AI Transformation",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, apiKeyNotDefined && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, "You do not have an OPENAI_API_KEY set in your enviornment variables. To activate this feature, follow the ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "instructions here.")), !apiKeyNotDefined && aiPrivacyPolicyNotAccepted && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://openai.com/policies/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here"), "."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "You can see our ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here.")), /* @__PURE__ */ import_react173.default.createElement(
+    ), /* @__PURE__ */ import_react173.default.createElement(DefaultTaskpaneBody_default, null, aiPrivacyPolicyNotAccepted && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://openai.com/policies/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here"), "."), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 5 }), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-body-1" }, "You can see our ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, "privacy policy here.")), /* @__PURE__ */ import_react173.default.createElement(
       TextButton_default,
       {
         onClick: () => {
@@ -39549,7 +39550,7 @@ fig.write_html("${props.graphTabName}.html")`
         variant: "dark"
       },
       "Generate Code"
-    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
+    ), promptState.error !== void 0 && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-color-error" }, promptState.error, " \xA0", ((_a = promptState.error) == null ? void 0 : _a.includes("You have used Mito AI 20 times")) && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, "Please ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, "upgrade to Mito Pro"), " or ", /* @__PURE__ */ import_react173.default.createElement("a", { className: "text-underline", href: DOCUMENTATION_LINK_AI_TRANSFORM, target: "_blank", rel: "noreferrer" }, "set your own OPENAI_API key in your environment variables.")))), promptState.loading && /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, promptState.hint !== void 0 ? `Hint: ${promptState.hint}` : ""), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }), /* @__PURE__ */ import_react173.default.createElement(
       TextArea_default,
       {
         value: params.edited_completion,

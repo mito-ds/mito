@@ -18,6 +18,8 @@ MAX_CHARS = MAX_TOKENS * CHARS_PER_TOKEN
 MAX_TOKENS_FOR_INPUT_DATA = 3800
 MAX_CHARS_FOR_INPUT_DATA = MAX_TOKENS_FOR_INPUT_DATA * CHARS_PER_TOKEN
 
+PROMPT_VERSION = 'df-creation-prompt-1'
+
 def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, float]) -> str:
     """
     Given a dataframe like:
