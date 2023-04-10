@@ -89,9 +89,9 @@ export const getCellEditorInputCurrentSelection = (containerDiv: HTMLDivElement 
  * Keys that don't get appended to the cell editing mode when you
  * press them, but still cause the mode to be entered.
  */
-const KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
+const KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA = [
     'Enter',
-    'Backspace'
+    'F2'
 ]
 /**
  * Called when cell editing mode is turned on, this gets the starting formula/value for
@@ -153,13 +153,13 @@ export const getStartingFormula = (
     }
     
     // If a key is pressed, we overwrite what is currently there with the key, per excel, sheets, and ag-grid
-    if (e !== undefined) {
+    if (e !== undefined && !KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA.includes(e.key)) {
         if (e.key === 'Backspace') {
             // If it's a delete, delete only the last character. We do not delete everything, even though excel 
-            // does, because, like ag-grid, we don't support editing by pressing F2
+            // does, because, we don't want to encourage single cell editing like this.
             originalValue = originalValue.substr(0, originalValue.length - 1);
         } else {
-            originalValue += (KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY.includes(e.key) ? '' : e.key);
+            originalValue =  e.key;
         }
     }    
 
