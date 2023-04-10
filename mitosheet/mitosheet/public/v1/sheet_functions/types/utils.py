@@ -7,7 +7,8 @@
 Utilities to help with type functions
 """
 
-from typing import Any, List, Optional, Tuple, Union
+from distutils.version import LooseVersion
+from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
@@ -56,51 +57,75 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
     return series.reindex(original_index)
 
 
+def get_to_datetime_params(string_series: pd.Series) -> Dict[str, Any]:
+
+    detected_format = get_datetime_format(string_series)
+
+    # If we detect a format, we return that. This works for all pandas versions
+    if detected_format is not None:
+        return {
+            'format': detected_format
+        }
+    
+
+    # If pandas < 2.0, we can use infer_datetime_format
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        return {
+            'infer_datetime_format': True
+        }
+    
+    # Otherwise, we mark the format as mixed
+    return {
+        'format': 'mixed'
+    }
+
+
 def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     """
     Given a series of datetime strings, guesses the most likely date format.
     """
-    try:
-        # Import log function here to avoid circular import
-        from mitosheet.telemetry.telemetry_utils import log
+    # Import log function here to avoid circular import
+    from mitosheet.telemetry.telemetry_utils import log
 
-        # If we can convert all non null inputs, then we assume we guessed correctly
-        non_null_inputs = string_series[~string_series.isna()]
+    # If we can convert all non null inputs, then we assume we guessed correctly
+    non_null_inputs = string_series[~string_series.isna()]
 
-        # First try letting pandas guess the correct datetime
+    # If we're on a older verison of pandas, we just check if infer_datetime_format=True works
+    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
         converted = pd.to_datetime(non_null_inputs, errors='coerce', infer_datetime_format=True)
         if converted.isna().sum() == 0:
             return None
 
-        # TODO: Add the most popular formats to here and check them first before 
-        # trying all of the formats below for performance.
+    # TODO: Add the most popular formats to here and check them first before 
+    # trying all of the formats below for performance.
 
-        # Then we try a bunch of other formats it could be
-        sample_string_datetime = string_series[string_series.first_valid_index()]
-        FORMATS = [
-            '%m{s}%d{s}%Y', 
-            '%d{s}%m{s}%Y', 
-            '%Y{s}%d{s}%m', 
-            '%Y{s}%m{s}%d', 
-            '%m{s}%d{s}%Y %H:%M:%S', 
-            '%d{s}%m{s}%Y  %H:%M:%S', 
-            '%Y{s}%d{s}%m  %H:%M:%S', 
-            '%Y{s}%m{s}%d  %H:%M:%S'
-        ]
-        SEPERATORS = ['/', '-', '.', ',', ':', ' ', '']
+    # Then we try a bunch of other formats it could be
+    sample_string_datetime = string_series[string_series.first_valid_index()]
+    FORMATS = [
+        '%m{s}%d{s}%Y', 
+        '%d{s}%m{s}%Y', 
+        '%Y{s}%m{s}%d', 
+        '%Y{s}%d{s}%m', 
+        '%d{s}%m{s}%Y  %H:%M:%S', 
+        '%m{s}%d{s}%Y %H:%M:%S', 
+        '%Y{s}%m{s}%d  %H:%M:%S',
+        '%Y{s}%d{s}%m  %H:%M:%S', 
+    ]
+    SEPERATORS = ['/', '-', '.', ',', ':', ' ', '']
 
-        for seperator in SEPERATORS:
-            if seperator in sample_string_datetime:
-                for _format in FORMATS:
-                    format = _format.format(s=seperator)
+    for seperator in SEPERATORS:
+        if seperator in sample_string_datetime:
+            for _format in FORMATS:
+                format = _format.format(s=seperator)
+                # If we fail to convert to a specific format,keep trying
+                try:
                     if test_datetime_format(non_null_inputs, format):
-                        return format  
+                        return format
+                except:
+                    pass
 
-        log('unable_to_determine_datetime_format_on_cast')
-        return None
-    except:
-        log('unable_to_determine_datetime_format_on_cast')
-        return None
+    log('unable_to_determine_datetime_format_on_cast')
+    return None
 
 
 def test_datetime_format(series: pd.Series, _format: str) -> bool:

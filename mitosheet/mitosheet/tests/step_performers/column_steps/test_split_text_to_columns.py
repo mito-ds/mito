@@ -92,10 +92,10 @@ SPLIT_TEXT_TO_COLUMNS_TESTS = [
         pd.DataFrame({'A': [1.23, 1.23], 'A-split-0-1': ['1', '1'], 'A-split-1-1': ['23', '23']})
     ),
     (
-        pd.DataFrame({'A': pd.to_datetime(['1/2/22', '4/06/99'])}),
+        pd.DataFrame({'A': pd.to_datetime(['1/2/22', '4/06/99'], format='%m/%d/%y')}),
         'A',
         [' ', '-'],
-        pd.DataFrame({'A': pd.to_datetime(['1/2/22', '4/06/99']), 'A-split-0-1': ['2022', '1999'], 'A-split-1-1': ['01', '04'], 'A-split-2-1': ['02', '06'], 'A-split-3-1': ['00:00:00', '00:00:00']})
+        pd.DataFrame({'A': pd.to_datetime(['1/2/22', '4/06/99'], format='%m/%d/%y'), 'A-split-0-1': ['2022', '1999'], 'A-split-1-1': ['01', '04'], 'A-split-2-1': ['02', '06'], 'A-split-3-1': ['00:00:00', '00:00:00']})
     ),
     (
         # Create a timedelta by subtracting two dates

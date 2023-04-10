@@ -16,10 +16,10 @@ from mitosheet.is_type_utils import ( is_bool_dtype,
                                                     is_int_dtype,
                                                     is_string_dtype,
                                                     is_timedelta_dtype)
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, param_dict_to_code
 
 
-def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str, datetime_formats: Optional[Dict[ColumnID, Optional[str]]], public_interface_version: int) -> Optional[str]:
+def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str, to_datetime_params_map: Optional[Dict[ColumnID, Dict[str, Any]]], public_interface_version: int) -> Optional[str]:
     
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
     transpiled_column_header = column_header_to_transpiled_code(column_header)
@@ -82,16 +82,14 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
         elif is_string_dtype(new_dtype):
             return None
         elif is_datetime_dtype(new_dtype):
-            if datetime_formats is not None:
-                datetime_format = datetime_formats[column_id]
+            if to_datetime_params_map is not None:
+                to_datetime_params = to_datetime_params_map[column_id]
             else:
-                # Just for safety, but we shouldn't hit this case
-                datetime_format = None
+                to_datetime_params = {}
 
-            if datetime_format is not None:
-                return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], format=\'{datetime_format}\', errors=\'coerce\')'
-            else:
-                return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], infer_datetime_format=True, errors=\'coerce\')'
+            datetime_params_string = param_dict_to_code(to_datetime_params, as_single_line=True)
+
+            return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], {datetime_params_string}, errors=\'coerce\')'
         elif is_timedelta_dtype(new_dtype):
             return f'{df_name}[{transpiled_column_header}] = pd.to_timedelta({df_name}[{transpiled_column_header}], errors=\'coerce\')'
     elif is_datetime_dtype(old_dtype):
@@ -136,14 +134,14 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
 class ChangeColumnDtypeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], datetime_formats: Optional[Dict[ColumnID, Optional[str]]], public_interface_version: int):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], to_datetime_params_map: Optional[Dict[ColumnID, Dict[str, Any]]], public_interface_version: int):
         super().__init__(prev_state, post_state)
-        self.sheet_index: int = sheet_index
-        self.column_ids: List[ColumnID] = column_ids
-        self.old_dtypes: Dict[ColumnID, str] = old_dtypes
-        self.new_dtype: str = new_dtype
-        self.changed_column_ids: List[ColumnID] = changed_column_ids
-        self.datetime_formats: Optional[Dict[ColumnID, Optional[str]]] = datetime_formats
+        self.sheet_index = sheet_index
+        self.column_ids = column_ids
+        self.old_dtypes = old_dtypes
+        self.new_dtype = new_dtype
+        self.changed_column_ids = changed_column_ids
+        self.to_datetime_params_map = to_datetime_params_map
         self.public_interface_version = public_interface_version
 
         self.df_name = self.post_state.df_names[self.sheet_index]
@@ -166,7 +164,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         for column_id in self.column_ids:
             old_dtype = self.old_dtypes[column_id]
 
-            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.datetime_formats, self.public_interface_version)
+            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.to_datetime_params_map, self.public_interface_version)
             if conversion_code is not None:
                 code.append(conversion_code)
         
