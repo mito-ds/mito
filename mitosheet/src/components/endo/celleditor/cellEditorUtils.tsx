@@ -308,14 +308,16 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
 
 /**
  * Returns the documentation for the function that the user is currently writing, specifically
- * returning documentation for the last function in the formula.
+ * returning documentation for the last function in the formula that the user has typed.
  * 
  * @param formula - the formula the user is currently writing
  */
-export const getDocumentationFunction = (formula: string): FunctionDocumentationObject | undefined => {
+export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null): FunctionDocumentationObject | undefined => {
+
+    console.log("SELECTION START", selectionStart)
     
-    // Find the final function start
-    const finalParenIndex = formula.lastIndexOf('(')
+    // Find the final function that is before the users selection
+    const finalParenIndex = formula.substring(0, selectionStart || undefined).lastIndexOf('(')
     if (finalParenIndex === -1) {
         return undefined;
     }

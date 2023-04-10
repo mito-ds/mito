@@ -118,7 +118,7 @@ const CellEditor = (props: {
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
-    const documentationFunction = getDocumentationFunction(fullFormula);
+    const documentationFunction = getDocumentationFunction(fullFormula, cellEditorInputRef.current?.selectionStart);
 
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
