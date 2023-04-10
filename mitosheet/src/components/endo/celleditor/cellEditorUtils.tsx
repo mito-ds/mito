@@ -158,7 +158,7 @@ export const getStartingFormula = (
             // If it's a delete, delete only the last character. We do not delete everything, even though excel 
             // does, because, we don't want to encourage single cell editing like this.
             originalValue = originalValue.substr(0, originalValue.length - 1);
-        } else if (e.key !== 'Enter') {
+        } else {
             originalValue =  e.key;
         }
     }    
