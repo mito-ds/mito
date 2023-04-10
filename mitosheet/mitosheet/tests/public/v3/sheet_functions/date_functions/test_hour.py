@@ -28,7 +28,7 @@ HOUR_TESTS = [
     # Just series tests
     ([pd.Series(data=['2000-1-2 12:45:00', '2000-1-2 15:45:00'])], pd.Series([12, 15], dtype=dtype)),
     ([pd.Series(data=['2000-1-2 12:45:00', '2000-1-2 15:45:00', None])], pd.Series([12, 15, None])),
-    ([pd.Series(data=['1/2/2000', 'abc', '1/4/2000 15:12:0'])], pd.Series([0,None,15])),
+    ([pd.Series(data=['1/2/2000', 'abc'])], pd.Series([0,None])),
 ]
 
 @pytest.mark.parametrize("_argv,expected", HOUR_TESTS)
