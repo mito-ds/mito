@@ -25245,58 +25245,48 @@ ${finalCode}`;
 
   // src/components/endo/celleditor/CellEditorDropdown.tsx
   var MAX_SUGGESTIONS = 4;
+  var getDisplayedDropdownType = (sheetData, editorState, selectionStart, cellEditorError, loading) => {
+    const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
+    const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
+    console.log("ENDS IN REFERNECE");
+    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);
+    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength);
+    const documentationFunction = getDocumentationFunction(fullFormula, selectionStart);
+    if (cellEditorError !== void 0) {
+      return {
+        "type": "error",
+        "error": cellEditorError
+      };
+    } else if (loading) {
+      return {
+        "type": "loading"
+      };
+    } else if (!endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+      return {
+        "type": "suggestions",
+        "suggestedColumnHeaders": suggestedColumnHeaders,
+        "suggestedColumnHeadersReplacementLength": suggestedColumnHeadersReplacementLength,
+        "suggestedFunctions": suggestedFunctions,
+        "suggestedFunctionsReplacementLength": suggestedFunctionsReplacementLength
+      };
+    } else if (documentationFunction !== void 0 && editorState.pendingSelections === void 0) {
+      return {
+        "type": "documentation",
+        "documentationFunction": documentationFunction
+      };
+    }
+    return void 0;
+  };
   var CellEditorDropdown = (props) => {
-    var _a, _b;
+    var _a;
     const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
       return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
     }
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-    const documentationFunction = getDocumentationFunction(fullFormula, (_a = props.cellEditorInputRef.current) == null ? void 0 : _a.selectionStart);
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
-    const takeSuggestion = (suggestionIndex) => {
-      var _a2;
-      if (suggestionIndex === -1) {
-        return;
-      }
-      let suggestionReplacementLength = 0;
-      let suggestion = "";
-      let isColumnHeaderSuggestion = true;
-      if (suggestionIndex < suggestedColumnHeaders.length) {
-        suggestionReplacementLength = suggestedColumnHeadersReplacementLength;
-        suggestion = suggestedColumnHeaders[suggestionIndex][0];
-      } else {
-        suggestionReplacementLength = suggestedFunctionsReplacementLength;
-        suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + "(";
-        isColumnHeaderSuggestion = false;
-      }
-      let fullFormula2 = getFullFormula(
-        props.editorState.formula,
-        props.editorState.pendingSelections,
-        props.sheetData
-      );
-      fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
-      fullFormula2 += suggestion;
-      if (isColumnHeaderSuggestion) {
-        fullFormula2 += getDisplayColumnHeader(indexLabel);
-      }
-      props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-        formula: fullFormula2,
-        pendingSelections: void 0,
-        arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
-      }));
-      (_a2 = props.cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
-        fullFormula2.length,
-        fullFormula2.length
-      );
-    };
+    const displayedDropdownType = props.displayedDropdownType;
     const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
-    const showingSuggestions = props.cellEditorError === void 0 && !props.loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
-    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: `${cellEditorWidth}px` } }, props.cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
+    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: `${cellEditorWidth}px` } }, (displayedDropdownType == null ? void 0 : displayedDropdownType.type) !== "error" && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
       Toggle_default,
       {
         className: "mr-5px",
@@ -25314,7 +25304,7 @@ ${finalCode}`;
         },
         height: "20px"
       }
-    )), props.cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), props.cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, props.cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), props.loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), showingSuggestions && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
+    )), (displayedDropdownType == null ? void 0 : displayedDropdownType.type) !== "error" && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), (displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "error" && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, displayedDropdownType.error), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), (displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "loading" && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), (displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "suggestions" && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, displayedDropdownType.suggestedColumnHeaders.concat(displayedDropdownType.suggestedFunctions).map(([suggestion, subtext], idx) => {
       if (idx > MAX_SUGGESTIONS) {
         return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
       }
@@ -25327,9 +25317,38 @@ ${finalCode}`;
         {
           onMouseEnter: () => props.setSavedSelectedSuggestionIndex(idx),
           onClick: () => {
-            var _a2;
-            takeSuggestion(idx);
-            (_a2 = props.cellEditorInputRef.current) == null ? void 0 : _a2.focus();
+            var _a2, _b;
+            let suggestionReplacementLength = 0;
+            let suggestion2 = "";
+            let isColumnHeaderSuggestion = true;
+            if (idx < displayedDropdownType.suggestedColumnHeaders.length) {
+              suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength;
+              suggestion2 = displayedDropdownType.suggestedColumnHeaders[idx][0];
+            } else {
+              suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength;
+              suggestion2 = displayedDropdownType.suggestedFunctions[idx - displayedDropdownType.suggestedColumnHeaders.length][0] + "(";
+              isColumnHeaderSuggestion = false;
+            }
+            let fullFormula = getFullFormula(
+              props.editorState.formula,
+              props.editorState.pendingSelections,
+              props.sheetData
+            );
+            fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
+            fullFormula += suggestion2;
+            if (isColumnHeaderSuggestion) {
+              fullFormula += getDisplayColumnHeader(indexLabel);
+            }
+            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+              formula: fullFormula,
+              pendingSelections: void 0,
+              arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
+            }));
+            (_a2 = props.cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
+              fullFormula.length,
+              fullFormula.length
+            );
+            (_b = props.cellEditorInputRef.current) == null ? void 0 : _b.focus();
           },
           className: suggestionClassNames,
           key: suggestion
@@ -25337,7 +25356,7 @@ ${finalCode}`;
         /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
         selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
       );
-    })), props.cellEditorError === void 0 && !props.loading && !hasSuggestions && documentationFunction !== void 0 && props.editorState.pendingSelections === void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_b = documentationFunction.examples) == null ? void 0 : _b.map((example, index) => {
+    })), (displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "documentation" && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, displayedDropdownType.documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, displayedDropdownType.documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = displayedDropdownType.documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
       return /* @__PURE__ */ import_react39.default.createElement(
         "p",
         {
@@ -25354,6 +25373,7 @@ ${finalCode}`;
   var CELL_EDITOR_DEFAULT_WIDTH = 250;
   var CELL_EDITOR_MAX_WIDTH = 500;
   var CellEditor = (props) => {
+    var _a;
     const cellEditorInputRef = (0, import_react40.useRef)(null);
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react40.useState)(-1);
     const [loading, setLoading] = (0, import_react40.useState)(false);
@@ -25363,15 +25383,15 @@ ${finalCode}`;
       if (unsavedInputAnchor !== null) {
         cellEditorInputRef.current = unsavedInputAnchor;
         setTimeout(() => {
-          var _a;
-          (_a = cellEditorInputRef.current) == null ? void 0 : _a.focus();
+          var _a2;
+          (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         }, 50);
       }
     }, []);
     (0, import_react40.useEffect)(() => {
       setTimeout(() => {
-        var _a, _b;
-        (_a = cellEditorInputRef.current) == null ? void 0 : _a.focus();
+        var _a2, _b;
+        (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
           const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
           (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
@@ -25396,9 +25416,13 @@ ${finalCode}`;
       return /* @__PURE__ */ import_react40.default.createElement(import_react40.default.Fragment, null);
     }
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
+    const displayedDropdownType = getDisplayedDropdownType(
+      props.sheetData,
+      props.editorState,
+      (_a = cellEditorInputRef.current) == null ? void 0 : _a.selectionStart,
+      cellEditorError,
+      loading
+    );
     const closeCellEditor = () => {
       props.setGridState((gridState) => {
         return __spreadProps(__spreadValues({}, gridState), {
@@ -25422,19 +25446,19 @@ ${finalCode}`;
       setTimeout(() => focusGrid(props.containerRef.current), 100);
     };
     const takeSuggestion = (suggestionIndex) => {
-      var _a;
-      if (suggestionIndex === -1) {
+      var _a2;
+      if ((displayedDropdownType == null ? void 0 : displayedDropdownType.type) !== "suggestions" || suggestionIndex < 0) {
         return;
       }
       let suggestionReplacementLength = 0;
       let suggestion = "";
       let isColumnHeaderSuggestion = true;
-      if (suggestionIndex < suggestedColumnHeaders.length) {
-        suggestionReplacementLength = suggestedColumnHeadersReplacementLength;
-        suggestion = suggestedColumnHeaders[suggestionIndex][0];
+      if (suggestionIndex < displayedDropdownType.suggestedColumnHeaders.length) {
+        suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength;
+        suggestion = displayedDropdownType.suggestedColumnHeaders[suggestionIndex][0];
       } else {
-        suggestionReplacementLength = suggestedFunctionsReplacementLength;
-        suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + "(";
+        suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength;
+        suggestion = displayedDropdownType.suggestedFunctions[suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length][0] + "(";
         isColumnHeaderSuggestion = false;
       }
       let fullFormula2 = getFullFormula(
@@ -25452,7 +25476,7 @@ ${finalCode}`;
         pendingSelections: void 0,
         arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
       }));
-      (_a = cellEditorInputRef.current) == null ? void 0 : _a.setSelectionRange(
+      (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
         fullFormula2.length,
         fullFormula2.length
       );
@@ -25469,12 +25493,12 @@ ${finalCode}`;
       if (isNavigationKeyPressed(e.key) && !altPressed) {
         const arrowUp = e.key === "Up" || e.key === "ArrowUp";
         const arrowDown = e.key === "Down" || e.key === "ArrowDown";
-        if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+        if ((arrowUp || arrowDown) && (displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "suggestions") {
           e.preventDefault();
           if (arrowUp) {
             setSavedSelectedSuggestionIndex((suggestionIndex) => Math.max(suggestionIndex - 1, -1));
           } else if (arrowDown) {
-            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.min(suggestionIndex + 1, suggestedColumnHeaders.length + suggestedFunctions.length - 1, MAX_SUGGESTIONS));
+            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.min(suggestionIndex + 1, displayedDropdownType.suggestedColumnHeaders.length + displayedDropdownType.suggestedFunctions.length - 1, MAX_SUGGESTIONS));
           }
           props.setEditorState((prevEditorState) => {
             if (prevEditorState === void 0)
@@ -25489,10 +25513,10 @@ ${finalCode}`;
         } else if (!arrowKeysScrollInFormula) {
           e.preventDefault();
           props.setGridState((gridState) => {
-            var _a, _b, _c, _d;
+            var _a2, _b, _c, _d;
             const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
             const newInputSelectionStart = firstNonNullOrUndefined(
-              (_a = props.editorState.pendingSelections) == null ? void 0 : _a.inputSelectionStart,
+              (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
               (_b = cellEditorInputRef.current) == null ? void 0 : _b.selectionStart,
               0
             );
@@ -25594,7 +25618,7 @@ ${finalCode}`;
     };
     const onSubmit = async (e) => {
       e.preventDefault();
-      if (selectedSuggestionIndex !== -1 && !endsInReference) {
+      if (selectedSuggestionIndex !== -1) {
         takeSuggestion(selectedSuggestionIndex);
         setSavedSelectedSuggestionIndex(-1);
         return;
@@ -25627,7 +25651,6 @@ ${finalCode}`;
         props.closeOpenEditingPopups();
       }
     };
-    const showingSuggestions = cellEditorError === void 0 && !loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
     return /* @__PURE__ */ import_react40.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react40.default.createElement(
       "form",
       {
@@ -25673,7 +25696,7 @@ ${finalCode}`;
                 });
               }
             }
-            if (showingSuggestions && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+            if ((displayedDropdownType == null ? void 0 : displayedDropdownType.type) === "suggestions" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
               e.preventDefault();
             }
             onKeyDown(e);
@@ -25688,11 +25711,10 @@ ${finalCode}`;
         sheetIndex: props.sheetIndex,
         editorState: props.editorState,
         setEditorState: props.setEditorState,
-        cellEditorError,
-        loading,
         cellEditorInputRef,
         selectedSuggestionIndex,
-        setSavedSelectedSuggestionIndex
+        setSavedSelectedSuggestionIndex,
+        displayedDropdownType
       }
     ));
   };
@@ -25795,12 +25817,24 @@ ${finalCode}`;
       editingMode: columnFormulaLocation || "entire_column"
     };
   };
-  var formulaEndsInReference = (formula, indexLabel, sheetData) => {
-    const possibleReferences = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
-    const endingReferences = possibleReferences.filter((reference) => formula.toLowerCase().endsWith(reference.toLowerCase()));
-    return endingReferences.length > 0;
+  var getFormulaEndsInReference = (formula, sheetData) => {
+    const lowercaseFormula = formula.toLowerCase();
+    const lowercaseColumnHeaders = sheetData.data.map((c) => getDisplayColumnHeader(c.columnHeader).toLowerCase());
+    let found = false;
+    lowercaseColumnHeaders.forEach((ch) => {
+      const lastIndexOf = lowercaseFormula.lastIndexOf(ch);
+      if (lastIndexOf !== -1) {
+        const remainingString = lowercaseFormula.substring(lastIndexOf);
+        sheetData.index.forEach((indexLabel) => {
+          if (remainingString.endsWith(getDisplayColumnHeader(indexLabel).toLowerCase())) {
+            found = true;
+          }
+        });
+      }
+    });
+    return found;
   };
-  var getSuggestedColumnHeaders = (formula, columnID, sheetData) => {
+  var getSuggestedColumnHeaders = (formula, sheetData) => {
     const columnHeadersAndIDs = sheetData.data.map((c) => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
     const maxColumnHeaderLength = Math.min(Math.max(...columnHeadersAndIDs.map(([, columnHeader]) => columnHeader.length), formula.length), 50);
     for (let i = maxColumnHeaderLength; i > 0; i--) {
@@ -25810,8 +25844,8 @@ ${finalCode}`;
         continue;
       }
       const foundColumns = columnHeadersAndIDs.filter(([, columnHeader]) => columnHeader.toLowerCase().startsWith(substring));
-      const suggestedColumnHeaders = foundColumns.map(([columnID2, columnHeader]) => {
-        const columnDtype = sheetData.columnDtypeMap[columnID2];
+      const suggestedColumnHeaders = foundColumns.map(([columnID, columnHeader]) => {
+        const columnDtype = sheetData.columnDtypeMap[columnID];
         const subtextType = columnDtype === void 0 ? "series" : columnDtype + " series";
         return [columnHeader, `A ${subtextType} in your dataset`];
       });

@@ -11,8 +11,8 @@ import { focusGrid } from '../focusUtils';
 import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
-import CellEditorDropdown, { MAX_SUGGESTIONS } from './CellEditorDropdown';
-import { formulaEndsInReference, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
+import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
@@ -113,13 +113,14 @@ const CellEditor = (props: {
     }
 
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
-    // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
-    // for column headers that are pending currently
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-
+    const displayedDropdownType = getDisplayedDropdownType(
+        props.sheetData,
+        props.editorState,
+        cellEditorInputRef.current?.selectionStart,
+        cellEditorError,
+        loading,
+    )
 
     // A helper function to close the cell editor, selecting the cell that was
     // being edited, and making sure the cell is focused
@@ -149,8 +150,8 @@ const CellEditor = (props: {
 
     // Helper function to take the suggestion at a given index
     const takeSuggestion = (suggestionIndex: number) => {
-        // If no suggestion is selected, don't do anything
-        if (suggestionIndex === -1) {
+        // If there are no suggestions, or none is selected, then bounce
+        if (displayedDropdownType?.type !== 'suggestions' || suggestionIndex < 0) {
             return;
         }
 
@@ -160,13 +161,13 @@ const CellEditor = (props: {
         let suggestion = '';
 
         let isColumnHeaderSuggestion = true;
-        if (suggestionIndex < suggestedColumnHeaders.length) {
-            suggestionReplacementLength = suggestedColumnHeadersReplacementLength
-            suggestion = suggestedColumnHeaders[suggestionIndex][0];
+        if (suggestionIndex < displayedDropdownType.suggestedColumnHeaders.length) {
+            suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength
+            suggestion = displayedDropdownType.suggestedColumnHeaders[suggestionIndex][0];
         } else {
-            suggestionReplacementLength = suggestedFunctionsReplacementLength
+            suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength
             // We add a open parentheses onto the formula suggestion
-            suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + '(';
+            suggestion = displayedDropdownType.suggestedFunctions[suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length][0] + '(';
             isColumnHeaderSuggestion = false;
         }
 
@@ -236,7 +237,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if ((arrowUp || arrowDown) && displayedDropdownType?.type === 'suggestions') {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -246,7 +247,7 @@ const CellEditor = (props: {
                 if (arrowUp) {
                     setSavedSelectedSuggestionIndex(suggestionIndex => Math.max(suggestionIndex - 1, -1))
                 } else if (arrowDown) {
-                    setSavedSelectedSuggestionIndex(suggestionIndex => Math.min(suggestionIndex + 1, suggestedColumnHeaders.length + suggestedFunctions.length - 1, MAX_SUGGESTIONS))
+                    setSavedSelectedSuggestionIndex(suggestionIndex => Math.min(suggestionIndex + 1, displayedDropdownType.suggestedColumnHeaders.length + displayedDropdownType.suggestedFunctions.length - 1, MAX_SUGGESTIONS))
                 }
 
                 // As google sheets does, if the user is scrolling in the suggestion box,
@@ -426,13 +427,9 @@ const CellEditor = (props: {
 
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1 && !endsInReference) {
+        if (selectedSuggestionIndex !== -1) {
             takeSuggestion(selectedSuggestionIndex);
-
-            // Then, reset the suggestion index that is selected back to -1, 
-            // so that nothing is selected
             setSavedSelectedSuggestionIndex(-1);
-
             return;
         }
 
@@ -479,9 +476,6 @@ const CellEditor = (props: {
             props.closeOpenEditingPopups();
         }
     }
-
-    // TODO: make a function
-    const showingSuggestions = cellEditorError === undefined && !loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
 
     return (
         <div className='cell-editor'>
@@ -535,7 +529,7 @@ const CellEditor = (props: {
                             // If up and down arrow key is pressed, and there are suggestions, we skip the default behavior
                             // and do not move the cursor. This is because we want to use the arrow keys to navigate
                             // the suggestions, rather than moving the cursor
-                            if (showingSuggestions && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                            if (displayedDropdownType?.type === 'suggestions' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                                 e.preventDefault();
                             }
 
@@ -550,11 +544,10 @@ const CellEditor = (props: {
                 sheetIndex={props.sheetIndex}
                 editorState={props.editorState}
                 setEditorState={props.setEditorState}
-                cellEditorError={cellEditorError}
-                loading={loading}
                 cellEditorInputRef={cellEditorInputRef}
                 selectedSuggestionIndex={selectedSuggestionIndex}
                 setSavedSelectedSuggestionIndex={setSavedSelectedSuggestionIndex}
+                displayedDropdownType={displayedDropdownType}
             />
         </div>
     )
