@@ -228,6 +228,14 @@ const TRANSFORMATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'AI Transformations',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true
+    }
+  },
+  {
     feature: 'Custom Code Snippets',
     planSupport: {
       'Open Source': false,
@@ -235,14 +243,6 @@ const TRANSFORMATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
-  {
-    feature: 'AI Transformations',
-    planSupport: {
-      'Open Source': true,
-      'Pro': true,
-      'Enterprise': true
-    }
-  }
 ]
 
 const CODE_GENERATION_FEATURES: Feature[] = [
@@ -625,7 +625,7 @@ const Plans: NextPage = () => {
                             On-prem <br/> AI
                           </h1>
                           <p>
-                            Use a locally deployed LLM to power Mito AI, so you can be sure no data ever leaves your system. (coming soon)
+                            Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system. (coming soon)
                           </p>
                       </div>
                   </div>
@@ -649,7 +649,7 @@ const Plans: NextPage = () => {
                             Script <br/> scheduling
                         </h1>
                         <p>
-                            Schedule scripts to run automatically at a specified time to fully automate reports (coming soon)
+                            Schedule scripts to run automatically to fully automate reports (coming soon)
                         </p>
                     </div>
                 </div>                
