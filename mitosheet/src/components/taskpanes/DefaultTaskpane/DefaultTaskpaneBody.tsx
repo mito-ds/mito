@@ -1,7 +1,8 @@
 // Copyright (c) Mito
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css";
+import MitoAPI from '../../../jupyter/api';
 import { UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import MitoUpgradePrompt from '../../elements/MitoProUpgradePrompt';
@@ -46,10 +47,31 @@ const DefaultTaskpaneBody = (
         */
         requiresEnterpriseMessage?: string;
 
+        /**
+         * @param [mitoAPI] - The Mito API
+        */
+        mitoAPI?: MitoAPI;
+
+        /**
+         * @param [featureName] - Feautre name
+        */
+        featureName?: string;
+
+
     }): JSX.Element => {
 
     const shouldPromptProUpgrade = !props.userProfile?.isPro && props.requiresPro;
     const shouldPromptEnterpriseUpgrade = !props.userProfile?.isEnterprise && props.requiresEnterprise;
+
+    useEffect(() => {
+        if (shouldPromptProUpgrade && props.mitoAPI !== undefined) {
+            void props.mitoAPI.log('prompted_pro_upgrade', {feature: props.featureName});
+        }
+    
+        if (shouldPromptEnterpriseUpgrade && props.mitoAPI !== undefined) {
+            void props.mitoAPI.log('prompted_enterprise_upgrade', {feature: props.featureName});
+        }
+    }, [])
 
     return (
         <>
@@ -57,12 +79,16 @@ const DefaultTaskpaneBody = (
                 <MitoUpgradePrompt
                     message={props.requiresProMessage}
                     proOrEnterprise='Pro'
+                    mitoAPI={props.mitoAPI}
+                    featureName={props.featureName}
                 />
             }
             {shouldPromptEnterpriseUpgrade &&
                 <MitoUpgradePrompt
                     message={props.requiresEnterpriseMessage}
                     proOrEnterprise='Enterprise'
+                    mitoAPI={props.mitoAPI}
+                    featureName={props.featureName}
                 />
             }
             <div className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade})}> 

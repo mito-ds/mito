@@ -130,6 +130,8 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                 userProfile={props.userProfile} 
                 requiresPro
                 requiresProMessage="Conditional formatting is a Mito Pro feature. Please upgrade to use this feature."
+                mitoAPI={props.mitoAPI}
+                featureName="conditional_formatting"
             >
                 <DataframeSelect 
                     sheetDataArray={props.sheetDataArray}

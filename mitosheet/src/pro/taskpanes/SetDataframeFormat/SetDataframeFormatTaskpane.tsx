@@ -93,6 +93,8 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                 userProfile={props.userProfile}
                 requiresPro
                 requiresProMessage="Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature."
+                mitoAPI={props.mitoAPI}
+                featureName="color_dataframe"
             >
                 <DataframeSelect 
                     sheetDataArray={props.sheetDataArray} 

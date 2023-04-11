@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect45(create, deps) {
+          function useEffect46(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect45;
+          exports.useEffect = useEffect46;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -24649,6 +24649,14 @@ ${finalCode}`;
     var _a, _b;
     const shouldPromptProUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
     const shouldPromptEnterpriseUpgrade = !((_b = props.userProfile) == null ? void 0 : _b.isEnterprise) && props.requiresEnterprise;
+    (0, import_react32.useEffect)(() => {
+      if (shouldPromptProUpgrade && props.mitoAPI !== void 0) {
+        void props.mitoAPI.log("prompted_pro_upgrade", { feature: props.featureName });
+      }
+      if (shouldPromptEnterpriseUpgrade && props.mitoAPI !== void 0) {
+        void props.mitoAPI.log("prompted_enterprise_upgrade", { feature: props.featureName });
+      }
+    }, []);
     return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, shouldPromptProUpgrade && /* @__PURE__ */ import_react32.default.createElement(
       MitoProUpgradePrompt_default,
       {
@@ -25137,8 +25145,8 @@ ${finalCode}`;
     }
     return [0, []];
   };
-  var getDocumentationFunction = (formula) => {
-    const finalParenIndex = formula.lastIndexOf("(");
+  var getDocumentationFunction = (formula, selectionStart) => {
+    const finalParenIndex = formula.substring(0, selectionStart || void 0).lastIndexOf("(");
     if (finalParenIndex === -1) {
       return void 0;
     }
@@ -25448,7 +25456,7 @@ ${finalCode}`;
   var MAX_SUGGESTIONS = 4;
   var CELL_EDITOR_WIDTH = 250;
   var CellEditor = (props) => {
-    var _a;
+    var _a, _b;
     const cellEditorInputRef = (0, import_react39.useRef)(null);
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react39.useState)(-1);
     const [loading, setLoading] = (0, import_react39.useState)(false);
@@ -25465,11 +25473,11 @@ ${finalCode}`;
     }, []);
     (0, import_react39.useEffect)(() => {
       setTimeout(() => {
-        var _a2, _b;
+        var _a2, _b2;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
         if (props.editorState.pendingSelections !== void 0) {
           const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
-          (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
+          (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.setSelectionRange(
             index,
             index
           );
@@ -25492,7 +25500,7 @@ ${finalCode}`;
     }
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-    const documentationFunction = getDocumentationFunction(fullFormula);
+    const documentationFunction = getDocumentationFunction(fullFormula, (_a = cellEditorInputRef.current) == null ? void 0 : _a.selectionStart);
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
     const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
@@ -25586,11 +25594,11 @@ ${finalCode}`;
         } else if (!arrowKeysScrollInFormula) {
           e.preventDefault();
           props.setGridState((gridState) => {
-            var _a2, _b, _c, _d;
+            var _a2, _b2, _c, _d;
             const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
             const newInputSelectionStart = firstNonNullOrUndefined(
               (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
-              (_b = cellEditorInputRef.current) == null ? void 0 : _b.selectionStart,
+              (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.selectionStart,
               0
             );
             const newInputSelectionEnd = firstNonNullOrUndefined(
@@ -25616,6 +25624,12 @@ ${finalCode}`;
             return __spreadProps(__spreadValues({}, gridState), {
               selections: [newSelection]
             });
+          });
+        } else {
+          props.setEditorState((prevEditorState) => {
+            if (prevEditorState === void 0)
+              return void 0;
+            return __spreadValues({}, prevEditorState);
           });
         }
       } else if (e.key === "Escape") {
@@ -25776,7 +25790,7 @@ ${finalCode}`;
         /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
         selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
       );
-    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
+    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_b = documentationFunction.examples) == null ? void 0 : _b.map((example, index) => {
       return /* @__PURE__ */ import_react39.default.createElement(
         "p",
         {
@@ -29314,7 +29328,9 @@ ${finalCode}`;
       {
         userProfile: props.userProfile,
         requiresPro: true,
-        requiresProMessage: "Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature."
+        requiresProMessage: "Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature.",
+        mitoAPI: props.mitoAPI,
+        featureName: "color_dataframe"
       },
       /* @__PURE__ */ import_react76.default.createElement(
         DataframeSelect_default,
@@ -29729,7 +29745,9 @@ ${finalCode}`;
       {
         userProfile: props.userProfile,
         requiresPro: true,
-        requiresProMessage: "Conditional formatting is a Mito Pro feature. Please upgrade to use this feature."
+        requiresProMessage: "Conditional formatting is a Mito Pro feature. Please upgrade to use this feature.",
+        mitoAPI: props.mitoAPI,
+        featureName: "conditional_formatting"
       },
       /* @__PURE__ */ import_react82.default.createElement(
         DataframeSelect_default,
@@ -38592,7 +38610,9 @@ fig.write_html("${props.graphTabName}.html")`
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
-        requiresEnterprise: !props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"]
+        requiresEnterprise: !props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"],
+        mitoAPI: props.mitoAPI,
+        featureName: "snowflake_import"
       },
       /* @__PURE__ */ import_react168.default.createElement(
         AuthenticateToSnowflakeCard_default,
