@@ -42,8 +42,6 @@ export const getDisplayedDropdownType = (
     const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
 
-    console.log("ENDS IN REFERNECE")
-
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);

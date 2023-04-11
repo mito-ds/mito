@@ -201,7 +201,7 @@ export const getFormulaEndsInReference = (formula: string, sheetData: SheetData)
             const remainingString = lowercaseFormula.substring(lastIndexOf);
             // Check if this is an index label (TODO: is this performant enough?)
             sheetData.index.forEach(indexLabel => {
-                if (remainingString.endsWith(getDisplayColumnHeader(indexLabel).toLowerCase())) {
+                if (remainingString === getDisplayColumnHeader(indexLabel).toLowerCase()) {
                     found = true;
                 }
             })

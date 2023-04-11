@@ -24,6 +24,7 @@ const getDefaultTextAreaHeight = (formula: string): number => {
     const numLines = formula.split('\n').length + 1;
 
     if (numLines <= 2) {
+        // Default to 2 lines, 11px tall
         return 22;
     } else {
         return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
@@ -63,7 +64,7 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
-    const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula)); // Default to 2 lines, 11px tall
+    const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
@@ -565,7 +566,7 @@ const CellEditor = (props: {
                                 if (!e.metaKey) {
                                     // If we press enter and the meta key is not pressed, we want to submit (or take suggestion)
                                     e.preventDefault();
-                                    onSubmit(e);
+                                    void onSubmit(e);
                                     return;
                                 } else {
                                     addSpacingCharacter('\n');

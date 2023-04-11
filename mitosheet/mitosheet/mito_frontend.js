@@ -24906,7 +24906,7 @@ ${finalCode}`;
       if (lastIndexOf !== -1) {
         const remainingString = lowercaseFormula.substring(lastIndexOf);
         sheetData.index.forEach((indexLabel) => {
-          if (remainingString.endsWith(getDisplayColumnHeader(indexLabel).toLowerCase())) {
+          if (remainingString === getDisplayColumnHeader(indexLabel).toLowerCase()) {
             found = true;
           }
         });
@@ -25486,7 +25486,6 @@ ${finalCode}`;
   var getDisplayedDropdownType = (sheetData, editorState, selectionStart, cellEditorError, loading) => {
     const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
-    console.log("ENDS IN REFERNECE");
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength);
     const documentationFunction = getDocumentationFunction(fullFormula, selectionStart);
