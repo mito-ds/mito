@@ -24799,8 +24799,6 @@ ${finalCode}`;
     const metrics = context.measureText(text);
     return metrics.width;
   }
-  ((getTextWidth2) => {
-  })(getTextWidth || (getTextWidth = {}));
 
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData) => {
@@ -25956,7 +25954,7 @@ ${finalCode}`;
             if (e.key === "Enter") {
               if (!e.metaKey) {
                 e.preventDefault();
-                onSubmit(e);
+                void onSubmit(e);
                 return;
               } else {
                 addSpacingCharacter("\n");
