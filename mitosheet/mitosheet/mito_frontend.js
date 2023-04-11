@@ -25461,24 +25461,19 @@ ${finalCode}`;
         suggestion = displayedDropdownType.suggestedFunctions[suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length][0] + "(";
         isColumnHeaderSuggestion = false;
       }
-      let fullFormula2 = getFullFormula(
-        props.editorState.formula,
-        props.editorState.pendingSelections,
-        props.sheetData
-      );
-      fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
-      fullFormula2 += suggestion;
+      let newFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
+      newFormula += suggestion;
       if (isColumnHeaderSuggestion) {
-        fullFormula2 += getDisplayColumnHeader(indexLabel);
+        newFormula += getDisplayColumnHeader(indexLabel);
       }
       props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-        formula: fullFormula2,
+        formula: newFormula,
         pendingSelections: void 0,
         arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
       }));
       (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
-        fullFormula2.length,
-        fullFormula2.length
+        newFormula.length,
+        newFormula.length
       );
     };
     const onKeyDown = (e) => {

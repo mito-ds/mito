@@ -171,31 +171,24 @@ const CellEditor = (props: {
             isColumnHeaderSuggestion = false;
         }
 
-        // Get the full formula
-        let fullFormula = getFullFormula(
-            props.editorState.formula, 
-            props.editorState.pendingSelections, 
-            props.sheetData,
-        );
-
         // Strip the prefix, and append the suggestion, and the current index label as well
-        fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
-        fullFormula += suggestion;
+        let newFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
+        newFormula += suggestion;
         if (isColumnHeaderSuggestion) {
-            fullFormula += getDisplayColumnHeader(indexLabel);
+            newFormula += getDisplayColumnHeader(indexLabel);
         }
 
         // Update the cell editor state
         props.setEditorState({
             ...props.editorState,
-            formula: fullFormula,
+            formula: newFormula,
             pendingSelections: undefined,
             arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
         cellEditorInputRef.current?.setSelectionRange(
-            fullFormula.length, fullFormula.length
+            newFormula.length, newFormula.length
         )
     }
 
