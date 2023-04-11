@@ -206,6 +206,7 @@ const CellEditor = (props: {
     }
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+
         // Don't let the key down go anywhere else
         e.stopPropagation();
 
@@ -323,6 +324,16 @@ const CellEditor = (props: {
                         ...gridState,
                         selections: [newSelection]
                     };
+                })
+            } else {
+                // Otherwise, we are just pressing arrow keys to scroll in the input itself. In this case,
+                // because we might want the cell editor to refresh the documentation function, we simply 
+                // refresh the cell editor, which will update the documentation function
+                props.setEditorState((prevEditorState) => {
+                    if (prevEditorState === undefined) return undefined;
+                    return {
+                        ...prevEditorState,
+                    }
                 })
             }
         } else if (e.key === 'Escape') {
