@@ -43,9 +43,9 @@ const FormulaBar = (props: {
     if (props.editorState === undefined) {
         // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
         if (rowIndex == -1 && columnHeader !== undefined) {
-            formulaBarValue =  getDisplayColumnHeader(columnHeader)
+            formulaBarValue = getDisplayColumnHeader(columnHeader)
         } else {
-            formulaBarValue =  originalFormulaBarValue;
+            formulaBarValue = originalFormulaBarValue;
         }
     } else {
         // If we're editing, display the formula

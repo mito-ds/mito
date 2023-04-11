@@ -25663,7 +25663,8 @@ ${finalCode}`;
       const newHeight = parseInt((newHeightString == null ? void 0 : newHeightString.substring(0, newHeightString.length - 2)) || "22");
       setTextAreaHeight(newHeight);
     }, [], "cell-editor-input");
-    if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
+    console.log("HERE", columnID, columnHeader, indexLabel);
+    if (columnID === void 0 || columnHeader === void 0) {
       return /* @__PURE__ */ import_react41.default.createElement(import_react41.default.Fragment, null);
     }
     const displayedDropdownType = getDisplayedDropdownType(
@@ -25713,7 +25714,7 @@ ${finalCode}`;
       }
       let newFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
       newFormula += suggestion;
-      if (isColumnHeaderSuggestion) {
+      if (isColumnHeaderSuggestion && indexLabel !== void 0) {
         newFormula += getDisplayColumnHeader(indexLabel);
       }
       props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
@@ -25895,7 +25896,7 @@ ${finalCode}`;
         const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
         submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
       } else {
-        const index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
+        const index_labels_formula_is_applied_to = props.editorState.editingMode === "specific_index_labels" && indexLabel != void 0 ? { "type": "specific_index_labels", "index_labels": [indexLabel] } : { "type": "entire_column" };
         errorMessage = await props.mitoAPI.editSetColumnFormula(
           props.sheetIndex,
           columnID2,

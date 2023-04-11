@@ -141,7 +141,9 @@ const CellEditor = (props: {
         setTextAreaHeight(newHeight)
     }, [], 'cell-editor-input')
 
-    if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
+    console.log("HERE", columnID, columnHeader, indexLabel)
+
+    if (columnID === undefined || columnHeader === undefined) {
         return <></>;
     }
 
@@ -205,7 +207,7 @@ const CellEditor = (props: {
         // Strip the prefix, and append the suggestion, and the current index label as well
         let newFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
         newFormula += suggestion;
-        if (isColumnHeaderSuggestion) {
+        if (isColumnHeaderSuggestion && indexLabel !== undefined) {
             newFormula += getDisplayColumnHeader(indexLabel);
         }
 
@@ -497,9 +499,9 @@ const CellEditor = (props: {
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
             // Otherwise, update the formula for the column (or specific index)
-            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
-                ? {'type': 'entire_column'}
-                : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'specific_index_labels' && indexLabel != undefined 
+                ? {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+                : {'type': 'entire_column'}
 
 
             errorMessage = await props.mitoAPI.editSetColumnFormula(
@@ -539,7 +541,7 @@ const CellEditor = (props: {
                         id='cell-editor-input'
                         className='cell-editor-input'
                         onClick={onClick}
-                        value={fullFormula.replace(/\t/g, '')} // Don't show tabs (TODO: bug if strings have them?)
+                        value={fullFormula.replace(/\t/g, '')} // Don't show tabs (TODO: bug if strings have tabs?)
                         onKeyDown={onKeyDown}
                         onChange={onChange}
                         autoComplete='off'
@@ -593,8 +595,6 @@ const CellEditor = (props: {
                                 e.preventDefault();
                             }
 
-                            // if the user presses the tab key, we want to 
-
                             onKeyDown(e);
                         }}
                         onChange={onChange}
@@ -611,7 +611,6 @@ const CellEditor = (props: {
                 setSavedSelectedSuggestionIndex={setSavedSelectedSuggestionIndex}
                 takeSuggestion={takeSuggestion}
                 displayedDropdownType={displayedDropdownType}
-                
             />
         </div>
     )
