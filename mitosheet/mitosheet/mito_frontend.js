@@ -25317,38 +25317,7 @@ ${finalCode}`;
         {
           onMouseEnter: () => props.setSavedSelectedSuggestionIndex(idx),
           onClick: () => {
-            var _a2, _b;
-            let suggestionReplacementLength = 0;
-            let suggestion2 = "";
-            let isColumnHeaderSuggestion = true;
-            if (idx < displayedDropdownType.suggestedColumnHeaders.length) {
-              suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength;
-              suggestion2 = displayedDropdownType.suggestedColumnHeaders[idx][0];
-            } else {
-              suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength;
-              suggestion2 = displayedDropdownType.suggestedFunctions[idx - displayedDropdownType.suggestedColumnHeaders.length][0] + "(";
-              isColumnHeaderSuggestion = false;
-            }
-            let fullFormula = getFullFormula(
-              props.editorState.formula,
-              props.editorState.pendingSelections,
-              props.sheetData
-            );
-            fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
-            fullFormula += suggestion2;
-            if (isColumnHeaderSuggestion) {
-              fullFormula += getDisplayColumnHeader(indexLabel);
-            }
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              formula: fullFormula,
-              pendingSelections: void 0,
-              arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
-            }));
-            (_a2 = props.cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
-              fullFormula.length,
-              fullFormula.length
-            );
-            (_b = props.cellEditorInputRef.current) == null ? void 0 : _b.focus();
+            props.takeSuggestion(idx);
           },
           className: suggestionClassNames,
           key: suggestion
@@ -25709,6 +25678,7 @@ ${finalCode}`;
         cellEditorInputRef,
         selectedSuggestionIndex,
         setSavedSelectedSuggestionIndex,
+        takeSuggestion,
         displayedDropdownType
       }
     ));

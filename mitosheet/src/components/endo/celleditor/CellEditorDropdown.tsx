@@ -3,7 +3,6 @@ import '../../../../css/endo/CellEditor.css';
 import { FunctionDocumentationObject } from '../../../data/function_documentation';
 import { EditorState, SheetData } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
 import Row from '../../layout/Row';
@@ -87,7 +86,8 @@ const CellEditorDropdown = (props: {
     cellEditorInputRef: React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>
     selectedSuggestionIndex: number;
     setSavedSelectedSuggestionIndex: React.Dispatch<React.SetStateAction<number>>,
-    displayedDropdownType: DisplayedDropdownType | undefined
+    displayedDropdownType: DisplayedDropdownType | undefined,
+    takeSuggestion: (idx: number) => void,
 }): JSX.Element => {
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
@@ -166,52 +166,7 @@ const CellEditorDropdown = (props: {
                         return (
                             <div 
                                 onMouseEnter={() => props.setSavedSelectedSuggestionIndex(idx)}
-                                onClick={() => {
-                                    // Take a suggestion if you click on it
-                                    
-                                    let suggestionReplacementLength = 0;
-                                    let suggestion = '';
-
-                                    let isColumnHeaderSuggestion = true;
-                                    if (idx < displayedDropdownType.suggestedColumnHeaders.length) {
-                                        suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength
-                                        suggestion = displayedDropdownType.suggestedColumnHeaders[idx][0];
-                                    } else {
-                                        suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength
-                                        // We add a open parentheses onto the formula suggestion
-                                        suggestion = displayedDropdownType.suggestedFunctions[idx - displayedDropdownType.suggestedColumnHeaders.length][0] + '(';
-                                        isColumnHeaderSuggestion = false;
-                                    }
-
-                                    // Get the full formula
-                                    let fullFormula = getFullFormula(
-                                        props.editorState.formula, 
-                                        props.editorState.pendingSelections, 
-                                        props.sheetData,
-                                    );
-
-                                    // Strip the prefix, and append the suggestion, and the current index label as well
-                                    fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
-                                    fullFormula += suggestion;
-                                    if (isColumnHeaderSuggestion) {
-                                        fullFormula += getDisplayColumnHeader(indexLabel);
-                                    }
-
-                                    // Update the cell editor state
-                                    props.setEditorState({
-                                        ...props.editorState,
-                                        formula: fullFormula,
-                                        pendingSelections: undefined,
-                                        arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
-                                    })
-
-                                    // Make sure we jump to the end of the input, as we took the suggestion
-                                    props.cellEditorInputRef.current?.setSelectionRange(
-                                        fullFormula.length, fullFormula.length
-                                    )
-                                    // Make sure we're focused
-                                    props.cellEditorInputRef.current?.focus();
-                                }}
+                                onClick={() => {props.takeSuggestion(idx)}}
                                 className={suggestionClassNames} 
                                 key={suggestion}
                             >

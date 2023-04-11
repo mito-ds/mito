@@ -540,7 +540,9 @@ const CellEditor = (props: {
                 cellEditorInputRef={cellEditorInputRef}
                 selectedSuggestionIndex={selectedSuggestionIndex}
                 setSavedSelectedSuggestionIndex={setSavedSelectedSuggestionIndex}
+                takeSuggestion={takeSuggestion}
                 displayedDropdownType={displayedDropdownType}
+                
             />
         </div>
     )
