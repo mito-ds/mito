@@ -13,10 +13,22 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
 import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
 import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
 export const CELL_EDITOR_MAX_WIDTH = 500;
+export const CELL_EDITOR_MAX_HEIGHT = 150;
+
+const getDefaultTextAreaHeight = (formula: string): number => {
+    const numLines = formula.split('\n').length + 1;
+
+    if (numLines <= 2) {
+        return 22;
+    } else {
+        return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
+    }
+}
 
 /* 
     A CellEditor allows the user to edit the formula or value of a cell.
@@ -43,11 +55,15 @@ const CellEditor = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+
     const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
+    const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
+    const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula)); // Default to 2 lines, 11px tall
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
@@ -94,6 +110,16 @@ const CellEditor = (props: {
         })
     }, [props.editorState.pendingSelections]);
 
+    // Place the selection range to the correct spot
+    useEffect(() => {
+        if (selectionRangeToSet !== undefined) {
+            cellEditorInputRef.current?.setSelectionRange(
+                selectionRangeToSet, selectionRangeToSet
+            )
+            setSelectionRangeToSet(undefined);
+        }
+    }, [props.editorState.formula])
+
     useEffect(() => {
         props.setEditorState(prevEditingState => {
             if (prevEditingState === undefined) {
@@ -108,11 +134,15 @@ const CellEditor = (props: {
         })
     }, [props.editorState.editingMode])
 
+    useEffectOnResizeElement(() => {
+        const newHeightString = cellEditorInputRef.current?.style.height;
+        const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '22');
+        setTextAreaHeight(newHeight)
+    }, [], 'cell-editor-input')
+
     if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
         return <></>;
     }
-
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
 
     const displayedDropdownType = getDisplayedDropdownType(
         props.sheetData,
@@ -412,6 +442,29 @@ const CellEditor = (props: {
         })
     }
 
+    const addSpacingCharacter = (char: '\n' | '\t'): void => {
+        const selectionStart = cellEditorInputRef.current?.selectionStart || fullFormula.length;
+        const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
+
+        props.setEditorState(prevEditingState => {
+            if (prevEditingState === undefined) {
+                return undefined
+            }
+            return {
+                ...prevEditingState,
+                formula: newFormula
+            }
+        })
+
+        // And make sure we put the selection at the right place, which is right after the new line
+        setSelectionRangeToSet(selectionStart + 1)
+
+        // Add more space if we add a line
+        if (char === '\n') {
+            setTextAreaHeight(prevHeight => prevHeight += 11)
+        }
+    }
+
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>) => {
 
@@ -485,9 +538,10 @@ const CellEditor = (props: {
                         id='cell-editor-input'
                         className='cell-editor-input'
                         onClick={onClick}
-                        value={fullFormula}
+                        value={fullFormula.replace(/\t/g, '')} // Don't show tabs (TODO: bug if strings have them?)
                         onKeyDown={onKeyDown}
                         onChange={onChange}
+                        autoComplete='off'
                     />
                 }
                 {props.editorState.editorLocation === 'formula bar' && 
@@ -495,27 +549,39 @@ const CellEditor = (props: {
                         ref={setRef}
                         id='cell-editor-input'
                         className='cell-editor-input'
-                        style={{'resize': 'vertical'}}
+                        style={{'resize': 'vertical', 'maxHeight': `${CELL_EDITOR_MAX_HEIGHT}px`, 'height': `${textAreaHeight}px`}}
                         onClick={onClick}
                         value={fullFormula}
+                        autoComplete='off'
+                        onKeyUp={(e) => {
+                            // Since we can't detect Shift + Enter in onKeyDown, we need to do it here
+                            if (e.key == 'Enter' && e.shiftKey) {
+                                addSpacingCharacter('\n');
+                                return;
+                            }
+                        }}
                         onKeyDown={(e) => {
-                            // If we press enter and the meta key is not pressed, we want to add a new line
                             if (e.key === 'Enter') {
                                 if (!e.metaKey) {
+                                    // If we press enter and the meta key is not pressed, we want to submit (or take suggestion)
                                     e.preventDefault();
                                     onSubmit(e);
                                     return;
                                 } else {
-                                    // Otherwise, add a new line
-                                    props.setEditorState(prevEditingState => {
-                                        if (prevEditingState === undefined) {
-                                            return undefined
-                                        }
-                                        return {
-                                            ...prevEditingState,
-                                            formula: prevEditingState.formula + '\n'
-                                        }
-                                    })
+                                    addSpacingCharacter('\n');
+                                    return;
+                                }
+                            }
+
+                            // If the tab key is pressed, we want to take the suggestion if there is one
+                            if (e.key === 'Tab') {
+                                e.preventDefault();
+                                if (selectedSuggestionIndex !== -1) {
+                                    takeSuggestion(selectedSuggestionIndex);
+                                    setSavedSelectedSuggestionIndex(-1);
+                                } else {
+                                    addSpacingCharacter('\t');
+                                    return
                                 }
                             }
 
@@ -525,6 +591,8 @@ const CellEditor = (props: {
                             if (displayedDropdownType?.type === 'suggestions' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                                 e.preventDefault();
                             }
+
+                            // if the user presses the tab key, we want to 
 
                             onKeyDown(e);
                         }}
