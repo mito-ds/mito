@@ -2,22 +2,18 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
 import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
-import { classNames } from '../../../utils/classNames';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
-import LoadingDots from '../../elements/LoadingDots';
-import Toggle from '../../elements/Toggle';
-import Row from '../../layout/Row';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
-import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { focusGrid } from '../focusUtils';
 import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
-import { formulaEndsInReference, getCellEditorWidth, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import CellEditorDropdown, { MAX_SUGGESTIONS } from './CellEditorDropdown';
+import { formulaEndsInReference, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
-const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
 export const CELL_EDITOR_MAX_WIDTH = 500;
@@ -119,13 +115,10 @@ const CellEditor = (props: {
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
 
-    const documentationFunction = getDocumentationFunction(fullFormula, cellEditorInputRef.current?.selectionStart);
-
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
 
 
     // A helper function to close the cell editor, selecting the cell that was
@@ -324,6 +317,16 @@ const CellEditor = (props: {
                         selections: [newSelection]
                     };
                 })
+            } else {
+                // Otherwise, we are just pressing arrow keys to scroll in the input itself. In this case,
+                // because we might want the cell editor to refresh the documentation function, we simply 
+                // refresh the cell editor, which will update the documentation function
+                props.setEditorState((prevEditorState) => {
+                    if (prevEditorState === undefined) return undefined;
+                    return {
+                        ...prevEditorState,
+                    }
+                })
             }
         } else if (e.key === 'Escape') {
             // Stop the default, in case we're leaving full screen mode
@@ -477,8 +480,7 @@ const CellEditor = (props: {
         }
     }
 
-    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
-    const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+    // TODO: make a function
     const showingSuggestions = cellEditorError === undefined && !loading && !endsInReference && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0);
 
     return (
@@ -543,125 +545,17 @@ const CellEditor = (props: {
                     />
                 }
             </form>
-            {/* 
-                In the dropdown box, we either show an error, a loading message, suggestions
-                or the documentation for the last function, depending on the cases below
-            */}
-            <div className='cell-editor-dropdown-box' style={{width: `${cellEditorWidth}px`}}>
-                {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
-                    <Row justify='space-between' align='center' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
-                            Edit entire column
-                        </p>
-                        <Toggle
-                            className='mr-5px'
-                            value={props.editorState.editingMode === 'entire_column' ? true : false}
-                            onChange={() => {
-                                props.setEditorState(prevEditorState => {
-                                    if (prevEditorState === undefined) {
-                                        return undefined
-                                    }
-                                    const prevEditingMode = {...prevEditorState}.editingMode
-                                    return {
-                                        ...prevEditorState,
-                                        editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
-                                    }
-                                })
-                            }}
-                            height='20px'
-                        />
-                    </Row>
-                }
-                {cellEditorError === undefined && props.editorState.rowIndex == -1 &&
-                    <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title='You are currently editing the column header.'>
-                        Edit column header
-                    </p>
-                }
-                {/* Show an error if there is currently an error */}
-                {cellEditorError !== undefined &&
-                    <div className='cell-editor-error-container pl-10px pr-5px pt-5px pb-5px'>
-                        <p className='text-body-1 text-color-error'>
-                            {cellEditorError}
-                        </p>
-                        <p className='text-subtext-1'>
-                            Press Escape to close the cell editor.
-                        </p>
-                    </div>
-                }
-                {/* Show we're loading if we're currently loading */}
-                {loading && 
-                    <p className='text-body-2 pl-5px'>
-                        Processing<LoadingDots />
-                    </p>
-                }
-                {/* Show the suggestions */}
-                {showingSuggestions &&
-                    <>
-                        {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
-                            // We only show at most 4 suggestions
-                            if (idx > MAX_SUGGESTIONS) {
-                                return <></>
-                            }
-
-                            const selected = idx === selectedSuggestionIndex;
-                            const suggestionClassNames = classNames('cell-editor-suggestion', 'text-body-2', {
-                                'cell-editor-suggestion-selected': selected
-                            });
-                            
-                            return (
-                                <div 
-                                    onMouseEnter={() => setSavedSelectedSuggestionIndex(idx)}
-                                    onClick={() => {
-                                        // Take a suggestion if you click on it
-                                        takeSuggestion(idx);
-                                        // Make sure we're focused
-                                        cellEditorInputRef.current?.focus();
-                                    }}
-                                    className={suggestionClassNames} 
-                                    key={suggestion}
-                                >
-                                    <span className='text-overflow-hide' title={suggestion}>
-                                        {suggestion}
-                                    </span>
-                                    {selected &&
-                                        <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
-                                            {subtext}
-                                        </div>
-                                    }
-                                </div>
-                            )
-                        })}
-                    </>
-                }
-                {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && !hasSuggestions && documentationFunction !== undefined &&
-                    <div>
-                        <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
-                            <p className='text-body-2'>
-                                {documentationFunction.syntax}
-                            </p>
-                            <p className='text-subtext-1'>
-                                {documentationFunction.description}
-                            </p>
-                        </div>
-                        <div className='pt-5px pb-10px pr-10px pl-10px'>
-                            <p className='text-subtext-1'>
-                                Examples
-                            </p>
-                            {documentationFunction.examples?.map((example, index) => {
-                                return (
-                                    <p 
-                                        key={index}
-                                        className='cell-editor-function-documentation-example'
-                                    >
-                                        {example}
-                                    </p>
-                                )
-                            })}
-                        </div>
-                    </div>
-                }
-            </div>
+            <CellEditorDropdown
+                sheetData={props.sheetData}
+                sheetIndex={props.sheetIndex}
+                editorState={props.editorState}
+                setEditorState={props.setEditorState}
+                cellEditorError={cellEditorError}
+                loading={loading}
+                cellEditorInputRef={cellEditorInputRef}
+                selectedSuggestionIndex={selectedSuggestionIndex}
+                setSavedSelectedSuggestionIndex={setSavedSelectedSuggestionIndex}
+            />
         </div>
     )
 }
