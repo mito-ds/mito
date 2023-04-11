@@ -313,8 +313,6 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
  * @param formula - the formula the user is currently writing
  */
 export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null): FunctionDocumentationObject | undefined => {
-
-    console.log("SELECTION START", selectionStart)
     
     // Find the final function that is before the users selection
     const finalParenIndex = formula.substring(0, selectionStart || undefined).lastIndexOf('(')
