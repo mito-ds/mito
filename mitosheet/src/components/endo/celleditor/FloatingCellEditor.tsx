@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../jupyter/api'
 import { EditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
-import CellEditor, { CELL_EDITOR_WIDTH } from './CellEditor';
+import CellEditor from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
 import { getCellDataFromCellIndexes } from '../utils';
 import '../../../../css/endo/CellEditor.css';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
+import { getCellEditorWidth, getFullFormula } from './cellEditorUtils';
 
 // Style that we apply to the cell editor in order to place it
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}
@@ -41,6 +42,9 @@ const FloatingCellEditor = (props: {
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation)
 
     // Ensures that the cell editor is in the right location, when initially placed.
     // We don't move it, as it doesn't really make things better, as GSheets does not
@@ -93,7 +97,7 @@ const FloatingCellEditor = (props: {
             // 80 is the width of the index. If you change the css, then change here
             left = Math.min(Math.max(0, defaultLeft - scrollAndRenderedContainerRect.x) + 80, scrollAndRenderedContainerRect.width);
             // If we're too close to the right, just snap to the right
-            if (left + CELL_EDITOR_WIDTH >= scrollAndRenderedContainerRect.width) {
+            if (left + cellEditorWidth >= scrollAndRenderedContainerRect.width) {
                 left = undefined;
                 right = 0;
             }
@@ -122,7 +126,7 @@ const FloatingCellEditor = (props: {
         // sure that it stays visible
         fscreen.addEventListener('fullscreenchange', updateCellEditorPosition);
         return () => fscreen.removeEventListener('fullscreenchange', updateCellEditorPosition);
-    }, [])
+    }, [cellEditorWidth])
 
 
     if (columnID === undefined || columnHeader === undefined) {
@@ -134,7 +138,7 @@ const FloatingCellEditor = (props: {
             className={'floating-cell-editor'}
             style={{
                 ...editorStyle,
-                width: `${CELL_EDITOR_WIDTH}px`
+                width: `${cellEditorWidth}px`
             }}
         >
             <CellEditor 

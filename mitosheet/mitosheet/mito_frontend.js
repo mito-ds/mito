@@ -24975,6 +24975,611 @@ ${finalCode}`;
     }
   };
 
+  // src/components/endo/celleditor/CellEditor.tsx
+  var import_react39 = __toESM(require_react());
+
+  // src/components/elements/LoadingDots.tsx
+  var import_react38 = __toESM(require_react());
+  var LoadingDots = () => {
+    const [indicatorState, setIndicatorState] = (0, import_react38.useState)(1);
+    (0, import_react38.useEffect)(() => {
+      const interval = setInterval(() => {
+        setIndicatorState((indicatorState2) => indicatorState2 + 1);
+      }, 500);
+      return () => clearInterval(interval);
+    }, []);
+    const someNumberOfDots = ".".repeat(indicatorState % 4);
+    return /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, someNumberOfDots);
+  };
+  var LoadingDots_default = LoadingDots;
+
+  // src/components/endo/columnHeaderUtils.tsx
+  var submitRenameColumnHeader = (columnHeader, finalColumnHeader, columnID, sheetIndex, editorState, setUIState, mitoAPI) => {
+    const newColumnHeader = (editorState == null ? void 0 : editorState.formula) || getDisplayColumnHeader(finalColumnHeader);
+    const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
+    if (newColumnHeader !== oldColumnHeader) {
+      const levelIndex = isPrimitiveColumnHeader(columnHeader) ? void 0 : rowIndexToColumnHeaderLevel(columnHeader, -1);
+      void mitoAPI.editRenameColumn(
+        sheetIndex,
+        columnID,
+        newColumnHeader,
+        levelIndex
+      );
+      setUIState((prevUIState) => {
+        if (prevUIState.currOpenTaskpane.type !== "control_panel" /* CONTROL_PANEL */) {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenTaskpane: { type: "none" /* NONE */ }
+          });
+        }
+        return prevUIState;
+      });
+    }
+  };
+
+  // src/components/endo/focusUtils.tsx
+  var focusGrid = (containerDiv) => {
+    if (containerDiv) {
+      containerDiv.focus();
+    }
+  };
+
+  // src/components/endo/domUtils.tsx
+  var checkElementIsVisible = (element) => {
+    if (element === void 0)
+      return false;
+    const rect = element.getBoundingClientRect();
+    const left = rect.left + 2;
+    const right = rect.right - 2;
+    const top = rect.top + 2;
+    const bottom = rect.bottom - 2;
+    const atTopleft = document.elementFromPoint(left, top) === element;
+    const atTopRight = document.elementFromPoint(right, top) === element;
+    const atBottomLeft = document.elementFromPoint(left, bottom) === element;
+    const atBottomRight = document.elementFromPoint(right, bottom) === element;
+    if (atTopleft && atTopRight && atBottomLeft && atBottomRight) {
+      return true;
+    }
+    return false;
+  };
+  var getChildrenWithQuery = (element, querySelector) => {
+    if (element === null) {
+      return [];
+    }
+    const nodeList = element.querySelectorAll(querySelector);
+    if (nodeList === void 0) {
+      return [];
+    }
+    const children = [];
+    nodeList.forEach((node) => {
+      children.push(node);
+    });
+    return children;
+  };
+  var isAnyElementWithSelectorEntirelyVisible = (element, querySelector) => {
+    const nodeList = getChildrenWithQuery(element, querySelector);
+    for (let i = 0; i < nodeList.length; i++) {
+      const node = nodeList[i];
+      if (checkElementIsVisible(node)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // src/components/endo/sheetViewUtils.tsx
+  var calculateCurrentSheetView = (gridState) => {
+    if (gridState.sheetIndex >= gridState.widthDataArray.length) {
+      return {
+        startingRowIndex: -1,
+        numRowsRendered: 0,
+        startingColumnIndex: 0,
+        numColumnsRendered: 0
+      };
+    }
+    let foundStart = false;
+    let startingColumnIndex = 0;
+    let numColumnsRendered = 0;
+    for (let i = 0; i < gridState.widthDataArray[gridState.sheetIndex].widthArray.length; i++) {
+      const totalWidth = gridState.widthDataArray[gridState.sheetIndex].widthSumArray[i];
+      if (!foundStart && totalWidth > gridState.scrollPosition.scrollLeft) {
+        startingColumnIndex = i;
+        foundStart = true;
+      }
+      if (foundStart && totalWidth > gridState.scrollPosition.scrollLeft + gridState.viewport.width) {
+        numColumnsRendered = i - startingColumnIndex + 1;
+        break;
+      } else if (i === gridState.widthDataArray[gridState.sheetIndex].widthArray.length - 1) {
+        numColumnsRendered = i - startingColumnIndex + 1;
+      }
+    }
+    return {
+      startingRowIndex: Math.max(Math.floor(gridState.scrollPosition.scrollTop / DEFAULT_HEIGHT), 0),
+      numRowsRendered: Math.ceil(gridState.viewport.height / DEFAULT_HEIGHT) + 3,
+      startingColumnIndex,
+      numColumnsRendered
+    };
+  };
+  var calculateTranslate = (gridState) => {
+    const currentSheetView = calculateCurrentSheetView(gridState);
+    return {
+      x: gridState.scrollPosition.scrollLeft - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
+      y: gridState.scrollPosition.scrollTop % DEFAULT_HEIGHT
+    };
+  };
+  var calculateNewScrollPosition = (e, totalSize, viewport, scrollAndRenderedContainerDiv) => {
+    const maxScrollLeft = totalSize.width - viewport.width;
+    const maxScrollTop = totalSize.height - viewport.height;
+    const noScrollLeft = totalSize.width < ((scrollAndRenderedContainerDiv == null ? void 0 : scrollAndRenderedContainerDiv.clientWidth) || 0);
+    const noScrollDown = totalSize.height < ((scrollAndRenderedContainerDiv == null ? void 0 : scrollAndRenderedContainerDiv.clientHeight) || 0);
+    const target = e.target;
+    if (target === null) {
+      return void 0;
+    }
+    const { scrollLeft, scrollTop } = target;
+    let newScrollLeft = scrollLeft;
+    let newScrollTop = scrollTop;
+    if (scrollLeft >= maxScrollLeft && !noScrollLeft) {
+      newScrollLeft = maxScrollLeft - 1;
+    } else if (noScrollLeft) {
+      newScrollLeft = 0;
+    }
+    if (scrollTop >= maxScrollTop && !noScrollDown) {
+      newScrollTop = maxScrollTop;
+    } else if (noScrollDown) {
+      newScrollTop = 0;
+    }
+    return {
+      scrollLeft: newScrollLeft || 0,
+      scrollTop: newScrollTop || 0
+    };
+  };
+  var rowIsVisible = (containerRef, rowIndex) => {
+    if (containerRef === null) {
+      return false;
+    }
+    return isAnyElementWithSelectorEntirelyVisible(containerRef, `[mito-row-index="${rowIndex}"]`);
+  };
+  var columnIsVisible = (containerRef, columnIndex) => {
+    if (containerRef === null) {
+      return false;
+    }
+    return isAnyElementWithSelectorEntirelyVisible(containerRef, `[mito-col-index="${columnIndex}"][mito-row-index]`);
+  };
+  var getCellInRow = (containerRef, rowIndex) => {
+    if (containerRef === null) {
+      return void 0;
+    }
+    const nodeList = containerRef.querySelectorAll(`[mito-row-index="${rowIndex}"]`);
+    if (nodeList === void 0 || nodeList.length === 0) {
+      return void 0;
+    }
+    return nodeList[0];
+  };
+  var getCellInColumn = (containerRef, columnIndex) => {
+    if (containerRef === null) {
+      return void 0;
+    }
+    const nodeList = containerRef.querySelectorAll(`[mito-col-index="${columnIndex}"]`);
+    if (nodeList === void 0 || nodeList.length === 0) {
+      return void 0;
+    }
+    return nodeList[0];
+  };
+
+  // src/components/endo/visibilityUtils.tsx
+  var scrollRowIntoView = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex) => {
+    if (rowIndex === -1) {
+      return;
+    }
+    if (scrollAndRenderedContainerDiv === null)
+      return;
+    let scrollTop = scrollAndRenderedContainerDiv.scrollTop;
+    const rowVisible = rowIsVisible(containerDiv, rowIndex);
+    if (!rowVisible) {
+      const newCellIsAbove = rowIndex <= currentSheetView.startingRowIndex;
+      if (newCellIsAbove) {
+        scrollTop = rowIndex * DEFAULT_HEIGHT;
+      } else {
+        scrollTop = (rowIndex + 1) * DEFAULT_HEIGHT - scrollAndRenderedContainerDiv.clientHeight;
+      }
+    }
+    scrollAndRenderedContainerDiv.scrollTop = scrollTop;
+  };
+  var scrollColumnIntoView = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex) => {
+    var _a, _b;
+    if (columnIndex === -1) {
+      return;
+    }
+    if (scrollAndRenderedContainerDiv === null)
+      return;
+    let scrollLeft = scrollAndRenderedContainerDiv.scrollLeft;
+    const columnVisible = columnIsVisible(containerDiv, columnIndex);
+    if (!columnVisible) {
+      const newCellIsLeft = columnIndex <= currentSheetView.startingColumnIndex;
+      if (newCellIsLeft) {
+        scrollLeft = ((_a = gridState.widthDataArray[gridState.sheetIndex]) == null ? void 0 : _a.widthSumArray[columnIndex - 1]) || 0;
+      } else {
+        scrollLeft = ((_b = gridState.widthDataArray[gridState.sheetIndex]) == null ? void 0 : _b.widthSumArray[columnIndex]) - scrollAndRenderedContainerDiv.clientWidth || 0;
+      }
+    }
+    scrollAndRenderedContainerDiv.scrollLeft = scrollLeft;
+  };
+  var ensureCellVisible = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, rowIndex, columnIndex) => {
+    const largeRowJump = !isNumberInRangeInclusive(rowIndex, currentSheetView.startingRowIndex - 2, currentSheetView.startingRowIndex + currentSheetView.numRowsRendered + 1);
+    const largeColumnJump = !isNumberInRangeInclusive(columnIndex, currentSheetView.startingColumnIndex - 2, currentSheetView.startingColumnIndex + currentSheetView.numColumnsRendered + 1);
+    const largeJump = largeRowJump || largeColumnJump;
+    const rowVisible = rowIsVisible(containerDiv, rowIndex);
+    const columnVisible = columnIsVisible(containerDiv, columnIndex);
+    if (!rowVisible) {
+      if (!largeJump) {
+        scrollRowIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex);
+      } else {
+        setTimeout(() => scrollRowIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex), 25);
+      }
+    }
+    if (!columnVisible) {
+      if (!largeJump) {
+        scrollColumnIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex);
+      } else {
+        setTimeout(() => scrollColumnIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex), 50);
+      }
+    }
+  };
+
+  // src/components/endo/celleditor/CellEditor.tsx
+  var MAX_SUGGESTIONS = 4;
+  var CELL_EDITOR_DEFAULT_WIDTH = 250;
+  var CELL_EDITOR_MAX_WIDTH = 500;
+  var CellEditor = (props) => {
+    var _a, _b;
+    const cellEditorInputRef = (0, import_react39.useRef)(null);
+    const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react39.useState)(-1);
+    const [loading, setLoading] = (0, import_react39.useState)(false);
+    const [cellEditorError, setCellEditorError] = (0, import_react39.useState)(void 0);
+    const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const setRef = (0, import_react39.useCallback)((unsavedInputAnchor) => {
+      if (unsavedInputAnchor !== null) {
+        cellEditorInputRef.current = unsavedInputAnchor;
+        setTimeout(() => {
+          var _a2;
+          (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
+        }, 50);
+      }
+    }, []);
+    (0, import_react39.useEffect)(() => {
+      setTimeout(() => {
+        var _a2, _b2;
+        (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
+        if (props.editorState.pendingSelections !== void 0) {
+          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
+          (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.setSelectionRange(
+            index,
+            index
+          );
+        }
+      });
+    }, [props.editorState.pendingSelections]);
+    (0, import_react39.useEffect)(() => {
+      props.setEditorState((prevEditingState) => {
+        if (prevEditingState === void 0) {
+          return prevEditingState;
+        }
+        const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula;
+        return __spreadProps(__spreadValues({}, prevEditingState), {
+          formula: startingColumnFormula
+        });
+      });
+    }, [props.editorState.editingMode]);
+    if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
+      return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
+    }
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
+    const documentationFunction = getDocumentationFunction(fullFormula, (_a = cellEditorInputRef.current) == null ? void 0 : _a.selectionStart);
+    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
+    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
+    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
+    const closeCellEditor = () => {
+      props.setGridState((gridState) => {
+        return __spreadProps(__spreadValues({}, gridState), {
+          selection: [{
+            startingRowIndex: props.editorState.rowIndex,
+            endingRowIndex: props.editorState.rowIndex,
+            startingColumnIndex: props.editorState.columnIndex,
+            endingColumnIndex: props.editorState.columnIndex
+          }]
+        });
+      });
+      props.setEditorState(void 0);
+      ensureCellVisible(
+        props.containerRef.current,
+        props.scrollAndRenderedContainerRef.current,
+        props.currentSheetView,
+        props.gridState,
+        props.editorState.rowIndex,
+        props.editorState.columnIndex
+      );
+      setTimeout(() => focusGrid(props.containerRef.current), 100);
+    };
+    const takeSuggestion = (suggestionIndex) => {
+      var _a2;
+      if (suggestionIndex === -1) {
+        return;
+      }
+      let suggestionReplacementLength = 0;
+      let suggestion = "";
+      let isColumnHeaderSuggestion = true;
+      if (suggestionIndex < suggestedColumnHeaders.length) {
+        suggestionReplacementLength = suggestedColumnHeadersReplacementLength;
+        suggestion = suggestedColumnHeaders[suggestionIndex][0];
+      } else {
+        suggestionReplacementLength = suggestedFunctionsReplacementLength;
+        suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + "(";
+        isColumnHeaderSuggestion = false;
+      }
+      let fullFormula2 = getFullFormula(
+        props.editorState.formula,
+        props.editorState.pendingSelections,
+        props.sheetData
+      );
+      fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
+      fullFormula2 += suggestion;
+      if (isColumnHeaderSuggestion) {
+        fullFormula2 += getDisplayColumnHeader(indexLabel);
+      }
+      props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+        formula: fullFormula2,
+        pendingSelections: void 0,
+        arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
+      }));
+      (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
+        fullFormula2.length,
+        fullFormula2.length
+      );
+    };
+    const onKeyDown = (e) => {
+      e.stopPropagation();
+      e.persist();
+      setCellEditorError(void 0);
+      if (KEYS_TO_IGNORE_IF_PRESSED_ALONE.includes(e.key)) {
+        return;
+      }
+      const altPressed = e.altKey;
+      const arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula === true;
+      if (isNavigationKeyPressed(e.key) && !altPressed) {
+        const arrowUp = e.key === "Up" || e.key === "ArrowUp";
+        const arrowDown = e.key === "Down" || e.key === "ArrowDown";
+        if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+          e.preventDefault();
+          if (arrowUp) {
+            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.max(suggestionIndex - 1, -1));
+          } else if (arrowDown) {
+            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.min(suggestionIndex + 1, suggestedColumnHeaders.length + suggestedFunctions.length - 1, MAX_SUGGESTIONS));
+          }
+          props.setEditorState((prevEditorState) => {
+            if (prevEditorState === void 0)
+              return void 0;
+            return __spreadProps(__spreadValues({}, prevEditorState), {
+              arrowKeysScrollInFormula: true
+            });
+          });
+        } else if (e.key === "Tab") {
+          e.preventDefault();
+          takeSuggestion(selectedSuggestionIndex);
+        } else if (!arrowKeysScrollInFormula) {
+          e.preventDefault();
+          props.setGridState((gridState) => {
+            var _a2, _b2, _c, _d;
+            const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
+            const newInputSelectionStart = firstNonNullOrUndefined(
+              (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
+              (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.selectionStart,
+              0
+            );
+            const newInputSelectionEnd = firstNonNullOrUndefined(
+              (_c = props.editorState.pendingSelections) == null ? void 0 : _c.inputSelectionEnd,
+              (_d = cellEditorInputRef.current) == null ? void 0 : _d.selectionEnd,
+              0
+            );
+            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+              pendingSelections: {
+                selections: [newSelection],
+                inputSelectionStart: newInputSelectionStart,
+                inputSelectionEnd: newInputSelectionEnd
+              }
+            }));
+            ensureCellVisible(
+              props.containerRef.current,
+              props.scrollAndRenderedContainerRef.current,
+              props.currentSheetView,
+              props.gridState,
+              newSelection.endingRowIndex,
+              newSelection.endingColumnIndex
+            );
+            return __spreadProps(__spreadValues({}, gridState), {
+              selections: [newSelection]
+            });
+          });
+        } else {
+          props.setEditorState((prevEditorState) => {
+            if (prevEditorState === void 0)
+              return void 0;
+            return __spreadValues({}, prevEditorState);
+          });
+        }
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        closeCellEditor();
+      } else if (e.key !== "Enter") {
+        setSavedSelectedSuggestionIndex(-1);
+        props.setGridState((gridState) => {
+          return __spreadProps(__spreadValues({}, gridState), {
+            selections: [{
+              startingRowIndex: props.editorState.rowIndex,
+              endingRowIndex: props.editorState.rowIndex,
+              startingColumnIndex: props.editorState.columnIndex,
+              endingColumnIndex: props.editorState.columnIndex
+            }]
+          });
+        });
+        ensureCellVisible(
+          props.containerRef.current,
+          props.scrollAndRenderedContainerRef.current,
+          props.currentSheetView,
+          props.gridState,
+          props.editorState.rowIndex,
+          props.editorState.columnIndex
+        );
+        const fullFormula2 = getFullFormula(
+          props.editorState.formula,
+          props.editorState.pendingSelections,
+          props.sheetData
+        );
+        props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+          formula: fullFormula2,
+          pendingSelections: void 0
+        }));
+      }
+    };
+    const onSubmit = async (e) => {
+      e.preventDefault();
+      if (selectedSuggestionIndex !== -1 && !endsInReference) {
+        takeSuggestion(selectedSuggestionIndex);
+        setSavedSelectedSuggestionIndex(-1);
+        return;
+      }
+      const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
+      const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
+      const formula2 = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+      const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
+      setLoading(true);
+      let errorMessage = void 0;
+      if (props.editorState.rowIndex == -1) {
+        const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
+        submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
+      } else {
+        const index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
+        errorMessage = await props.mitoAPI.editSetColumnFormula(
+          props.sheetIndex,
+          columnID2,
+          formulaLabel,
+          formula2,
+          index_labels_formula_is_applied_to,
+          props.editorState.editorLocation
+        );
+      }
+      setLoading(false);
+      if (isMitoError(errorMessage)) {
+        setCellEditorError(errorMessage.to_fix);
+      } else {
+        closeCellEditor();
+        props.closeOpenEditingPopups();
+      }
+    };
+    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react39.default.createElement(
+      "form",
+      {
+        className: "cell-editor-form",
+        onSubmit,
+        autoComplete: "off"
+      },
+      /* @__PURE__ */ import_react39.default.createElement(
+        "input",
+        {
+          ref: setRef,
+          id: "cell-editor-input",
+          className: "cell-editor-input",
+          onClick: () => {
+            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+              arrowKeysScrollInFormula: true
+            }));
+          },
+          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
+          onKeyDown,
+          onChange: (e) => {
+            const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
+              " ",
+              ",",
+              "(",
+              ")",
+              "-",
+              "+",
+              "*",
+              "/",
+              "=",
+              ":"
+            ];
+            let arrowKeysScrollInFormula = true;
+            if (props.editorState.editorLocation === "cell") {
+              const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+              const finalChar = e.target.value.substring(e.target.value.length - 1);
+              const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar);
+              const isEmpty = e.target.value.length === 0;
+              arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== void 0 && !endsInResetCharacter && !isEmpty;
+            }
+            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
+              formula: e.target.value,
+              arrowKeysScrollInFormula
+            }));
+          }
+        }
+      )
+    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: `${cellEditorWidth}px` } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
+      Toggle_default,
+      {
+        className: "mr-5px",
+        value: props.editorState.editingMode === "entire_column" ? true : false,
+        onChange: () => {
+          props.setEditorState((prevEditorState) => {
+            if (prevEditorState === void 0) {
+              return void 0;
+            }
+            const prevEditingMode = __spreadValues({}, prevEditorState).editingMode;
+            return __spreadProps(__spreadValues({}, prevEditorState), {
+              editingMode: prevEditingMode === "entire_column" ? "specific_index_labels" : "entire_column"
+            });
+          });
+        },
+        height: "20px"
+      }
+    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
+      if (idx > MAX_SUGGESTIONS) {
+        return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
+      }
+      const selected = idx === selectedSuggestionIndex;
+      const suggestionClassNames = classNames("cell-editor-suggestion", "text-body-2", {
+        "cell-editor-suggestion-selected": selected
+      });
+      return /* @__PURE__ */ import_react39.default.createElement(
+        "div",
+        {
+          onMouseEnter: () => setSavedSelectedSuggestionIndex(idx),
+          onClick: () => {
+            var _a2;
+            takeSuggestion(idx);
+            (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
+          },
+          className: suggestionClassNames,
+          key: suggestion
+        },
+        /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
+        selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
+      );
+    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_b = documentationFunction.examples) == null ? void 0 : _b.map((example, index) => {
+      return /* @__PURE__ */ import_react39.default.createElement(
+        "p",
+        {
+          key: index,
+          className: "cell-editor-function-documentation-example"
+        },
+        example
+      );
+    })))));
+  };
+  var CellEditor_default = CellEditor;
+
   // src/components/endo/celleditor/cellEditorUtils.tsx
   var getSelectionFormulaString = (selections, sheetData) => {
     const selectionStrings = [];
@@ -25137,8 +25742,8 @@ ${finalCode}`;
     }
     return [0, []];
   };
-  var getDocumentationFunction = (formula) => {
-    const finalParenIndex = formula.lastIndexOf("(");
+  var getDocumentationFunction = (formula, selectionStart) => {
+    const finalParenIndex = formula.substring(0, selectionStart || void 0).lastIndexOf("(");
     if (finalParenIndex === -1) {
       return void 0;
     }
@@ -25192,602 +25797,17 @@ ${finalCode}`;
     });
     return formulaString;
   };
-
-  // src/components/endo/domUtils.tsx
-  var checkElementIsVisible = (element) => {
-    if (element === void 0)
-      return false;
-    const rect = element.getBoundingClientRect();
-    const left = rect.left + 2;
-    const right = rect.right - 2;
-    const top = rect.top + 2;
-    const bottom = rect.bottom - 2;
-    const atTopleft = document.elementFromPoint(left, top) === element;
-    const atTopRight = document.elementFromPoint(right, top) === element;
-    const atBottomLeft = document.elementFromPoint(left, bottom) === element;
-    const atBottomRight = document.elementFromPoint(right, bottom) === element;
-    if (atTopleft && atTopRight && atBottomLeft && atBottomRight) {
-      return true;
+  var getCellEditorWidth = (formula, editorLocation) => {
+    let cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+    if (editorLocation === "cell") {
+      if (formula.length > 30) {
+        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+      }
+    } else {
+      cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
     }
-    return false;
+    return cellEditorWidth;
   };
-  var getChildrenWithQuery = (element, querySelector) => {
-    if (element === null) {
-      return [];
-    }
-    const nodeList = element.querySelectorAll(querySelector);
-    if (nodeList === void 0) {
-      return [];
-    }
-    const children = [];
-    nodeList.forEach((node) => {
-      children.push(node);
-    });
-    return children;
-  };
-  var isAnyElementWithSelectorEntirelyVisible = (element, querySelector) => {
-    const nodeList = getChildrenWithQuery(element, querySelector);
-    for (let i = 0; i < nodeList.length; i++) {
-      const node = nodeList[i];
-      if (checkElementIsVisible(node)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  // src/components/endo/sheetViewUtils.tsx
-  var calculateCurrentSheetView = (gridState) => {
-    if (gridState.sheetIndex >= gridState.widthDataArray.length) {
-      return {
-        startingRowIndex: -1,
-        numRowsRendered: 0,
-        startingColumnIndex: 0,
-        numColumnsRendered: 0
-      };
-    }
-    let foundStart = false;
-    let startingColumnIndex = 0;
-    let numColumnsRendered = 0;
-    for (let i = 0; i < gridState.widthDataArray[gridState.sheetIndex].widthArray.length; i++) {
-      const totalWidth = gridState.widthDataArray[gridState.sheetIndex].widthSumArray[i];
-      if (!foundStart && totalWidth > gridState.scrollPosition.scrollLeft) {
-        startingColumnIndex = i;
-        foundStart = true;
-      }
-      if (foundStart && totalWidth > gridState.scrollPosition.scrollLeft + gridState.viewport.width) {
-        numColumnsRendered = i - startingColumnIndex + 1;
-        break;
-      } else if (i === gridState.widthDataArray[gridState.sheetIndex].widthArray.length - 1) {
-        numColumnsRendered = i - startingColumnIndex + 1;
-      }
-    }
-    return {
-      startingRowIndex: Math.max(Math.floor(gridState.scrollPosition.scrollTop / DEFAULT_HEIGHT), 0),
-      numRowsRendered: Math.ceil(gridState.viewport.height / DEFAULT_HEIGHT) + 3,
-      startingColumnIndex,
-      numColumnsRendered
-    };
-  };
-  var calculateTranslate = (gridState) => {
-    const currentSheetView = calculateCurrentSheetView(gridState);
-    return {
-      x: gridState.scrollPosition.scrollLeft - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
-      y: gridState.scrollPosition.scrollTop % DEFAULT_HEIGHT
-    };
-  };
-  var calculateNewScrollPosition = (e, totalSize, viewport, scrollAndRenderedContainerDiv) => {
-    const maxScrollLeft = totalSize.width - viewport.width;
-    const maxScrollTop = totalSize.height - viewport.height;
-    const noScrollLeft = totalSize.width < ((scrollAndRenderedContainerDiv == null ? void 0 : scrollAndRenderedContainerDiv.clientWidth) || 0);
-    const noScrollDown = totalSize.height < ((scrollAndRenderedContainerDiv == null ? void 0 : scrollAndRenderedContainerDiv.clientHeight) || 0);
-    const target = e.target;
-    if (target === null) {
-      return void 0;
-    }
-    const { scrollLeft, scrollTop } = target;
-    let newScrollLeft = scrollLeft;
-    let newScrollTop = scrollTop;
-    if (scrollLeft >= maxScrollLeft && !noScrollLeft) {
-      newScrollLeft = maxScrollLeft - 1;
-    } else if (noScrollLeft) {
-      newScrollLeft = 0;
-    }
-    if (scrollTop >= maxScrollTop && !noScrollDown) {
-      newScrollTop = maxScrollTop;
-    } else if (noScrollDown) {
-      newScrollTop = 0;
-    }
-    return {
-      scrollLeft: newScrollLeft || 0,
-      scrollTop: newScrollTop || 0
-    };
-  };
-  var rowIsVisible = (containerRef, rowIndex) => {
-    if (containerRef === null) {
-      return false;
-    }
-    return isAnyElementWithSelectorEntirelyVisible(containerRef, `[mito-row-index="${rowIndex}"]`);
-  };
-  var columnIsVisible = (containerRef, columnIndex) => {
-    if (containerRef === null) {
-      return false;
-    }
-    return isAnyElementWithSelectorEntirelyVisible(containerRef, `[mito-col-index="${columnIndex}"][mito-row-index]`);
-  };
-  var getCellInRow = (containerRef, rowIndex) => {
-    if (containerRef === null) {
-      return void 0;
-    }
-    const nodeList = containerRef.querySelectorAll(`[mito-row-index="${rowIndex}"]`);
-    if (nodeList === void 0 || nodeList.length === 0) {
-      return void 0;
-    }
-    return nodeList[0];
-  };
-  var getCellInColumn = (containerRef, columnIndex) => {
-    if (containerRef === null) {
-      return void 0;
-    }
-    const nodeList = containerRef.querySelectorAll(`[mito-col-index="${columnIndex}"]`);
-    if (nodeList === void 0 || nodeList.length === 0) {
-      return void 0;
-    }
-    return nodeList[0];
-  };
-
-  // src/components/endo/celleditor/CellEditor.tsx
-  var import_react39 = __toESM(require_react());
-
-  // src/components/elements/LoadingDots.tsx
-  var import_react38 = __toESM(require_react());
-  var LoadingDots = () => {
-    const [indicatorState, setIndicatorState] = (0, import_react38.useState)(1);
-    (0, import_react38.useEffect)(() => {
-      const interval = setInterval(() => {
-        setIndicatorState((indicatorState2) => indicatorState2 + 1);
-      }, 500);
-      return () => clearInterval(interval);
-    }, []);
-    const someNumberOfDots = ".".repeat(indicatorState % 4);
-    return /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, someNumberOfDots);
-  };
-  var LoadingDots_default = LoadingDots;
-
-  // src/components/endo/columnHeaderUtils.tsx
-  var submitRenameColumnHeader = (columnHeader, finalColumnHeader, columnID, sheetIndex, editorState, setUIState, mitoAPI) => {
-    const newColumnHeader = (editorState == null ? void 0 : editorState.formula) || getDisplayColumnHeader(finalColumnHeader);
-    const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
-    if (newColumnHeader !== oldColumnHeader) {
-      const levelIndex = isPrimitiveColumnHeader(columnHeader) ? void 0 : rowIndexToColumnHeaderLevel(columnHeader, -1);
-      void mitoAPI.editRenameColumn(
-        sheetIndex,
-        columnID,
-        newColumnHeader,
-        levelIndex
-      );
-      setUIState((prevUIState) => {
-        if (prevUIState.currOpenTaskpane.type !== "control_panel" /* CONTROL_PANEL */) {
-          return __spreadProps(__spreadValues({}, prevUIState), {
-            currOpenTaskpane: { type: "none" /* NONE */ }
-          });
-        }
-        return prevUIState;
-      });
-    }
-  };
-
-  // src/components/endo/focusUtils.tsx
-  var focusGrid = (containerDiv) => {
-    if (containerDiv) {
-      containerDiv.focus();
-    }
-  };
-
-  // src/components/endo/visibilityUtils.tsx
-  var scrollRowIntoView = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex) => {
-    if (rowIndex === -1) {
-      return;
-    }
-    if (scrollAndRenderedContainerDiv === null)
-      return;
-    let scrollTop = scrollAndRenderedContainerDiv.scrollTop;
-    const rowVisible = rowIsVisible(containerDiv, rowIndex);
-    if (!rowVisible) {
-      const newCellIsAbove = rowIndex <= currentSheetView.startingRowIndex;
-      if (newCellIsAbove) {
-        scrollTop = rowIndex * DEFAULT_HEIGHT;
-      } else {
-        scrollTop = (rowIndex + 1) * DEFAULT_HEIGHT - scrollAndRenderedContainerDiv.clientHeight;
-      }
-    }
-    scrollAndRenderedContainerDiv.scrollTop = scrollTop;
-  };
-  var scrollColumnIntoView = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex) => {
-    var _a, _b;
-    if (columnIndex === -1) {
-      return;
-    }
-    if (scrollAndRenderedContainerDiv === null)
-      return;
-    let scrollLeft = scrollAndRenderedContainerDiv.scrollLeft;
-    const columnVisible = columnIsVisible(containerDiv, columnIndex);
-    if (!columnVisible) {
-      const newCellIsLeft = columnIndex <= currentSheetView.startingColumnIndex;
-      if (newCellIsLeft) {
-        scrollLeft = ((_a = gridState.widthDataArray[gridState.sheetIndex]) == null ? void 0 : _a.widthSumArray[columnIndex - 1]) || 0;
-      } else {
-        scrollLeft = ((_b = gridState.widthDataArray[gridState.sheetIndex]) == null ? void 0 : _b.widthSumArray[columnIndex]) - scrollAndRenderedContainerDiv.clientWidth || 0;
-      }
-    }
-    scrollAndRenderedContainerDiv.scrollLeft = scrollLeft;
-  };
-  var ensureCellVisible = (containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, rowIndex, columnIndex) => {
-    const largeRowJump = !isNumberInRangeInclusive(rowIndex, currentSheetView.startingRowIndex - 2, currentSheetView.startingRowIndex + currentSheetView.numRowsRendered + 1);
-    const largeColumnJump = !isNumberInRangeInclusive(columnIndex, currentSheetView.startingColumnIndex - 2, currentSheetView.startingColumnIndex + currentSheetView.numColumnsRendered + 1);
-    const largeJump = largeRowJump || largeColumnJump;
-    const rowVisible = rowIsVisible(containerDiv, rowIndex);
-    const columnVisible = columnIsVisible(containerDiv, columnIndex);
-    if (!rowVisible) {
-      if (!largeJump) {
-        scrollRowIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex);
-      } else {
-        setTimeout(() => scrollRowIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, rowIndex), 25);
-      }
-    }
-    if (!columnVisible) {
-      if (!largeJump) {
-        scrollColumnIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex);
-      } else {
-        setTimeout(() => scrollColumnIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex), 50);
-      }
-    }
-  };
-
-  // src/components/endo/celleditor/CellEditor.tsx
-  var MAX_SUGGESTIONS = 4;
-  var CELL_EDITOR_WIDTH = 250;
-  var CellEditor = (props) => {
-    var _a;
-    const cellEditorInputRef = (0, import_react39.useRef)(null);
-    const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react39.useState)(-1);
-    const [loading, setLoading] = (0, import_react39.useState)(false);
-    const [cellEditorError, setCellEditorError] = (0, import_react39.useState)(void 0);
-    const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
-    const setRef = (0, import_react39.useCallback)((unsavedInputAnchor) => {
-      if (unsavedInputAnchor !== null) {
-        cellEditorInputRef.current = unsavedInputAnchor;
-        setTimeout(() => {
-          var _a2;
-          (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
-        }, 50);
-      }
-    }, []);
-    (0, import_react39.useEffect)(() => {
-      setTimeout(() => {
-        var _a2, _b;
-        (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
-        if (props.editorState.pendingSelections !== void 0) {
-          const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
-          (_b = cellEditorInputRef.current) == null ? void 0 : _b.setSelectionRange(
-            index,
-            index
-          );
-        }
-      });
-    }, [props.editorState.pendingSelections]);
-    (0, import_react39.useEffect)(() => {
-      props.setEditorState((prevEditingState) => {
-        if (prevEditingState === void 0) {
-          return prevEditingState;
-        }
-        const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula;
-        return __spreadProps(__spreadValues({}, prevEditingState), {
-          formula: startingColumnFormula
-        });
-      });
-    }, [props.editorState.editingMode]);
-    if (columnID === void 0 || columnHeader === void 0 || indexLabel === void 0) {
-      return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
-    }
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-    const documentationFunction = getDocumentationFunction(fullFormula);
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
-    const closeCellEditor = () => {
-      props.setGridState((gridState) => {
-        return __spreadProps(__spreadValues({}, gridState), {
-          selection: [{
-            startingRowIndex: props.editorState.rowIndex,
-            endingRowIndex: props.editorState.rowIndex,
-            startingColumnIndex: props.editorState.columnIndex,
-            endingColumnIndex: props.editorState.columnIndex
-          }]
-        });
-      });
-      props.setEditorState(void 0);
-      ensureCellVisible(
-        props.containerRef.current,
-        props.scrollAndRenderedContainerRef.current,
-        props.currentSheetView,
-        props.gridState,
-        props.editorState.rowIndex,
-        props.editorState.columnIndex
-      );
-      setTimeout(() => focusGrid(props.containerRef.current), 100);
-    };
-    const takeSuggestion = (suggestionIndex) => {
-      var _a2;
-      if (suggestionIndex === -1) {
-        return;
-      }
-      let suggestionReplacementLength = 0;
-      let suggestion = "";
-      let isColumnHeaderSuggestion = true;
-      if (suggestionIndex < suggestedColumnHeaders.length) {
-        suggestionReplacementLength = suggestedColumnHeadersReplacementLength;
-        suggestion = suggestedColumnHeaders[suggestionIndex][0];
-      } else {
-        suggestionReplacementLength = suggestedFunctionsReplacementLength;
-        suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + "(";
-        isColumnHeaderSuggestion = false;
-      }
-      let fullFormula2 = getFullFormula(
-        props.editorState.formula,
-        props.editorState.pendingSelections,
-        props.sheetData
-      );
-      fullFormula2 = fullFormula2.substr(0, fullFormula2.length - suggestionReplacementLength);
-      fullFormula2 += suggestion;
-      if (isColumnHeaderSuggestion) {
-        fullFormula2 += getDisplayColumnHeader(indexLabel);
-      }
-      props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-        formula: fullFormula2,
-        pendingSelections: void 0,
-        arrowKeysScrollInFormula: props.editorState.editorLocation === "formula bar" ? true : false
-      }));
-      (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
-        fullFormula2.length,
-        fullFormula2.length
-      );
-    };
-    const onKeyDown = (e) => {
-      e.stopPropagation();
-      e.persist();
-      setCellEditorError(void 0);
-      if (KEYS_TO_IGNORE_IF_PRESSED_ALONE.includes(e.key)) {
-        return;
-      }
-      const altPressed = e.altKey;
-      const arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula === true;
-      if (isNavigationKeyPressed(e.key) && !altPressed) {
-        const arrowUp = e.key === "Up" || e.key === "ArrowUp";
-        const arrowDown = e.key === "Down" || e.key === "ArrowDown";
-        if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
-          e.preventDefault();
-          if (arrowUp) {
-            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.max(suggestionIndex - 1, -1));
-          } else if (arrowDown) {
-            setSavedSelectedSuggestionIndex((suggestionIndex) => Math.min(suggestionIndex + 1, suggestedColumnHeaders.length + suggestedFunctions.length - 1, MAX_SUGGESTIONS));
-          }
-          props.setEditorState((prevEditorState) => {
-            if (prevEditorState === void 0)
-              return void 0;
-            return __spreadProps(__spreadValues({}, prevEditorState), {
-              arrowKeysScrollInFormula: true
-            });
-          });
-        } else if (e.key === "Tab") {
-          e.preventDefault();
-          takeSuggestion(selectedSuggestionIndex);
-        } else if (!arrowKeysScrollInFormula) {
-          e.preventDefault();
-          props.setGridState((gridState) => {
-            var _a2, _b, _c, _d;
-            const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
-            const newInputSelectionStart = firstNonNullOrUndefined(
-              (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
-              (_b = cellEditorInputRef.current) == null ? void 0 : _b.selectionStart,
-              0
-            );
-            const newInputSelectionEnd = firstNonNullOrUndefined(
-              (_c = props.editorState.pendingSelections) == null ? void 0 : _c.inputSelectionEnd,
-              (_d = cellEditorInputRef.current) == null ? void 0 : _d.selectionEnd,
-              0
-            );
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              pendingSelections: {
-                selections: [newSelection],
-                inputSelectionStart: newInputSelectionStart,
-                inputSelectionEnd: newInputSelectionEnd
-              }
-            }));
-            ensureCellVisible(
-              props.containerRef.current,
-              props.scrollAndRenderedContainerRef.current,
-              props.currentSheetView,
-              props.gridState,
-              newSelection.endingRowIndex,
-              newSelection.endingColumnIndex
-            );
-            return __spreadProps(__spreadValues({}, gridState), {
-              selections: [newSelection]
-            });
-          });
-        }
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        closeCellEditor();
-      } else if (e.key !== "Enter") {
-        setSavedSelectedSuggestionIndex(-1);
-        props.setGridState((gridState) => {
-          return __spreadProps(__spreadValues({}, gridState), {
-            selections: [{
-              startingRowIndex: props.editorState.rowIndex,
-              endingRowIndex: props.editorState.rowIndex,
-              startingColumnIndex: props.editorState.columnIndex,
-              endingColumnIndex: props.editorState.columnIndex
-            }]
-          });
-        });
-        ensureCellVisible(
-          props.containerRef.current,
-          props.scrollAndRenderedContainerRef.current,
-          props.currentSheetView,
-          props.gridState,
-          props.editorState.rowIndex,
-          props.editorState.columnIndex
-        );
-        const fullFormula2 = getFullFormula(
-          props.editorState.formula,
-          props.editorState.pendingSelections,
-          props.sheetData
-        );
-        props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-          formula: fullFormula2,
-          pendingSelections: void 0
-        }));
-      }
-    };
-    const onSubmit = async (e) => {
-      e.preventDefault();
-      if (selectedSuggestionIndex !== -1 && !endsInReference) {
-        takeSuggestion(selectedSuggestionIndex);
-        setSavedSelectedSuggestionIndex(-1);
-        return;
-      }
-      const columnID2 = props.sheetData.data[props.editorState.columnIndex].columnID;
-      const columnHeader2 = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-      const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-      const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
-      setLoading(true);
-      let errorMessage = void 0;
-      if (props.editorState.rowIndex == -1) {
-        const finalColumnHeader = getColumnHeaderParts(columnHeader2).finalColumnHeader;
-        submitRenameColumnHeader(columnHeader2, finalColumnHeader, columnID2, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI);
-      } else {
-        const index_labels_formula_is_applied_to = props.editorState.editingMode === "entire_column" ? { "type": "entire_column" } : { "type": "specific_index_labels", "index_labels": [indexLabel] };
-        errorMessage = await props.mitoAPI.editSetColumnFormula(
-          props.sheetIndex,
-          columnID2,
-          formulaLabel,
-          formula,
-          index_labels_formula_is_applied_to,
-          props.editorState.editorLocation
-        );
-      }
-      setLoading(false);
-      if (isMitoError(errorMessage)) {
-        setCellEditorError(errorMessage.to_fix);
-      } else {
-        closeCellEditor();
-        props.closeOpenEditingPopups();
-      }
-    };
-    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react39.default.createElement(
-      "form",
-      {
-        className: "cell-editor-form",
-        onSubmit,
-        autoComplete: "off"
-      },
-      /* @__PURE__ */ import_react39.default.createElement(
-        "input",
-        {
-          ref: setRef,
-          id: "cell-editor-input",
-          className: "cell-editor-input",
-          onClick: () => {
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              arrowKeysScrollInFormula: true
-            }));
-          },
-          value: getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData),
-          onKeyDown,
-          onChange: (e) => {
-            const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
-              " ",
-              ",",
-              "(",
-              ")",
-              "-",
-              "+",
-              "*",
-              "/",
-              "=",
-              ":"
-            ];
-            let arrowKeysScrollInFormula = true;
-            if (props.editorState.editorLocation === "cell") {
-              const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-              const finalChar = e.target.value.substring(e.target.value.length - 1);
-              const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar);
-              const isEmpty = e.target.value.length === 0;
-              arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== void 0 && !endsInResetCharacter && !isEmpty;
-            }
-            props.setEditorState(__spreadProps(__spreadValues({}, props.editorState), {
-              formula: e.target.value,
-              arrowKeysScrollInFormula
-            }));
-          }
-        }
-      )
-    ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-dropdown-box", style: { width: props.editorState.editorLocation === "cell" ? `${CELL_EDITOR_WIDTH}px` : "300px" } }, cellEditorError === void 0 && props.editorState.rowIndex != -1 && /* @__PURE__ */ import_react39.default.createElement(Row_default, { justify: "space-between", align: "center", className: "cell-editor-label" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: props.editorState.editingMode === "entire_column" ? "You are currently editing the entire column. Setting a formula will change all values in the column." : "You are currently editing a specific cell. Changing this value will only effect this cell." }, "Edit entire column"), /* @__PURE__ */ import_react39.default.createElement(
-      Toggle_default,
-      {
-        className: "mr-5px",
-        value: props.editorState.editingMode === "entire_column" ? true : false,
-        onChange: () => {
-          props.setEditorState((prevEditorState) => {
-            if (prevEditorState === void 0) {
-              return void 0;
-            }
-            const prevEditingMode = __spreadValues({}, prevEditorState).editingMode;
-            return __spreadProps(__spreadValues({}, prevEditorState), {
-              editingMode: prevEditingMode === "entire_column" ? "specific_index_labels" : "entire_column"
-            });
-          });
-        },
-        height: "20px"
-      }
-    )), cellEditorError === void 0 && props.editorState.rowIndex == -1 && /* @__PURE__ */ import_react39.default.createElement("p", { className: classNames("text-subtext-1", "pl-5px", "mt-2px"), title: "You are currently editing the column header." }, "Edit column header"), cellEditorError !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-error-container pl-10px pr-5px pt-5px pb-5px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-1 text-color-error" }, cellEditorError), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Press Escape to close the cell editor.")), loading && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2 pl-5px" }, "Processing", /* @__PURE__ */ import_react39.default.createElement(LoadingDots_default, null)), cellEditorError === void 0 && !loading && !endsInReference && /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null, suggestedColumnHeaders.concat(suggestedFunctions).map(([suggestion, subtext], idx) => {
-      if (idx > MAX_SUGGESTIONS) {
-        return /* @__PURE__ */ import_react39.default.createElement(import_react39.default.Fragment, null);
-      }
-      const selected = idx === selectedSuggestionIndex;
-      const suggestionClassNames = classNames("cell-editor-suggestion", "text-body-2", {
-        "cell-editor-suggestion-selected": selected
-      });
-      return /* @__PURE__ */ import_react39.default.createElement(
-        "div",
-        {
-          onMouseEnter: () => setSavedSelectedSuggestionIndex(idx),
-          onClick: () => {
-            var _a2;
-            takeSuggestion(idx);
-            (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
-          },
-          className: suggestionClassNames,
-          key: suggestion
-        },
-        /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-overflow-hide", title: suggestion }, suggestion),
-        selected && /* @__PURE__ */ import_react39.default.createElement("div", { className: classNames("cell-editor-suggestion-subtext", "text-subtext-1") }, subtext)
-      );
-    })), cellEditorError === void 0 && !loading && !hasSuggestions && documentationFunction !== void 0 && /* @__PURE__ */ import_react39.default.createElement("div", null, /* @__PURE__ */ import_react39.default.createElement("div", { className: "cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-body-2" }, documentationFunction.syntax), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, documentationFunction.description)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "pt-5px pb-10px pr-10px pl-10px" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-subtext-1" }, "Examples"), (_a = documentationFunction.examples) == null ? void 0 : _a.map((example, index) => {
-      return /* @__PURE__ */ import_react39.default.createElement(
-        "p",
-        {
-          key: index,
-          className: "cell-editor-function-documentation-example"
-        },
-        example
-      );
-    })))));
-  };
-  var CellEditor_default = CellEditor;
 
   // src/components/endo/FormulaBar.tsx
   var FormulaBar = (props) => {
@@ -26387,6 +26407,8 @@ ${finalCode}`;
     });
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const { columnID, columnHeader } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation);
     (0, import_react48.useEffect)(() => {
       const updateCellEditorPosition = () => {
         var _a;
@@ -26411,7 +26433,7 @@ ${finalCode}`;
         }
         const defaultLeft = cellInColumnRect ? cellInColumnRect.x : props.editorState.columnIndex < currentSheetView.startingColumnIndex ? 0 : scrollAndRenderedContainerRect.x * 100;
         left = Math.min(Math.max(0, defaultLeft - scrollAndRenderedContainerRect.x) + 80, scrollAndRenderedContainerRect.width);
-        if (left + CELL_EDITOR_WIDTH >= scrollAndRenderedContainerRect.width) {
+        if (left + cellEditorWidth >= scrollAndRenderedContainerRect.width) {
           left = void 0;
           right = 0;
         }
@@ -26429,7 +26451,7 @@ ${finalCode}`;
       setTimeout(updateCellEditorPosition);
       fscreen_esm_default.addEventListener("fullscreenchange", updateCellEditorPosition);
       return () => fscreen_esm_default.removeEventListener("fullscreenchange", updateCellEditorPosition);
-    }, []);
+    }, [cellEditorWidth]);
     if (columnID === void 0 || columnHeader === void 0) {
       return /* @__PURE__ */ import_react48.default.createElement(import_react48.default.Fragment, null);
     }
@@ -26438,7 +26460,7 @@ ${finalCode}`;
       {
         className: "floating-cell-editor",
         style: __spreadProps(__spreadValues({}, editorStyle), {
-          width: `${CELL_EDITOR_WIDTH}px`
+          width: `${cellEditorWidth}px`
         })
       },
       /* @__PURE__ */ import_react48.default.createElement(

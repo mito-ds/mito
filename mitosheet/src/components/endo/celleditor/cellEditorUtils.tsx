@@ -3,8 +3,10 @@
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
 import { ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
+import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
+import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
 export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
@@ -387,4 +389,19 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
 
     })
     return formulaString;
+}
+
+export const getCellEditorWidth = (formula: string, editorLocation: 'cell' | 'formula bar'): number => {
+
+    let cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+
+    const textWidth = getTextWidth(formula, '11px system-ui') + 10 // Add 10 just for a nice little end padding
+
+    if (editorLocation === 'cell') {
+        return Math.min(Math.max(CELL_EDITOR_DEFAULT_WIDTH, textWidth), CELL_EDITOR_MAX_WIDTH);
+    } else {
+        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+    }
+
+    return cellEditorWidth;
 }
