@@ -415,7 +415,7 @@ export const getCellEditorWidth = (formula: string, editorLocation: 'cell' | 'fo
     if (editorLocation === 'cell') {
         return Math.min(Math.max(CELL_EDITOR_DEFAULT_WIDTH, textWidth), CELL_EDITOR_MAX_WIDTH);
     } else {
-        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+        cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
     }
 
     return cellEditorWidth;

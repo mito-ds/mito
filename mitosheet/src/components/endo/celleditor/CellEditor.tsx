@@ -69,6 +69,7 @@ const CellEditor = (props: {
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
+    // and ensure our cursor is at the final input
     const setRef = useCallback((unsavedInputAnchor: HTMLInputElement | HTMLTextAreaElement | null) => {
         if (unsavedInputAnchor !== null) {
             // Save this node, so that we can update 
@@ -77,7 +78,9 @@ const CellEditor = (props: {
             // Focus on the input after a tiny delay. I'm not sure why we need this delay, 
             // it is only requred when the cell editor is in the grid, not in the formula bar.
             setTimeout(() => {
-                cellEditorInputRef.current?.focus()
+                const current = cellEditorInputRef.current;
+                current?.focus()
+                current?.setSelectionRange(current?.value.length,current?.value.length);
             }, 50);
         }
     },[]);
@@ -556,6 +559,7 @@ const CellEditor = (props: {
                         onClick={onClick}
                         value={fullFormula}
                         autoComplete='off'
+                        spellCheck='false'
                         onKeyUp={(e) => {
                             // Since we can't detect Shift + Enter in onKeyDown, we need to do it here
                             if (e.key == 'Enter' && e.shiftKey) {

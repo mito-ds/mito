@@ -734,21 +734,21 @@ def replace_column_headers_and_indexes(
 
 
     
-def replace_newlines(
+def replace_newlines_and_tabs(
         formula: str,
     ) -> str:
     """
-    Removes all newlines that aren't in column headers
+    Removes all newlines and tabs that aren't in column headers
     """
     string_matches = get_string_matches(formula)
 
-    def replace_newlines_internal(match):
+    def replace_newlines_and_tabsinternal(match):
         if not match_covered_by_matches(string_matches, (match.start(), match.end())):
             return ''
         else:
             return match.group()
     
-    return re.sub(r'\n', replace_newlines_internal, formula)
+    return re.sub(r'\n|\t', replace_newlines_and_tabsinternal, formula)
     
 
 def replace_functions(
@@ -837,7 +837,7 @@ def parse_formula(
         df_name
     )
 
-    code_without_newlines = replace_newlines(code_with_column_headers)
+    code_without_newlines = replace_newlines_and_tabs(code_with_column_headers)
 
     code_with_functions, functions = replace_functions(code_without_newlines)
 

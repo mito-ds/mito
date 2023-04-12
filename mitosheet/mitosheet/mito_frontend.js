@@ -25035,7 +25035,7 @@ ${finalCode}`;
     if (editorLocation === "cell") {
       return Math.min(Math.max(CELL_EDITOR_DEFAULT_WIDTH, textWidth), CELL_EDITOR_MAX_WIDTH);
     } else {
-      cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+      cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
     }
     return cellEditorWidth;
   };
@@ -25618,8 +25618,9 @@ ${finalCode}`;
       if (unsavedInputAnchor !== null) {
         cellEditorInputRef.current = unsavedInputAnchor;
         setTimeout(() => {
-          var _a2;
-          (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
+          const current = cellEditorInputRef.current;
+          current == null ? void 0 : current.focus();
+          current == null ? void 0 : current.setSelectionRange(current == null ? void 0 : current.value.length, current == null ? void 0 : current.value.length);
         }, 50);
       }
     }, []);
@@ -25944,6 +25945,7 @@ ${finalCode}`;
           onClick,
           value: fullFormula,
           autoComplete: "off",
+          spellCheck: "false",
           onKeyUp: (e) => {
             if (e.key == "Enter" && e.shiftKey) {
               addSpacingCharacter("\n");
