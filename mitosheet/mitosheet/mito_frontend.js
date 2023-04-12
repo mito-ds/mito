@@ -25664,7 +25664,6 @@ ${finalCode}`;
       const newHeight = parseInt((newHeightString == null ? void 0 : newHeightString.substring(0, newHeightString.length - 2)) || "22");
       setTextAreaHeight(newHeight);
     }, [], "cell-editor-input");
-    console.log("HERE", columnID, columnHeader, indexLabel);
     if (columnID === void 0 || columnHeader === void 0) {
       return /* @__PURE__ */ import_react41.default.createElement(import_react41.default.Fragment, null);
     }
@@ -25865,7 +25864,8 @@ ${finalCode}`;
     };
     const addSpacingCharacter = (char) => {
       var _a2;
-      const selectionStart = ((_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.selectionStart) || fullFormula.length;
+      let selectionStart = (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.selectionStart;
+      selectionStart = selectionStart === null || selectionStart === void 0 ? 0 : selectionStart;
       const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
       props.setEditorState((prevEditingState) => {
         if (prevEditingState === void 0) {

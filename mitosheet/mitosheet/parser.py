@@ -820,6 +820,9 @@ def parse_formula(
     if throw_errors:
         check_common_errors(formula, df)
 
+    # Chop off any whitespace at the start
+    formula = formula.lstrip()
+
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals
     if formula.startswith('='):
