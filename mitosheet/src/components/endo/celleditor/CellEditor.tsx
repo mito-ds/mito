@@ -144,8 +144,6 @@ const CellEditor = (props: {
         setTextAreaHeight(newHeight)
     }, [], 'cell-editor-input')
 
-    console.log("HERE", columnID, columnHeader, indexLabel)
-
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
     }
@@ -449,7 +447,8 @@ const CellEditor = (props: {
     }
 
     const addSpacingCharacter = (char: '\n' | '\t'): void => {
-        const selectionStart = cellEditorInputRef.current?.selectionStart || fullFormula.length;
+        let selectionStart = cellEditorInputRef.current?.selectionStart;
+        selectionStart = selectionStart === null || selectionStart === undefined ? 0 : selectionStart;
         const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
 
         props.setEditorState(prevEditingState => {
