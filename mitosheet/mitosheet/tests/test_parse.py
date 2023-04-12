@@ -41,6 +41,15 @@ CONSTANT_TEST_CASES: Any = [
         set([])
     ),
     (
+        '\t\n=100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = 100',
+        set([]),
+        set([])
+    ),
+    (
         '=100\n+100',
         'B',
         0,
