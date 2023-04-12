@@ -314,11 +314,11 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     {promptState.error !== undefined && 
                         <>
                             <p className="text-color-error">{promptState.error} &nbsp;
-                            {promptState.error?.includes('You have used Mito AI 20 times') && 
+                                {promptState.error?.includes('You have used Mito AI 20 times') && 
                                 <>
                                     Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
                                 </>
-                            }
+                                }
                             </p>
                         </>
                     }

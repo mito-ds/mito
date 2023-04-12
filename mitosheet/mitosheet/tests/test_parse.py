@@ -32,6 +32,42 @@ CONSTANT_TEST_CASES: Any = [
         set([])
     ),
     (
+        '    =100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = 100',
+        set([]),
+        set([])
+    ),
+    (
+        '\t\n=100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = 100',
+        set([]),
+        set([])
+    ),
+    (
+        '=100\n+100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = 100+100',
+        set([]),
+        set([])
+    ),
+    (
+        '=100\t+100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = 100+100',
+        set([]),
+        set([])
+    ),
+    (
         '=True',
         'B',
         0,
@@ -111,6 +147,24 @@ CONSTANT_TEST_CASES: Any = [
         'df[\'B\'] = FUNC1(\'String One FUNC(A)\') + FUNC2(\'STRING TWO FUNC(A)\')',
         set(['FUNC1', 'FUNC2']),
         set([])
+    ),
+    (
+        '=A\nA + 100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B', 'A\nA'], 2)),
+        'df[\'B\'] = df[\'A\\nA\'] + 100',
+        set([]),
+        set(['A\nA'])
+    ),
+    (
+        '=A\tA + 100',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B', 'A\tA'], 2)),
+        'df[\'B\'] = df[\'A\\tA\'] + 100',
+        set([]),
+        set(['A\tA'])
     )
 ]
 

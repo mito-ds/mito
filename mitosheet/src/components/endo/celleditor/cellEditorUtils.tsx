@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
@@ -188,12 +188,27 @@ export const getStartingFormula = (
 /**
  * Returns true if the formula ends in a refernece to a different column header in the sheet
  * followed by a reference to the row of the index label. 
- * 
  */
-export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, sheetData: SheetData): boolean => {
-    const possibleReferences = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
-    const endingReferences = possibleReferences.filter(reference => formula.toLowerCase().endsWith(reference.toLowerCase()));
-    return endingReferences.length > 0;
+export const getFormulaEndsInReference = (formula: string, sheetData: SheetData): boolean => {
+    const lowercaseFormula = formula.toLowerCase();
+    const lowercaseColumnHeaders = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader).toLowerCase());
+
+
+    let found = false;
+    lowercaseColumnHeaders.forEach(ch => {
+        const lastIndexOf = lowercaseFormula.lastIndexOf(ch);
+        if (lastIndexOf !== -1) {
+            const remainingString = lowercaseFormula.substring(lastIndexOf);
+            // Check if this is an index label (TODO: is this performant enough?)
+            sheetData.index.forEach(indexLabel => {
+                if (remainingString === getDisplayColumnHeader(indexLabel).toLowerCase()) {
+                    found = true;
+                }
+            })
+        }
+    })
+
+    return found;
 }
 
 
@@ -207,7 +222,7 @@ export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, 
  * @returns - a tuple: the length of the matched end of the formula (the replacement length), and a list of [column header, subtext] suggestions. 
  * The subtext contains the type of the column
  */
-export const getSuggestedColumnHeaders = (formula: string, columnID: ColumnID, sheetData: SheetData): [number, [string, string][]] => {
+export const getSuggestedColumnHeaders = (formula: string, sheetData: SheetData): [number, [string, string][]] => {
     
     const columnHeadersAndIDs: [string, string][] = sheetData.data.map(c => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
 
@@ -400,7 +415,7 @@ export const getCellEditorWidth = (formula: string, editorLocation: 'cell' | 'fo
     if (editorLocation === 'cell') {
         return Math.min(Math.max(CELL_EDITOR_DEFAULT_WIDTH, textWidth), CELL_EDITOR_MAX_WIDTH);
     } else {
-        cellEditorWidth = CELL_EDITOR_MAX_WIDTH;
+        cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
     }
 
     return cellEditorWidth;

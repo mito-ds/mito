@@ -4,17 +4,17 @@ import React from 'react';
 
 // Import css
 import "../../../css/FormulaBar.css";
-import "../../../css/mito.css"
-import { EditorState, SheetData, MitoSelection, GridState, UIState } from '../../types';
-import { getFullFormula } from './celleditor/cellEditorUtils';
-import { getCellDataFromCellIndexes } from './utils';
+import "../../../css/mito.css";
+import MitoAPI from '../../jupyter/api';
+import { EditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
+import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
-import MitoAPI from '../../jupyter/api';
-import { calculateCurrentSheetView } from './sheetViewUtils';
-import CellEditor from './celleditor/CellEditor';
-import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import CellEditor from './celleditor/CellEditor';
+import { getFullFormula } from './celleditor/cellEditorUtils';
+import { calculateCurrentSheetView } from './sheetViewUtils';
+import { getCellDataFromCellIndexes } from './utils';
 
 const FormulaBar = (props: {
     sheetData: SheetData,
@@ -43,9 +43,9 @@ const FormulaBar = (props: {
     if (props.editorState === undefined) {
         // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
         if (rowIndex == -1 && columnHeader !== undefined) {
-            formulaBarValue =  getDisplayColumnHeader(columnHeader)
+            formulaBarValue = getDisplayColumnHeader(columnHeader)
         } else {
-            formulaBarValue =  originalFormulaBarValue;
+            formulaBarValue = originalFormulaBarValue;
         }
     } else {
         // If we're editing, display the formula
@@ -93,7 +93,7 @@ const FormulaBar = (props: {
                 {props.editorState?.editorLocation !== 'formula bar' &&
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
-                        onDoubleClick={() => {
+                        onClick={() => {
                             props.setEditorState({
                                 rowIndex: rowIndex,
                                 columnIndex: colIndex,
