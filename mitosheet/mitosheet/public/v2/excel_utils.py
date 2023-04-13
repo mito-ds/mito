@@ -62,25 +62,32 @@ def get_table_range(
     if min_found_col_index is None or min_found_row_index is None:
         return None
 
+    # Then we find find where the rows are defined to
+    if num_columns is None:
+        max_found_col_index = None
+        for row in sheet.iter_rows(min_row=min_found_row_index, max_row=min_found_row_index, min_col=min_found_col_index):
+            for cell in row:
+                if cell.value is None:
+                    max_found_col_index = cell.column - 1 # minus b/c this is one past the end
+                    break
+    else:
+        max_found_col_index = min_found_col_index + num_columns - 1
+
+    # Similarly, if we don't find any empty value in the defined cells, we set the max_col index
+    # as the limit of the sheet
+    if max_found_col_index is None:
+        max_found_col_index = max_search_col
+
+    # Then we find the max column index
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
 
     if bottom_left_corner_consecutive_empty_cells is not None:
-        for i in range(min_found_row_index, sheet.max_row+1):
-            empty_count = 0
-            for j in range(min_found_col_index, sheet.max_column+1):
-                cell_obj = sheet.cell(row=i, column=j)
-                if cell_obj.value is None:
-                    empty_count += 1
-                else:
-                    break
-
-                if empty_count == bottom_left_corner_consecutive_empty_cells:
-                    max_found_row_index = i - 1
-                    break
-            if max_found_row_index is not None:
+        for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
+            empty_count = sum([1 if c.value is None else 0 for c in row])
+            if empty_count >= bottom_left_corner_consecutive_empty_cells:
+                max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
                 break
-
 
     if max_found_row_index is None:
         for cell in column:
@@ -106,21 +113,6 @@ def get_table_range(
     if max_found_row_index is None:
         max_found_row_index = len(column)
 
-    # Then we find find where the rows are defined to
-    if num_columns is None:
-        max_found_col_index = None
-        for row in sheet.iter_rows(min_row=min_found_row_index, max_row=min_found_row_index, min_col=min_found_col_index):
-            for cell in row:
-                if cell.value is None:
-                    max_found_col_index = cell.column - 1 # minus b/c this is one past the end
-                    break
-    else:
-        max_found_col_index = min_found_col_index + num_columns - 1
-
-    # Similarly, if we don't find any empty value in the defined cells, we set the max_col index
-    # as the limit of the sheet
-    if max_found_col_index is None:
-        max_found_col_index = max_search_col
 
     return f'{get_column_from_column_index(min_found_col_index - 1)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index - 1)}{max_found_row_index}'
 

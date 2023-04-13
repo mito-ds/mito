@@ -235,6 +235,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_7.iloc[0:3]],
     ), 
+    # Tests bottom left corner consecutive emtpy cells
+    (
+        ['A2:D6', 'G1:J5'],
+        [TEST_DF_7, TEST_DF_7],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_7.iloc[0:3]],
+    ), 
     
 ]
 @pandas_post_1_2_only
