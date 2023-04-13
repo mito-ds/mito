@@ -38,7 +38,7 @@ interface ExcelRangeImportTaskpaneProps {
 export type ExcelRangeImportType = 'range' | 'dynamic';
 
 export type ExcelRangeStartCondition = {type: 'upper left corner value', value: string | number} | {type: 'upper left corner value starts with', value: string | number} | {type: 'upper left corner value contains', value: string | number};
-export type ExcelRangeEndCondition = {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number} | {type: 'bottom left corner value starts with', value: string | number} | {type: 'bottom left corner value contains', value: string | number};
+export type ExcelRangeEndCondition = {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number} | {type: 'bottom left corner value starts with', value: string | number} | {type: 'bottom left corner value contains', value: string | number} | {type: 'bottom left corner consecutive empty cells', value: string | number};
 export type ExcelRangeColumnEndCondition = {type: 'first empty cell'} | {type: 'num columns', value: string | number};
 
 export type ExcelRangeRangeImport = {type: 'range', df_name: string, value: string | number};
