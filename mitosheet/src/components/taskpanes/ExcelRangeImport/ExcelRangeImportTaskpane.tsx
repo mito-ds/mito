@@ -130,7 +130,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                     disabledTooltip = 'Please ensure all range imports have a defined start condition.';
                 }
                 if ('value' in rangeImport.end_condition && rangeImport.end_condition.value === '') {
-                    disabledTooltip = 'Please ensure all range imports have a defined end condition.';
+                    disabledTooltip = 'Please ensure all range imports have a defined row end condition.';
                 }
                 if ('value' in rangeImport.column_end_condition && rangeImport.column_end_condition.value === '') {
                     disabledTooltip = 'Please ensure all range imports have a defined column end condition.';
