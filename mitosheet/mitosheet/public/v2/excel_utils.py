@@ -43,10 +43,11 @@ def get_table_range(
     min_found_col_index, min_found_row_index = None, None
     for col in sheet.iter_cols(min_row=min_search_row, max_row=max_search_row, min_col=min_search_col, max_col=max_search_col):
         for cell in col:
-            if cell.value == upper_left_value:
+            if upper_left_value is not None and cell.value == upper_left_value:
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
             elif upper_left_value_starts_with is not None and str(cell.value).startswith(str(upper_left_value_starts_with)):
+                print(str(cell.value), str(upper_left_value_starts_with))
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
             elif upper_left_value_contains is not None and str(upper_left_value_contains) in str(cell.value):

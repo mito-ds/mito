@@ -55,40 +55,15 @@ def get_table_range_params(file_path: str, sheet_name: str, start_condition: Any
     if column_end_condition['type'] not in EXCEL_RANGE_COLUMN_END_CONDITIONS:
         raise ValueError(f'Invalid column end condition type: {column_end_condition["type"]}')
 
-    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE:
-        upper_left_value = start_condition['value']
-    else:
-        upper_left_value = None
+    upper_left_value = start_condition['value'] if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE else None
+    upper_left_value_starts_with = start_condition['value'] if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_STARTS_WITH else None
+    upper_left_value_contains = start_condition['value'] if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_CONTAINS else None
+
+    bottom_left_value = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE else None
+    bottom_left_value_starts_with = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH else None
+    bottom_left_value_contains = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS else None
     
-    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_STARTS_WITH:
-        upper_left_value_starts_with = start_condition['value']
-    else:
-        upper_left_value_starts_with = None
-
-    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_CONTAINS:
-        upper_left_value_contains = start_condition['value']
-    else:
-        upper_left_value_contains = None
-    
-    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE:
-        bottom_left_value = end_condition['value']
-    else:
-        bottom_left_value = None
-
-    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH:
-        bottom_left_value_starts_with = end_condition['value']
-    else:
-        bottom_left_value_starts_with = None
-
-    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS:
-        bottom_left_value_contains = end_condition['value']
-    else:
-        bottom_left_value_contains = None
-
-    if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS:
-        num_columns = column_end_condition['value']
-    else:
-        num_columns = None
+    num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
 
     all_params = {
         'file_path': file_path,
@@ -130,7 +105,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
             # If it's an explicit range, then just import that exact range
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
-                _range = range_import['value']
+                _range = range_import['value'] #type: ignore
                 skiprows, nrows, usecols = get_read_excel_params_from_range(_range)
                 
                 code.append(
@@ -147,7 +122,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 params_code = param_dict_to_code(params, as_single_line=True)
 
                 code.extend([
-                    f'_range = get_table_range_from_upper_left_corner_value({params_code})',
+                    f'_range = get_table_range({params_code})',
                     'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)',
                     f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
                 ])

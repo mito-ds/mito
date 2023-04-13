@@ -153,7 +153,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class FilterGroup(TypedDict):
         # NOTE: this is a recursive type. The filter group can contain a filter group
-        filters: List[Union[Filter, "FilterGroup"]]
+        filters: List[Union[Filter, "FilterGroup"]] #type: ignore
         operator: OperatorType #type:ignore
 
     class ColumnIDWithFilter(TypedDict):
@@ -181,17 +181,14 @@ if sys.version_info[:3] > (3, 8, 0):
         df_name: str
         value: str
 
-    class ExcelRangeEndCondition(TypedDict):
-        type: Literal['first empty cell', 'bottom left corner value']
-        value: Optional[str]
-
-    class ExcelRangeUpperLeftImport(TypedDict):
-        type: Literal['upper left corner value']
+    class ExcelRangeDynamicImport(TypedDict):
+        type: Literal['dynamic']
         df_name: str
-        value: str
-        end_condition: ExcelRangeEndCondition
+        start_condition: Dict[str, Any]
+        end_condition: Dict[str, Any]
+        column_end_condition: Dict[str, Any]
 
-    ExcelRangeImport = Union[ExcelRangeRangeImport, ExcelRangeUpperLeftImport]
+    ExcelRangeImport = Union[ExcelRangeRangeImport, ExcelRangeDynamicImport]
 
     class CodeSnippet(TypedDict):
         Id: str

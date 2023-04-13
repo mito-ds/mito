@@ -53,7 +53,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         for range_import in range_imports:
             _range: Optional[str]
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
-                _range = range_import['value']
+                _range = range_import['value'] #type: ignore
             else:
                 start_condition = range_import['start_condition'] #type: ignore
                 end_condition = range_import['end_condition'] #type: ignore
@@ -63,7 +63,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 _range = get_table_range(**params)
                 
             if _range is None:
-                raise make_range_not_found_error(range_import['start_condition']['value'], False)
+                raise make_range_not_found_error(range_import['start_condition']['value'], False) #type: ignore
 
             ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(_range)
             nrows = end_row_index - start_row_index

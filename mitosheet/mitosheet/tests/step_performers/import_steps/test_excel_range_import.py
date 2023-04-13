@@ -192,9 +192,23 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_3.columns[0]}, 'end_condition': {'type': 'bottom left corner value starts with', 'value': 20}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_3.iloc[0:2]],
     ),
+    # Test end condition starts with condition not starting from A1
+    (
+        ['B2:C5'],
+        [TEST_DF_3],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_3.columns[0]}, 'end_condition': {'type': 'bottom left corner value starts with', 'value': 20}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_3.iloc[0:2]],
+    ),
     # Test end condition contains
     (
         ['A1:B4'],
+        [TEST_DF_3],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_3.columns[0]}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 20}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_3.iloc[0:2]],
+    ),
+    # Test end condition contains
+    (
+        ['B2:C5'],
         [TEST_DF_3],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_3.columns[0]}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 20}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_3.iloc[0:2]],
@@ -205,6 +219,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_4],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'er 10'}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 'abc'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_4.iloc[0:1]],
+    ),  
+    # Test that starts with or contains works when there is a gap of Nones, and we don't detect this as the upper left corner value
+    (
+        ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_2],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'er 10'}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_2],
     ),  
 ]
 @pandas_post_1_2_only

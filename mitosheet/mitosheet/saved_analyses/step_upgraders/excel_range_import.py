@@ -153,7 +153,7 @@ def upgrade_excel_range_import_3_to_4(step: Dict[str, Any], later_steps: List[Di
 
     NEW:
     {
-        "step_version": 3, 
+        "step_version": 4, 
         "step_type": "excel_range_import", 
         "params": {
             "file_path": str,
