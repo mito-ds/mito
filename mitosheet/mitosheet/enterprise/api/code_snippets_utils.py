@@ -6,7 +6,7 @@
 
 import json
 from typing import Any, List, Optional
-import requests
+import requests #type: ignore
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import NEWLINE, NEWLINE_TAB
 from mitosheet.types import CodeSnippet

@@ -303,7 +303,7 @@ def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, 
         try:
             parsed_datetime = datetime.datetime.strptime(str_datetime, '%Y-%m-%d %H:%M:%S')
             formula_label_parsed = formula_label if not isinstance(formula_label, str) else datetime.datetime.strptime(formula_label, '%Y-%m-%d %H:%M:%S')# We need to also parse this, as it's a string
-            row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime)
+            row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime) #type: ignore
             if row_offset is not None:
                 return {
                     'type': '{INDEX}',
