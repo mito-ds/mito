@@ -7,23 +7,31 @@ from openpyxl import load_workbook
 from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_column_from_column_index
 
 
-def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str, upper_left_value: Union[str, int, float, bool], bottom_left_value: Optional[Union[str, int, float, bool]]=None, num_columns: Optional[int]=None) -> Optional[str]:
+def get_table_range(
+        file_path: str, 
+        sheet_name: str, 
+        upper_left_value: Optional[Union[str, int, float, bool]]=None, 
+        upper_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
+        upper_left_value_contains: Optional[Union[str, int, float, bool]]=None,
+        bottom_left_value: Optional[Union[str, int, float, bool]]=None, 
+        bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
+        bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
+        num_columns: Optional[int]=None
+) -> Optional[str]:
     """
     Given a string, this function will look through the excel tab sheet_name at the given
-    file_path, and find the first instance of the value (look through column A first, then B, etc).
-
-    If this value does not exist in the tab, will return None. 
-
-    If the value does exist, then this function will walk down the column until it hits the bottom_left_value. 
-    If the bottom_left_value is defined but does not exist, will take to the end of the defined row.
-    
-    If num_columns is None, then, will walk down the first row until it hits an empty column. Otherwise, 
-    will take num_columns number of rows.
-    
-    Then it will return the range that defines that rectangular of defined data (with value in the upper left corner).
+    file_path and find a range that meets the conditions expressed by it's parameters.
     """
     workbook = load_workbook(file_path)
     sheet = workbook[sheet_name]
+
+    # Check exactly one of the start conditions is defined
+    if sum([1 if x is not None else 0 for x in [upper_left_value, upper_left_value_starts_with, upper_left_value_contains]]) != 1:
+        raise ValueError('Exactly one of upper_left_value, upper_left_value_starts_with, upper_left_value_contains must be defined')
+
+    # Check at most 1 one of the end conditions is defined
+    if sum([1 if x is not None else 0 for x in [bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains]]) > 1:
+        raise ValueError('At most one of bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains must be defined')
 
     # We get the last defined rows, so we don't waste time searching data we don't need
     dimension = sheet.calculate_dimension()
@@ -36,6 +44,12 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
     for col in sheet.iter_cols(min_row=min_search_row, max_row=max_search_row, min_col=min_search_col, max_col=max_search_col):
         for cell in col:
             if cell.value == upper_left_value:
+                min_found_col_index, min_found_row_index = cell.column, cell.row
+                break
+            elif upper_left_value_starts_with is not None and str(cell.value).startswith(str(upper_left_value_starts_with)):
+                min_found_col_index, min_found_row_index = cell.column, cell.row
+                break
+            elif upper_left_value_contains is not None and str(upper_left_value_contains) in str(cell.value):
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
         
@@ -57,6 +71,12 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
             max_found_row_index = cell.row - 1 # minus b/c this is one past the end
             break
         elif bottom_left_value == cell.value:
+            max_found_row_index = cell.row
+            break
+        elif bottom_left_value_starts_with is not None and str(cell.value).startswith(str(bottom_left_value_starts_with)):
+            max_found_row_index = cell.row
+            break
+        elif bottom_left_value_contains is not None and str(bottom_left_value_contains) in str(cell.value):
             max_found_row_index = cell.row
             break
 
@@ -82,6 +102,10 @@ def get_table_range_from_upper_left_corner_value(file_path: str, sheet_name: str
         max_found_col_index = max_search_col
 
     return f'{get_column_from_column_index(min_found_col_index - 1)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index - 1)}{max_found_row_index}'
+
+
+# We keep the old function name for backwards compatibility
+get_table_range_from_upper_left_corner_value = get_table_range
 
 
 def get_read_excel_params_from_range(range: str) -> Tuple[int, int, str]:

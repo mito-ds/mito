@@ -19,4 +19,4 @@ def register_analysis(analysis_name):
 
 
 # Forwards compatible functions
-from mitosheet.public.v2.excel_utils import get_table_range_from_upper_left_corner_value, get_read_excel_params_from_range
+from mitosheet.public.v2.excel_utils import get_table_range_from_upper_left_corner_value, get_read_excel_params_from_range, get_table_range

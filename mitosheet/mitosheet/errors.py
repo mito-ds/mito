@@ -636,14 +636,14 @@ def make_exec_error(e: Exception) -> MitoError:
     )
 
 
-def make_upper_left_corner_value_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
+def make_range_not_found_error(value: Union[str, int, float, bool], error_modal: bool) -> MitoError:
     """
-    Helper function for creating a upper_left_corner_value_not_found_error.
+    Helper function for creating a range_not_found_error.
 
     Occurs when the user does not give a value that is found in the sheet.
     """
     return MitoError(
-        'upper_left_corner_value_not_found_error',
+        'range_not_found_error',
         'Value Not Found',
         f'Value {value} was not found in the specified sheet. Please ensure the passed value is in this sheet.',
         error_modal=error_modal

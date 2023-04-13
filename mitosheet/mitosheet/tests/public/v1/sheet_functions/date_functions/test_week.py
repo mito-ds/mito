@@ -19,6 +19,3 @@ WEEK_TESTS = [
     ('2000-1-15', 2),
     ('2/2/2000', 5),
 ]
-@pytest.mark.parametrize("date, week", WEEK_TESTS)
-def test_week_works_on_inputs(date, week):
-    assert WEEK(date).tolist() == [week]

@@ -5,22 +5,105 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import copy
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.excel_utils import (get_column_from_column_index,
                                    get_col_and_row_indexes_from_range)
 from mitosheet.public.v2.excel_utils import get_read_excel_params_from_range
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, param_dict_to_code
 from mitosheet.types import ExcelRangeImport
 
 
+
 EXCEL_RANGE_IMPORT_TYPE_RANGE = 'range'
-EXCEL_RANGE_IMPORT_TYPE_UPPER_LEFT_VALUE = 'upper left corner value'
+
+EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE = 'upper left corner value'
+EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_STARTS_WITH = 'upper left corner value starts with'
+EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_CONTAINS = 'upper left corner value contains'
+EXCEL_RANGE_START_CONDITIONS = [
+    EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE,
+    EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_STARTS_WITH,
+    EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_CONTAINS
+]
+
 EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE = 'first empty cell'
 EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE = 'bottom left corner value'
+EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH = 'bottom left corner value starts with'
+EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS = 'bottom left corner value contains'
+EXCEL_RANGE_END_CONDTIONS = [
+    EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE,
+    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE,
+    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH,
+    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS
+]
+
+EXCEL_RANGE_COLUMN_END_CONDITION_FIRST_EMPTY_CELL = 'first empty cell'
 EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS = 'num columns'
+EXCEL_RANGE_COLUMN_END_CONDITIONS = [
+    EXCEL_RANGE_COLUMN_END_CONDITION_FIRST_EMPTY_CELL,
+    EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS
+]
+
+def get_table_range_params(file_path: str, sheet_name: str, start_condition: Any, end_condition: Any, column_end_condition: Any) -> Dict[str, Any]:
+
+    if start_condition['type'] not in EXCEL_RANGE_START_CONDITIONS:
+        raise ValueError(f'Invalid start condition type: {start_condition["type"]}')
+    if end_condition['type'] not in EXCEL_RANGE_END_CONDTIONS:
+        raise ValueError(f'Invalid end condition type: {end_condition["type"]}')
+    if column_end_condition['type'] not in EXCEL_RANGE_COLUMN_END_CONDITIONS:
+        raise ValueError(f'Invalid column end condition type: {column_end_condition["type"]}')
+
+    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE:
+        upper_left_value = start_condition['value']
+    else:
+        upper_left_value = None
+    
+    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_STARTS_WITH:
+        upper_left_value_starts_with = start_condition['value']
+    else:
+        upper_left_value_starts_with = None
+
+    if start_condition['type'] == EXCEL_RANGE_START_CONDITION_UPPER_LEFT_VALUE_CONTAINS:
+        upper_left_value_contains = start_condition['value']
+    else:
+        upper_left_value_contains = None
+    
+    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE:
+        bottom_left_value = end_condition['value']
+    else:
+        bottom_left_value = None
+
+    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH:
+        bottom_left_value_starts_with = end_condition['value']
+    else:
+        bottom_left_value_starts_with = None
+
+    if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS:
+        bottom_left_value_contains = end_condition['value']
+    else:
+        bottom_left_value_contains = None
+
+    if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS:
+        num_columns = column_end_condition['value']
+    else:
+        num_columns = None
+
+    all_params = {
+        'file_path': file_path,
+        'sheet_name': sheet_name,
+        'upper_left_value': upper_left_value,
+        'upper_left_value_starts_with': upper_left_value_starts_with,
+        'upper_left_value_contains': upper_left_value_contains,
+        'bottom_left_value': bottom_left_value,
+        'bottom_left_value_starts_with': bottom_left_value_starts_with,
+        'bottom_left_value_contains': bottom_left_value_contains,
+        'num_columns': num_columns
+    }
+
+    # Return only non-None params
+    return {k: v for k, v in all_params.items() if v is not None}
 
 
 class ExcelRangeImportCodeChunk(CodeChunk):
@@ -56,24 +139,15 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
             else:
                 # Otherwise, if you're importing based on values, we generate dynamic code
-
-                end_condition = range_import['end_condition'] # type: ignore
-
+                start_condition = range_import['start_condition'] # type: ignore
                 end_condition = range_import['end_condition'] #type: ignore
                 column_end_condition = range_import['column_end_condition'] #type: ignore
 
-                assert end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE]
-                assert column_end_condition['type'] in [EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE, EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS]
+                params = get_table_range_params(self.file_path, self.sheet_name, start_condition, end_condition, column_end_condition)
+                params_code = param_dict_to_code(params, as_single_line=True)
 
-                upper_left_value = range_import['value']
-                bottom_left_value = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE else None
-                num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
-
-                bottom_left_value_string = f', bottom_left_value={column_header_to_transpiled_code(bottom_left_value)}' if bottom_left_value else ''
-                num_columns_string = f', num_columns={column_header_to_transpiled_code(num_columns)}' if num_columns else ''
-    
                 code.extend([
-                    f'_range = get_table_range_from_upper_left_corner_value({column_header_to_transpiled_code(self.file_path)}, {column_header_to_transpiled_code(self.sheet_name)}, {column_header_to_transpiled_code(upper_left_value)}{bottom_left_value_string}{num_columns_string})',
+                    f'_range = get_table_range_from_upper_left_corner_value({params_code})',
                     'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)',
                     f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
                 ])
