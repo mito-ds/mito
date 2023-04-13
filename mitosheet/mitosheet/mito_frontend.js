@@ -39042,7 +39042,8 @@ fig.write_html("${props.graphTabName}.html")`
           });
         },
         conditionOptions: {
-          "first empty cell": { "title": "First Empty Cell", "subtext": "Mito will continue take all rows until it hits an empty cell in the first column." },
+          "first empty cell": { "title": "First Empty Cell", "subtext": "Mito will take all rows until it hits an empty cell in the first column." },
+          "bottom left corner consecutive empty cells": { "title": "Consecutive Empty Cells", "subtext": "Mito will continue take all rows until it hits at least this number of empty cells in one row.", "placeholderValue": "4" },
           "bottom left corner value": { "title": "Bottom Left Corner Value", "subtext": "Mito will search for this exact value (including whitespace) as the bottom left corner.", "placeholderValue": "end value" },
           "bottom left corner value starts with": { "title": "Bottom Left Corner Starts With", "subtext": "Mito will search for a cell that starts with this value.", "placeholderValue": "end value" },
           "bottom left corner value contains": { "title": "Bottom Left Corner Contains", "subtext": "Mito will search for a cell that starts with this value.", "placeholderValue": "end value" }
@@ -39157,7 +39158,7 @@ fig.write_html("${props.graphTabName}.html")`
             disabledTooltip = "Please ensure all range imports have a defined start condition.";
           }
           if ("value" in rangeImport.end_condition && rangeImport.end_condition.value === "") {
-            disabledTooltip = "Please ensure all range imports have a defined end condition.";
+            disabledTooltip = "Please ensure all range imports have a defined row end condition.";
           }
           if ("value" in rangeImport.column_end_condition && rangeImport.column_end_condition.value === "") {
             disabledTooltip = "Please ensure all range imports have a defined column end condition.";

@@ -13,6 +13,7 @@ def get_table_range(
         upper_left_value: Optional[Union[str, int, float, bool]]=None, 
         upper_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         upper_left_value_contains: Optional[Union[str, int, float, bool]]=None,
+        bottom_left_corner_consecutive_empty_cells: Optional[int]=None,
         bottom_left_value: Optional[Union[str, int, float, bool]]=None, 
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
@@ -30,7 +31,7 @@ def get_table_range(
         raise ValueError('Exactly one of upper_left_value, upper_left_value_starts_with, upper_left_value_contains must be defined')
 
     # Check at most 1 one of the end conditions is defined
-    if sum([1 if x is not None else 0 for x in [bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains]]) > 1:
+    if sum([1 if x is not None else 0 for x in [bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains, bottom_left_corner_consecutive_empty_cells]]) > 1:
         raise ValueError('At most one of bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains must be defined')
 
     # We get the last defined rows, so we don't waste time searching data we don't need
@@ -63,23 +64,42 @@ def get_table_range(
 
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
-    for cell in column:
-        if cell.row < min_found_row_index:
-            continue
-        
-        # Stop as soon as we match the final value
-        if bottom_left_value is None and cell.value is None:
-            max_found_row_index = cell.row - 1 # minus b/c this is one past the end
-            break
-        elif bottom_left_value == cell.value:
-            max_found_row_index = cell.row
-            break
-        elif bottom_left_value_starts_with is not None and str(cell.value).startswith(str(bottom_left_value_starts_with)):
-            max_found_row_index = cell.row
-            break
-        elif bottom_left_value_contains is not None and str(bottom_left_value_contains) in str(cell.value):
-            max_found_row_index = cell.row
-            break
+
+    if bottom_left_corner_consecutive_empty_cells is not None:
+        for i in range(min_found_row_index, sheet.max_row+1):
+            empty_count = 0
+            for j in range(min_found_col_index, sheet.max_column+1):
+                cell_obj = sheet.cell(row=i, column=j)
+                if cell_obj.value is None:
+                    empty_count += 1
+                else:
+                    break
+
+                if empty_count == bottom_left_corner_consecutive_empty_cells:
+                    max_found_row_index = i - 1
+                    break
+            if max_found_row_index is not None:
+                break
+
+
+    if max_found_row_index is None:
+        for cell in column:
+            if cell.row < min_found_row_index:
+                continue
+            
+            # Stop as soon as we match the final value
+            if bottom_left_value is None and cell.value is None:
+                max_found_row_index = cell.row - 1 # minus b/c this is one past the end
+                break
+            elif bottom_left_value == cell.value:
+                max_found_row_index = cell.row
+                break
+            elif bottom_left_value_starts_with is not None and str(cell.value).startswith(str(bottom_left_value_starts_with)):
+                max_found_row_index = cell.row
+                break
+            elif bottom_left_value_contains is not None and str(bottom_left_value_contains) in str(cell.value):
+                max_found_row_index = cell.row
+                break
 
     # If we looped over the entire column without ending, then we set the max row index
     # as the length of the entire column

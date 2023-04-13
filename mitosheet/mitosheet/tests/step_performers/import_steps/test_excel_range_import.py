@@ -30,6 +30,7 @@ TEST_DF_3 = pd.DataFrame({'header 101': [100, 200, 300], 'header 201': [200, 300
 TEST_DF_4 = pd.DataFrame({'header 102': ['abc', 'def'], 'header 202': ['hig', 'jkl']})
 TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc', 'dev'], 'D': ['abc', 'dev'], 'E': ['abc', 'dev'], })
 TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
+TEST_DF_7 = pd.DataFrame({'A': [1.0, 2.0, None, None], 'B': [1.0, 2.0, None, None], 'C': [None, 2, 3, None], 'D': [1, 2, 3, 4]})
 
 
 EXCEL_RANGE_IMPORT_TESTS = [
@@ -227,6 +228,14 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'er 10'}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_2],
     ),  
+    # Tests bottom left corner consecutive emtpy cells
+    (
+        ['A1:D5'],
+        [TEST_DF_7],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_7.iloc[0:3]],
+    ), 
+    
 ]
 @pandas_post_1_2_only
 @python_post_3_6_only

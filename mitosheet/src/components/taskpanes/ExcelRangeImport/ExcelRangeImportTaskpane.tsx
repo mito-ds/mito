@@ -38,7 +38,7 @@ interface ExcelRangeImportTaskpaneProps {
 export type ExcelRangeImportType = 'range' | 'dynamic';
 
 export type ExcelRangeStartCondition = {type: 'upper left corner value', value: string | number} | {type: 'upper left corner value starts with', value: string | number} | {type: 'upper left corner value contains', value: string | number};
-export type ExcelRangeEndCondition = {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number} | {type: 'bottom left corner value starts with', value: string | number} | {type: 'bottom left corner value contains', value: string | number};
+export type ExcelRangeEndCondition = {type: 'first empty cell'} | {type: 'bottom left corner value', value: string | number} | {type: 'bottom left corner value starts with', value: string | number} | {type: 'bottom left corner value contains', value: string | number} | {type: 'bottom left corner consecutive empty cells', value: string | number};
 export type ExcelRangeColumnEndCondition = {type: 'first empty cell'} | {type: 'num columns', value: string | number};
 
 export type ExcelRangeRangeImport = {type: 'range', df_name: string, value: string | number};
@@ -130,7 +130,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                     disabledTooltip = 'Please ensure all range imports have a defined start condition.';
                 }
                 if ('value' in rangeImport.end_condition && rangeImport.end_condition.value === '') {
-                    disabledTooltip = 'Please ensure all range imports have a defined end condition.';
+                    disabledTooltip = 'Please ensure all range imports have a defined row end condition.';
                 }
                 if ('value' in rangeImport.column_end_condition && rangeImport.column_end_condition.value === '') {
                     disabledTooltip = 'Please ensure all range imports have a defined column end condition.';
