@@ -21,6 +21,7 @@ from mitosheet.tests.decorators import (pandas_post_1_2_only,
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 
 TEST_FILE_PATH = "test_file.xlsx"
+TEST_FILE_CSV_PATH = "test_file.csv"
 TEST_SHEET_NAME = 'sheet1'
 TEST_FILE_PATH_2 = "test_file2.xlsx"
 TEST_SHEET_NAME_2 = 'sheet2'
@@ -257,7 +258,7 @@ def test_excel_range_import(range, input_dfs, imports, output_dfs):
 
     mito = create_mito_wrapper_dfs()
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, imports)
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, imports, False)
 
     assert len(mito.dfs) == len(imports)
     for actual, expected in zip(mito.dfs, output_dfs):
@@ -279,7 +280,7 @@ def test_excel_range_import_works_on_public_interface_1():
     mito = create_mito_wrapper_dfs()
     mito.mito_backend.steps_manager.public_interface_version = 1
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}], False)
 
     assert len(mito.dfs) == 1
     for actual, expected in zip(mito.dfs, [pd.DataFrame({'A': [1], "B": [2]})]):
@@ -293,7 +294,7 @@ def test_import_with_defined_name_works():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}], False)
 
     assert len(mito.dfs) == 2
     assert TEST_DF_1.equals(mito.dfs[0])
@@ -411,7 +412,7 @@ def test_excel_range_upper_left_detection_finds_first_match():
             df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)
 
     mito = create_mito_wrapper_dfs()
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 1}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'df1'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 1}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'df1'}], False)
 
     assert mito.dfs[0].equals(TEST_DF_6)
 
@@ -422,7 +423,7 @@ def test_excel_range_import_followed_by_rename_other_does_not_optimize():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
     mito.rename_dataframe(0, 'new_df1')
 
     assert len(mito.dfs) == 2
@@ -441,7 +442,7 @@ def test_excel_range_import_followed_by_delete_optimizes():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
     mito.delete_dataframe(1)
 
     assert len(mito.dfs) == 1
@@ -456,7 +457,7 @@ def test_excel_range_import_followed_by_delete_other_does_not_optimize():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
     mito.delete_dataframe(0)
 
     assert len(mito.dfs) == 1
@@ -471,8 +472,8 @@ def test_two_excel_range_imports_optimize_together():
     mito = create_mito_wrapper_dfs(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df3', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df3', 'value': 'A1:B2'}], False)
 
     assert len(mito.dfs) == 3
     assert TEST_DF_1.equals(mito.dfs[0])
@@ -490,8 +491,8 @@ def test_two_excel_range_imports_different_sheet_do_not_optimize_together():
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
     TEST_DF_2.to_excel(TEST_FILE_PATH_2, sheet_name=TEST_SHEET_NAME_2, index=False)
 
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}])
-    mito.excel_range_import(TEST_FILE_PATH_2, TEST_SHEET_NAME_2, [{'type': 'range', 'df_name': 'df3', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
+    mito.excel_range_import(TEST_FILE_PATH_2, TEST_SHEET_NAME_2, [{'type': 'range', 'df_name': 'df3', 'value': 'A1:B2'}], False)
 
     assert len(mito.dfs) == 3
     assert TEST_DF_1.equals(mito.dfs[0])
@@ -500,3 +501,41 @@ def test_two_excel_range_imports_different_sheet_do_not_optimize_together():
 
     assert len(mito.optimized_code_chunks) == 2
     os.remove(TEST_FILE_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_convert_csv_to_excel_before_importing():
+    mito = create_mito_wrapper_dfs()
+    TEST_DF_2.to_csv(TEST_FILE_CSV_PATH, index=False)
+
+    mito.excel_range_import(TEST_FILE_CSV_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], True)
+
+    assert len(mito.dfs) == 1
+    assert TEST_DF_2.equals(mito.dfs[0])
+
+    os.remove(TEST_FILE_CSV_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_convert_csv_to_excel_multiple_ranges():
+    mito = create_mito_wrapper_dfs()
+
+    # Write two CSVS to the same file
+    TEST_DF_1.to_csv(TEST_FILE_CSV_PATH, index=False)
+    TEST_DF_2.to_csv(TEST_FILE_CSV_PATH, mode='a', index=False, header=True)
+
+    mito.excel_range_import(
+        TEST_FILE_CSV_PATH, 
+        TEST_SHEET_NAME, 
+        [
+            # NOTE: You need to pass '1' in the ending value, as it gets read in as a string, as the second set of headers lead to it being a string column
+            {'type': 'dynamic', 'df_name': 'df1', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_1.columns[0]}, 'end_condition': {'type': 'bottom left corner value', 'value': '1'}, 'column_end_condition': {'type': 'first empty cell'}},
+            {'type': 'dynamic', 'df_name': 'df2', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_2.columns[0]}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}
+        ], True)
+
+    assert len(mito.dfs) == 2
+    print(mito.dfs[0])
+    assert TEST_DF_1.equals(mito.dfs[0])
+    assert TEST_DF_2.equals(mito.dfs[1])
+
+    os.remove(TEST_FILE_CSV_PATH)

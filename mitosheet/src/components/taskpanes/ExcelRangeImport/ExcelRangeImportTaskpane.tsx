@@ -58,6 +58,7 @@ export interface ExcelRangeImportParams {
     file_path: string,
     sheet_name: string,
     range_imports: ExcelRangeImport[],
+    convert_csv_to_excel: boolean
 }
 
 const getDefaultParams = (
@@ -69,6 +70,7 @@ const getDefaultParams = (
         file_path: file_path,
         sheet_name: sheet_name,
         range_imports: [{'type': 'range', 'df_name': '', 'value': ''}],
+        convert_csv_to_excel: false
     }
 }
 

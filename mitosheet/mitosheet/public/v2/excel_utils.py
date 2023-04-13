@@ -1,8 +1,10 @@
 
 
+import os
 from typing import Dict, Optional, Tuple, Union
 
 from openpyxl import load_workbook
+import pandas as pd
 
 from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_column_from_column_index
 
@@ -126,3 +128,11 @@ def get_read_excel_params_from_range(range: str) -> Tuple[int, int, str]:
     nrows = end_row_index - start_row_index
     usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
     return start_row_index, nrows, usecols
+
+
+def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: str) -> str:
+    """Converts a CSV file to an XLSX file"""
+    df = pd.read_csv(csv_path)
+    xlsx_path = os.path.splitext(csv_path)[0] + '.xlsx'
+    df.to_excel(xlsx_path, sheet_name=sheet_name, index=False)
+    return xlsx_path

@@ -48,7 +48,11 @@ EXCEL_RANGE_COLUMN_END_CONDITIONS = [
     EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS
 ]
 
-def get_table_range_params(file_path: str, sheet_name: str, start_condition: Any, end_condition: Any, column_end_condition: Any) -> Dict[str, Any]:
+def get_table_range_params(sheet_name: str, start_condition: Any, end_condition: Any, column_end_condition: Any) -> Dict[str, Any]:
+    """
+    Get the params for a get_table_range call, not including the file_path param, as we transpile that specially,
+    because it might have to be a variable.
+    """
 
     if start_condition['type'] not in EXCEL_RANGE_START_CONDITIONS:
         raise ValueError(f'Invalid start condition type: {start_condition["type"]}')
@@ -69,7 +73,6 @@ def get_table_range_params(file_path: str, sheet_name: str, start_condition: Any
     num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
 
     all_params = {
-        'file_path': file_path,
         'sheet_name': sheet_name,
         'upper_left_value': upper_left_value,
         'upper_left_value_starts_with': upper_left_value_starts_with,
@@ -87,11 +90,12 @@ def get_table_range_params(file_path: str, sheet_name: str, start_condition: Any
 
 class ExcelRangeImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_path: str, sheet_name: str, range_imports: List[ExcelRangeImport]):
+    def __init__(self, prev_state: State, post_state: State, file_path: str, sheet_name: str, range_imports: List[ExcelRangeImport], convert_csv_to_xlsx: bool):
         super().__init__(prev_state, post_state)
         self.file_path = file_path
         self.sheet_name = sheet_name
         self.range_imports = range_imports
+        self.convert_csv_to_xlsx = convert_csv_to_xlsx
 
     def get_display_name(self) -> str:
         return 'Excel Range Import'
@@ -102,6 +106,14 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         code = []
+
+        if self.convert_csv_to_xlsx:
+            code.append(f'xlsx_file_path = convert_csv_file_to_xlsx_file(\'{self.file_path}\', \'{self.sheet_name}\')')
+            transpiled_file_path = f'xlsx_file_path'
+        else:
+            transpiled_file_path = f'\'{self.file_path}\''
+
+
         for idx, range_import in enumerate(self.range_imports):
 
             sheet_index = len(self.prev_state.dfs) + idx
@@ -113,7 +125,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 skiprows, nrows, usecols = get_read_excel_params_from_range(_range)
                 
                 code.append(
-                    f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows={skiprows}, nrows={nrows}, usecols=\'{usecols}\')'
+                    f'{df_name} = pd.read_excel({transpiled_file_path}, sheet_name=\'{self.sheet_name}\', skiprows={skiprows}, nrows={nrows}, usecols=\'{usecols}\')'
                 )
 
             else:
@@ -122,13 +134,13 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 end_condition = range_import['end_condition'] #type: ignore
                 column_end_condition = range_import['column_end_condition'] #type: ignore
 
-                params = get_table_range_params(self.file_path, self.sheet_name, start_condition, end_condition, column_end_condition)
+                params = get_table_range_params(self.sheet_name, start_condition, end_condition, column_end_condition)
                 params_code = param_dict_to_code(params, as_single_line=True)
 
                 code.extend([
-                    f'_range = get_table_range({params_code})',
+                    f'_range = get_table_range({transpiled_file_path}, {params_code})',
                     'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)',
-                    f'{df_name} = pd.read_excel(\'{self.file_path}\', sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
+                    f'{df_name} = pd.read_excel({transpiled_file_path}, sheet_name=\'{self.sheet_name}\', skiprows=skiprows, nrows=nrows, usecols=usecols)'
                 ])
                 
 
@@ -151,7 +163,8 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 excel_range_import_code_chunk.post_state,
                 self.file_path,
                 self.sheet_name,
-                new_range_imports
+                new_range_imports,
+                self.convert_csv_to_xlsx
             )
 
         return None

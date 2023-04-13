@@ -39113,7 +39113,8 @@ fig.write_html("${props.graphTabName}.html")`
     return {
       file_path,
       sheet_name,
-      range_imports: [{ "type": "range", "df_name": "", "value": "" }]
+      range_imports: [{ "type": "range", "df_name": "", "value": "" }],
+      convert_csv_to_excel: false
     };
   };
   function castConditionValueToNumberIfPossible(condition) {

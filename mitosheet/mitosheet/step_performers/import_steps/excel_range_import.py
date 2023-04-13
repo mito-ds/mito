@@ -5,6 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import os
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -19,6 +20,7 @@ from mitosheet.errors import make_range_not_found_error
 from mitosheet.excel_utils import (get_col_and_row_indexes_from_range,
                                    get_column_from_column_index)
 from mitosheet.public.v2 import get_table_range
+from mitosheet.public.v2.excel_utils import convert_csv_file_to_xlsx_file
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
@@ -33,7 +35,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 4
+        return 5
 
     @classmethod
     def step_type(cls) -> str:
@@ -44,7 +46,11 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         file_path: str = get_param(params, 'file_path')
         sheet_name: str = get_param(params, 'sheet_name')
         range_imports: List[ExcelRangeImport] = get_param(params, 'range_imports')
-        
+        convert_csv_to_xlsx: bool = get_param(params, 'convert_csv_to_xlsx')
+
+        if convert_csv_to_xlsx:
+            file_path = convert_csv_file_to_xlsx_file(file_path, sheet_name)
+
         post_state = prev_state.copy() 
 
         pandas_start_time = perf_counter()
@@ -59,8 +65,8 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 end_condition = range_import['end_condition'] #type: ignore
                 column_end_condition = range_import['column_end_condition'] #type: ignore
 
-                params = get_table_range_params(file_path, sheet_name, start_condition, end_condition, column_end_condition)
-                _range = get_table_range(**params)
+                params = get_table_range_params(sheet_name, start_condition, end_condition, column_end_condition)
+                _range = get_table_range(file_path, **params)
                 
             if _range is None:
                 raise make_range_not_found_error(range_import['start_condition']['value'], False) #type: ignore
@@ -100,7 +106,8 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'file_path'),
                 get_param(params, 'sheet_name'),
-                get_param(params, 'range_imports')
+                get_param(params, 'range_imports'),
+                get_param(params, 'convert_csv_to_xlsx'),
             )
         ]
 
