@@ -25015,9 +25015,9 @@ ${finalCode}`;
       selectionEnd: cellEditorInput.selectionEnd || 0
     };
   };
-  var KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY = [
+  var KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA = [
     "Enter",
-    "Backspace"
+    "F2"
   ];
   var getStartingFormula = (sheetData, editorState, rowIndex, columnIndex, e) => {
     if (editorState !== void 0 && editorState.columnIndex === columnIndex) {
@@ -25051,11 +25051,11 @@ ${finalCode}`;
         originalValue = columnFormula;
       }
     }
-    if (e !== void 0) {
+    if (e !== void 0 && !KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA.includes(e.key)) {
       if (e.key === "Backspace") {
         originalValue = originalValue.substr(0, originalValue.length - 1);
       } else {
-        originalValue += KEYS_TO_ENTER_CELL_EDITING_MODE_EMPTY.includes(e.key) ? "" : e.key;
+        originalValue = e.key;
       }
     }
     const defaultFormula = `=${getDisplayColumnHeader(columnHeader)}`;
@@ -25717,7 +25717,8 @@ ${finalCode}`;
               "+",
               "*",
               "/",
-              "="
+              "=",
+              ":"
             ];
             let arrowKeysScrollInFormula = true;
             if (props.editorState.editorLocation === "cell") {
