@@ -19,6 +19,7 @@ import DefaultTaskpane from '../taskpanes/DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../taskpanes/DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultTaskpaneFooter from '../taskpanes/DefaultTaskpane/DefaultTaskpaneFooter';
 import DefaultTaskpaneHeader from '../taskpanes/DefaultTaskpane/DefaultTaskpaneHeader';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 const ENCODINGS = [
     "utf_8",
@@ -395,6 +396,24 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                             })
                         }}/>
                     </Col>
+                </Row>
+                <Row>
+                <p
+                    onClick={() => {
+                        props.setUIState((prevUIState) => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.EXCEL_RANGE_IMPORT,
+                                    file_path: props.filePath,
+                                    sheet_name: 'Sheet1'
+                                }
+                            }
+                        })
+                    }}
+                >
+                    Want to import multiple ranges from this file? <span className='text-underline'>Click here.</span>
+                </p>
                 </Row>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>

@@ -35116,7 +35116,24 @@ ${finalCode}`;
           error_bad_lines: [error_bad_lines2 !== void 0 ? !error_bad_lines2[0] : DEFAULT_ERROR_BAD_LINES]
         });
       });
-    } })))), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react130.default.createElement(
+    } }))), /* @__PURE__ */ import_react130.default.createElement(Row_default, null, /* @__PURE__ */ import_react130.default.createElement(
+      "p",
+      {
+        onClick: () => {
+          props.setUIState((prevUIState) => {
+            return __spreadProps(__spreadValues({}, prevUIState), {
+              currOpenTaskpane: {
+                type: "Excel Range Import" /* EXCEL_RANGE_IMPORT */,
+                file_path: props.filePath,
+                sheet_name: "Sheet1"
+              }
+            });
+          });
+        }
+      },
+      "Want to import multiple ranges from this file? ",
+      /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-underline" }, "Click here.")
+    ))), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react130.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -39114,7 +39131,7 @@ fig.write_html("${props.graphTabName}.html")`
       file_path,
       sheet_name,
       range_imports: [{ "type": "range", "df_name": "", "value": "" }],
-      convert_csv_to_excel: false
+      convert_csv_to_xlsx: !file_path.endsWith("xlsx")
     };
   };
   function castConditionValueToNumberIfPossible(condition) {
