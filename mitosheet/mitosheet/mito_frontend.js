@@ -24640,34 +24640,38 @@ ${finalCode}`;
   // src/components/elements/MitoProUpgradePrompt.tsx
   var import_react31 = __toESM(require_react());
   var MitoUpgradePrompt = (props) => {
-    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large" }, "Upgrade to Mito ", props.proOrEnterprise)));
+    const logClick = () => {
+      var _a;
+      void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_upgrade", { feature: props.featureName }));
+    };
+    (0, import_react31.useEffect)(() => {
+      let logEventType = props.proOrEnterprise === "Pro" ? "prompted_pro_upgrade" : "prompted_enterprise_upgrade";
+      void props.mitoAPI.log(logEventType, { feature: props.featureName });
+    }, []);
+    return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large", onClick: logClick }, "Upgrade to Mito ", props.proOrEnterprise)));
   };
   var MitoProUpgradePrompt_default = MitoUpgradePrompt;
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody.tsx
   var DefaultTaskpaneBody = (props) => {
-    var _a, _b;
-    const shouldPromptProUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro;
-    const shouldPromptEnterpriseUpgrade = !((_b = props.userProfile) == null ? void 0 : _b.isEnterprise) && props.requiresEnterprise;
-    (0, import_react32.useEffect)(() => {
-      if (shouldPromptProUpgrade && props.mitoAPI !== void 0) {
-        void props.mitoAPI.log("prompted_pro_upgrade", { feature: props.featureName });
-      }
-      if (shouldPromptEnterpriseUpgrade && props.mitoAPI !== void 0) {
-        void props.mitoAPI.log("prompted_enterprise_upgrade", { feature: props.featureName });
-      }
-    }, []);
-    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, shouldPromptProUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+    var _a, _b, _c, _d;
+    const shouldPromptProUpgrade = !((_a = props.userProfile) == null ? void 0 : _a.isPro) && props.requiresPro !== void 0;
+    const shouldPromptEnterpriseUpgrade = !((_b = props.userProfile) == null ? void 0 : _b.isEnterprise) && props.requiresEnterprise !== void 0;
+    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, !((_c = props.userProfile) == null ? void 0 : _c.isPro) && props.requiresPro !== void 0 && /* @__PURE__ */ import_react32.default.createElement(
       MitoProUpgradePrompt_default,
       {
-        message: props.requiresProMessage,
-        proOrEnterprise: "Pro"
+        message: props.requiresPro.message,
+        proOrEnterprise: "Pro",
+        mitoAPI: props.requiresPro.mitoAPI,
+        featureName: props.requiresPro.featureName
       }
-    ), shouldPromptEnterpriseUpgrade && /* @__PURE__ */ import_react32.default.createElement(
+    ), !((_d = props.userProfile) == null ? void 0 : _d.isEnterprise) && props.requiresEnterprise !== void 0 && /* @__PURE__ */ import_react32.default.createElement(
       MitoProUpgradePrompt_default,
       {
-        message: props.requiresEnterpriseMessage,
-        proOrEnterprise: "Enterprise"
+        message: props.requiresEnterprise.message,
+        proOrEnterprise: "Enterprise",
+        mitoAPI: props.requiresEnterprise.mitoAPI,
+        featureName: props.requiresEnterprise.featureName
       }
     ), /* @__PURE__ */ import_react32.default.createElement("div", { className: classNames("default-taskpane-body-div", { "default-taskpane-body-div-no-scroll": props.noScroll, "default-taskpane-body-disabled": shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade }) }, props.children));
   };
@@ -29327,10 +29331,11 @@ ${finalCode}`;
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
-        requiresPro: true,
-        requiresProMessage: "Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature.",
-        mitoAPI: props.mitoAPI,
-        featureName: "color_dataframe"
+        requiresPro: {
+          message: "Setting the dataframe format is a Mito Pro feature. Please upgrade to use this feature.",
+          mitoAPI: props.mitoAPI,
+          featureName: "Set dataframe colors"
+        }
       },
       /* @__PURE__ */ import_react76.default.createElement(
         DataframeSelect_default,
@@ -29744,10 +29749,11 @@ ${finalCode}`;
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
-        requiresPro: true,
-        requiresProMessage: "Conditional formatting is a Mito Pro feature. Please upgrade to use this feature.",
-        mitoAPI: props.mitoAPI,
-        featureName: "conditional_formatting"
+        requiresPro: {
+          message: "Conditional formatting is a Mito Pro feature. Please upgrade to use this feature.",
+          mitoAPI: props.mitoAPI,
+          featureName: "Conditional Formatting"
+        }
       },
       /* @__PURE__ */ import_react82.default.createElement(
         DataframeSelect_default,
@@ -38610,9 +38616,10 @@ fig.write_html("${props.graphTabName}.html")`
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
-        requiresEnterprise: !props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"],
-        mitoAPI: props.mitoAPI,
-        featureName: "snowflake_import"
+        requiresEnterprise: props.userProfile.mitoConfig["MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT"] ? void 0 : {
+          featureName: "snowflake_import",
+          mitoAPI: props.mitoAPI
+        }
       },
       /* @__PURE__ */ import_react168.default.createElement(
         AuthenticateToSnowflakeCard_default,

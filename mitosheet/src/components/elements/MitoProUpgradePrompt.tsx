@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import MitoAPI from '../../jupyter/api';
 import Row from '../layout/Row';
 import TextButton from './TextButton';
@@ -6,13 +6,18 @@ import TextButton from './TextButton';
 const MitoUpgradePrompt = (props: {
     message: string | undefined;
     proOrEnterprise: 'Pro' | 'Enterprise'
-    mitoAPI?: MitoAPI
+    mitoAPI: MitoAPI
     featureName?: string
 }): JSX.Element => {
 
     const logClick = () => {
         void props.mitoAPI?.log('clicked_upgrade', {feature: props.featureName});
     }
+
+    useEffect(() => {
+        let logEventType = props.proOrEnterprise === 'Pro' ? 'prompted_pro_upgrade' : 'prompted_enterprise_upgrade';
+        void props.mitoAPI.log(logEventType, {feature: props.featureName});
+    }, [])
 
     return (
         <div>
