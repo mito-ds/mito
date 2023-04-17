@@ -548,6 +548,7 @@ class MitoWidgetTestWrapper:
             file_path: str,
             sheet_name: str,
             range_imports: Any,
+            convert_csv_to_xlsx: bool,
         ) -> bool:
 
         return self.mito_backend.receive_message(
@@ -560,6 +561,7 @@ class MitoWidgetTestWrapper:
                     'file_path': file_path,
                     'sheet_name': sheet_name,
                     'range_imports': range_imports,
+                    'convert_csv_to_xlsx': convert_csv_to_xlsx
                 }
             }
         )

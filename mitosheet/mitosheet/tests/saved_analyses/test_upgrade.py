@@ -448,7 +448,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{"step_version": 4, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "range_imports": [{"type": "dynamic", 'start_condition': {"type": "upper left corner value", "value": 1}, "df_name": "df2", "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2
+            "steps_data": [{"step_version": 5, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "convert_csv_to_xlsx": False, "range_imports": [{"type": "dynamic", 'start_condition': {"type": "upper left corner value", "value": 1}, "df_name": "df2", "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2
         }
     ),
     # Upgrade the Snowflake import step
