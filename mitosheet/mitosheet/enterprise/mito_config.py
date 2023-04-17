@@ -23,6 +23,7 @@ MITO_CONFIG_DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
 MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
+MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -107,7 +108,8 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_DISABLE_TOURS,
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
+        MITO_CONFIG_LLM_URL
     ]
 }
 
@@ -255,6 +257,11 @@ class MitoConfig:
             'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL': code_snippets_support_email 
         }
         return code_snippets
+    
+    def get_llm_url(self) -> Optional[str]:
+        if self.mec is None or self.mec[MITO_CONFIG_LLM_URL] is None:
+            return None
+        return self.mec[MITO_CONFIG_LLM_URL]
 
     # Add new mito configuration options here ...
 
@@ -266,6 +273,7 @@ class MitoConfig:
             MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets(),
             MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.get_enable_snowflake_import(),
             MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.get_display_snowflake_import(),
-            MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.get_display_ai_transform()
+            MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.get_display_ai_transform(),
+            MITO_CONFIG_LLM_URL: self.get_llm_url(),
         }
 
