@@ -2,6 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css";
+import MitoAPI from '../../../jupyter/api';
 import { UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import MitoUpgradePrompt from '../../elements/MitoProUpgradePrompt';
@@ -27,42 +28,44 @@ const DefaultTaskpaneBody = (
         userProfile?: UserProfile;
 
         /**
-         * @param [requiresPro] - Set to true if the taskpane requires Mito Pro
+         * @param [requiresPro] - Set fields if the taskpane requires a pro liscence
         */
-        requiresPro?: boolean;
+        requiresPro?: {
+            message?: string,
+            featureName: string,
+            mitoAPI: MitoAPI
+        }
 
         /**
-         * @param [requiresProMessage] - The message to display if the taskpane requires Mito Pro
+         * @param [requiresEnterprise] - Set fields if the taskpane requires an enterprise liscence
         */
-        requiresProMessage?: string;
-
-        /**
-         * @param [requiresEnterprise] - Set to true if the taskpane requires Mito Enterprise
-        */
-        requiresEnterprise?: boolean;
-
-        /**
-         * @param [requiresProMessage] - The message to display if the taskpane requires Mito Enterprise
-        */
-        requiresEnterpriseMessage?: string;
+        requiresEnterprise?: {
+            message?: string,
+            featureName: string,
+            mitoAPI: MitoAPI
+        }
 
     }): JSX.Element => {
 
-    const shouldPromptProUpgrade = !props.userProfile?.isPro && props.requiresPro;
-    const shouldPromptEnterpriseUpgrade = !props.userProfile?.isEnterprise && props.requiresEnterprise;
+    const shouldPromptProUpgrade = !props.userProfile?.isPro && props.requiresPro !== undefined;
+    const shouldPromptEnterpriseUpgrade = !props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined;
 
     return (
         <>
-            {shouldPromptProUpgrade &&
+            {!props.userProfile?.isPro && props.requiresPro !== undefined &&
                 <MitoUpgradePrompt
-                    message={props.requiresProMessage}
+                    message={props.requiresPro.message}
                     proOrEnterprise='Pro'
+                    mitoAPI={props.requiresPro.mitoAPI}
+                    featureName={props.requiresPro.featureName}
                 />
             }
-            {shouldPromptEnterpriseUpgrade &&
+            {!props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined &&
                 <MitoUpgradePrompt
-                    message={props.requiresEnterpriseMessage}
+                    message={props.requiresEnterprise.message}
                     proOrEnterprise='Enterprise'
+                    mitoAPI={props.requiresEnterprise.mitoAPI}
+                    featureName={props.requiresEnterprise.featureName}
                 />
             }
             <div className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade})}> 
