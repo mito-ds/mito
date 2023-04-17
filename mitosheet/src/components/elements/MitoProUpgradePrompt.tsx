@@ -15,7 +15,7 @@ const MitoUpgradePrompt = (props: {
     }
 
     useEffect(() => {
-        let logEventType = props.proOrEnterprise === 'Pro' ? 'prompted_pro_upgrade' : 'prompted_enterprise_upgrade';
+        const logEventType = props.proOrEnterprise === 'Pro' ? 'prompted_pro_upgrade' : 'prompted_enterprise_upgrade';
         void props.mitoAPI.log(logEventType, {feature: props.featureName});
     }, [])
 

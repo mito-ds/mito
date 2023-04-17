@@ -24645,7 +24645,7 @@ ${finalCode}`;
       void ((_a = props.mitoAPI) == null ? void 0 : _a.log("clicked_upgrade", { feature: props.featureName }));
     };
     (0, import_react31.useEffect)(() => {
-      let logEventType = props.proOrEnterprise === "Pro" ? "prompted_pro_upgrade" : "prompted_enterprise_upgrade";
+      const logEventType = props.proOrEnterprise === "Pro" ? "prompted_pro_upgrade" : "prompted_enterprise_upgrade";
       void props.mitoAPI.log(logEventType, { feature: props.featureName });
     }, []);
     return /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-body-1" }, props.message || `This is a Mito ${props.proOrEnterprise} feature. To access all Mito ${props.proOrEnterprise} functionality, please upgrade.`)), /* @__PURE__ */ import_react31.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react31.default.createElement(TextButton_default, { href: "https://trymito.io/plans", target: "_blank", variant: "dark", width: "large", onClick: logClick }, "Upgrade to Mito ", props.proOrEnterprise)));
@@ -25617,7 +25617,7 @@ ${finalCode}`;
     }
   };
   var CellEditor = (props) => {
-    var _a, _b;
+    var _a;
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const cellEditorInputRef = (0, import_react41.useRef)(null);
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react41.useState)(-1);
@@ -25771,11 +25771,11 @@ ${finalCode}`;
         } else if (!arrowKeysScrollInFormula) {
           e.preventDefault();
           props.setGridState((gridState) => {
-            var _a2, _b2, _c, _d;
+            var _a2, _b, _c, _d;
             const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
             const newInputSelectionStart = firstNonNullOrUndefined(
               (_a2 = props.editorState.pendingSelections) == null ? void 0 : _a2.inputSelectionStart,
-              (_b2 = cellEditorInputRef.current) == null ? void 0 : _b2.selectionStart,
+              (_b = cellEditorInputRef.current) == null ? void 0 : _b.selectionStart,
               0
             );
             const newInputSelectionEnd = firstNonNullOrUndefined(
