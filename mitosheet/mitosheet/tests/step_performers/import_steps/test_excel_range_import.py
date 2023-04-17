@@ -29,7 +29,7 @@ TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
 TEST_DF_2 = pd.DataFrame({'header 100': [3], 'header 200': [4]})
 TEST_DF_3 = pd.DataFrame({'header 101': [100, 200, 300], 'header 201': [200, 300, 400]})
 TEST_DF_4 = pd.DataFrame({'header 102': ['abc', 'def'], 'header 202': ['hig', 'jkl']})
-TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc', 'dev'], 'D': ['abc', 'dev'], 'E': ['abc', 'dev'], })
+TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc', 'dev'], 'D': ['abc', 'dev'], 'E': ['abc', 'dev']})
 TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
 TEST_DF_7 = pd.DataFrame({'A': [1.0, 2.0, None, None], 'B': [1.0, 2.0, None, None], 'C': [None, 2, 3, None], 'D': [1, 2, 3, 4]})
 
@@ -517,7 +517,7 @@ def test_convert_csv_to_excel_before_importing():
 
 @pandas_post_1_2_only
 @python_post_3_6_only
-def test_convert_csv_to_excel_multiple_ranges():
+def test_convert_csv_to_excel_multiple_ranges_same_number_of_columns():
     mito = create_mito_wrapper_dfs()
 
     # Write two CSVS to the same file
@@ -537,5 +537,32 @@ def test_convert_csv_to_excel_multiple_ranges():
     print(mito.dfs[0])
     assert TEST_DF_1.equals(mito.dfs[0])
     assert TEST_DF_2.equals(mito.dfs[1])
+
+    os.remove(TEST_FILE_CSV_PATH)
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_convert_csv_to_excel_multiple_ranges_grows_in_columns():
+    mito = create_mito_wrapper_dfs()
+
+    # Write two CSVS to the same file
+    TEST_DF_1.to_csv(TEST_FILE_CSV_PATH, index=False)
+    TEST_DF_5.to_csv(TEST_FILE_CSV_PATH, mode='a', index=False, header=True)
+    TEST_DF_2.to_csv(TEST_FILE_CSV_PATH, mode='a', index=False, header=True)
+
+    mito.excel_range_import(
+        TEST_FILE_CSV_PATH, 
+        TEST_SHEET_NAME, 
+        [
+            # NOTE: You need to pass '1' in the ending value, as it gets read in as a string, as the second set of headers lead to it being a string column
+            {'type': 'dynamic', 'df_name': 'df1', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_1.columns[0]}, 'end_condition': {'type': 'bottom left corner value', 'value': '1'}, 'column_end_condition': {'type': 'first empty cell'}},
+            {'type': 'dynamic', 'df_name': 'df2', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_5.columns[0]}, 'end_condition': {'type': 'bottom left corner value', 'value': 'def'}, 'column_end_condition': {'type': 'first empty cell'}},
+            {'type': 'dynamic', 'df_name': 'df3', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_2.columns[0]}, 'end_condition': {'type': 'bottom left corner value', 'value': '3'}, 'column_end_condition': {'type': 'first empty cell'}},
+        ], True)
+
+    assert len(mito.dfs) == 3
+    assert TEST_DF_1.equals(mito.dfs[0])
+    assert TEST_DF_5.equals(mito.dfs[1])
+    assert TEST_DF_2.equals(mito.dfs[2])
 
     os.remove(TEST_FILE_CSV_PATH)

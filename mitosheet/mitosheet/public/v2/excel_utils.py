@@ -1,9 +1,11 @@
 
 
+import csv
 import os
 from typing import Dict, Optional, Tuple, Union
 
 from openpyxl import load_workbook
+import openpyxl
 import pandas as pd
 
 from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_column_from_column_index
@@ -132,7 +134,19 @@ def get_read_excel_params_from_range(range: str) -> Tuple[int, int, str]:
 
 def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: str) -> str:
     """Converts a CSV file to an XLSX file"""
-    df = pd.read_csv(csv_path)
+    
     xlsx_path = os.path.splitext(csv_path)[0] + '.xlsx'
-    df.to_excel(xlsx_path, sheet_name=sheet_name, index=False)
+
+    # Loop over each row of the CSV and write it to the XLSX
+    with open(csv_path, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = sheet_name
+        for row in csv_reader:
+            ws.append(row)
+
+        wb.save(xlsx_path)
+
     return xlsx_path
