@@ -12,7 +12,7 @@ import datetime
 from distutils.version import LooseVersion
 import re
 import warnings
-from typing import Any, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -303,7 +303,7 @@ def get_index_match_from_datetime_index(formula: str, formula_label: Union[str, 
         try:
             parsed_datetime = datetime.datetime.strptime(str_datetime, '%Y-%m-%d %H:%M:%S')
             formula_label_parsed = formula_label if not isinstance(formula_label, str) else datetime.datetime.strptime(formula_label, '%Y-%m-%d %H:%M:%S')# We need to also parse this, as it's a string
-            row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime)
+            row_offset = get_row_offset(index, formula_label_parsed, parsed_datetime) #type: ignore
             if row_offset is not None:
                 return {
                     'type': '{INDEX}',
@@ -732,6 +732,25 @@ def replace_column_headers_and_indexes(
 
     return formula, column_headers, index_labels
 
+
+    
+def replace_newlines_and_tabs(
+        formula: str,
+    ) -> str:
+    """
+    Removes all newlines and tabs that aren't in column headers
+    """
+    string_matches = get_string_matches(formula)
+
+    def replace_newlines_and_tabs_internal(match):
+        if not match_covered_by_matches(string_matches, (match.start(), match.end())):
+            return ''
+        else:
+            return match.group()
+    
+    return re.sub(r'\n|\t', replace_newlines_and_tabs_internal, formula)
+    
+
 def replace_functions(
         formula: str,
     ) -> Tuple[str, Set[str]]:
@@ -801,6 +820,9 @@ def parse_formula(
     if throw_errors:
         check_common_errors(formula, df)
 
+    # Chop off any whitespace at the start
+    formula = formula.lstrip()
+
     # Chop off the =, if it exists. We also accept formulas
     # that don't have an equals
     if formula.startswith('='):
@@ -818,9 +840,9 @@ def parse_formula(
         df_name
     )
 
-    code_with_functions, functions = replace_functions(
-        code_with_column_headers,
-    )
+    code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
+
+    code_with_functions, functions = replace_functions(code_without_newlines_or_tabs)
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 

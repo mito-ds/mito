@@ -2,24 +2,34 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
 import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
-import { classNames } from '../../../utils/classNames';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
-import LoadingDots from '../../elements/LoadingDots';
-import Toggle from '../../elements/Toggle';
-import Row from '../../layout/Row';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
-import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
+import { submitRenameColumnHeader } from '../columnHeaderUtils';
 import { focusGrid } from '../focusUtils';
 import { getNewSelectionAfterKeyPress, isNavigationKeyPressed } from '../selectionUtils';
 import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
-import { formulaEndsInReference, getDocumentationFunction, getFullFormula, getSelectionFormulaString, getStartingFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
+import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
-const MAX_SUGGESTIONS = 4;
 // NOTE: we just set the width to 250 pixels
-export const CELL_EDITOR_WIDTH = 250;
+export const CELL_EDITOR_DEFAULT_WIDTH = 250;
+export const CELL_EDITOR_MAX_WIDTH = 500;
+export const CELL_EDITOR_MAX_HEIGHT = 150;
+
+const getDefaultTextAreaHeight = (formula: string): number => {
+    const numLines = formula.split('\n').length + 1;
+
+    if (numLines <= 2) {
+        // Default to 2 lines, 11px tall
+        return 22;
+    } else {
+        return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
+    }
+}
 
 /* 
     A CellEditor allows the user to edit the formula or value of a cell.
@@ -46,16 +56,21 @@ const CellEditor = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
-    const cellEditorInputRef = useRef<HTMLInputElement | null>(null);
+    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+
+    const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
     const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = useState(-1);
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
+    const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
+    const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
-    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement) => {
+    // and ensure our cursor is at the final input
+    const setRef = useCallback((unsavedInputAnchor: HTMLInputElement | HTMLTextAreaElement | null) => {
         if (unsavedInputAnchor !== null) {
             // Save this node, so that we can update 
             cellEditorInputRef.current = unsavedInputAnchor;
@@ -63,7 +78,9 @@ const CellEditor = (props: {
             // Focus on the input after a tiny delay. I'm not sure why we need this delay, 
             // it is only requred when the cell editor is in the grid, not in the formula bar.
             setTimeout(() => {
-                cellEditorInputRef.current?.focus()
+                const current = cellEditorInputRef.current;
+                current?.focus()
+                current?.setSelectionRange(current?.value.length,current?.value.length);
             }, 50);
         }
     },[]);
@@ -97,6 +114,16 @@ const CellEditor = (props: {
         })
     }, [props.editorState.pendingSelections]);
 
+    // Place the selection range to the correct spot
+    useEffect(() => {
+        if (selectionRangeToSet !== undefined) {
+            cellEditorInputRef.current?.setSelectionRange(
+                selectionRangeToSet, selectionRangeToSet
+            )
+            setSelectionRangeToSet(undefined);
+        }
+    }, [props.editorState.formula])
+
     useEffect(() => {
         props.setEditorState(prevEditingState => {
             if (prevEditingState === undefined) {
@@ -111,21 +138,23 @@ const CellEditor = (props: {
         })
     }, [props.editorState.editingMode])
 
-    if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
+    useEffectOnResizeElement(() => {
+        const newHeightString = cellEditorInputRef.current?.style.height;
+        const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '22');
+        setTextAreaHeight(newHeight)
+    }, [], 'cell-editor-input')
+
+    if (columnID === undefined || columnHeader === undefined) {
         return <></>;
     }
 
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const endsInReference = formulaEndsInReference(fullFormula, indexLabel, props.sheetData);
-
-    const documentationFunction = getDocumentationFunction(fullFormula, cellEditorInputRef.current?.selectionStart);
-
-    // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
-    // for column headers that are pending currently
-    const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(props.editorState.formula, columnID, props.sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(props.editorState.formula, suggestedColumnHeadersReplacementLength);
-    const hasSuggestions = suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0;
-
+    const displayedDropdownType = getDisplayedDropdownType(
+        props.sheetData,
+        props.editorState,
+        cellEditorInputRef.current?.selectionStart,
+        cellEditorError,
+        loading,
+    )
 
     // A helper function to close the cell editor, selecting the cell that was
     // being edited, and making sure the cell is focused
@@ -155,8 +184,8 @@ const CellEditor = (props: {
 
     // Helper function to take the suggestion at a given index
     const takeSuggestion = (suggestionIndex: number) => {
-        // If no suggestion is selected, don't do anything
-        if (suggestionIndex === -1) {
+        // If there are no suggestions, or none is selected, then bounce
+        if (displayedDropdownType?.type !== 'suggestions' || suggestionIndex < 0) {
             return;
         }
 
@@ -166,46 +195,38 @@ const CellEditor = (props: {
         let suggestion = '';
 
         let isColumnHeaderSuggestion = true;
-        if (suggestionIndex < suggestedColumnHeaders.length) {
-            suggestionReplacementLength = suggestedColumnHeadersReplacementLength
-            suggestion = suggestedColumnHeaders[suggestionIndex][0];
+        if (suggestionIndex < displayedDropdownType.suggestedColumnHeaders.length) {
+            suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength
+            suggestion = displayedDropdownType.suggestedColumnHeaders[suggestionIndex][0];
         } else {
-            suggestionReplacementLength = suggestedFunctionsReplacementLength
+            suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength
             // We add a open parentheses onto the formula suggestion
-            suggestion = suggestedFunctions[suggestionIndex - suggestedColumnHeaders.length][0] + '(';
+            suggestion = displayedDropdownType.suggestedFunctions[suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length][0] + '(';
             isColumnHeaderSuggestion = false;
         }
 
-        // Get the full formula
-        let fullFormula = getFullFormula(
-            props.editorState.formula, 
-            props.editorState.pendingSelections, 
-            props.sheetData,
-        );
-
         // Strip the prefix, and append the suggestion, and the current index label as well
-        fullFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
-        fullFormula += suggestion;
-        if (isColumnHeaderSuggestion) {
-            fullFormula += getDisplayColumnHeader(indexLabel);
+        let newFormula = fullFormula.substr(0, fullFormula.length - suggestionReplacementLength);
+        newFormula += suggestion;
+        if (isColumnHeaderSuggestion && indexLabel !== undefined) {
+            newFormula += getDisplayColumnHeader(indexLabel);
         }
 
         // Update the cell editor state
         props.setEditorState({
             ...props.editorState,
-            formula: fullFormula,
+            formula: newFormula,
             pendingSelections: undefined,
             arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
         cellEditorInputRef.current?.setSelectionRange(
-            fullFormula.length, fullFormula.length
+            newFormula.length, newFormula.length
         )
     }
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         // Don't let the key down go anywhere else
         e.stopPropagation();
 
@@ -243,7 +264,7 @@ const CellEditor = (props: {
             const arrowUp = e.key === 'Up' || e.key === 'ArrowUp';
             const arrowDown = e.key === 'Down' || e.key === 'ArrowDown';
 
-            if (!endsInReference && (arrowUp || arrowDown) && (suggestedColumnHeaders.length > 0 || suggestedFunctions.length > 0)) {
+            if ((arrowUp || arrowDown) && displayedDropdownType?.type === 'suggestions') {
                 // (A) - They are navigating inside the suggestion box
 
                 // Prevent the default, so we don't move in the input
@@ -253,7 +274,7 @@ const CellEditor = (props: {
                 if (arrowUp) {
                     setSavedSelectedSuggestionIndex(suggestionIndex => Math.max(suggestionIndex - 1, -1))
                 } else if (arrowDown) {
-                    setSavedSelectedSuggestionIndex(suggestionIndex => Math.min(suggestionIndex + 1, suggestedColumnHeaders.length + suggestedFunctions.length - 1, MAX_SUGGESTIONS))
+                    setSavedSelectedSuggestionIndex(suggestionIndex => Math.min(suggestionIndex + 1, displayedDropdownType.suggestedColumnHeaders.length + displayedDropdownType.suggestedFunctions.length - 1, MAX_SUGGESTIONS))
                 }
 
                 // As google sheets does, if the user is scrolling in the suggestion box,
@@ -383,21 +404,83 @@ const CellEditor = (props: {
         }
     }
 
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
+            ' ',
+            ',',
+            '(', ')',
+            '-', '+', '*', '/',
+            '=',
+            ':'
+        ]
+
+        let arrowKeysScrollInFormula = true
+        if (props.editorState.editorLocation === 'cell') {
+            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
+            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
+            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
+            // This attempts to match what Excel and Google Sheets do
+            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
+            const finalChar = e.target.value.substring(e.target.value.length - 1);
+            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
+            const isEmpty = e.target.value.length === 0;
+            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
+        }
+        
+
+        props.setEditorState({
+            ...props.editorState,
+            formula: e.target.value,
+            arrowKeysScrollInFormula: arrowKeysScrollInFormula
+        })
+    }
+
+    const onClick = () => {
+        // As in Excel or Google Sheets, if you click the input, then
+        // the arrow keys now navigate within the formula, rather than
+        // selecting columns in the sheet
+        props.setEditorState({
+            ...props.editorState,
+            arrowKeysScrollInFormula: true
+        })
+    }
+
+    const addSpacingCharacter = (char: '\n' | '\t'): void => {
+        let selectionStart = cellEditorInputRef.current?.selectionStart;
+        selectionStart = selectionStart === null || selectionStart === undefined ? 0 : selectionStart;
+        const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
+
+        props.setEditorState(prevEditingState => {
+            if (prevEditingState === undefined) {
+                return undefined
+            }
+            return {
+                ...prevEditingState,
+                formula: newFormula
+            }
+        })
+
+        // And make sure we put the selection at the right place, which is right after the new line
+        setSelectionRangeToSet(selectionStart + 1)
+
+        // Add more space if we add a line
+        if (char === '\n') {
+            setTextAreaHeight(prevHeight => prevHeight += 11)
+        }
+    }
+
+
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement | HTMLTextAreaElement>) => {
 
         // Don't refresh the page
         e.preventDefault();
 
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
-        if (selectedSuggestionIndex !== -1 && !endsInReference) {
+        if (selectedSuggestionIndex !== -1) {
             takeSuggestion(selectedSuggestionIndex);
-
-            // Then, reset the suggestion index that is selected back to -1, 
-            // so that nothing is selected
             setSavedSelectedSuggestionIndex(-1);
-
             return;
         }
 
@@ -418,9 +501,9 @@ const CellEditor = (props: {
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
             // Otherwise, update the formula for the column (or specific index)
-            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'entire_column' 
-                ? {'type': 'entire_column'}
-                : {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+            const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'specific_index_labels' && indexLabel != undefined 
+                ? {'type': 'specific_index_labels', 'index_labels': [indexLabel]}
+                : {'type': 'entire_column'}
 
 
             errorMessage = await props.mitoAPI.editSetColumnFormula(
@@ -451,174 +534,87 @@ const CellEditor = (props: {
                 className='cell-editor-form'
                 onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
-            >
-                <input
-                    ref={setRef}
-                    id='cell-editor-input'
-                    className='cell-editor-input'
-                    onClick={() => {
-                        // As in Excel or Google Sheets, if you click the input, then
-                        // the arrow keys now navigate within the formula, rather than
-                        // selecting columns in the sheet
-                        props.setEditorState({
-                            ...props.editorState,
-                            arrowKeysScrollInFormula: true
-                        })
-                    }}
-                    value={getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)}
-                    onKeyDown={onKeyDown}
-                    onChange={(e) => {
-
-                        const CHARS_TO_REMOVE_SCROLL_IN_FORMULA = [
-                            ' ',
-                            ',',
-                            '(', ')',
-                            '-', '+', '*', '/',
-                            '=',
-                            ':'
-                        ]
-
-                        let arrowKeysScrollInFormula = true
-                        if (props.editorState.editorLocation === 'cell') {
-                            // If we are typing at the end of the formula, and we type a CHARS_TO_REMOVE_SCROLL_IN_FORMULA,
-                            // then we reset the arrowKeysScrollInFormula to false. Furtherrmore, if the formula is empty, 
-                            // we reset the arrow keys to scroll in the sheet. Otherwise, we keep it as is.
-                            // This attempts to match what Excel and Google Sheets do
-                            const atEndOfFormula = (e.target.selectionStart || 0) >= e.target.value.length;
-                            const finalChar = e.target.value.substring(e.target.value.length - 1);
-                            const endsInResetCharacter = atEndOfFormula && CHARS_TO_REMOVE_SCROLL_IN_FORMULA.includes(finalChar)
-                            const isEmpty = e.target.value.length === 0;
-                            arrowKeysScrollInFormula = props.editorState.arrowKeysScrollInFormula !== undefined && !endsInResetCharacter && !isEmpty; 
-                        }
-                        
-
-                        props.setEditorState({
-                            ...props.editorState,
-                            formula: e.target.value,
-                            arrowKeysScrollInFormula: arrowKeysScrollInFormula
-                        })}
-                    }
-                />
-            </form>
-            {/* 
-                In the dropdown box, we either show an error, a loading message, suggestions
-                or the documentation for the last function, depending on the cases below
-            */}
-            <div className='cell-editor-dropdown-box' style={{width: props.editorState.editorLocation === 'cell' ? `${CELL_EDITOR_WIDTH}px` : '300px'}}>
-                {cellEditorError === undefined && props.editorState.rowIndex != -1 &&
-                    <Row justify='space-between' align='center' className='cell-editor-label'>
-                        <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title={props.editorState.editingMode === 'entire_column' ? 'You are currently editing the entire column. Setting a formula will change all values in the column.' : 'You are currently editing a specific cell. Changing this value will only effect this cell.'}>
-                            Edit entire column
-                        </p>
-                        <Toggle
-                            className='mr-5px'
-                            value={props.editorState.editingMode === 'entire_column' ? true : false}
-                            onChange={() => {
-                                props.setEditorState(prevEditorState => {
-                                    if (prevEditorState === undefined) {
-                                        return undefined
-                                    }
-                                    const prevEditingMode = {...prevEditorState}.editingMode
-                                    return {
-                                        ...prevEditorState,
-                                        editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
-                                    }
-                                })
-                            }}
-                            height='20px'
-                        />
-                    </Row>
+            >   
+                
+                {/** If we're in the formula bar, then we show a text area */}
+                {props.editorState.editorLocation === 'cell' && 
+                    <input
+                        ref={setRef}
+                        id='cell-editor-input'
+                        className='cell-editor-input'
+                        onClick={onClick}
+                        value={fullFormula.replace(/\t/g, '')} // Don't show tabs (TODO: bug if strings have tabs?)
+                        onKeyDown={onKeyDown}
+                        onChange={onChange}
+                        autoComplete='off'
+                    />
                 }
-                {cellEditorError === undefined && props.editorState.rowIndex == -1 &&
-                    <p className={classNames('text-subtext-1', 'pl-5px', 'mt-2px')} title='You are currently editing the column header.'>
-                        Edit column header
-                    </p>
-                }
-                {/* Show an error if there is currently an error */}
-                {cellEditorError !== undefined &&
-                    <div className='cell-editor-error-container pl-10px pr-5px pt-5px pb-5px'>
-                        <p className='text-body-1 text-color-error'>
-                            {cellEditorError}
-                        </p>
-                        <p className='text-subtext-1'>
-                            Press Escape to close the cell editor.
-                        </p>
-                    </div>
-                }
-                {/* Show we're loading if we're currently loading */}
-                {loading && 
-                    <p className='text-body-2 pl-5px'>
-                        Processing<LoadingDots />
-                    </p>
-                }
-                {/* Show the suggestions */}
-                {cellEditorError === undefined && !loading && !endsInReference &&
-                    <>
-                        {(suggestedColumnHeaders.concat(suggestedFunctions)).map(([suggestion, subtext], idx) => {
-                            // We only show at most 4 suggestions
-                            if (idx > MAX_SUGGESTIONS) {
-                                return <></>
+                {props.editorState.editorLocation === 'formula bar' && 
+                    <textarea
+                        ref={setRef}
+                        id='cell-editor-input'
+                        className='cell-editor-input'
+                        style={{'resize': 'vertical', 'maxHeight': `${CELL_EDITOR_MAX_HEIGHT}px`, 'height': `${textAreaHeight}px`}}
+                        onClick={onClick}
+                        value={fullFormula}
+                        autoComplete='off'
+                        spellCheck='false'
+                        onKeyUp={(e) => {
+                            // Since we can't detect Shift + Enter in onKeyDown, we need to do it here
+                            if (e.key == 'Enter' && e.shiftKey) {
+                                addSpacingCharacter('\n');
+                                return;
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                if (!e.metaKey) {
+                                    // If we press enter and the meta key is not pressed, we want to submit (or take suggestion)
+                                    e.preventDefault();
+                                    void onSubmit(e);
+                                    return;
+                                } else {
+                                    addSpacingCharacter('\n');
+                                    return;
+                                }
                             }
 
-                            const selected = idx === selectedSuggestionIndex;
-                            const suggestionClassNames = classNames('cell-editor-suggestion', 'text-body-2', {
-                                'cell-editor-suggestion-selected': selected
-                            });
-                            
-                            return (
-                                <div 
-                                    onMouseEnter={() => setSavedSelectedSuggestionIndex(idx)}
-                                    onClick={() => {
-                                        // Take a suggestion if you click on it
-                                        takeSuggestion(idx);
-                                        // Make sure we're focused
-                                        cellEditorInputRef.current?.focus();
-                                    }}
-                                    className={suggestionClassNames} 
-                                    key={suggestion}
-                                >
-                                    <span className='text-overflow-hide' title={suggestion}>
-                                        {suggestion}
-                                    </span>
-                                    {selected &&
-                                        <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
-                                            {subtext}
-                                        </div>
-                                    }
-                                </div>
-                            )
-                        })}
-                    </>
+                            // If the tab key is pressed, we want to take the suggestion if there is one
+                            if (e.key === 'Tab') {
+                                e.preventDefault();
+                                if (selectedSuggestionIndex !== -1) {
+                                    takeSuggestion(selectedSuggestionIndex);
+                                    setSavedSelectedSuggestionIndex(-1);
+                                } else {
+                                    addSpacingCharacter('\t');
+                                    return
+                                }
+                            }
+
+                            // If up and down arrow key is pressed, and there are suggestions, we skip the default behavior
+                            // and do not move the cursor. This is because we want to use the arrow keys to navigate
+                            // the suggestions, rather than moving the cursor
+                            if (displayedDropdownType?.type === 'suggestions' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                                e.preventDefault();
+                            }
+
+                            onKeyDown(e);
+                        }}
+                        onChange={onChange}
+                    />
                 }
-                {/* Otherwise, display the documentation function */}
-                {cellEditorError === undefined && !loading && !hasSuggestions && documentationFunction !== undefined &&
-                    <div>
-                        <div className='cell-editor-function-documentation-header pt-5px pb-10px pl-10px pr-10px'>
-                            <p className='text-body-2'>
-                                {documentationFunction.syntax}
-                            </p>
-                            <p className='text-subtext-1'>
-                                {documentationFunction.description}
-                            </p>
-                        </div>
-                        <div className='pt-5px pb-10px pr-10px pl-10px'>
-                            <p className='text-subtext-1'>
-                                Examples
-                            </p>
-                            {documentationFunction.examples?.map((example, index) => {
-                                return (
-                                    <p 
-                                        key={index}
-                                        className='cell-editor-function-documentation-example'
-                                    >
-                                        {example}
-                                    </p>
-                                )
-                            })}
-                        </div>
-                    </div>
-                }
-            </div>
+            </form>
+            <CellEditorDropdown
+                sheetData={props.sheetData}
+                sheetIndex={props.sheetIndex}
+                editorState={props.editorState}
+                setEditorState={props.setEditorState}
+                cellEditorInputRef={cellEditorInputRef}
+                selectedSuggestionIndex={selectedSuggestionIndex}
+                setSavedSelectedSuggestionIndex={setSavedSelectedSuggestionIndex}
+                takeSuggestion={takeSuggestion}
+                displayedDropdownType={displayedDropdownType}
+            />
         </div>
     )
 }

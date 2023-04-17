@@ -12,7 +12,7 @@ import os
 from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
 
 
-import requests
+import requests #type: ignore
 
 from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
