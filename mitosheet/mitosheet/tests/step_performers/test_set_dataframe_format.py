@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 from mitosheet.state import NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_CURRENCY, get_default_dataframe_format
 from mitosheet.step_performers.filter import FC_NUMBER_GREATER
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.types import ConditionalFormat, DataframeFormat
 
 
@@ -42,11 +42,11 @@ def get_dataframe_format(columns: Optional[Dict[str, Any]]=None, headers: Option
 
 
 def test_no_format_code_generated_by_default():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     assert mito.transpiled_code == []
 
 def test_no_format_code_with_default_format():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.set_dataframe_format(0, get_default_dataframe_format())
     assert mito.transpiled_code == []    
 
@@ -116,7 +116,7 @@ SET_DATAFRAME_FORMAT_TESTS = [
 @pytest.mark.parametrize("df_format, included_formatting_code", SET_DATAFRAME_FORMAT_TESTS)
 def test_set_dataframe_format(df_format, included_formatting_code):
     df = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_dataframe_format(0, df_format)
 
     assert len(mito.dfs) == 1
@@ -140,7 +140,7 @@ def test_set_dataframe_format(df_format, included_formatting_code):
 
 
 def test_format_with_undo():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.set_dataframe_format(0, get_default_dataframe_format())
     assert mito.transpiled_code == [] 
 
@@ -158,7 +158,7 @@ def test_format_with_undo():
 
 
 def test_format_with_duplicate():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.set_dataframe_format(0, get_default_dataframe_format())
     assert mito.transpiled_code == [] 
 
@@ -199,7 +199,7 @@ INDEXES = [
 @pytest.mark.parametrize("index", INDEXES)
 def test_set_dataframe_format_different_indexes(df_format, included_formatting_code, index):
     df = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])}, index=index)
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_dataframe_format(0, df_format)
 
     assert len(mito.dfs) == 1
@@ -224,7 +224,7 @@ def test_set_dataframe_format_different_indexes(df_format, included_formatting_c
 
 def test_rename_then_duplicate_then_format():
     df = pd.DataFrame({'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_dataframe_format(0, get_dataframe_format(
         columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
     ))

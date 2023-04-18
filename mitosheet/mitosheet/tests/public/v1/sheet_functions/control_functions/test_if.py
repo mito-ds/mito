@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.control_functions import IF
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests
 
@@ -32,7 +32,7 @@ def test_if_direct(condition,true_series,false_series,result):
 
 @pytest.mark.parametrize("condition,true_series,false_series,result", IF_TESTS)
 def test_if_in_mitosheet(condition, true_series, false_series, result):
-    mito = create_mito_wrapper_dfs(pd.DataFrame({
+    mito = create_mito_wrapper(pd.DataFrame({
         'A': condition,
         'B': true_series,
         'C': false_series
@@ -79,7 +79,7 @@ IF_CONDITION_CONSTANT_TESTS = [
 ]
 @pytest.mark.parametrize("A, condition_string, result", IF_CONDITION_CONSTANT_TESTS)
 def test_if_conditions_constant(A, condition_string, result):
-    mito = create_mito_wrapper_dfs(pd.DataFrame({
+    mito = create_mito_wrapper(pd.DataFrame({
         'A': A,
         'B': [1, 2],
         'C': [3, 4]
@@ -100,7 +100,7 @@ IF_CONDITION_CONSTANT_RESULTS_TESTS = [
 ]
 @pytest.mark.parametrize("A, condition_string, true_value, false_value, result", IF_CONDITION_CONSTANT_RESULTS_TESTS)
 def test_if_conditions_constant_results(A, condition_string, true_value, false_value, result):
-    mito = create_mito_wrapper_dfs(pd.DataFrame({
+    mito = create_mito_wrapper(pd.DataFrame({
         'A': A,
     }))
     mito.set_formula(f'=IF({condition_string}, {true_value}, {false_value})', 0, 'B', add_column=True)
@@ -117,7 +117,7 @@ IF_AND_OR = [
 ]
 @pytest.mark.parametrize("A, formula, result", IF_AND_OR)
 def test_if_with_and_or(A, formula, result):
-    mito = create_mito_wrapper_dfs(pd.DataFrame({
+    mito = create_mito_wrapper(pd.DataFrame({
         'A': A,
     }))
     mito.set_formula(f'{formula}', 0, 'B', add_column=True)

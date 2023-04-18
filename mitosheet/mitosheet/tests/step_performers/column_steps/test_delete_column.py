@@ -9,16 +9,16 @@ Contains tests for a column rename.
 
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 
 def test_delete_works():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.delete_columns(0, ['A'])
     assert mito.dfs[0].empty
 
 def test_delete_cannot_delete_invalid_column():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     try:
         mito.delete_columns(0, ['B'])
     except:
@@ -26,13 +26,13 @@ def test_delete_cannot_delete_invalid_column():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
 
 def test_delete_can_delete_with_references():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['A'])
     assert mito.dfs[0].equals(pd.DataFrame({'B': [2]}))
 
 def test_delete_multiple_columns():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
     mito.delete_columns(0, ['B', 'C'])
@@ -40,14 +40,14 @@ def test_delete_multiple_columns():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
 
 def test_deletes_in_correct_order():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'C')
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['A', 'B'])
 
     assert mito.dfs[0].equals(pd.DataFrame({'C': [0]}))
 
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'C')
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['B', 'A'])
@@ -56,7 +56,7 @@ def test_deletes_in_correct_order():
 
 
 def test_does_not_delete_if_one_column_has_dependants():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'C')
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, ['A', 'C'])
@@ -65,7 +65,7 @@ def test_does_not_delete_if_one_column_has_dependants():
 
 
 def test_create_delete_then_create():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     mito.delete_columns(0, 'B')
     mito.set_formula('=A + 2', 0, 'B', add_column=True)
@@ -73,7 +73,7 @@ def test_create_delete_then_create():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [3]}))
 
 def test_double_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.delete_columns(0, ['A'])
     mito.delete_columns(0, ['B'])
 
@@ -83,7 +83,7 @@ def test_double_delete_optimizes():
     ]
 
 def test_multi_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234], 'C': [12345], 'D': [12346]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234], 'C': [12345], 'D': [12346]}))
     mito.delete_columns(0, ['A'])
     mito.delete_columns(0, ['B'])
     mito.delete_columns(0, ['C', 'D'])
@@ -94,7 +94,7 @@ def test_multi_delete_optimizes():
     ]
 
 def test_delete_different_sheets_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.duplicate_dataframe(0)
     mito.delete_columns(0, ['A'])
     mito.delete_columns(1, ['B'])
@@ -106,7 +106,7 @@ def test_delete_different_sheets_optimizes():
     ]
 
 def test_double_delete_different_sheets_does_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.duplicate_dataframe(0)
     mito.delete_columns(0, ['A'])
     mito.delete_columns(0, ['B'])
@@ -122,7 +122,7 @@ def test_double_delete_different_sheets_does_optimize():
     ]
 
 def test_double_delete_sheets_does_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.duplicate_dataframe(0)
     mito.delete_columns(0, ['A'])
     mito.delete_columns(0, ['B'])
@@ -134,7 +134,7 @@ def test_double_delete_sheets_does_optimize():
     assert mito.transpiled_code == []
 
 def test_delete_diffrent_sheets_does_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.duplicate_dataframe(0)
     mito.delete_columns(0, ['A'])
     mito.delete_columns(0, ['B'])
@@ -143,7 +143,7 @@ def test_delete_diffrent_sheets_does_optimize():
     assert len(mito.optimized_code_chunks) >= 3
 
 def test_add_column_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'B': [1234]}))
     mito.add_column(0, 'A', -1)
     mito.delete_columns(0, ['A'])
 
@@ -153,7 +153,7 @@ def test_add_column_then_delete_optimizes():
     assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
 
 def test_add_column_then_delete_multiple_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'B': [1234]}))
     mito.add_column(0, 'A', -1)
     mito.delete_columns(0, ['A', 'B'])
 
@@ -163,7 +163,7 @@ def test_add_column_then_delete_multiple_optimizes():
     assert mito.dfs[0].empty
 
 def test_add_multiple_column_then_delete_multiple_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'B': [1234]}))
     mito.add_column(0, 'A', -1)
     mito.add_column(0, 'C', -1)
     mito.add_column(0, 'D', -1)
@@ -177,7 +177,7 @@ def test_add_multiple_column_then_delete_multiple_optimizes():
     assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
 
 def test_reorder_column_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.reorder_column(0, 'A', -1)
     mito.delete_columns(0, ['A'])
 
@@ -187,7 +187,7 @@ def test_reorder_column_then_delete_optimizes():
     assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
 
 def test_reorder_column_then_delete_multiple_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.reorder_column(0, 'A', -1)
     mito.delete_columns(0, ['B'])
     mito.delete_columns(0, ['A'])
@@ -198,7 +198,7 @@ def test_reorder_column_then_delete_multiple_optimizes():
     assert mito.dfs[0].empty
 
 def test_reorder_column_then_delete_different_does_not_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.reorder_column(0, 'A', -1)
     mito.delete_columns(0, ['B'])
     mito.rename_column(0, 'A', 'C')
@@ -208,7 +208,7 @@ def test_reorder_column_then_delete_different_does_not_optimize():
     assert mito.dfs[0].equals(pd.DataFrame({'C': [123]}))
 
 def test_reorder_then_delete_on_diff_sheet_not_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}), pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}), pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.reorder_column(0, 'A', 2)
     mito.delete_columns(1, ['A'])
 
@@ -217,7 +217,7 @@ def test_reorder_then_delete_on_diff_sheet_not_optimize():
     assert mito.dfs[1].equals(pd.DataFrame({'B': [1234]}))
 
 def test_rename_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.rename_column(0, 'A', 'C')
     mito.delete_columns(0, ['C'])
 
@@ -225,7 +225,7 @@ def test_rename_then_delete_optimizes():
     assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
 
 def test_rename_then_delete_other_does_not_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.rename_column(0, 'B', 'C')
     mito.delete_columns(0, ['A'])
 
@@ -233,7 +233,7 @@ def test_rename_then_delete_other_does_not_optimize():
     assert mito.dfs[0].equals(pd.DataFrame({'C': [1234]}))
 
 def test_rename_multiple_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}))
     mito.rename_column(0, 'A', 'D')
     mito.rename_column(0, 'B', 'C')
     mito.delete_columns(0, ['D', 'C'])
@@ -242,7 +242,7 @@ def test_rename_multiple_then_delete_optimizes():
     assert mito.dfs[0].empty
 
 def test_rename_multiple_then_delete_non_full_overlap_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234], 'C': [12345]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234], 'C': [12345]}))
     mito.rename_column(0, 'A', 'Y')
     mito.rename_column(0, 'B', 'Z')
     mito.delete_columns(0, ['C', 'Y'])
@@ -251,7 +251,7 @@ def test_rename_multiple_then_delete_non_full_overlap_optimizes():
     assert mito.dfs[0].equals(pd.DataFrame({'Z': [1234]}))
 
 def test_rename_then_delete_on_diff_sheet_not_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [123], 'B': [1234]}), pd.DataFrame({'Y': [123], 'B': [1234]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [123], 'B': [1234]}), pd.DataFrame({'Y': [123], 'B': [1234]}))
     mito.rename_column(0, 'A', 'Y')
     mito.delete_columns(1, ['Y'])
 

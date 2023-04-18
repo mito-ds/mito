@@ -180,8 +180,6 @@ class MitoBackend():
         # Also, write the analysis to a file!
         write_analysis(self.steps_manager)
 
-        print("HERE", self.get_shared_state_variables())
-
         # Tell the front-end to render the new sheet and new code with an empty
         # response. 
         self.mito_send({

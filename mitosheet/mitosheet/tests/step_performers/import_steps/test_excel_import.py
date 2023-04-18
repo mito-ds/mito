@@ -7,7 +7,7 @@ import os
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_FILE = 'file.xlsx'
@@ -19,7 +19,7 @@ def test_can_import_a_single_excel():
     df.to_excel(TEST_FILE, index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
 
@@ -39,7 +39,7 @@ def test_can_import_with_no_headers_and_skiprows():
     df.to_excel(TEST_FILE, index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1'], False, 2, DEFAULT_DECIMAL)
 
@@ -63,7 +63,7 @@ def test_can_import_multiple_sheets():
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
 
@@ -85,7 +85,7 @@ def test_can_import_multiple_sheets_then_delete_no_optimize():
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(0)
@@ -107,7 +107,7 @@ def test_can_import_multiple_sheets_then_delete_last_no_optimize():
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(1)
@@ -129,7 +129,7 @@ def test_can_import_multiple_sheets_then_multiple_deletes():
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(0)
@@ -149,7 +149,7 @@ def test_can_import_multiple_sheets_then_multiple_deletes_later_in_analysis():
         df.to_excel(writer, sheet_name='Sheet1', index=False)
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(2)
@@ -169,7 +169,7 @@ def test_remove_multiple_one_by_one_does_not_optimize_till_all_gone():
         df.to_excel(writer, sheet_name='Sheet1', index=False)
         df.to_excel(writer, sheet_name='Sheet2', index=False)
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.excel_import(TEST_FILE, ['Sheet1', 'Sheet2'], True, 0)
     mito.delete_dataframe(2)
@@ -192,7 +192,7 @@ def test_comma_decimal_excel_import():
     with pd.ExcelWriter(TEST_FILE) as writer:  
         df_comma.to_excel(writer, sheet_name='Sheet1', index=False)
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, ',')
     
     assert mito.dfs[0].equals(df_result)

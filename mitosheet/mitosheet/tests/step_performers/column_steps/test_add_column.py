@@ -8,16 +8,16 @@ Contains tests for new column creation.
 """
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 def test_creates_row_on_row_creation_message():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     assert 'B' in mito.dfs[0]
 
 
 def test_can_set_row_after_creation_message():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
 
@@ -26,7 +26,7 @@ def test_can_set_row_after_creation_message():
 
 
 def test_create_mulitple_columns():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     from string import ascii_lowercase
 
     for letter in ascii_lowercase:
@@ -37,7 +37,7 @@ def test_create_mulitple_columns():
 
 
 def test_create_column_mulitple_times():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
 
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
@@ -50,7 +50,7 @@ def test_multi_sheet_add_columns_correct_dfs():
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [2]})
 
-    mito = create_mito_wrapper_dfs(df1, df2)
+    mito = create_mito_wrapper(df1, df2)
     mito.add_column(0, 'B')
     mito.add_column(1, 'C')
 
@@ -60,7 +60,7 @@ def test_multi_sheet_add_columns_correct_dfs():
 
 def test_add_column_and_then_delete():
     df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.add_column(0, 'B')
     mito.delete_dataframe(0)
 
@@ -74,7 +74,7 @@ def test_add_column_and_then_delete():
 
 def test_add_column_in_middle():
     df = pd.DataFrame({'A': [123], 'B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.add_column(0, 'C', 1)
 
     assert mito.dfs[0].equals(pd.DataFrame({
@@ -85,7 +85,7 @@ def test_add_column_in_middle():
 
 def test_add_multiple_columns_in_middle():
     df = pd.DataFrame({'A': [123], 'B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.add_column(0, 'C', 1)
     mito.add_column(0, 'D', 1)
     mito.add_column(0, 'E', 2)
@@ -101,7 +101,7 @@ def test_add_multiple_columns_in_middle():
 
 def test_add_column_out_of_bounds():
     df = pd.DataFrame({'A': [123], 'B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.add_column(0, 'C', -2)
     mito.add_column(0, 'D', 10)
 
@@ -113,7 +113,7 @@ def test_add_column_out_of_bounds():
     }))
 
 def test_add_then_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.delete_columns(0, ['B'])
 
@@ -121,7 +121,7 @@ def test_add_then_delete_optimizes():
 
     
 def test_add_then_delete_multiple_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
     mito.delete_columns(0, ['B', 'C'])
@@ -129,7 +129,7 @@ def test_add_then_delete_multiple_optimizes():
     assert mito.transpiled_code == []
 
 def test_add_then_rename_multiple_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
 
@@ -138,7 +138,7 @@ def test_add_then_rename_multiple_optimizes():
     ]
 
 def test_add_then_rename_then_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
     mito.delete_columns(0, ['C'])
@@ -146,7 +146,7 @@ def test_add_then_rename_then_delete_optimizes():
     assert mito.transpiled_code == []
 
 def test_add_then_rename_then_set_formula_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
     mito.set_formula('=10', 0, 'C', add_column=False)
@@ -156,7 +156,7 @@ def test_add_then_rename_then_set_formula_optimizes():
     ]
 
 def test_add_then_rename_then_set_formula_then_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
     mito.set_formula('=10', 0, 'C', add_column=False)
@@ -165,7 +165,7 @@ def test_add_then_rename_then_set_formula_then_delete_optimizes():
     assert mito.transpiled_code == []
 
 def test_add_then_rename_then_set_formula_then_multiple_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'D')
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
@@ -176,7 +176,7 @@ def test_add_then_rename_then_set_formula_then_multiple_delete_optimizes():
 
     
 def test_add_then_rename_multiple_then_set_formula_then_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.add_column(0, 'BB')
     mito.rename_column(0, 'B', 'C')
@@ -187,7 +187,7 @@ def test_add_then_rename_multiple_then_set_formula_then_delete_optimizes():
     assert mito.transpiled_code == []
 
 def test_add_then_set_formula_then_rename_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.rename_column(0, 'B', 'C')
@@ -197,7 +197,7 @@ def test_add_then_set_formula_then_rename_optimizes():
     ]
 
 def test_add_then_set_formula_then_rename_then_delete_optimizes():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.set_formula('=10', 0, 'B', add_column=False)
     mito.rename_column(0, 'B', 'C')
@@ -210,7 +210,7 @@ def test_add_then_set_formula_then_rename_then_delete_optimizes():
 
     
 def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimize():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
     mito.rename_column(1, 'B', 'C')
@@ -230,7 +230,7 @@ def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimi
 
     
 def test_add_then_set_formula_then_rename_then_delete_sheet_does_optimize():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
     mito.rename_column(1, 'B', 'C')
@@ -244,7 +244,7 @@ def test_add_then_set_formula_then_rename_then_delete_sheet_does_optimize():
     assert mito.transpiled_code == []
 
 def test_add_then_set_formula_then_rename_then_delete_different_sheet_does_not_optimize():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
     mito.rename_column(1, 'B', 'C')

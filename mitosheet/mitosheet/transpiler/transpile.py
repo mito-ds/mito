@@ -15,6 +15,7 @@ from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.transpiler.transpile_utils import convert_script_to_function
 from mitosheet.types import StepsManagerType
 
 
@@ -40,7 +41,7 @@ def transpile(
     for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
         preprocess_code = preprocess_step_performer.transpile(
             steps_manager,
-            steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()]
+            steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()],
         )
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
@@ -73,5 +74,16 @@ def transpile(
     # We then deduplicate the imports, keeping the same order as originally. We then 
     # put them at the start of the code!
     final_imports_code = deduplicate_array(imports_code)
+
+    # If we should transpile this as a function, we do so
+    if steps_manager.code_options['as_function']:
+        final_code = convert_script_to_function(
+            steps_manager,
+            final_imports_code,
+            code,
+            steps_manager.code_options['function_name'],
+            steps_manager.code_options['function_params']
+        )
+        return final_code
 
     return final_imports_code + code

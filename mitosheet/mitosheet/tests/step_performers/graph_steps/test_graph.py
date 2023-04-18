@@ -12,12 +12,12 @@ from mitosheet.step_performers.graph_steps.graph_utils import (BAR, BOX,
                                                                ECDF, HISTOGRAM,
                                                                LINE, SCATTER,
                                                                STRIP, VIOLIN)
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 def test_create_empty_graph():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     mito.generate_graph(graph_id, BAR, 0, False, [], [], 400, 400)
 
@@ -43,7 +43,7 @@ GRAPH_CREATION_TESTS = [
 @pytest.mark.parametrize("graph_type", GRAPH_CREATION_TESTS)
 def test_create_graph(graph_type):
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     mito.generate_graph(graph_id, graph_type, 0, False, ['A'], ['B'], 400, 400)
 
@@ -59,7 +59,7 @@ def test_create_graph(graph_type):
 # Tests all styling options that are available to all graphs
 def test_all_styling_options():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     color = 'B'
     facet_col_column_id = 'A'
@@ -170,7 +170,7 @@ def test_all_styling_options():
 
 def test_histogram_configuration():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     mito.generate_graph(graph_id, HISTOGRAM, 0, False, ['A'], ['B', 'C'], 400, 400, 
         nbins=5, 
@@ -191,7 +191,7 @@ def test_histogram_configuration():
 
 def test_line_configuration():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     mito.generate_graph(graph_id, LINE, 0, False, ['A'], ['B', 'C'], 400, 400, 
         line_shape='spline', 
@@ -208,7 +208,7 @@ def test_line_configuration():
 
 def test_box_configuration():
     df = pd.DataFrame({'A': ['aaron', 'jake', 'nate'], 'B': [1, 2, 3], 'C': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     graph_id = '123'
     mito.generate_graph(graph_id, BOX, 0, False, ['A'], ['B', 'C'], 400, 400, 
         points='outliers', 

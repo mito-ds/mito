@@ -12,7 +12,7 @@ import pandas as pd
 from mitosheet.column_headers import get_column_header_id
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only
 
 OPERATOR_TYPE_ERRORS = [
@@ -61,7 +61,7 @@ OPERATOR_TYPE_ERRORS = [
 @pandas_post_1_only
 @pytest.mark.parametrize("formula, error", OPERATOR_TYPE_ERRORS)
 def test_type_errors(formula, error):
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1], 'B': [True], 'C': ['Hi'], 'D': [pd.to_datetime('12-12-2020')]}))
     mito.add_column(0, 'E')
     if error is not None:
         with pytest.raises(MitoError) as e:

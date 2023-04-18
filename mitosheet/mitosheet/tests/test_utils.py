@@ -7,6 +7,7 @@
 This file contains helpful functions and classes for testing operations.
 """
 
+from copy import deepcopy
 import json
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -23,7 +24,7 @@ from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import (
     column_header_list_to_transpiled_code, column_header_to_transpiled_code)
-from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
+from mitosheet.types import (CodeOptions, ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
                              DataframeFormat, FormulaAppliedToType, GraphID,
@@ -51,8 +52,8 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
 
     # The only dataframes we want to define apriori are the dataframes that
     # were passed directly to the mito widget
-    original_dfs = {
-        df_name: df.copy(deep=True) for df, df_name in 
+    original_args = {
+        arg_name: arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg) for arg, arg_name in 
         zip(
             test_wrapper.mito_backend.steps_manager.original_args,
             test_wrapper.mito_backend.steps_manager.steps_including_skipped[0].df_names
@@ -104,7 +105,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
                 # transpiled code 
                 **local_vars,
             }, 
-            original_dfs
+            original_args
         )
     except:
         from mitosheet.errors import get_recent_traceback
@@ -1018,6 +1019,19 @@ class MitoWidgetTestWrapper:
                 'params': {},
             }
         )
+    
+    @check_transpiled_code_after_call
+    def argsUpdate(self, args: List[str]) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'args_update',
+                'params': {
+                    'args': args
+                },
+            }
+        )
 
     @check_transpiled_code_after_call
     def redo(self) -> bool:
@@ -1129,8 +1143,21 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
-                    'args': args if args is not None else self.mito_backend.steps_manager.original_args_names,
+                    'args': args if args is not None else self.mito_backend.steps_manager.original_args_raw_strings,
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
+                },
+            }
+        )
+    
+    @check_transpiled_code_after_call
+    def code_options_update(self, code_options: CodeOptions) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'code_options_update',
+                'params': {
+                    'code_options': code_options
                 },
             }
         )
@@ -1511,7 +1538,7 @@ class MitoWidgetTestWrapper:
         return self.mito_backend.steps_manager.curr_step.final_defined_state.df_formats[sheet_index]
         
 
-def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[List[Any]]=None) -> MitoWidgetTestWrapper:
+def create_mito_wrapper_with_data(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[List[Any]]=None) -> MitoWidgetTestWrapper:
     """
     Returns a MitoWidgetTestWrapper instance wrapped around a MitoWidget
     that contains just a column A, containing sheet_one_A_data.
@@ -1527,7 +1554,7 @@ def create_mito_wrapper(sheet_one_A_data: List[Any], sheet_two_A_data: Optional[
     mito_backend = get_mito_backend(*dfs)
     return MitoWidgetTestWrapper(mito_backend)
 
-def create_mito_wrapper_dfs(*args: pd.DataFrame) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(*args: Union[pd.DataFrame, str]) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.

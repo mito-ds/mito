@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import CodeOptions, ColumnHeader
+from mitosheet.types import CodeOptions, ColumnHeader, ParamName, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -139,8 +139,76 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
     
     return code
 
+def get_str_param_name(steps_manager: StepsManagerType, index: int) -> str:
+    # We go and find the first state, and then get the name of the df at this index
+    df_name = steps_manager.steps_including_skipped[0].final_defined_state.df_names[index]
+    return df_name + '_path'
+
+def _get_param_names_for_mitosheet_params(steps_manager: StepsManagerType) -> Dict[ParamName, ParamValue]:
+    """
+    Returns a dictionary of the param names and values for the mitosheet params.
+    """
+    from mitosheet.updates.args_update import is_str_df_name
+
+    original_args_values = steps_manager.original_args_raw_strings
+    original_args_names = []
+
+    for index, original_arg_name in enumerate(original_args_values):
+        if is_str_df_name(original_arg_name):
+            original_args_names.append(get_str_param_name(steps_manager, index))
+        else:
+            original_args_names.append(original_arg_name)
+
+    return {param_name: param_value for param_name, param_value in zip(original_args_names, original_args_values)}
+
+
+def _get_param_names_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
+    original_param_names = list(_get_param_names_for_mitosheet_params(steps_manager).keys())
+    additional_params = list(function_params.keys())
+    return ", ".join(original_param_names + additional_params)
+
+def _get_param_values_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
+    original_param_values = list(_get_param_names_for_mitosheet_params(steps_manager).values())
+    additional_params = list(function_params.values())
+    return ", ".join(original_param_values + additional_params)
+
+
+def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]):
+    """
+    Given a list of code lines, puts it inside of a function.
+    """
+    final_code = []
+
+    # Add the imports
+    final_code += imports
+    if len(imports) > 0:
+        final_code.append("")
+
+    # The param
+    param_names = _get_param_names_string(steps_manager, function_params)
+    param_values = _get_param_values_string(steps_manager, function_params)
+
+    # Add the function definition
+    final_code.append(f"def {function_name}({param_names}):")
+
+    # Add the code
+    final_code += [f"{TAB}{line}" for line in code]
+
+    # Add the return statement, where we return the final dfs
+    return_variables = ", ".join(steps_manager.curr_step.df_names)
+    final_code.append(f"{TAB}return {return_variables}")
+    final_code.append("")
+
+    # Then, add the function call
+    final_code.append(f"{return_variables} = {function_name}({param_values})")
+    
+    return final_code
+
+
 
 def get_default_code_options() -> CodeOptions:
     return {
-        'as_function': False
+        'as_function': False,
+        'function_name': 'function', # TODO: randomize?
+        'function_params': dict()
     }

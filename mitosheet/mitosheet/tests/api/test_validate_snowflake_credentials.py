@@ -1,7 +1,7 @@
 import json
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 import os
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
@@ -18,7 +18,7 @@ TEST_SNOWFLAKE_CREDENTIALS = {
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_valid_credentials_integration_test(): 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     response = get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
@@ -32,7 +32,7 @@ def test_valid_credentials_integration_test():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_invalid_credentials_integration_test():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     credentials = {
         'type': 'username/password', 

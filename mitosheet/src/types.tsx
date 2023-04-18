@@ -70,8 +70,13 @@ export enum UpdateType {
     CodeOptionsUpdate = 'code_options_update',
 }
 
+type ParamName = string;
+type ParamValue = string;
+
 export type CodeOptions = {
-    as_function: boolean
+    as_function: boolean,
+    function_name: string
+    function_params: Record<ParamName, ParamValue>
 }
 
 /**

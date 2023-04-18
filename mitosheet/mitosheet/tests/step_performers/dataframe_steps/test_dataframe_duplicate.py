@@ -9,12 +9,12 @@ Contains tests for dataframe_duplicate
 
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.transpiler.transpile import transpile
 
 def test_can_duplicate_single_dataframe():
     df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.duplicate_dataframe(0)
 
@@ -24,7 +24,7 @@ def test_can_duplicate_single_dataframe():
 
 def test_can_duplicate_single_dataframe_and_add_column():
     df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
@@ -35,7 +35,7 @@ def test_can_duplicate_single_dataframe_and_add_column():
 
 def test_can_double_duplicate():
     df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.duplicate_dataframe(0)
     mito.duplicate_dataframe(0)
@@ -46,7 +46,7 @@ def test_can_double_duplicate():
 
 def test_can_duplicate_with_renamed_column_then_delete():
     df = pd.DataFrame({'A': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.add_column(0, 'B')
     mito.rename_column(0, 'B', 'C')
     mito.duplicate_dataframe(0)

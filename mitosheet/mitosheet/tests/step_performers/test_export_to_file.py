@@ -11,7 +11,7 @@ import glob
 import os
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 
 EXPORT_TO_FILE_TESTS_CSV = [
@@ -60,7 +60,7 @@ EXPORT_TO_FILE_TESTS_CSV = [
 def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name, final_file_names):
     file_name = str(tmp_path / file_name)
 
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.export_to_file(type, sheet_indexes, file_name)
 
@@ -130,7 +130,7 @@ EXPORT_TO_FILE_TESTS_EXCEL = [
 def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_name, df_names, final_file_name, final_sheet_names):
     file_name = str(tmp_path / file_name)
 
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
     for sheet_index, df_name in zip(sheet_indexes, df_names):
         mito.rename_dataframe(sheet_index, df_name)
 

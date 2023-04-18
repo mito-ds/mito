@@ -18,7 +18,7 @@ from mitosheet.excel_utils import get_col_and_row_indexes_from_range
 from mitosheet.public.v2 import get_table_range
 from mitosheet.tests.decorators import (pandas_post_1_2_only,
                                         python_post_3_6_only)
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 TEST_FILE_PATH = "test_file.xlsx"
 TEST_FILE_CSV_PATH = "test_file.csv"
@@ -256,7 +256,7 @@ def test_excel_range_import(range, input_dfs, imports, output_dfs):
             ((startcol, startrow), _) = get_col_and_row_indexes_from_range(_range)
             input_dfs[index].to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, imports, False)
 
@@ -277,7 +277,7 @@ def test_excel_range_import_works_on_public_interface_1():
         ((startcol, startrow), _) = get_col_and_row_indexes_from_range('A1:B2')
         pd.DataFrame({'A': [1], "B": [2]}).to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)  
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.mito_backend.steps_manager.public_interface_version = 1
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}], False)
@@ -291,7 +291,7 @@ def test_excel_range_import_works_on_public_interface_1():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_import_with_defined_name_works():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}], False)
@@ -411,7 +411,7 @@ def test_excel_range_upper_left_detection_finds_first_match():
             ((startcol, startrow), _) = get_col_and_row_indexes_from_range(r)
             df.to_excel(writer, sheet_name=TEST_SHEET_NAME, startrow=startrow, startcol=startcol, index=False)
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 1}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'df1'}], False)
 
     assert mito.dfs[0].equals(TEST_DF_6)
@@ -420,7 +420,7 @@ def test_excel_range_upper_left_detection_finds_first_match():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_excel_range_import_followed_by_rename_other_does_not_optimize():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
@@ -439,7 +439,7 @@ def test_excel_range_import_followed_by_rename_other_does_not_optimize():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_excel_range_import_followed_by_delete_optimizes():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
@@ -454,7 +454,7 @@ def test_excel_range_import_followed_by_delete_optimizes():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_excel_range_import_followed_by_delete_other_does_not_optimize():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
@@ -469,7 +469,7 @@ def test_excel_range_import_followed_by_delete_other_does_not_optimize():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_two_excel_range_imports_optimize_together():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
 
     mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], False)
@@ -487,7 +487,7 @@ def test_two_excel_range_imports_optimize_together():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_two_excel_range_imports_different_sheet_do_not_optimize_together():
-    mito = create_mito_wrapper_dfs(TEST_DF_1)
+    mito = create_mito_wrapper(TEST_DF_1)
     TEST_DF_2.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
     TEST_DF_2.to_excel(TEST_FILE_PATH_2, sheet_name=TEST_SHEET_NAME_2, index=False)
 
@@ -505,7 +505,7 @@ def test_two_excel_range_imports_different_sheet_do_not_optimize_together():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_convert_csv_to_excel_before_importing():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     TEST_DF_2.to_csv(TEST_FILE_CSV_PATH, index=False)
 
     mito.excel_range_import(TEST_FILE_CSV_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B2'}], True)
@@ -518,7 +518,7 @@ def test_convert_csv_to_excel_before_importing():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_convert_csv_to_excel_multiple_ranges_same_number_of_columns():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     # Write two CSVS to the same file
     TEST_DF_1.to_csv(TEST_FILE_CSV_PATH, index=False)
@@ -543,7 +543,7 @@ def test_convert_csv_to_excel_multiple_ranges_same_number_of_columns():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_convert_csv_to_excel_multiple_ranges_grows_in_columns():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     # Write two CSVS to the same file
     TEST_DF_1.to_csv(TEST_FILE_CSV_PATH, index=False)

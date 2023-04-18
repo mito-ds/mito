@@ -9,7 +9,7 @@ Contains tests for AI Transformation
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 AI_TRANSFORMATION_TESTS = [
     # Edit dataframe
@@ -150,7 +150,7 @@ df2
 ]
 @pytest.mark.parametrize("input_dfs, edited_completion, output_dfs", AI_TRANSFORMATION_TESTS)
 def test_ai_transformation(input_dfs, edited_completion, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.ai_transformation('fake user input', 'fake version', 'fake prompt', 'fake_completion', edited_completion)
 

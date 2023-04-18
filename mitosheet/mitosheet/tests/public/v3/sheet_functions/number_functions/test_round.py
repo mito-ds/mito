@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.number_functions import ROUND
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 

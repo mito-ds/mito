@@ -20,7 +20,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import 
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
     DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
@@ -625,7 +625,7 @@ def test_full_analysis_in_old_format_replays_properly():
     df = pd.DataFrame(data={'Column 1': [1, 2], 'Column 2': [3, 4]})
     df.to_csv('test.csv', index=False)
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.replay_analysis('test_file')
 
     assert len(mito.dfs) == 4
@@ -660,7 +660,7 @@ def test_full_analysis_aaron_bug_fixed():
     df = pd.DataFrame(data={'Column 1': [1, 2], 'Column 2': [3, 4]})
     df.to_csv('test.csv', index=False)
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.replay_analysis('test_file')
 
     assert len(mito.dfs) == 3
@@ -699,7 +699,7 @@ def test_duplicate_and_rename_analysis():
 
     df = pd.DataFrame(data={'A A': [1,2,3]})
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.replay_analysis('test_file')
 
     assert len(mito.dfs) == 3
@@ -742,7 +742,7 @@ def test_pivot_5_allows_edits_after_upgrading():
         )
 
     df = pd.DataFrame(data={'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.replay_analysis('test_file')
 
     assert len(mito.dfs) == 2

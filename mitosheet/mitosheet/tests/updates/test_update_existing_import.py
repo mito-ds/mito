@@ -10,7 +10,7 @@ import pandas as pd
 import os
 import json
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_EXCEL_FILE = 'excel_file.xlsx'
@@ -33,7 +33,7 @@ def test_overwrite_multiple_imports():
 
     
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import three sheets from the excel file
     mito.excel_import(TEST_EXCEL_FILE, ['Sheet1', 'Sheet2', 'Sheet3'], True, 0, DEFAULT_DECIMAL)
 
@@ -100,7 +100,7 @@ def test_replay_steps_correctly():
     df2.to_csv(TEST_CSV_FILE_TWO, index=True)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_CSV_FILE])
     step_id = mito.curr_step.step_id
@@ -142,7 +142,7 @@ def test_undo_works():
     df2.to_csv(TEST_CSV_FILE_TWO, index=True)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_CSV_FILE])
     step_id = mito.curr_step.step_id
@@ -186,7 +186,7 @@ def test_redo_works():
     df2.to_csv(TEST_CSV_FILE_TWO, index=True)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_CSV_FILE])
     step_id = mito.curr_step.step_id
@@ -233,7 +233,7 @@ def test_update_imports_is_atomic():
         df.to_excel(writer, sheet_name='Sheet1', index=False)
     
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
     mito.simple_import([TEST_CSV_FILE])
 
@@ -278,7 +278,7 @@ def test_update_imports_with_multiple_imports_per_step():
         df.to_excel(writer, sheet_name='Sheet1', index=False)
     
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.simple_import([TEST_CSV_FILE, TEST_CSV_FILE])
     mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, DEFAULT_DECIMAL)
 
@@ -332,7 +332,7 @@ def test_test_import_returns_good_data():
     from mitosheet.api.get_test_imports import get_test_imports, DATAFRAME_IMPORT_ERROR, CSV_IMPORT_ERROR, EXCEL_IMPORT_ERROR
     import json
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     result = json.loads(get_test_imports({
         'updated_step_import_data_list': [
@@ -422,7 +422,7 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
     from mitosheet.api.get_test_imports import get_test_imports, DATAFRAME_IMPORT_ERROR, CSV_IMPORT_ERROR, EXCEL_IMPORT_ERROR
     import json
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     result = json.loads(get_test_imports({
         'updated_step_import_data_list': [
@@ -480,7 +480,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_steps():
         df2.to_excel(writer, sheet_name='Sheet1', index=False)
     
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.simple_import([TEST_CSV_FILE], [','], [encoding], [','], [0], [False])
     mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, ',')
 
@@ -528,7 +528,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
         df2.to_excel(writer, sheet_name='Sheet1', index=False)
     
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.simple_import([TEST_CSV_FILE], [','], [encoding], [','], [0], [False])
     mito.excel_import(TEST_EXCEL_FILE, ['Sheet1'], True, 0, ',')
 

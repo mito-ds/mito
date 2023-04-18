@@ -7,7 +7,7 @@ import os
 import pandas as pd
 import pytest
 
-from mitosheet.tests.test_utils import (create_mito_wrapper_dfs)
+from mitosheet.tests.test_utils import (create_mito_wrapper)
 from mitosheet.step_performers.bulk_old_rename.deprecated_utils import get_header_renames, make_valid_header
 from mitosheet.public.v1.utils import flatten_column_header
 
@@ -15,7 +15,7 @@ from mitosheet.public.v1.utils import flatten_column_header
 def test_bulk_rename_renames_all_headers():
     df = pd.DataFrame({'A A': [123], 'B B': [123]})
     df.to_csv('test.csv', index=False)
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.simple_import(['test.csv', 'test.csv'])
     mito.bulk_old_rename()
 
@@ -36,7 +36,7 @@ def test_bulk_rename_renames_all_headers():
 
 def test_headers_correct_after_bulk_rename():
     df = pd.DataFrame({'A A': [123], 'B B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.bulk_old_rename()
     mito.pivot_sheet(0, ['A_A'], [], {'B_B': ['sum']})
 
@@ -46,7 +46,7 @@ def test_headers_correct_after_bulk_rename():
 
 def test_set_formula_after_bulk_rename():
     df = pd.DataFrame({'A A': [123], 'B B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.bulk_old_rename()
     mito.pivot_sheet(0, ['A_A'], [], {'B_B': ['sum']})
     mito.set_formula('=B_B sum', 1, 'C', add_column=True) 
@@ -59,7 +59,7 @@ def test_set_formula_after_bulk_rename():
 
 def test_move_to_old_id_algorithm_updates_state_variables_properly():
     df = pd.DataFrame({'A A': [123], 'B B': [123]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=A A', 0, 'C C', add_column=True)
     mito.bulk_old_rename(move_to_deprecated_id_algorithm=True)
 

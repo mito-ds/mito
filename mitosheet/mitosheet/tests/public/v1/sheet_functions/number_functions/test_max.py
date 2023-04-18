@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 from mitosheet.public.v1.sheet_functions.number_functions import MAX
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 MAX_VALID_TESTS = [
     (
@@ -65,7 +65,7 @@ def test_MAX_mulitple_inputs():
     assert max.equals(pd.Series([2, 2, 2]))
 
 def test_MAX_in_sheet():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula('=MAX(A, B)', 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == 2

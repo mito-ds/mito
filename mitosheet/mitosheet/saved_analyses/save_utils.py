@@ -207,4 +207,4 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]
     steps = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     # Actually write the file
-    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version, steps_manager.original_args_names, steps_manager.code_options)
+    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version, steps_manager.original_args_raw_strings, steps_manager.code_options)

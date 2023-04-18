@@ -14,7 +14,7 @@ import numpy as np
 import datetime
 
 from mitosheet.public.v1.sheet_functions.misc_functions import TYPE
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 TYPE_TESTS = [
     ([1, 2, 3], ['number', 'number', 'number']),
@@ -30,7 +30,7 @@ def test_TYPE_works_on_inputs(input, type_series):
     assert TYPE(series).tolist() == type_series
 
 def test_TYPE_works_on_the_sheet():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [datetime.datetime.now(), 1, 'test', 3.3, np.NaN, True]}, dtype='object'))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [datetime.datetime.now(), 1, 'test', 3.3, np.NaN, True]}, dtype='object'))
     mito.set_formula(f'=TYPE(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=False).equals(pd.Series(['datetime', 'number', 'string', 'number', 'NaN', 'bool']))
 
@@ -50,7 +50,7 @@ def test_TYPE_works_on_timedeltas():
     df['dob'] = pd.to_datetime(df['dob'], format=format)
     df['dob2'] = pd.to_datetime(df['dob2'], format=format)
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.set_formula('=TYPE(dob - dob2)', 0, 'type_of_time_deltas', True)
 

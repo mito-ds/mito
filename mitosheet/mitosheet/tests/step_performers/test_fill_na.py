@@ -9,7 +9,7 @@ Contains tests for filling nan values
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, pandas_post_1_only
 
 FILL_NA_TESTS = [
@@ -216,7 +216,7 @@ FILL_NA_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", FILL_NA_TESTS)
 def test_fill_na(input_dfs, sheet_index, column_headers, fill_method, output_df):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.fill_na(
         sheet_index,
@@ -271,7 +271,7 @@ DATETIME_TIMEDELTA_FILL_NA_TESTS = [
 @pandas_post_1_2_only
 @pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", DATETIME_TIMEDELTA_FILL_NA_TESTS)
 def test_fill_na_datetime_and_timedelta_values(input_dfs, sheet_index, column_headers, fill_method, output_df):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.fill_na(
         sheet_index,
@@ -342,7 +342,7 @@ DATETIME_TIMEDELTA_MEAN_MEDIAN_FILL_NA_TESTS = [
 @pandas_post_1_only
 @pytest.mark.parametrize("input_dfs, sheet_index, column_headers, fill_method, output_df", DATETIME_TIMEDELTA_MEAN_MEDIAN_FILL_NA_TESTS)
 def test_fill_na_datetime_and_timedelta_mean_and_median(input_dfs, sheet_index, column_headers, fill_method, output_df):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.fill_na(
         sheet_index,
@@ -355,7 +355,7 @@ def test_fill_na_datetime_and_timedelta_mean_and_median(input_dfs, sheet_index, 
 
 
 def test_step_after_fill_nan():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, None, 3.0, 3.0, 3.0], 'B': [1.0, None, 2.0,  2.0, 2.0]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1.0, None, 3.0, 3.0, 3.0], 'B': [1.0, None, 2.0,  2.0, 2.0]}))
 
     mito.fill_na(
         0, 
@@ -369,7 +369,7 @@ def test_step_after_fill_nan():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1.0, 3.0, 3.0, 3.0, 3.0], 'B': [1.0, 2.0, 2.0, 2.0, 2.0], 'C': [1.0, 3.0, 3.0, 3.0, 3.0]}))
 
 def test_fill_nan_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1.0, None, 3.0, 3.0, 3.0], 'B': [1.0, None, 2.0,  2.0, 2.0]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1.0, None, 3.0, 3.0, 3.0], 'B': [1.0, None, 2.0,  2.0, 2.0]}))
 
     mito.fill_na(
         0, 

@@ -69,7 +69,7 @@ def do_arg_update(steps_manager: StepsManagerType, args: List[str]):
     steps_manager.curr_step.post_state.df_names = final_names[:len(steps_manager.curr_step.dfs)]
 
     # Save the original args exactly as is, because we might need them for generating a function
-    steps_manager.original_args_names = args
+    steps_manager.original_args_raw_strings = args
 
 
 def execute_args_update(

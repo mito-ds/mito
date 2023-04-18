@@ -41,7 +41,16 @@ def get_read_csv_params(delimeter: str, encoding: str, decimal: Optional[str], s
     return params
 
 
-def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encoding: str, decimal: Optional[str], skiprows: Optional[int], error_bad_lines: Optional[bool]) -> str:
+def generate_read_csv_code(
+        file_name: str, 
+        df_name: str, 
+        delimeter: str, 
+        encoding: str, 
+        decimal: Optional[str], 
+        skiprows: Optional[int], 
+        error_bad_lines: Optional[bool],
+        file_name_is_variable: bool = False
+    ) -> str:
     """
     Helper function for generating minimal read_csv code 
     depending on the delimeter and the encoding of a file
@@ -50,7 +59,9 @@ def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encodin
     params = get_read_csv_params(delimeter, encoding, decimal=decimal, skiprows=skiprows, error_bad_lines=error_bad_lines)
     params_string = ', '.join(f'{key}={column_header_to_transpiled_code(value)}' for key, value in params.items())
 
-    return f'{df_name} = pd.read_csv(r\'{file_name}\'{", " if len(params_string) > 0 else ""}{params_string})'
+    transpiled_file_path = f'r\'{file_name}\'' if not file_name_is_variable else file_name
+
+    return f'{df_name} = pd.read_csv({transpiled_file_path}{", " if len(params_string) > 0 else ""}{params_string})'
 
 
 class SimpleImportCodeChunk(CodeChunk):

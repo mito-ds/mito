@@ -10,7 +10,7 @@ import sys
 import pytest
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import python_post_3_6_only
 
 SET_CELL_VALUE_TESTS = [
@@ -144,14 +144,14 @@ SET_CELL_VALUE_TESTS = [
 @python_post_3_6_only
 @pytest.mark.parametrize("df,new_value,result", SET_CELL_VALUE_TESTS)
 def test_set_cell_value_direct(df, new_value, result):
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_cell_value(0, 'A', 0, new_value)
 
     assert mito.dfs[0].equals(result)
 
 
 def test_set_cell_value_change_int_to_int():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, 4)
     assert mito.transpiled_code == [
         "df1.at[0, 'A'] = 4"
@@ -159,7 +159,7 @@ def test_set_cell_value_change_int_to_int():
 
 @pytest.mark.skip(reason='We no longer cast to float, after we removed the notion of a Mito Type. Not an issue, I think, but leaving here for visibility.')
 def test_set_cell_value_convert_int_to_float():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, 4.0)
     assert mito.transpiled_code == [
         "df1['A'] = df1['A'].astype('float')",
@@ -167,35 +167,35 @@ def test_set_cell_value_convert_int_to_float():
     ]
 
 def test_set_cell_value_convert_int_to_NaN():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, "NaN")
     assert mito.transpiled_code == [
         "df1.at[0, 'A'] = None"
     ]
 
 def test_set_cell_value_convert_int_to_empty():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, "")
     assert mito.transpiled_code == [
         "df1.at[0, 'A'] = None"
     ]
 
 def test_set_cell_value_convert_string():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "Jon")
     assert mito.transpiled_code == [
         'df1.at[0, \'A\'] = "Jon"'
     ]
 
 def test_set_cell_value_convert_string_to_None():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "NaN")
     assert mito.transpiled_code == [
         'df1.at[0, \'A\'] = None'
     ]
 
 def test_set_cell_value_convert_string_to_empty():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "")
     assert mito.transpiled_code == [
         'df1.at[0, \'A\'] = None'
@@ -203,7 +203,7 @@ def test_set_cell_value_convert_string_to_empty():
 
 @python_post_3_6_only
 def test_set_cell_value_convert_datetime():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
             '12-1-2025', 
             '12-3-2020',
             '12-4-2020'
@@ -215,7 +215,7 @@ def test_set_cell_value_convert_datetime():
     ]
 
 def test_set_cell_value_convert_datetime_to_none():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': pd.to_datetime(pd.Series(data=[
             '12-1-2025', 
             '12-3-2020',
             '12-4-2020'
@@ -226,7 +226,7 @@ def test_set_cell_value_convert_datetime_to_none():
     ]
 
 def test_set_cell_value_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.set_cell_value(0, 'A', 0, 10)
     mito.delete_columns(0, ['A'])
 
@@ -236,7 +236,7 @@ def test_set_cell_value_then_delete_optimizes():
     ]
 
 def test_multiple_set_cell_value_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.set_cell_value(0, 'A', 0, 10)
     mito.set_cell_value(0, 'A', 0, 11)
     mito.set_cell_value(0, 'A', 0, 12)
@@ -248,7 +248,7 @@ def test_multiple_set_cell_value_then_delete_optimizes():
     ]
 
 def test_multiple_set_cell_value_then_multiple_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1], 'B': [2]}))
     mito.set_cell_value(0, 'A', 0, 10)
     mito.set_cell_value(0, 'A', 0, 11)
     mito.set_cell_value(0, 'B', 0, 10)
@@ -260,7 +260,7 @@ def test_multiple_set_cell_value_then_multiple_delete_optimizes():
     ]
 
 def test_set_cell_value_then_multiple_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1], 'B': [2]}))
     mito.set_cell_value(0, 'A', 0, 10)
     mito.set_cell_value(0, 'A', 0, 11)
     mito.delete_columns(0, ['A', 'B'])
@@ -271,7 +271,7 @@ def test_set_cell_value_then_multiple_delete_optimizes():
     ]
 
 def test_set_cell_value_then_delete_dataframe():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1], 'B': [2]}))
     mito.set_cell_value(0, 'A', 0, 10)
     mito.set_cell_value(0, 'A', 0, 11)
     mito.delete_columns(0, ['A', 'B'])
@@ -280,7 +280,7 @@ def test_set_cell_value_then_delete_dataframe():
     assert mito.transpiled_code == []
 
 def test_set_cell_value_then_delete_different_dataframe():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1], 'B': [2]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1], 'B': [2]}))
     mito.duplicate_dataframe(0)
     mito.set_cell_value(0, 'A', 0, 10)
     mito.set_cell_value(0, 'A', 0, 11)

@@ -10,7 +10,7 @@ from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING, SORT_DIRECT
 import pytest
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 SORT_TESTS = [
     (
@@ -92,7 +92,7 @@ SORT_TESTS = [
 ]
 @pytest.mark.parametrize("df,sort_direction,sorted_df", SORT_TESTS)
 def test_sort(df, sort_direction, sorted_df):
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.sort(0, 'A', sort_direction)
 
     assert mito.dfs[0].equals(sorted_df)
@@ -156,21 +156,21 @@ result when testing directly in the app.
 @pytest.mark.parametrize("df, ascending, descending", SORT_TWICE_TESTS)
 def test_twice_sort(df, ascending, descending):
     # sort ascending then descending
-    mito1 = create_mito_wrapper_dfs(df)
+    mito1 = create_mito_wrapper(df)
     mito1.sort(0, 'A', SORT_DIRECTION_ASCENDING)
     mito1.sort(0, 'A', SORT_DIRECTION_DESCENDING)
 
     assert mito1.mito_backend.steps_manager.dfs[0].equals(descending)
 
     # sort descending then ascending
-    mito2 = create_mito_wrapper_dfs(df)
+    mito2 = create_mito_wrapper(df)
     mito2.sort(0, 'A', SORT_DIRECTION_DESCENDING)
     mito2.sort(0, 'A', SORT_DIRECTION_ASCENDING)
     assert mito2.mito_backend.steps_manager.dfs[0].equals(ascending)
 
 def test_transpile_sort_ascending_valid():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_ASCENDING)
 
     assert mito.transpiled_code == [
@@ -179,7 +179,7 @@ def test_transpile_sort_ascending_valid():
 
 def test_transpile_sort_ascending_valid_with_NaN():
     df1 = pd.DataFrame(data={'A': [None, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_ASCENDING)
 
     assert mito.transpiled_code == [
@@ -188,7 +188,7 @@ def test_transpile_sort_ascending_valid_with_NaN():
 
 def test_transpile_sort_descending_valid():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_DESCENDING)
 
     assert mito.transpiled_code == [
@@ -197,7 +197,7 @@ def test_transpile_sort_descending_valid():
 
 def test_transpile_sort_descending_valid_with_NaN():
     df1 = pd.DataFrame(data={'A': [None, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_DESCENDING)
 
     assert mito.transpiled_code == [
@@ -206,7 +206,7 @@ def test_transpile_sort_descending_valid_with_NaN():
 
 def test_transpile_sort_ascending_then_descending_valid():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_ASCENDING)
     mito.sort(0, 'A', SORT_DIRECTION_DESCENDING)
 
@@ -217,7 +217,7 @@ def test_transpile_sort_ascending_then_descending_valid():
 
 def test_can_undo_sort_by_sorting_with_none():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.sort(0, 'A', SORT_DIRECTION_DESCENDING)
     mito.sort(0, 'A', SORT_DIRECTION_NONE, step_id=mito.curr_step.step_id)
     assert mito.dfs[0].equals(df1)

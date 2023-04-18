@@ -10,7 +10,7 @@ Contains tests for the FILLNAN function.
 import pytest
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 GETPREVIOUSVALUE_TESTS = [
     (
@@ -53,7 +53,7 @@ GETPREVIOUSVALUE_TESTS = [
 @pytest.mark.parametrize("series, condition, result", GETPREVIOUSVALUE_TESTS)
 def test_get_previous_value_works_on_sheet(series, condition, result):
     df = pd.DataFrame({'A': series, 'B': condition})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula(f'=GETPREVIOUSVALUE(A, B)', 0, 'C', add_column=True)
 
     assert mito.get_column(0, 'C', as_list=False).equals(result)

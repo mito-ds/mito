@@ -91,6 +91,10 @@ MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
 FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
 
+
+ParamName = str
+ParamValue = str
+
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict, Literal
@@ -289,6 +293,8 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class CodeOptions(TypedDict):
         as_function: bool
+        function_name: str
+        function_params: Dict[ParamName, ParamValue]
 
 else:
     Filter = Any #type: ignore
