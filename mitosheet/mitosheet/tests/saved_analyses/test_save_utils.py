@@ -291,7 +291,7 @@ def test_save_analysis_saves_skipped_steps():
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert len(saved_analysis['steps_data']) == 1
     assert saved_analysis['steps_data'][0]['params']['filters'][0]['value'] == 3
 
@@ -311,7 +311,7 @@ def test_save_replays_overwrite_by_ids_propererly():
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert len(saved_analysis['steps_data']) == 1
 
     new_mito = create_mito_wrapper([1, 2, 3])
@@ -328,9 +328,10 @@ def test_save_and_replay_different_interface_version_works():
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
+    print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
 
     new_mito = create_mito_wrapper([1, 2, 3])

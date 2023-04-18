@@ -1121,7 +1121,7 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def replay_analysis(self, analysis_name: str, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
+    def replay_analysis(self, analysis_name: str, args: Optional[List[str]]=None, step_import_data_list_to_overwrite: Optional[List[Dict[str, Any]]]=None) -> bool:
         return self.mito_backend.receive_message(
             {
                 'event': 'update_event',
@@ -1129,6 +1129,7 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
+                    'args': args if args is not None else self.mito_backend.steps_manager.original_args_names,
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
                 },
             }

@@ -56,7 +56,6 @@ export enum UpdateType {
     Undo = 'undo',
     Redo = 'redo',
     Clear = 'clear',
-    ArgsUpdate = 'args_update',
     SaveAnalysisUpdate = 'save_analysis_update',
     ReplayAnalysisUpdate = 'replay_analysis_update',
     CheckoutStepByIdxUpdate = 'checkout_step_by_idx_update',

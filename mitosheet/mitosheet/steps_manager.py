@@ -185,6 +185,7 @@ class StepsManager:
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
+        self.original_args_names: List[str] = []
         self.original_args = [
             arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg)
             for arg in args

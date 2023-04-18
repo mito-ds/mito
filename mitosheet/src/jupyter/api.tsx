@@ -640,13 +640,14 @@ export default class MitoAPI {
     }
 
 
-    async getImportedFilesAndDataframesFromAnalysisName(analysisName: string): Promise<StepImportData[] | undefined> {
+    async getImportedFilesAndDataframesFromAnalysisName(analysisName: string, args: string[]): Promise<StepImportData[] | undefined> {
 
         const resultString = await this.send<string>({
             'event': 'api_call',
             'type': 'get_imported_files_and_dataframes_from_analysis_name',
             'params': {
                 'analysis_name': analysisName,
+                'args': args
             }
         }, {})
 
@@ -1411,20 +1412,6 @@ export default class MitoAPI {
         }, {})
     }
 
-    /*
-        Sends an update message that updates
-        the names of the arguments to the mitosheet.sheet call
-    */
-    async updateArgs(args: string[]): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'args_update',
-            'params': {
-                'args': args
-            }
-        }, {})
-    }
-
     async updateRenderCount(): Promise<void> {
         await this.send({
             'event': 'update_event',
@@ -1444,7 +1431,8 @@ export default class MitoAPI {
     */
     async updateReplayAnalysis(
         analysisName: string,
-        stepImportDataListToOverwrite?: StepImportData[]
+        args: string[],
+        stepImportDataListToOverwrite?: StepImportData[],
     ): Promise<MitoError | undefined> {
 
         const result: MitoError | undefined = await this.send({
@@ -1452,12 +1440,30 @@ export default class MitoAPI {
             'type': 'replay_analysis_update',
             'params': {
                 'analysis_name': analysisName,
+                'args': args,
                 'step_import_data_list_to_overwrite': stepImportDataListToOverwrite === undefined ? [] : stepImportDataListToOverwrite
             }
         }, { maxRetries: 500 });
 
         return result;
     }
+
+
+    /*
+        Sends an update message that updates
+        the names of the arguments to the mitosheet.sheet call.
+
+        Only called if there is no analysis to replay.
+    */
+        async updateArgs(args: string[]): Promise<void> {
+            await this.send({
+                'event': 'update_event',
+                'type': 'args_update',
+                'params': {
+                    'args': args
+                }
+            }, {})
+        }
 
 
     /*

@@ -22967,7 +22967,6 @@ ${finalCode}`;
     UpdateType2["Undo"] = "undo";
     UpdateType2["Redo"] = "redo";
     UpdateType2["Clear"] = "clear";
-    UpdateType2["ArgsUpdate"] = "args_update";
     UpdateType2["SaveAnalysisUpdate"] = "save_analysis_update";
     UpdateType2["ReplayAnalysisUpdate"] = "replay_analysis_update";
     UpdateType2["CheckoutStepByIdxUpdate"] = "checkout_step_by_idx_update";
@@ -23514,12 +23513,13 @@ ${finalCode}`;
       }
       return void 0;
     }
-    async getImportedFilesAndDataframesFromAnalysisName(analysisName) {
+    async getImportedFilesAndDataframesFromAnalysisName(analysisName, args) {
       const resultString = await this.send({
         "event": "api_call",
         "type": "get_imported_files_and_dataframes_from_analysis_name",
         "params": {
-          "analysis_name": analysisName
+          "analysis_name": analysisName,
+          "args": args
         }
       }, {});
       if (resultString !== void 0 && resultString !== "") {
@@ -23980,15 +23980,6 @@ ${finalCode}`;
         "params": {}
       }, {});
     }
-    async updateArgs(args) {
-      await this.send({
-        "event": "update_event",
-        "type": "args_update",
-        "params": {
-          "args": args
-        }
-      }, {});
-    }
     async updateRenderCount() {
       await this.send({
         "event": "update_event",
@@ -23999,16 +23990,26 @@ ${finalCode}`;
         }
       }, {});
     }
-    async updateReplayAnalysis(analysisName, stepImportDataListToOverwrite) {
+    async updateReplayAnalysis(analysisName, args, stepImportDataListToOverwrite) {
       const result = await this.send({
         "event": "update_event",
         "type": "replay_analysis_update",
         "params": {
           "analysis_name": analysisName,
+          "args": args,
           "step_import_data_list_to_overwrite": stepImportDataListToOverwrite === void 0 ? [] : stepImportDataListToOverwrite
         }
       }, { maxRetries: 500 });
       return result;
+    }
+    async updateArgs(args) {
+      await this.send({
+        "event": "update_event",
+        "type": "args_update",
+        "params": {
+          "args": args
+        }
+      }, {});
     }
     async updateSignUp(userEmail) {
       await this.send({
@@ -38075,7 +38076,7 @@ fig.write_html("${props.graphTabName}.html")`
             });
             if (Object.keys(_invalidImportIndexes).length === 0) {
               props.setInvalidReplayError(void 0);
-              const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.updatedStepImportData);
+              const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.failedReplayData.args, props.updatedStepImportData);
               if (isMitoError(replayAnalysisError)) {
                 props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix));
               } else {
@@ -38242,7 +38243,7 @@ fig.write_html("${props.graphTabName}.html")`
         let importData = void 0;
         let invalidImportIndexes = void 0;
         if (failedReplayData !== void 0) {
-          importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+          importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
           invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
         } else {
           importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
@@ -40277,9 +40278,6 @@ fig.write_html("${props.graphTabName}.html")`
       case "clear" /* Clear */: {
         return "Clearing all edits";
       }
-      case "args_update" /* ArgsUpdate */: {
-        return "Updating user profile";
-      }
       case "save_analysis_update" /* SaveAnalysisUpdate */: {
         return "Saving analysis";
       }
@@ -41799,7 +41797,7 @@ fig.write_html("${props.graphTabName}.html")`
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
-        await mitoAPI.updateArgs(args);
+        console.log("ARGS: ", args);
         if (analysisData2.analysisToReplay) {
           const analysisToReplayName = (_b = analysisData2.analysisToReplay) == null ? void 0 : _b.analysisName;
           if (!analysisData2.analysisToReplay.existsOnDisk) {
@@ -41818,7 +41816,8 @@ fig.write_html("${props.graphTabName}.html")`
             });
             return;
           }
-          const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName);
+          const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName, args);
+          console.log(error);
           if (isMitoError(error)) {
             setUIState((prevUIState) => {
               return __spreadProps(__spreadValues({}, prevUIState), {
@@ -41826,7 +41825,8 @@ fig.write_html("${props.graphTabName}.html")`
                   type: "UpdateImports" /* UPDATEIMPORTS */,
                   failedReplayData: {
                     analysisName: analysisToReplayName,
-                    error
+                    error,
+                    args
                   }
                 }
               });
@@ -41834,6 +41834,7 @@ fig.write_html("${props.graphTabName}.html")`
           }
         } else {
           writeAnalysisToReplayToMitosheetCall(analysisData2.analysisName, mitoAPI);
+          await mitoAPI.updateArgs(args);
         }
       };
       const handleRender = async () => {

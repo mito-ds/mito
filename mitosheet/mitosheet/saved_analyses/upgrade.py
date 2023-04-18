@@ -329,10 +329,20 @@ def upgrade_saved_analysis_to_have_public_interface_version(saved_analysis: Opti
         saved_analysis['public_interface_version'] = 1
     
     return saved_analysis
+
+def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict[str, Any]], args: List[str]) -> Optional[Dict[str, Any]]:
+    
+    if saved_analysis is None:
+        return None
+    
+    # We always add the args to the saved analysis, as they should be reset when you rerun an analysis
+    saved_analysis['args'] = args
+    
+    return saved_analysis
     
 
 
-def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]], args: List[str]) -> Optional[Dict[str, Any]]:
     """
     Upgrades a saved analysis to the current version.
     
@@ -346,11 +356,16 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     they exist.
     """
     saved_analysis = upgrade_steps_for_old_format(saved_analysis)
+    print("SAVED", saved_analysis)
     new_format_saved_analysis = upgrade_saved_analysis_format_to_steps_data(saved_analysis)
     saved_analysis_with_new_step_format = upgrade_steps_for_new_format(new_format_saved_analysis)
-    final_upgraded_saved_analysis = upgrade_saved_analysis_to_have_public_interface_version(
+    saved_analysis_with_public_interface = upgrade_saved_analysis_to_have_public_interface_version(
         saved_analysis_with_new_step_format, 
         saved_analysis.get('public_interface_version', None) if saved_analysis is not None else None
     )
+    saved_analysis_with_args = upgrade_saved_analysis_to_have_up_to_date_args(
+        saved_analysis_with_public_interface, 
+        args
+    )
 
-    return final_upgraded_saved_analysis
+    return saved_analysis_with_args

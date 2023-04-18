@@ -166,7 +166,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
             const args = await getArgs(analysisData.analysisToReplay?.analysisName);
-            await mitoAPI.updateArgs(args);
+            console.log("ARGS: ", args)
 
             // Then, after we have the args, we replay an analysis if there is an analysis to replay
             // Note that this has to happen after so that we have the the argument names loaded in at
@@ -196,7 +196,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
 
                 // Then, we replay the analysis to replay!
-                const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName);
+                const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName, args);
+                console.log(error)
                 
                 if (isMitoError(error)) {
                     /**
@@ -215,7 +216,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 type: TaskpaneType.UPDATEIMPORTS,
                                 failedReplayData: {
                                     analysisName: analysisToReplayName,
-                                    error: error
+                                    error: error,
+                                    args: args
                                 }
                             }
                         }
@@ -224,9 +226,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
             } else {
                 /**
                  * If there is no analysis_to_replay, then we need to write the analysis_to_replay to the 
-                 * mitosheet.sheet call. 
+                 * mitosheet.sheet call, and update the args.
                  */
                 writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, mitoAPI);
+
+                await mitoAPI.updateArgs(args);
             }
         }
 
