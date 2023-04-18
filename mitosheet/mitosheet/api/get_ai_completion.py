@@ -6,6 +6,7 @@
 
 import json
 from typing import Any, Dict, Optional
+from mitosheet.enterprise.mito_config import MITO_CONFIG_LLM_URL
 from mitosheet.types import Selection, StepsManagerType
 import os
 
@@ -91,6 +92,37 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]}'
         })
 
+def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> str:
+
+        data = _get_ai_completion_data(prompt)
+        headers = {
+                'Content-Type': 'application/json',
+        }
+
+        try:
+                res = requests.post(url, headers=headers, json=data)
+        except:
+                return json.dumps({
+                        'error': f'There was an error accessing the API at {url}. This is likely due to internet connectivity problems or a firewall.'
+                })
+
+        if res.status_code == 200:
+                res_json = res.json()
+                completion: str = res_json['choices'][0]['message']["content"]
+                # We strip all blank lines from the generated code, if they are at the start or end
+                completion = completion.strip()
+                return json.dumps({
+                        'user_input': user_input,
+                        'prompt_version': PROMPT_VERSION,
+                        'prompt': prompt,
+                        'completion': completion,
+                })
+
+        return json.dumps({
+                'error': f'There was an error accessing the API at {url}. {res.json()["error"]["message"]}'
+        })
+
+
 
 def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
         selection: Optional[Selection] = params.get('selection', None)
@@ -104,9 +136,12 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         )
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+        byo_url = steps_manager.mito_config.get_llm_url()
 
-        # If they don't have an Open AI key, we use the mito server to get a completion
-        if OPENAI_API_KEY is None:
+        if byo_url is not None:
+                return _get_ai_completion_from_open_ai_api_compatible_server(byo_url, user_input, prompt)
+        elif OPENAI_API_KEY is None:
+                # If they don't have an Open AI key, we use the mito server to get a completion
                 return _get_ai_completion_from_mito_server(user_input, prompt)
 
 
