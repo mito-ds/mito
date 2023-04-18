@@ -122,10 +122,38 @@ def GETPREVIOUSVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> p
 
     return pd.Series(result, index=series.index)
 
+@handle_sheet_function_errors
+def GETNEXTVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Series:
+    """
+    {
+        "function": "GETNEXTVALUE",
+        "description": "Returns the next value from series that meets the condition.",
+        "search_terms": ["ffill"],
+        "examples": [
+            "GETNEXTVALUE(Max_Balances, Max_Balances > 0)"
+        ],
+        "syntax": "GETNEXTVALUE(series, condition)",
+        "syntax_elements": [{
+                "element": "series",
+                "description": "The series to get the next value from."
+            }, {
+                "element": "condition",
+                "description": "When condition is True, a new previous value is set, and carried backwards until the condition is True again."
+            }
+        ]
+    }
+    """
+    reversed_series = series[::-1]
+    condition = get_series_from_primitive_or_series(condition, series.index)
+    reversed_condition = condition[::-1]
+
+    return GETPREVIOUSVALUE(reversed_series, reversed_condition)[::-1]
+
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
     'FILLNAN': FILLNAN,
     'GETPREVIOUSVALUE': GETPREVIOUSVALUE,
+    'GETNEXTVALUE': GETNEXTVALUE,
     'TYPE': TYPE,
 }
