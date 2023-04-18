@@ -39933,7 +39933,7 @@ fig.write_html("${props.graphTabName}.html")`
   var CodeOptionsTaskpane = (props) => {
     const [codeOptions, setCodeOptions] = (0, import_react178.useState)(() => props.analysisData.codeOptions);
     useDebouncedEffect(() => {
-      props.mitoAPI.updateCodeOptions(codeOptions);
+      void props.mitoAPI.updateCodeOptions(codeOptions);
     }, [codeOptions], 1e3);
     return /* @__PURE__ */ import_react178.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react178.default.createElement(
       DefaultTaskpaneHeader_default,
@@ -39957,6 +39957,7 @@ fig.write_html("${props.graphTabName}.html")`
           onChange: function() {
             const newCodeOptions = __spreadValues({}, codeOptions);
             newCodeOptions.as_function = !newCodeOptions.as_function;
+            props.mitoAPI.updateCodeOptions(codeOptions);
             setCodeOptions(newCodeOptions);
           }
         }
@@ -41903,7 +41904,6 @@ fig.write_html("${props.graphTabName}.html")`
             return;
           }
           const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName, args);
-          console.log(error);
           if (isMitoError(error)) {
             setUIState((prevUIState) => {
               return __spreadProps(__spreadValues({}, prevUIState), {

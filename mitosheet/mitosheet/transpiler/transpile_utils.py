@@ -173,7 +173,7 @@ def _get_param_values_string(steps_manager: StepsManagerType, function_params: D
     return ", ".join(original_param_values + additional_params)
 
 
-def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]):
+def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
     """

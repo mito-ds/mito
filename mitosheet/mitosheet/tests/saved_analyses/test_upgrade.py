@@ -54,7 +54,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -73,7 +75,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -93,7 +97,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -112,7 +118,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -139,7 +147,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -159,7 +169,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ),
@@ -180,7 +192,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ),
@@ -203,7 +217,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ), 
@@ -230,7 +246,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -254,7 +272,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -278,7 +298,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -304,7 +326,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -325,7 +349,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ), 
@@ -346,7 +372,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -367,7 +395,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ), 
@@ -401,7 +431,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -428,7 +460,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -462,7 +496,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -489,7 +525,9 @@ UPGRADE_TESTS = [
             ],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -505,7 +543,9 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         },
     ),
@@ -521,7 +561,9 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}],
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -536,7 +578,9 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 5, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "convert_csv_to_xlsx": False, "range_imports": [{"type": "dynamic", 'start_condition': {"type": "upper left corner value", "value": 1}, "df_name": "df2", "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2,
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     ),
@@ -551,7 +595,9 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2,
             "args": [],
             "code_options": {
-                'as_function': False
+                'as_function': False,
+                'function_name': 'function',
+                'function_params': {}
             }
         }
     )
@@ -586,7 +632,9 @@ def test_doesnt_upgrade_updated_format():
         "steps_data": [{"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}],
         "args": [],
         "code_options": {
-            'as_function': False
+            'as_function': False,
+            'function_name': 'function',
+            'function_params': {}
         }
     }
     

@@ -19,7 +19,7 @@ CODE_OPTIONS_UPDATE_PARAMS = ['code_options']
 def execute_args_update(
         steps_manager: StepsManagerType,
         code_options: CodeOptions
-    ):
+    ) -> None:
 
     # Get the valid function names
     valid_function_name = get_valid_python_identifier(code_options['function_name'], 'function', 'func_')

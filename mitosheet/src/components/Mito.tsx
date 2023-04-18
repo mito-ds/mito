@@ -198,7 +198,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
                 // Then, we replay the analysis to replay!
                 const error = await mitoAPI.updateReplayAnalysis(analysisToReplayName, args);
-                console.log(error)
                 
                 if (isMitoError(error)) {
                     /**
