@@ -56,6 +56,7 @@ export enum UpdateType {
     Undo = 'undo',
     Redo = 'redo',
     Clear = 'clear',
+    ArgsUpdate = 'args_update',
     SaveAnalysisUpdate = 'save_analysis_update',
     ReplayAnalysisUpdate = 'replay_analysis_update',
     CheckoutStepByIdxUpdate = 'checkout_step_by_idx_update',
@@ -66,6 +67,11 @@ export enum UpdateType {
     RenderCountUpdate = 'render_count_update',
     ChecklistUpdate = 'checklist_update',
     UpdateExistingImportUpdate = 'update_existing_import_update',
+    CodeOptionsUpdate = 'code_options_update',
+}
+
+export type CodeOptions = {
+    as_function: boolean
 }
 
 /**

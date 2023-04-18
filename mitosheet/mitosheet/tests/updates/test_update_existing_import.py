@@ -535,7 +535,7 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
     # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
     # by making sure that the dataframes are the same when the import configuration is not changed
     from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import get_imported_files_and_dataframes_from_analysis_name
-    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_backend.analysis_name}, mito.mito_backend.steps_manager)
+    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_backend.analysis_name, 'args': []}, mito.mito_backend.steps_manager)
 
     import_data_json = json.loads(import_data)
     assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]

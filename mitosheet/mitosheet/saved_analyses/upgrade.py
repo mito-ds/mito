@@ -52,6 +52,7 @@ from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     INITIAL_BULK_OLD_RENAME_STEP
 from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3, upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5
+from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.utils import is_prev_version
 
 """
@@ -339,8 +340,16 @@ def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict
     saved_analysis['args'] = args
     
     return saved_analysis
-    
 
+def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+
+    if saved_analysis is None:
+        return None
+
+    if 'code_options' not in saved_analysis:
+        saved_analysis['code_options'] = get_default_code_options()
+
+    return saved_analysis
 
 def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]], args: List[str]) -> Optional[Dict[str, Any]]:
     """
@@ -350,13 +359,14 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     1. Changes to the format of the saved analysis itself. 
     2. Changes to the format of the specific steps in the saved analysis.
     3. Adds the public interface version and sets it to 1, if it's not already there (we also have to add to all steps)
+    4. Adds the args to the analysis so we can transpile functions in the future
+    5. Adds the code options to the analysis
 
     See mitosheet/upgrade/schemas.py, but as we only have 1 format change
     in the saved analyses, we process the specific step upgrades first if
     they exist.
     """
     saved_analysis = upgrade_steps_for_old_format(saved_analysis)
-    print("SAVED", saved_analysis)
     new_format_saved_analysis = upgrade_saved_analysis_format_to_steps_data(saved_analysis)
     saved_analysis_with_new_step_format = upgrade_steps_for_new_format(new_format_saved_analysis)
     saved_analysis_with_public_interface = upgrade_saved_analysis_to_have_public_interface_version(
@@ -367,5 +377,6 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
         saved_analysis_with_public_interface, 
         args
     )
+    saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(saved_analysis_with_args)
 
-    return saved_analysis_with_args
+    return saved_analysis_with_code_options

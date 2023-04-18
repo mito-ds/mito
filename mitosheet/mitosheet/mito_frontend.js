@@ -22967,6 +22967,7 @@ ${finalCode}`;
     UpdateType2["Undo"] = "undo";
     UpdateType2["Redo"] = "redo";
     UpdateType2["Clear"] = "clear";
+    UpdateType2["ArgsUpdate"] = "args_update";
     UpdateType2["SaveAnalysisUpdate"] = "save_analysis_update";
     UpdateType2["ReplayAnalysisUpdate"] = "replay_analysis_update";
     UpdateType2["CheckoutStepByIdxUpdate"] = "checkout_step_by_idx_update";
@@ -22977,6 +22978,7 @@ ${finalCode}`;
     UpdateType2["RenderCountUpdate"] = "render_count_update";
     UpdateType2["ChecklistUpdate"] = "checklist_update";
     UpdateType2["UpdateExistingImportUpdate"] = "update_existing_import_update";
+    UpdateType2["CodeOptionsUpdate"] = "code_options_update";
     return UpdateType2;
   })(UpdateType || {});
   var AggregationType = /* @__PURE__ */ ((AggregationType2) => {
@@ -24008,6 +24010,15 @@ ${finalCode}`;
         "type": "args_update",
         "params": {
           "args": args
+        }
+      }, {});
+    }
+    async updateCodeOptions(codeOptions) {
+      await this.send({
+        "event": "update_event",
+        "type": "code_options_update",
+        "params": {
+          "code_options": codeOptions
         }
       }, {});
     }
@@ -40277,6 +40288,12 @@ fig.write_html("${props.graphTabName}.html")`
       }
       case "clear" /* Clear */: {
         return "Clearing all edits";
+      }
+      case "args_update" /* ArgsUpdate */: {
+        return "Updating user profile";
+      }
+      case "code_options_update" /* CodeOptionsUpdate */: {
+        return "Updating code options";
       }
       case "save_analysis_update" /* SaveAnalysisUpdate */: {
         return "Saving analysis";

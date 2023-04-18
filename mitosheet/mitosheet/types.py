@@ -287,6 +287,9 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
         prints: str
 
+    class CodeOptions(TypedDict):
+        as_function: bool
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -317,6 +320,7 @@ else:
     ColumnReconData = Any # type: ignore
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
+    CodeOptions = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]

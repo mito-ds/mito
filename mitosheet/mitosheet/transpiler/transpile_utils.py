@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import ColumnHeader
+from mitosheet.types import CodeOptions, ColumnHeader
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -138,3 +138,9 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
+
+
+def get_default_code_options() -> CodeOptions:
+    return {
+        'as_function': False
+    }

@@ -14,7 +14,7 @@ import json
 from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.types import StepsManagerType
+from mitosheet.types import CodeOptions, StepsManagerType
 from mitosheet.utils import NpEncoder
 from mitosheet.save_paths import MITO_FOLDER
 
@@ -120,13 +120,14 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
 
-def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], public_interface_version: int, args: List[str], version: str=__version__) -> None:
+def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], public_interface_version: int, args: List[str], code_options: CodeOptions, version: str=__version__) -> None:
     with open(analysis_path, 'w+') as f:
         saved_analysis = {
             'version': version,
             'steps_data': steps_data,
             'public_interface_version': public_interface_version,
-            'args': args
+            'args': args,
+            'code_options': code_options
         }
         f.write(json.dumps(saved_analysis, cls=NpEncoder))
 
@@ -206,4 +207,4 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]
     steps = make_steps_json_obj(steps_manager.steps_including_skipped)
 
     # Actually write the file
-    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version, steps_manager.original_args_names)
+    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version, steps_manager.original_args_names, steps_manager.code_options)

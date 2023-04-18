@@ -21,6 +21,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
     DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
 from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 
 PREV_TESTS = [
@@ -51,7 +52,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "[", "column_header_index": -1}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Change column dtype
@@ -67,7 +71,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1},
                 {"step_version": 4, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": [get_column_header_id("Median_Income")], "new_dtype": "int", "old_dtypes": {get_column_header_id("Median_Income"): "float64"}, "public_interface_version": 1}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Rename a column 
@@ -84,7 +91,10 @@ UPGRADE_TESTS = [
             "steps_data": [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip"), "new_column_header": "Zip1"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Reorder a column
@@ -100,7 +110,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 2, "step_type": "reorder_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip1"), "new_column_index": 2}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Add columns, set formulas, and delete
@@ -124,7 +137,10 @@ UPGRADE_TESTS = [
                 {"step_version": 5, "step_type": "set_column_formula", 'params': {"sheet_index": 0, "column_id": get_column_header_id("D"), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "old_formula": "=0", "new_formula": "=OFFSET(B, -1)"}}, 
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # A merge
@@ -141,7 +157,10 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "merge", 'params': {"how": 'lookup', "sheet_index_one": 0, "sheet_index_two": 1, "merge_key_column_ids": [[get_column_header_id("Name"), get_column_header_id("Name")]], "selected_column_ids_one": get_column_header_ids(["Name", "Number"]), "selected_column_ids_two": get_column_header_ids(["Name", "Sign"])}}, 
                 {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 2, "column_id": get_column_header_id("Number"), "sort_direction": "descending"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ),
     # Test sort
@@ -159,7 +178,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 0, "column_id": get_column_header_id("String"), "sort_direction": "ascending"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ),
     # Single group step, it should should be upgraded to a pivot
@@ -179,7 +201,10 @@ UPGRADE_TESTS = [
                 {"step_version": 9, "step_type": "pivot", 'params': {"flatten_column_headers": True, "public_interface_version": 1, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, 
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ), 
     # Ends in a group step, should be upgraded to a pivot
@@ -203,7 +228,10 @@ UPGRADE_TESTS = [
                 {"step_version": 9, "step_type": "pivot", 'params': {"flatten_column_headers": True, "public_interface_version": 1, "public_interface_version": 1, "use_deprecated_id_algorithm": True, "sheet_index": 0, "pivot_rows_column_ids_with_transforms": [{'column_id': get_column_header_id("Name"), 'transformation': 'no-op'}], "pivot_columns_column_ids_with_transforms": [{'column_id': get_column_header_id("DORK"), 'transformation': 'no-op'}], "values_column_ids_map": {get_column_header_id("Height"): ["sum"]}, 'pivot_filters': []}}, 
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # An add_column step version 1 should be upgraded to add_column step version 2
@@ -224,7 +252,10 @@ UPGRADE_TESTS = [
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": 'New_Column_Header', "column_header_index": -1}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # An delete_column step version 1 should be upgraded to delete_column step version 3
@@ -245,7 +276,10 @@ UPGRADE_TESTS = [
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # An delete_column step version 2 should be upgraded to delete_column step version 3
@@ -268,7 +302,10 @@ UPGRADE_TESTS = [
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # Filtering a number column should be upgraded to filter column v4, including a nested group
@@ -286,7 +323,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 4, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"condition": "greater", "value": 1}, {"filters": [{"condition": "greater", "value": 2}, {"condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ), 
     # Filtering a number column should be upgraded to filter column v3, including the or operator
@@ -304,7 +344,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # Filtering a datetime column should be upgraded to filter column v3, including a nested group
@@ -322,7 +365,10 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, 
                 {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ), 
     # Rename followed by set formula, pivot, and merge, and rename handles IDs properly
@@ -353,7 +399,10 @@ UPGRADE_TESTS = [
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('new'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # A rename followed by a duplicate does not break
@@ -377,7 +426,10 @@ UPGRADE_TESTS = [
                 {'step_version': 1, 'step_type': "add_column", 'params': {'sheet_index': 1,'column_header': 'formula'}},
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('formula'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=0', 'new_formula': '=new'}},
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Two renames in a row, properly handeled
@@ -408,7 +460,10 @@ UPGRADE_TESTS = [
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 0,'column_id': get_column_header_id('old'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('newer'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Add graph styling params 
@@ -432,7 +487,10 @@ UPGRADE_TESTS = [
                 {"step_version": 5, "step_type": "set_column_formula", "params": {"sheet_index": 0, "column_id": "new-column-9rkm", "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, "new_formula": "weekday(Date)", "old_formula": "=0"}}, 
                 {"step_version": 4, "step_type": "graph", "params": {"graph_id": "_iv911muyd", "graph_preprocessing": {"safety_filter_turned_on_by_user": True}, "graph_creation": {"graph_type": "bar", "sheet_index": 0, "x_axis_column_ids": ["Low"], "y_axis_column_ids": ["Open"], "color": "new-column-9rkm"}, "graph_styling": {"title": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT}, "xaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True, "rangeslider": {"visible": True}}, "yaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True}, "showlegend": True, 'legend': {'orientation': 'v'}, 'paper_bgcolor': DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, 'plot_bgcolor': DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT}, "graph_rendering": {"height": "426px", "width": "1141.800048828125px"}}}
             ],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Removes change column format
@@ -445,7 +503,10 @@ UPGRADE_TESTS = [
             "version": __version__, 
             "public_interface_version": 1,
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         },
     ),
     # Upgrades the set dataframe format
@@ -458,7 +519,10 @@ UPGRADE_TESTS = [
             "version": __version__, 
             "public_interface_version": 1,
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}],
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Upgrades the Excel range import
@@ -470,7 +534,10 @@ UPGRADE_TESTS = [
         {
             "version": __version__, 
             "steps_data": [{"step_version": 5, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet_name": "Sheet1", "convert_csv_to_xlsx": False, "range_imports": [{"type": "dynamic", 'start_condition': {"type": "upper left corner value", "value": 1}, "df_name": "df2", "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2,
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     ),
     # Upgrade the Snowflake import step
@@ -482,7 +549,10 @@ UPGRADE_TESTS = [
         {
             "version":  __version__, 
             "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2,
-            "args": []
+            "args": [],
+            "code_options": {
+                'as_function': False
+            }
         }
     )
 ]
@@ -514,7 +584,10 @@ def test_doesnt_upgrade_updated_format():
         "version": __version__, 
         "public_interface_version": 1,
         "steps_data": [{"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}],
-        "args": []
+        "args": [],
+        "code_options": {
+            'as_function': False
+        }
     }
     
     assert read_and_upgrade_analysis(TEST_ANALYSIS_NAME, []) == new

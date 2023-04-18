@@ -30,6 +30,8 @@ from mitosheet.step_performers.import_steps.simple_import import \
 from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.transpiler.transpile_utils import get_default_code_options
+from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
@@ -265,6 +267,10 @@ class StepsManager:
 
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
+
+        # The options for the transpiled code. For now, we just store if it should
+        # be a function, which we default to False
+        self.code_options: CodeOptions = get_default_code_options()
 
     @property
     def curr_step(self) -> Step:

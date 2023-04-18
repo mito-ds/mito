@@ -15,7 +15,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -1455,15 +1455,26 @@ export default class MitoAPI {
 
         Only called if there is no analysis to replay.
     */
-        async updateArgs(args: string[]): Promise<void> {
-            await this.send({
-                'event': 'update_event',
-                'type': 'args_update',
-                'params': {
-                    'args': args
-                }
-            }, {})
-        }
+    async updateArgs(args: string[]): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'args_update',
+            'params': {
+                'args': args
+            }
+        }, {})
+    }
+
+    
+    async updateCodeOptions(codeOptions: CodeOptions): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'code_options_update',
+            'params': {
+                'code_options': codeOptions
+            }
+        }, {})
+    }
 
 
     /*
