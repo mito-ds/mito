@@ -103,7 +103,7 @@ def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: 
                 res = requests.post(url, headers=headers, json=data)
         except:
                 return json.dumps({
-                        'error': f'There was an error accessing the API at {BYO_AI_URL}. This is likely due to internet connectivity problems or a firewall.'
+                        'error': f'There was an error accessing the API at {url}. This is likely due to internet connectivity problems or a firewall.'
                 })
 
         if res.status_code == 200:
@@ -119,7 +119,7 @@ def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: 
                 })
 
         return json.dumps({
-                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
+                'error': f'There was an error accessing the API at {url}. {res.json()["error"]["message"]}'
         })
 
 
