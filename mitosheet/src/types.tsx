@@ -741,6 +741,7 @@ export interface AnalysisData {
     renderCount: number;
     lastResult: any;
     experiment: Experiment | undefined;
+    codeOptions: CodeOptions;
 }
 
 export interface MitoConfig {
@@ -917,6 +918,7 @@ export enum ActionEnum {
     Dataframe_Import = 'Dataframe_Import',
     UPDATEIMPORTS = 'updateImports',
     CODESNIPPETS = 'CodeSnippets',
+    CODEOPTIONS = 'CodeOptions',
     EXPORT_TO_FILE = 'Export_To_File',
     RESET_AND_KEEP_INDEX = 'reset and keep index',
     RESET_AND_DROP_INDEX = 'reset and drop index',

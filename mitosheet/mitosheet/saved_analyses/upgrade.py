@@ -53,6 +53,7 @@ from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import 
     INITIAL_BULK_OLD_RENAME_STEP
 from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3, upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5
 from mitosheet.transpiler.transpile_utils import get_default_code_options
+from mitosheet.types import CodeOptions
 from mitosheet.utils import is_prev_version
 
 """
@@ -341,12 +342,15 @@ def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict
     
     return saved_analysis
 
-def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[str, Any]], code_options: Optional[CodeOptions]) -> Optional[Dict[str, Any]]:
 
     if saved_analysis is None:
         return None
 
-    if 'code_options' not in saved_analysis:
+    if code_options is not None:
+        saved_analysis['code_options'] = code_options
+    else:
+        # Otherwise, we have to add it to the analysis as default 1
         saved_analysis['code_options'] = get_default_code_options()
 
     return saved_analysis
@@ -377,6 +381,9 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
         saved_analysis_with_public_interface, 
         args
     )
-    saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(saved_analysis_with_args)
+    saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
+        saved_analysis_with_args,
+        saved_analysis.get('code_options', None) if saved_analysis is not None else None
+    )
 
     return saved_analysis_with_code_options

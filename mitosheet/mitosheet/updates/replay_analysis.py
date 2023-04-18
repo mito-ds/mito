@@ -102,15 +102,21 @@ def execute_replay_analysis_update(
         analysis = overwrite_import_data(analysis, step_import_data_list_to_overwrite)
 
     previous_public_interface_version = steps_manager.public_interface_version
+    previous_code_options = steps_manager.code_options
+
+    print("REPLAYING ANALYSIS")
     try:
         # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
+        steps_manager.code_options = analysis['code_options']
+        print('replaying analysis with public interface version', analysis['code_options'])
 
         steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
 
     except:
-        # If we error, reset the public interface version
+        # If we error, reset the public interface version, and code options
         steps_manager.public_interface_version = previous_public_interface_version
+        steps_manager.code_options = previous_code_options
         raise
 
     # If there are args to the mitosheet call, then set them on the steps manager

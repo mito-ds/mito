@@ -15,7 +15,7 @@ from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_python_identifier
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 # The snowflake-connector-python package is only available in Python > 3.6 
@@ -79,7 +79,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
            # If we've created the connection, then make sure to close it
            con.close() # type: ignore
 
-        new_df_name = get_valid_dataframe_name(post_state.df_names, table_or_view.lower())
+        new_df_name = get_valid_python_identifier(post_state.df_names, table_or_view.lower())
         post_state.add_df_to_state(
             df, 
             DATAFRAME_SOURCE_IMPORTED, 

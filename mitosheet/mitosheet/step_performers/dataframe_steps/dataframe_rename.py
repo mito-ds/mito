@@ -11,7 +11,7 @@ from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_python_identifier
 
 
 class DataframeRenameStepPerformer(StepPerformer):
@@ -48,7 +48,7 @@ class DataframeRenameStepPerformer(StepPerformer):
         # Create a new step and save the parameters
         post_state = prev_state.copy()
 
-        post_state.df_names[sheet_index] = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
+        post_state.df_names[sheet_index] = get_valid_python_identifier(post_state.df_names, new_dataframe_name)
 
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes

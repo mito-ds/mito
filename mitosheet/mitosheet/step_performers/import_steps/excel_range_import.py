@@ -25,7 +25,7 @@ from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ExcelRangeImport
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_python_identifier
 
 
 class ExcelRangeImportStepPerformer(StepPerformer):
@@ -76,7 +76,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
             df = pd.read_excel(file_path, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
-            final_df_name = get_valid_dataframe_name(post_state.df_names, range_import['df_name'])
+            final_df_name = get_valid_python_identifier(post_state.df_names, range_import['df_name'])
             post_state.add_df_to_state(
                 df,
                 DATAFRAME_SOURCE_IMPORTED,
