@@ -51,7 +51,10 @@ def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any],
     """
     analysis_name = params["analysis_name"]
     args = params["args"]
+    
 
     # We turn import steps into a version of the step that just creates a single dataframe
     # as this is what is easiest to work with on the frontend
-    return json.dumps(get_step_import_data_from_saved_analysis(analysis_name, args))
+    result = json.dumps(get_step_import_data_from_saved_analysis(analysis_name, args))
+    print("HERE", result)
+    return result

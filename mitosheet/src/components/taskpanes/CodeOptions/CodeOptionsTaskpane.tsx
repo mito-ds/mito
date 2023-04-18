@@ -59,7 +59,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                                 const newCodeOptions = {...codeOptions};
                                 newCodeOptions.as_function = !newCodeOptions.as_function;
                                 // Update directly to avoid the timeout here
-                                props.mitoAPI.updateCodeOptions(codeOptions);
+                                void props.mitoAPI.updateCodeOptions(codeOptions);
                                 setCodeOptions(newCodeOptions);
                             }}
                         />
