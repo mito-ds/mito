@@ -79,7 +79,7 @@ def test_can_import_multiple_sheets():
 
 @pandas_post_1_only
 @python_post_3_6_only
-def test_can_import_multiple_sheets():
+def test_can_import_multiple_sheets_xlsm():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
     with pd.ExcelWriter(TEST_FILE_XLSM) as writer:  
         df.to_excel(writer, sheet_name='Sheet1', index=False)
