@@ -25594,7 +25594,7 @@ ${finalCode}`;
   var getDefaultTextAreaHeight = (formula) => {
     const numLines = formula.split("\n").length + 1;
     if (numLines <= 2) {
-      return 22;
+      return 18;
     } else {
       return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
     }
@@ -25929,7 +25929,7 @@ ${finalCode}`;
           ref: setRef,
           id: "cell-editor-input",
           className: "cell-editor-input",
-          style: { "resize": "vertical", "maxHeight": `${textAreaHeight}px`, "height": `${textAreaHeight}px`, "marginTop": 0 },
+          style: { "resize": "none", "maxHeight": `${textAreaHeight}px`, "height": `${textAreaHeight}px`, "marginTop": 0 },
           onClick,
           value: fullFormula,
           autoComplete: "off",

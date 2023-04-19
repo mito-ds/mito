@@ -23,8 +23,7 @@ const getDefaultTextAreaHeight = (formula: string): number => {
     const numLines = formula.split('\n').length + 1;
 
     if (numLines <= 2) {
-        // Default to 2 lines, 11px tall
-        return 22;
+        return 18;
     } else {
         return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
     }
@@ -140,7 +139,7 @@ const CellEditor = (props: {
     /*
     useEffectOnResizeElement(() => {
         const newHeightString = cellEditorInputRef.current?.style.height;
-        const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '22');
+        const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '18');
         setTextAreaHeight(newHeight)
     }, [], 'cell-editor-input')
     */
@@ -555,7 +554,7 @@ const CellEditor = (props: {
                         ref={setRef}
                         id='cell-editor-input'
                         className='cell-editor-input'
-                        style={{'resize': 'vertical', 'maxHeight': `${textAreaHeight}px`, 'height': `${textAreaHeight}px`, 'marginTop': 0}}
+                        style={{'resize': 'none', 'maxHeight': `${textAreaHeight}px`, 'height': `${textAreaHeight}px`, 'marginTop': 0}}
                         onClick={onClick}
                         value={fullFormula}
                         autoComplete='off'
