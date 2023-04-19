@@ -13,7 +13,6 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
 import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
 import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
-import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
@@ -64,7 +63,7 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
-    const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
+    const [textAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
@@ -138,11 +137,13 @@ const CellEditor = (props: {
         })
     }, [props.editorState.editingMode])
 
+    /*
     useEffectOnResizeElement(() => {
         const newHeightString = cellEditorInputRef.current?.style.height;
         const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '22');
         setTextAreaHeight(newHeight)
     }, [], 'cell-editor-input')
+    */
 
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;
@@ -466,7 +467,7 @@ const CellEditor = (props: {
 
         // Add more space if we add a line
         if (char === '\n') {
-            setTextAreaHeight(prevHeight => prevHeight += 11)
+            //setTextAreaHeight(prevHeight => prevHeight += 11)
         }
     }
 
@@ -554,7 +555,7 @@ const CellEditor = (props: {
                         ref={setRef}
                         id='cell-editor-input'
                         className='cell-editor-input'
-                        style={{'resize': 'vertical', 'maxHeight': `${CELL_EDITOR_MAX_HEIGHT}px`, 'height': `${textAreaHeight}px`, 'marginTop': 0}}
+                        style={{'resize': 'vertical', 'maxHeight': `${textAreaHeight}px`, 'height': `${textAreaHeight}px`, 'marginTop': 0}}
                         onClick={onClick}
                         value={fullFormula}
                         autoComplete='off'
