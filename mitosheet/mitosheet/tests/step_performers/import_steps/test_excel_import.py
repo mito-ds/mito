@@ -11,6 +11,7 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
 TEST_FILE = 'file.xlsx'
+TEST_FILE_XLSM = 'file.xlsm'
 
 @pandas_post_1_only
 @python_post_3_6_only
@@ -75,6 +76,28 @@ def test_can_import_multiple_sheets():
     assert mito.df_names == ['Sheet1', 'Sheet2']
     # Remove the test file
     os.remove(TEST_FILE)
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_multiple_sheets():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    with pd.ExcelWriter(TEST_FILE_XLSM) as writer:  
+        df.to_excel(writer, sheet_name='Sheet1', index=False)
+        df.to_excel(writer, sheet_name='Sheet2', index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.excel_import(TEST_FILE_XLSM, ['Sheet1', 'Sheet2'], True, 0)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert mito.curr_step.step_type == 'excel_import'
+    assert len(mito.dfs) == 2
+    assert mito.dfs[0].equals(df)
+    assert mito.dfs[1].equals(df)
+    assert mito.df_names == ['Sheet1', 'Sheet2']
+    # Remove the test file
+    os.remove(TEST_FILE_XLSM)
 
 @pandas_post_1_only
 @python_post_3_6_only

@@ -34267,6 +34267,13 @@ ${finalCode}`;
   // src/components/import/FileBrowser/FileBrowser.tsx
   var import_react129 = __toESM(require_react());
 
+  // src/components/icons/ConfigureIcon.tsx
+  var import_react120 = __toESM(require_react());
+  var ConfigureIcon = () => {
+    return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
+  };
+  var ConfigureIcon_default = ConfigureIcon;
+
   // src/utils/packageVersion.tsx
   var isAtLeastBenchmarkVersion = (currentVersion, benchmarkVersion) => {
     const currentVersionParts = currentVersion.split(".").map((versionPart) => parseInt(versionPart));
@@ -34291,13 +34298,6 @@ ${finalCode}`;
     return isAtLeastBenchmarkVersion(userProfile2.pythonVersion, "3.6.0") && isAtLeastBenchmarkVersion(userProfile2.pandasVersion, "0.25.0");
   };
 
-  // src/components/icons/ConfigureIcon.tsx
-  var import_react120 = __toESM(require_react());
-  var ConfigureIcon = () => {
-    return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
-  };
-  var ConfigureIcon_default = ConfigureIcon;
-
   // src/components/taskpanes/FileImport/importUtils.tsx
   var PARENT_FOLDER_NAME = "Parent Folder";
   var getFileEnding = (elementName) => {
@@ -34308,7 +34308,7 @@ ${finalCode}`;
       return void 0;
     }
   };
-  var getInvalidFileError = (selectedElement, excelImportEnabled) => {
+  var getInvalidFileError = (selectedElement, userProfile2) => {
     if (selectedElement.isDirectory) {
       return void 0;
     }
@@ -34318,8 +34318,11 @@ ${finalCode}`;
       "txt",
       "tab"
     ];
-    if (excelImportEnabled) {
+    if (isExcelImportEnabled(userProfile2)) {
       VALID_FILE_ENDINGS.push("xlsx");
+      if (userProfile2.pandasVersion !== void 0 && isAtLeastBenchmarkVersion(userProfile2.pandasVersion, "1.0.0")) {
+        VALID_FILE_ENDINGS.push("xlsm");
+      }
     }
     for (const ending of VALID_FILE_ENDINGS) {
       if (selectedElement.name.toLowerCase().endsWith(ending)) {
@@ -34335,7 +34338,7 @@ ${finalCode}`;
       return `Sorry, we don't support ${fileEnding} files.`;
     }
   };
-  var getImportButtonStatus = (selectedElement, excelImportEnabled, loadingImport, isUpdate) => {
+  var getImportButtonStatus = (selectedElement, userProfile2, loadingImport, isUpdate) => {
     if (selectedElement === void 0) {
       return {
         disabled: true,
@@ -34348,7 +34351,7 @@ ${finalCode}`;
         buttonText: "That's a Directory. Select a File"
       };
     }
-    const invalidFileError = getInvalidFileError(selectedElement, excelImportEnabled);
+    const invalidFileError = getInvalidFileError(selectedElement, userProfile2);
     if (invalidFileError !== void 0) {
       return {
         disabled: true,
@@ -34367,7 +34370,7 @@ ${finalCode}`;
     };
   };
   var isExcelFile = (element) => {
-    return element !== void 0 && !(element == null ? void 0 : element.isDirectory) && (element == null ? void 0 : element.name.toLowerCase().endsWith(".xlsx"));
+    return element !== void 0 && !(element == null ? void 0 : element.isDirectory) && ((element == null ? void 0 : element.name.toLowerCase().endsWith(".xlsx")) || (element == null ? void 0 : element.name.toLowerCase().endsWith(".xlsm")));
   };
   var getElementsToDisplay = (importState) => {
     const allElements = [...importState.pathContents.elements];
@@ -34464,7 +34467,7 @@ ${finalCode}`;
         ensureInView(parent, elementRef.current, 0);
       }
     }, [isSelected]);
-    const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
+    const invalidFileError = getInvalidFileError(props.element, props.userProfile);
     return /* @__PURE__ */ import_react125.default.createElement(
       "div",
       {
@@ -34719,7 +34722,8 @@ ${finalCode}`;
           setCurrPathParts: props.setCurrPathParts,
           excelImportEnabled: isExcelImportEnabled(props.userProfile),
           setImportState: props.setImportState,
-          importCSVFile: props.importCSVFile
+          importCSVFile: props.importCSVFile,
+          userProfile: props.userProfile
         }
       );
     })), props.fileBrowserState.loadingFolder && /* @__PURE__ */ import_react128.default.createElement("p", null, "Loading folder contents..."))));
@@ -34792,7 +34796,7 @@ ${finalCode}`;
     }
     const importButtonStatus = getImportButtonStatus(
       selectedFile,
-      isExcelImportEnabled(props.userProfile),
+      props.userProfile,
       fileBrowserState.loadingImport,
       props.isUpdate
     );
