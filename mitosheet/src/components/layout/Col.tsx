@@ -40,6 +40,10 @@ interface ColProps {
        * @param [title] - Title to put on the column div
     */
     title?: string;
+    /** 
+       * @param [alignSelf] - Override the row alignment on this specific column
+    */
+    alignSelf?: 'start' | 'end' | 'center';
 }
 
 
@@ -61,7 +65,8 @@ const Col = (props: ColProps): JSX.Element => {
                 width: width, 
                 marginLeft: marginLeft, 
                 marginRight: marginRight,
-                flex: props.flex
+                flex: props.flex,
+                alignSelf: props.alignSelf
             }}
             onClick={props.onClick}
             title={props.title}

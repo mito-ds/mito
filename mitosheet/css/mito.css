@@ -92,10 +92,10 @@
 
 /* Contains the Toolbar, Mito Sheet, and Taskpane */ 
 .mito-main-sheet-div {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
     overflow: hidden;
 }
 
@@ -104,9 +104,9 @@
     mito-main-sheet-div when the taskpane is closed and only 70% when the taskpane is opened. 
 */ 
 .mito-formula-bar-and-mitosheet-div {
-    /* Note that this is the whole height, less the height of the sheet tabs */
-    height: calc(100% - 30px);
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 

@@ -61,7 +61,8 @@ const FormulaBar = (props: {
             style={{
                 borderTop: '1px solid var(--mito-border)',
                 borderBottom: '1px solid var(--mito-border)',
-                background: 'white'
+                background: 'white',
+                height: 'min-content'
             }}
             suppressTopBottomMargin
         >
@@ -73,7 +74,7 @@ const FormulaBar = (props: {
             <Col>
                 <div className="formula-bar-vertical-line"/>
             </Col>
-            <Col flex='1'>
+            <Col flex='1' alignSelf='start'>
                 {props.editorState?.editorLocation === 'formula bar' &&
                     <CellEditor
                         sheetData={props.sheetData}

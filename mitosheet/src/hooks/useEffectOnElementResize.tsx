@@ -14,12 +14,14 @@ import { useEffect } from "react";
 export const useEffectOnResizeElement = (effect: () => void, deps: unknown[], id: string): void => {
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
+            console.log("RUNNING THIS OTHER ONE")
             effect();
         })
 
         const element = document.getElementById(id);
 
         if (element) {
+            console.log("RUNNING")
             resizeObserver.observe(element);
         }
         

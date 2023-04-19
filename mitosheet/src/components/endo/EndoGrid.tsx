@@ -98,9 +98,15 @@ function EndoGrid(props: {
     // Store if the mouse is currently pressed down on the grid
     const [mouseDown, setMouseDown] = useState(false);
     // Store a resize observer so we can watch for viewport size changes, and size everything correctly off that
-    const [resizeObserver, ] = useState(() => new ResizeObserver(() => {
-        resizeViewport();
-    }))
+    const [resizeObserver, ] = useState(() => {
+
+        console.log("CREATING RESIZE OBSERVER")
+
+        return new ResizeObserver((v) => {
+            console.log("RESIZING", v)
+            resizeViewport();
+        })
+    })
     
     // Destructure the props, so we access them more directly in the component below
     const {

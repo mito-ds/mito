@@ -21164,23 +21164,27 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     const width = props.width || "large";
     const widthPixels = WIDTH_MAPPING[width];
     (0, import_react4.useEffect)(() => {
-      return () => {
-        try {
-          if (isNotFullscreen) {
-            document.body.removeChild(dropdownContainerElement.current);
-          } else {
-            if (mitoContainerRef.current) {
-              mitoContainerRef.current.removeChild(dropdownContainerElement.current);
+      if (props.display) {
+        return () => {
+          console.log("CLEANING RUNNING");
+          try {
+            if (isNotFullscreen) {
+              document.body.removeChild(dropdownContainerElement.current);
+            } else {
+              if (mitoContainerRef.current) {
+                mitoContainerRef.current.removeChild(dropdownContainerElement.current);
+              }
             }
+          } catch (e) {
           }
-        } catch (e) {
-        }
-      };
-    }, []);
+        };
+      }
+    }, [props.display]);
     const setRef = (0, import_react4.useCallback)((unsavedDropdownAnchor) => {
       if (unsavedDropdownAnchor !== null) {
         dropdownAnchor.current = unsavedDropdownAnchor;
         if (isNotFullscreen) {
+          console.log("HERE2", props.children);
           document.body.append(dropdownContainerElement.current);
         } else {
           const mitoContainer = unsavedDropdownAnchor.closest(".mito-container");
@@ -21208,6 +21212,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var _a;
         setIsNotFullscreen(!fscreen_esm_default.fullscreenElement);
         if (!fscreen_esm_default.fullscreenElement) {
+          console.log("HERE1");
           document.body.append(dropdownContainerElement.current);
         } else {
           const mitoContainer = (_a = dropdownAnchor.current) == null ? void 0 : _a.closest(".mito-container");
@@ -21408,7 +21413,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           width,
           marginLeft,
           marginRight,
-          flex: props.flex
+          flex: props.flex,
+          alignSelf: props.alignSelf
         },
         onClick: props.onClick,
         title: props.title
@@ -25592,10 +25598,12 @@ ${finalCode}`;
   var useEffectOnResizeElement = (effect, deps, id) => {
     (0, import_react40.useEffect)(() => {
       const resizeObserver = new ResizeObserver(() => {
+        console.log("RUNNING THIS OTHER ONE");
         effect();
       });
       const element = document.getElementById(id);
       if (element) {
+        console.log("RUNNING");
         resizeObserver.observe(element);
       }
       return () => {
@@ -26037,13 +26045,14 @@ ${finalCode}`;
         style: {
           borderTop: "1px solid var(--mito-border)",
           borderBottom: "1px solid var(--mito-border)",
-          background: "white"
+          background: "white",
+          height: "min-content"
         },
         suppressTopBottomMargin: true
       },
       /* @__PURE__ */ import_react42.default.createElement(Col_default, { offset: 0.5 }, /* @__PURE__ */ import_react42.default.createElement("p", { className: "formula-bar-column-header text-header-3 text-overflow-hide" }, formulaBarColumnHeader)),
       /* @__PURE__ */ import_react42.default.createElement(Col_default, null, /* @__PURE__ */ import_react42.default.createElement("div", { className: "formula-bar-vertical-line" })),
-      /* @__PURE__ */ import_react42.default.createElement(Col_default, { flex: "1" }, ((_a = props.editorState) == null ? void 0 : _a.editorLocation) === "formula bar" && /* @__PURE__ */ import_react42.default.createElement(
+      /* @__PURE__ */ import_react42.default.createElement(Col_default, { flex: "1", alignSelf: "start" }, ((_a = props.editorState) == null ? void 0 : _a.editorLocation) === "formula bar" && /* @__PURE__ */ import_react42.default.createElement(
         CellEditor_default,
         {
           sheetData: props.sheetData,
@@ -26711,9 +26720,13 @@ ${finalCode}`;
     const containerRef = (0, import_react51.useRef)(null);
     const scrollAndRenderedContainerRef = (0, import_react51.useRef)(null);
     const [mouseDown, setMouseDown] = (0, import_react51.useState)(false);
-    const [resizeObserver] = (0, import_react51.useState)(() => new ResizeObserver(() => {
-      resizeViewport();
-    }));
+    const [resizeObserver] = (0, import_react51.useState)(() => {
+      console.log("CREATING RESIZE OBSERVER");
+      return new ResizeObserver((v) => {
+        console.log("RESIZING", v);
+        resizeViewport();
+      });
+    });
     const {
       sheetDataArray: sheetDataArray2,
       sheetIndex,
@@ -30144,6 +30157,7 @@ ${finalCode}`;
       textArea.style.position = "absolute";
       textArea.style.opacity = "0";
       document.body.appendChild(textArea);
+      console.log("HERE3");
       const currentFocusedElement = document.activeElement;
       textArea.select();
       return new Promise((res, rej) => {

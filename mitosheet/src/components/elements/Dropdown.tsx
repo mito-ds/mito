@@ -250,20 +250,23 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // This just cleans up the dropdown container, when the component unrenders
     // So that we don't leave a bunch of divs lying around
     useEffect(() => {
-        return () => {
-            try {
-                if (isNotFullscreen) {
-                    document.body.removeChild(dropdownContainerElement.current)
-                } else {
-                    if (mitoContainerRef.current) {
-                        mitoContainerRef.current.removeChild(dropdownContainerElement.current)
+        if (props.display) {
+            return () => {
+                console.log("CLEANING RUNNING")
+                try {
+                    if (isNotFullscreen) {
+                        document.body.removeChild(dropdownContainerElement.current)
+                    } else {
+                        if (mitoContainerRef.current) {
+                            mitoContainerRef.current.removeChild(dropdownContainerElement.current)
+                        }
                     }
+                } catch {
+                    // If we fail cleaning up a dropdown, we don't want to crash the sheet
                 }
-            } catch {
-                // If we fail cleaning up a dropdown, we don't want to crash the sheet
             }
         }
-    }, [])
+    }, [props.display])
 
     // When we first render the dropdownAnchor, make sure to save it 
     // and to update the position of the dropdown
@@ -275,6 +278,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             if (isNotFullscreen) {
                 // Add element to the document, if we're not in 
                 // fullscreen mode
+                console.log("HERE2", props.children)
                 document.body.append(dropdownContainerElement.current);
             } else {
                 // If we are in fullscreen mode, then place the dropdownContainerElement in the
@@ -318,6 +322,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             if (!fscreen.fullscreenElement) {
                 // Add element to the document, if we're not in 
                 // fullscreen mode
+                console.log("HERE1")
                 document.body.append(dropdownContainerElement.current);
             } else {
                 // If we are in fullscreen mode, then place the dropdownContainerElement in the

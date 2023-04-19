@@ -157,6 +157,7 @@ export const writeTextToClipboard = (text: string): Promise<void> => {
         textArea.style.position = "absolute"; 
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
+        console.log("HERE3")
         
         // Save the previous selected element
         const currentFocusedElement = document.activeElement;
