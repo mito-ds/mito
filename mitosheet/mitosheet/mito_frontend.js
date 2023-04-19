@@ -25590,14 +25590,8 @@ ${finalCode}`;
   // src/components/endo/celleditor/CellEditor.tsx
   var CELL_EDITOR_DEFAULT_WIDTH = 250;
   var CELL_EDITOR_MAX_WIDTH = 500;
-  var CELL_EDITOR_MAX_HEIGHT = 150;
   var getDefaultTextAreaHeight = (formula) => {
-    const numLines = formula.split("\n").length + 1;
-    if (numLines <= 2) {
-      return 18;
-    } else {
-      return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
-    }
+    return 18;
   };
   var CellEditor = (props) => {
     var _a;

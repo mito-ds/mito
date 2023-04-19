@@ -20,13 +20,7 @@ export const CELL_EDITOR_MAX_WIDTH = 500;
 export const CELL_EDITOR_MAX_HEIGHT = 150;
 
 const getDefaultTextAreaHeight = (formula: string): number => {
-    const numLines = formula.split('\n').length + 1;
-
-    if (numLines <= 2) {
-        return 18;
-    } else {
-        return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
-    }
+    return 18;
 }
 
 /* 
