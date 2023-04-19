@@ -41,11 +41,7 @@ class ExcelImportStepPerformer(StepPerformer):
         skiprows: int = get_param(params, 'skiprows')
         decimal: str = get_param(params, 'decimal')
 
-        print(file_name)
-
         read_excel_params = build_read_excel_params(sheet_names, has_headers, skiprows, decimal)
-
-        print(read_excel_params)
 
         post_state = prev_state.copy()
         
