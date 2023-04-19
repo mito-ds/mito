@@ -25590,7 +25590,7 @@ ${finalCode}`;
   // src/components/endo/celleditor/CellEditor.tsx
   var CELL_EDITOR_DEFAULT_WIDTH = 250;
   var CELL_EDITOR_MAX_WIDTH = 500;
-  var getDefaultTextAreaHeight = (formula) => {
+  var getDefaultTextAreaHeight = () => {
     return 18;
   };
   var CellEditor = (props) => {
@@ -25601,7 +25601,7 @@ ${finalCode}`;
     const [loading, setLoading] = (0, import_react40.useState)(false);
     const [cellEditorError, setCellEditorError] = (0, import_react40.useState)(void 0);
     const [selectionRangeToSet, setSelectionRangeToSet] = (0, import_react40.useState)(void 0);
-    const [textAreaHeight] = (0, import_react40.useState)(() => getDefaultTextAreaHeight(fullFormula));
+    const [textAreaHeight] = (0, import_react40.useState)(() => getDefaultTextAreaHeight());
     const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const setRef = (0, import_react40.useCallback)((unsavedInputAnchor) => {
       if (unsavedInputAnchor !== null) {

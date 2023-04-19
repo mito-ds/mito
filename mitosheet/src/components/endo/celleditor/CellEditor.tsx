@@ -19,7 +19,7 @@ export const CELL_EDITOR_DEFAULT_WIDTH = 250;
 export const CELL_EDITOR_MAX_WIDTH = 500;
 export const CELL_EDITOR_MAX_HEIGHT = 150;
 
-const getDefaultTextAreaHeight = (formula: string): number => {
+const getDefaultTextAreaHeight = (): number => {
     return 18;
 }
 
@@ -56,7 +56,7 @@ const CellEditor = (props: {
     const [loading, setLoading] = useState(false);
     const [cellEditorError, setCellEditorError] = useState<string | undefined>(undefined);
     const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
-    const [textAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
+    const [textAreaHeight] = useState(() => getDefaultTextAreaHeight());
 
     const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
