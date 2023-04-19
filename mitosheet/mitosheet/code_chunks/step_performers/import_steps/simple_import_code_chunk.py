@@ -50,7 +50,11 @@ def generate_read_csv_code(file_name: str, df_name: str, delimeter: str, encodin
     params = get_read_csv_params(delimeter, encoding, decimal=decimal, skiprows=skiprows, error_bad_lines=error_bad_lines)
     params_string = ', '.join(f'{key}={column_header_to_transpiled_code(value)}' for key, value in params.items())
 
-    return f'{df_name} = pd.read_csv(r\'{file_name}\'{", " if len(params_string) > 0 else ""}{params_string})'
+    if "'" in file_name:
+        raw_file_name = f'r\"{file_name}\"'
+    else:
+        raw_file_name = f"r\'{file_name}\'"
+    return f'{df_name} = pd.read_csv({raw_file_name}{", " if len(params_string) > 0 else ""}{params_string})'
 
 
 class SimpleImportCodeChunk(CodeChunk):

@@ -37,7 +37,11 @@ class ExcelImportCodeChunk(CodeChunk):
             self.decimal
         )
 
-        read_excel_line = f'sheet_df_dictonary = pd.read_excel(r\'{self.file_name}\', engine=\'openpyxl\''
+        if "'" in self.file_name:
+            raw_file_name = f'r\"{self.file_name}\"'
+        else:
+            raw_file_name = f"r\'{self.file_name}\'"
+        read_excel_line = f'sheet_df_dictonary = pd.read_excel({raw_file_name}, engine=\'openpyxl\''
         for key, value in read_excel_params.items():
             # We use this slighly misnamed function to make sure values get transpiled right
             read_excel_line += f", {key}={column_header_to_transpiled_code(value)}"

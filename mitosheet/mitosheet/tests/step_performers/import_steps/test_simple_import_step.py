@@ -103,6 +103,24 @@ def test_can_import_a_single_csv_with_a_single_column():
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
 
+def test_can_import_csv_with_quote_in_file_name():
+    TEST_FILE = "dataQ1'22.csv"
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_FILE, index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper_dfs()
+    # And then import just a test file
+    mito.simple_import([TEST_FILE])
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert mito.curr_step.step_type == 'simple_import'
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(df)
+
+    # Remove the test file
+    os.remove(TEST_FILE)
+
 def test_creates_valid_name():
     df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
     df.to_csv('1.csv', index=False)
