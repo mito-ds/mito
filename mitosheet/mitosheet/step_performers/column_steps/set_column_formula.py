@@ -92,7 +92,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS
         elif public_interface_version == 3:
-            from mitosheet.public.v3 import FUNCTIONS
+            from mitosheet.public.v3 import FUNCTIONS # type: ignore
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
 

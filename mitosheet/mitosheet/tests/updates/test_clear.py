@@ -150,7 +150,7 @@ def test_does_not_undo_excel_range_import():
     mito = create_mito_wrapper_dfs()
 
     TEST_DF_1.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
-    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}])
+    mito.excel_range_import(TEST_FILE_PATH, TEST_SHEET_NAME, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}], False)
 
     assert len(mito.dfs) == 1
     assert TEST_DF_1.equals(mito.dfs[0])

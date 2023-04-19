@@ -228,6 +228,14 @@ const TRANSFORMATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'AI Transformations',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true
+    }
+  },
+  {
     feature: 'Custom Code Snippets',
     planSupport: {
       'Open Source': false,
@@ -599,6 +607,30 @@ const Plans: NextPage = () => {
             <section>
                   <div className={pageStyles.subsection}>
                       <div className={iconAndTextCardStyles.icon_and_text_card}>
+                          <div className={iconAndTextCardStyles.icon}>
+                              <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                          </div>
+                          <h1>
+                              Shareable <br/> notebooks
+                          </h1>
+                          <p>
+                            Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
+                          </p>
+                      </div>
+                      <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+                          <div className={iconAndTextCardStyles.icon}>
+                              <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
+                          </div>
+                          <h1>
+                            On-prem <br/> AI
+                          </h1>
+                          <p>
+                            Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system. (coming soon)
+                          </p>
+                      </div>
+                  </div>
+                  <div className={pageStyles.subsection}>
+                      <div className={iconAndTextCardStyles.icon_and_text_card}>
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
@@ -614,38 +646,13 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                            Graph <br/> styling
+                            Script <br/> scheduling
                         </h1>
                         <p>
-                            Create presentation-ready graphs with full control of colors, ability to save graph templates, and more. 
+                            Schedule scripts to run automatically to fully automate reports (coming soon)
                         </p>
                     </div>
-                </div>
-                <div className={pageStyles.subsection}>
-                    <div className={iconAndTextCardStyles.icon_and_text_card}>
-                        <div className={iconAndTextCardStyles.icon}>
-                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
-                        </div>
-                        <h1>
-                            Shareable <br/> notebooks
-                        </h1>
-                        <p>
-                          Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
-                        </p>
-                    </div>
-                    <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                        <div className={iconAndTextCardStyles.icon}>
-                            <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
-                        </div>
-                        <h1>
-                          Advanced <br/> analysis
-                        </h1>
-                        <p>
-                          Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. (coming soon)
-                        </p>
-                    </div>
-                </div>
-                
+                </div>                
                 <div className={pageStyles.subsection}>
                     <div className={iconAndTextCardStyles.icon_and_text_card}>
                         <div className={iconAndTextCardStyles.icon}>
@@ -687,10 +694,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                          Keyboard <br/> shortcuts
+                          Advanced <br/> analysis
                         </h1>
                         <p>
-                          Navigate Mito without ever using your mouse. 🐁  (coming soon)
+                          Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. (coming soon)
                         </p>
                     </div>
                 </div>

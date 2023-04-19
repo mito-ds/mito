@@ -1,10 +1,12 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { ColumnID, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
+import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
 import { getCellDataFromCellIndexes } from "../utils";
+import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
 export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
@@ -186,12 +188,27 @@ export const getStartingFormula = (
 /**
  * Returns true if the formula ends in a refernece to a different column header in the sheet
  * followed by a reference to the row of the index label. 
- * 
  */
-export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, sheetData: SheetData): boolean => {
-    const possibleReferences = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader) + getDisplayColumnHeader(indexLabel));
-    const endingReferences = possibleReferences.filter(reference => formula.toLowerCase().endsWith(reference.toLowerCase()));
-    return endingReferences.length > 0;
+export const getFormulaEndsInReference = (formula: string, sheetData: SheetData): boolean => {
+    const lowercaseFormula = formula.toLowerCase();
+    const lowercaseColumnHeaders = sheetData.data.map(c => getDisplayColumnHeader(c.columnHeader).toLowerCase());
+
+
+    let found = false;
+    lowercaseColumnHeaders.forEach(ch => {
+        const lastIndexOf = lowercaseFormula.lastIndexOf(ch);
+        if (lastIndexOf !== -1) {
+            const remainingString = lowercaseFormula.substring(lastIndexOf);
+            // Check if this is an index label (TODO: is this performant enough?)
+            sheetData.index.forEach(indexLabel => {
+                if (remainingString === getDisplayColumnHeader(indexLabel).toLowerCase()) {
+                    found = true;
+                }
+            })
+        }
+    })
+
+    return found;
 }
 
 
@@ -205,7 +222,7 @@ export const formulaEndsInReference = (formula: string, indexLabel: IndexLabel, 
  * @returns - a tuple: the length of the matched end of the formula (the replacement length), and a list of [column header, subtext] suggestions. 
  * The subtext contains the type of the column
  */
-export const getSuggestedColumnHeaders = (formula: string, columnID: ColumnID, sheetData: SheetData): [number, [string, string][]] => {
+export const getSuggestedColumnHeaders = (formula: string, sheetData: SheetData): [number, [string, string][]] => {
     
     const columnHeadersAndIDs: [string, string][] = sheetData.data.map(c => [c.columnID, getDisplayColumnHeader(c.columnHeader)]);
 
@@ -308,14 +325,14 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
 
 /**
  * Returns the documentation for the function that the user is currently writing, specifically
- * returning documentation for the last function in the formula.
+ * returning documentation for the last function in the formula that the user has typed.
  * 
  * @param formula - the formula the user is currently writing
  */
-export const getDocumentationFunction = (formula: string): FunctionDocumentationObject | undefined => {
+export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null): FunctionDocumentationObject | undefined => {
     
-    // Find the final function start
-    const finalParenIndex = formula.lastIndexOf('(')
+    // Find the final function that is before the users selection
+    const finalParenIndex = formula.substring(0, selectionStart || undefined).lastIndexOf('(')
     if (finalParenIndex === -1) {
         return undefined;
     }
@@ -387,4 +404,19 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
 
     })
     return formulaString;
+}
+
+export const getCellEditorWidth = (formula: string, editorLocation: 'cell' | 'formula bar'): number => {
+
+    let cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+
+    const textWidth = getTextWidth(formula, '11px system-ui') + 10 // Add 10 just for a nice little end padding
+
+    if (editorLocation === 'cell') {
+        return Math.min(Math.max(CELL_EDITOR_DEFAULT_WIDTH, textWidth), CELL_EDITOR_MAX_WIDTH);
+    } else {
+        cellEditorWidth = CELL_EDITOR_DEFAULT_WIDTH;
+    }
+
+    return cellEditorWidth;
 }
