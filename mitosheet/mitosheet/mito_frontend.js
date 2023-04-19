@@ -25953,7 +25953,7 @@ ${finalCode}`;
           ref: setRef,
           id: "cell-editor-input",
           className: "cell-editor-input",
-          style: { "resize": "vertical", "maxHeight": `${CELL_EDITOR_MAX_HEIGHT}px`, "height": `${textAreaHeight}px` },
+          style: { "resize": "vertical", "maxHeight": `${CELL_EDITOR_MAX_HEIGHT}px`, "height": `${textAreaHeight}px`, "marginTop": 0 },
           onClick,
           value: fullFormula,
           autoComplete: "off",

@@ -222,6 +222,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'er 10'}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 'abc'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_4.iloc[0:1]],
     ),  
+    # Tests start with and end with conditions, and has a number of columns
+    (
+        ['A1:B2'],
+        [TEST_DF_4],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'er 10'}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 'abc'}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_4.iloc[0:1][TEST_DF_4.columns[0:2]]],
+    ),  
     # Test that starts with or contains works when there is a gap of Nones, and we don't detect this as the upper left corner value
     (
         ['A1:B2', 'A4:B5'],
