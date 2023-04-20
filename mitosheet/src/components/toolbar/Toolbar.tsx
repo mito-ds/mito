@@ -234,15 +234,15 @@ const Toolbar = (
                                     }
                                 })
                             }
-                            width='medium'
+                            width='large'
                         >
-                            <DropdownItem title='Download File' onClick={() => {props.setUIState(prevUIState => {
+                            <DropdownItem title='Download File Now' onClick={() => {props.setUIState(prevUIState => {
                                 return {
                                     ...prevUIState,
                                     currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
                                 }
                             })}}/>
-                            <DropdownItem title='Generate Export Code' onClick={() => {props.setUIState(prevUIState => {
+                            <DropdownItem title='Generate Code to Download File' onClick={() => {props.setUIState(prevUIState => {
                                 return {
                                     ...prevUIState,
                                     currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
