@@ -62,7 +62,7 @@ def read_and_upgrade_analysis(analysis_name: str, args: List[str]) -> Optional[D
     """
     from mitosheet.saved_analyses import upgrade_saved_analysis_to_current_version
     old_analysis = read_analysis(analysis_name)
-    return upgrade_saved_analysis_to_current_version(old_analysis, args)
+    return upgrade_saved_analysis_to_current_version(old_analysis, analysis_name, args)
 
 def _get_all_analysis_filenames():
     """

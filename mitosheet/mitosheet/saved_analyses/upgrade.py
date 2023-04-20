@@ -342,7 +342,7 @@ def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict
     
     return saved_analysis
 
-def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[str, Any]], code_options: Optional[CodeOptions]) -> Optional[Dict[str, Any]]:
+def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[str, Any]], analysis_name: str, code_options: Optional[CodeOptions]) -> Optional[Dict[str, Any]]:
 
     if saved_analysis is None:
         return None
@@ -351,11 +351,11 @@ def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[st
         saved_analysis['code_options'] = code_options
     else:
         # Otherwise, we have to add it to the analysis as default 1
-        saved_analysis['code_options'] = get_default_code_options()
+        saved_analysis['code_options'] = get_default_code_options(analysis_name)
 
     return saved_analysis
 
-def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]], args: List[str]) -> Optional[Dict[str, Any]]:
+def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str, Any]], analysis_name: str, args: List[str]) -> Optional[Dict[str, Any]]:
     """
     Upgrades a saved analysis to the current version.
     
@@ -383,6 +383,7 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     )
     saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
         saved_analysis_with_args,
+        analysis_name,
         saved_analysis.get('code_options', None) if saved_analysis is not None else None
     )
 
