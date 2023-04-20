@@ -242,7 +242,7 @@ const Toolbar = (
                                     currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
                                 }
                             })}}/>
-                            <DropdownItem title='Generate Code to Download File' onClick={() => {props.setUIState(prevUIState => {
+                            <DropdownItem title='Download File when Executing Code' onClick={() => {props.setUIState(prevUIState => {
                                 return {
                                     ...prevUIState,
                                     currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
