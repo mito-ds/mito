@@ -62,7 +62,7 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
     elif not is_prev_version(pd.__version__, '1.0.0') and column_header is pd.NA:
         return 'pd.NA'
     elif isinstance(column_header, str) and "'" in column_header:
-        return f"{column_header}"
+        return f"\"{column_header}\""
 
     return repr(column_header)
 

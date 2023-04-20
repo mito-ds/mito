@@ -55,7 +55,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -76,7 +76,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -98,7 +98,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -119,7 +119,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -148,7 +148,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -170,7 +170,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -193,7 +193,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -218,7 +218,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -247,7 +247,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -273,7 +273,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -299,7 +299,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -327,7 +327,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -350,7 +350,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -373,7 +373,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -396,7 +396,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -432,7 +432,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -461,7 +461,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -497,7 +497,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -526,7 +526,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -544,7 +544,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         },
@@ -562,7 +562,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -579,7 +579,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -596,7 +596,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
-                'function_name': 'function',
+                'function_name': 'function_ysis',
                 'function_params': {}
             }
         }
@@ -633,7 +633,7 @@ def test_doesnt_upgrade_updated_format():
         "args": [],
         "code_options": {
             'as_function': False,
-            'function_name': 'function',
+            'function_name': 'function_ysis',
             'function_params': {}
         }
     }

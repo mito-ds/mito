@@ -299,6 +299,7 @@ def test_transpile_as_function_df_params():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
+        '',
         'def function(df1):',
         f"{TAB}df1.insert(1, 'B', 0)",
         f'{TAB}',
@@ -317,6 +318,7 @@ def test_transpile_as_function_string_params():
 
     print(mito.transpiled_code)
     assert mito.transpiled_code == [
+        '',
         'def function(txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
         f"{TAB}txt = pd.read_csv(txt_path)",
@@ -337,6 +339,7 @@ def test_transpile_as_function_both_params():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
+        '',
         'def function(df1, txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
         f"{TAB}txt = pd.read_csv(txt_path)",
