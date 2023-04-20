@@ -580,7 +580,8 @@ def test_convert_csv_to_excel_multiple_ranges_grows_in_columns():
 
     os.remove(TEST_FILE_CSV_PATH)
 
-
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_excel_range_import_sheet_index():
     # Use ExcelWriter to write two sheets
     with pd.ExcelWriter(TEST_FILE_PATH) as writer:
