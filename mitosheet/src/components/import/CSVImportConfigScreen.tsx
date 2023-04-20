@@ -398,23 +398,23 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                     </Col>
                 </Row>
                 <Row>
-                <p
-                    onClick={() => {
-                        props.setUIState((prevUIState) => {
-                            return {
-                                ...prevUIState,
-                                currOpenTaskpane: {
-                                    type: TaskpaneType.EXCEL_RANGE_IMPORT,
-                                    file_path: props.filePath,
-                                    sheet_name: 'Sheet1',
-                                    sheet_names: ['Sheet1']
+                    <p
+                        onClick={() => {
+                            props.setUIState((prevUIState) => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {
+                                        type: TaskpaneType.EXCEL_RANGE_IMPORT,
+                                        file_path: props.filePath,
+                                        sheet_name: 'Sheet1',
+                                        sheet_names: ['Sheet1']
+                                    }
                                 }
-                            }
-                        })
-                    }}
-                >
+                            })
+                        }}
+                    >
                     Want to import multiple ranges from this file? <span className='text-underline'>Click here.</span>
-                </p>
+                    </p>
                 </Row>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>

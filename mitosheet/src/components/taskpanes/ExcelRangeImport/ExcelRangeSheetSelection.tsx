@@ -22,40 +22,40 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
     return (
         <>
             <Row justify="space-between" align="center">
-                    <Col>
-                        <p className="text-header-3">
+                <Col>
+                    <p className="text-header-3">
                             Find Sheet By
-                        </p>
-                    </Col>
-                    <Col>
-                        <Select
-                            width="medium"
-                            value={params.sheet.type}
-                            onChange={(newType) => {
-                                const newParams = {...params};
-                                newParams.sheet.type = newType as 'sheet name' | 'sheet index';
-                                if (newType === 'sheet name') {
-                                    newParams.sheet.value = props.sheet_names[0];
-                                } else {
-                                    newParams.sheet.value = 0;
-                                }
-                                setParams(newParams);
-                            }}
-                        >
-                                <DropdownItem
-                                    title='Sheet Name'
-                                    id="sheet name"
-                                    subtext="Select a sheet by name to import multiple ranges from."
-                                />
-                                <DropdownItem
-                                    title='Sheet Index'
-                                    id="sheet index"
-                                    subtext="Select a sheet by index to import multiple ranges from. Negative sheet indexes are allowed, and are counted from the end of the sheet list."
-                                />                  
-                        </Select>
-                    </Col>
-                </Row>
-                {params.sheet.type === 'sheet name' &&
+                    </p>
+                </Col>
+                <Col>
+                    <Select
+                        width="medium"
+                        value={params.sheet.type}
+                        onChange={(newType) => {
+                            const newParams = {...params};
+                            newParams.sheet.type = newType as 'sheet name' | 'sheet index';
+                            if (newType === 'sheet name') {
+                                newParams.sheet.value = props.sheet_names[0];
+                            } else {
+                                newParams.sheet.value = 0;
+                            }
+                            setParams(newParams);
+                        }}
+                    >
+                        <DropdownItem
+                            title='Sheet Name'
+                            id="sheet name"
+                            subtext="Select a sheet by name to import multiple ranges from."
+                        />
+                        <DropdownItem
+                            title='Sheet Index'
+                            id="sheet index"
+                            subtext="Select a sheet by index to import multiple ranges from. Negative sheet indexes are allowed, and are counted from the end of the sheet list."
+                        />                  
+                    </Select>
+                </Col>
+            </Row>
+            {params.sheet.type === 'sheet name' &&
                     <Row justify="space-between" align="center">
                         <Col>
                             <p className="text-header-3">
@@ -72,18 +72,19 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
                                     setParams(newParams);
                                 }}
                             >
-                                    {props.sheet_names.map((sheet_name, index) => {
-                                        return (
-                                            <DropdownItem
-                                                title={sheet_name}
-                                            />
-                                        )
-                                    })}
+                                {props.sheet_names.map((sheet_name, sheet_index) => {
+                                    return (
+                                        <DropdownItem
+                                            title={sheet_name}
+                                            key={sheet_index}
+                                        />
+                                    )
+                                })}
                             </Select>
                         </Col>
                     </Row>
-                }
-                {params.sheet.type === 'sheet index' &&
+            }
+            {params.sheet.type === 'sheet index' &&
                     <>
                         <Row justify="space-between" align="center">
                             <Col>
@@ -109,7 +110,7 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
                             {sheet_name === undefined && `No sheet is selected. The index is out of bounds.`}
                         </p>
                     </>
-                }
+            }
             
         </>
     )

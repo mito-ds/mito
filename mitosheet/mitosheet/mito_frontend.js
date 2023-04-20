@@ -39185,11 +39185,12 @@ fig.write_html("${props.graphTabName}.html")`
           setParams(newParams);
         }
       },
-      props.sheet_names.map((sheet_name2, index) => {
+      props.sheet_names.map((sheet_name2, sheet_index) => {
         return /* @__PURE__ */ import_react173.default.createElement(
           DropdownItem_default,
           {
-            title: sheet_name2
+            title: sheet_name2,
+            key: sheet_index
           }
         );
       })

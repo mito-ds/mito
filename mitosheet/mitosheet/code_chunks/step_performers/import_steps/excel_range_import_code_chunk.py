@@ -119,8 +119,13 @@ class ExcelRangeImportCodeChunk(CodeChunk):
         return 'Excel Range Import'
     
     def get_description_comment(self) -> str:
+
+        if self.sheet['type'] == EXCEL_SHEET_TYPE_SHEET_NAME:
+            sheet = f"{self.sheet['value']}"
+        else:
+            sheet = f"sheet at index {self.sheet['value']}"
         
-        return f"Imported {len(self.range_imports)} dataframes from {self.sheet['value']} in {self.file_path}"
+        return f"Imported {len(self.range_imports)} dataframes from {sheet} in {self.file_path}"
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         code = []
