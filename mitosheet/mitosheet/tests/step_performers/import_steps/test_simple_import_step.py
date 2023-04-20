@@ -290,8 +290,10 @@ def test_can_import_mulitple_csvs_combined():
 
     assert mito.transpiled_code == [
         "import pandas as pd",
+        '',
         "test_file = pd.read_csv(r'test_file.csv')",
-        "test_file_1 = pd.read_csv(r'test_file.csv')"
+        "test_file_1 = pd.read_csv(r'test_file.csv')",
+        '',
     ]
 
     # Remove the test file
@@ -328,8 +330,10 @@ def test_multiple_imports_are_not_deleted_by_single_delete():
 
     assert mito.transpiled_code == [
         "import pandas as pd",
+        '',
         "test_file = pd.read_csv(r'test_file.csv')",
         "test_file_1 = pd.read_csv(r'test_file.csv')",
+        '',
     ]
 
     # Remove the test file

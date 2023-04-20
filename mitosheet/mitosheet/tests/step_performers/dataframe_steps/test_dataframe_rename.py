@@ -91,7 +91,8 @@ def test_rename_handles_invalid_names(invalid_name, correct_name):
     mito.rename_dataframe(0, invalid_name)
 
     assert mito.transpiled_code == [
-        f'{correct_name} = df1'
+        f'{correct_name} = df1',
+        '',
     ]
 
 

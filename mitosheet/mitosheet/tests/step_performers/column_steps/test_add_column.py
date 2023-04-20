@@ -135,6 +135,7 @@ def test_add_then_rename_multiple_optimizes():
 
     assert mito.transpiled_code == [
         "df1.insert(1, 'C', 0)",
+        ''
     ]
 
 def test_add_then_rename_then_delete_optimizes():
@@ -152,7 +153,8 @@ def test_add_then_rename_then_set_formula_optimizes():
     mito.set_formula('=10', 0, 'C', add_column=False)
 
     assert mito.transpiled_code == [
-        "df1.insert(1, 'C', 10)"
+        "df1.insert(1, 'C', 10)",
+        '',
     ]
 
 def test_add_then_rename_then_set_formula_then_delete_optimizes():
@@ -193,7 +195,8 @@ def test_add_then_set_formula_then_rename_optimizes():
     mito.rename_column(0, 'B', 'C')
 
     assert mito.transpiled_code == [
-        "df1.insert(1, 'C', 10)"
+        "df1.insert(1, 'C', 10)",
+        '',
     ]
 
 def test_add_then_set_formula_then_rename_then_delete_optimizes():
@@ -206,6 +209,7 @@ def test_add_then_set_formula_then_rename_then_delete_optimizes():
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
         "df1.drop(['A'], axis=1, inplace=True)",
+        '',
     ]
 
     
@@ -223,9 +227,13 @@ def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimi
     assert mito.dfs[1].empty
     assert mito.transpiled_code == [
         "df1_copy = df1.copy(deep=True)",
+        '',
         "df1_copy.insert(1, 'C', 0)",
+        '',
         "df1.insert(1, 'C', 10)",
+        '',
         "df1_copy.drop(['A', 'C'], axis=1, inplace=True)",
+        '',
     ]
 
     

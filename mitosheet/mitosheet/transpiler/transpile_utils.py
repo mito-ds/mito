@@ -61,7 +61,9 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         return 'pd.NaT'
     elif not is_prev_version(pd.__version__, '1.0.0') and column_header is pd.NA:
         return 'pd.NA'
-        
+    elif isinstance(column_header, str) and "'" in column_header:
+        return f"{column_header}"
+
     return repr(column_header)
 
 def list_to_string_without_internal_quotes(list: List[Any]) -> str:
@@ -181,7 +183,7 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     # Add the imports
     final_code += imports
-    if len(imports) > 0:
+    if len(imports) == 0: # Make sure we have a newline if there are no imports
         final_code.append("")
 
     # The param
@@ -191,8 +193,13 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")
 
-    # Add the code
-    final_code += [f"{TAB}{line}" for line in code]
+    # Add the code, making sure to indent everything, even if it's on the newline
+    # or if it's the closing paren. We take special care not to mess inside of any code
+    for line in code:
+        line = f"{TAB}" + line
+        line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
+        line = line.replace(f"\n)", f"\n{TAB})")
+        final_code.append(line)
 
     # Add the return statement, where we return the final dfs
     return_variables = ", ".join(steps_manager.curr_step.df_names)
@@ -200,8 +207,11 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     final_code.append("")
 
     # Then, add the function call
-    final_code.append(f"{return_variables} = {function_name}({param_values})")
-    
+    if len(return_variables) > 0:
+        final_code.append(f"{return_variables} = {function_name}({param_values})")
+    else:
+        final_code.append(f"{function_name}({param_values})")
+
     return final_code
 
 

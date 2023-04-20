@@ -45,6 +45,7 @@ def transpile(
         )
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
+            code.append('')
 
     # We only transpile up to the currently checked out step
     all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=optimize)
@@ -64,6 +65,9 @@ def transpile(
                 gotten_code.insert(0, comment)
             code.extend(gotten_code)
 
+            # Then add a line of whitespace
+            code.append('')
+
         imports_code.extend(code_chunk_imports)
 
     # If we have a historical step checked out, then we add a comment letting
@@ -72,8 +76,10 @@ def transpile(
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
     # We then deduplicate the imports, keeping the same order as originally. We then 
-    # put them at the start of the code!
+    # put them at the start of the code (and add some whitespace)
     final_imports_code = deduplicate_array(imports_code)
+    if len(final_imports_code) > 0:
+        final_imports_code.append('')
 
     # If we should transpile this as a function, we do so
     if steps_manager.code_options['as_function']:

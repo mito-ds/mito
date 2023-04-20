@@ -89,6 +89,7 @@ def test_can_call_sheet_with_df_and_filename():
     assert code_container == [
         '# Read in filepaths as dataframes',
         'df_1 = pd.read_csv(r\'../1.csv\')',
+        '',
     ]
 
 def test_can_use_utf_16_when_passing_string():
@@ -108,6 +109,7 @@ def test_can_use_utf_16_when_passing_string():
     assert code_container == [
         '# Read in filepaths as dataframes',
         f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
+        '',
     ]
     os.remove('test_file_path.csv')
 

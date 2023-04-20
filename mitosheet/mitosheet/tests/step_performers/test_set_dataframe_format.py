@@ -129,14 +129,14 @@ def test_set_dataframe_format(df_format, included_formatting_code):
         if isinstance(code, list):
             one_found = False
             for c in code:
-                if c in mito.transpiled_code[-1]:
+                if c in mito.transpiled_code[-2]:
                     one_found = True
             assert one_found
         else:
             if code == 'import numpy as np':
-                assert code in mito.transpiled_code[-2]
+                assert code in mito.transpiled_code[-4]
                 continue
-            assert code in mito.transpiled_code[-1]
+            assert code in mito.transpiled_code[-2]
 
 
 def test_format_with_undo():
@@ -212,14 +212,14 @@ def test_set_dataframe_format_different_indexes(df_format, included_formatting_c
         if isinstance(code, list):
             one_found = False
             for c in code:
-                if c in mito.transpiled_code[-1]:
+                if c in mito.transpiled_code[-2]:
                     one_found = True
             assert one_found
         else:
             if code == 'import numpy as np':
-                assert code in mito.transpiled_code[-2]
+                assert code in mito.transpiled_code[-4]
                 continue
-            assert code in mito.transpiled_code[-1]
+            assert code in mito.transpiled_code[-2]
 
 
 def test_rename_then_duplicate_then_format():

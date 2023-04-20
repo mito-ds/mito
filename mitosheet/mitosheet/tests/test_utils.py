@@ -1554,13 +1554,18 @@ def create_mito_wrapper_with_data(sheet_one_A_data: List[Any], sheet_two_A_data:
     mito_backend = get_mito_backend(*dfs)
     return MitoWidgetTestWrapper(mito_backend)
 
-def create_mito_wrapper(*args: Union[pd.DataFrame, str]) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(*args: Union[pd.DataFrame, str], arg_names: Optional[List[str]]=None) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
     mito_backend = get_mito_backend(*args)
-    return MitoWidgetTestWrapper(mito_backend)
+    test_wrapper =  MitoWidgetTestWrapper(mito_backend)
+
+    if arg_names is not None:
+        test_wrapper.argsUpdate(arg_names)
+
+    return test_wrapper
 
 def make_multi_index_header_df(data: Dict[Union[str, int], List[Any]], column_headers: List[ColumnHeader], index: Optional[List[Any]]=None) -> pd.DataFrame:
     """

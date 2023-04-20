@@ -22606,18 +22606,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (code.length == 0) {
       return "";
     }
-    let finalCode = "";
-    const isCommentLine = (codeLine) => {
-      return codeLine.startsWith("#") && codeLine.indexOf("\n") === -1;
-    };
-    if (code.length > 0) {
-      for (let i = 0; i < code.length; i++) {
-        if (isCommentLine(code[i])) {
-          finalCode += "\n";
-        }
-        finalCode += code[i] + "\n";
-      }
-    }
+    let finalCode = code.join("\n");
     const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion];
     if (telemetryEnabled) {
       return `${importStatement}; register_analysis("${analysisName}");
@@ -31279,7 +31268,7 @@ ${finalCode}`;
       ["CodeOptions" /* CODEOPTIONS */]: {
         type: "CodeOptions" /* CODEOPTIONS */,
         shortTitle: "Options",
-        longTitle: "Code Options",
+        longTitle: "Configure Generated Code",
         actionFunction: () => {
           setEditorState(void 0);
           setUIState((prevUIState) => {
@@ -39957,12 +39946,12 @@ fig.write_html("${props.graphTabName}.html")`
           onChange: function() {
             const newCodeOptions = __spreadValues({}, codeOptions);
             newCodeOptions.as_function = !newCodeOptions.as_function;
-            props.mitoAPI.updateCodeOptions(codeOptions);
+            void props.mitoAPI.updateCodeOptions(codeOptions);
             setCodeOptions(newCodeOptions);
           }
         }
       ))),
-      /* @__PURE__ */ import_react178.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react178.default.createElement(Col_default, null, /* @__PURE__ */ import_react178.default.createElement(LabelAndTooltip_default, { tooltip: "If you are generating a function, you can give it a short, descriptive name to say what it does." }, "Function Name")), /* @__PURE__ */ import_react178.default.createElement(Col_default, null, /* @__PURE__ */ import_react178.default.createElement(
+      /* @__PURE__ */ import_react178.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react178.default.createElement(Col_default, null, /* @__PURE__ */ import_react178.default.createElement(LabelAndTooltip_default, { tooltip: "Give your function a short, descriptive name descring what it does." }, "Function Name")), /* @__PURE__ */ import_react178.default.createElement(Col_default, null, /* @__PURE__ */ import_react178.default.createElement(
         Input_default,
         {
           disabled: !codeOptions.as_function,
@@ -41159,9 +41148,9 @@ fig.write_html("${props.graphTabName}.html")`
         }),
         width: "medium"
       },
+      makeToolbarDropdownItem(props.actions["CodeOptions" /* CODEOPTIONS */], props.userProfile),
       props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? makeToolbarDropdownItem(props.actions["AI_Transformation" /* AI_TRANSFORMATION */], props.userProfile) : /* @__PURE__ */ import_react226.default.createElement(import_react226.default.Fragment, null),
-      makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */], props.userProfile),
-      makeToolbarDropdownItem(props.actions["CodeOptions" /* CODEOPTIONS */], props.userProfile)
+      makeToolbarDropdownItem(props.actions["CodeSnippets" /* CODESNIPPETS */], props.userProfile)
     ));
   };
   var ToolbarCodeDropdown_default = ToolbarCodeDropdown;
@@ -41884,7 +41873,6 @@ fig.write_html("${props.graphTabName}.html")`
       const updateMitosheetCallCellOnFirstRender = async () => {
         var _a, _b;
         const args = await getArgs((_a = analysisData2.analysisToReplay) == null ? void 0 : _a.analysisName);
-        console.log("ARGS: ", args);
         if (analysisData2.analysisToReplay) {
           const analysisToReplayName = (_b = analysisData2.analysisToReplay) == null ? void 0 : _b.analysisName;
           if (!analysisData2.analysisToReplay.existsOnDisk) {

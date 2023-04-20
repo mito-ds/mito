@@ -59,7 +59,7 @@ def generate_read_csv_code(
     params = get_read_csv_params(delimeter, encoding, decimal=decimal, skiprows=skiprows, error_bad_lines=error_bad_lines)
     params_string = ', '.join(f'{key}={column_header_to_transpiled_code(value)}' for key, value in params.items())
 
-    transpiled_file_path = f'r\'{file_name}\'' if not file_name_is_variable else file_name
+    transpiled_file_path = 'r' + column_header_to_transpiled_code(file_name) if not file_name_is_variable else file_name
 
     return f'{df_name} = pd.read_csv({transpiled_file_path}{", " if len(params_string) > 0 else ""}{params_string})'
 

@@ -167,7 +167,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
             const args = await getArgs(analysisData.analysisToReplay?.analysisName);
-            console.log("ARGS: ", args)
 
             // Then, after we have the args, we replay an analysis if there is an analysis to replay
             // Note that this has to happen after so that we have the the argument names loaded in at

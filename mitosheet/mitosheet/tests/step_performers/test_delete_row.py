@@ -83,7 +83,7 @@ def test_delete_row_datetime_index():
     mito.delete_row(0, ['12-22-1997'])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2]}, index=pd.to_datetime(['12-23-1997'])))
-    assert len(mito.transpiled_code) == 1
+    assert len(mito.transpiled_code) == 2
 
 
 def test_optimizes_delete_row():
@@ -93,7 +93,7 @@ def test_optimizes_delete_row():
     mito.delete_row(0, [1])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [3]}, index=[2]))
-    assert mito.transpiled_code == ['df1.drop(labels=[0, 1], inplace=True)']
+    assert mito.transpiled_code == ['df1.drop(labels=[0, 1], inplace=True)', '']
 
 def test_not_optimizes_delete_row_diff_dfs():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'A': [1, 2, 3]}))
@@ -103,7 +103,7 @@ def test_not_optimizes_delete_row_diff_dfs():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
-    assert len(mito.transpiled_code) == 2
+    assert len(mito.transpiled_code) == 4
 
 def test_optimizes_delete_dataframe():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))

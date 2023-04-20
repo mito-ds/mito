@@ -25,11 +25,14 @@ def test_bulk_rename_renames_all_headers():
 
     assert mito.transpiled_code == [
         'import pandas as pd', 
+        '',
         "test = pd.read_csv(r'test.csv')", 
-        "test_1 = pd.read_csv(r'test.csv')", 
+        "test_1 = pd.read_csv(r'test.csv')",
+        '', 
         '# Rename headers to make them work with Mito', 
         'test.rename(columns={"A A": "A_A", "B B": "B_B"}, inplace=True)', 
-        'test_1.rename(columns={"A A": "A_A", "B B": "B_B"}, inplace=True)'
+        'test_1.rename(columns={"A A": "A_A", "B B": "B_B"}, inplace=True)',
+        '',
     ]
     
     os.remove('test.csv')

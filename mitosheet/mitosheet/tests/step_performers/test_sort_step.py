@@ -175,6 +175,7 @@ def test_transpile_sort_ascending_valid():
 
     assert mito.transpiled_code == [
         'df1 = df1.sort_values(by=\'A\', ascending=True, na_position=\'first\')',
+        '',
     ]
 
 def test_transpile_sort_ascending_valid_with_NaN():
@@ -184,6 +185,7 @@ def test_transpile_sort_ascending_valid_with_NaN():
 
     assert mito.transpiled_code == [
         'df1 = df1.sort_values(by=\'A\', ascending=True, na_position=\'first\')',
+        '',
     ]
 
 def test_transpile_sort_descending_valid():
@@ -193,6 +195,7 @@ def test_transpile_sort_descending_valid():
 
     assert mito.transpiled_code == [
         'df1 = df1.sort_values(by=\'A\', ascending=False, na_position=\'last\')',
+        '',
     ]
 
 def test_transpile_sort_descending_valid_with_NaN():
@@ -202,6 +205,7 @@ def test_transpile_sort_descending_valid_with_NaN():
 
     assert mito.transpiled_code == [
         'df1 = df1.sort_values(by=\'A\', ascending=False, na_position=\'last\')',
+        '',
     ]
 
 def test_transpile_sort_ascending_then_descending_valid():
@@ -212,7 +216,9 @@ def test_transpile_sort_ascending_then_descending_valid():
 
     assert mito.transpiled_code == [
         'df1 = df1.sort_values(by=\'A\', ascending=True, na_position=\'first\')',
+        '',
         'df1 = df1.sort_values(by=\'A\', ascending=False, na_position=\'last\')',
+        '',
     ]
 
 def test_can_undo_sort_by_sorting_with_none():

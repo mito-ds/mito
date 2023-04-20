@@ -37,7 +37,8 @@ def test_can_delete_then_add_to_other_sheet():
     assert len(mito.dfs) == 1
 
     assert mito.transpiled_code == [
-        'df2.insert(1, \'B\', 0)'
+        'df2.insert(1, \'B\', 0)',
+        '',
     ]
 
 

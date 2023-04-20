@@ -72,13 +72,6 @@ def test_snowflake_import_view_integration():
         'limit': 2,
     }
 
-    table_loc_and_warehouse = {
-        'warehouse': 'COMPUTE_WH',
-        'database': 'PYTESTDATABASE',
-        'schema': 'PYTESTSCHEMA',
-        'table_or_view': 'SIMPLE_PYTEST_TABLE_VIEW'
-    }
-
     mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate'], 'COLUMNB': ["DR", "Rush",]})
@@ -379,7 +372,7 @@ def test_optimized_snowflake_imports():
     assert mito.dfs[0].equals(expected_df)
     assert len(mito.dfs) == 2
 
-    assert len(mito.transpiled_code) == 12
+    assert len(mito.transpiled_code) == 14
 
 
 @requires_snowflake_dependencies_and_credentials

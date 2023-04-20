@@ -18,6 +18,7 @@ def test_transpile_single_column():
 
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', df1[\'A\'])", 
+        ''
     ]
 
 
@@ -25,9 +26,12 @@ def test_transpile_multiple_columns_no_relationship():
     mito = create_mito_wrapper_with_data(['abc'])
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
+    print(mito.transpiled_code)
     assert mito.transpiled_code == [
-        'df1.insert(1, \'B\', 0)',
-        'df1.insert(2, \'C\', 0)',
+        'df1.insert(1, \'B\', 0)', 
+        '',
+        'df1.insert(2, \'C\', 0)', 
+        ''
     ]
 
 def test_transpile_columns_in_each_sheet():
@@ -37,7 +41,9 @@ def test_transpile_columns_in_each_sheet():
 
     assert mito.transpiled_code == [
         'df1.insert(1, \'B\', 0)',
+        '',
         'df2.insert(1, \'B\', 0)',
+        ''
     ]
 
 def test_transpile_multiple_columns_linear():
@@ -47,7 +53,9 @@ def test_transpile_multiple_columns_linear():
 
     assert mito.transpiled_code == [
         'df1.insert(1, \'B\', df1[\'A\'])',
+        '',
         'df1.insert(2, \'C\', df1[\'B\'])',
+        '',
     ]
 
 COLUMN_HEADERS = [
@@ -68,6 +76,7 @@ def test_transpile_column_headers_non_alphabet(column_header):
 
     assert mito.transpiled_code == [
         f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
+        '',
     ]
 
 
@@ -90,7 +99,9 @@ def test_transpile_column_headers_non_alphabet_multi_sheet(column_header):
 
     assert mito.transpiled_code == [
         f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
+        '',
         f'df2.insert(1, \'{column_header}\', df2[\'A\'])', 
+        '',
     ]
 
 def test_preserves_order_columns():
@@ -101,7 +112,9 @@ def test_preserves_order_columns():
 
     assert mito.transpiled_code == [
         'df1.insert(1, \'B\', 0)',
+        '',
         'df1.insert(2, \'C\', 0)',
+        '',
     ]
 
 def test_transpile_delete_columns():
@@ -110,7 +123,8 @@ def test_transpile_delete_columns():
     mito.delete_columns(0, ['C', 'B'])
 
     assert mito.transpiled_code == [
-        'df1.drop([\'C\', \'B\'], axis=1, inplace=True)'
+        'df1.drop([\'C\', \'B\'], axis=1, inplace=True)',
+        '',
     ]
 
 
@@ -130,10 +144,14 @@ def test_removes_unedited_formulas_for_unedited_sheets():
 
     assert mito.transpiled_code == [
         "df1.insert(3, 'D', df1[\'C\'])", 
+        '',
         "df2.insert(3, 'D', df2[\'C\'])", 
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
         'df2[\'D\'] = df2[\'C\'] + 1',
+        '',
     ]
 
 
@@ -149,10 +167,13 @@ def test_mulitple_merges_no_formula_steps():
     assert mito.transpiled_code == [
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df4 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df5 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])'
+        'df5 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
     ]
 
 def test_optimization_with_other_edits():
@@ -167,11 +188,11 @@ def test_optimization_with_other_edits():
 
     assert mito.transpiled_code == [
         "df1.insert(3, 'D', df1[\'A\'])", 
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
     ]
-
-flatten_code = f'pivot_table.columns = [{NEWLINE_TAB}\'_\'.join([str(c) for c in col]).strip() if isinstance(col, tuple) else col{NEWLINE_TAB}for col in pivot_table.columns.values\n]'
 
 
 def test_transpile_does_no_initial():
@@ -189,7 +210,8 @@ def test_transpile_reorder_column():
     assert mito.transpiled_code == [
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
-        'df1 = df1[df1_columns]'
+        'df1 = df1[df1_columns]',
+        '',
     ]
 
 def test_transpile_two_column_reorders():
@@ -202,9 +224,11 @@ def test_transpile_two_column_reorders():
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
         'df1 = df1[df1_columns]',
+        '',
         'df1_columns = [col for col in df1.columns if col != \'B\']',
         'df1_columns.insert(1, \'B\')',
-        'df1 = df1[df1_columns]'
+        'df1 = df1[df1_columns]',
+        '',
     ]
 
 def test_transpile_reorder_column_invalid():
@@ -216,6 +240,7 @@ def test_transpile_reorder_column_invalid():
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
         'df1 = df1[df1_columns]',
+        '',
     ]
 
 def test_transpile_merge_then_sort():
@@ -228,7 +253,9 @@ def test_transpile_merge_then_sort():
     assert mito.transpiled_code == [
         'temp_df = df2.drop_duplicates(subset=[\'Name\']) # Remove duplicates so lookup merge only returns first match',
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        '',
         'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
+        '',
     ]
 
 def test_transpile_multiple_pandas_imports_combined(tmp_path):
@@ -260,20 +287,21 @@ def test_transpile_as_function_no_params(tmp_path):
         "",
         "def function():",
         f"{TAB}txt = pd.read_csv(r'{tmp_file}')",
+        f'{TAB}',
         f"{TAB}return txt",
         "",
         "txt = function()"
     ]
 
 def test_transpile_as_function_df_params():
-    mito = create_mito_wrapper(pd.DataFrame({'A': [1]}))
-    mito.argsUpdate(['df1']) # We have to do this manual
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1]}), arg_names=['df1'])
     mito.add_column(0, 'B')
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
         'def function(df1):',
         f"{TAB}df1.insert(1, 'B', 0)",
+        f'{TAB}',
         f"{TAB}return df1",
         "",
         "df1 = function(df1)"
@@ -284,8 +312,7 @@ def test_transpile_as_function_string_params():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df1.to_csv(tmp_file, index=False)
 
-    mito = create_mito_wrapper(str(tmp_file))
-    mito.argsUpdate([f"'{tmp_file}'"])
+    mito = create_mito_wrapper(str(tmp_file), arg_names=[f"'{tmp_file}'"])
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     print(mito.transpiled_code)
@@ -293,6 +320,7 @@ def test_transpile_as_function_string_params():
         'def function(txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
         f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
         f"{TAB}return txt",
         "",
         "txt = function('txt.csv')"
@@ -305,14 +333,14 @@ def test_transpile_as_function_both_params():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df1.to_csv(tmp_file, index=False)
 
-    mito = create_mito_wrapper(df1, str(tmp_file))
-    mito.argsUpdate(['df1', f"'{tmp_file}'"])
+    mito = create_mito_wrapper(df1, str(tmp_file), arg_names=['df1', f"'{tmp_file}'"])
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
         'def function(df1, txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
         f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
         f"{TAB}return df1, txt",
         "",
         "df1, txt = function(df1, 'txt.csv')"
@@ -321,3 +349,18 @@ def test_transpile_as_function_both_params():
     os.remove(tmp_file)
 
 
+def test_transpile_pivot_table_indents():
+    df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
+    mito = create_mito_wrapper(df1, arg_names=['df1'])
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    mito.pivot_sheet(
+        0, 
+        ['Name'],
+        [],
+        {'Height': ['sum']}
+    )
+    
+    print(mito.transpiled_code)
+    assert "    pivot_table = tmp_df.pivot_table(\n        index=['Name'],\n        values=['Height'],\n        aggfunc={'Height': ['sum']}\n    )" in mito.transpiled_code

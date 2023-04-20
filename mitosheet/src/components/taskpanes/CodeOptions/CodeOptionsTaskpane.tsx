@@ -67,7 +67,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                 </Row>
                 <Row justify='space-between' align='center'>
                     <Col>
-                        <LabelAndTooltip tooltip="If you are generating a function, you can give it a short, descriptive name to say what it does.">
+                        <LabelAndTooltip tooltip="Give your function a short, descriptive name descring what it does.">
                             Function Name
                         </LabelAndTooltip>
                     </Col>
