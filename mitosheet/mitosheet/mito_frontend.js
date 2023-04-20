@@ -39156,7 +39156,7 @@ fig.write_html("${props.graphTabName}.html")`
       file_path,
       sheet_name,
       range_imports: [{ "type": "range", "df_name": "", "value": "" }],
-      convert_csv_to_xlsx: !file_path.endsWith("xlsx") || !file_path.endsWith("xlsm")
+      convert_csv_to_xlsx: !file_path.endsWith("xlsx") && !file_path.endsWith("xlsm")
     };
   };
   function castConditionValueToNumberIfPossible(condition) {
