@@ -406,7 +406,8 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                                 currOpenTaskpane: {
                                     type: TaskpaneType.EXCEL_RANGE_IMPORT,
                                     file_path: props.filePath,
-                                    sheet_name: 'Sheet1'
+                                    sheet_name: 'Sheet1',
+                                    sheet_names: ['Sheet1']
                                 }
                             }
                         })
