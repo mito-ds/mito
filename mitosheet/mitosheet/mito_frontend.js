@@ -23058,7 +23058,7 @@ ${finalCode}`;
   };
 
   // src/pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane.tsx
-  var import_react84 = __toESM(require_react());
+  var import_react83 = __toESM(require_react());
 
   // src/hooks/useLiveUpdatingParams.tsx
   var import_react26 = __toESM(require_react());
@@ -24737,10 +24737,10 @@ ${finalCode}`;
   var DefaultEmptyTaskpane_default = DefaultEmptyTaskpane;
 
   // src/pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane.tsx
-  var import_react78 = __toESM(require_react());
+  var import_react77 = __toESM(require_react());
 
   // src/components/endo/ColumnHeader.tsx
-  var import_react68 = __toESM(require_react());
+  var import_react67 = __toESM(require_react());
 
   // src/components/icons/FilterIcons.tsx
   var import_react36 = __toESM(require_react());
@@ -24756,13 +24756,13 @@ ${finalCode}`;
   };
 
   // src/components/endo/EndoGrid.tsx
-  var import_react51 = __toESM(require_react());
+  var import_react50 = __toESM(require_react());
 
   // src/components/endo/FormulaBar.tsx
-  var import_react42 = __toESM(require_react());
+  var import_react41 = __toESM(require_react());
 
   // src/components/endo/celleditor/CellEditor.tsx
-  var import_react41 = __toESM(require_react());
+  var import_react40 = __toESM(require_react());
 
   // src/components/endo/columnHeaderUtils.tsx
   var submitRenameColumnHeader = (columnHeader, finalColumnHeader, columnID, sheetIndex, editorState, setUIState, mitoAPI) => {
@@ -25587,46 +25587,23 @@ ${finalCode}`;
   };
   var CellEditorDropdown_default = CellEditorDropdown;
 
-  // src/hooks/useEffectOnElementResize.tsx
-  var import_react40 = __toESM(require_react());
-  var useEffectOnResizeElement = (effect, deps, id) => {
-    (0, import_react40.useEffect)(() => {
-      const resizeObserver = new ResizeObserver(() => {
-        effect();
-      });
-      const element = document.getElementById(id);
-      if (element) {
-        resizeObserver.observe(element);
-      }
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }, [...deps, id]);
-  };
-
   // src/components/endo/celleditor/CellEditor.tsx
   var CELL_EDITOR_DEFAULT_WIDTH = 250;
   var CELL_EDITOR_MAX_WIDTH = 500;
-  var CELL_EDITOR_MAX_HEIGHT = 150;
-  var getDefaultTextAreaHeight = (formula) => {
-    const numLines = formula.split("\n").length + 1;
-    if (numLines <= 2) {
-      return 22;
-    } else {
-      return Math.min(numLines * 12, CELL_EDITOR_MAX_HEIGHT);
-    }
+  var getDefaultTextAreaHeight = () => {
+    return 18;
   };
   var CellEditor = (props) => {
     var _a;
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
-    const cellEditorInputRef = (0, import_react41.useRef)(null);
-    const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react41.useState)(-1);
-    const [loading, setLoading] = (0, import_react41.useState)(false);
-    const [cellEditorError, setCellEditorError] = (0, import_react41.useState)(void 0);
-    const [selectionRangeToSet, setSelectionRangeToSet] = (0, import_react41.useState)(void 0);
-    const [textAreaHeight, setTextAreaHeight] = (0, import_react41.useState)(() => getDefaultTextAreaHeight(fullFormula));
+    const cellEditorInputRef = (0, import_react40.useRef)(null);
+    const [selectedSuggestionIndex, setSavedSelectedSuggestionIndex] = (0, import_react40.useState)(-1);
+    const [loading, setLoading] = (0, import_react40.useState)(false);
+    const [cellEditorError, setCellEditorError] = (0, import_react40.useState)(void 0);
+    const [selectionRangeToSet, setSelectionRangeToSet] = (0, import_react40.useState)(void 0);
+    const [textAreaHeight] = (0, import_react40.useState)(() => getDefaultTextAreaHeight());
     const { columnID, columnHeader, indexLabel } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
-    const setRef = (0, import_react41.useCallback)((unsavedInputAnchor) => {
+    const setRef = (0, import_react40.useCallback)((unsavedInputAnchor) => {
       if (unsavedInputAnchor !== null) {
         cellEditorInputRef.current = unsavedInputAnchor;
         setTimeout(() => {
@@ -25636,7 +25613,7 @@ ${finalCode}`;
         }, 50);
       }
     }, []);
-    (0, import_react41.useEffect)(() => {
+    (0, import_react40.useEffect)(() => {
       setTimeout(() => {
         var _a2, _b;
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.focus();
@@ -25649,7 +25626,7 @@ ${finalCode}`;
         }
       });
     }, [props.editorState.pendingSelections]);
-    (0, import_react41.useEffect)(() => {
+    (0, import_react40.useEffect)(() => {
       var _a2;
       if (selectionRangeToSet !== void 0) {
         (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.setSelectionRange(
@@ -25659,7 +25636,7 @@ ${finalCode}`;
         setSelectionRangeToSet(void 0);
       }
     }, [props.editorState.formula]);
-    (0, import_react41.useEffect)(() => {
+    (0, import_react40.useEffect)(() => {
       props.setEditorState((prevEditingState) => {
         if (prevEditingState === void 0) {
           return prevEditingState;
@@ -25670,14 +25647,8 @@ ${finalCode}`;
         });
       });
     }, [props.editorState.editingMode]);
-    useEffectOnResizeElement(() => {
-      var _a2;
-      const newHeightString = (_a2 = cellEditorInputRef.current) == null ? void 0 : _a2.style.height;
-      const newHeight = parseInt((newHeightString == null ? void 0 : newHeightString.substring(0, newHeightString.length - 2)) || "22");
-      setTextAreaHeight(newHeight);
-    }, [], "cell-editor-input");
     if (columnID === void 0 || columnHeader === void 0) {
-      return /* @__PURE__ */ import_react41.default.createElement(import_react41.default.Fragment, null);
+      return /* @__PURE__ */ import_react40.default.createElement(import_react40.default.Fragment, null);
     }
     const displayedDropdownType = getDisplayedDropdownType(
       props.sheetData,
@@ -25889,7 +25860,6 @@ ${finalCode}`;
       });
       setSelectionRangeToSet(selectionStart + 1);
       if (char === "\n") {
-        setTextAreaHeight((prevHeight) => prevHeight += 11);
       }
     };
     const onSubmit = async (e) => {
@@ -25927,14 +25897,14 @@ ${finalCode}`;
         props.closeOpenEditingPopups();
       }
     };
-    return /* @__PURE__ */ import_react41.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react41.default.createElement(
+    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "cell-editor" }, /* @__PURE__ */ import_react40.default.createElement(
       "form",
       {
         className: "cell-editor-form",
         onSubmit,
         autoComplete: "off"
       },
-      props.editorState.editorLocation === "cell" && /* @__PURE__ */ import_react41.default.createElement(
+      props.editorState.editorLocation === "cell" && /* @__PURE__ */ import_react40.default.createElement(
         "input",
         {
           ref: setRef,
@@ -25947,13 +25917,13 @@ ${finalCode}`;
           autoComplete: "off"
         }
       ),
-      props.editorState.editorLocation === "formula bar" && /* @__PURE__ */ import_react41.default.createElement(
+      props.editorState.editorLocation === "formula bar" && /* @__PURE__ */ import_react40.default.createElement(
         "textarea",
         {
           ref: setRef,
           id: "cell-editor-input",
           className: "cell-editor-input",
-          style: { "resize": "vertical", "maxHeight": `${CELL_EDITOR_MAX_HEIGHT}px`, "height": `${textAreaHeight}px`, "marginTop": 0 },
+          style: { "resize": "none", "maxHeight": `${textAreaHeight}px`, "height": `${textAreaHeight}px`, "marginTop": 0 },
           onClick,
           value: fullFormula,
           autoComplete: "off",
@@ -25993,7 +25963,7 @@ ${finalCode}`;
           onChange
         }
       )
-    ), /* @__PURE__ */ import_react41.default.createElement(
+    ), /* @__PURE__ */ import_react40.default.createElement(
       CellEditorDropdown_default,
       {
         sheetData: props.sheetData,
@@ -26030,7 +26000,7 @@ ${finalCode}`;
       formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     }
     const currentSheetView = calculateCurrentSheetView(props.gridState);
-    return /* @__PURE__ */ import_react42.default.createElement(
+    return /* @__PURE__ */ import_react41.default.createElement(
       Row_default,
       {
         align: "center",
@@ -26041,9 +26011,9 @@ ${finalCode}`;
         },
         suppressTopBottomMargin: true
       },
-      /* @__PURE__ */ import_react42.default.createElement(Col_default, { offset: 0.5 }, /* @__PURE__ */ import_react42.default.createElement("p", { className: "formula-bar-column-header text-header-3 text-overflow-hide" }, formulaBarColumnHeader)),
-      /* @__PURE__ */ import_react42.default.createElement(Col_default, null, /* @__PURE__ */ import_react42.default.createElement("div", { className: "formula-bar-vertical-line" })),
-      /* @__PURE__ */ import_react42.default.createElement(Col_default, { flex: "1" }, ((_a = props.editorState) == null ? void 0 : _a.editorLocation) === "formula bar" && /* @__PURE__ */ import_react42.default.createElement(
+      /* @__PURE__ */ import_react41.default.createElement(Col_default, { offset: 0.5 }, /* @__PURE__ */ import_react41.default.createElement("p", { className: "formula-bar-column-header text-header-3 text-overflow-hide" }, formulaBarColumnHeader)),
+      /* @__PURE__ */ import_react41.default.createElement(Col_default, null, /* @__PURE__ */ import_react41.default.createElement("div", { className: "formula-bar-vertical-line" })),
+      /* @__PURE__ */ import_react41.default.createElement(Col_default, { flex: "1" }, ((_a = props.editorState) == null ? void 0 : _a.editorLocation) === "formula bar" && /* @__PURE__ */ import_react41.default.createElement(
         CellEditor_default,
         {
           sheetData: props.sheetData,
@@ -26059,7 +26029,7 @@ ${finalCode}`;
           currentSheetView,
           closeOpenEditingPopups: props.closeOpenEditingPopups
         }
-      ), ((_b = props.editorState) == null ? void 0 : _b.editorLocation) !== "formula bar" && /* @__PURE__ */ import_react42.default.createElement(
+      ), ((_b = props.editorState) == null ? void 0 : _b.editorLocation) !== "formula bar" && /* @__PURE__ */ import_react41.default.createElement(
         "div",
         {
           className: "formula-bar-formula text-header-3 text-overflow-hide element-width-block",
@@ -26081,12 +26051,12 @@ ${finalCode}`;
   var FormulaBar_default = FormulaBar;
 
   // src/components/endo/ColumnHeaders.tsx
-  var import_react43 = __toESM(require_react());
+  var import_react42 = __toESM(require_react());
   var ColumnHeaders = (props) => {
-    const columnHeadersContainerRef = (0, import_react43.useRef)(null);
-    const [columnHeaderOperation, setColumnHeaderOperation] = (0, import_react43.useState)(void 0);
-    const [scrollAmount, setScrollAmount] = (0, import_react43.useState)(void 0);
-    (0, import_react43.useEffect)(() => {
+    const columnHeadersContainerRef = (0, import_react42.useRef)(null);
+    const [columnHeaderOperation, setColumnHeaderOperation] = (0, import_react42.useState)(void 0);
+    const [scrollAmount, setScrollAmount] = (0, import_react42.useState)(void 0);
+    (0, import_react42.useEffect)(() => {
       if (scrollAmount !== void 0) {
         const interval = setInterval(() => {
           var _a;
@@ -26104,7 +26074,7 @@ ${finalCode}`;
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
     const columnHeaderStyle = { transform: `translateX(${-translate.x}px)` };
-    return /* @__PURE__ */ import_react43.default.createElement(import_react43.default.Fragment, null, props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react43.default.createElement(
+    return /* @__PURE__ */ import_react42.default.createElement(import_react42.default.Fragment, null, props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react42.default.createElement(
       "div",
       {
         className: classNames("column-headers-container", {
@@ -26183,9 +26153,9 @@ ${finalCode}`;
           setScrollAmount(void 0);
         }
       },
-      /* @__PURE__ */ import_react43.default.createElement("div", { style: columnHeaderStyle }, Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
+      /* @__PURE__ */ import_react42.default.createElement("div", { style: columnHeaderStyle }, Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
         const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
-        return /* @__PURE__ */ import_react43.default.createElement(
+        return /* @__PURE__ */ import_react42.default.createElement(
           ColumnHeader_default,
           {
             key: columnIndex,
@@ -26206,15 +26176,15 @@ ${finalCode}`;
       }))
     ));
   };
-  var ColumnHeaders_default = import_react43.default.memo(ColumnHeaders);
+  var ColumnHeaders_default = import_react42.default.memo(ColumnHeaders);
 
   // src/components/endo/EmptyGridMessages.tsx
-  var import_react44 = __toESM(require_react());
+  var import_react43 = __toESM(require_react());
   var GridDataEmptyContainer = (props) => {
-    return /* @__PURE__ */ import_react44.default.createElement("div", { className: "endo-grid-empty-container" }, /* @__PURE__ */ import_react44.default.createElement("div", { className: "endo-grid-empty-text-container" }, props.children));
+    return /* @__PURE__ */ import_react43.default.createElement("div", { className: "endo-grid-empty-container" }, /* @__PURE__ */ import_react43.default.createElement("div", { className: "endo-grid-empty-text-container" }, props.children));
   };
   var EmptyGridMessages = (props) => {
-    return /* @__PURE__ */ import_react44.default.createElement(import_react44.default.Fragment, null, props.sheetData === void 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("div", null, /* @__PURE__ */ import_react44.default.createElement(
+    return /* @__PURE__ */ import_react43.default.createElement(import_react43.default.Fragment, null, props.sheetData === void 0 && /* @__PURE__ */ import_react43.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react43.default.createElement("div", null, /* @__PURE__ */ import_react43.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -26230,20 +26200,20 @@ ${finalCode}`;
         disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "Excel Range Import" /* EXCEL_RANGE_IMPORT */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
       },
       "Import Files"
-    )), /* @__PURE__ */ import_react44.default.createElement("p", { className: "mt-5px text-body-1", style: { textAlign: "center" } }, "Or import dfs using the syntax ", /* @__PURE__ */ import_react44.default.createElement("code", null, "mitosheet.sheet(df1, df2)"), " in the code above.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No data in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No columns in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No rows in dataframe.")));
+    )), /* @__PURE__ */ import_react43.default.createElement("p", { className: "mt-5px text-body-1", style: { textAlign: "center" } }, "Or import dfs using the syntax ", /* @__PURE__ */ import_react43.default.createElement("code", null, "mitosheet.sheet(df1, df2)"), " in the code above.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react43.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react43.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No data in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react43.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react43.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No columns in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react43.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react43.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No rows in dataframe.")));
   };
   var EmptyGridMessages_default = EmptyGridMessages;
 
   // src/components/endo/GridData.tsx
-  var import_react47 = __toESM(require_react());
-
-  // src/utils/format.tsx
   var import_react46 = __toESM(require_react());
 
-  // src/components/icons/DropdownCheckmark.tsx
+  // src/utils/format.tsx
   var import_react45 = __toESM(require_react());
+
+  // src/components/icons/DropdownCheckmark.tsx
+  var import_react44 = __toESM(require_react());
   var DropdownCheckmark = () => {
-    return /* @__PURE__ */ import_react45.default.createElement("svg", { width: "12", height: "14", viewBox: "0 0 12 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react45.default.createElement("path", { d: "M10.0608 0.805159C10.2802 0.402958 10.8246 0.324565 11.1485 0.64852V0.64852C11.3582 0.858224 11.4095 1.17891 11.2756 1.44354L5.57867 12.705C5.26247 13.3301 4.41824 13.4447 3.94677 12.9267L0.628074 9.28008C0.18803 8.79655 0.522012 8.01982 1.17566 8.00657V8.00657C1.38287 8.00237 1.58284 8.08284 1.72939 8.22939L3.55497 10.055C4.02704 10.527 4.82029 10.4128 5.13997 9.82672L10.0608 0.805159Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react44.default.createElement("svg", { width: "12", height: "14", viewBox: "0 0 12 14", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react44.default.createElement("path", { d: "M10.0608 0.805159C10.2802 0.402958 10.8246 0.324565 11.1485 0.64852V0.64852C11.3582 0.858224 11.4095 1.17891 11.2756 1.44354L5.57867 12.705C5.26247 13.3301 4.41824 13.4447 3.94677 12.9267L0.628074 9.28008C0.18803 8.79655 0.522012 8.01982 1.17566 8.00657V8.00657C1.38287 8.00237 1.58284 8.08284 1.72939 8.22939L3.55497 10.055C4.02704 10.527 4.82029 10.4128 5.13997 9.82672L10.0608 0.805159Z", fill: "#494650" }));
   };
   var DropdownCheckmark_default = DropdownCheckmark;
 
@@ -26330,68 +26300,68 @@ ${finalCode}`;
   };
   var _getColumnFormatDropdownItems = (onClick, disabled, appliedColumnFormat) => {
     return [
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: "Default",
           title: "Default",
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === void 0 ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === void 0 ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: void 0 }),
           rightText: "1,234.6",
           disabled
         }
       ),
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: getFormatTitle({ type: "plain text" /* PLAIN_TEXT */ }),
           title: getFormatTitle({ type: "plain text" /* PLAIN_TEXT */ }),
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "plain text" /* PLAIN_TEXT */ ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "plain text" /* PLAIN_TEXT */ ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: "plain text" /* PLAIN_TEXT */ }),
           rightText: "1234.6",
           disabled
         }
       ),
-      /* @__PURE__ */ import_react46.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true, key: "sep" }),
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true, key: "sep" }),
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: getFormatTitle({ type: "currency" /* CURRENCY */ }),
           title: getFormatTitle({ type: "currency" /* CURRENCY */ }),
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "currency" /* CURRENCY */ ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "currency" /* CURRENCY */ ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: "currency" /* CURRENCY */ }),
           rightText: "$-1,234.57",
           disabled
         }
       ),
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: getFormatTitle({ type: "accounting" /* ACCOUNTING */ }),
           title: getFormatTitle({ type: "accounting" /* ACCOUNTING */ }),
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "accounting" /* ACCOUNTING */ ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "accounting" /* ACCOUNTING */ ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: "accounting" /* ACCOUNTING */ }),
           rightText: "($1,234.57)",
           disabled
         }
       ),
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: getFormatTitle({ type: "percentage" /* PERCENTAGE */ }),
           title: getFormatTitle({ type: "percentage" /* PERCENTAGE */ }),
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "percentage" /* PERCENTAGE */ ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "percentage" /* PERCENTAGE */ ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: "percentage" /* PERCENTAGE */ }),
           rightText: "123,457.00%",
           disabled
         }
       ),
-      /* @__PURE__ */ import_react46.default.createElement(
+      /* @__PURE__ */ import_react45.default.createElement(
         DropdownItem_default,
         {
           key: getFormatTitle({ type: "scientific notation" /* SCIENTIFIC_NOTATION */ }),
           title: getFormatTitle({ type: "scientific notation" /* SCIENTIFIC_NOTATION */ }),
-          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "scientific notation" /* SCIENTIFIC_NOTATION */ ? /* @__PURE__ */ import_react46.default.createElement(DropdownCheckmark_default, null) : void 0,
+          icon: (appliedColumnFormat == null ? void 0 : appliedColumnFormat.type) === "scientific notation" /* SCIENTIFIC_NOTATION */ ? /* @__PURE__ */ import_react45.default.createElement(DropdownCheckmark_default, null) : void 0,
           onClick: () => onClick({ type: "scientific notation" /* SCIENTIFIC_NOTATION */ }),
           rightText: "1.23e+3",
           disabled
@@ -26435,7 +26405,7 @@ ${finalCode}`;
     const oddRowBackgroundColor = ((_f = (_e = (_d = sheetData == null ? void 0 : sheetData.dfFormat) == null ? void 0 : _d.rows) == null ? void 0 : _e.odd) == null ? void 0 : _f.backgroundColor) || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
     const evenRowTextColor = ((_i = (_h = (_g = sheetData == null ? void 0 : sheetData.dfFormat) == null ? void 0 : _g.rows) == null ? void 0 : _h.even) == null ? void 0 : _i.color) || EVEN_ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = ((_l = (_k = (_j = sheetData == null ? void 0 : sheetData.dfFormat) == null ? void 0 : _j.rows) == null ? void 0 : _k.odd) == null ? void 0 : _l.color) || ODD_ROW_TEXT_COLOR_DEFAULT;
-    return /* @__PURE__ */ import_react47.default.createElement(import_react47.default.Fragment, null, sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
+    return /* @__PURE__ */ import_react46.default.createElement(import_react46.default.Fragment, null, sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
       const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
       const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0];
       const rowClassNames = classNames("mito-grid-row", {
@@ -26443,7 +26413,7 @@ ${finalCode}`;
         "mito-grid-row-odd": rowIndex % 2 !== 0
       });
       const style2 = rowIndex % 2 === 0 ? { backgroundColor: evenRowBackgroundColor, color: evenRowTextColor } : { backgroundColor: oddRowBackgroundColor, color: oddRowTextColor };
-      return /* @__PURE__ */ import_react47.default.createElement("div", { className: rowClassNames, key: rowIndex, style: style2 }, Array(currentSheetView.numColumnsRendered).fill(0).map((_2, _colIndex) => {
+      return /* @__PURE__ */ import_react46.default.createElement("div", { className: rowClassNames, key: rowIndex, style: style2 }, Array(currentSheetView.numColumnsRendered).fill(0).map((_2, _colIndex) => {
         var _a2, _b2, _c2, _d2, _e2, _f2;
         const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
         const columnID = columnIDs[columnIndex];
@@ -26468,7 +26438,7 @@ ${finalCode}`;
         });
         const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
         const displayCellData = formatCellData(cellData, columnDtype, columnFormatType);
-        return /* @__PURE__ */ import_react47.default.createElement(
+        return /* @__PURE__ */ import_react46.default.createElement(
           "div",
           {
             className,
@@ -26486,27 +26456,27 @@ ${finalCode}`;
       }));
     }));
   };
-  var GridData_default = import_react47.default.memo(GridData);
+  var GridData_default = import_react46.default.memo(GridData);
 
   // src/components/endo/IndexHeaders.tsx
-  var import_react49 = __toESM(require_react());
+  var import_react48 = __toESM(require_react());
 
   // src/components/endo/IndexHeaderDropdown.tsx
-  var import_react48 = __toESM(require_react());
+  var import_react47 = __toESM(require_react());
   function IndexHeaderDropdown(props) {
-    (0, import_react48.useEffect)(() => {
+    (0, import_react47.useEffect)(() => {
       if (props.display) {
         void props.mitoAPI.log("opened_index_header_dropdown");
       }
     }, [props.display]);
-    return /* @__PURE__ */ import_react48.default.createElement(
+    return /* @__PURE__ */ import_react47.default.createElement(
       Dropdown_default,
       {
         display: props.display,
         closeDropdown: () => props.setOpenIndexHeaderDropdown(void 0),
         width: "medium"
       },
-      /* @__PURE__ */ import_react48.default.createElement(
+      /* @__PURE__ */ import_react47.default.createElement(
         DropdownItem_default,
         {
           title: "Delete Rows",
@@ -26515,7 +26485,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react48.default.createElement(
+      /* @__PURE__ */ import_react47.default.createElement(
         DropdownItem_default,
         {
           title: "Promote Row to Header",
@@ -26524,8 +26494,8 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react48.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react48.default.createElement(
+      /* @__PURE__ */ import_react47.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react47.default.createElement(
         DropdownItem_default,
         {
           title: "Reset and Drop Index",
@@ -26534,7 +26504,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react48.default.createElement(
+      /* @__PURE__ */ import_react47.default.createElement(
         DropdownItem_default,
         {
           title: "Reset Index",
@@ -26548,13 +26518,13 @@ ${finalCode}`;
 
   // src/components/endo/IndexHeaders.tsx
   var IndexHeaders = (props) => {
-    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = (0, import_react49.useState)(void 0);
+    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = (0, import_react48.useState)(void 0);
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
     const indexHeadersStyle = {
       transform: `translateY(${-translate.y}px)`
     };
-    return /* @__PURE__ */ import_react49.default.createElement(import_react49.default.Fragment, null, /* @__PURE__ */ import_react49.default.createElement("div", { className: "index-headers-container" }, props.sheetData.numRows > 0 && /* @__PURE__ */ import_react49.default.createElement("div", { style: indexHeadersStyle }, Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
+    return /* @__PURE__ */ import_react48.default.createElement(import_react48.default.Fragment, null, /* @__PURE__ */ import_react48.default.createElement("div", { className: "index-headers-container" }, props.sheetData.numRows > 0 && /* @__PURE__ */ import_react48.default.createElement("div", { style: indexHeadersStyle }, Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
       const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
       const selected = getIsCellSelected(
         props.gridState.selections,
@@ -26563,7 +26533,7 @@ ${finalCode}`;
       );
       const className = classNames("index-header-container", "text-overflow-hide", "text-unselectable", { "index-header-selected": selected });
       const indexHeader = rowIndex >= props.sheetData.numRows ? "" : props.sheetData.index[rowIndex];
-      return /* @__PURE__ */ import_react49.default.createElement(
+      return /* @__PURE__ */ import_react48.default.createElement(
         "div",
         {
           className,
@@ -26580,7 +26550,7 @@ ${finalCode}`;
           }
         },
         indexHeader,
-        /* @__PURE__ */ import_react49.default.createElement(
+        /* @__PURE__ */ import_react48.default.createElement(
           IndexHeaderDropdown,
           {
             sheetData: props.sheetData,
@@ -26596,12 +26566,12 @@ ${finalCode}`;
       );
     }))));
   };
-  var IndexHeaders_default = import_react49.default.memo(IndexHeaders);
+  var IndexHeaders_default = import_react48.default.memo(IndexHeaders);
 
   // src/components/endo/celleditor/FloatingCellEditor.tsx
-  var import_react50 = __toESM(require_react());
+  var import_react49 = __toESM(require_react());
   var FloatingCellEditor = (props) => {
-    const [editorStyle, setEditorStyle] = (0, import_react50.useState)({
+    const [editorStyle, setEditorStyle] = (0, import_react49.useState)({
       top: 0,
       left: 0,
       display: "none"
@@ -26610,7 +26580,7 @@ ${finalCode}`;
     const { columnID, columnHeader } = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
     const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation);
-    (0, import_react50.useEffect)(() => {
+    (0, import_react49.useEffect)(() => {
       const updateCellEditorPosition = () => {
         var _a;
         const scrollAndRenderedContainerRect = (_a = props.scrollAndRenderedContainerRef.current) == null ? void 0 : _a.getBoundingClientRect();
@@ -26654,9 +26624,9 @@ ${finalCode}`;
       return () => fscreen_esm_default.removeEventListener("fullscreenchange", updateCellEditorPosition);
     }, [cellEditorWidth]);
     if (columnID === void 0 || columnHeader === void 0) {
-      return /* @__PURE__ */ import_react50.default.createElement(import_react50.default.Fragment, null);
+      return /* @__PURE__ */ import_react49.default.createElement(import_react49.default.Fragment, null);
     }
-    return /* @__PURE__ */ import_react50.default.createElement(
+    return /* @__PURE__ */ import_react49.default.createElement(
       "div",
       {
         className: "floating-cell-editor",
@@ -26664,7 +26634,7 @@ ${finalCode}`;
           width: `${cellEditorWidth}px`
         })
       },
-      /* @__PURE__ */ import_react50.default.createElement(
+      /* @__PURE__ */ import_react49.default.createElement(
         CellEditor_default,
         {
           sheetData: props.sheetData,
@@ -26708,10 +26678,10 @@ ${finalCode}`;
   ];
   function EndoGrid(props) {
     var _a;
-    const containerRef = (0, import_react51.useRef)(null);
-    const scrollAndRenderedContainerRef = (0, import_react51.useRef)(null);
-    const [mouseDown, setMouseDown] = (0, import_react51.useState)(false);
-    const [resizeObserver] = (0, import_react51.useState)(() => new ResizeObserver(() => {
+    const containerRef = (0, import_react50.useRef)(null);
+    const scrollAndRenderedContainerRef = (0, import_react50.useRef)(null);
+    const [mouseDown, setMouseDown] = (0, import_react50.useState)(false);
+    const [resizeObserver] = (0, import_react50.useState)(() => new ResizeObserver(() => {
       resizeViewport();
     }));
     const {
@@ -26730,13 +26700,13 @@ ${finalCode}`;
       width: ((_a = gridState.widthDataArray[gridState.sheetIndex]) == null ? void 0 : _a.totalWidth) || 0,
       height: DEFAULT_HEIGHT * Math.min((sheetData == null ? void 0 : sheetData.numRows) || 0, MAX_ROWS)
     };
-    const currentSheetView = (0, import_react51.useMemo)(() => {
+    const currentSheetView = (0, import_react50.useMemo)(() => {
       return calculateCurrentSheetView(gridState);
     }, [gridState]);
-    const translate = (0, import_react51.useMemo)(() => {
+    const translate = (0, import_react50.useMemo)(() => {
       return calculateTranslate(gridState);
     }, [gridState]);
-    (0, import_react51.useEffect)(() => {
+    (0, import_react50.useEffect)(() => {
       setGridState((gridState2) => {
         return __spreadProps(__spreadValues({}, gridState2), {
           selections: reconciliateSelections(gridState2.sheetIndex, sheetIndex, gridState2.selections, gridState2.columnIDsArray[gridState2.sheetIndex], sheetData),
@@ -26762,13 +26732,13 @@ ${finalCode}`;
         return gridState2;
       });
     };
-    const setScrollAndRendererContainerRef = (0, import_react51.useCallback)((unsavedScrollAndRenderedContainerDiv) => {
+    const setScrollAndRendererContainerRef = (0, import_react50.useCallback)((unsavedScrollAndRenderedContainerDiv) => {
       if (unsavedScrollAndRenderedContainerDiv !== null) {
         scrollAndRenderedContainerRef.current = unsavedScrollAndRenderedContainerDiv;
         resizeObserver.observe(unsavedScrollAndRenderedContainerDiv);
       }
     }, []);
-    (0, import_react51.useEffect)(() => {
+    (0, import_react50.useEffect)(() => {
       return () => {
         resizeObserver.disconnect();
       };
@@ -26960,7 +26930,7 @@ ${finalCode}`;
         });
       }
     };
-    (0, import_react51.useEffect)(() => {
+    (0, import_react50.useEffect)(() => {
       if (mouseDown) {
         const updateSelectionOnMouseDrag = (e) => {
           const { rowIndex, columnIndex } = getIndexesFromMouseEvent(e);
@@ -26998,7 +26968,7 @@ ${finalCode}`;
         editingMode
       });
     };
-    (0, import_react51.useEffect)(() => {
+    (0, import_react50.useEffect)(() => {
       const onKeyDown = (e) => {
         if (editorState !== void 0) {
           return;
@@ -27077,7 +27047,7 @@ ${finalCode}`;
       containerDiv == null ? void 0 : containerDiv.addEventListener("keydown", onKeyDown);
       return () => containerDiv == null ? void 0 : containerDiv.removeEventListener("keydown", onKeyDown);
     }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState]);
-    return /* @__PURE__ */ import_react51.default.createElement(import_react51.default.Fragment, null, /* @__PURE__ */ import_react51.default.createElement(
+    return /* @__PURE__ */ import_react50.default.createElement(import_react50.default.Fragment, null, /* @__PURE__ */ import_react50.default.createElement(
       FormulaBar_default,
       {
         sheetData,
@@ -27093,7 +27063,7 @@ ${finalCode}`;
         mitoAPI: props.mitoAPI,
         closeOpenEditingPopups: props.closeOpenEditingPopups
       }
-    ), /* @__PURE__ */ import_react51.default.createElement(
+    ), /* @__PURE__ */ import_react50.default.createElement(
       "div",
       {
         className: "endo-grid-container",
@@ -27104,7 +27074,7 @@ ${finalCode}`;
         onMouseLeave: () => setMouseDown(false),
         onDoubleClick
       },
-      sheetData !== void 0 && /* @__PURE__ */ import_react51.default.createElement(import_react51.default.Fragment, null, /* @__PURE__ */ import_react51.default.createElement(
+      sheetData !== void 0 && /* @__PURE__ */ import_react50.default.createElement(import_react50.default.Fragment, null, /* @__PURE__ */ import_react50.default.createElement(
         ColumnHeaders_default,
         {
           sheetData,
@@ -27119,7 +27089,7 @@ ${finalCode}`;
           mitoAPI,
           closeOpenEditingPopups: props.closeOpenEditingPopups
         }
-      ), /* @__PURE__ */ import_react51.default.createElement(
+      ), /* @__PURE__ */ import_react50.default.createElement(
         IndexHeaders_default,
         {
           sheetData,
@@ -27129,7 +27099,7 @@ ${finalCode}`;
           sheetIndex
         }
       )),
-      /* @__PURE__ */ import_react51.default.createElement("div", { className: "endo-scroller-and-renderer-container", ref: setScrollAndRendererContainerRef, onScroll: onGridScroll }, /* @__PURE__ */ import_react51.default.createElement(
+      /* @__PURE__ */ import_react50.default.createElement("div", { className: "endo-scroller-and-renderer-container", ref: setScrollAndRendererContainerRef, onScroll: onGridScroll }, /* @__PURE__ */ import_react50.default.createElement(
         EmptyGridMessages_default,
         {
           setUIState: props.setUIState,
@@ -27138,7 +27108,7 @@ ${finalCode}`;
           uiState: props.uiState,
           commCreationStatus: props.commCreationStatus
         }
-      ), /* @__PURE__ */ import_react51.default.createElement(
+      ), /* @__PURE__ */ import_react50.default.createElement(
         "div",
         {
           id: "scroller",
@@ -27147,7 +27117,7 @@ ${finalCode}`;
             width: `${totalSize.width}px`
           }
         }
-      ), /* @__PURE__ */ import_react51.default.createElement(
+      ), /* @__PURE__ */ import_react50.default.createElement(
         "div",
         {
           className: "renderer",
@@ -27158,7 +27128,7 @@ ${finalCode}`;
             void props.mitoAPI.log("right_clicked_on_sheet_data");
           }
         },
-        /* @__PURE__ */ import_react51.default.createElement(
+        /* @__PURE__ */ import_react50.default.createElement(
           GridData_default,
           {
             sheetData,
@@ -27168,7 +27138,7 @@ ${finalCode}`;
           }
         )
       )),
-      sheetData !== void 0 && editorState !== void 0 && editorState.editorLocation === "cell" && editorState.rowIndex > -1 && /* @__PURE__ */ import_react51.default.createElement(
+      sheetData !== void 0 && editorState !== void 0 && editorState.editorLocation === "cell" && editorState.rowIndex > -1 && /* @__PURE__ */ import_react50.default.createElement(
         FloatingCellEditor_default,
         {
           sheetData,
@@ -27767,10 +27737,10 @@ ${finalCode}`;
   };
 
   // src/components/taskpanes/ControlPanel/ControlPanelTaskpane.tsx
-  var import_react66 = __toESM(require_react());
+  var import_react65 = __toESM(require_react());
 
   // src/components/taskpanes/ControlPanel/ControlPanelTaskpaneTabs.tsx
-  var import_react52 = __toESM(require_react());
+  var import_react51 = __toESM(require_react());
   function ControlPanelTaskpaneTabs(props) {
     const changeTab = (tab) => {
       props.setUIState((prevUIState) => {
@@ -27780,33 +27750,33 @@ ${finalCode}`;
       });
       void props.mitoAPI.log("clicked_" + tab + "_tab");
     };
-    return /* @__PURE__ */ import_react52.default.createElement("div", { className: "control-panel-taskpane-tab-container" }, /* @__PURE__ */ import_react52.default.createElement(
+    return /* @__PURE__ */ import_react51.default.createElement("div", { className: "control-panel-taskpane-tab-container" }, /* @__PURE__ */ import_react51.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "filter_sort" /* FilterSort */ ? "selected" : "unselected"),
         onClick: () => changeTab("filter_sort" /* FilterSort */)
       },
-      /* @__PURE__ */ import_react52.default.createElement("p", null, "Filter/Sort")
-    ), /* @__PURE__ */ import_react52.default.createElement(
+      /* @__PURE__ */ import_react51.default.createElement("p", null, "Filter/Sort")
+    ), /* @__PURE__ */ import_react51.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "unique_values" /* UniqueValues */ ? "selected" : "unselected"),
         onClick: () => changeTab("unique_values" /* UniqueValues */)
       },
-      /* @__PURE__ */ import_react52.default.createElement("p", null, "Values")
-    ), /* @__PURE__ */ import_react52.default.createElement(
+      /* @__PURE__ */ import_react51.default.createElement("p", null, "Values")
+    ), /* @__PURE__ */ import_react51.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "summary_stats" /* SummaryStats */ ? "selected" : "unselected"),
         onClick: () => changeTab("summary_stats" /* SummaryStats */)
       },
-      /* @__PURE__ */ import_react52.default.createElement("p", null, "Summary Stats")
+      /* @__PURE__ */ import_react51.default.createElement("p", null, "Summary Stats")
     ));
   }
   var ControlPanelTaskpaneTabs_default = ControlPanelTaskpaneTabs;
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard.tsx
-  var import_react53 = __toESM(require_react());
+  var import_react52 = __toESM(require_react());
   var DTYPE_DESCRIPTION = "Changes the dtype of the selected column in the underlying dataframe.";
   function getDtypeValue(dtype) {
     if (dtype === void 0) {
@@ -27829,7 +27799,7 @@ ${finalCode}`;
   }
   function getDtypeSelectOptions(onChange) {
     return [
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "bool" /* BOOL */,
@@ -27839,7 +27809,7 @@ ${finalCode}`;
           } : void 0
         }
       ),
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "int" /* INT */,
@@ -27851,7 +27821,7 @@ ${finalCode}`;
           } : void 0
         }
       ),
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "float" /* FLOAT */,
@@ -27861,7 +27831,7 @@ ${finalCode}`;
           } : void 0
         }
       ),
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "str" /* STRING */,
@@ -27871,7 +27841,7 @@ ${finalCode}`;
           } : void 0
         }
       ),
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "datetime" /* DATETIME */,
@@ -27881,7 +27851,7 @@ ${finalCode}`;
           } : void 0
         }
       ),
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react52.default.createElement(
         DropdownItem_default,
         {
           title: "timedelta" /* TIMEDELTA */,
@@ -27894,7 +27864,7 @@ ${finalCode}`;
     ];
   }
   function DtypeCard(props) {
-    const [stepID, setStepID] = (0, import_react53.useState)(void 0);
+    const [stepID, setStepID] = (0, import_react52.useState)(void 0);
     async function changeColumnDtype(newDtype) {
       const newStepID = await props.mitoAPI.editChangeColumnDtype(
         props.selectedSheetIndex,
@@ -27904,7 +27874,7 @@ ${finalCode}`;
       );
       setStepID(newStepID);
     }
-    return /* @__PURE__ */ import_react53.default.createElement(import_react53.default.Fragment, null, /* @__PURE__ */ import_react53.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react53.default.createElement(Col_default, { span: 4, title: DTYPE_DESCRIPTION }, /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-header-3" }, "Dtype")), /* @__PURE__ */ import_react53.default.createElement(Col_default, { offset: 2, flex: "1" }, /* @__PURE__ */ import_react53.default.createElement(
+    return /* @__PURE__ */ import_react52.default.createElement(import_react52.default.Fragment, null, /* @__PURE__ */ import_react52.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react52.default.createElement(Col_default, { span: 4, title: DTYPE_DESCRIPTION }, /* @__PURE__ */ import_react52.default.createElement("p", { className: "text-header-3" }, "Dtype")), /* @__PURE__ */ import_react52.default.createElement(Col_default, { offset: 2, flex: "1" }, /* @__PURE__ */ import_react52.default.createElement(
       Select_default,
       {
         value: getDtypeValue(props.columnDtype),
@@ -27919,35 +27889,35 @@ ${finalCode}`;
   var DtypeCard_default = DtypeCard;
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/filter/FilterCard.tsx
-  var import_react56 = __toESM(require_react());
+  var import_react55 = __toESM(require_react());
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter.tsx
-  var import_react54 = __toESM(require_react());
+  var import_react53 = __toESM(require_react());
   function Filter(props) {
     const inputStyle = CONDITIONS_WITH_NO_INPUT.includes(props.filter.condition) ? { "visibility": "hidden" } : { "visibility": "visible" };
     const filterConditionOptions = getFilterOptions(props.columnDtype, props.nameLength);
     const setOperator = props.setOperator;
     const isDatetime = props.columnDtype && isDatetimeDtype(props.columnDtype) || props.columnDtype === void 0 && DATETIME_SELECT_OPTIONS[props.filter.condition] !== void 0;
-    return /* @__PURE__ */ import_react54.default.createElement(Row_default, { justify: "space-between", align: "center", suppressTopBottomMargin: props.suppressTopBottomMargin }, /* @__PURE__ */ import_react54.default.createElement(Col_default, { span: !props.inGroup ? 4 : 5 }, setOperator === void 0 && /* @__PURE__ */ import_react54.default.createElement("p", { className: "text-body-1" }, "Where"), setOperator !== void 0 && /* @__PURE__ */ import_react54.default.createElement(
+    return /* @__PURE__ */ import_react53.default.createElement(Row_default, { justify: "space-between", align: "center", suppressTopBottomMargin: props.suppressTopBottomMargin }, /* @__PURE__ */ import_react53.default.createElement(Col_default, { span: !props.inGroup ? 4 : 5 }, setOperator === void 0 && /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-body-1" }, "Where"), setOperator !== void 0 && /* @__PURE__ */ import_react53.default.createElement(
       Select_default,
       {
         value: props.operator,
         onChange: (newOperator) => setOperator(newOperator),
         dropdownWidth: "small"
       },
-      /* @__PURE__ */ import_react54.default.createElement(
+      /* @__PURE__ */ import_react53.default.createElement(
         DropdownItem_default,
         {
           title: "And"
         }
       ),
-      /* @__PURE__ */ import_react54.default.createElement(
+      /* @__PURE__ */ import_react53.default.createElement(
         DropdownItem_default,
         {
           title: "Or"
         }
       )
-    )), /* @__PURE__ */ import_react54.default.createElement(Col_default, { span: 7 }, /* @__PURE__ */ import_react54.default.createElement(
+    )), /* @__PURE__ */ import_react53.default.createElement(Col_default, { span: 7 }, /* @__PURE__ */ import_react53.default.createElement(
       Select_default,
       {
         value: props.filter.condition,
@@ -27961,7 +27931,7 @@ ${finalCode}`;
         dropdownWidth: "medium"
       },
       filterConditionOptions
-    )), /* @__PURE__ */ import_react54.default.createElement(Col_default, { span: 9 }, /* @__PURE__ */ import_react54.default.createElement(
+    )), /* @__PURE__ */ import_react53.default.createElement(Col_default, { span: 9 }, /* @__PURE__ */ import_react53.default.createElement(
       "input",
       {
         className: "mito-input element-width-block",
@@ -27975,14 +27945,14 @@ ${finalCode}`;
           });
         }
       }
-    )), props.deleteFilter && /* @__PURE__ */ import_react54.default.createElement(Col_default, null, /* @__PURE__ */ import_react54.default.createElement(XIcon_default, { onClick: props.deleteFilter })));
+    )), props.deleteFilter && /* @__PURE__ */ import_react53.default.createElement(Col_default, null, /* @__PURE__ */ import_react53.default.createElement(XIcon_default, { onClick: props.deleteFilter })));
   }
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/filter/FilterGroup.tsx
-  var import_react55 = __toESM(require_react());
+  var import_react54 = __toESM(require_react());
   function FilterGroup(props) {
-    return /* @__PURE__ */ import_react55.default.createElement("div", { className: "filter-group" }, props.filters.map((filter, index) => {
-      return /* @__PURE__ */ import_react55.default.createElement(
+    return /* @__PURE__ */ import_react54.default.createElement("div", { className: "filter-group" }, props.filters.map((filter, index) => {
+      return /* @__PURE__ */ import_react54.default.createElement(
         Filter,
         {
           key: index,
@@ -28001,7 +27971,7 @@ ${finalCode}`;
           nameLength: "short_name"
         }
       );
-    }), /* @__PURE__ */ import_react55.default.createElement(
+    }), /* @__PURE__ */ import_react54.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -28103,28 +28073,28 @@ ${finalCode}`;
         }
       });
     };
-    return /* @__PURE__ */ import_react56.default.createElement("div", null, /* @__PURE__ */ import_react56.default.createElement("div", { className: "text-header-3 mt-15px" }, /* @__PURE__ */ import_react56.default.createElement("p", null, " Filter ")), props.filters.map((filterOrGroup, index) => {
+    return /* @__PURE__ */ import_react55.default.createElement("div", null, /* @__PURE__ */ import_react55.default.createElement("div", { className: "text-header-3 mt-15px" }, /* @__PURE__ */ import_react55.default.createElement("p", null, " Filter ")), props.filters.map((filterOrGroup, index) => {
       if (isFilterGroup(filterOrGroup)) {
-        return /* @__PURE__ */ import_react56.default.createElement(Row_default, { justify: "space-between", align: "top" }, /* @__PURE__ */ import_react56.default.createElement(Col_default, { span: 4 }, index === 0 && /* @__PURE__ */ import_react56.default.createElement("p", { className: "text-body-1" }, "Where"), index !== 0 && /* @__PURE__ */ import_react56.default.createElement(
+        return /* @__PURE__ */ import_react55.default.createElement(Row_default, { justify: "space-between", align: "top" }, /* @__PURE__ */ import_react55.default.createElement(Col_default, { span: 4 }, index === 0 && /* @__PURE__ */ import_react55.default.createElement("p", { className: "text-body-1" }, "Where"), index !== 0 && /* @__PURE__ */ import_react55.default.createElement(
           Select_default,
           {
             value: props.operator,
             onChange: (newOperator) => props.setOperator(newOperator),
             dropdownWidth: "small"
           },
-          /* @__PURE__ */ import_react56.default.createElement(
+          /* @__PURE__ */ import_react55.default.createElement(
             DropdownItem_default,
             {
               title: "And"
             }
           ),
-          /* @__PURE__ */ import_react56.default.createElement(
+          /* @__PURE__ */ import_react55.default.createElement(
             DropdownItem_default,
             {
               title: "Or"
             }
           )
-        )), /* @__PURE__ */ import_react56.default.createElement(Col_default, { span: 19 }, /* @__PURE__ */ import_react56.default.createElement(
+        )), /* @__PURE__ */ import_react55.default.createElement(Col_default, { span: 19 }, /* @__PURE__ */ import_react55.default.createElement(
           FilterGroup,
           {
             key: index,
@@ -28145,7 +28115,7 @@ ${finalCode}`;
           }
         )));
       } else {
-        return /* @__PURE__ */ import_react56.default.createElement(
+        return /* @__PURE__ */ import_react55.default.createElement(
           Filter,
           {
             key: index,
@@ -28164,33 +28134,33 @@ ${finalCode}`;
           }
         );
       }
-    }), /* @__PURE__ */ import_react56.default.createElement(
+    }), /* @__PURE__ */ import_react55.default.createElement(
       DropdownButton_default,
       {
         text: ADD_FILTER_SELECT_TITLE,
         width: "medium",
         dropdownWidth: "medium"
       },
-      /* @__PURE__ */ import_react56.default.createElement(
+      /* @__PURE__ */ import_react55.default.createElement(
         DropdownItem_default,
         {
           title: "Add a Filter",
           onClick: addFilter
         }
       ),
-      /* @__PURE__ */ import_react56.default.createElement(
+      /* @__PURE__ */ import_react55.default.createElement(
         DropdownItem_default,
         {
           title: "Add a Group of Filters",
           onClick: addFilterGroup
         }
       )
-    ), props.editedFilter && /* @__PURE__ */ import_react56.default.createElement(Row_default, { className: "text-subtext-1" }, props.rowDifference >= 0 ? `Removed an additional ${Math.abs(props.rowDifference)} rows` : `Added back ${Math.abs(props.rowDifference)} rows`));
+    ), props.editedFilter && /* @__PURE__ */ import_react55.default.createElement(Row_default, { className: "text-subtext-1" }, props.rowDifference >= 0 ? `Removed an additional ${Math.abs(props.rowDifference)} rows` : `Added back ${Math.abs(props.rowDifference)} rows`));
   }
   var FilterCard_default = FilterCard;
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/SortCard.tsx
-  var import_react57 = __toESM(require_react());
+  var import_react56 = __toESM(require_react());
   var SortCard = (props) => {
     const { params, setParams } = useLiveUpdatingParams_default(void 0, "sort", props.mitoAPI, props.analysisData, 0);
     const updateSortDirection = (newSortDirection) => {
@@ -28208,14 +28178,14 @@ ${finalCode}`;
     };
     const ascendingButtonClass = params && params.sort_direction == "ascending" /* ASCENDING */ ? "sort-button-selected" : "";
     const descendingButtonClass = params && params.sort_direction == "descending" /* DESCENDING */ ? "sort-button-selected" : "";
-    return /* @__PURE__ */ import_react57.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react57.default.createElement(Col_default, { span: 4 }, /* @__PURE__ */ import_react57.default.createElement("p", { className: "text-header-3" }, "Sort")), /* @__PURE__ */ import_react57.default.createElement(Col_default, { offset: 2, flex: "1" }, /* @__PURE__ */ import_react57.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react57.default.createElement(Col_default, { flex: "1" }, /* @__PURE__ */ import_react57.default.createElement(
+    return /* @__PURE__ */ import_react56.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react56.default.createElement(Col_default, { span: 4 }, /* @__PURE__ */ import_react56.default.createElement("p", { className: "text-header-3" }, "Sort")), /* @__PURE__ */ import_react56.default.createElement(Col_default, { offset: 2, flex: "1" }, /* @__PURE__ */ import_react56.default.createElement(Row_default, { suppressTopBottomMargin: true }, /* @__PURE__ */ import_react56.default.createElement(Col_default, { flex: "1" }, /* @__PURE__ */ import_react56.default.createElement(
       "button",
       {
         className: classNames("sort-button", ascendingButtonClass),
         onClick: () => updateSortDirection("ascending" /* ASCENDING */)
       },
       "Ascending"
-    )), /* @__PURE__ */ import_react57.default.createElement(Col_default, { offset: 1, flex: "1" }, /* @__PURE__ */ import_react57.default.createElement(
+    )), /* @__PURE__ */ import_react56.default.createElement(Col_default, { offset: 1, flex: "1" }, /* @__PURE__ */ import_react56.default.createElement(
       "button",
       {
         className: classNames("sort-button", descendingButtonClass),
@@ -28227,9 +28197,9 @@ ${finalCode}`;
   var SortCard_default = SortCard;
 
   // src/components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph.tsx
-  var import_react58 = __toESM(require_react());
+  var import_react57 = __toESM(require_react());
   function ColumnSummaryGraph(props) {
-    const [graphObj, setGraphObj] = (0, import_react58.useState)(void 0);
+    const [graphObj, setGraphObj] = (0, import_react57.useState)(void 0);
     async function loadBase64PNGImage() {
       const _graphHTMLAndScript = await props.mitoAPI.getColumnSummaryGraph(
         props.selectedSheetIndex,
@@ -28239,10 +28209,10 @@ ${finalCode}`;
       );
       setGraphObj(_graphHTMLAndScript);
     }
-    (0, import_react58.useEffect)(() => {
+    (0, import_react57.useEffect)(() => {
       void loadBase64PNGImage();
     }, []);
-    (0, import_react58.useEffect)(() => {
+    (0, import_react57.useEffect)(() => {
       if (graphObj === void 0) {
         return;
       }
@@ -28253,17 +28223,17 @@ ${finalCode}`;
         console.error("Failed to execute graph function", e);
       }
     }, [graphObj]);
-    return /* @__PURE__ */ import_react58.default.createElement(import_react58.default.Fragment, null, graphObj !== void 0 && /* @__PURE__ */ import_react58.default.createElement("div", { dangerouslySetInnerHTML: { __html: graphObj.html } }), graphObj === void 0 && /* @__PURE__ */ import_react58.default.createElement("div", null, "Loading the summary graph..."));
+    return /* @__PURE__ */ import_react57.default.createElement(import_react57.default.Fragment, null, graphObj !== void 0 && /* @__PURE__ */ import_react57.default.createElement("div", { dangerouslySetInnerHTML: { __html: graphObj.html } }), graphObj === void 0 && /* @__PURE__ */ import_react57.default.createElement("div", null, "Loading the summary graph..."));
   }
   var ColumnSummaryGraph_default = ColumnSummaryGraph;
 
   // src/components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryStatistics.tsx
-  var import_react60 = __toESM(require_react());
+  var import_react59 = __toESM(require_react());
 
   // src/components/taskpanes/FillNa/OpenFillNaN.tsx
-  var import_react59 = __toESM(require_react());
+  var import_react58 = __toESM(require_react());
   var OpenFillNaN = (props) => {
-    return /* @__PURE__ */ import_react59.default.createElement(import_react59.default.Fragment, null, "\xA0", /* @__PURE__ */ import_react59.default.createElement(
+    return /* @__PURE__ */ import_react58.default.createElement(import_react58.default.Fragment, null, "\xA0", /* @__PURE__ */ import_react58.default.createElement(
       "span",
       {
         className: "text-color-medium-gray-important text-underline-on-hover",
@@ -28293,8 +28263,8 @@ ${finalCode}`;
     "sum"
   ];
   function ColumnSummaryStatistics(props) {
-    const [describe, setDescribe] = (0, import_react60.useState)({});
-    const [loading, setLoading] = (0, import_react60.useState)(true);
+    const [describe, setDescribe] = (0, import_react59.useState)({});
+    const [loading, setLoading] = (0, import_react59.useState)(true);
     async function loadDescribe() {
       const loadedDescribe = await props.mitoAPI.getColumnDescribe(
         props.selectedSheetIndex,
@@ -28303,45 +28273,45 @@ ${finalCode}`;
       setDescribe(loadedDescribe);
       setLoading(false);
     }
-    (0, import_react60.useEffect)(() => {
+    (0, import_react59.useEffect)(() => {
       void loadDescribe();
     }, []);
-    return /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null, /* @__PURE__ */ import_react60.default.createElement("div", { className: "text-header-3" }, /* @__PURE__ */ import_react60.default.createElement("p", null, " Column Summary Statistics ")), /* @__PURE__ */ import_react60.default.createElement("div", { key: loading.toString() }, !loading && /* @__PURE__ */ import_react60.default.createElement("table", { className: "column-describe-table-container" }, Object.keys(describe).map((key2) => {
+    return /* @__PURE__ */ import_react59.default.createElement(import_react59.default.Fragment, null, /* @__PURE__ */ import_react59.default.createElement("div", { className: "text-header-3" }, /* @__PURE__ */ import_react59.default.createElement("p", null, " Column Summary Statistics ")), /* @__PURE__ */ import_react59.default.createElement("div", { key: loading.toString() }, !loading && /* @__PURE__ */ import_react59.default.createElement("table", { className: "column-describe-table-container" }, Object.keys(describe).map((key2) => {
       const value = describe[key2];
       let valueToDisplay = value;
       if (KEY_TO_FORMAT_WITH_COLUMN_FORMAT.includes(key2)) {
         valueToDisplay = formatCellData(value, props.columnDtype, props.columnFormat);
       }
       valueToDisplay = valueToDisplay.substring(0, 15) + (valueToDisplay.length > 15 ? "..." : "");
-      return /* @__PURE__ */ import_react60.default.createElement("tr", { className: "column-describe-table-row", key: key2 }, /* @__PURE__ */ import_react60.default.createElement("th", null, key2, key2 === "count: NaN" && valueToDisplay !== "0" && /* @__PURE__ */ import_react60.default.createElement(
+      return /* @__PURE__ */ import_react59.default.createElement("tr", { className: "column-describe-table-row", key: key2 }, /* @__PURE__ */ import_react59.default.createElement("th", null, key2, key2 === "count: NaN" && valueToDisplay !== "0" && /* @__PURE__ */ import_react59.default.createElement(
         OpenFillNaN_default,
         {
           setUIState: props.setUIState,
           columnID: props.columnID
         }
-      )), /* @__PURE__ */ import_react60.default.createElement("th", { title: value }, valueToDisplay));
-    })), loading && /* @__PURE__ */ import_react60.default.createElement("p", null, "Column Summary statistics are loading...")));
+      )), /* @__PURE__ */ import_react59.default.createElement("th", { title: value }, valueToDisplay));
+    })), loading && /* @__PURE__ */ import_react59.default.createElement("p", null, "Column Summary statistics are loading...")));
   }
   var ColumnSummaryStatistics_default = ColumnSummaryStatistics;
 
   // src/components/taskpanes/ControlPanel/ValuesTab/ValuesTab.tsx
-  var import_react63 = __toESM(require_react());
+  var import_react62 = __toESM(require_react());
 
   // src/components/elements/MultiToggleBox.tsx
-  var import_react61 = __toESM(require_react());
+  var import_react60 = __toESM(require_react());
   var MAX_DISPLAYED = 1e4;
   var MultiToggleBoxMessage = (props) => {
     const _emptyMessage = props.emptyMessage !== void 0 ? props.emptyMessage : "No items to display.";
     if (props.loading) {
-      return /* @__PURE__ */ import_react61.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react61.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "Loading items", /* @__PURE__ */ import_react61.default.createElement(LoadingDots_default, null)));
+      return /* @__PURE__ */ import_react60.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react60.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "Loading items", /* @__PURE__ */ import_react60.default.createElement(LoadingDots_default, null)));
     } else if (props.maxDisplayed || props.isSubset) {
-      return /* @__PURE__ */ import_react61.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react61.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "There are too many items to display. Search to filter down to the items you care about."));
+      return /* @__PURE__ */ import_react60.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react60.default.createElement("p", { className: "text-body-1 text-align-center-important" }, "There are too many items to display. Search to filter down to the items you care about."));
     } else if (props.numDisplayed === 0) {
-      return /* @__PURE__ */ import_react61.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react61.default.createElement("p", { className: "text-body-1 text-align-center-important" }, _emptyMessage));
+      return /* @__PURE__ */ import_react60.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react60.default.createElement("p", { className: "text-body-1 text-align-center-important" }, _emptyMessage));
     } else if (props.message !== void 0) {
-      return /* @__PURE__ */ import_react61.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react61.default.createElement("p", { className: "text-body-1 text-align-center-important" }, props.message));
+      return /* @__PURE__ */ import_react60.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react60.default.createElement("p", { className: "text-body-1 text-align-center-important" }, props.message));
     }
-    return /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null);
+    return /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null);
   };
   var MultiToggleSelectedMessage = (props) => {
     let text = `${props.numToggled} selected`;
@@ -28350,13 +28320,13 @@ ${finalCode}`;
     } else if (props.numToggledButNotDisplayed > 0) {
       text = `${props.numToggled} selected, of which ${props.numToggledButNotDisplayed} not displayed`;
     }
-    return /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null, "Toggle ", props.searchString !== "" ? "Displayed" : "All", /* @__PURE__ */ import_react61.default.createElement("span", { className: "text-color-medium-gray-important" }, "\xA0(", text, ")"));
+    return /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null, "Toggle ", props.searchString !== "" ? "Displayed" : "All", /* @__PURE__ */ import_react60.default.createElement("span", { className: "text-color-medium-gray-important" }, "\xA0(", text, ")"));
   };
   var MultiToggleBox = (props) => {
-    const [_searchString, _setSearchString] = (0, import_react61.useState)("");
+    const [_searchString, _setSearchString] = (0, import_react60.useState)("");
     const searchString = props.searchState !== void 0 ? props.searchState.searchString : _searchString;
     const setSearchString = props.searchState !== void 0 ? props.searchState.setSearchString : _setSearchString;
-    const setRef = (0, import_react61.useCallback)((unsavedDropdownAnchor) => {
+    const setRef = (0, import_react60.useCallback)((unsavedDropdownAnchor) => {
       if (unsavedDropdownAnchor !== null) {
         const firstSelectedChild = unsavedDropdownAnchor.querySelector(".multi-toggle-box-row-selected");
         if (firstSelectedChild !== null) {
@@ -28374,7 +28344,7 @@ ${finalCode}`;
     let numToggledButNotDisplayed = 0;
     let numDisplayed = 0;
     let maxDisplayed = false;
-    const childrenToDisplay = import_react61.default.Children.map(props.children, (child) => {
+    const childrenToDisplay = import_react60.default.Children.map(props.children, (child) => {
       const title = child.props.title;
       const rightText = child.props.rightText;
       const toggled = child.props.toggled;
@@ -28399,13 +28369,13 @@ ${finalCode}`;
         nonDisabledDisplayedIndexes.push(child.props.index);
         isAllDisplayedNonDisabledAreToggled = isAllDisplayedNonDisabledAreToggled && child.props.toggled;
       }
-      const copiedChild = import_react61.default.cloneElement(child, {
+      const copiedChild = import_react60.default.cloneElement(child, {
         disabled: itemDisabled
       });
       return copiedChild;
     });
     const { onToggleAll: toggleAllIndexes } = props;
-    return /* @__PURE__ */ import_react61.default.createElement("div", { className: classNames("multi-toggle-box-container", heightClass, widthClass, props.className) }, props.searchable && /* @__PURE__ */ import_react61.default.createElement(
+    return /* @__PURE__ */ import_react60.default.createElement("div", { className: classNames("multi-toggle-box-container", heightClass, widthClass, props.className) }, props.searchable && /* @__PURE__ */ import_react60.default.createElement(
       Input_default,
       {
         value: searchString,
@@ -28416,14 +28386,14 @@ ${finalCode}`;
         width: "block",
         className: "mb-2px"
       }
-    ), /* @__PURE__ */ import_react61.default.createElement(
+    ), /* @__PURE__ */ import_react60.default.createElement(
       "div",
       {
         className: classNames("multi-toggle-box"),
         style: { height: props.searchable ? "calc(100% - 30px)" : "100%" },
         ref: setRef
       },
-      /* @__PURE__ */ import_react61.default.createElement(
+      /* @__PURE__ */ import_react60.default.createElement(
         MultiToggleBoxMessage,
         {
           loading: props.loading,
@@ -28434,7 +28404,7 @@ ${finalCode}`;
           numDisplayed
         }
       ),
-      toggleAllIndexes !== void 0 && numDisplayed > 0 && /* @__PURE__ */ import_react61.default.createElement(
+      toggleAllIndexes !== void 0 && numDisplayed > 0 && /* @__PURE__ */ import_react60.default.createElement(
         "div",
         {
           key: "Toggle All",
@@ -28450,7 +28420,7 @@ ${finalCode}`;
             }
           }
         },
-        /* @__PURE__ */ import_react61.default.createElement(
+        /* @__PURE__ */ import_react60.default.createElement(
           "input",
           {
             key: "Toggle All",
@@ -28459,7 +28429,7 @@ ${finalCode}`;
             checked: isAllDisplayedNonDisabledAreToggled
           }
         ),
-        /* @__PURE__ */ import_react61.default.createElement(
+        /* @__PURE__ */ import_react60.default.createElement(
           MultiToggleSelectedMessage,
           {
             searchString,
@@ -28474,10 +28444,10 @@ ${finalCode}`;
   var MultiToggleBox_default = MultiToggleBox;
 
   // src/components/elements/MultiToggleItem.tsx
-  var import_react62 = __toESM(require_react());
+  var import_react61 = __toESM(require_react());
   var MultiToggleItem = (props) => {
     var _a;
-    return /* @__PURE__ */ import_react62.default.createElement(
+    return /* @__PURE__ */ import_react61.default.createElement(
       "div",
       {
         className: classNames(
@@ -28495,14 +28465,14 @@ ${finalCode}`;
           props.onToggle();
         }
       },
-      /* @__PURE__ */ import_react62.default.createElement(
+      /* @__PURE__ */ import_react61.default.createElement(
         Row_default,
         {
           justify: props.rightText !== void 0 ? "space-between" : "start",
           align: "center",
           suppressTopBottomMargin: true
         },
-        /* @__PURE__ */ import_react62.default.createElement(Col_default, { offset: 1 }, /* @__PURE__ */ import_react62.default.createElement(
+        /* @__PURE__ */ import_react61.default.createElement(Col_default, { offset: 1 }, /* @__PURE__ */ import_react61.default.createElement(
           "input",
           {
             name: "input",
@@ -28510,8 +28480,8 @@ ${finalCode}`;
             checked: props.toggled
           }
         )),
-        /* @__PURE__ */ import_react62.default.createElement(Col_default, { span: 14 }, /* @__PURE__ */ import_react62.default.createElement("span", { title: (_a = props.title) == null ? void 0 : _a.toString() }, props.title)),
-        props.rightText && /* @__PURE__ */ import_react62.default.createElement(Col_default, { span: 7, offset: 1 }, props.rightText)
+        /* @__PURE__ */ import_react61.default.createElement(Col_default, { span: 14 }, /* @__PURE__ */ import_react61.default.createElement("span", { title: (_a = props.title) == null ? void 0 : _a.toString() }, props.title)),
+        props.rightText && /* @__PURE__ */ import_react61.default.createElement(Col_default, { span: 7, offset: 1 }, props.rightText)
       )
     );
   };
@@ -28557,13 +28527,13 @@ ${finalCode}`;
     }
   };
   function ValuesTab(props) {
-    const [loading, setLoading] = (0, import_react63.useState)(true);
-    const [isAllData, setIsAllData] = (0, import_react63.useState)(false);
-    const [uniqueValueCounts, setUniqueValueCounts] = (0, import_react63.useState)([]);
-    const [searchString, setSearchString] = (0, import_react63.useState)("");
-    const [sort, setSort] = (0, import_react63.useState)("Ascending Value" /* ASCENDING_ALPHABETICAL */);
-    const lastSearchTerm = (0, import_react63.useRef)("so it rerenders the first time");
-    const lastSort = (0, import_react63.useRef)(sort);
+    const [loading, setLoading] = (0, import_react62.useState)(true);
+    const [isAllData, setIsAllData] = (0, import_react62.useState)(false);
+    const [uniqueValueCounts, setUniqueValueCounts] = (0, import_react62.useState)([]);
+    const [searchString, setSearchString] = (0, import_react62.useState)("");
+    const [sort, setSort] = (0, import_react62.useState)("Ascending Value" /* ASCENDING_ALPHABETICAL */);
+    const lastSearchTerm = (0, import_react62.useRef)("so it rerenders the first time");
+    const lastSort = (0, import_react62.useRef)(sort);
     useDebouncedEffect(() => {
       if (!isAllData || isAllData && (!searchString.startsWith(lastSearchTerm.current) || searchString.length < lastSearchTerm.current.length)) {
         void loadUniqueValueCounts();
@@ -28621,7 +28591,7 @@ ${finalCode}`;
     };
     const sortedUniqueValueCounts = sortUniqueValueCounts(uniqueValueCounts, sort);
     const disabledMessage = getFilterDisabledMessage(props.columnDtype);
-    return /* @__PURE__ */ import_react63.default.createElement(import_react63.Fragment, null, /* @__PURE__ */ import_react63.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react63.default.createElement(Col_default, { flex: "1", offsetRight: 1 }, /* @__PURE__ */ import_react63.default.createElement("p", { className: "text-header-2" }, "Unique Values")), /* @__PURE__ */ import_react63.default.createElement(Col_default, null, /* @__PURE__ */ import_react63.default.createElement(
+    return /* @__PURE__ */ import_react62.default.createElement(import_react62.Fragment, null, /* @__PURE__ */ import_react62.default.createElement(Row_default, { justify: "space-between" }, /* @__PURE__ */ import_react62.default.createElement(Col_default, { flex: "1", offsetRight: 1 }, /* @__PURE__ */ import_react62.default.createElement("p", { className: "text-header-2" }, "Unique Values")), /* @__PURE__ */ import_react62.default.createElement(Col_default, null, /* @__PURE__ */ import_react62.default.createElement(
       Select_default,
       {
         value: sort,
@@ -28632,7 +28602,7 @@ ${finalCode}`;
         dropdownWidth: "medium"
       },
       Object.values(UniqueValueSortType).map((sortType) => {
-        return /* @__PURE__ */ import_react63.default.createElement(
+        return /* @__PURE__ */ import_react62.default.createElement(
           DropdownItem_default,
           {
             key: sortType,
@@ -28640,7 +28610,7 @@ ${finalCode}`;
           }
         );
       })
-    ))), /* @__PURE__ */ import_react63.default.createElement("div", { style: { height: "calc(100% - 40px)" } }, /* @__PURE__ */ import_react63.default.createElement(
+    ))), /* @__PURE__ */ import_react62.default.createElement("div", { style: { height: "calc(100% - 40px)" } }, /* @__PURE__ */ import_react62.default.createElement(
       MultiToggleBox_default,
       {
         loading,
@@ -28656,11 +28626,11 @@ ${finalCode}`;
       sortedUniqueValueCounts.map((uniqueValueCount, index) => {
         const valueToDisplay = formatCellData(uniqueValueCount.value, props.columnDtype, props.columnFormat);
         if (valueToDisplay === "NaN") {
-          return /* @__PURE__ */ import_react63.default.createElement(
+          return /* @__PURE__ */ import_react62.default.createElement(
             MultiToggleItem_default,
             {
               key: index,
-              title: /* @__PURE__ */ import_react63.default.createElement("span", null, valueToDisplay, " ", /* @__PURE__ */ import_react63.default.createElement(OpenFillNaN_default, { setUIState: props.setUIState, columnID: props.columnID })),
+              title: /* @__PURE__ */ import_react62.default.createElement("span", null, valueToDisplay, " ", /* @__PURE__ */ import_react62.default.createElement(OpenFillNaN_default, { setUIState: props.setUIState, columnID: props.columnID })),
               rightText: uniqueValueCount.countOccurence + " (" + uniqueValueCount.percentOccurence.toFixed(2).toString() + "%)",
               toggled: uniqueValueCount.isNotFiltered,
               index,
@@ -28676,7 +28646,7 @@ ${finalCode}`;
             }
           );
         }
-        return /* @__PURE__ */ import_react63.default.createElement(
+        return /* @__PURE__ */ import_react62.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -28700,28 +28670,28 @@ ${finalCode}`;
   }
 
   // src/components/taskpanes/ControlPanel/FilterAndSortTab/FormatCard.tsx
-  var import_react64 = __toESM(require_react());
+  var import_react63 = __toESM(require_react());
   var FORMAT_DESCRIPTION = "Format the selected column as a percent, choose the number of decimals, etc. This only changes the display of the column, and does not effect the underlying dataframe.";
   function FormatCard(props) {
     var _a;
     const formatTypeTitle = getFormatTitle((_a = props.sheetData) == null ? void 0 : _a.dfFormat.columns[props.columnID]);
     if (!isNumberDtype(props.columnDtype)) {
-      return /* @__PURE__ */ import_react64.default.createElement(import_react64.default.Fragment, null);
+      return /* @__PURE__ */ import_react63.default.createElement(import_react63.default.Fragment, null);
     }
-    return /* @__PURE__ */ import_react64.default.createElement(import_react64.default.Fragment, null, /* @__PURE__ */ import_react64.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react64.default.createElement(Col_default, { span: 4, title: FORMAT_DESCRIPTION }, /* @__PURE__ */ import_react64.default.createElement("p", { className: "text-header-3", title: "" }, "Num Type")), /* @__PURE__ */ import_react64.default.createElement(Col_default, { offset: 2, flex: "1" }, isNumberDtype(props.columnDtype) && /* @__PURE__ */ import_react64.default.createElement(
+    return /* @__PURE__ */ import_react63.default.createElement(import_react63.default.Fragment, null, /* @__PURE__ */ import_react63.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react63.default.createElement(Col_default, { span: 4, title: FORMAT_DESCRIPTION }, /* @__PURE__ */ import_react63.default.createElement("p", { className: "text-header-3", title: "" }, "Num Type")), /* @__PURE__ */ import_react63.default.createElement(Col_default, { offset: 2, flex: "1" }, isNumberDtype(props.columnDtype) && /* @__PURE__ */ import_react63.default.createElement(
       Select_default,
       {
         value: formatTypeTitle
       },
       getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, [props.columnID], props.mitoAPI)
-    ), !isNumberDtype(props.columnDtype) && /* @__PURE__ */ import_react64.default.createElement("p", { className: "text-header-3 text-align-right" }, formatTypeTitle))));
+    ), !isNumberDtype(props.columnDtype) && /* @__PURE__ */ import_react63.default.createElement("p", { className: "text-header-3 text-align-right" }, formatTypeTitle))));
   }
   var FormatCard_default = FormatCard;
 
   // src/components/taskpanes/DefaultTaskpane/DefaultTaskpaneFooter.tsx
-  var import_react65 = __toESM(require_react());
+  var import_react64 = __toESM(require_react());
   var DefaultTaskpaneFooter = (props) => {
-    return /* @__PURE__ */ import_react65.default.createElement("div", { style: props.ignoreTaskpanePadding ? { margin: " 0px -10px -7px -10px" } : void 0 }, "  ", props.children);
+    return /* @__PURE__ */ import_react64.default.createElement("div", { style: props.ignoreTaskpanePadding ? { margin: " 0px -10px -7px -10px" } : void 0 }, "  ", props.children);
   };
   var DefaultTaskpaneFooter_default = DefaultTaskpaneFooter;
 
@@ -28730,26 +28700,26 @@ ${finalCode}`;
   var ControlPanelTaskpane = (props) => {
     var _a, _b;
     const { columnHeader, columnID, columnFilters, columnDtype, columnFormat } = getCellDataFromCellIndexes(props.sheetData, props.selection.startingRowIndex, props.selection.startingColumnIndex);
-    const [filters, _setFilters] = (0, import_react66.useState)(columnFilters !== void 0 ? columnFilters.filters : []);
-    const [operator, _setOperator] = (0, import_react66.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
-    const [updateNumber, setUpdateNumber] = (0, import_react66.useState)(0);
-    const [stepID, setStepID] = (0, import_react66.useState)("");
-    const setFilters = (0, import_react66.useCallback)(
+    const [filters, _setFilters] = (0, import_react65.useState)(columnFilters !== void 0 ? columnFilters.filters : []);
+    const [operator, _setOperator] = (0, import_react65.useState)(columnFilters !== void 0 ? columnFilters.operator : "And");
+    const [updateNumber, setUpdateNumber] = (0, import_react65.useState)(0);
+    const [stepID, setStepID] = (0, import_react65.useState)("");
+    const setFilters = (0, import_react65.useCallback)(
       (args) => {
         _setFilters(args);
         setUpdateNumber((old) => old + 1);
       },
       []
     );
-    const setOperator = (0, import_react66.useCallback)(
+    const setOperator = (0, import_react65.useCallback)(
       (args) => {
         _setOperator(args);
         setUpdateNumber((old) => old + 1);
       },
       []
     );
-    const [originalNumRows] = (0, import_react66.useState)(((_a = props.sheetData) == null ? void 0 : _a.numRows) || 0);
-    const [editedFilter, setEditedFilter] = (0, import_react66.useState)(false);
+    const [originalNumRows] = (0, import_react65.useState)(((_a = props.sheetData) == null ? void 0 : _a.numRows) || 0);
+    const [editedFilter, setEditedFilter] = (0, import_react65.useState)(false);
     useDebouncedEffect(() => {
       if (updateNumber != 0) {
         void _sendFilterUpdateMessage();
@@ -28766,7 +28736,7 @@ ${finalCode}`;
           currOpenTaskpane: { type: "none" /* NONE */ }
         });
       });
-      return /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null);
+      return /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null);
     }
     const _sendFilterUpdateMessage = async () => {
       const filtersToApply = getFiltersToApply(filters, columnDtype);
@@ -28784,13 +28754,13 @@ ${finalCode}`;
       setEditedFilter(true);
       setStepID(_stepID);
     };
-    return /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null, /* @__PURE__ */ import_react66.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react66.default.createElement(
+    return /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react65.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: getDisplayColumnHeader(columnHeader),
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react66.default.createElement(DefaultTaskpaneBody_default, null, props.tab === "filter_sort" /* FilterSort */ && /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null, /* @__PURE__ */ import_react66.default.createElement(
+    ), /* @__PURE__ */ import_react65.default.createElement(DefaultTaskpaneBody_default, null, props.tab === "filter_sort" /* FilterSort */ && /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement(
       DtypeCard_default,
       {
         selectedSheetIndex: props.selectedSheetIndex,
@@ -28800,7 +28770,7 @@ ${finalCode}`;
         lastStepIndex: props.lastStepIndex,
         lastStepType: props.lastStepType
       }
-    ), /* @__PURE__ */ import_react66.default.createElement(
+    ), /* @__PURE__ */ import_react65.default.createElement(
       FormatCard_default,
       {
         columnID,
@@ -28809,7 +28779,7 @@ ${finalCode}`;
         columnDtype,
         sheetData: props.sheetData
       }
-    ), /* @__PURE__ */ import_react66.default.createElement(
+    ), /* @__PURE__ */ import_react65.default.createElement(
       SortCard_default,
       {
         selectedSheetIndex: props.selectedSheetIndex,
@@ -28817,7 +28787,7 @@ ${finalCode}`;
         mitoAPI: props.mitoAPI,
         analysisData: props.analysisData
       }
-    ), /* @__PURE__ */ import_react66.default.createElement(
+    ), /* @__PURE__ */ import_react65.default.createElement(
       FilterCard_default,
       {
         selectedSheetIndex: props.selectedSheetIndex,
@@ -28831,7 +28801,7 @@ ${finalCode}`;
         rowDifference: originalNumRows - (((_b = props.sheetData) == null ? void 0 : _b.numRows) || 0),
         editedFilter
       }
-    )), props.tab === "unique_values" /* UniqueValues */ && /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null, /* @__PURE__ */ import_react66.default.createElement(
+    )), props.tab === "unique_values" /* UniqueValues */ && /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement(
       ValuesTab,
       {
         selectedSheetIndex: props.selectedSheetIndex,
@@ -28843,14 +28813,14 @@ ${finalCode}`;
         columnFormat,
         setUIState: props.setUIState
       }
-    )), props.tab === "summary_stats" /* SummaryStats */ && /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null, /* @__PURE__ */ import_react66.default.createElement(
+    )), props.tab === "summary_stats" /* SummaryStats */ && /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement(
       ColumnSummaryGraph_default,
       {
         selectedSheetIndex: props.selectedSheetIndex,
         columnID,
         mitoAPI: props.mitoAPI
       }
-    ), /* @__PURE__ */ import_react66.default.createElement(
+    ), /* @__PURE__ */ import_react65.default.createElement(
       ColumnSummaryStatistics_default,
       {
         selectedSheetIndex: props.selectedSheetIndex,
@@ -28860,7 +28830,7 @@ ${finalCode}`;
         columnFormat,
         setUIState: props.setUIState
       }
-    ))), /* @__PURE__ */ import_react66.default.createElement(DefaultTaskpaneFooter_default, { ignoreTaskpanePadding: true }, /* @__PURE__ */ import_react66.default.createElement(
+    ))), /* @__PURE__ */ import_react65.default.createElement(DefaultTaskpaneFooter_default, { ignoreTaskpanePadding: true }, /* @__PURE__ */ import_react65.default.createElement(
       ControlPanelTaskpaneTabs_default,
       {
         selectedTab: props.tab,
@@ -28872,23 +28842,23 @@ ${finalCode}`;
   var ControlPanelTaskpane_default = ControlPanelTaskpane;
 
   // src/components/endo/ColumnHeaderDropdown.tsx
-  var import_react67 = __toESM(require_react());
+  var import_react66 = __toESM(require_react());
   function ColumnHeaderDropdown(props) {
-    (0, import_react67.useEffect)(() => {
+    (0, import_react66.useEffect)(() => {
       if (props.display) {
         void props.mitoAPI.log("opened_column_header_dropdown");
       }
     }, [props.display]);
     const rowIndex = 0;
     const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID);
-    return /* @__PURE__ */ import_react67.default.createElement(
+    return /* @__PURE__ */ import_react66.default.createElement(
       Dropdown_default,
       {
         display: props.display,
         closeDropdown: () => props.setOpenColumnHeaderDropdown(false),
         width: "medium"
       },
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Delete Column",
@@ -28903,7 +28873,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Rename Column",
@@ -28913,8 +28883,8 @@ ${finalCode}`;
           supressFocusSettingOnClose: true
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Filter",
@@ -28928,7 +28898,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Sort",
@@ -28942,7 +28912,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Change Dtype",
@@ -28956,7 +28926,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Fill NaN Values",
@@ -28974,8 +28944,8 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Format",
@@ -28991,8 +28961,8 @@ ${finalCode}`;
           tooltip: !isNumberDtype(props.columnDtype) ? "Only number columns can be formatted currently" : void 0
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Set Column Formula",
@@ -29010,7 +28980,7 @@ ${finalCode}`;
           supressFocusSettingOnClose: true
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "Split Text to Columns",
@@ -29023,8 +28993,8 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "View Unique Values",
@@ -29040,7 +29010,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react67.default.createElement(
+      /* @__PURE__ */ import_react66.default.createElement(
         DropdownItem_default,
         {
           title: "View Summary Stats",
@@ -29064,12 +29034,12 @@ ${finalCode}`;
   var HEADER_TEXT_COLOR_DEFAULT = "#494650";
   var ColumnHeader = (props) => {
     var _a;
-    const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = (0, import_react68.useState)(false);
+    const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = (0, import_react67.useState)(false);
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
     const { columnID, columnFilters, columnHeader, columnDtype, headerBackgroundColor, headerTextColor } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
     if (columnID === void 0 || columnFilters === void 0 || columnDtype == void 0 || columnHeader === void 0) {
-      return /* @__PURE__ */ import_react68.default.createElement(import_react68.default.Fragment, null);
+      return /* @__PURE__ */ import_react67.default.createElement(import_react67.default.Fragment, null);
     }
     const hasFilters = columnFilters.filters.length > 0;
     const editingColumnHeader = props.editorState !== void 0 && props.editorState.editorLocation === "cell" && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
@@ -29089,7 +29059,7 @@ ${finalCode}`;
       props.setEditorState(void 0);
       setTimeout(() => focusGrid(props.containerRef.current), 100);
     };
-    const ColumnHeaderResizer = /* @__PURE__ */ import_react68.default.createElement(
+    const ColumnHeaderResizer = /* @__PURE__ */ import_react67.default.createElement(
       "div",
       {
         className: "column-header-resizer",
@@ -29134,7 +29104,7 @@ ${finalCode}`;
         }
       }
     );
-    return /* @__PURE__ */ import_react68.default.createElement(
+    return /* @__PURE__ */ import_react67.default.createElement(
       "div",
       {
         className: classNames(
@@ -29164,7 +29134,7 @@ ${finalCode}`;
         var _a2;
         const rowIndex = -1 - (lowerLevelColumnHeaders.length - levelIndex);
         const editingLowerLevelColumnHeader = props.editorState !== void 0 && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === props.columnIndex;
-        return /* @__PURE__ */ import_react68.default.createElement(
+        return /* @__PURE__ */ import_react67.default.createElement(
           "div",
           {
             className: "column-header-lower-level-container",
@@ -29179,7 +29149,7 @@ ${finalCode}`;
               borderBottom: levelIndex < lowerLevelColumnHeaders.length - 1 ? DEFAULT_BORDER_STYLE : void 0
             }
           },
-          !editingLowerLevelColumnHeader && /* @__PURE__ */ import_react68.default.createElement(
+          !editingLowerLevelColumnHeader && /* @__PURE__ */ import_react67.default.createElement(
             "p",
             {
               className: "column-header-lower-level-text text-overflow-hide",
@@ -29199,7 +29169,7 @@ ${finalCode}`;
             },
             getDisplayColumnHeader(lowerLevelColumnHeader)
           ),
-          editingLowerLevelColumnHeader && /* @__PURE__ */ import_react68.default.createElement(
+          editingLowerLevelColumnHeader && /* @__PURE__ */ import_react67.default.createElement(
             "form",
             {
               style: {
@@ -29229,7 +29199,7 @@ ${finalCode}`;
                 closeColumnHeaderEditor();
               }
             },
-            /* @__PURE__ */ import_react68.default.createElement(
+            /* @__PURE__ */ import_react67.default.createElement(
               Input_default,
               {
                 value: ((_a2 = props.editorState) == null ? void 0 : _a2.formula) || "",
@@ -29256,7 +29226,7 @@ ${finalCode}`;
           ColumnHeaderResizer
         );
       }),
-      /* @__PURE__ */ import_react68.default.createElement(
+      /* @__PURE__ */ import_react67.default.createElement(
         "div",
         {
           className: classNames("column-header-final-container", {
@@ -29285,7 +29255,7 @@ ${finalCode}`;
             borderRight: borderStyle.borderRight
           }
         },
-        !editingFinalColumnHeader && /* @__PURE__ */ import_react68.default.createElement(import_react68.default.Fragment, null, /* @__PURE__ */ import_react68.default.createElement(
+        !editingFinalColumnHeader && /* @__PURE__ */ import_react67.default.createElement(import_react67.default.Fragment, null, /* @__PURE__ */ import_react67.default.createElement(
           "div",
           {
             className: "column-header-final-text",
@@ -29306,8 +29276,8 @@ ${finalCode}`;
             tabIndex: -1
           },
           finalColumnHeader + ""
-        ), /* @__PURE__ */ import_react68.default.createElement("div", { className: "column-header-final-right-side" }, /* @__PURE__ */ import_react68.default.createElement("div", { className: "column-header-final-icons", title: "Open the column control panel" }, /* @__PURE__ */ import_react68.default.createElement("span", { title: "Edit filters" }, !hasFilters && /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-hide-on-hover" }, /* @__PURE__ */ import_react68.default.createElement(FilterIcon, { purpleOrDark: "dark" })), /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-show-on-hover" }, /* @__PURE__ */ import_react68.default.createElement(FilterIcon, { purpleOrDark: "purple" }))), hasFilters && /* @__PURE__ */ import_react68.default.createElement(FilterIcon, { nonEmpty: true })), /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-hide-on-hover" }, getTypeIdentifier(columnDtype, "dark")), /* @__PURE__ */ import_react68.default.createElement("div", { className: "icon-show-on-hover" }, getTypeIdentifier(columnDtype, "purple")))), ColumnHeaderResizer)),
-        editingFinalColumnHeader && /* @__PURE__ */ import_react68.default.createElement(
+        ), /* @__PURE__ */ import_react67.default.createElement("div", { className: "column-header-final-right-side" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "column-header-final-icons", title: "Open the column control panel" }, /* @__PURE__ */ import_react67.default.createElement("span", { title: "Edit filters" }, !hasFilters && /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "dark" })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "purple" }))), hasFilters && /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { nonEmpty: true })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, getTypeIdentifier(columnDtype, "dark")), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, getTypeIdentifier(columnDtype, "purple")))), ColumnHeaderResizer)),
+        editingFinalColumnHeader && /* @__PURE__ */ import_react67.default.createElement(
           "form",
           {
             className: "element-width-block",
@@ -29316,7 +29286,7 @@ ${finalCode}`;
               closeColumnHeaderEditor();
             }
           },
-          /* @__PURE__ */ import_react68.default.createElement(
+          /* @__PURE__ */ import_react67.default.createElement(
             Input_default,
             {
               value: ((_a = props.editorState) == null ? void 0 : _a.formula) || "",
@@ -29345,7 +29315,7 @@ ${finalCode}`;
           )
         )
       ),
-      /* @__PURE__ */ import_react68.default.createElement(
+      /* @__PURE__ */ import_react67.default.createElement(
         ColumnHeaderDropdown,
         {
           mitoAPI: props.mitoAPI,
@@ -29364,26 +29334,26 @@ ${finalCode}`;
       )
     );
   };
-  var ColumnHeader_default = import_react68.default.memo(ColumnHeader);
+  var ColumnHeader_default = import_react67.default.memo(ColumnHeader);
 
   // src/components/layout/Spacer.tsx
-  var import_react69 = __toESM(require_react());
+  var import_react68 = __toESM(require_react());
   var Spacer = (props) => {
     const px = props.seperatingLine ? props.px / 2 : props.px;
     const marginTop = `${px}px`;
     const border = props.seperatingLine ? ".5px solid var(--mito-light-gray)" : "none";
     const marginBottom = props.seperatingLine ? `${px}px` : "none";
-    return /* @__PURE__ */ import_react69.default.createElement("div", { style: { marginTop, border, marginBottom } });
+    return /* @__PURE__ */ import_react68.default.createElement("div", { style: { marginTop, border, marginBottom } });
   };
   var Spacer_default = Spacer;
 
   // src/pro/graph/LabelAndColor.tsx
-  var import_react71 = __toESM(require_react());
+  var import_react70 = __toESM(require_react());
 
   // src/components/elements/ColorInput.tsx
-  var import_react70 = __toESM(require_react());
+  var import_react69 = __toESM(require_react());
   var ColorInput = (props) => {
-    return /* @__PURE__ */ import_react70.default.createElement(
+    return /* @__PURE__ */ import_react69.default.createElement(
       "input",
       {
         className: "color-input",
@@ -29399,7 +29369,7 @@ ${finalCode}`;
 
   // src/pro/graph/LabelAndColor.tsx
   var LabelAndColor = (props) => {
-    return /* @__PURE__ */ import_react71.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react71.default.createElement(Col_default, null, /* @__PURE__ */ import_react71.default.createElement("p", null, props.label)), /* @__PURE__ */ import_react71.default.createElement(
+    return /* @__PURE__ */ import_react70.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react70.default.createElement(Col_default, null, /* @__PURE__ */ import_react70.default.createElement("p", null, props.label)), /* @__PURE__ */ import_react70.default.createElement(
       ColorInput_default,
       {
         value: props.color,
@@ -29410,52 +29380,52 @@ ${finalCode}`;
   var LabelAndColor_default = LabelAndColor;
 
   // src/pro/taskpanes/SetDataframeFormat/SuggestedStyles.tsx
-  var import_react77 = __toESM(require_react());
+  var import_react76 = __toESM(require_react());
 
   // src/components/icons/SuggestedStyle1Icon.tsx
-  var import_react72 = __toESM(require_react());
+  var import_react71 = __toESM(require_react());
   var SuggestedStyle1Icon = () => {
-    return /* @__PURE__ */ import_react72.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#E8EBF8" }), /* @__PURE__ */ import_react72.default.createElement("g", { opacity: "0.05" }, /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#494650" })), /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react72.default.createElement("g", { opacity: "0.05" }, /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#494650" })), /* @__PURE__ */ import_react72.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
+    return /* @__PURE__ */ import_react71.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react71.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#E8EBF8" }), /* @__PURE__ */ import_react71.default.createElement("g", { opacity: "0.05" }, /* @__PURE__ */ import_react71.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#494650" })), /* @__PURE__ */ import_react71.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react71.default.createElement("g", { opacity: "0.05" }, /* @__PURE__ */ import_react71.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#494650" })), /* @__PURE__ */ import_react71.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
   };
   var SuggestedStyle1Icon_default = SuggestedStyle1Icon;
 
   // src/components/icons/SuggestedStyle2Icon.tsx
-  var import_react73 = __toESM(require_react());
+  var import_react72 = __toESM(require_react());
   var SuggestedStyle2Icon = () => {
-    return /* @__PURE__ */ import_react73.default.createElement("svg", { width: "59", height: "46", viewBox: "0 0 59 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 1)", fill: "#ACACAD" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 12)", fill: "#F5F5F5" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 23)", fill: "white" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 34)", fill: "#F5F5F5" }), /* @__PURE__ */ import_react73.default.createElement("rect", { x: "1", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
+    return /* @__PURE__ */ import_react72.default.createElement("svg", { width: "59", height: "46", viewBox: "0 0 59 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 1)", fill: "#ACACAD" }), /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 12)", fill: "#F5F5F5" }), /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 23)", fill: "white" }), /* @__PURE__ */ import_react72.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 34)", fill: "#F5F5F5" }), /* @__PURE__ */ import_react72.default.createElement("rect", { x: "1", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
   };
   var SuggestedStyle2Icon_default = SuggestedStyle2Icon;
 
   // src/components/icons/SuggestedStyle3Icon.tsx
-  var import_react74 = __toESM(require_react());
+  var import_react73 = __toESM(require_react());
   var SuggestedStyle3Icon = () => {
-    return /* @__PURE__ */ import_react74.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#549D3A" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#D0E3C9" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#D0E3C9" }), /* @__PURE__ */ import_react74.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
+    return /* @__PURE__ */ import_react73.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#549D3A" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#D0E3C9" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react73.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#D0E3C9" }), /* @__PURE__ */ import_react73.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
   };
   var SuggestedStyle3Icon_default = SuggestedStyle3Icon;
 
   // src/components/icons/SuggestedStyle4Icon.tsx
-  var import_react75 = __toESM(require_react());
+  var import_react74 = __toESM(require_react());
   var SuggestedStyle4Icon = () => {
-    return /* @__PURE__ */ import_react75.default.createElement("svg", { width: "59", height: "46", viewBox: "0 0 59 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 1)", fill: "#4D73BE" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 12)", fill: "#DAE1F0" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 23)", fill: "white" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 34)", fill: "#DAE1F0" }), /* @__PURE__ */ import_react75.default.createElement("rect", { x: "1", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
+    return /* @__PURE__ */ import_react74.default.createElement("svg", { width: "59", height: "46", viewBox: "0 0 59 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 1)", fill: "#4D73BE" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 12)", fill: "#DAE1F0" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 23)", fill: "white" }), /* @__PURE__ */ import_react74.default.createElement("rect", { width: "56", height: "11", transform: "translate(1.5 34)", fill: "#DAE1F0" }), /* @__PURE__ */ import_react74.default.createElement("rect", { x: "1", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
   };
   var SuggestedStyle4Icon_default = SuggestedStyle4Icon;
 
   // src/components/icons/SuggestedStyle5Icon.tsx
-  var import_react76 = __toESM(require_react());
+  var import_react75 = __toESM(require_react());
   var SuggestedStyle5Icon = () => {
-    return /* @__PURE__ */ import_react76.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react76.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#BE4D4D" }), /* @__PURE__ */ import_react76.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#F0DADA" }), /* @__PURE__ */ import_react76.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react76.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#F0DADA" }), /* @__PURE__ */ import_react76.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
+    return /* @__PURE__ */ import_react75.default.createElement("svg", { width: "58", height: "46", viewBox: "0 0 58 46", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 1)", fill: "#BE4D4D" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 12)", fill: "#F0DADA" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 23)", fill: "white" }), /* @__PURE__ */ import_react75.default.createElement("rect", { width: "56", height: "11", transform: "translate(1 34)", fill: "#F0DADA" }), /* @__PURE__ */ import_react75.default.createElement("rect", { x: "0.5", y: "0.5", width: "57", height: "45", stroke: "#ACACAD" }));
   };
   var SuggestedStyle5Icon_default = SuggestedStyle5Icon;
 
   // src/pro/taskpanes/SetDataframeFormat/SuggestedStyles.tsx
   var SuggestedStyles = (props) => {
-    return /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, /* @__PURE__ */ import_react77.default.createElement(Row_default, null, /* @__PURE__ */ import_react77.default.createElement(Col_default, null, /* @__PURE__ */ import_react77.default.createElement("p", { className: "text-header-3" }, "Suggested Styles"))), /* @__PURE__ */ import_react77.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react77.default.createElement("div", { onClick: () => {
+    return /* @__PURE__ */ import_react76.default.createElement(import_react76.default.Fragment, null, /* @__PURE__ */ import_react76.default.createElement(Row_default, null, /* @__PURE__ */ import_react76.default.createElement(Col_default, null, /* @__PURE__ */ import_react76.default.createElement("p", { className: "text-header-3" }, "Suggested Styles"))), /* @__PURE__ */ import_react76.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react76.default.createElement("div", { onClick: () => {
       props.updateDataframeFormatParams({
         headers: { color: void 0, backgroundColor: void 0 },
         rows: { even: { color: void 0, backgroundColor: void 0 }, odd: { color: void 0, backgroundColor: void 0 } },
         border: { borderStyle: void 0, borderColor: void 0 }
       });
-    } }, /* @__PURE__ */ import_react77.default.createElement(SuggestedStyle1Icon_default, null)), /* @__PURE__ */ import_react77.default.createElement("div", { onClick: () => {
+    } }, /* @__PURE__ */ import_react76.default.createElement(SuggestedStyle1Icon_default, null)), /* @__PURE__ */ import_react76.default.createElement("div", { onClick: () => {
       props.updateDataframeFormatParams({
         headers: {
           color: HEADER_TEXT_COLOR_DEFAULT,
@@ -29464,7 +29434,7 @@ ${finalCode}`;
         rows: { even: { color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: void 0 }, odd: { color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: void 0 } },
         border: { borderStyle: void 0, borderColor: void 0 }
       });
-    } }, /* @__PURE__ */ import_react77.default.createElement(SuggestedStyle2Icon_default, null)), /* @__PURE__ */ import_react77.default.createElement("div", { onClick: () => {
+    } }, /* @__PURE__ */ import_react76.default.createElement(SuggestedStyle2Icon_default, null)), /* @__PURE__ */ import_react76.default.createElement("div", { onClick: () => {
       props.updateDataframeFormatParams({
         headers: {
           color: "#FFFFFF",
@@ -29473,7 +29443,7 @@ ${finalCode}`;
         rows: { even: { color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: "#D0E3C9" }, odd: { color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: void 0 } },
         border: { borderStyle: void 0, borderColor: void 0 }
       });
-    } }, /* @__PURE__ */ import_react77.default.createElement(SuggestedStyle3Icon_default, null)), /* @__PURE__ */ import_react77.default.createElement("div", { onClick: () => {
+    } }, /* @__PURE__ */ import_react76.default.createElement(SuggestedStyle3Icon_default, null)), /* @__PURE__ */ import_react76.default.createElement("div", { onClick: () => {
       props.updateDataframeFormatParams({
         headers: {
           color: "#FFFFFF",
@@ -29482,7 +29452,7 @@ ${finalCode}`;
         rows: { even: { color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: "#DAE1F0" }, odd: { color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: void 0 } },
         border: { borderStyle: void 0, borderColor: void 0 }
       });
-    } }, /* @__PURE__ */ import_react77.default.createElement(SuggestedStyle4Icon_default, null)), /* @__PURE__ */ import_react77.default.createElement("div", { onClick: () => {
+    } }, /* @__PURE__ */ import_react76.default.createElement(SuggestedStyle4Icon_default, null)), /* @__PURE__ */ import_react76.default.createElement("div", { onClick: () => {
       props.updateDataframeFormatParams({
         headers: {
           color: "#FFFFFF",
@@ -29491,7 +29461,7 @@ ${finalCode}`;
         rows: { even: { color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: "#F0DADA" }, odd: { color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: void 0 } },
         border: { borderStyle: void 0, borderColor: void 0 }
       });
-    } }, /* @__PURE__ */ import_react77.default.createElement(SuggestedStyle5Icon_default, null))));
+    } }, /* @__PURE__ */ import_react76.default.createElement(SuggestedStyle5Icon_default, null))));
   };
   var SuggestedStyles_default = SuggestedStyles;
 
@@ -29519,20 +29489,20 @@ ${finalCode}`;
     );
     const sheetFormat = (props.sheetDataArray[(params == null ? void 0 : params.sheet_index) || 0] || {}).dfFormat;
     if (params === void 0 || sheetFormat === void 0) {
-      return /* @__PURE__ */ import_react78.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react77.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const updateDataframeFormatParams = (newParams) => {
       setParams((prevParams) => {
         return updateObjectWithPartialObject(prevParams, { df_format: newParams });
       });
     };
-    return /* @__PURE__ */ import_react78.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react78.default.createElement(
+    return /* @__PURE__ */ import_react77.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react77.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Color Dataframe",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react78.default.createElement(
+    ), /* @__PURE__ */ import_react77.default.createElement(
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
@@ -29542,7 +29512,7 @@ ${finalCode}`;
           featureName: "Set dataframe colors"
         }
       },
-      /* @__PURE__ */ import_react78.default.createElement(
+      /* @__PURE__ */ import_react77.default.createElement(
         DataframeSelect_default,
         {
           sheetDataArray: props.sheetDataArray,
@@ -29566,8 +29536,8 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react78.default.createElement(SuggestedStyles_default, { updateDataframeFormatParams }),
-      /* @__PURE__ */ import_react78.default.createElement(CollapsibleSection_default, { title: "Column Headers" }, /* @__PURE__ */ import_react78.default.createElement(
+      /* @__PURE__ */ import_react77.default.createElement(SuggestedStyles_default, { updateDataframeFormatParams }),
+      /* @__PURE__ */ import_react77.default.createElement(CollapsibleSection_default, { title: "Column Headers" }, /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Background Color",
@@ -29576,7 +29546,7 @@ ${finalCode}`;
             return updateDataframeFormatParams({ headers: { backgroundColor: newColor } });
           }
         }
-      ), /* @__PURE__ */ import_react78.default.createElement(
+      ), /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Text Color",
@@ -29586,8 +29556,8 @@ ${finalCode}`;
           }
         }
       )),
-      /* @__PURE__ */ import_react78.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react78.default.createElement(CollapsibleSection_default, { title: "Rows" }, /* @__PURE__ */ import_react78.default.createElement(
+      /* @__PURE__ */ import_react77.default.createElement(Spacer_default, { px: 10 }),
+      /* @__PURE__ */ import_react77.default.createElement(CollapsibleSection_default, { title: "Rows" }, /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Even Row: Background Color",
@@ -29596,7 +29566,7 @@ ${finalCode}`;
             return updateDataframeFormatParams({ rows: { even: { backgroundColor: newColor } } });
           }
         }
-      ), /* @__PURE__ */ import_react78.default.createElement(
+      ), /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Even Row: Text Color",
@@ -29605,7 +29575,7 @@ ${finalCode}`;
             return updateDataframeFormatParams({ rows: { even: { color: newColor } } });
           }
         }
-      ), /* @__PURE__ */ import_react78.default.createElement(
+      ), /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Odd Row: Background Color",
@@ -29614,7 +29584,7 @@ ${finalCode}`;
             return updateDataframeFormatParams({ rows: { odd: { backgroundColor: newColor } } });
           }
         }
-      ), /* @__PURE__ */ import_react78.default.createElement(
+      ), /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Odd Row: Text Color",
@@ -29624,8 +29594,8 @@ ${finalCode}`;
           }
         }
       )),
-      /* @__PURE__ */ import_react78.default.createElement(Spacer_default, { px: 10 }),
-      /* @__PURE__ */ import_react78.default.createElement(CollapsibleSection_default, { title: "Dataframe Border" }, /* @__PURE__ */ import_react78.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react78.default.createElement(Col_default, null, /* @__PURE__ */ import_react78.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react78.default.createElement(Col_default, null), /* @__PURE__ */ import_react78.default.createElement(
+      /* @__PURE__ */ import_react77.default.createElement(Spacer_default, { px: 10 }),
+      /* @__PURE__ */ import_react77.default.createElement(CollapsibleSection_default, { title: "Dataframe Border" }, /* @__PURE__ */ import_react77.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react77.default.createElement(Col_default, null, /* @__PURE__ */ import_react77.default.createElement(LabelAndTooltip_default, { tooltip: "The border line will be displayed when the dataframe styling object is printed out.", textBody: true }, "Border Style")), /* @__PURE__ */ import_react77.default.createElement(Col_default, null), /* @__PURE__ */ import_react77.default.createElement(
         Select_default,
         {
           value: params.df_format.border.borderStyle || "none",
@@ -29637,10 +29607,10 @@ ${finalCode}`;
             return updateDataframeFormatParams({ border: { borderStyle: newBorderStyle } });
           }
         },
-        /* @__PURE__ */ import_react78.default.createElement(DropdownItem_default, { title: "none" }),
-        /* @__PURE__ */ import_react78.default.createElement(DropdownItem_default, { title: "solid" }),
-        /* @__PURE__ */ import_react78.default.createElement(DropdownItem_default, { title: "dashed" })
-      )), /* @__PURE__ */ import_react78.default.createElement(
+        /* @__PURE__ */ import_react77.default.createElement(DropdownItem_default, { title: "none" }),
+        /* @__PURE__ */ import_react77.default.createElement(DropdownItem_default, { title: "solid" }),
+        /* @__PURE__ */ import_react77.default.createElement(DropdownItem_default, { title: "dashed" })
+      )), /* @__PURE__ */ import_react77.default.createElement(
         LabelAndColor_default,
         {
           label: "Border Color",
@@ -29655,12 +29625,12 @@ ${finalCode}`;
   var SetDataframeFormatTaskpane_default = SetDataframeFormatTaskpane;
 
   // src/pro/taskpanes/ConditionalFormatting/ConditionalFormattingCard.tsx
-  var import_react83 = __toESM(require_react());
+  var import_react82 = __toESM(require_react());
 
   // src/components/elements/ExpandableContentCard.tsx
-  var import_react79 = __toESM(require_react());
+  var import_react78 = __toESM(require_react());
   var ExpandableContentCard = (props) => {
-    const XElement = /* @__PURE__ */ import_react79.default.createElement(Col_default, { title: "Delete conditional formatting rule" }, /* @__PURE__ */ import_react79.default.createElement(
+    const XElement = /* @__PURE__ */ import_react78.default.createElement(Col_default, { title: "Delete conditional formatting rule" }, /* @__PURE__ */ import_react78.default.createElement(
       XIcon_default,
       {
         onClick: (e) => {
@@ -29670,15 +29640,15 @@ ${finalCode}`;
       }
     ));
     if (!props.isExpanded) {
-      return /* @__PURE__ */ import_react79.default.createElement("div", { className: "expandable-content-card", onClick: () => props.setExpanded(true) }, /* @__PURE__ */ import_react79.default.createElement(Row_default, { suppressTopBottomMargin: true, align: "center", justify: "start" }, props.icon !== void 0 && /* @__PURE__ */ import_react79.default.createElement(Col_default, { offsetRight: 1, title: props.iconTitle }, props.icon), /* @__PURE__ */ import_react79.default.createElement(Col_default, { span: 17.5 }, /* @__PURE__ */ import_react79.default.createElement("div", { className: "flex flex-column" }, /* @__PURE__ */ import_react79.default.createElement("p", { className: "text-body-1" }, props.title), /* @__PURE__ */ import_react79.default.createElement("p", { className: "text-body-2" }, props.subtitle))), props.icon === void 0 && /* @__PURE__ */ import_react79.default.createElement(Col_default, { offsetRight: 4 }), /* @__PURE__ */ import_react79.default.createElement(Col_default, null, /* @__PURE__ */ import_react79.default.createElement(Row_default, { align: "top", justify: "end", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react79.default.createElement("div", { className: "mr-5px", title: "Expand" }, /* @__PURE__ */ import_react79.default.createElement(UpArrowIcon_default, null)), XElement))));
+      return /* @__PURE__ */ import_react78.default.createElement("div", { className: "expandable-content-card", onClick: () => props.setExpanded(true) }, /* @__PURE__ */ import_react78.default.createElement(Row_default, { suppressTopBottomMargin: true, align: "center", justify: "start" }, props.icon !== void 0 && /* @__PURE__ */ import_react78.default.createElement(Col_default, { offsetRight: 1, title: props.iconTitle }, props.icon), /* @__PURE__ */ import_react78.default.createElement(Col_default, { span: 17.5 }, /* @__PURE__ */ import_react78.default.createElement("div", { className: "flex flex-column" }, /* @__PURE__ */ import_react78.default.createElement("p", { className: "text-body-1" }, props.title), /* @__PURE__ */ import_react78.default.createElement("p", { className: "text-body-2" }, props.subtitle))), props.icon === void 0 && /* @__PURE__ */ import_react78.default.createElement(Col_default, { offsetRight: 4 }), /* @__PURE__ */ import_react78.default.createElement(Col_default, null, /* @__PURE__ */ import_react78.default.createElement(Row_default, { align: "top", justify: "end", suppressTopBottomMargin: true }, /* @__PURE__ */ import_react78.default.createElement("div", { className: "mr-5px", title: "Expand" }, /* @__PURE__ */ import_react78.default.createElement(UpArrowIcon_default, null)), XElement))));
     } else {
-      return /* @__PURE__ */ import_react79.default.createElement("div", { className: "expandable-content-card" }, /* @__PURE__ */ import_react79.default.createElement(Row_default, { justify: "space-between", onClick: () => props.setExpanded(false) }, /* @__PURE__ */ import_react79.default.createElement(Col_default, { span: 12 }, /* @__PURE__ */ import_react79.default.createElement("p", { className: "text-header-3" }, props.expandedTitle)), /* @__PURE__ */ import_react79.default.createElement(Row_default, { justify: "end" }, /* @__PURE__ */ import_react79.default.createElement("div", { className: "mr-5px", title: "Minimize" }, /* @__PURE__ */ import_react79.default.createElement(DownArrowIcon_default, null)), XElement)), props.children);
+      return /* @__PURE__ */ import_react78.default.createElement("div", { className: "expandable-content-card" }, /* @__PURE__ */ import_react78.default.createElement(Row_default, { justify: "space-between", onClick: () => props.setExpanded(false) }, /* @__PURE__ */ import_react78.default.createElement(Col_default, { span: 12 }, /* @__PURE__ */ import_react78.default.createElement("p", { className: "text-header-3" }, props.expandedTitle)), /* @__PURE__ */ import_react78.default.createElement(Row_default, { justify: "end" }, /* @__PURE__ */ import_react78.default.createElement("div", { className: "mr-5px", title: "Minimize" }, /* @__PURE__ */ import_react78.default.createElement(DownArrowIcon_default, null)), XElement)), props.children);
     }
   };
   var ExpandableContentCard_default = ExpandableContentCard;
 
   // src/components/elements/MultiToggleColumns.tsx
-  var import_react80 = __toESM(require_react());
+  var import_react79 = __toESM(require_react());
   var MultiToggleColumns = (props) => {
     var _a, _b;
     const columnIDsMap = ((_a = props.sheetData) == null ? void 0 : _a.columnIDsMap) || {};
@@ -29686,7 +29656,7 @@ ${finalCode}`;
     const columnIDs = columnIDsAndDtype.map(([cid]) => {
       return cid;
     });
-    return /* @__PURE__ */ import_react80.default.createElement(
+    return /* @__PURE__ */ import_react79.default.createElement(
       MultiToggleBox_default,
       {
         searchable: true,
@@ -29703,7 +29673,7 @@ ${finalCode}`;
         const toggle = props.selectedColumnIDs.includes(columnID);
         const disabled = props.disabledColumnIDs !== void 0 && props.disabledColumnIDs.includes(columnID) || props.getIsDisabledColumnID !== void 0 && props.getIsDisabledColumnID(columnID, columnHeader, columnDtype);
         const displayColumnHeader = props.getDisplayColumnHeaderOverride !== void 0 ? props.getDisplayColumnHeaderOverride(columnID, columnHeader) : getDisplayColumnHeader(columnHeader);
-        return /* @__PURE__ */ import_react80.default.createElement(
+        return /* @__PURE__ */ import_react79.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -29725,30 +29695,30 @@ ${finalCode}`;
   var MultiToggleColumns_default = MultiToggleColumns;
 
   // src/components/icons/ConditionalFormatIcon.tsx
-  var import_react81 = __toESM(require_react());
+  var import_react80 = __toESM(require_react());
   var ConditionalFormatIcon = (props) => {
-    return /* @__PURE__ */ import_react81.default.createElement("svg", { width: "47", height: "41", viewBox: "0 0 47 41", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react81.default.createElement("rect", { width: "47", height: "41", rx: "3", fill: props.backgroundColor }), /* @__PURE__ */ import_react81.default.createElement("path", { d: "M15.1855 16.2808L11.6553 26H10.2124L14.2773 15.3359H15.2075L15.1855 16.2808ZM18.1445 26L14.6069 16.2808L14.585 15.3359H15.5151L19.5947 26H18.1445ZM17.9614 22.0522V23.2095H11.9702V22.0522H17.9614ZM20.8105 14.75H22.1729V24.4619L22.0557 26H20.8105V14.75ZM27.5269 21.9717V22.1255C27.5269 22.7017 27.4585 23.2363 27.3218 23.7295C27.1851 24.2178 26.9849 24.6426 26.7212 25.0039C26.4575 25.3652 26.1353 25.646 25.7544 25.8462C25.3735 26.0464 24.9365 26.1465 24.4434 26.1465C23.9404 26.1465 23.4985 26.061 23.1177 25.8901C22.7417 25.7144 22.4243 25.4629 22.1655 25.1357C21.9067 24.8086 21.6992 24.4131 21.543 23.9492C21.3916 23.4854 21.2866 22.9629 21.228 22.3818V21.708C21.2866 21.1221 21.3916 20.5972 21.543 20.1333C21.6992 19.6694 21.9067 19.2739 22.1655 18.9468C22.4243 18.6147 22.7417 18.3633 23.1177 18.1924C23.4937 18.0166 23.9307 17.9287 24.4287 17.9287C24.9268 17.9287 25.3687 18.0264 25.7544 18.2217C26.1401 18.4121 26.4624 18.6855 26.7212 19.042C26.9849 19.3984 27.1851 19.8257 27.3218 20.3237C27.4585 20.8169 27.5269 21.3662 27.5269 21.9717ZM26.1646 22.1255V21.9717C26.1646 21.5762 26.1279 21.2051 26.0547 20.8584C25.9814 20.5068 25.8643 20.1992 25.7031 19.9355C25.542 19.667 25.3296 19.457 25.0659 19.3057C24.8022 19.1494 24.4775 19.0713 24.0918 19.0713C23.75 19.0713 23.4521 19.1299 23.1982 19.2471C22.9492 19.3643 22.7368 19.5229 22.561 19.7231C22.3853 19.9185 22.2412 20.1431 22.1289 20.397C22.0215 20.646 21.9409 20.9048 21.8872 21.1733V22.9385C21.9653 23.2803 22.0923 23.6099 22.2681 23.9272C22.4487 24.2397 22.688 24.4961 22.9858 24.6963C23.2886 24.8965 23.6621 24.9966 24.1064 24.9966C24.4727 24.9966 24.7852 24.9233 25.0439 24.7769C25.3076 24.6255 25.52 24.418 25.6812 24.1543C25.8472 23.8906 25.9692 23.5854 26.0474 23.2388C26.1255 22.8921 26.1646 22.521 26.1646 22.1255ZM32.4121 25.0332C32.7344 25.0332 33.0322 24.9673 33.3057 24.8354C33.5791 24.7036 33.8037 24.5229 33.9795 24.2935C34.1553 24.0591 34.2554 23.793 34.2798 23.4951H35.5688C35.5444 23.9639 35.3857 24.4009 35.0928 24.8062C34.8047 25.2065 34.4263 25.5312 33.9575 25.7803C33.4888 26.0244 32.9736 26.1465 32.4121 26.1465C31.8164 26.1465 31.2964 26.0415 30.8521 25.8315C30.4126 25.6216 30.0464 25.3335 29.7534 24.9673C29.4653 24.6011 29.248 24.1812 29.1016 23.7075C28.96 23.229 28.8892 22.7236 28.8892 22.1914V21.8838C28.8892 21.3516 28.96 20.8486 29.1016 20.375C29.248 19.8965 29.4653 19.4741 29.7534 19.1079C30.0464 18.7417 30.4126 18.4536 30.8521 18.2437C31.2964 18.0337 31.8164 17.9287 32.4121 17.9287C33.0322 17.9287 33.5742 18.0557 34.0381 18.3096C34.502 18.5586 34.8657 18.9004 35.1294 19.335C35.3979 19.7646 35.5444 20.2529 35.5688 20.7998H34.2798C34.2554 20.4727 34.1626 20.1772 34.0015 19.9136C33.8452 19.6499 33.6304 19.4399 33.3569 19.2837C33.0884 19.1226 32.7734 19.042 32.4121 19.042C31.9971 19.042 31.6479 19.125 31.3647 19.291C31.0864 19.4521 30.8643 19.6719 30.6982 19.9502C30.5371 20.2236 30.4199 20.5288 30.3467 20.8657C30.2783 21.1978 30.2441 21.5371 30.2441 21.8838V22.1914C30.2441 22.5381 30.2783 22.8799 30.3467 23.2168C30.415 23.5537 30.5298 23.8589 30.6909 24.1323C30.8569 24.4058 31.0791 24.6255 31.3574 24.7915C31.6406 24.9526 31.9922 25.0332 32.4121 25.0332Z", fill: props.color }));
+    return /* @__PURE__ */ import_react80.default.createElement("svg", { width: "47", height: "41", viewBox: "0 0 47 41", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react80.default.createElement("rect", { width: "47", height: "41", rx: "3", fill: props.backgroundColor }), /* @__PURE__ */ import_react80.default.createElement("path", { d: "M15.1855 16.2808L11.6553 26H10.2124L14.2773 15.3359H15.2075L15.1855 16.2808ZM18.1445 26L14.6069 16.2808L14.585 15.3359H15.5151L19.5947 26H18.1445ZM17.9614 22.0522V23.2095H11.9702V22.0522H17.9614ZM20.8105 14.75H22.1729V24.4619L22.0557 26H20.8105V14.75ZM27.5269 21.9717V22.1255C27.5269 22.7017 27.4585 23.2363 27.3218 23.7295C27.1851 24.2178 26.9849 24.6426 26.7212 25.0039C26.4575 25.3652 26.1353 25.646 25.7544 25.8462C25.3735 26.0464 24.9365 26.1465 24.4434 26.1465C23.9404 26.1465 23.4985 26.061 23.1177 25.8901C22.7417 25.7144 22.4243 25.4629 22.1655 25.1357C21.9067 24.8086 21.6992 24.4131 21.543 23.9492C21.3916 23.4854 21.2866 22.9629 21.228 22.3818V21.708C21.2866 21.1221 21.3916 20.5972 21.543 20.1333C21.6992 19.6694 21.9067 19.2739 22.1655 18.9468C22.4243 18.6147 22.7417 18.3633 23.1177 18.1924C23.4937 18.0166 23.9307 17.9287 24.4287 17.9287C24.9268 17.9287 25.3687 18.0264 25.7544 18.2217C26.1401 18.4121 26.4624 18.6855 26.7212 19.042C26.9849 19.3984 27.1851 19.8257 27.3218 20.3237C27.4585 20.8169 27.5269 21.3662 27.5269 21.9717ZM26.1646 22.1255V21.9717C26.1646 21.5762 26.1279 21.2051 26.0547 20.8584C25.9814 20.5068 25.8643 20.1992 25.7031 19.9355C25.542 19.667 25.3296 19.457 25.0659 19.3057C24.8022 19.1494 24.4775 19.0713 24.0918 19.0713C23.75 19.0713 23.4521 19.1299 23.1982 19.2471C22.9492 19.3643 22.7368 19.5229 22.561 19.7231C22.3853 19.9185 22.2412 20.1431 22.1289 20.397C22.0215 20.646 21.9409 20.9048 21.8872 21.1733V22.9385C21.9653 23.2803 22.0923 23.6099 22.2681 23.9272C22.4487 24.2397 22.688 24.4961 22.9858 24.6963C23.2886 24.8965 23.6621 24.9966 24.1064 24.9966C24.4727 24.9966 24.7852 24.9233 25.0439 24.7769C25.3076 24.6255 25.52 24.418 25.6812 24.1543C25.8472 23.8906 25.9692 23.5854 26.0474 23.2388C26.1255 22.8921 26.1646 22.521 26.1646 22.1255ZM32.4121 25.0332C32.7344 25.0332 33.0322 24.9673 33.3057 24.8354C33.5791 24.7036 33.8037 24.5229 33.9795 24.2935C34.1553 24.0591 34.2554 23.793 34.2798 23.4951H35.5688C35.5444 23.9639 35.3857 24.4009 35.0928 24.8062C34.8047 25.2065 34.4263 25.5312 33.9575 25.7803C33.4888 26.0244 32.9736 26.1465 32.4121 26.1465C31.8164 26.1465 31.2964 26.0415 30.8521 25.8315C30.4126 25.6216 30.0464 25.3335 29.7534 24.9673C29.4653 24.6011 29.248 24.1812 29.1016 23.7075C28.96 23.229 28.8892 22.7236 28.8892 22.1914V21.8838C28.8892 21.3516 28.96 20.8486 29.1016 20.375C29.248 19.8965 29.4653 19.4741 29.7534 19.1079C30.0464 18.7417 30.4126 18.4536 30.8521 18.2437C31.2964 18.0337 31.8164 17.9287 32.4121 17.9287C33.0322 17.9287 33.5742 18.0557 34.0381 18.3096C34.502 18.5586 34.8657 18.9004 35.1294 19.335C35.3979 19.7646 35.5444 20.2529 35.5688 20.7998H34.2798C34.2554 20.4727 34.1626 20.1772 34.0015 19.9136C33.8452 19.6499 33.6304 19.4399 33.3569 19.2837C33.0884 19.1226 32.7734 19.042 32.4121 19.042C31.9971 19.042 31.6479 19.125 31.3647 19.291C31.0864 19.4521 30.8643 19.6719 30.6982 19.9502C30.5371 20.2236 30.4199 20.5288 30.3467 20.8657C30.2783 21.1978 30.2441 21.5371 30.2441 21.8838V22.1914C30.2441 22.5381 30.2783 22.8799 30.3467 23.2168C30.415 23.5537 30.5298 23.8589 30.6909 24.1323C30.8569 24.4058 31.0791 24.6255 31.3574 24.7915C31.6406 24.9526 31.9922 25.0332 32.4121 25.0332Z", fill: props.color }));
   };
   var ConditionalFormatIcon_default = ConditionalFormatIcon;
 
   // src/components/icons/ConditionalFormatInvalidIcon.tsx
-  var import_react82 = __toESM(require_react());
+  var import_react81 = __toESM(require_react());
   var ConditionalFormatInvalidIcon = (props) => {
-    return /* @__PURE__ */ import_react82.default.createElement("svg", { width: "47", height: "43", viewBox: "0 0 47 43", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react82.default.createElement("rect", { y: "2", width: "47", height: "41", rx: "3", fill: props.backgroundColor }), /* @__PURE__ */ import_react82.default.createElement("path", { d: "M15.1855 18.2808L11.6553 28H10.2124L14.2773 17.3359H15.2075L15.1855 18.2808ZM18.1445 28L14.6069 18.2808L14.585 17.3359H15.5151L19.5947 28H18.1445ZM17.9614 24.0522V25.2095H11.9702V24.0522H17.9614ZM20.8105 16.75H22.1729V26.4619L22.0557 28H20.8105V16.75ZM27.5269 23.9717V24.1255C27.5269 24.7017 27.4585 25.2363 27.3218 25.7295C27.1851 26.2178 26.9849 26.6426 26.7212 27.0039C26.4575 27.3652 26.1353 27.646 25.7544 27.8462C25.3735 28.0464 24.9365 28.1465 24.4434 28.1465C23.9404 28.1465 23.4985 28.061 23.1177 27.8901C22.7417 27.7144 22.4243 27.4629 22.1655 27.1357C21.9067 26.8086 21.6992 26.4131 21.543 25.9492C21.3916 25.4854 21.2866 24.9629 21.228 24.3818V23.708C21.2866 23.1221 21.3916 22.5972 21.543 22.1333C21.6992 21.6694 21.9067 21.2739 22.1655 20.9468C22.4243 20.6147 22.7417 20.3633 23.1177 20.1924C23.4937 20.0166 23.9307 19.9287 24.4287 19.9287C24.9268 19.9287 25.3687 20.0264 25.7544 20.2217C26.1401 20.4121 26.4624 20.6855 26.7212 21.042C26.9849 21.3984 27.1851 21.8257 27.3218 22.3237C27.4585 22.8169 27.5269 23.3662 27.5269 23.9717ZM26.1646 24.1255V23.9717C26.1646 23.5762 26.1279 23.2051 26.0547 22.8584C25.9814 22.5068 25.8643 22.1992 25.7031 21.9355C25.542 21.667 25.3296 21.457 25.0659 21.3057C24.8022 21.1494 24.4775 21.0713 24.0918 21.0713C23.75 21.0713 23.4521 21.1299 23.1982 21.2471C22.9492 21.3643 22.7368 21.5229 22.561 21.7231C22.3853 21.9185 22.2412 22.1431 22.1289 22.397C22.0215 22.646 21.9409 22.9048 21.8872 23.1733V24.9385C21.9653 25.2803 22.0923 25.6099 22.2681 25.9272C22.4487 26.2397 22.688 26.4961 22.9858 26.6963C23.2886 26.8965 23.6621 26.9966 24.1064 26.9966C24.4727 26.9966 24.7852 26.9233 25.0439 26.7769C25.3076 26.6255 25.52 26.418 25.6812 26.1543C25.8472 25.8906 25.9692 25.5854 26.0474 25.2388C26.1255 24.8921 26.1646 24.521 26.1646 24.1255ZM32.4121 27.0332C32.7344 27.0332 33.0322 26.9673 33.3057 26.8354C33.5791 26.7036 33.8037 26.5229 33.9795 26.2935C34.1553 26.0591 34.2554 25.793 34.2798 25.4951H35.5688C35.5444 25.9639 35.3857 26.4009 35.0928 26.8062C34.8047 27.2065 34.4263 27.5312 33.9575 27.7803C33.4888 28.0244 32.9736 28.1465 32.4121 28.1465C31.8164 28.1465 31.2964 28.0415 30.8521 27.8315C30.4126 27.6216 30.0464 27.3335 29.7534 26.9673C29.4653 26.6011 29.248 26.1812 29.1016 25.7075C28.96 25.229 28.8892 24.7236 28.8892 24.1914V23.8838C28.8892 23.3516 28.96 22.8486 29.1016 22.375C29.248 21.8965 29.4653 21.4741 29.7534 21.1079C30.0464 20.7417 30.4126 20.4536 30.8521 20.2437C31.2964 20.0337 31.8164 19.9287 32.4121 19.9287C33.0322 19.9287 33.5742 20.0557 34.0381 20.3096C34.502 20.5586 34.8657 20.9004 35.1294 21.335C35.3979 21.7646 35.5444 22.2529 35.5688 22.7998H34.2798C34.2554 22.4727 34.1626 22.1772 34.0015 21.9136C33.8452 21.6499 33.6304 21.4399 33.3569 21.2837C33.0884 21.1226 32.7734 21.042 32.4121 21.042C31.9971 21.042 31.6479 21.125 31.3647 21.291C31.0864 21.4521 30.8643 21.6719 30.6982 21.9502C30.5371 22.2236 30.4199 22.5288 30.3467 22.8657C30.2783 23.1978 30.2441 23.5371 30.2441 23.8838V24.1914C30.2441 24.5381 30.2783 24.8799 30.3467 25.2168C30.415 25.5537 30.5298 25.8589 30.6909 26.1323C30.8569 26.4058 31.0791 26.6255 31.3574 26.7915C31.6406 26.9526 31.9922 27.0332 32.4121 27.0332Z", fill: props.color }), /* @__PURE__ */ import_react82.default.createElement("rect", { x: "33", y: "2", width: "14", height: "13", rx: "2", fill: "#CF0000" }), /* @__PURE__ */ import_react82.default.createElement("path", { d: "M41.0518 3.75781L40.8994 10.2769H39.5918L39.4331 3.75781H41.0518ZM39.3887 12.2764C39.3887 12.0436 39.4648 11.849 39.6172 11.6924C39.7738 11.5316 39.9896 11.4512 40.2646 11.4512C40.5355 11.4512 40.7492 11.5316 40.9058 11.6924C41.0623 11.849 41.1406 12.0436 41.1406 12.2764C41.1406 12.5007 41.0623 12.6932 40.9058 12.854C40.7492 13.0106 40.5355 13.0889 40.2646 13.0889C39.9896 13.0889 39.7738 13.0106 39.6172 12.854C39.4648 12.6932 39.3887 12.5007 39.3887 12.2764Z", fill: "white" }));
+    return /* @__PURE__ */ import_react81.default.createElement("svg", { width: "47", height: "43", viewBox: "0 0 47 43", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react81.default.createElement("rect", { y: "2", width: "47", height: "41", rx: "3", fill: props.backgroundColor }), /* @__PURE__ */ import_react81.default.createElement("path", { d: "M15.1855 18.2808L11.6553 28H10.2124L14.2773 17.3359H15.2075L15.1855 18.2808ZM18.1445 28L14.6069 18.2808L14.585 17.3359H15.5151L19.5947 28H18.1445ZM17.9614 24.0522V25.2095H11.9702V24.0522H17.9614ZM20.8105 16.75H22.1729V26.4619L22.0557 28H20.8105V16.75ZM27.5269 23.9717V24.1255C27.5269 24.7017 27.4585 25.2363 27.3218 25.7295C27.1851 26.2178 26.9849 26.6426 26.7212 27.0039C26.4575 27.3652 26.1353 27.646 25.7544 27.8462C25.3735 28.0464 24.9365 28.1465 24.4434 28.1465C23.9404 28.1465 23.4985 28.061 23.1177 27.8901C22.7417 27.7144 22.4243 27.4629 22.1655 27.1357C21.9067 26.8086 21.6992 26.4131 21.543 25.9492C21.3916 25.4854 21.2866 24.9629 21.228 24.3818V23.708C21.2866 23.1221 21.3916 22.5972 21.543 22.1333C21.6992 21.6694 21.9067 21.2739 22.1655 20.9468C22.4243 20.6147 22.7417 20.3633 23.1177 20.1924C23.4937 20.0166 23.9307 19.9287 24.4287 19.9287C24.9268 19.9287 25.3687 20.0264 25.7544 20.2217C26.1401 20.4121 26.4624 20.6855 26.7212 21.042C26.9849 21.3984 27.1851 21.8257 27.3218 22.3237C27.4585 22.8169 27.5269 23.3662 27.5269 23.9717ZM26.1646 24.1255V23.9717C26.1646 23.5762 26.1279 23.2051 26.0547 22.8584C25.9814 22.5068 25.8643 22.1992 25.7031 21.9355C25.542 21.667 25.3296 21.457 25.0659 21.3057C24.8022 21.1494 24.4775 21.0713 24.0918 21.0713C23.75 21.0713 23.4521 21.1299 23.1982 21.2471C22.9492 21.3643 22.7368 21.5229 22.561 21.7231C22.3853 21.9185 22.2412 22.1431 22.1289 22.397C22.0215 22.646 21.9409 22.9048 21.8872 23.1733V24.9385C21.9653 25.2803 22.0923 25.6099 22.2681 25.9272C22.4487 26.2397 22.688 26.4961 22.9858 26.6963C23.2886 26.8965 23.6621 26.9966 24.1064 26.9966C24.4727 26.9966 24.7852 26.9233 25.0439 26.7769C25.3076 26.6255 25.52 26.418 25.6812 26.1543C25.8472 25.8906 25.9692 25.5854 26.0474 25.2388C26.1255 24.8921 26.1646 24.521 26.1646 24.1255ZM32.4121 27.0332C32.7344 27.0332 33.0322 26.9673 33.3057 26.8354C33.5791 26.7036 33.8037 26.5229 33.9795 26.2935C34.1553 26.0591 34.2554 25.793 34.2798 25.4951H35.5688C35.5444 25.9639 35.3857 26.4009 35.0928 26.8062C34.8047 27.2065 34.4263 27.5312 33.9575 27.7803C33.4888 28.0244 32.9736 28.1465 32.4121 28.1465C31.8164 28.1465 31.2964 28.0415 30.8521 27.8315C30.4126 27.6216 30.0464 27.3335 29.7534 26.9673C29.4653 26.6011 29.248 26.1812 29.1016 25.7075C28.96 25.229 28.8892 24.7236 28.8892 24.1914V23.8838C28.8892 23.3516 28.96 22.8486 29.1016 22.375C29.248 21.8965 29.4653 21.4741 29.7534 21.1079C30.0464 20.7417 30.4126 20.4536 30.8521 20.2437C31.2964 20.0337 31.8164 19.9287 32.4121 19.9287C33.0322 19.9287 33.5742 20.0557 34.0381 20.3096C34.502 20.5586 34.8657 20.9004 35.1294 21.335C35.3979 21.7646 35.5444 22.2529 35.5688 22.7998H34.2798C34.2554 22.4727 34.1626 22.1772 34.0015 21.9136C33.8452 21.6499 33.6304 21.4399 33.3569 21.2837C33.0884 21.1226 32.7734 21.042 32.4121 21.042C31.9971 21.042 31.6479 21.125 31.3647 21.291C31.0864 21.4521 30.8643 21.6719 30.6982 21.9502C30.5371 22.2236 30.4199 22.5288 30.3467 22.8657C30.2783 23.1978 30.2441 23.5371 30.2441 23.8838V24.1914C30.2441 24.5381 30.2783 24.8799 30.3467 25.2168C30.415 25.5537 30.5298 25.8589 30.6909 26.1323C30.8569 26.4058 31.0791 26.6255 31.3574 26.7915C31.6406 26.9526 31.9922 27.0332 32.4121 27.0332Z", fill: props.color }), /* @__PURE__ */ import_react81.default.createElement("rect", { x: "33", y: "2", width: "14", height: "13", rx: "2", fill: "#CF0000" }), /* @__PURE__ */ import_react81.default.createElement("path", { d: "M41.0518 3.75781L40.8994 10.2769H39.5918L39.4331 3.75781H41.0518ZM39.3887 12.2764C39.3887 12.0436 39.4648 11.849 39.6172 11.6924C39.7738 11.5316 39.9896 11.4512 40.2646 11.4512C40.5355 11.4512 40.7492 11.5316 40.9058 11.6924C41.0623 11.849 41.1406 12.0436 41.1406 12.2764C41.1406 12.5007 41.0623 12.6932 40.9058 12.854C40.7492 13.0106 40.5355 13.0889 40.2646 13.0889C39.9896 13.0889 39.7738 13.0106 39.6172 12.854C39.4648 12.6932 39.3887 12.5007 39.3887 12.2764Z", fill: "white" }));
   };
   var ConditionalFormatInvalidIcon_default = ConditionalFormatInvalidIcon;
 
   // src/pro/taskpanes/ConditionalFormatting/ConditionalFormattingCard.tsx
   var getColumnHeadersIncludedMessage = (sheetData, columnIDs) => {
     if (columnIDs.length === 0) {
-      return /* @__PURE__ */ import_react83.default.createElement("p", null, "Applied to 0 columns.");
+      return /* @__PURE__ */ import_react82.default.createElement("p", null, "Applied to 0 columns.");
     }
     const columnHeaders = columnIDs.map((columnID) => sheetData.columnIDsMap[columnID]).filter((columnHeader) => columnHeader !== void 0);
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 15);
     if (numOtherColumnHeaders === 0) {
-      return /* @__PURE__ */ import_react83.default.createElement("p", null, "Applied to ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
+      return /* @__PURE__ */ import_react82.default.createElement("p", null, "Applied to ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
     } else {
-      return /* @__PURE__ */ import_react83.default.createElement("p", null, "Applied to ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " others.");
+      return /* @__PURE__ */ import_react82.default.createElement("p", null, "Applied to ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " others.");
     }
   };
   var getInvalidColumnHeadersMessage = (sheetData, invalidColumnIDs, filters) => {
@@ -29766,9 +29736,9 @@ ${finalCode}`;
       likelyCauseOfInvalid = "Please enter a number in the condition input.";
     }
     if (numOtherColumnHeaders === 0) {
-      return /* @__PURE__ */ import_react83.default.createElement("p", null, "This condition cannot be applied to ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-error-important" }, columnHeadersString), ". ", likelyCauseOfInvalid);
+      return /* @__PURE__ */ import_react82.default.createElement("p", null, "This condition cannot be applied to ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-error-important" }, columnHeadersString), ". ", likelyCauseOfInvalid);
     } else {
-      return /* @__PURE__ */ import_react83.default.createElement("p", null, "This condition cannot be applied to ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-error-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react83.default.createElement("span", { className: "text-color-error-important" }, numOtherColumnHeaders), " others. ", likelyCauseOfInvalid);
+      return /* @__PURE__ */ import_react82.default.createElement("p", null, "This condition cannot be applied to ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-error-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react82.default.createElement("span", { className: "text-color-error-important" }, numOtherColumnHeaders), " others. ", likelyCauseOfInvalid);
     }
   };
   var ConditionalFormattingCard = (props) => {
@@ -29781,11 +29751,11 @@ ${finalCode}`;
     const conditionText = capitalizeFirstLetter(ALL_SELECT_OPTIONS[(_b = props.conditionalFormat.filters[0]) == null ? void 0 : _b.condition]["long_name"] || "contains");
     const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
-    return /* @__PURE__ */ import_react83.default.createElement(
+    return /* @__PURE__ */ import_react82.default.createElement(
       ExpandableContentCard_default,
       {
-        title: /* @__PURE__ */ import_react83.default.createElement(import_react83.default.Fragment, null, conditionText, " ", (_c = props.conditionalFormat.filters[0]) == null ? void 0 : _c.value),
-        subtitle: /* @__PURE__ */ import_react83.default.createElement(import_react83.default.Fragment, null, getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)),
+        title: /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, conditionText, " ", (_c = props.conditionalFormat.filters[0]) == null ? void 0 : _c.value),
+        subtitle: /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)),
         expandedTitle: "Columns to format",
         isExpanded: props.openFormattingCardIndex === conditionalFormatIndex,
         setExpanded: (newIsExpanded) => {
@@ -29795,13 +29765,13 @@ ${finalCode}`;
             props.setOpenFormattingCardIndex(-1);
           }
         },
-        icon: /* @__PURE__ */ import_react83.default.createElement(import_react83.default.Fragment, null, invalidColumnIDs.length === 0 && /* @__PURE__ */ import_react83.default.createElement(
+        icon: /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, invalidColumnIDs.length === 0 && /* @__PURE__ */ import_react82.default.createElement(
           ConditionalFormatIcon_default,
           {
             color,
             backgroundColor
           }
-        ), invalidColumnIDs.length !== 0 && /* @__PURE__ */ import_react83.default.createElement(
+        ), invalidColumnIDs.length !== 0 && /* @__PURE__ */ import_react82.default.createElement(
           ConditionalFormatInvalidIcon_default,
           {
             color,
@@ -29815,7 +29785,7 @@ ${finalCode}`;
           props.updateDataframeFormatParams(__spreadProps(__spreadValues({}, props.df_format), { conditional_formats: newConditionalFormats }));
         }
       },
-      /* @__PURE__ */ import_react83.default.createElement(
+      /* @__PURE__ */ import_react82.default.createElement(
         MultiToggleColumns_default,
         {
           sheetData: props.sheetData,
@@ -29833,7 +29803,7 @@ ${finalCode}`;
         }
       ),
       invalidColumnIDMessage,
-      /* @__PURE__ */ import_react83.default.createElement(
+      /* @__PURE__ */ import_react82.default.createElement(
         Filter,
         {
           filter: props.conditionalFormat.filters[0],
@@ -29848,7 +29818,7 @@ ${finalCode}`;
           nameLength: "long_name"
         }
       ),
-      /* @__PURE__ */ import_react83.default.createElement(
+      /* @__PURE__ */ import_react82.default.createElement(
         LabelAndColor_default,
         {
           label: "Text Color",
@@ -29860,7 +29830,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react83.default.createElement(
+      /* @__PURE__ */ import_react82.default.createElement(
         LabelAndColor_default,
         {
           label: "Background Color",
@@ -29933,9 +29903,9 @@ ${finalCode}`;
         }
       }
     );
-    const [openFormattingCardIndex, setOpenFormattingCardIndex] = (0, import_react84.useState)(-1);
+    const [openFormattingCardIndex, setOpenFormattingCardIndex] = (0, import_react83.useState)(-1);
     if (params === void 0) {
-      return /* @__PURE__ */ import_react84.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react83.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     const sheetData = props.sheetDataArray[params.sheet_index];
     const conditionalFormats = params.df_format.conditional_formats;
@@ -29944,13 +29914,13 @@ ${finalCode}`;
         return updateObjectWithPartialObject(prevParams, { df_format: newParams });
       });
     };
-    return /* @__PURE__ */ import_react84.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react84.default.createElement(
+    return /* @__PURE__ */ import_react83.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react83.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Conditional Formatting",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react84.default.createElement(
+    ), /* @__PURE__ */ import_react83.default.createElement(
       DefaultTaskpaneBody_default,
       {
         userProfile: props.userProfile,
@@ -29960,7 +29930,7 @@ ${finalCode}`;
           featureName: "Conditional Formatting"
         }
       },
-      /* @__PURE__ */ import_react84.default.createElement(
+      /* @__PURE__ */ import_react83.default.createElement(
         DataframeSelect_default,
         {
           sheetDataArray: props.sheetDataArray,
@@ -29983,9 +29953,9 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react84.default.createElement(Row_default, null, /* @__PURE__ */ import_react84.default.createElement(Col_default, null, /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-header-3" }, "Conditional Formats"), /* @__PURE__ */ import_react84.default.createElement("p", { className: "text-subtext-1 mb-10px" }, "Rules applied in order. Later formatting rules overwrite earlier rules."))),
+      /* @__PURE__ */ import_react83.default.createElement(Row_default, null, /* @__PURE__ */ import_react83.default.createElement(Col_default, null, /* @__PURE__ */ import_react83.default.createElement("p", { className: "text-header-3" }, "Conditional Formats"), /* @__PURE__ */ import_react83.default.createElement("p", { className: "text-subtext-1 mb-10px" }, "Rules applied in order. Later formatting rules overwrite earlier rules."))),
       conditionalFormats.map((conditionalFormat, index) => {
-        return /* @__PURE__ */ import_react84.default.createElement(
+        return /* @__PURE__ */ import_react83.default.createElement(
           ConditionalFormattingCard_default,
           {
             key: conditionalFormat.format_uuid + index,
@@ -29998,7 +29968,7 @@ ${finalCode}`;
           }
         );
       }),
-      /* @__PURE__ */ import_react84.default.createElement(Row_default, null, /* @__PURE__ */ import_react84.default.createElement(
+      /* @__PURE__ */ import_react83.default.createElement(Row_default, null, /* @__PURE__ */ import_react83.default.createElement(
         TextButton_default,
         {
           variant: "dark",
@@ -30015,7 +29985,7 @@ ${finalCode}`;
   var ConditionalFormattingTaskpane_default = ConditionalFormattingTaskpane;
 
   // src/components/elements/GetSupportButton.tsx
-  var import_react85 = __toESM(require_react());
+  var import_react84 = __toESM(require_react());
 
   // src/data/documentationLinks.tsx
   var DOCUMENTATION_LINK_INSTALL = "https://docs.trymito.io/getting-started/installing-mito";
@@ -30027,7 +29997,7 @@ ${finalCode}`;
   // src/components/elements/GetSupportButton.tsx
   var DEFAULT_SUPPORT_EMAIL = "founders@sagacollab.com";
   var GetSupportButton = (props) => {
-    return /* @__PURE__ */ import_react85.default.createElement(
+    return /* @__PURE__ */ import_react84.default.createElement(
       TextButton_default,
       {
         className: classNames(props.className, "cursor-pointer"),
@@ -31882,36 +31852,36 @@ ${finalCode}`;
   var plotly_default = loadPlotly;
 
   // src/components/CatchUpPopup.tsx
-  var import_react87 = __toESM(require_react());
+  var import_react86 = __toESM(require_react());
 
   // src/components/icons/CatchUpIcon.tsx
-  var import_react86 = __toESM(require_react());
+  var import_react85 = __toESM(require_react());
   var CatchUpIcon = (props) => {
     if (props.variant === "light") {
-      return /* @__PURE__ */ import_react86.default.createElement("svg", { width: "16", height: "15", viewBox: "0 0 16 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react86.default.createElement("path", { d: "M1 14L7.5 7.96429L1 1V14Z", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react86.default.createElement("path", { d: "M8.42578 14L14.9258 7.96429L8.42578 1V14Z", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }));
+      return /* @__PURE__ */ import_react85.default.createElement("svg", { width: "16", height: "15", viewBox: "0 0 16 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react85.default.createElement("path", { d: "M1 14L7.5 7.96429L1 1V14Z", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react85.default.createElement("path", { d: "M8.42578 14L14.9258 7.96429L8.42578 1V14Z", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }));
     } else {
-      return /* @__PURE__ */ import_react86.default.createElement("svg", { width: "14", height: "13", viewBox: "0 0 14 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react86.default.createElement("path", { d: "M1 12.2L6.6 7L1 1V12.2Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react86.default.createElement("path", { d: "M7.39844 12.2L12.9984 7L7.39844 1V12.2Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }));
+      return /* @__PURE__ */ import_react85.default.createElement("svg", { width: "14", height: "13", viewBox: "0 0 14 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react85.default.createElement("path", { d: "M1 12.2L6.6 7L1 1V12.2Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react85.default.createElement("path", { d: "M7.39844 12.2L12.9984 7L7.39844 1V12.2Z", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round", strokeLinejoin: "round" }));
     }
   };
   var CatchUpIcon_default = CatchUpIcon;
 
   // src/components/CatchUpPopup.tsx
   var FastForwardPopup = (props) => {
-    return /* @__PURE__ */ import_react87.default.createElement(
+    return /* @__PURE__ */ import_react86.default.createElement(
       "div",
       {
         onClick: props.fastForward,
         className: "catch-up-popup-container"
       },
-      /* @__PURE__ */ import_react87.default.createElement(Row_default, null, /* @__PURE__ */ import_react87.default.createElement(Col_default, null, /* @__PURE__ */ import_react87.default.createElement("p", { className: "text-overflow-wrap" }, "You are viewing a previous step, and cannot make any edits."))),
-      /* @__PURE__ */ import_react87.default.createElement(Row_default, null, /* @__PURE__ */ import_react87.default.createElement(Col_default, null, /* @__PURE__ */ import_react87.default.createElement(CatchUpIcon_default, { variant: "light" })), /* @__PURE__ */ import_react87.default.createElement(Col_default, { offset: 1 }, /* @__PURE__ */ import_react87.default.createElement("p", null, /* @__PURE__ */ import_react87.default.createElement("span", { className: "text-underline" }, " Catch up"), " to start editing.")))
+      /* @__PURE__ */ import_react86.default.createElement(Row_default, null, /* @__PURE__ */ import_react86.default.createElement(Col_default, null, /* @__PURE__ */ import_react86.default.createElement("p", { className: "text-overflow-wrap" }, "You are viewing a previous step, and cannot make any edits."))),
+      /* @__PURE__ */ import_react86.default.createElement(Row_default, null, /* @__PURE__ */ import_react86.default.createElement(Col_default, null, /* @__PURE__ */ import_react86.default.createElement(CatchUpIcon_default, { variant: "light" })), /* @__PURE__ */ import_react86.default.createElement(Col_default, { offset: 1 }, /* @__PURE__ */ import_react86.default.createElement("p", null, /* @__PURE__ */ import_react86.default.createElement("span", { className: "text-underline" }, " Catch up"), " to start editing.")))
     );
   };
   var CatchUpPopup_default = FastForwardPopup;
 
   // src/components/elements/ErrorBoundary.tsx
-  var import_react88 = __toESM(require_react());
-  var ErrorBoundary = class extends import_react88.Component {
+  var import_react87 = __toESM(require_react());
+  var ErrorBoundary = class extends import_react87.Component {
     constructor() {
       super(...arguments);
       this.state = {
@@ -31935,7 +31905,7 @@ ${finalCode}`;
     }
     render() {
       if (this.state.hasError) {
-        return /* @__PURE__ */ import_react88.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react88.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
+        return /* @__PURE__ */ import_react87.default.createElement("p", { className: "text-body-1 text-color-red p-10px" }, "Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our ", /* @__PURE__ */ import_react87.default.createElement("a", { className: "text-body-1-link", href: DISCORD_INVITE_LINK, target: "_blank", rel: "noreferrer" }, "Discord"), " for support if this error occurs again.");
       }
       return this.props.children;
     }
@@ -31943,38 +31913,38 @@ ${finalCode}`;
   var ErrorBoundary_default = ErrorBoundary;
 
   // src/components/footer/Footer.tsx
-  var import_react96 = __toESM(require_react());
+  var import_react95 = __toESM(require_react());
 
   // src/components/footer/SheetTab.tsx
-  var import_react94 = __toESM(require_react());
+  var import_react93 = __toESM(require_react());
 
   // src/components/icons/SelectedSheetTabDropdownIcon.tsx
-  var import_react89 = __toESM(require_react());
+  var import_react88 = __toESM(require_react());
   var SelectedSheetTabDropdownIcon = () => {
-    return /* @__PURE__ */ import_react89.default.createElement("svg", { width: "8", height: "6", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react89.default.createElement("path", { d: "M1 1L4.00283 4L7 1", stroke: "#F2F2F2", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react88.default.createElement("svg", { width: "8", height: "6", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react88.default.createElement("path", { d: "M1 1L4.00283 4L7 1", stroke: "#F2F2F2", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var SelectedSheetTabDropdownIcon_default = SelectedSheetTabDropdownIcon;
 
   // src/components/icons/UnselectedSheetTabDropdownIcon.tsx
-  var import_react90 = __toESM(require_react());
+  var import_react89 = __toESM(require_react());
   var UnselectedSheetTabDropdownIcon = () => {
-    return /* @__PURE__ */ import_react90.default.createElement("svg", { width: "8", height: "6", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react90.default.createElement("path", { d: "M1 1L4.00283 4L7 1", stroke: "#343434", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react89.default.createElement("svg", { width: "8", height: "6", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react89.default.createElement("path", { d: "M1 1L4.00283 4L7 1", stroke: "#343434", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var UnselectedSheetTabDropdownIcon_default = UnselectedSheetTabDropdownIcon;
 
   // src/components/icons/GraphIcon.tsx
-  var import_react91 = __toESM(require_react());
+  var import_react90 = __toESM(require_react());
   var GraphIcon = (props) => {
     if (props.variant === "light") {
-      return /* @__PURE__ */ import_react91.default.createElement("svg", { width: "13", height: "15", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react91.default.createElement("path", { d: "M1 5.5874V14.3589", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M4.64453 9.67969V14.3588", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M8.28906 1V14.3588", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M11.9336 5.5874V14.3589", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }));
+      return /* @__PURE__ */ import_react90.default.createElement("svg", { width: "13", height: "15", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react90.default.createElement("path", { d: "M1 5.5874V14.3589", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M4.64453 9.67969V14.3588", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M8.28906 1V14.3588", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M11.9336 5.5874V14.3589", stroke: "white", strokeMiterlimit: "10", strokeLinecap: "round" }));
     } else {
-      return /* @__PURE__ */ import_react91.default.createElement("svg", { width: "13", height: "15", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react91.default.createElement("path", { d: "M1 5.61938V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M4.64453 9.71167V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M8.28906 1.03198V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react91.default.createElement("path", { d: "M11.9336 5.61938V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
+      return /* @__PURE__ */ import_react90.default.createElement("svg", { width: "13", height: "15", viewBox: "0 0 13 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react90.default.createElement("path", { d: "M1 5.61938V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M4.64453 9.71167V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M8.28906 1.03198V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react90.default.createElement("path", { d: "M11.9336 5.61938V14.3908", stroke: "#343434", strokeMiterlimit: "10", strokeLinecap: "round" }));
     }
   };
   var GraphIcon_default = GraphIcon;
 
   // src/components/footer/DataSheetTabActions.tsx
-  var import_react92 = __toESM(require_react());
+  var import_react91 = __toESM(require_react());
   var getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex, graphDataDict) => {
     const filteredGraphDataJSON = Object.fromEntries(Object.entries(graphDataDict || {}).filter(([, graphData]) => {
       return graphData.graphParams.graphCreation.sheet_index === sheetIndex;
@@ -31986,7 +31956,7 @@ ${finalCode}`;
   function SheetTabActions(props) {
     var _a;
     const imported = ((_a = props.sheetDataArray[props.sheetIndex]) == null ? void 0 : _a.dfSource) === "imported" /* Imported */;
-    (0, import_react92.useEffect)(() => {
+    (0, import_react91.useEffect)(() => {
       if (props.display) {
         void props.mitoAPI.log(
           "clicked_data_sheet_tab_actions",
@@ -32046,7 +32016,7 @@ ${finalCode}`;
       });
     };
     const dropdownItems = [
-      /* @__PURE__ */ import_react92.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement(
         DropdownItem_default,
         {
           key: "Create graph",
@@ -32057,7 +32027,7 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react92.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement(
         DropdownItem_default,
         {
           key: "Export",
@@ -32065,7 +32035,7 @@ ${finalCode}`;
           onClick: openDownloadTaskpane
         }
       ),
-      imported ? /* @__PURE__ */ import_react92.default.createElement(DropdownItem_default, { key: "Change Import", title: "Change Import", onClick: () => {
+      imported ? /* @__PURE__ */ import_react91.default.createElement(DropdownItem_default, { key: "Change Import", title: "Change Import", onClick: () => {
         props.closeOpenEditingPopups();
         props.setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
@@ -32075,8 +32045,8 @@ ${finalCode}`;
           });
         });
       } }) : void 0,
-      /* @__PURE__ */ import_react92.default.createElement(DropdownSectionSeperator_default, { key: "sep", isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react92.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement(DropdownSectionSeperator_default, { key: "sep", isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react91.default.createElement(
         DropdownItem_default,
         {
           key: "Duplicate",
@@ -32084,7 +32054,7 @@ ${finalCode}`;
           onClick: onDuplicate
         }
       ),
-      /* @__PURE__ */ import_react92.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement(
         DropdownItem_default,
         {
           key: "Rename",
@@ -32093,7 +32063,7 @@ ${finalCode}`;
           supressFocusSettingOnClose: true
         }
       ),
-      /* @__PURE__ */ import_react92.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement(
         DropdownItem_default,
         {
           key: "Delete",
@@ -32105,7 +32075,7 @@ ${finalCode}`;
         }
       )
     ].filter((element) => element !== null && element !== void 0);
-    return /* @__PURE__ */ import_react92.default.createElement(
+    return /* @__PURE__ */ import_react91.default.createElement(
       Dropdown_default,
       {
         display: props.display,
@@ -32117,9 +32087,9 @@ ${finalCode}`;
   }
 
   // src/components/footer/GraphSheetTabActions.tsx
-  var import_react93 = __toESM(require_react());
+  var import_react92 = __toESM(require_react());
   function GraphSheetTabActions(props) {
-    (0, import_react93.useEffect)(() => {
+    (0, import_react92.useEffect)(() => {
       if (props.display) {
         void props.mitoAPI.log(
           "clicked_graph_sheet_tab_actions",
@@ -32152,14 +32122,14 @@ ${finalCode}`;
         });
       });
     };
-    return /* @__PURE__ */ import_react93.default.createElement(
+    return /* @__PURE__ */ import_react92.default.createElement(
       Dropdown_default,
       {
         display: props.display,
         closeDropdown: () => props.setDisplayActions(false),
         width: "small"
       },
-      /* @__PURE__ */ import_react93.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement(
         DropdownItem_default,
         {
           title: "Export",
@@ -32169,15 +32139,15 @@ ${finalCode}`;
           }
         }
       ),
-      /* @__PURE__ */ import_react93.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
-      /* @__PURE__ */ import_react93.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement(DropdownSectionSeperator_default, { isDropdownSectionSeperator: true }),
+      /* @__PURE__ */ import_react92.default.createElement(
         DropdownItem_default,
         {
           title: "Duplicate",
           onClick: onDuplicate
         }
       ),
-      /* @__PURE__ */ import_react93.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement(
         DropdownItem_default,
         {
           title: "Rename",
@@ -32185,7 +32155,7 @@ ${finalCode}`;
           supressFocusSettingOnClose: true
         }
       ),
-      /* @__PURE__ */ import_react93.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement(
         DropdownItem_default,
         {
           title: "Delete",
@@ -32229,11 +32199,11 @@ ${finalCode}`;
     }
   };
   function SheetTab(props) {
-    const openDropdownDivRef = (0, import_react94.useRef)(null);
-    const [displayActions, setDisplayActions] = (0, import_react94.useState)(false);
-    const [isRename, setIsRename] = (0, import_react94.useState)(false);
-    const [newTabName, setNewTabName] = (0, import_react94.useState)(props.tabName);
-    (0, import_react94.useEffect)(() => {
+    const openDropdownDivRef = (0, import_react93.useRef)(null);
+    const [displayActions, setDisplayActions] = (0, import_react93.useState)(false);
+    const [isRename, setIsRename] = (0, import_react93.useState)(false);
+    const [newTabName, setNewTabName] = (0, import_react93.useState)(props.tabName);
+    (0, import_react93.useEffect)(() => {
       setNewTabName(props.tabName);
     }, [props.tabName]);
     const onRename = async () => {
@@ -32255,7 +32225,7 @@ ${finalCode}`;
       const endoGridContainer = (_a = props.mitoContainerRef.current) == null ? void 0 : _a.querySelector(".endo-grid-container");
       focusGrid(endoGridContainer);
     };
-    return /* @__PURE__ */ import_react94.default.createElement(
+    return /* @__PURE__ */ import_react93.default.createElement(
       "div",
       {
         className: classNames("tab", { "tab-graph": props.tabIDObj.tabType === "graph" }, { "tab-selected": props.isSelectedTab }, "cursor-pointer"),
@@ -32293,7 +32263,7 @@ ${finalCode}`;
           (_a = openDropdownDivRef.current) == null ? void 0 : _a.click();
         }
       },
-      /* @__PURE__ */ import_react94.default.createElement("div", { className: "tab-content" }, props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react94.default.createElement("div", { className: "mr-3px" }, /* @__PURE__ */ import_react94.default.createElement(GraphIcon_default, { variant: props.isSelectedTab ? "light" : void 0 })), isRename && /* @__PURE__ */ import_react94.default.createElement(
+      /* @__PURE__ */ import_react93.default.createElement("div", { className: "tab-content" }, props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react93.default.createElement("div", { className: "mr-3px" }, /* @__PURE__ */ import_react93.default.createElement(GraphIcon_default, { variant: props.isSelectedTab ? "light" : void 0 })), isRename && /* @__PURE__ */ import_react93.default.createElement(
         "form",
         {
           onSubmit: async (e) => {
@@ -32302,7 +32272,7 @@ ${finalCode}`;
           },
           onBlur: onRename
         },
-        /* @__PURE__ */ import_react94.default.createElement(
+        /* @__PURE__ */ import_react93.default.createElement(
           Input_default,
           {
             value: newTabName,
@@ -32316,7 +32286,7 @@ ${finalCode}`;
             }
           }
         )
-      ), !isRename && /* @__PURE__ */ import_react94.default.createElement("p", null, props.tabName), /* @__PURE__ */ import_react94.default.createElement(
+      ), !isRename && /* @__PURE__ */ import_react93.default.createElement("p", null, props.tabName), /* @__PURE__ */ import_react93.default.createElement(
         "div",
         {
           ref: openDropdownDivRef,
@@ -32325,9 +32295,9 @@ ${finalCode}`;
             setDisplayActions(true);
           }
         },
-        props.isSelectedTab ? /* @__PURE__ */ import_react94.default.createElement(SelectedSheetTabDropdownIcon_default, null) : /* @__PURE__ */ import_react94.default.createElement(UnselectedSheetTabDropdownIcon_default, null)
+        props.isSelectedTab ? /* @__PURE__ */ import_react93.default.createElement(SelectedSheetTabDropdownIcon_default, null) : /* @__PURE__ */ import_react93.default.createElement(UnselectedSheetTabDropdownIcon_default, null)
       )),
-      props.tabIDObj.tabType === "data" && /* @__PURE__ */ import_react94.default.createElement(
+      props.tabIDObj.tabType === "data" && /* @__PURE__ */ import_react93.default.createElement(
         SheetTabActions,
         {
           setDisplayActions,
@@ -32341,7 +32311,7 @@ ${finalCode}`;
           display: displayActions && props.tabIDObj.tabType === "data"
         }
       ),
-      props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react94.default.createElement(
+      props.tabIDObj.tabType === "graph" && /* @__PURE__ */ import_react93.default.createElement(
         GraphSheetTabActions,
         {
           setDisplayActions,
@@ -32358,9 +32328,9 @@ ${finalCode}`;
   }
 
   // src/components/icons/PlusIcon.tsx
-  var import_react95 = __toESM(require_react());
+  var import_react94 = __toESM(require_react());
   var PlusIcon = () => {
-    return /* @__PURE__ */ import_react95.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react95.default.createElement("path", { d: "M7.0498 1.66016V13.7602", stroke: "#494650", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react95.default.createElement("path", { d: "M13.1 7.71008H1", stroke: "#494650", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
+    return /* @__PURE__ */ import_react94.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 15 15", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react94.default.createElement("path", { d: "M7.0498 1.66016V13.7602", stroke: "#494650", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }), /* @__PURE__ */ import_react94.default.createElement("path", { d: "M13.1 7.71008H1", stroke: "#494650", strokeWidth: "2", strokeMiterlimit: "10", strokeLinecap: "round" }));
   };
   var PlusIcon_default = PlusIcon;
 
@@ -32372,7 +32342,7 @@ ${finalCode}`;
     const sheetIndex = selectedTabType === "graph" && selectedGraphID !== void 0 && props.graphDataDict[selectedGraphID] !== void 0 ? props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex;
     const sheetData = props.sheetDataArray[sheetIndex];
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0;
-    return /* @__PURE__ */ import_react96.default.createElement("div", { className: "footer" }, /* @__PURE__ */ import_react96.default.createElement(
+    return /* @__PURE__ */ import_react95.default.createElement("div", { className: "footer" }, /* @__PURE__ */ import_react95.default.createElement(
       "div",
       {
         className: classNames("footer-add-button", "cursor-pointer"),
@@ -32387,9 +32357,9 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react96.default.createElement(PlusIcon_default, null)
-    ), /* @__PURE__ */ import_react96.default.createElement("div", { className: "footer-tab-bar scrollbar-gutter" }, props.sheetDataArray.map((df) => df.dfName).map((dfName, idx) => {
-      return /* @__PURE__ */ import_react96.default.createElement(
+      /* @__PURE__ */ import_react95.default.createElement(PlusIcon_default, null)
+    ), /* @__PURE__ */ import_react95.default.createElement("div", { className: "footer-tab-bar scrollbar-gutter" }, props.sheetDataArray.map((df) => df.dfName).map((dfName, idx) => {
+      return /* @__PURE__ */ import_react95.default.createElement(
         SheetTab,
         {
           key: idx,
@@ -32406,7 +32376,7 @@ ${finalCode}`;
         }
       );
     }), Object.entries(props.graphDataDict || {}).map(([graphID, graphData]) => {
-      return /* @__PURE__ */ import_react96.default.createElement(
+      return /* @__PURE__ */ import_react95.default.createElement(
         SheetTab,
         {
           key: graphID,
@@ -32422,19 +32392,19 @@ ${finalCode}`;
           setEditorState: props.setEditorState
         }
       );
-    })), sheetData !== void 0 && /* @__PURE__ */ import_react96.default.createElement("div", { className: "footer-right-side" }, /* @__PURE__ */ import_react96.default.createElement("div", { className: "footer-sheet-shape" }, "(", sheetData.numRows, " rows, ", sheetData.numColumns, " cols)")));
+    })), sheetData !== void 0 && /* @__PURE__ */ import_react95.default.createElement("div", { className: "footer-right-side" }, /* @__PURE__ */ import_react95.default.createElement("div", { className: "footer-sheet-shape" }, "(", sheetData.numRows, " rows, ", sheetData.numColumns, " cols)")));
   }
   var Footer_default = Footer;
 
   // src/components/modals/ClearAnalysisModal.tsx
-  var import_react98 = __toESM(require_react());
+  var import_react97 = __toESM(require_react());
 
   // src/components/DefaultModal.tsx
-  var import_react97 = __toESM(require_react());
+  var import_react96 = __toESM(require_react());
   var DefaultModal = (props) => {
     const headerColor = props.modalType === "Error" /* Error */ ? "#ED4747" : "#343434";
     const displayOverlay = props.overlay !== void 0 && props.overlay;
-    return /* @__PURE__ */ import_react97.default.createElement("div", { className: classNames({ "mito-modal-container": !displayOverlay }, { "overlay": displayOverlay }) }, /* @__PURE__ */ import_react97.default.createElement("div", { className: classNames({ "mito-modal-container": displayOverlay }) }, /* @__PURE__ */ import_react97.default.createElement("div", { className: classNames("mito-modal", { "modal-wide": props.wide }) }, props.setUIState !== void 0 && /* @__PURE__ */ import_react97.default.createElement(Row_default, { justify: "end" }, /* @__PURE__ */ import_react97.default.createElement(Col_default, { offsetRight: 0.25 }, /* @__PURE__ */ import_react97.default.createElement(
+    return /* @__PURE__ */ import_react96.default.createElement("div", { className: classNames({ "mito-modal-container": !displayOverlay }, { "overlay": displayOverlay }) }, /* @__PURE__ */ import_react96.default.createElement("div", { className: classNames({ "mito-modal-container": displayOverlay }) }, /* @__PURE__ */ import_react96.default.createElement("div", { className: classNames("mito-modal", { "modal-wide": props.wide }) }, props.setUIState !== void 0 && /* @__PURE__ */ import_react96.default.createElement(Row_default, { justify: "end" }, /* @__PURE__ */ import_react96.default.createElement(Col_default, { offsetRight: 0.25 }, /* @__PURE__ */ import_react96.default.createElement(
       "div",
       {
         className: "default-taskpane-header-exit-button-div",
@@ -32448,14 +32418,14 @@ ${finalCode}`;
           }
         }
       },
-      /* @__PURE__ */ import_react97.default.createElement(XIcon_default, null)
-    ))), /* @__PURE__ */ import_react97.default.createElement("div", { className: classNames("mito-modal-header-text-div", { "mt-25px": props.setUIState === void 0 }), style: { color: headerColor } }, /* @__PURE__ */ import_react97.default.createElement("p", { className: "text-align-center-important" }, props.header)), props.viewComponent && /* @__PURE__ */ import_react97.default.createElement("div", { className: "mito-modal-message" }, props.viewComponent), /* @__PURE__ */ import_react97.default.createElement("div", { className: "mito-modal-buttons" }, props.buttons))));
+      /* @__PURE__ */ import_react96.default.createElement(XIcon_default, null)
+    ))), /* @__PURE__ */ import_react96.default.createElement("div", { className: classNames("mito-modal-header-text-div", { "mt-25px": props.setUIState === void 0 }), style: { color: headerColor } }, /* @__PURE__ */ import_react96.default.createElement("p", { className: "text-align-center-important" }, props.header)), props.viewComponent && /* @__PURE__ */ import_react96.default.createElement("div", { className: "mito-modal-message" }, props.viewComponent), /* @__PURE__ */ import_react96.default.createElement("div", { className: "mito-modal-buttons" }, props.buttons))));
   };
   var DefaultModal_default = DefaultModal;
 
   // src/components/modals/ClearAnalysisModal.tsx
   var ClearAnalysisModal = (props) => {
-    (0, import_react98.useEffect)(() => {
+    (0, import_react97.useEffect)(() => {
       void props.mitoAPI.log("click_open_clear_analysis");
     }, []);
     const clickClear = async () => {
@@ -32466,13 +32436,13 @@ ${finalCode}`;
         });
       });
     };
-    return /* @__PURE__ */ import_react98.default.createElement(
+    return /* @__PURE__ */ import_react97.default.createElement(
       DefaultModal_default,
       {
         header: `Clear your current analysis?`,
         modalType: "ClearAnalysis" /* ClearAnalysis */,
-        viewComponent: /* @__PURE__ */ import_react98.default.createElement(import_react98.default.Fragment, null, /* @__PURE__ */ import_react98.default.createElement("p", { className: "body-text-1" }, "This will undo all transformations and you've made to imported dataframes and delete all of the graphs you've created.")),
-        buttons: /* @__PURE__ */ import_react98.default.createElement(import_react98.default.Fragment, null, /* @__PURE__ */ import_react98.default.createElement(
+        viewComponent: /* @__PURE__ */ import_react97.default.createElement(import_react97.default.Fragment, null, /* @__PURE__ */ import_react97.default.createElement("p", { className: "body-text-1" }, "This will undo all transformations and you've made to imported dataframes and delete all of the graphs you've created.")),
+        buttons: /* @__PURE__ */ import_react97.default.createElement(import_react97.default.Fragment, null, /* @__PURE__ */ import_react97.default.createElement(
           TextButton_default,
           {
             variant: "light",
@@ -32486,7 +32456,7 @@ ${finalCode}`;
             }
           },
           "Close"
-        ), /* @__PURE__ */ import_react98.default.createElement(
+        ), /* @__PURE__ */ import_react97.default.createElement(
           TextButton_default,
           {
             variant: "dark",
@@ -32501,7 +32471,7 @@ ${finalCode}`;
   var ClearAnalysisModal_default = ClearAnalysisModal;
 
   // src/components/modals/DeleteGraphsModal.tsx
-  var import_react99 = __toESM(require_react());
+  var import_react98 = __toESM(require_react());
   var DeleteGraphsModal = (props) => {
     const graphIDs = props.dependantGraphTabNamesAndIDs.map((graphTabNameAndID) => {
       return graphTabNameAndID.graphID;
@@ -32523,13 +32493,13 @@ ${finalCode}`;
         });
       });
     };
-    return /* @__PURE__ */ import_react99.default.createElement(
+    return /* @__PURE__ */ import_react98.default.createElement(
       DefaultModal_default,
       {
         header: `Delete Sheet and Dependant Graphs`,
         modalType: "ClearAnalysis" /* ClearAnalysis */,
-        viewComponent: /* @__PURE__ */ import_react99.default.createElement(import_react99.default.Fragment, null, /* @__PURE__ */ import_react99.default.createElement("p", { className: "body-text-1" }, "Deleting ", props.dfName, " will delete the following graphs that rely on it:\xA0", /* @__PURE__ */ import_react99.default.createElement("span", { className: "text-color-mito-purple-important" }, graphTabNames.join(", ")))),
-        buttons: /* @__PURE__ */ import_react99.default.createElement(import_react99.default.Fragment, null, /* @__PURE__ */ import_react99.default.createElement(
+        viewComponent: /* @__PURE__ */ import_react98.default.createElement(import_react98.default.Fragment, null, /* @__PURE__ */ import_react98.default.createElement("p", { className: "body-text-1" }, "Deleting ", props.dfName, " will delete the following graphs that rely on it:\xA0", /* @__PURE__ */ import_react98.default.createElement("span", { className: "text-color-mito-purple-important" }, graphTabNames.join(", ")))),
+        buttons: /* @__PURE__ */ import_react98.default.createElement(import_react98.default.Fragment, null, /* @__PURE__ */ import_react98.default.createElement(
           TextButton_default,
           {
             variant: "light",
@@ -32543,7 +32513,7 @@ ${finalCode}`;
             }
           },
           "Close"
-        ), /* @__PURE__ */ import_react99.default.createElement(
+        ), /* @__PURE__ */ import_react98.default.createElement(
           TextButton_default,
           {
             variant: "dark",
@@ -32558,20 +32528,20 @@ ${finalCode}`;
   var DeleteGraphsModal_default = DeleteGraphsModal;
 
   // src/components/modals/ErrorModal.tsx
-  var import_react100 = __toESM(require_react());
+  var import_react99 = __toESM(require_react());
   var ErrorModal = (props) => {
-    const [viewTraceback, setViewTraceback] = (0, import_react100.useState)(false);
+    const [viewTraceback, setViewTraceback] = (0, import_react99.useState)(false);
     if (props.error === void 0) {
-      return /* @__PURE__ */ import_react100.default.createElement(import_react100.default.Fragment, null);
+      return /* @__PURE__ */ import_react99.default.createElement(import_react99.default.Fragment, null);
     }
-    return /* @__PURE__ */ import_react100.default.createElement(
+    return /* @__PURE__ */ import_react99.default.createElement(
       DefaultModal_default,
       {
         header: props.error.header,
         modalType: "Error" /* Error */,
         wide: true,
-        viewComponent: /* @__PURE__ */ import_react100.default.createElement(import_react100.Fragment, null, props.error.to_fix && /* @__PURE__ */ import_react100.default.createElement("div", { className: "text-align-left text-body-1", onClick: () => setViewTraceback((viewTraceback2) => !viewTraceback2) }, props.error.to_fix, " ", " ", props.error.traceback && /* @__PURE__ */ import_react100.default.createElement("span", { className: "text-body-1-link" }, "Click to view full traceback.")), props.error.traceback && viewTraceback && /* @__PURE__ */ import_react100.default.createElement("div", { className: "flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px", style: { height: "200px", border: "1px solid var(--mito-purple)", borderRadius: "2px", padding: "5px" } }, /* @__PURE__ */ import_react100.default.createElement("pre", null, props.error.traceback))),
-        buttons: /* @__PURE__ */ import_react100.default.createElement(import_react100.Fragment, null, /* @__PURE__ */ import_react100.default.createElement(
+        viewComponent: /* @__PURE__ */ import_react99.default.createElement(import_react99.Fragment, null, props.error.to_fix && /* @__PURE__ */ import_react99.default.createElement("div", { className: "text-align-left text-body-1", onClick: () => setViewTraceback((viewTraceback2) => !viewTraceback2) }, props.error.to_fix, " ", " ", props.error.traceback && /* @__PURE__ */ import_react99.default.createElement("span", { className: "text-body-1-link" }, "Click to view full traceback.")), props.error.traceback && viewTraceback && /* @__PURE__ */ import_react99.default.createElement("div", { className: "flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px", style: { height: "200px", border: "1px solid var(--mito-purple)", borderRadius: "2px", padding: "5px" } }, /* @__PURE__ */ import_react99.default.createElement("pre", null, props.error.traceback))),
+        buttons: /* @__PURE__ */ import_react99.default.createElement(import_react99.Fragment, null, /* @__PURE__ */ import_react99.default.createElement(
           TextButton_default,
           {
             variant: "light",
@@ -32585,7 +32555,7 @@ ${finalCode}`;
             }
           },
           "Close"
-        ), /* @__PURE__ */ import_react100.default.createElement(
+        ), /* @__PURE__ */ import_react99.default.createElement(
           GetSupportButton_default,
           {
             userProfile: props.userProfile,
@@ -32599,25 +32569,25 @@ ${finalCode}`;
   var ErrorModal_default = ErrorModal;
 
   // src/components/modals/ReplayAnalysisModals.tsx
-  var import_react101 = __toESM(require_react());
+  var import_react100 = __toESM(require_react());
   var ErrorReplayedAnalysisModal = (props) => {
     var _a, _b;
-    const [viewTraceback, setViewTraceback] = (0, import_react101.useState)(false);
-    return /* @__PURE__ */ import_react101.default.createElement(
+    const [viewTraceback, setViewTraceback] = (0, import_react100.useState)(false);
+    return /* @__PURE__ */ import_react100.default.createElement(
       DefaultModal_default,
       {
         header: props.header,
         modalType: "Error" /* Error */,
         wide: true,
-        viewComponent: /* @__PURE__ */ import_react101.default.createElement(import_react101.Fragment, null, /* @__PURE__ */ import_react101.default.createElement("div", { className: "text-align-left text-body-1", onClick: () => setViewTraceback((viewTraceback2) => !viewTraceback2) }, props.message, " ", " ", ((_a = props.error) == null ? void 0 : _a.traceback) && /* @__PURE__ */ import_react101.default.createElement("span", { className: "text-body-1-link" }, "Click to view full traceback.")), ((_b = props.error) == null ? void 0 : _b.traceback) && viewTraceback && /* @__PURE__ */ import_react101.default.createElement("div", { className: "flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px", style: { height: "200px", border: "1px solid var(--mito-purple)", borderRadius: "2px", padding: "5px" } }, /* @__PURE__ */ import_react101.default.createElement("pre", null, props.error.traceback))),
-        buttons: /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, /* @__PURE__ */ import_react101.default.createElement(
+        viewComponent: /* @__PURE__ */ import_react100.default.createElement(import_react100.Fragment, null, /* @__PURE__ */ import_react100.default.createElement("div", { className: "text-align-left text-body-1", onClick: () => setViewTraceback((viewTraceback2) => !viewTraceback2) }, props.message, " ", " ", ((_a = props.error) == null ? void 0 : _a.traceback) && /* @__PURE__ */ import_react100.default.createElement("span", { className: "text-body-1-link" }, "Click to view full traceback.")), ((_b = props.error) == null ? void 0 : _b.traceback) && viewTraceback && /* @__PURE__ */ import_react100.default.createElement("div", { className: "flex flex-column text-align-left text-overflow-hidden text-overflow-scroll mt-5px", style: { height: "200px", border: "1px solid var(--mito-purple)", borderRadius: "2px", padding: "5px" } }, /* @__PURE__ */ import_react100.default.createElement("pre", null, props.error.traceback))),
+        buttons: /* @__PURE__ */ import_react100.default.createElement(import_react100.default.Fragment, null, /* @__PURE__ */ import_react100.default.createElement(
           GetSupportButton_default,
           {
             userProfile: props.userProfile,
             setUIState: props.setUIState,
             mitoAPI: props.mitoAPI
           }
-        ), /* @__PURE__ */ import_react101.default.createElement(
+        ), /* @__PURE__ */ import_react100.default.createElement(
           TextButton_default,
           {
             variant: "dark",
@@ -32643,7 +32613,7 @@ ${finalCode}`;
   var ReplayAnalysisModals_default = ErrorReplayedAnalysisModal;
 
   // src/components/modals/SignupModal.tsx
-  var import_react105 = __toESM(require_react());
+  var import_react104 = __toESM(require_react());
 
   // src/components/icons/mitofolks/BlueMitoFolk.tsx
   var React98 = __toESM(require_react());
@@ -33104,16 +33074,16 @@ ${finalCode}`;
   var BlueMitoFolk_default = BlueMitoFolk;
 
   // src/components/icons/mitofolks/PinkMitoFolk.tsx
-  var import_react102 = __toESM(require_react());
+  var import_react101 = __toESM(require_react());
   var PinkMitoFolk = () => {
-    return /* @__PURE__ */ import_react102.default.createElement("svg", { style: { transform: "scaleX(-1)", "margin": "75px 50px" }, width: "200", height: "200", viewBox: "0 0 139 152", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2.5", x2: "44.7223", y2: "-2.5", transform: "matrix(0.282454 0.959281 0.969447 -0.245301 108.706 62.2981)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2.5", x2: "37.8202", y2: "-2.5", transform: "matrix(0.30917 0.951007 0.96312 -0.269071 94.2115 113.51)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2.5", x2: "42.026", y2: "-2.5", transform: "matrix(-0.404697 0.914451 0.934686 0.355474 60.7272 113.51)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", fill: "#00090F" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react102.default.createElement("path", { d: "M50.5827 58.6809C49.5253 76.7216 43.3703 91.6895 52.5089 104.85C63.4182 116.939 80.8842 118.6 95.8988 113.127C112.216 103.39 113.383 53.7942 101 35.9614C92.7473 2.53842 21.7073 0.0230777 50.5827 58.6809Z", fill: "#FFEBEB" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.5237 116.675 80.8393 118.347 95.7767 112.909C99.7734 110.514 102.875 105.657 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C54.402 14.2799 48.056 18.3727 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter1_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "26.0263", y2: "-0.125", transform: "matrix(-1.00036 -0.232717 -0.303964 0.923249 90.9426 103.996)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter2_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 92.4263 92.9282)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter3_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 91.7477 81.6816)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter4_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 91.4735 70.5457)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter5_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "49.6473", y2: "-0.125", transform: "matrix(-0.056611 -0.972639 -1.01868 0.0895582 85.7439 108.932)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter6_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "49.0215", y2: "-0.125", transform: "matrix(-0.0447349 -0.972962 -1.01982 0.0794914 74.2345 109.899)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M77.5748 21.6128C81.1721 21.0053 83.1051 22.723 84.446 24.1319C83.5748 25.0968 81.2156 27.1306 78.7489 27.5472C76.2822 27.9638 72.8613 27.3151 71.5987 26.3018C72.2742 24.3479 74.1847 22.1854 77.5748 21.6128Z", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M77.1438 24.7826C77.2286 25.211 77.6735 25.4954 78.138 25.417C78.6025 25.3385 78.9097 24.9272 78.8249 24.4987C78.7401 24.0703 78.2952 23.7859 77.8307 23.8643C77.3662 23.9428 77.059 24.3541 77.1438 24.7826Z", stroke: "black", strokeWidth: "1.5" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M56.7304 23.0188C60.3276 22.4113 62.2607 24.129 63.6015 25.5379C62.7303 26.5028 60.3711 28.5366 57.9044 28.9532C55.4378 29.3698 52.0168 28.7211 50.7542 27.7078C51.4297 25.7539 53.3402 23.5914 56.7304 23.0188Z", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M56.2062 26.2049C56.291 26.6334 56.7359 26.9177 57.2004 26.8393C57.6649 26.7609 57.9721 26.3496 57.8873 25.9211C57.8025 25.4926 57.3576 25.2083 56.8931 25.2867C56.4286 25.3651 56.1214 25.7765 56.2062 26.2049Z", stroke: "black", strokeWidth: "1.5" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M70.9027 31.9832L74.8034 33.746L74.6873 36.5264", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("ellipse", { rx: "5.52852", ry: "7.22499", transform: "matrix(-1.00798 0.230879 0.25069 0.931832 78.3648 46.1813)", fill: "#0B0B0B" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2.5", x2: "46.79", y2: "-2.5", transform: "matrix(0.181746 -0.947707 -1.01992 -0.168086 34.7046 107.134)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("defs", null, /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter0_d", x: "39.718", y: "12.3701", width: "73.6225", height: "111.741", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter1_d", x: "60.907", y: "97.7083", width: "34.1116", height: "14.2876", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter2_d", x: "61.8538", y: "86.2905", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter3_d", x: "61.1752", y: "75.0439", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter4_d", x: "60.901", y: "63.908", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter5_d", x: "78.9333", y: "60.6208", width: "11.0653", height: "56.3113", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter6_d", x: "68.0415", y: "62.1831", width: "10.4479", height: "55.716", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("linearGradient", { id: "paint0_linear", x1: "25.393", y1: "64.5732", x2: "215.189", y2: "46.963", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react102.default.createElement("stop", { stopColor: "#D17485" }), /* @__PURE__ */ import_react102.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
+    return /* @__PURE__ */ import_react101.default.createElement("svg", { style: { transform: "scaleX(-1)", "margin": "75px 50px" }, width: "200", height: "200", viewBox: "0 0 139 152", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-2.5", x2: "44.7223", y2: "-2.5", transform: "matrix(0.282454 0.959281 0.969447 -0.245301 108.706 62.2981)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-2.5", x2: "37.8202", y2: "-2.5", transform: "matrix(0.30917 0.951007 0.96312 -0.269071 94.2115 113.51)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-2.5", x2: "42.026", y2: "-2.5", transform: "matrix(-0.404697 0.914451 0.934686 0.355474 60.7272 113.51)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", fill: "#00090F" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M97.8672 111.365C100.871 108.702 103.275 104.518 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C57.7945 13.7155 54.0217 15.2578 51.0118 17.7322C55.1783 16.0594 59.747 15.1514 64.3541 14.9237C73.2372 14.4847 82.2938 16.5731 88.9362 20.6196C95.5578 24.6534 99.8036 30.6525 99.0257 38.0331C102.249 42.7078 104.564 49.1922 105.982 56.4278C107.408 63.705 107.929 71.7591 107.544 79.5305C107.159 87.301 105.867 94.7978 103.661 100.958C102.162 105.146 100.234 108.733 97.8672 111.365ZM95.2952 113.082C98.6041 110.526 101.236 106.2 103.172 100.792C105.359 94.6841 106.645 87.2331 107.029 79.4942C107.413 71.7562 106.893 63.7394 105.475 56.5022C104.057 49.2615 101.741 42.8184 98.5454 38.2157L98.4942 38.142L98.5037 38.0558C99.2981 30.8695 95.1951 25.0019 88.6645 21.0235C82.1291 17.0422 73.1858 14.9727 64.3958 15.4071C59.3271 15.6576 54.3197 16.74 49.8606 18.7609C47.927 20.6396 46.3826 22.9672 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.4077 116.547 80.4686 118.31 95.2952 113.082ZM62.8353 115.579C73.9568 118.589 85.8248 118.727 93.7629 114.109C79.2069 118.663 62.7794 116.601 52.3142 105.004L52.3034 104.991L52.2942 104.978C47.6798 98.333 46.9349 91.2383 47.4651 83.573C47.71 80.0323 48.2278 76.3618 48.7647 72.5552C48.8087 72.2433 48.8528 71.9304 48.8969 71.6166C49.4773 67.4894 50.0564 63.1995 50.3218 58.7213C43.1139 44.0566 42.1191 33.1641 44.874 25.6005C45.7514 23.1915 47.0073 21.1253 48.5583 19.3861C45.7969 20.7884 43.2762 22.5738 41.1213 24.7697C35.2478 30.755 32.0615 39.8204 34.1633 52.5799C35.0021 56.12 34.973 60.0019 34.6133 64.0333C34.3912 66.5219 34.0413 69.0827 33.6891 71.6598C33.4713 73.2535 33.2526 74.8536 33.0628 76.4467C32.0655 84.8179 31.8563 93.0672 36.5571 99.8369C41.2648 106.617 51.622 112.545 62.8353 115.579Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react101.default.createElement("path", { d: "M50.5827 58.6809C49.5253 76.7216 43.3703 91.6895 52.5089 104.85C63.4182 116.939 80.8842 118.6 95.8988 113.127C112.216 103.39 113.383 53.7942 101 35.9614C92.7473 2.53842 21.7073 0.0230777 50.5827 58.6809Z", fill: "#FFEBEB" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M50.8161 58.5846L50.8436 58.6404L50.84 58.7011C50.5751 63.2213 49.9909 67.5476 49.408 71.6934C49.364 72.0063 49.32 72.3181 49.2762 72.6289C48.7387 76.4394 48.2232 80.0942 47.9795 83.618C47.4528 91.2319 48.1984 98.1972 52.7144 104.709C63.5237 116.675 80.8393 118.347 95.7767 112.909C99.7734 110.514 102.875 105.657 105.076 99.388C107.277 93.1163 108.563 85.4693 108.954 77.5619C109.345 69.6555 108.841 61.498 107.468 54.208C106.094 46.9136 103.853 40.5075 100.785 36.0895L100.76 36.0525L100.749 36.0097C98.7055 27.7331 92.7735 21.362 85.4555 17.3707C78.1349 13.3779 69.4458 11.7774 61.9203 13.0292C54.402 14.2799 48.056 18.3727 45.3622 25.7687C42.6639 33.177 43.6113 43.9486 50.8161 58.5846Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter1_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "26.0263", y2: "-0.125", transform: "matrix(-1.00036 -0.232717 -0.303964 0.923249 90.9426 103.996)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter2_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 92.4263 92.9282)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter3_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 91.7477 81.6816)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter4_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "26.6148", y2: "-0.125", transform: "matrix(-0.998412 -0.240755 -0.312384 0.920564 91.4735 70.5457)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter5_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "49.6473", y2: "-0.125", transform: "matrix(-0.056611 -0.972639 -1.01868 0.0895582 85.7439 108.932)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("g", { filter: "url(#filter6_d)" }, /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-0.125", x2: "49.0215", y2: "-0.125", transform: "matrix(-0.0447349 -0.972962 -1.01982 0.0794914 74.2345 109.899)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M77.5748 21.6128C81.1721 21.0053 83.1051 22.723 84.446 24.1319C83.5748 25.0968 81.2156 27.1306 78.7489 27.5472C76.2822 27.9638 72.8613 27.3151 71.5987 26.3018C72.2742 24.3479 74.1847 22.1854 77.5748 21.6128Z", stroke: "black" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M77.1438 24.7826C77.2286 25.211 77.6735 25.4954 78.138 25.417C78.6025 25.3385 78.9097 24.9272 78.8249 24.4987C78.7401 24.0703 78.2952 23.7859 77.8307 23.8643C77.3662 23.9428 77.059 24.3541 77.1438 24.7826Z", stroke: "black", strokeWidth: "1.5" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M56.7304 23.0188C60.3276 22.4113 62.2607 24.129 63.6015 25.5379C62.7303 26.5028 60.3711 28.5366 57.9044 28.9532C55.4378 29.3698 52.0168 28.7211 50.7542 27.7078C51.4297 25.7539 53.3402 23.5914 56.7304 23.0188Z", stroke: "black" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M56.2062 26.2049C56.291 26.6334 56.7359 26.9177 57.2004 26.8393C57.6649 26.7609 57.9721 26.3496 57.8873 25.9211C57.8025 25.4926 57.3576 25.2083 56.8931 25.2867C56.4286 25.3651 56.1214 25.7765 56.2062 26.2049Z", stroke: "black", strokeWidth: "1.5" }), /* @__PURE__ */ import_react101.default.createElement("path", { d: "M70.9027 31.9832L74.8034 33.746L74.6873 36.5264", stroke: "black" }), /* @__PURE__ */ import_react101.default.createElement("ellipse", { rx: "5.52852", ry: "7.22499", transform: "matrix(-1.00798 0.230879 0.25069 0.931832 78.3648 46.1813)", fill: "#0B0B0B" }), /* @__PURE__ */ import_react101.default.createElement("line", { y1: "-2.5", x2: "46.79", y2: "-2.5", transform: "matrix(0.181746 -0.947707 -1.01992 -0.168086 34.7046 107.134)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react101.default.createElement("defs", null, /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter0_d", x: "39.718", y: "12.3701", width: "73.6225", height: "111.741", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter1_d", x: "60.907", y: "97.7083", width: "34.1116", height: "14.2876", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter2_d", x: "61.8538", y: "86.2905", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter3_d", x: "61.1752", y: "75.0439", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter4_d", x: "60.901", y: "63.908", width: "34.6506", height: "14.6378", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter5_d", x: "78.9333", y: "60.6208", width: "11.0653", height: "56.3113", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("filter", { id: "filter6_d", x: "68.0415", y: "62.1831", width: "10.4479", height: "55.716", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react101.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react101.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react101.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react101.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react101.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react101.default.createElement("linearGradient", { id: "paint0_linear", x1: "25.393", y1: "64.5732", x2: "215.189", y2: "46.963", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react101.default.createElement("stop", { stopColor: "#D17485" }), /* @__PURE__ */ import_react101.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
   };
   var PinkMitoFolk_default = PinkMitoFolk;
 
   // src/components/icons/mitofolks/YellowMitoFolk.tsx
-  var import_react103 = __toESM(require_react());
+  var import_react102 = __toESM(require_react());
   var YellowMitoFolk = () => {
-    return /* @__PURE__ */ import_react103.default.createElement("svg", { style: { "margin": "75px 50px" }, width: "200", height: "200", viewBox: "0 0 105 133", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-2.5", x2: "47.2325", y2: "-2.5", transform: "matrix(-0.275217 0.961382 -0.963013 -0.269454 27.7317 82.8152)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M65.2668 85.4294L72.7953 132.508", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-2", x2: "17.4186", y2: "-2", transform: "matrix(0.447771 0.889458 -0.901022 0.443341 17.3323 33.123)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", fill: "#00090F" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react103.default.createElement("path", { d: "M66.7635 47.8141C65.9014 61.8826 69.0213 73.9921 61.1912 83.4343C52.1711 91.8995 39.3291 91.7402 28.9132 86.2544C17.9362 77.3573 21.5704 38.8254 32.1802 26.0312C41.1979 0.81291 93.0476 4.74773 66.7635 47.8141Z", fill: "#FFDAAE" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9914C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.598 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.094 91.6193 39.395 91.4836 29.0537 86.0465C26.3875 83.8735 24.5781 79.8737 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C67.9675 13.14 72.1875 16.8205 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter1_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "19.8557", y2: "-0.125", transform: "matrix(0.99225 -0.137652 0.173912 0.982961 33.1741 78.5916)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter2_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146111 0.182398 0.98144 33.1637 69.7397)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter3_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146111 0.182398 0.98144 34.7578 60.917)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter4_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146112 0.182397 0.98144 36.0442 52.1494)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter5_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "38.568", y2: "-0.125", transform: "matrix(0.175504 -0.982432 0.981683 0.200291 36.5092 82.8962)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("g", { filter: "url(#filter6_d)" }, /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-0.125", x2: "38.067", y2: "-0.125", transform: "matrix(0.164387 -0.984346 0.983775 0.189794 44.8636 84.5642)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M49.2138 20.1738C46.9644 19.7261 45.7307 20.8571 44.8722 21.7876C45.407 22.4447 46.8621 23.8357 48.4045 24.1427C49.9469 24.4497 52.1011 24.0525 52.9056 23.3866C52.5057 22.068 51.3336 20.5957 49.2138 20.1738Z", stroke: "black" }), /* @__PURE__ */ import_react103.default.createElement("mask", { id: "path-14-inside-1", fill: "white" }, /* @__PURE__ */ import_react103.default.createElement("ellipse", { rx: "1.01839", ry: "1.01835", transform: "matrix(0.986125 0.196328 -0.198641 0.974457 47.6494 21.8588)" })), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M47.1744 21.7642C47.2273 21.505 47.4828 21.3372 47.7451 21.3894L47.1491 24.3128C48.5207 24.5859 49.8565 23.7086 50.1328 22.3532L47.1744 21.7642ZM47.7451 21.3894C48.0073 21.4417 48.1772 21.6941 48.1243 21.9533L45.1659 21.3644C44.8896 22.7197 45.7776 24.0398 47.1491 24.3128L47.7451 21.3894ZM48.1243 21.9533C48.0715 22.2126 47.816 22.3803 47.5537 22.3281L48.1496 19.4048C46.7781 19.1317 45.4422 20.009 45.1659 21.3644L48.1243 21.9533ZM47.5537 22.3281C47.2915 22.2759 47.1216 22.0235 47.1744 21.7642L50.1328 22.3532C50.4091 20.9978 49.5212 19.6778 48.1496 19.4048L47.5537 22.3281Z", fill: "black", mask: "url(#path-14-inside-1)" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M62.2857 21.3483C60.0364 20.9006 58.8026 22.0317 57.9441 22.9622C58.4789 23.6193 59.9341 25.0103 61.4765 25.3173C63.0189 25.6243 65.1731 25.2271 65.9776 24.5612C65.5777 23.2426 64.4056 21.7703 62.2857 21.3483Z", stroke: "black" }), /* @__PURE__ */ import_react103.default.createElement("mask", { id: "path-17-inside-2", fill: "white" }, /* @__PURE__ */ import_react103.default.createElement("ellipse", { rx: "1.01839", ry: "1.01835", transform: "matrix(0.986125 0.196328 -0.198641 0.974457 60.7213 23.0333)" })), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M60.2464 22.9388C60.2993 22.6795 60.5548 22.5118 60.817 22.564L60.2211 25.4874C61.5926 25.7604 62.9285 24.8831 63.2048 23.5278L60.2464 22.9388ZM60.817 22.564C61.0793 22.6162 61.2491 22.8686 61.1963 23.1279L58.2379 22.5389C57.9616 23.8943 58.8496 25.2143 60.2211 25.4874L60.817 22.564ZM61.1963 23.1279C61.1434 23.3872 60.8879 23.5549 60.6257 23.5027L61.2216 20.5793C59.8501 20.3063 58.5142 21.1835 58.2379 22.5389L61.1963 23.1279ZM60.6257 23.5027C60.3634 23.4505 60.1936 23.198 60.2464 22.9388L63.2048 23.5278C63.4811 22.1724 62.5931 20.8524 61.2216 20.5793L60.6257 23.5027Z", fill: "black", mask: "url(#path-17-inside-2)" }), /* @__PURE__ */ import_react103.default.createElement("path", { d: "M55.1993 24.8215L51.5208 27.443L50.8515 30.2006", stroke: "black" }), /* @__PURE__ */ import_react103.default.createElement("ellipse", { rx: "3.30062", ry: "3.81835", transform: "matrix(0.971768 0.25679 -0.259902 0.960306 49.3348 36.0427)", fill: "#0B0B0B" }), /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-2", x2: "22.0374", y2: "-2", transform: "matrix(-0.865141 0.508647 -0.513608 -0.853839 90.1277 43.4041)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-2", x2: "37.4541", y2: "-2", transform: "matrix(-0.786693 -0.617627 0.626127 -0.779496 90.7851 44.7039)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react103.default.createElement("line", { y1: "-2", x2: "24.946", y2: "-2", transform: "matrix(0.861194 -0.515172 0.263521 0.959152 18.4058 34.8635)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react103.default.createElement("defs", null, /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter0_d", x: "18.2485", y: "10.3994", width: "59.8773", height: "87.7246", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter1_d", x: "29.1307", y: "75.6125", width: "27.7453", height: "10.9789", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter2_d", x: "29.1181", y: "66.5266", width: "28.1757", height: "11.2132", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter3_d", x: "30.7122", y: "57.7039", width: "28.1757", height: "11.2132", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter4_d", x: "31.9986", y: "48.9363", width: "28.1757", height: "11.2133", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter5_d", x: "32.2638", y: "44.9558", width: "15.0143", height: "45.9405", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("filter", { id: "filter6_d", x: "40.6176", y: "47.0457", width: "14.5037", height: "45.5186", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react103.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react103.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react103.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react103.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react103.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react103.default.createElement("linearGradient", { id: "paint0_linear", x1: "-22.3171", y1: "36.4033", x2: "105.851", y2: "59.8025", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react103.default.createElement("stop", { stopColor: "#8A2E28" }), /* @__PURE__ */ import_react103.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
+    return /* @__PURE__ */ import_react102.default.createElement("svg", { style: { "margin": "75px 50px" }, width: "200", height: "200", viewBox: "0 0 105 133", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2.5", x2: "47.2325", y2: "-2.5", transform: "matrix(-0.275217 0.961382 -0.963013 -0.269454 27.7317 82.8152)", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M65.2668 85.4294L72.7953 132.508", stroke: "black", strokeWidth: "5" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2", x2: "17.4186", y2: "-2", transform: "matrix(0.447771 0.889458 -0.901022 0.443341 17.3323 33.123)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", fill: "#00090F" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", fill: "url(#paint0_linear)" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M26.9936 83.7798C25.4254 81.526 24.2862 78.4488 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C65.4373 12.3872 67.9311 13.7984 69.8536 15.8097C67.0517 14.2661 63.9247 13.2415 60.7165 12.7034C54.2889 11.6254 47.5057 12.4949 42.301 15.0867C37.1183 17.6675 33.4759 21.9734 33.3658 27.7745C30.6005 31.137 28.3333 35.9718 26.6505 41.4574C24.9553 46.9833 23.8481 53.1861 23.4254 59.2446C23.0027 65.3021 23.2638 71.2247 24.3113 76.1883C24.9241 79.0922 25.809 81.6819 26.9936 83.7798ZM29.3916 86.2218C27.2356 83.9806 25.7198 80.428 24.8034 76.0857C23.7678 71.1782 23.5065 65.3032 23.9269 59.2777C24.3472 53.2532 25.4484 47.0877 27.1316 41.6009C28.8158 36.1107 31.0778 31.3166 33.81 28.0218L33.866 27.9543L33.8672 27.867C33.9391 22.259 37.4335 18.0668 42.5263 15.5307C47.623 12.9927 54.2955 12.131 60.6314 13.1936C64.2807 13.8057 67.8085 15.0543 70.8547 16.9803C72.0807 18.5872 72.9856 20.5071 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9913C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.5979 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.1908 91.5285 39.6704 91.4856 29.3916 86.2218ZM52.7019 90.8343C44.5671 92.2087 36.1804 91.4087 30.8271 87.4633C40.9137 91.9819 52.8249 91.6283 61.364 83.6145L61.3754 83.6038L61.3854 83.5918C65.3495 78.8115 66.5336 73.3615 66.8414 67.3712C66.9835 64.6049 66.939 61.7156 66.8929 58.7215C66.8891 58.476 66.8853 58.2298 66.8816 57.9829C66.833 54.7406 66.7999 51.3747 67.0107 47.8897C73.571 37.1225 75.2849 28.7521 73.9624 22.643C73.5645 20.8053 72.893 19.1769 72.0003 17.7535C73.7735 19.0302 75.3517 20.5593 76.6538 22.3498C80.3662 27.4544 81.8631 34.7227 79.1866 44.4238C78.2549 47.1052 77.9251 50.122 77.822 53.2776C77.7584 55.2255 77.7813 57.2417 77.8043 59.2693C77.8186 60.5222 77.8328 61.7795 77.8268 63.0277C77.7949 69.5968 77.2007 75.989 73.1861 80.8301C69.1638 85.6806 61.1166 89.4127 52.7019 90.8343Z", stroke: "black", strokeWidth: "0.5" }), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter0_d)" }, /* @__PURE__ */ import_react102.default.createElement("path", { d: "M66.7635 47.8141C65.9014 61.8826 69.0213 73.9921 61.1912 83.4343C52.1711 91.8995 39.3291 91.7402 28.9132 86.2544C17.9362 77.3573 21.5704 38.8254 32.1802 26.0312C41.1979 0.81291 93.0476 4.74773 66.7635 47.8141Z", fill: "#FFDAAE" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M66.5484 47.686L66.5163 47.7385L66.5126 47.7996C66.2964 51.3271 66.33 54.7302 66.3789 57.9914C66.3826 58.2373 66.3864 58.4824 66.3901 58.7267C66.4363 61.7248 66.4806 64.598 66.3393 67.347C66.0343 73.284 64.865 78.6058 61.007 83.2649C52.094 91.6193 39.395 91.4836 29.0537 86.0465C26.3875 83.8735 24.5781 79.8737 23.5471 74.8403C22.5156 69.8046 22.2722 63.7776 22.7024 57.6208C23.1326 51.465 24.2356 45.1891 25.8911 39.6575C27.5478 34.1218 29.7523 29.3505 32.3744 26.1886L32.4024 26.1548L32.4171 26.1136C34.6444 19.8851 39.5187 15.4489 45.1857 12.9669C50.8554 10.4837 57.2988 9.96562 62.6371 11.554C67.9675 13.14 72.1875 16.8205 73.4708 22.7481C74.7573 28.6912 73.1036 36.9453 66.5484 47.686Z", stroke: "#0A0A0A", strokeWidth: "0.5" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter1_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "19.8557", y2: "-0.125", transform: "matrix(0.99225 -0.137652 0.173912 0.982961 33.1741 78.5916)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter2_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146111 0.182398 0.98144 33.1637 69.7397)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter3_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146111 0.182398 0.98144 34.7578 60.917)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter4_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "20.3124", y2: "-0.125", transform: "matrix(0.991024 -0.146112 0.182397 0.98144 36.0442 52.1494)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter5_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "38.568", y2: "-0.125", transform: "matrix(0.175504 -0.982432 0.981683 0.200291 36.5092 82.8962)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("g", { filter: "url(#filter6_d)" }, /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-0.125", x2: "38.067", y2: "-0.125", transform: "matrix(0.164387 -0.984346 0.983775 0.189794 44.8636 84.5642)", stroke: "#002540", strokeWidth: "0.25" })), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M49.2138 20.1738C46.9644 19.7261 45.7307 20.8571 44.8722 21.7876C45.407 22.4447 46.8621 23.8357 48.4045 24.1427C49.9469 24.4497 52.1011 24.0525 52.9056 23.3866C52.5057 22.068 51.3336 20.5957 49.2138 20.1738Z", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("mask", { id: "path-14-inside-1", fill: "white" }, /* @__PURE__ */ import_react102.default.createElement("ellipse", { rx: "1.01839", ry: "1.01835", transform: "matrix(0.986125 0.196328 -0.198641 0.974457 47.6494 21.8588)" })), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M47.1744 21.7642C47.2273 21.505 47.4828 21.3372 47.7451 21.3894L47.1491 24.3128C48.5207 24.5859 49.8565 23.7086 50.1328 22.3532L47.1744 21.7642ZM47.7451 21.3894C48.0073 21.4417 48.1772 21.6941 48.1243 21.9533L45.1659 21.3644C44.8896 22.7197 45.7776 24.0398 47.1491 24.3128L47.7451 21.3894ZM48.1243 21.9533C48.0715 22.2126 47.816 22.3803 47.5537 22.3281L48.1496 19.4048C46.7781 19.1317 45.4422 20.009 45.1659 21.3644L48.1243 21.9533ZM47.5537 22.3281C47.2915 22.2759 47.1216 22.0235 47.1744 21.7642L50.1328 22.3532C50.4091 20.9978 49.5212 19.6778 48.1496 19.4048L47.5537 22.3281Z", fill: "black", mask: "url(#path-14-inside-1)" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M62.2857 21.3483C60.0364 20.9006 58.8026 22.0317 57.9441 22.9622C58.4789 23.6193 59.9341 25.0103 61.4765 25.3173C63.0189 25.6243 65.1731 25.2271 65.9776 24.5612C65.5777 23.2426 64.4056 21.7703 62.2857 21.3483Z", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("mask", { id: "path-17-inside-2", fill: "white" }, /* @__PURE__ */ import_react102.default.createElement("ellipse", { rx: "1.01839", ry: "1.01835", transform: "matrix(0.986125 0.196328 -0.198641 0.974457 60.7213 23.0333)" })), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M60.2464 22.9388C60.2993 22.6795 60.5548 22.5118 60.817 22.564L60.2211 25.4874C61.5926 25.7604 62.9285 24.8831 63.2048 23.5278L60.2464 22.9388ZM60.817 22.564C61.0793 22.6162 61.2491 22.8686 61.1963 23.1279L58.2379 22.5389C57.9616 23.8943 58.8496 25.2143 60.2211 25.4874L60.817 22.564ZM61.1963 23.1279C61.1434 23.3872 60.8879 23.5549 60.6257 23.5027L61.2216 20.5793C59.8501 20.3063 58.5142 21.1835 58.2379 22.5389L61.1963 23.1279ZM60.6257 23.5027C60.3634 23.4505 60.1936 23.198 60.2464 22.9388L63.2048 23.5278C63.4811 22.1724 62.5931 20.8524 61.2216 20.5793L60.6257 23.5027Z", fill: "black", mask: "url(#path-17-inside-2)" }), /* @__PURE__ */ import_react102.default.createElement("path", { d: "M55.1993 24.8215L51.5208 27.443L50.8515 30.2006", stroke: "black" }), /* @__PURE__ */ import_react102.default.createElement("ellipse", { rx: "3.30062", ry: "3.81835", transform: "matrix(0.971768 0.25679 -0.259902 0.960306 49.3348 36.0427)", fill: "#0B0B0B" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2", x2: "22.0374", y2: "-2", transform: "matrix(-0.865141 0.508647 -0.513608 -0.853839 90.1277 43.4041)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2", x2: "37.4541", y2: "-2", transform: "matrix(-0.786693 -0.617627 0.626127 -0.779496 90.7851 44.7039)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react102.default.createElement("line", { y1: "-2", x2: "24.946", y2: "-2", transform: "matrix(0.861194 -0.515172 0.263521 0.959152 18.4058 34.8635)", stroke: "black", strokeWidth: "4" }), /* @__PURE__ */ import_react102.default.createElement("defs", null, /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter0_d", x: "18.2485", y: "10.3994", width: "59.8773", height: "87.7246", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter1_d", x: "29.1307", y: "75.6125", width: "27.7453", height: "10.9789", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter2_d", x: "29.1181", y: "66.5266", width: "28.1757", height: "11.2132", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter3_d", x: "30.7122", y: "57.7039", width: "28.1757", height: "11.2132", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter4_d", x: "31.9986", y: "48.9363", width: "28.1757", height: "11.2133", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter5_d", x: "32.2638", y: "44.9558", width: "15.0143", height: "45.9405", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("filter", { id: "filter6_d", x: "40.6176", y: "47.0457", width: "14.5037", height: "45.5186", filterUnits: "userSpaceOnUse", colorInterpolationFilters: "sRGB" }, /* @__PURE__ */ import_react102.default.createElement("feFlood", { floodOpacity: "0", result: "BackgroundImageFix" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" }), /* @__PURE__ */ import_react102.default.createElement("feOffset", { dy: "4" }), /* @__PURE__ */ import_react102.default.createElement("feGaussianBlur", { stdDeviation: "2" }), /* @__PURE__ */ import_react102.default.createElement("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow" }), /* @__PURE__ */ import_react102.default.createElement("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect1_dropShadow", result: "shape" })), /* @__PURE__ */ import_react102.default.createElement("linearGradient", { id: "paint0_linear", x1: "-22.3171", y1: "36.4033", x2: "105.851", y2: "59.8025", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ import_react102.default.createElement("stop", { stopColor: "#8A2E28" }), /* @__PURE__ */ import_react102.default.createElement("stop", { offset: "1", stopColor: "white", stopOpacity: "0" }))));
   };
   var YellowMitoFolk_default = YellowMitoFolk;
 
@@ -33132,7 +33102,7 @@ ${finalCode}`;
   };
 
   // src/components/elements/Experiment.tsx
-  var import_react104 = __toESM(require_react());
+  var import_react103 = __toESM(require_react());
 
   // src/utils/experiments.tsx
   var isExperimentActive = (analysisData2, experimentID) => {
@@ -33147,12 +33117,12 @@ ${finalCode}`;
   // src/components/elements/Experiment.tsx
   var Experiment = (props) => {
     if (!isExperimentActive(props.analysisData, props.experimentID)) {
-      return /* @__PURE__ */ import_react104.default.createElement(import_react104.default.Fragment, null, props.aElement);
+      return /* @__PURE__ */ import_react103.default.createElement(import_react103.default.Fragment, null, props.aElement);
     } else {
       if (isVariantA(props.analysisData)) {
-        return /* @__PURE__ */ import_react104.default.createElement(import_react104.default.Fragment, null, props.aElement);
+        return /* @__PURE__ */ import_react103.default.createElement(import_react103.default.Fragment, null, props.aElement);
       } else {
-        return /* @__PURE__ */ import_react104.default.createElement(import_react104.default.Fragment, null, props.bElement);
+        return /* @__PURE__ */ import_react103.default.createElement(import_react103.default.Fragment, null, props.bElement);
       }
     }
   };
@@ -33167,7 +33137,7 @@ ${finalCode}`;
       await props.mitoAPI.updateSignUp(props.email);
       props.next();
     };
-    return /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react105.default.createElement("div", null, /* @__PURE__ */ import_react105.default.createElement("h1", { className: "text-header-1", style: { margin: 0 } }, "Sign Up for Mito"), /* @__PURE__ */ import_react105.default.createElement("p", { className: "signup-modal-text" }, "We\u2019ll send you periodic product updates and welcome any feedback. And no spam. Duh.")), /* @__PURE__ */ import_react105.default.createElement("form", { className: "signup-modal-email-form", onSubmit }, /* @__PURE__ */ import_react105.default.createElement("h3", { className: "text-header-2", style: { marginBottom: 0 } }, "Your Email"), /* @__PURE__ */ import_react105.default.createElement(
+    return /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react104.default.createElement("div", null, /* @__PURE__ */ import_react104.default.createElement("h1", { className: "text-header-1", style: { margin: 0 } }, "Sign Up for Mito"), /* @__PURE__ */ import_react104.default.createElement("p", { className: "signup-modal-text" }, "We\u2019ll send you periodic product updates and welcome any feedback. And no spam. Duh.")), /* @__PURE__ */ import_react104.default.createElement("form", { className: "signup-modal-email-form", onSubmit }, /* @__PURE__ */ import_react104.default.createElement("h3", { className: "text-header-2", style: { marginBottom: 0 } }, "Your Email"), /* @__PURE__ */ import_react104.default.createElement(
       Input_default,
       {
         value: props.email,
@@ -33180,7 +33150,7 @@ ${finalCode}`;
         required: true,
         autoFocus: true
       }
-    ), /* @__PURE__ */ import_react105.default.createElement("label", null, /* @__PURE__ */ import_react105.default.createElement("h3", { className: "text-header-2", style: { marginTop: "10px", marginBottom: 0 } }, FirstQuestion)), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement("label", null, /* @__PURE__ */ import_react104.default.createElement("h3", { className: "text-header-2", style: { marginTop: "10px", marginBottom: 0 } }, FirstQuestion)), /* @__PURE__ */ import_react104.default.createElement(
       Input_default,
       {
         value: props.firstResponse,
@@ -33190,7 +33160,7 @@ ${finalCode}`;
         placeholder: FirstPlaceholder,
         required: true
       }
-    ), /* @__PURE__ */ import_react105.default.createElement("div", { className: "mt-10px", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement("div", { className: "mt-10px", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33201,10 +33171,10 @@ ${finalCode}`;
     ))));
   };
   var StepTwo = (props) => {
-    const [isPro, setIsPro] = (0, import_react105.useState)(props.isPro);
-    const [enteringProAccessCode, setEnteringProAccessCode] = (0, import_react105.useState)(false);
-    const [accessCode, setAccessCode] = (0, import_react105.useState)("");
-    const [invalidAccessCode, setInvalidAccessCode] = (0, import_react105.useState)(false);
+    const [isPro, setIsPro] = (0, import_react104.useState)(props.isPro);
+    const [enteringProAccessCode, setEnteringProAccessCode] = (0, import_react104.useState)(false);
+    const [accessCode, setAccessCode] = (0, import_react104.useState)("");
+    const [invalidAccessCode, setInvalidAccessCode] = (0, import_react104.useState)(false);
     const attemptSubmitAccessCode = () => {
       if (!checkProAccessCode(accessCode)) {
         setInvalidAccessCode(true);
@@ -33217,7 +33187,7 @@ ${finalCode}`;
       void props.mitoAPI.updateGoPro();
       props.next();
     };
-    return /* @__PURE__ */ import_react105.default.createElement(import_react105.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react105.default.createElement("div", null, /* @__PURE__ */ import_react105.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react105.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react105.default.createElement(
+    return /* @__PURE__ */ import_react104.default.createElement(import_react104.default.Fragment, null, !enteringProAccessCode && /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react104.default.createElement("div", null, /* @__PURE__ */ import_react104.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, isPro ? "You've Signed up for Mito Pro!" : "Want More Power? Consider Mito Pro"), /* @__PURE__ */ import_react104.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, isPro ? "Thanks for being a Mito Pro user! Paying for Mito gets you access to advanced functionality and turns off telemetry. In turn, it allows us to fund Mito's development." : "Mito Pro gives you access to advanced functionality, and allows you to turn off telemetry. It also allows us to continue to fund Mito's development!")), !isPro && /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -33225,7 +33195,7 @@ ${finalCode}`;
         onClick: props.back
       },
       "Back"
-    ), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33238,7 +33208,7 @@ ${finalCode}`;
         }
       },
       "See Plans"
-    ), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33246,8 +33216,8 @@ ${finalCode}`;
         onClick: props.next,
         autoFocus: true
       },
-      /* @__PURE__ */ import_react105.default.createElement(Experiment_default, { analysisData: props.analysisData, experimentID: "title_name", aElement: "No Thanks", bElement: "Skip" })
-    )), isPro && /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react105.default.createElement(
+      /* @__PURE__ */ import_react104.default.createElement(Experiment_default, { analysisData: props.analysisData, experimentID: "title_name", aElement: "No Thanks", bElement: "Skip" })
+    )), isPro && /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -33255,7 +33225,7 @@ ${finalCode}`;
         onClick: props.back
       },
       "Back"
-    ), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33264,7 +33234,7 @@ ${finalCode}`;
         autoFocus: true
       },
       "Continue"
-    ))), enteringProAccessCode && /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react105.default.createElement("div", null, /* @__PURE__ */ import_react105.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, "Access Pro"), /* @__PURE__ */ import_react105.default.createElement("p", { className: "signup-modal-text" }, "Complete the checkout flow. In the Pro documentation, click ", /* @__PURE__ */ import_react105.default.createElement("b", null, "Get Access Code"), " and enter it here."), /* @__PURE__ */ import_react105.default.createElement("label", null, /* @__PURE__ */ import_react105.default.createElement("h3", { className: "text-header-2", style: { marginTop: "5px", marginBottom: 0 } }, "Access Code:")), /* @__PURE__ */ import_react105.default.createElement(
+    ))), enteringProAccessCode && /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react104.default.createElement("div", null, /* @__PURE__ */ import_react104.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, "Access Pro"), /* @__PURE__ */ import_react104.default.createElement("p", { className: "signup-modal-text" }, "Complete the checkout flow. In the Pro documentation, click ", /* @__PURE__ */ import_react104.default.createElement("b", null, "Get Access Code"), " and enter it here."), /* @__PURE__ */ import_react104.default.createElement("label", null, /* @__PURE__ */ import_react104.default.createElement("h3", { className: "text-header-2", style: { marginTop: "5px", marginBottom: 0 } }, "Access Code:")), /* @__PURE__ */ import_react104.default.createElement(
       Input_default,
       {
         placeholder: "mito-pro-access-code-XXXXXXXXXXXX",
@@ -33278,7 +33248,7 @@ ${finalCode}`;
           }
         }
       }
-    ), invalidAccessCode && /* @__PURE__ */ import_react105.default.createElement("p", { className: "signup-modal-text signup-modal-text-error" }, "Invalid access code")), /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react105.default.createElement(
+    ), invalidAccessCode && /* @__PURE__ */ import_react104.default.createElement("p", { className: "signup-modal-text signup-modal-text-error" }, "Invalid access code")), /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -33288,7 +33258,7 @@ ${finalCode}`;
         }
       },
       "Back"
-    ), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33304,7 +33274,7 @@ ${finalCode}`;
       await props.mitoAPI.updateFeedback("company/organization" /* COMPANY */, props.numUsages, [{ "question": FirstQuestion, "answer": props.firstResponse }]);
       props.next();
     };
-    return /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react105.default.createElement("div", null, /* @__PURE__ */ import_react105.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react105.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react105.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react105.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react105.default.createElement(
+    return /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-left-column" }, /* @__PURE__ */ import_react104.default.createElement("div", null, /* @__PURE__ */ import_react104.default.createElement("h1", { className: "text-header-1", style: { marginTop: 0, marginBottom: 0 } }, props.isPro && `Mito Pro is Totally Private`, !props.isPro && `Mito is Built for Privacy`), /* @__PURE__ */ import_react104.default.createElement("p", { className: "signup-modal-text", style: { marginTop: "10px" } }, props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`, !props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`, " ", " ", /* @__PURE__ */ import_react104.default.createElement("a", { href: "https://privacy.trymito.io/privacy-policy", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react104.default.createElement("u", null, "here")), ".")), /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-buttons", style: { marginTop: "10px" } }, /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -33312,7 +33282,7 @@ ${finalCode}`;
         onClick: props.back
       },
       "Back"
-    ), /* @__PURE__ */ import_react105.default.createElement(
+    ), /* @__PURE__ */ import_react104.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33324,9 +33294,9 @@ ${finalCode}`;
     )));
   };
   var SignupModal = (props) => {
-    const [step, setStep] = (0, import_react105.useState)(1);
-    const [email, setEmail] = (0, import_react105.useState)("");
-    const [firstResponse, setFirstResponse] = (0, import_react105.useState)("");
+    const [step, setStep] = (0, import_react104.useState)(1);
+    const [email, setEmail] = (0, import_react104.useState)("");
+    const [firstResponse, setFirstResponse] = (0, import_react104.useState)("");
     const next = () => {
       if (step + 1 > 3) {
         props.setUIState((prevUIState) => {
@@ -33364,7 +33334,7 @@ ${finalCode}`;
       2: "#F0C5BB",
       3: "#FFDAAE"
     };
-    return /* @__PURE__ */ import_react105.default.createElement("div", { className: "overlay" }, /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-container" }, /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-left-column-container" }, step === 1 && /* @__PURE__ */ import_react105.default.createElement(
+    return /* @__PURE__ */ import_react104.default.createElement("div", { className: "overlay" }, /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-container" }, /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-left-column-container" }, step === 1 && /* @__PURE__ */ import_react104.default.createElement(
       StepOne,
       {
         next,
@@ -33374,7 +33344,7 @@ ${finalCode}`;
         setFirstResponse,
         mitoAPI: props.mitoAPI
       }
-    ), step === 2 && /* @__PURE__ */ import_react105.default.createElement(
+    ), step === 2 && /* @__PURE__ */ import_react104.default.createElement(
       StepTwo,
       {
         next,
@@ -33383,7 +33353,7 @@ ${finalCode}`;
         mitoAPI: props.mitoAPI,
         analysisData: props.analysisData
       }
-    ), step === 3 && /* @__PURE__ */ import_react105.default.createElement(
+    ), step === 3 && /* @__PURE__ */ import_react104.default.createElement(
       StepThree,
       {
         next,
@@ -33394,14 +33364,14 @@ ${finalCode}`;
         mitoAPI: props.mitoAPI,
         isPro: props.isPro
       }
-    )), /* @__PURE__ */ import_react105.default.createElement("div", { className: "signup-modal-right-column-container", style: { backgroundColor: backgroundColors[step] } }, step === 1 && /* @__PURE__ */ import_react105.default.createElement(PinkMitoFolk_default, null), step === 2 && /* @__PURE__ */ import_react105.default.createElement(BlueMitoFolk_default, null), step === 3 && /* @__PURE__ */ import_react105.default.createElement(YellowMitoFolk_default, null))));
+    )), /* @__PURE__ */ import_react104.default.createElement("div", { className: "signup-modal-right-column-container", style: { backgroundColor: backgroundColors[step] } }, step === 1 && /* @__PURE__ */ import_react104.default.createElement(PinkMitoFolk_default, null), step === 2 && /* @__PURE__ */ import_react104.default.createElement(BlueMitoFolk_default, null), step === 3 && /* @__PURE__ */ import_react104.default.createElement(YellowMitoFolk_default, null))));
   };
   var SignupModal_default = SignupModal;
 
   // src/components/modals/UpgradeModal.tsx
-  var import_react106 = __toESM(require_react());
+  var import_react105 = __toESM(require_react());
   var UpgradeModal = (props) => {
-    (0, import_react106.useEffect)(() => {
+    (0, import_react105.useEffect)(() => {
       void props.mitoAPI.log(
         "opened_upgrade_modal"
       );
@@ -33417,7 +33387,7 @@ ${finalCode}`;
         });
       });
     };
-    return /* @__PURE__ */ import_react106.default.createElement("div", { className: "overlay" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "upgrade-modal-container txt-16" }, /* @__PURE__ */ import_react106.default.createElement("h2", { className: "mt-5px" }, "Time to Upgrade!"), /* @__PURE__ */ import_react106.default.createElement("p", null, "To get Mito's most advanced functionality:"), /* @__PURE__ */ import_react106.default.createElement("ol", null, /* @__PURE__ */ import_react106.default.createElement("li", { className: "mt-5px" }, /* @__PURE__ */ import_react106.default.createElement("p", null, "Open a new terminal/command prompt (where you ran the commands to install Mito).")), /* @__PURE__ */ import_react106.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "upgrade-modal-code-list-item" }, /* @__PURE__ */ import_react106.default.createElement("p", null, "Run the command:"), /* @__PURE__ */ import_react106.default.createElement("code", { className: "upgrade-modal-code" }, "python -m pip install mitoinstaller --upgrade"))), /* @__PURE__ */ import_react106.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react106.default.createElement("div", { className: "upgrade-modal-code-list-item" }, /* @__PURE__ */ import_react106.default.createElement("p", null, "Run the command:"), /* @__PURE__ */ import_react106.default.createElement("code", { className: "upgrade-modal-code" }, "python -m mitoinstaller upgrade"))), /* @__PURE__ */ import_react106.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react106.default.createElement("p", null, /* @__PURE__ */ import_react106.default.createElement("b", null, "Restart your Kernel"), " by clicking on Kernel > Restart Kernel.")), /* @__PURE__ */ import_react106.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react106.default.createElement("p", null, /* @__PURE__ */ import_react106.default.createElement("b", null, "Refresh this webpage.")))), /* @__PURE__ */ import_react106.default.createElement(
+    return /* @__PURE__ */ import_react105.default.createElement("div", { className: "overlay" }, /* @__PURE__ */ import_react105.default.createElement("div", { className: "upgrade-modal-container txt-16" }, /* @__PURE__ */ import_react105.default.createElement("h2", { className: "mt-5px" }, "Time to Upgrade!"), /* @__PURE__ */ import_react105.default.createElement("p", null, "To get Mito's most advanced functionality:"), /* @__PURE__ */ import_react105.default.createElement("ol", null, /* @__PURE__ */ import_react105.default.createElement("li", { className: "mt-5px" }, /* @__PURE__ */ import_react105.default.createElement("p", null, "Open a new terminal/command prompt (where you ran the commands to install Mito).")), /* @__PURE__ */ import_react105.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react105.default.createElement("div", { className: "upgrade-modal-code-list-item" }, /* @__PURE__ */ import_react105.default.createElement("p", null, "Run the command:"), /* @__PURE__ */ import_react105.default.createElement("code", { className: "upgrade-modal-code" }, "python -m pip install mitoinstaller --upgrade"))), /* @__PURE__ */ import_react105.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react105.default.createElement("div", { className: "upgrade-modal-code-list-item" }, /* @__PURE__ */ import_react105.default.createElement("p", null, "Run the command:"), /* @__PURE__ */ import_react105.default.createElement("code", { className: "upgrade-modal-code" }, "python -m mitoinstaller upgrade"))), /* @__PURE__ */ import_react105.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react105.default.createElement("p", null, /* @__PURE__ */ import_react105.default.createElement("b", null, "Restart your Kernel"), " by clicking on Kernel > Restart Kernel.")), /* @__PURE__ */ import_react105.default.createElement("li", { className: "mt-10px" }, /* @__PURE__ */ import_react105.default.createElement("p", null, /* @__PURE__ */ import_react105.default.createElement("b", null, "Refresh this webpage.")))), /* @__PURE__ */ import_react105.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33430,16 +33400,16 @@ ${finalCode}`;
   var UpgradeModal_default = UpgradeModal;
 
   // src/components/taskpanes/Concat/ConcatTaskpane.tsx
-  var import_react107 = __toESM(require_react());
+  var import_react106 = __toESM(require_react());
   var getColumnHeadersIncludedMessage2 = (notIncludedColumnsArray, arrIndex) => {
     if (notIncludedColumnsArray[arrIndex].length === 0) {
-      return /* @__PURE__ */ import_react107.default.createElement("p", null, "\u2713 All columns are included in the concatenated sheet.");
+      return /* @__PURE__ */ import_react106.default.createElement("p", null, "\u2713 All columns are included in the concatenated sheet.");
     }
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(notIncludedColumnsArray[arrIndex], 25);
     if (numOtherColumnHeaders === 0) {
-      return /* @__PURE__ */ import_react107.default.createElement("p", null, "Columns ", /* @__PURE__ */ import_react107.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " are not included.");
+      return /* @__PURE__ */ import_react106.default.createElement("p", null, "Columns ", /* @__PURE__ */ import_react106.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " are not included.");
     } else {
-      return /* @__PURE__ */ import_react107.default.createElement("p", null, "Columns ", /* @__PURE__ */ import_react107.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react107.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " others are not included.");
+      return /* @__PURE__ */ import_react106.default.createElement("p", null, "Columns ", /* @__PURE__ */ import_react106.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react106.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " others are not included.");
     }
   };
   var ConcatTaskpane = (props) => {
@@ -33455,7 +33425,7 @@ ${finalCode}`;
       props.analysisData,
       50
     );
-    const [selectableSheetIndexes] = (0, import_react107.useState)(props.sheetDataArray.map((sd, index) => index));
+    const [selectableSheetIndexes] = (0, import_react106.useState)(props.sheetDataArray.map((sd, index) => index));
     const concatSheetColumnHeaders = Object.values(((_a = props.sheetDataArray[props.sheetDataArray.length - 1]) == null ? void 0 : _a.columnIDsMap) || {});
     const notIncludedColumnsArray = params == null ? void 0 : params.sheet_indexes.map((sheetIndex) => {
       var _a2;
@@ -33464,10 +33434,10 @@ ${finalCode}`;
       });
     });
     if (params === void 0) {
-      return /* @__PURE__ */ import_react107.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import at least two datasets before concating." });
+      return /* @__PURE__ */ import_react106.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import at least two datasets before concating." });
     }
     const dataframeCards = params.sheet_indexes.map((sheetIndex, arrIndex) => {
-      return /* @__PURE__ */ import_react107.default.createElement("div", { key: arrIndex }, /* @__PURE__ */ import_react107.default.createElement(
+      return /* @__PURE__ */ import_react106.default.createElement("div", { key: arrIndex }, /* @__PURE__ */ import_react106.default.createElement(
         SelectAndXIconCard_default,
         {
           titleMap: Object.fromEntries(props.sheetDataArray.map((sheetData, index) => {
@@ -33495,15 +33465,15 @@ ${finalCode}`;
           },
           selectableValues: Object.keys(props.sheetDataArray)
         }
-      ), notIncludedColumnsArray !== void 0 && /* @__PURE__ */ import_react107.default.createElement(Row_default, { className: "text-subtext-1" }, getColumnHeadersIncludedMessage2(notIncludedColumnsArray, arrIndex)));
+      ), notIncludedColumnsArray !== void 0 && /* @__PURE__ */ import_react106.default.createElement(Row_default, { className: "text-subtext-1" }, getColumnHeadersIncludedMessage2(notIncludedColumnsArray, arrIndex)));
     });
-    return /* @__PURE__ */ import_react107.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react107.default.createElement(
+    return /* @__PURE__ */ import_react106.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react106.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Concatenate Sheet",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react107.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react107.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement("p", { className: "text-header-3" }, "Join Type")), /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement(
+    ), /* @__PURE__ */ import_react106.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react106.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement("p", { className: "text-header-3" }, "Join Type")), /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement(
       Select_default,
       {
         value: params.join,
@@ -33516,21 +33486,21 @@ ${finalCode}`;
         },
         width: "medium"
       },
-      /* @__PURE__ */ import_react107.default.createElement(
+      /* @__PURE__ */ import_react106.default.createElement(
         DropdownItem_default,
         {
           title: "inner",
           subtext: "Only includes columns that exist in all sheets"
         }
       ),
-      /* @__PURE__ */ import_react107.default.createElement(
+      /* @__PURE__ */ import_react106.default.createElement(
         DropdownItem_default,
         {
           title: "outer",
           subtext: "Includes all columns from all sheets, regardless of if these columns are in the other sheets."
         }
       )
-    ))), /* @__PURE__ */ import_react107.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement(LabelAndTooltip_default, { tooltip: "When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful index information." }, "Ignore Existing Indexes")), /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement(
+    ))), /* @__PURE__ */ import_react106.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement(LabelAndTooltip_default, { tooltip: "When on, the resulting dataframe will have indexes 0, 1, 2, etc.. This is useful if you're concatenating objects that don't have meaningful index information." }, "Ignore Existing Indexes")), /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement(
       Toggle_default,
       {
         value: params.ignore_index,
@@ -33542,7 +33512,7 @@ ${finalCode}`;
           });
         }
       }
-    ))), /* @__PURE__ */ import_react107.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement("p", { className: "text-header-3" }, "Dataframes to Concatenate")), /* @__PURE__ */ import_react107.default.createElement(Col_default, null, /* @__PURE__ */ import_react107.default.createElement(
+    ))), /* @__PURE__ */ import_react106.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement("p", { className: "text-header-3" }, "Dataframes to Concatenate")), /* @__PURE__ */ import_react106.default.createElement(Col_default, null, /* @__PURE__ */ import_react106.default.createElement(
       DropdownButton_default,
       {
         text: "+ Add",
@@ -33550,7 +33520,7 @@ ${finalCode}`;
         searchable: true
       },
       [
-        /* @__PURE__ */ import_react107.default.createElement(
+        /* @__PURE__ */ import_react106.default.createElement(
           DropdownItem_default,
           {
             key: -1,
@@ -33571,7 +33541,7 @@ ${finalCode}`;
         }
         return true;
       }).map((sheetData, index) => {
-        return /* @__PURE__ */ import_react107.default.createElement(
+        return /* @__PURE__ */ import_react106.default.createElement(
           DropdownItem_default,
           {
             key: index,
@@ -33593,15 +33563,15 @@ ${finalCode}`;
   var ConcatTaskpane_default = ConcatTaskpane;
 
   // src/components/taskpanes/DataframeImport/DataframeImportTaskpane.tsx
-  var import_react113 = __toESM(require_react());
+  var import_react112 = __toESM(require_react());
 
   // src/hooks/useSendEditOnClick.tsx
-  var import_react110 = __toESM(require_react());
+  var import_react109 = __toESM(require_react());
 
   // src/hooks/useEffectOnRedo.tsx
-  var import_react108 = __toESM(require_react());
+  var import_react107 = __toESM(require_react());
   var useEffectOnRedo = (effect, analysisData2) => {
-    (0, import_react108.useEffect)(() => {
+    (0, import_react107.useEffect)(() => {
       if (analysisData2.redoCount > 0) {
         effect();
       }
@@ -33609,9 +33579,9 @@ ${finalCode}`;
   };
 
   // src/hooks/useEffectOnUndo.tsx
-  var import_react109 = __toESM(require_react());
+  var import_react108 = __toESM(require_react());
   var useEffectOnUndo = (effect, analysisData2) => {
-    (0, import_react109.useEffect)(() => {
+    (0, import_react108.useEffect)(() => {
       if (analysisData2.undoCount > 0) {
         effect();
       }
@@ -33620,23 +33590,23 @@ ${finalCode}`;
 
   // src/hooks/useSendEditOnClick.tsx
   function useSendEditOnClick(defaultParams, stepType, mitoAPI, analysisData2, options, onUndoAndRedo) {
-    const [params, _setParams] = (0, import_react110.useState)(defaultParams);
-    const [error, setError] = (0, import_react110.useState)(void 0);
-    const [loading, setLoading] = (0, import_react110.useState)(false);
-    const [appliedEditInLastTwoSeconds, setAppliedEditInLastTwoSeconds] = (0, import_react110.useState)(false);
-    const [stepIDData, setStepIDData] = (0, import_react110.useState)({
+    const [params, _setParams] = (0, import_react109.useState)(defaultParams);
+    const [error, setError] = (0, import_react109.useState)(void 0);
+    const [loading, setLoading] = (0, import_react109.useState)(false);
+    const [appliedEditInLastTwoSeconds, setAppliedEditInLastTwoSeconds] = (0, import_react109.useState)(false);
+    const [stepIDData, setStepIDData] = (0, import_react109.useState)({
       stepIDs: [],
       currStepIDIndex: 0
     });
-    const [paramsApplied, setParamsApplied] = (0, import_react110.useState)(false);
-    const [attemptedEditWithTheseParamsMultipleTimes, setAttemptedEditWithTheseParamsMultipleTimes] = (0, import_react110.useState)(false);
+    const [paramsApplied, setParamsApplied] = (0, import_react109.useState)(false);
+    const [attemptedEditWithTheseParamsMultipleTimes, setAttemptedEditWithTheseParamsMultipleTimes] = (0, import_react109.useState)(false);
     useEffectOnUndo(() => {
       void refreshOnUndo();
     }, analysisData2);
     useEffectOnRedo(() => {
       void refreshOnRedo();
     }, analysisData2);
-    (0, import_react110.useEffect)(() => {
+    (0, import_react109.useEffect)(() => {
       if (appliedEditInLastTwoSeconds) {
         const timeout = setTimeout(() => {
           setAppliedEditInLastTwoSeconds(false);
@@ -33645,7 +33615,7 @@ ${finalCode}`;
       }
     }, [appliedEditInLastTwoSeconds]);
     const editEvent = stepType + "_edit";
-    const setParams = (0, import_react110.useCallback)(
+    const setParams = (0, import_react109.useCallback)(
       (args) => {
         _setParams(args);
         setParamsApplied(false);
@@ -33747,14 +33717,14 @@ ${finalCode}`;
   var useSendEditOnClick_default = useSendEditOnClick;
 
   // src/components/import/DataframeImportScreen.tsx
-  var import_react112 = __toESM(require_react());
+  var import_react111 = __toESM(require_react());
 
   // src/hooks/useStateFromAPIAsync.tsx
-  var import_react111 = __toESM(require_react());
+  var import_react110 = __toESM(require_react());
   function useStateFromAPIAsync(defaultValue, apiCall, onLoad, params) {
-    const [loading, setLoading] = (0, import_react111.useState)(true);
-    const [state, setState] = (0, import_react111.useState)(defaultValue);
-    (0, import_react111.useEffect)(() => {
+    const [loading, setLoading] = (0, import_react110.useState)(true);
+    const [state, setState] = (0, import_react110.useState)(defaultValue);
+    (0, import_react110.useEffect)(() => {
       const loadData = async () => {
         setLoading(true);
         const loadedData = await apiCall(...params);
@@ -33790,7 +33760,7 @@ ${finalCode}`;
       []
     );
     const dataframeCards = (((_a = props.params) == null ? void 0 : _a.df_names) || []).map((dfName, arrIndex) => {
-      return /* @__PURE__ */ import_react112.default.createElement(
+      return /* @__PURE__ */ import_react111.default.createElement(
         SelectAndXIconCard_default,
         {
           key: arrIndex,
@@ -33818,16 +33788,16 @@ ${finalCode}`;
       );
     });
     if (props.params === void 0) {
-      return /* @__PURE__ */ import_react112.default.createElement("div", { className: "text-body-1" }, "There has been an error loading dataframes to import. Please try again, or contact support.");
+      return /* @__PURE__ */ import_react111.default.createElement("div", { className: "text-body-1" }, "There has been an error loading dataframes to import. Please try again, or contact support.");
     }
-    return /* @__PURE__ */ import_react112.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react112.default.createElement(
+    return /* @__PURE__ */ import_react111.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react111.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: props.isUpdate ? "Import Dataframes" : "Update Import",
         setUIState: props.setUIState,
         backCallback: props.backCallback
       }
-    ), /* @__PURE__ */ import_react112.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react112.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react112.default.createElement(Col_default, null, /* @__PURE__ */ import_react112.default.createElement(LabelAndTooltip_default, { tooltip: "Dataframes that have been created elsewhere in this notebook can be imported through this taskpane." }, "Dataframes to Import")), /* @__PURE__ */ import_react112.default.createElement(Col_default, null, /* @__PURE__ */ import_react112.default.createElement(
+    ), /* @__PURE__ */ import_react111.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react111.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react111.default.createElement(Col_default, null, /* @__PURE__ */ import_react111.default.createElement(LabelAndTooltip_default, { tooltip: "Dataframes that have been created elsewhere in this notebook can be imported through this taskpane." }, "Dataframes to Import")), /* @__PURE__ */ import_react111.default.createElement(Col_default, null, /* @__PURE__ */ import_react111.default.createElement(
       DropdownButton_default,
       {
         text: "+ Add",
@@ -33835,7 +33805,7 @@ ${finalCode}`;
         searchable: true
       },
       dfNamesInNotebook.map((dfName, index) => {
-        return /* @__PURE__ */ import_react112.default.createElement(
+        return /* @__PURE__ */ import_react111.default.createElement(
           DropdownItem_default,
           {
             key: index,
@@ -33852,7 +33822,7 @@ ${finalCode}`;
           }
         );
       })
-    ))), dataframeCards, dataframeCards.length === 0 && /* @__PURE__ */ import_react112.default.createElement(Row_default, null, /* @__PURE__ */ import_react112.default.createElement("p", { className: "text-subtext-1" }, "Import an existing dataframe as a new sheet tab in Mito"))), /* @__PURE__ */ import_react112.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react112.default.createElement(
+    ))), dataframeCards, dataframeCards.length === 0 && /* @__PURE__ */ import_react111.default.createElement(Row_default, null, /* @__PURE__ */ import_react111.default.createElement("p", { className: "text-subtext-1" }, "Import an existing dataframe as a new sheet tab in Mito"))), /* @__PURE__ */ import_react111.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react111.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -33878,7 +33848,7 @@ ${finalCode}`;
       props.analysisData,
       { allowSameParamsToReapplyTwice: true }
     );
-    return /* @__PURE__ */ import_react113.default.createElement(
+    return /* @__PURE__ */ import_react112.default.createElement(
       DataframeImportScreen_default,
       {
         mitoAPI: props.mitoAPI,
@@ -33894,24 +33864,24 @@ ${finalCode}`;
   var DataframeImportTaskpane_default = DataframeImportTaskpane;
 
   // src/components/taskpanes/Download/DownloadTaskpane.tsx
-  var import_react118 = __toESM(require_react());
+  var import_react117 = __toESM(require_react());
 
   // src/components/taskpanes/Download/ExcelDownloadConfigSection.tsx
-  var import_react116 = __toESM(require_react());
+  var import_react115 = __toESM(require_react());
 
   // src/pro/download/ExcelFormatSection.tsx
-  var import_react114 = __toESM(require_react());
+  var import_react113 = __toESM(require_react());
   var ExcelFormatSection = (props) => {
     props;
-    return /* @__PURE__ */ import_react114.default.createElement(import_react114.default.Fragment, null, "Excel formatting export coming soon!");
+    return /* @__PURE__ */ import_react113.default.createElement(import_react113.default.Fragment, null, "Excel formatting export coming soon!");
   };
   var ExcelFormatSection_default = ExcelFormatSection;
 
   // src/components/elements/MultiToggleDataframes.tsx
-  var import_react115 = __toESM(require_react());
+  var import_react114 = __toESM(require_react());
   var MultiToggleDataframes = (props) => {
     const selectedSheetIndexes = [...props.selectedSheetIndexes].sort();
-    return /* @__PURE__ */ import_react115.default.createElement(
+    return /* @__PURE__ */ import_react114.default.createElement(
       MultiToggleBox_default,
       {
         width: "block",
@@ -33923,7 +33893,7 @@ ${finalCode}`;
       },
       props.sheetDataArray.map((sheetData, index) => {
         const dfName = sheetData.dfName;
-        return /* @__PURE__ */ import_react115.default.createElement(
+        return /* @__PURE__ */ import_react114.default.createElement(
           MultiToggleItem_default,
           {
             key: index,
@@ -33945,7 +33915,7 @@ ${finalCode}`;
 
   // src/components/taskpanes/Download/ExcelDownloadConfigSection.tsx
   var ExcelDownloadConfigSection = (props) => {
-    return /* @__PURE__ */ import_react116.default.createElement(import_react116.default.Fragment, null, /* @__PURE__ */ import_react116.default.createElement("p", { className: "text-header-3" }, "Dataframes to Export"), /* @__PURE__ */ import_react116.default.createElement(
+    return /* @__PURE__ */ import_react115.default.createElement(import_react115.default.Fragment, null, /* @__PURE__ */ import_react115.default.createElement("p", { className: "text-header-3" }, "Dataframes to Export"), /* @__PURE__ */ import_react115.default.createElement(
       MultiToggleDataframes_default,
       {
         sheetDataArray: props.sheetDataArray,
@@ -33959,7 +33929,7 @@ ${finalCode}`;
           });
         }
       }
-    ), props.userProfile.isPro && /* @__PURE__ */ import_react116.default.createElement(
+    ), props.userProfile.isPro && /* @__PURE__ */ import_react115.default.createElement(
       ExcelFormatSection_default,
       {
         dfNames: props.dfNames,
@@ -33969,7 +33939,7 @@ ${finalCode}`;
         newlyFormattedColumns: props.newlyFormattedColumns,
         setNewlyFormattedColumns: props.setNewlyFormattedColumns
       }
-    ), !props.userProfile.isPro && /* @__PURE__ */ import_react116.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react116.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to preserving your formatting when exporting to Excel? Consider upgrading to\xA0", /* @__PURE__ */ import_react116.default.createElement(
+    ), !props.userProfile.isPro && /* @__PURE__ */ import_react115.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react115.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to preserving your formatting when exporting to Excel? Consider upgrading to\xA0", /* @__PURE__ */ import_react115.default.createElement(
       "a",
       {
         onClick: () => void props.mitoAPI.log(
@@ -33989,9 +33959,9 @@ ${finalCode}`;
   var ExcelDownloadConfigSection_default = ExcelDownloadConfigSection;
 
   // src/components/taskpanes/Download/CSVDownloadConfigSection.tsx
-  var import_react117 = __toESM(require_react());
+  var import_react116 = __toESM(require_react());
   var CSVDownloadConfigSection = (props) => {
-    return /* @__PURE__ */ import_react117.default.createElement(import_react117.default.Fragment, null, /* @__PURE__ */ import_react117.default.createElement(
+    return /* @__PURE__ */ import_react116.default.createElement(import_react116.default.Fragment, null, /* @__PURE__ */ import_react116.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to Export",
@@ -34006,21 +33976,21 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react117.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react117.default.createElement("p", { className: "ma-25px text-align-center" }, "CSV exports will not reflect any formatting changes made in Mito.")));
+    ), /* @__PURE__ */ import_react116.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react116.default.createElement("p", { className: "ma-25px text-align-center" }, "CSV exports will not reflect any formatting changes made in Mito.")));
   };
   var CSVDownloadConfigSection_default = CSVDownloadConfigSection;
 
   // src/components/taskpanes/Download/DownloadTaskpane.tsx
   var DownloadTaskpane = (props) => {
     var _a;
-    const [newlyFormattedColumns, setNewlyFormattedColumns] = (0, import_react118.useState)(() => {
+    const [newlyFormattedColumns, setNewlyFormattedColumns] = (0, import_react117.useState)(() => {
       const newlyFormattedColumnsInitial = {};
       props.sheetDataArray.forEach((_, idx) => {
         newlyFormattedColumnsInitial[idx] = [];
       });
       return newlyFormattedColumnsInitial;
     });
-    const [exportString, setExportString] = (0, import_react118.useState)("");
+    const [exportString, setExportString] = (0, import_react117.useState)("");
     const emptySheet = props.sheetDataArray.length === 0;
     const numRows = (_a = props.sheetDataArray[props.selectedSheetIndex]) == null ? void 0 : _a.numRows;
     const loadExport = async () => {
@@ -34049,7 +34019,7 @@ ${finalCode}`;
       );
     };
     if (emptySheet) {
-      return /* @__PURE__ */ import_react118.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react117.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     let exportHRef = "";
     let exportName = "";
@@ -34066,13 +34036,13 @@ ${finalCode}`;
       ));
       exportName = "MitoExport.xlsx";
     }
-    return /* @__PURE__ */ import_react118.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react118.default.createElement(
+    return /* @__PURE__ */ import_react117.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react117.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Download",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react118.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react118.default.createElement("div", null, /* @__PURE__ */ import_react118.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react118.default.createElement("p", { className: "text-header-3" }, "Export Type"), /* @__PURE__ */ import_react118.default.createElement(
+    ), /* @__PURE__ */ import_react117.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react117.default.createElement("div", null, /* @__PURE__ */ import_react117.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react117.default.createElement("p", { className: "text-header-3" }, "Export Type"), /* @__PURE__ */ import_react117.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -34092,20 +34062,20 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react118.default.createElement(
+      /* @__PURE__ */ import_react117.default.createElement(
         DropdownItem_default,
         {
           title: "csv"
         }
       ),
-      /* @__PURE__ */ import_react118.default.createElement(
+      /* @__PURE__ */ import_react117.default.createElement(
         DropdownItem_default,
         {
           title: "excel",
           subtext: numRows > 1048576 ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.` : `Due to Python limitations, Excel export can be slower than CSV export.`
         }
       )
-    )), props.uiState.exportConfiguration.exportType === "excel" && /* @__PURE__ */ import_react118.default.createElement(
+    )), props.uiState.exportConfiguration.exportType === "excel" && /* @__PURE__ */ import_react117.default.createElement(
       ExcelDownloadConfigSection_default,
       {
         dfNames: props.dfNames,
@@ -34117,7 +34087,7 @@ ${finalCode}`;
         newlyFormattedColumns,
         setNewlyFormattedColumns
       }
-    ), props.uiState.exportConfiguration.exportType === "csv" && /* @__PURE__ */ import_react118.default.createElement(
+    ), props.uiState.exportConfiguration.exportType === "csv" && /* @__PURE__ */ import_react117.default.createElement(
       CSVDownloadConfigSection_default,
       {
         sheetDataArray: props.sheetDataArray,
@@ -34125,7 +34095,7 @@ ${finalCode}`;
         selectedSheetIndex: props.selectedSheetIndex,
         setUIState: props.setUIState
       }
-    ))), /* @__PURE__ */ import_react118.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react118.default.createElement(
+    ))), /* @__PURE__ */ import_react117.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react117.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34135,13 +34105,13 @@ ${finalCode}`;
         download: exportName,
         onClick: onDownload
       },
-      exportString === "" ? /* @__PURE__ */ import_react118.default.createElement(import_react118.default.Fragment, null, "Preparing data for download ", /* @__PURE__ */ import_react118.default.createElement(LoadingDots_default, null)) : `Download ${props.uiState.exportConfiguration.exportType === "csv" ? "CSV file" : "Excel workbook"}`
+      exportString === "" ? /* @__PURE__ */ import_react117.default.createElement(import_react117.default.Fragment, null, "Preparing data for download ", /* @__PURE__ */ import_react117.default.createElement(LoadingDots_default, null)) : `Download ${props.uiState.exportConfiguration.exportType === "csv" ? "CSV file" : "Excel workbook"}`
     )));
   };
   var DownloadTaskpane_default = DownloadTaskpane;
 
   // src/components/taskpanes/DropDuplicates/DropDuplicates.tsx
-  var import_react119 = __toESM(require_react());
+  var import_react118 = __toESM(require_react());
   var getDefaultParams3 = (selectedSheetIndex, sheetDataArray2) => {
     var _a;
     if (sheetDataArray2.length === 0) {
@@ -34161,7 +34131,7 @@ ${finalCode}`;
       props.analysisData
     );
     if (props.sheetDataArray.length === 0 || params === void 0) {
-      return /* @__PURE__ */ import_react119.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react118.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
     if (props.sheetDataArray[params.sheet_index] === void 0) {
       props.setUIState((prevUIState) => {
@@ -34169,15 +34139,15 @@ ${finalCode}`;
           currOpenTaskpane: { type: "none" /* NONE */ }
         });
       });
-      return /* @__PURE__ */ import_react119.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
+      return /* @__PURE__ */ import_react118.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState });
     }
-    return /* @__PURE__ */ import_react119.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react119.default.createElement(
+    return /* @__PURE__ */ import_react118.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react118.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Drop Duplicates",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react119.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react119.default.createElement(
+    ), /* @__PURE__ */ import_react118.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react118.default.createElement(
       DataframeSelect_default,
       {
         title: "Dataframe to drop duplicates within.",
@@ -34197,7 +34167,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react119.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react119.default.createElement(Col_default, null, /* @__PURE__ */ import_react119.default.createElement("p", { className: "text-header-3" }, "Duplicates to Keep")), /* @__PURE__ */ import_react119.default.createElement(Col_default, null, /* @__PURE__ */ import_react119.default.createElement(
+    ), /* @__PURE__ */ import_react118.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react118.default.createElement(Col_default, null, /* @__PURE__ */ import_react118.default.createElement("p", { className: "text-header-3" }, "Duplicates to Keep")), /* @__PURE__ */ import_react118.default.createElement(Col_default, null, /* @__PURE__ */ import_react118.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -34213,21 +34183,21 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react119.default.createElement(
+      /* @__PURE__ */ import_react118.default.createElement(
         DropdownItem_default,
         {
           title: "first",
           subtext: "Keep the first instance of the duplicated row."
         }
       ),
-      /* @__PURE__ */ import_react119.default.createElement(
+      /* @__PURE__ */ import_react118.default.createElement(
         DropdownItem_default,
         {
           title: "last",
           subtext: "Keep the last instance of the duplicated row."
         }
       ),
-      /* @__PURE__ */ import_react119.default.createElement(
+      /* @__PURE__ */ import_react118.default.createElement(
         DropdownItem_default,
         {
           id: "false",
@@ -34235,7 +34205,7 @@ ${finalCode}`;
           subtext: "Keep none of the duplicated rows."
         }
       )
-    ))), /* @__PURE__ */ import_react119.default.createElement("p", { className: "text-header-3 mt-10px" }, "Columns to Deduplicate On"), /* @__PURE__ */ import_react119.default.createElement(
+    ))), /* @__PURE__ */ import_react118.default.createElement("p", { className: "text-header-3 mt-10px" }, "Columns to Deduplicate On"), /* @__PURE__ */ import_react118.default.createElement(
       MultiToggleColumns_default,
       {
         sheetData: props.sheetDataArray[params.sheet_index],
@@ -34248,7 +34218,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react119.default.createElement(Spacer_default, { px: 25 }), /* @__PURE__ */ import_react119.default.createElement(
+    ), /* @__PURE__ */ import_react118.default.createElement(Spacer_default, { px: 25 }), /* @__PURE__ */ import_react118.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34257,20 +34227,20 @@ ${finalCode}`;
         disabled: false
       },
       !loading ? `Drop duplicates in ${params.column_ids.length} columns` : "Dropping duplicates..."
-    ), editApplied && !loading && /* @__PURE__ */ import_react119.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react119.default.createElement("p", { className: "text-subtext-1" }, "Removed ", /* @__PURE__ */ import_react119.default.createElement("span", { className: "text-color-gray-important" }, !attemptedEditWithTheseParamsMultipleTimes ? (result == null ? void 0 : result.num_rows_dropped) || 0 : 0), " rows."))));
+    ), editApplied && !loading && /* @__PURE__ */ import_react118.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react118.default.createElement("p", { className: "text-subtext-1" }, "Removed ", /* @__PURE__ */ import_react118.default.createElement("span", { className: "text-color-gray-important" }, !attemptedEditWithTheseParamsMultipleTimes ? (result == null ? void 0 : result.num_rows_dropped) || 0 : 0), " rows."))));
   };
   var DropDuplicates_default = DropDuplicatesTaskpane;
 
   // src/components/taskpanes/FileImport/FileImportTaskpane.tsx
-  var import_react136 = __toESM(require_react());
+  var import_react135 = __toESM(require_react());
 
   // src/components/import/FileBrowser/FileBrowser.tsx
-  var import_react129 = __toESM(require_react());
+  var import_react128 = __toESM(require_react());
 
   // src/components/icons/ConfigureIcon.tsx
-  var import_react120 = __toESM(require_react());
+  var import_react119 = __toESM(require_react());
   var ConfigureIcon = () => {
-    return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
+    return /* @__PURE__ */ import_react119.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react119.default.createElement("path", { d: "M8.89617 1.82873L7.80328 2.57459L6.92896 2.04972V1H4.96175V2.04972L4.1694 2.57459L3.24044 1.82873L1.81967 3.18232L2.55738 4.09392C2.46135 4.43914 2.31148 5.06077 2.31148 5.06077L1 5.19889V6.96685L2.31148 7.1326L2.55738 8.20994L1.81967 9.14917L3.13115 10.3094L4.1694 9.50829L5.07104 10.0884V11H6.92896V10.0884L7.80328 9.50829L8.89617 10.3094L10.153 9.14917L9.44262 8.20994L9.79781 7.1326L11 6.96685V5.19889L9.79781 4.9779L9.44262 4.09392L10.153 3.18232L8.89617 1.82873Z", stroke: "#9D6CFF" }));
   };
   var ConfigureIcon_default = ConfigureIcon;
 
@@ -34418,48 +34388,48 @@ ${finalCode}`;
   };
 
   // src/components/import/FileBrowser/FileBrowserBody.tsx
-  var import_react128 = __toESM(require_react());
+  var import_react127 = __toESM(require_react());
 
   // src/components/icons/SortArrowIcon.tsx
-  var import_react121 = __toESM(require_react());
+  var import_react120 = __toESM(require_react());
   var SortArrowIcon = (props) => {
     if (props.direction === "ascending") {
-      return /* @__PURE__ */ import_react121.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react121.default.createElement("path", { d: "M4.00073 4L0.536631 0.25H7.46483L4.00073 4Z", fill: "#C4C4C4" }));
+      return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M4.00073 4L0.536631 0.25H7.46483L4.00073 4Z", fill: "#C4C4C4" }));
     } else {
-      return /* @__PURE__ */ import_react121.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react121.default.createElement("path", { d: "M4.00073 0L0.536631 3.75H7.46483L4.00073 0Z", fill: "#C4C4C4" }));
+      return /* @__PURE__ */ import_react120.default.createElement("svg", { width: "8", height: "4", viewBox: "0 0 8 4", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react120.default.createElement("path", { d: "M4.00073 0L0.536631 3.75H7.46483L4.00073 0Z", fill: "#C4C4C4" }));
     }
   };
   var SortArrowIcon_default = SortArrowIcon;
 
   // src/components/import/FileBrowser/FileBrowserElement.tsx
-  var import_react125 = __toESM(require_react());
+  var import_react124 = __toESM(require_react());
 
   // src/components/icons/CSVFileIcon.tsx
-  var import_react122 = __toESM(require_react());
+  var import_react121 = __toESM(require_react());
   var CSVFileIcon = () => {
-    return /* @__PURE__ */ import_react122.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react122.default.createElement("path", { d: "M1 3.75V6C1 6.13807 1.11193 6.25 1.25 6.25H4M1 3.75V1.5C1 1.36193 1.11193 1.25 1.25 1.25H4M1 3.75H7M7 3.75V1.5C7 1.36193 6.88807 1.25 6.75 1.25H4M7 3.75V6C7 6.13807 6.88807 6.25 6.75 6.25H4M4 1.25V6.25", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react121.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react121.default.createElement("path", { d: "M1 3.75V6C1 6.13807 1.11193 6.25 1.25 6.25H4M1 3.75V1.5C1 1.36193 1.11193 1.25 1.25 1.25H4M1 3.75H7M7 3.75V1.5C7 1.36193 6.88807 1.25 6.75 1.25H4M7 3.75V6C7 6.13807 6.88807 6.25 6.75 6.25H4M4 1.25V6.25", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var CSVFileIcon_default = CSVFileIcon;
 
   // src/components/icons/DirectoryIcon.tsx
-  var import_react123 = __toESM(require_react());
+  var import_react122 = __toESM(require_react());
   var DirectoryIcon = () => {
-    return /* @__PURE__ */ import_react123.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react123.default.createElement("path", { d: "M3.86144 1H1.25C1.11193 1 1 1.11193 1 1.25V4.75C1 4.88807 1.11193 5 1.25 5H6.75C6.88807 5 7 4.88807 7 4.75V2.05C7 1.91193 6.88807 1.8 6.75 1.8H4.63856C4.55236 1.8 4.47225 1.75559 4.42656 1.6825L4.07344 1.1175C4.02775 1.0444 3.94764 1 3.86144 1Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react122.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 6", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react122.default.createElement("path", { d: "M3.86144 1H1.25C1.11193 1 1 1.11193 1 1.25V4.75C1 4.88807 1.11193 5 1.25 5H6.75C6.88807 5 7 4.88807 7 4.75V2.05C7 1.91193 6.88807 1.8 6.75 1.8H4.63856C4.55236 1.8 4.47225 1.75559 4.42656 1.6825L4.07344 1.1175C4.02775 1.0444 3.94764 1 3.86144 1Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var DirectoryIcon_default = DirectoryIcon;
 
   // src/components/icons/FileIcon.tsx
-  var import_react124 = __toESM(require_react());
+  var import_react123 = __toESM(require_react());
   var FileIcon = () => {
-    return /* @__PURE__ */ import_react124.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react124.default.createElement("path", { d: "M1 1.25V5.75C1 5.88807 1.11193 6 1.25 6H6.75C6.88807 6 7 5.88807 7 5.75V2.94244C7 2.89827 6.9883 2.85489 6.96609 2.81671L5.9814 1.12428C5.93663 1.04733 5.85433 1 5.76531 1H1.25C1.11193 1 1 1.11193 1 1.25Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react124.default.createElement("path", { d: "M2.63647 2.71875H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react124.default.createElement("path", { d: "M2.63647 4.28125H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
+    return /* @__PURE__ */ import_react123.default.createElement("svg", { width: "15", height: "15", viewBox: "0 0 8 7", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react123.default.createElement("path", { d: "M1 1.25V5.75C1 5.88807 1.11193 6 1.25 6H6.75C6.88807 6 7 5.88807 7 5.75V2.94244C7 2.89827 6.9883 2.85489 6.96609 2.81671L5.9814 1.12428C5.93663 1.04733 5.85433 1 5.76531 1H1.25C1.11193 1 1 1.11193 1 1.25Z", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react123.default.createElement("path", { d: "M2.63647 2.71875H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }), /* @__PURE__ */ import_react123.default.createElement("path", { d: "M2.63647 4.28125H5.36375", stroke: "#343434", strokeWidth: "0.75", strokeLinecap: "round", strokeLinejoin: "round" }));
   };
   var FileIcon_default = FileIcon;
 
   // src/components/import/FileBrowser/FileBrowserElement.tsx
   function FileBrowserElement(props) {
-    const elementRef = (0, import_react125.useRef)(null);
+    const elementRef = (0, import_react124.useRef)(null);
     const isSelected = props.index === props.fileBrowserState.selectedElementIndex;
-    (0, import_react125.useEffect)(() => {
+    (0, import_react124.useEffect)(() => {
       var _a;
       const element = elementRef.current;
       const parent = (_a = elementRef.current) == null ? void 0 : _a.parentElement;
@@ -34468,7 +34438,7 @@ ${finalCode}`;
       }
     }, [isSelected]);
     const invalidFileError = getInvalidFileError(props.element, props.userProfile);
-    return /* @__PURE__ */ import_react125.default.createElement(
+    return /* @__PURE__ */ import_react124.default.createElement(
       "div",
       {
         ref: elementRef,
@@ -34522,19 +34492,19 @@ ${finalCode}`;
           }
         }
       },
-      /* @__PURE__ */ import_react125.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between" }, /* @__PURE__ */ import_react125.default.createElement(Col_default, { span: 17, offsetRight: 1 }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "flexbox-row" }, /* @__PURE__ */ import_react125.default.createElement("div", { className: "mr-5px mt-2px" }, props.element.isDirectory && props.element.isParentDirectory && /* @__PURE__ */ import_react125.default.createElement(BackArrowIcon_default, { width: "14px" }), props.element.isDirectory && !props.element.isParentDirectory && /* @__PURE__ */ import_react125.default.createElement(DirectoryIcon_default, null), !props.element.isDirectory && invalidFileError === void 0 && /* @__PURE__ */ import_react125.default.createElement(CSVFileIcon_default, null), !props.element.isDirectory && invalidFileError !== void 0 && /* @__PURE__ */ import_react125.default.createElement(FileIcon_default, null)), /* @__PURE__ */ import_react125.default.createElement("div", null, props.element.name))), /* @__PURE__ */ import_react125.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react125.default.createElement("p", { className: "text-align-right" }, props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)))),
-      isSelected && invalidFileError !== void 0 && /* @__PURE__ */ import_react125.default.createElement("div", { className: "pl-5px pr-5px" }, /* @__PURE__ */ import_react125.default.createElement("span", null, " ", invalidFileError, " "))
+      /* @__PURE__ */ import_react124.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between" }, /* @__PURE__ */ import_react124.default.createElement(Col_default, { span: 17, offsetRight: 1 }, /* @__PURE__ */ import_react124.default.createElement("div", { className: "flexbox-row" }, /* @__PURE__ */ import_react124.default.createElement("div", { className: "mr-5px mt-2px" }, props.element.isDirectory && props.element.isParentDirectory && /* @__PURE__ */ import_react124.default.createElement(BackArrowIcon_default, { width: "14px" }), props.element.isDirectory && !props.element.isParentDirectory && /* @__PURE__ */ import_react124.default.createElement(DirectoryIcon_default, null), !props.element.isDirectory && invalidFileError === void 0 && /* @__PURE__ */ import_react124.default.createElement(CSVFileIcon_default, null), !props.element.isDirectory && invalidFileError !== void 0 && /* @__PURE__ */ import_react124.default.createElement(FileIcon_default, null)), /* @__PURE__ */ import_react124.default.createElement("div", null, props.element.name))), /* @__PURE__ */ import_react124.default.createElement(Col_default, { span: 6 }, /* @__PURE__ */ import_react124.default.createElement("p", { className: "text-align-right" }, props.element.lastModified !== 0 && getLastModifiedString(props.element.lastModified)))),
+      isSelected && invalidFileError !== void 0 && /* @__PURE__ */ import_react124.default.createElement("div", { className: "pl-5px pr-5px" }, /* @__PURE__ */ import_react124.default.createElement("span", null, " ", invalidFileError, " "))
     );
   }
   var FileBrowserElement_default = FileBrowserElement;
 
   // src/components/import/FileBrowser/FileBrowserPathSelector.tsx
-  var import_react127 = __toESM(require_react());
+  var import_react126 = __toESM(require_react());
 
   // src/components/icons/DriveIcon.tsx
-  var import_react126 = __toESM(require_react());
+  var import_react125 = __toESM(require_react());
   var DriveIcon = () => {
-    return /* @__PURE__ */ import_react126.default.createElement("svg", { width: "17", height: "13", viewBox: "0 0 17 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react126.default.createElement("path", { d: "M15.6711 7.6579V11.5C15.6711 11.9142 15.3353 12.25 14.9211 12.25H1.5C1.08579 12.25 0.75 11.9142 0.75 11.5V7.6579C0.75 7.24368 1.08579 6.9079 1.5 6.9079H4.10526H14.9211C15.3353 6.9079 15.6711 7.24368 15.6711 7.6579Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react126.default.createElement("path", { d: "M14.5503 2.63128L15.4318 6.43421H0.989295L1.87037 2.63151C2.08764 1.69377 2.16023 1.44349 2.28529 1.26975C2.42019 1.08234 2.60436 0.935958 2.81738 0.846842C3.01487 0.764224 3.27508 0.75 4.23766 0.75H8.21021H12.183C13.1455 0.75 13.4057 0.764222 13.6032 0.846828C13.8162 0.935931 14.0003 1.08229 14.1352 1.26968C14.2603 1.4434 14.3329 1.69365 14.5503 2.63128Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react126.default.createElement("circle", { cx: "10.6052", cy: "9.23683", r: "1.02632", fill: "#494650" }), /* @__PURE__ */ import_react126.default.createElement("path", { d: "M14.3683 9.23683C14.3683 9.80364 13.9088 10.2631 13.342 10.2631C12.7752 10.2631 12.3157 9.80364 12.3157 9.23683C12.3157 8.67001 12.7752 8.21051 13.342 8.21051C13.9088 8.21051 14.3683 8.67001 14.3683 9.23683Z", fill: "#494650" }));
+    return /* @__PURE__ */ import_react125.default.createElement("svg", { width: "17", height: "13", viewBox: "0 0 17 13", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ import_react125.default.createElement("path", { d: "M15.6711 7.6579V11.5C15.6711 11.9142 15.3353 12.25 14.9211 12.25H1.5C1.08579 12.25 0.75 11.9142 0.75 11.5V7.6579C0.75 7.24368 1.08579 6.9079 1.5 6.9079H4.10526H14.9211C15.3353 6.9079 15.6711 7.24368 15.6711 7.6579Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react125.default.createElement("path", { d: "M14.5503 2.63128L15.4318 6.43421H0.989295L1.87037 2.63151C2.08764 1.69377 2.16023 1.44349 2.28529 1.26975C2.42019 1.08234 2.60436 0.935958 2.81738 0.846842C3.01487 0.764224 3.27508 0.75 4.23766 0.75H8.21021H12.183C13.1455 0.75 13.4057 0.764222 13.6032 0.846828C13.8162 0.935931 14.0003 1.08229 14.1352 1.26968C14.2603 1.4434 14.3329 1.69365 14.5503 2.63128Z", stroke: "#494650", strokeWidth: "1.5" }), /* @__PURE__ */ import_react125.default.createElement("circle", { cx: "10.6052", cy: "9.23683", r: "1.02632", fill: "#494650" }), /* @__PURE__ */ import_react125.default.createElement("path", { d: "M14.3683 9.23683C14.3683 9.80364 13.9088 10.2631 13.342 10.2631C12.7752 10.2631 12.3157 9.80364 12.3157 9.23683C12.3157 8.67001 12.7752 8.21051 13.342 8.21051C13.9088 8.21051 14.3683 8.67001 14.3683 9.23683Z", fill: "#494650" }));
   };
   var DriveIcon_default = DriveIcon;
 
@@ -34548,20 +34518,20 @@ ${finalCode}`;
       const subPathParts = props.pathParts.slice(0, i + 1);
       props.setCurrPathParts(subPathParts);
     };
-    return /* @__PURE__ */ import_react127.default.createElement("div", { className: "file-browser-path-selector" }, (_a = props.pathParts) == null ? void 0 : _a.map((pathPart, i) => {
-      return /* @__PURE__ */ import_react127.default.createElement(import_react127.default.Fragment, { key: i }, /* @__PURE__ */ import_react127.default.createElement("div", { className: "file-browser-path-part", key: i, onClick: () => {
+    return /* @__PURE__ */ import_react126.default.createElement("div", { className: "file-browser-path-selector" }, (_a = props.pathParts) == null ? void 0 : _a.map((pathPart, i) => {
+      return /* @__PURE__ */ import_react126.default.createElement(import_react126.default.Fragment, { key: i }, /* @__PURE__ */ import_react126.default.createElement("div", { className: "file-browser-path-part", key: i, onClick: () => {
         updateSelectedPath(i);
-      } }, i === 0 ? /* @__PURE__ */ import_react127.default.createElement(DriveIcon_default, null) : pathPart), /* @__PURE__ */ import_react127.default.createElement("div", { className: "file-browser-path-seperator" }, ">"));
+      } }, i === 0 ? /* @__PURE__ */ import_react126.default.createElement(DriveIcon_default, null) : pathPart), /* @__PURE__ */ import_react126.default.createElement("div", { className: "file-browser-path-seperator" }, ">"));
     }));
   }
   var FileBrowserPathSelector_default = FileBrowserPathSelector;
 
   // src/components/import/FileBrowser/FileBrowserBody.tsx
   function FileBrowserBody(props) {
-    const inputRef = (0, import_react128.useRef)(null);
+    const inputRef = (0, import_react127.useRef)(null);
     const elementsToDisplay = getElementsToDisplay(props.fileBrowserState);
     const selectedFile = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
-    (0, import_react128.useEffect)(() => {
+    (0, import_react127.useEffect)(() => {
       var _a;
       props.setFileBrowserState((prevImportState) => {
         return __spreadProps(__spreadValues({}, prevImportState), {
@@ -34570,18 +34540,18 @@ ${finalCode}`;
       });
       (_a = inputRef.current) == null ? void 0 : _a.focus();
     }, [props.fileBrowserState.pathContents.path_parts]);
-    (0, import_react128.useEffect)(() => {
+    (0, import_react127.useEffect)(() => {
       var _a;
       (_a = inputRef.current) == null ? void 0 : _a.focus();
     }, [props.fileBrowserState.selectedElementIndex, props.fileBrowserState.sort]);
     const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
-    return /* @__PURE__ */ import_react128.default.createElement("div", { className: "file-browser flexbox-column" }, /* @__PURE__ */ import_react128.default.createElement("div", null, /* @__PURE__ */ import_react128.default.createElement(
+    return /* @__PURE__ */ import_react127.default.createElement("div", { className: "file-browser flexbox-column" }, /* @__PURE__ */ import_react127.default.createElement("div", null, /* @__PURE__ */ import_react127.default.createElement(
       FileBrowserPathSelector_default,
       {
         setCurrPathParts: props.setCurrPathParts,
         pathParts: props.fileBrowserState.pathContents.path_parts
       }
-    )), /* @__PURE__ */ import_react128.default.createElement(Row_default, { className: "border-t-light-gray border-b-light-gray", justify: "space-between" }, /* @__PURE__ */ import_react128.default.createElement(
+    )), /* @__PURE__ */ import_react127.default.createElement(Row_default, { className: "border-t-light-gray border-b-light-gray", justify: "space-between" }, /* @__PURE__ */ import_react127.default.createElement(
       Col_default,
       {
         span: 18,
@@ -34594,9 +34564,9 @@ ${finalCode}`;
           });
         }
       },
-      /* @__PURE__ */ import_react128.default.createElement("p", { className: "text-body-2 pt-5px pb-5px" }, "Name"),
-      props.fileBrowserState.sort.startsWith("name") && /* @__PURE__ */ import_react128.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react128.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" }))
-    ), /* @__PURE__ */ import_react128.default.createElement(
+      /* @__PURE__ */ import_react127.default.createElement("p", { className: "text-body-2 pt-5px pb-5px" }, "Name"),
+      props.fileBrowserState.sort.startsWith("name") && /* @__PURE__ */ import_react127.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react127.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" }))
+    ), /* @__PURE__ */ import_react127.default.createElement(
       Col_default,
       {
         span: 6,
@@ -34609,15 +34579,15 @@ ${finalCode}`;
           });
         }
       },
-      props.fileBrowserState.sort.startsWith("last_modified") && /* @__PURE__ */ import_react128.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react128.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" })),
-      /* @__PURE__ */ import_react128.default.createElement(
+      props.fileBrowserState.sort.startsWith("last_modified") && /* @__PURE__ */ import_react127.default.createElement("div", { className: "mr-5px ml-5px" }, /* @__PURE__ */ import_react127.default.createElement(SortArrowIcon_default, { direction: props.fileBrowserState.sort.endsWith("descending") ? "descending" : "ascending" })),
+      /* @__PURE__ */ import_react127.default.createElement(
         "p",
         {
           className: "text-body-2 pt-5px pb-5px"
         },
         "Last Modified"
       )
-    )), /* @__PURE__ */ import_react128.default.createElement("div", { className: "mt-5px mb-5px" }, /* @__PURE__ */ import_react128.default.createElement(
+    )), /* @__PURE__ */ import_react127.default.createElement("div", { className: "mt-5px mb-5px" }, /* @__PURE__ */ import_react127.default.createElement(
       "input",
       {
         className: classNames("mito-input", "text-body-2", "element-width-block"),
@@ -34682,7 +34652,7 @@ ${finalCode}`;
         width: "block",
         autoFocus: true
       }
-    )), /* @__PURE__ */ import_react128.default.createElement("div", { className: "file-browser-element-list" }, displayUpgradeToPro && /* @__PURE__ */ import_react128.default.createElement(import_react128.default.Fragment, null, /* @__PURE__ */ import_react128.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react128.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to import from a different drive? Consider\xA0", /* @__PURE__ */ import_react128.default.createElement(
+    )), /* @__PURE__ */ import_react127.default.createElement("div", { className: "file-browser-element-list" }, displayUpgradeToPro && /* @__PURE__ */ import_react127.default.createElement(import_react127.default.Fragment, null, /* @__PURE__ */ import_react127.default.createElement(Row_default, { justify: "space-around" }, /* @__PURE__ */ import_react127.default.createElement("p", { className: "ma-25px text-align-center text-body-1" }, "Want to import from a different drive? Consider\xA0", /* @__PURE__ */ import_react127.default.createElement(
       "a",
       {
         onClick: () => {
@@ -34699,7 +34669,7 @@ ${finalCode}`;
         className: "text-body-1-link"
       },
       "upgrading to Mito Pro"
-    ), " or\xA0", /* @__PURE__ */ import_react128.default.createElement(
+    ), " or\xA0", /* @__PURE__ */ import_react127.default.createElement(
       "a",
       {
         onClick: () => {
@@ -34708,8 +34678,8 @@ ${finalCode}`;
         className: "text-body-1-link"
       },
       "go back to current directory."
-    )))), !displayUpgradeToPro && /* @__PURE__ */ import_react128.default.createElement(import_react128.default.Fragment, null, !props.fileBrowserState.loadingFolder && (elementsToDisplay == null ? void 0 : elementsToDisplay.map((element, i) => {
-      return /* @__PURE__ */ import_react128.default.createElement(
+    )))), !displayUpgradeToPro && /* @__PURE__ */ import_react127.default.createElement(import_react127.default.Fragment, null, !props.fileBrowserState.loadingFolder && (elementsToDisplay == null ? void 0 : elementsToDisplay.map((element, i) => {
+      return /* @__PURE__ */ import_react127.default.createElement(
         FileBrowserElement_default,
         {
           key: i,
@@ -34726,13 +34696,13 @@ ${finalCode}`;
           userProfile: props.userProfile
         }
       );
-    })), props.fileBrowserState.loadingFolder && /* @__PURE__ */ import_react128.default.createElement("p", null, "Loading folder contents..."))));
+    })), props.fileBrowserState.loadingFolder && /* @__PURE__ */ import_react127.default.createElement("p", null, "Loading folder contents..."))));
   }
   var FileBrowserBody_default = FileBrowserBody;
 
   // src/components/import/FileBrowser/FileBrowser.tsx
   function FileBrowser(props) {
-    const [fileBrowserState, setFileBrowserState] = (0, import_react129.useState)({
+    const [fileBrowserState, setFileBrowserState] = (0, import_react128.useState)({
       pathContents: {
         path_parts: props.currPathParts,
         elements: []
@@ -34744,7 +34714,7 @@ ${finalCode}`;
       loadingImport: false
     });
     const selectedFile = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
-    (0, import_react129.useEffect)(() => {
+    (0, import_react128.useEffect)(() => {
       void loadPathContents(props.currPathParts);
       setFileBrowserState((prevImportState) => {
         return __spreadProps(__spreadValues({}, prevImportState), {
@@ -34753,7 +34723,7 @@ ${finalCode}`;
       });
       void props.mitoAPI.log("curr_path_changed", { "path_parts_length": props.currPathParts.length });
     }, [props.currPathParts]);
-    (0, import_react129.useEffect)(() => {
+    (0, import_react128.useEffect)(() => {
       let selectedElementName = "";
       if (selectedFile === void 0) {
         selectedElementName = "undefined";
@@ -34800,7 +34770,7 @@ ${finalCode}`;
       fileBrowserState.loadingImport,
       props.isUpdate
     );
-    return /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react129.default.createElement(
+    return /* @__PURE__ */ import_react128.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react128.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? "Import Files" : "Update Import",
@@ -34808,7 +34778,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, /* @__PURE__ */ import_react129.default.createElement(
+    ), /* @__PURE__ */ import_react128.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, /* @__PURE__ */ import_react128.default.createElement(
       FileBrowserBody_default,
       {
         mitoAPI: props.mitoAPI,
@@ -34821,7 +34791,7 @@ ${finalCode}`;
         importCSVFile: props.importCSVFile,
         setImportState: props.setImportState
       }
-    )), /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between" }, !importButtonStatus.disabled && !isExcelFile(selectedFile) && /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(
+    )), /* @__PURE__ */ import_react128.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react128.default.createElement(Row_default, { justify: "space-between" }, !importButtonStatus.disabled && !isExcelFile(selectedFile) && /* @__PURE__ */ import_react128.default.createElement(Col_default, null, /* @__PURE__ */ import_react128.default.createElement(
       TextButton_default,
       {
         variant: "light",
@@ -34842,8 +34812,8 @@ ${finalCode}`;
         },
         disabled: importButtonStatus.disabled
       },
-      /* @__PURE__ */ import_react129.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react129.default.createElement(ConfigureIcon_default, null), /* @__PURE__ */ import_react129.default.createElement("p", { className: "ml-2px" }, "Configure"))
-    )), /* @__PURE__ */ import_react129.default.createElement(Col_default, { span: !importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24 }, /* @__PURE__ */ import_react129.default.createElement(
+      /* @__PURE__ */ import_react128.default.createElement(Row_default, { suppressTopBottomMargin: true, justify: "space-between", align: "center" }, /* @__PURE__ */ import_react128.default.createElement(ConfigureIcon_default, null), /* @__PURE__ */ import_react128.default.createElement("p", { className: "ml-2px" }, "Configure"))
+    )), /* @__PURE__ */ import_react128.default.createElement(Col_default, { span: !importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24 }, /* @__PURE__ */ import_react128.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -34874,10 +34844,10 @@ ${finalCode}`;
   var FileBrowser_default = FileBrowser;
 
   // src/components/taskpanes/FileImport/CSVImportConfigTaskpane.tsx
-  var import_react131 = __toESM(require_react());
+  var import_react130 = __toESM(require_react());
 
   // src/components/import/CSVImportConfigScreen.tsx
-  var import_react130 = __toESM(require_react());
+  var import_react129 = __toESM(require_react());
   var ENCODINGS = [
     "utf_8",
     "ascii",
@@ -35033,7 +35003,7 @@ ${finalCode}`;
       });
     };
     if (props.params === void 0 || props.fileName === void 0 || props.filePath === void 0) {
-      return /* @__PURE__ */ import_react130.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your CSV file encodings. Please try again, or contact support.");
+      return /* @__PURE__ */ import_react129.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your CSV file encodings. Please try again, or contact support.");
     }
     const delimeters = props.params.delimeters;
     const encodings = props.params.encodings;
@@ -35045,7 +35015,7 @@ ${finalCode}`;
     const currentDecimal = decimals !== void 0 ? decimals[0] : DEFAULT_DECIMAL;
     const currentSkiprows = skiprows !== void 0 ? skiprows[0] : DEFAULT_SKIPROWS;
     const currentErrorBadLines = error_bad_lines !== void 0 ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
-    return /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    return /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react129.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`,
@@ -35053,7 +35023,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, props.error !== void 0 && /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-color-error" }, " ", props.error, " "), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: DELIMETER_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: DELIMETER_TOOLTIP }, "Delimeter")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ), /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpaneBody_default, { noScroll: true }, props.error !== void 0 && /* @__PURE__ */ import_react129.default.createElement("p", { className: "text-color-error" }, " ", props.error, " "), /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between", align: "center", title: DELIMETER_TOOLTIP }, /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(LabelAndTooltip_default, { tooltip: DELIMETER_TOOLTIP }, "Delimeter")), /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(
       Input_default,
       {
         width: "medium",
@@ -35079,7 +35049,7 @@ ${finalCode}`;
         },
         selectTextOnFocus: true
       }
-    ))), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ))), /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between", align: "center", title: ENCODING_TOOLTIP }, /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(LabelAndTooltip_default, { tooltip: ENCODING_TOOLTIP }, "Encoding")), /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(
       Select_default,
       {
         searchable: true,
@@ -35094,9 +35064,9 @@ ${finalCode}`;
         }
       },
       ENCODINGS.map((encoding) => {
-        return /* @__PURE__ */ import_react130.default.createElement(DropdownItem_default, { key: encoding, title: encoding });
+        return /* @__PURE__ */ import_react129.default.createElement(DropdownItem_default, { key: encoding, title: encoding });
       })
-    ))), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ))), /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(
       Select_default,
       {
         searchable: true,
@@ -35112,9 +35082,9 @@ ${finalCode}`;
       },
       Object.keys(decimalCharToTitle).map((decimalCharacter) => {
         const decimalTitle = decimalCharToTitle[decimalCharacter];
-        return /* @__PURE__ */ import_react130.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
+        return /* @__PURE__ */ import_react129.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
       })
-    ))), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    ))), /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(
       Input_default,
       {
         value: "" + currentSkiprows,
@@ -35131,14 +35101,14 @@ ${finalCode}`;
         },
         selectTextOnFocus: true
       }
-    ))), /* @__PURE__ */ import_react130.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react130.default.createElement(Col_default, null, /* @__PURE__ */ import_react130.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
+    ))), /* @__PURE__ */ import_react129.default.createElement(Row_default, { justify: "space-between", align: "center", title: ERROR_BAD_LINES_TOOLTIP }, /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(LabelAndTooltip_default, { tooltip: ERROR_BAD_LINES_TOOLTIP }, "Skip Invalid Lines")), /* @__PURE__ */ import_react129.default.createElement(Col_default, null, /* @__PURE__ */ import_react129.default.createElement(Toggle_default, { value: !currentErrorBadLines, onChange: () => {
       props.setParams((prevParams) => {
         const error_bad_lines2 = prevParams.error_bad_lines;
         return __spreadProps(__spreadValues({}, prevParams), {
           error_bad_lines: [error_bad_lines2 !== void 0 ? !error_bad_lines2[0] : DEFAULT_ERROR_BAD_LINES]
         });
       });
-    } }))), /* @__PURE__ */ import_react130.default.createElement(Row_default, null, /* @__PURE__ */ import_react130.default.createElement(
+    } }))), /* @__PURE__ */ import_react129.default.createElement(Row_default, null, /* @__PURE__ */ import_react129.default.createElement(
       "p",
       {
         onClick: () => {
@@ -35154,8 +35124,8 @@ ${finalCode}`;
         }
       },
       "Want to import multiple ranges from this file? ",
-      /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-underline" }, "Click here.")
-    ))), /* @__PURE__ */ import_react130.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react130.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react130.default.createElement(
+      /* @__PURE__ */ import_react129.default.createElement("span", { className: "text-underline" }, "Click here.")
+    ))), /* @__PURE__ */ import_react129.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react129.default.createElement("p", { className: "text-body-2 text-color-medium-gray-important mb-5px" }, /* @__PURE__ */ import_react129.default.createElement("span", { className: "text-body-2-link", onClick: resetParams }, "Reset parameters to automatically detected parameters. ")), /* @__PURE__ */ import_react129.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35166,7 +35136,7 @@ ${finalCode}`;
         autoFocus: true
       },
       getButtonMessage2(props.fileName, props.loading, props.isUpdate)
-    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react130.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage(props.fileName)), !props.editApplied && /* @__PURE__ */ import_react130.default.createElement(Spacer_default, { px: 16 })));
+    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react129.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage(props.fileName)), !props.editApplied && /* @__PURE__ */ import_react129.default.createElement(Spacer_default, { px: 16 })));
   }
   var CSVImportConfigScreen_default = CSVImportConfigScreen;
 
@@ -35187,7 +35157,7 @@ ${finalCode}`;
       props.analysisData,
       { allowSameParamsToReapplyTwice: true }
     );
-    return /* @__PURE__ */ import_react131.default.createElement(
+    return /* @__PURE__ */ import_react130.default.createElement(
       CSVImportConfigScreen_default,
       {
         mitoAPI: props.mitoAPI,
@@ -35211,18 +35181,18 @@ ${finalCode}`;
   var CSVImportConfigTaskpane_default = CSVImportConfigTaskpane;
 
   // src/components/taskpanes/FileImport/XLSXImportConfigTaskpane.tsx
-  var import_react135 = __toESM(require_react());
-
-  // src/components/import/XLSXImportConfigScreen.tsx
   var import_react134 = __toESM(require_react());
 
-  // src/components/elements/RadioButtonBox.tsx
+  // src/components/import/XLSXImportConfigScreen.tsx
   var import_react133 = __toESM(require_react());
 
-  // src/components/elements/RadioButtonItem.tsx
+  // src/components/elements/RadioButtonBox.tsx
   var import_react132 = __toESM(require_react());
+
+  // src/components/elements/RadioButtonItem.tsx
+  var import_react131 = __toESM(require_react());
   var RadioButtonItem = (props) => {
-    return /* @__PURE__ */ import_react132.default.createElement(
+    return /* @__PURE__ */ import_react131.default.createElement(
       "div",
       {
         key: props.value,
@@ -35231,8 +35201,8 @@ ${finalCode}`;
         },
         className: classNames("radio-button-box-row", { "radio-button-box-row-selected": props.checked })
       },
-      /* @__PURE__ */ import_react132.default.createElement("input", { type: "radio", name: props.value, value: props.value, checked: props.checked }),
-      /* @__PURE__ */ import_react132.default.createElement("label", { htmlFor: props.value }, props.value)
+      /* @__PURE__ */ import_react131.default.createElement("input", { type: "radio", name: props.value, value: props.value, checked: props.checked }),
+      /* @__PURE__ */ import_react131.default.createElement("label", { htmlFor: props.value }, props.value)
     );
   };
   var RadioButtonItem_default = RadioButtonItem;
@@ -35240,9 +35210,9 @@ ${finalCode}`;
   // src/components/elements/RadioButtonBox.tsx
   var RadioButtonBoxMessage = (props) => {
     if (props.loading) {
-      return /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-body-1" }, "Loading..."));
+      return /* @__PURE__ */ import_react132.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react132.default.createElement("p", { className: "text-body-1" }, "Loading..."));
     } else if (props.values.length === 0) {
-      return /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-body-1" }, "No items to display."));
+      return /* @__PURE__ */ import_react132.default.createElement(Row_default, { justify: "center" }, /* @__PURE__ */ import_react132.default.createElement("p", { className: "text-body-1" }, "No items to display."));
     }
     return null;
   };
@@ -35251,12 +35221,12 @@ ${finalCode}`;
     const width = props.width || "block";
     const heightClass = `element-height-${height}`;
     const widthClass = `element-width-${width}`;
-    return /* @__PURE__ */ import_react133.default.createElement(
+    return /* @__PURE__ */ import_react132.default.createElement(
       "div",
       {
         className: classNames("text-body-2", "radio-button-box", heightClass, widthClass, props.className)
       },
-      /* @__PURE__ */ import_react133.default.createElement(
+      /* @__PURE__ */ import_react132.default.createElement(
         RadioButtonBoxMessage,
         {
           values: props.values,
@@ -35264,7 +35234,7 @@ ${finalCode}`;
         }
       ),
       props.values.map((value) => {
-        return /* @__PURE__ */ import_react133.default.createElement(
+        return /* @__PURE__ */ import_react132.default.createElement(
           RadioButtonItem_default,
           {
             key: value,
@@ -35314,10 +35284,10 @@ ${finalCode}`;
     );
     const params = props.params;
     if (params === void 0) {
-      return /* @__PURE__ */ import_react134.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your Excel file metadata. Please try again, or contact support.");
+      return /* @__PURE__ */ import_react133.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your Excel file metadata. Please try again, or contact support.");
     }
     const numSelectedSheets = params.sheet_names.length;
-    return /* @__PURE__ */ import_react134.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react134.default.createElement(
+    return /* @__PURE__ */ import_react133.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react133.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: !props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`,
@@ -35325,7 +35295,7 @@ ${finalCode}`;
         backCallback: props.backCallback,
         notCloseable: props.notCloseable
       }
-    ), /* @__PURE__ */ import_react134.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react134.default.createElement("div", null, !props.isUpdate && /* @__PURE__ */ import_react134.default.createElement(
+    ), /* @__PURE__ */ import_react133.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react133.default.createElement("div", null, !props.isUpdate && /* @__PURE__ */ import_react133.default.createElement(
       MultiToggleBox_default,
       {
         loading,
@@ -35342,7 +35312,7 @@ ${finalCode}`;
         }
       },
       fileMetadata.sheet_names.map((sheetName, idx) => {
-        return /* @__PURE__ */ import_react134.default.createElement(
+        return /* @__PURE__ */ import_react133.default.createElement(
           MultiToggleItem_default,
           {
             key: idx,
@@ -35361,7 +35331,7 @@ ${finalCode}`;
           }
         );
       })
-    ), props.isUpdate && /* @__PURE__ */ import_react134.default.createElement(
+    ), props.isUpdate && /* @__PURE__ */ import_react133.default.createElement(
       RadioButtonBox_default,
       {
         values: fileMetadata.sheet_names,
@@ -35374,7 +35344,7 @@ ${finalCode}`;
         }),
         loading
       }
-    ), /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: HAS_HEADER_ROW_TOOLTIP }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(LabelAndTooltip_default, { tooltip: HAS_HEADER_ROW_TOOLTIP }, "Has Header Row")), /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(
+    ), /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: HAS_HEADER_ROW_TOOLTIP }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(LabelAndTooltip_default, { tooltip: HAS_HEADER_ROW_TOOLTIP }, "Has Header Row")), /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(
       Select_default,
       {
         value: params.has_headers ? "Yes" : "No",
@@ -35385,19 +35355,19 @@ ${finalCode}`;
           });
         })
       },
-      /* @__PURE__ */ import_react134.default.createElement(
+      /* @__PURE__ */ import_react133.default.createElement(
         DropdownItem_default,
         {
           title: "Yes"
         }
       ),
-      /* @__PURE__ */ import_react134.default.createElement(
+      /* @__PURE__ */ import_react133.default.createElement(
         DropdownItem_default,
         {
           title: "No"
         }
       )
-    ))), /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(
+    ))), /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: SKIP_ROWS_TOOLTIP }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(LabelAndTooltip_default, { tooltip: SKIP_ROWS_TOOLTIP }, "Number of Rows to Skip")), /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(
       Input_default,
       {
         value: "" + params.skiprows,
@@ -35412,7 +35382,7 @@ ${finalCode}`;
           });
         }
       }
-    ))), isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, "1.4.0") && /* @__PURE__ */ import_react134.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react134.default.createElement(Col_default, null, /* @__PURE__ */ import_react134.default.createElement(
+    ))), isAtLeastBenchmarkVersion(props.userProfile.pandasVersion, "1.4.0") && /* @__PURE__ */ import_react133.default.createElement(Row_default, { justify: "space-between", align: "center", title: DECIMAL_TOOLTIP }, /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(LabelAndTooltip_default, { tooltip: DECIMAL_TOOLTIP }, "Decimal Separator")), /* @__PURE__ */ import_react133.default.createElement(Col_default, null, /* @__PURE__ */ import_react133.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -35427,9 +35397,9 @@ ${finalCode}`;
       },
       Object.keys(decimalCharToTitle).map((decimalCharacter) => {
         const decimalTitle = decimalCharToTitle[decimalCharacter];
-        return /* @__PURE__ */ import_react134.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
+        return /* @__PURE__ */ import_react133.default.createElement(DropdownItem_default, { key: decimalTitle, title: decimalTitle, id: decimalCharacter });
       })
-    ))), !props.isUpdate && params.sheet_names.length === 1 && /* @__PURE__ */ import_react134.default.createElement(
+    ))), !props.isUpdate && params.sheet_names.length === 1 && /* @__PURE__ */ import_react133.default.createElement(
       "p",
       {
         onClick: () => {
@@ -35447,8 +35417,8 @@ ${finalCode}`;
       "Want to import multiple ranges from ",
       params.sheet_names[0],
       "? ",
-      /* @__PURE__ */ import_react134.default.createElement("span", { className: "text-underline" }, "Click here.")
-    ), fileMetadata.size >= 1e5 && fileMetadata.size < 1e7 && /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, large Excel files take minutes to import."), fileMetadata.size >= 1e7 && /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing."))), /* @__PURE__ */ import_react134.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react134.default.createElement(
+      /* @__PURE__ */ import_react133.default.createElement("span", { className: "text-underline" }, "Click here.")
+    ), fileMetadata.size >= 1e5 && fileMetadata.size < 1e7 && /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, large Excel files take minutes to import."), fileMetadata.size >= 1e7 && /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-body-2 mt-20px" }, "Due to Python limitations, massive Excel files take many minutes to import. If possible, save the Excel file as a CSV before importing."))), /* @__PURE__ */ import_react133.default.createElement(DefaultTaskpaneFooter_default, null, /* @__PURE__ */ import_react133.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35463,7 +35433,7 @@ ${finalCode}`;
         autoFocus: true
       },
       getButtonMessage3(params, props.loading, props.isUpdate)
-    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react134.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage2(params)), !props.editApplied && /* @__PURE__ */ import_react134.default.createElement(Spacer_default, { px: 18 })));
+    ), props.editApplied && !props.loading && /* @__PURE__ */ import_react133.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage2(params)), !props.editApplied && /* @__PURE__ */ import_react133.default.createElement(Spacer_default, { px: 18 })));
   }
   var XLSXImportConfigScreen_default = XLSXImportConfigScreen;
 
@@ -35487,7 +35457,7 @@ ${finalCode}`;
       props.analysisData,
       { allowSameParamsToReapplyTwice: true }
     );
-    return /* @__PURE__ */ import_react135.default.createElement(
+    return /* @__PURE__ */ import_react134.default.createElement(
       XLSXImportConfigScreen_default,
       {
         mitoAPI: props.mitoAPI,
@@ -35512,9 +35482,9 @@ ${finalCode}`;
 
   // src/components/taskpanes/FileImport/FileImportTaskpane.tsx
   function FileImportTaskpane(props) {
-    const [importState, setImportState] = (0, import_react136.useState)({ screen: "file_browser" });
+    const [importState, setImportState] = (0, import_react135.useState)({ screen: "file_browser" });
     if (importState.screen === "file_browser") {
-      return /* @__PURE__ */ import_react136.default.createElement(
+      return /* @__PURE__ */ import_react135.default.createElement(
         FileBrowser_default,
         {
           mitoAPI: props.mitoAPI,
@@ -35543,7 +35513,7 @@ ${finalCode}`;
         }
       );
     } else if (importState.screen == "csv_import_config") {
-      return /* @__PURE__ */ import_react136.default.createElement(
+      return /* @__PURE__ */ import_react135.default.createElement(
         CSVImportConfigTaskpane_default,
         {
           mitoAPI: props.mitoAPI,
@@ -35556,7 +35526,7 @@ ${finalCode}`;
         }
       );
     } else if (importState.screen == "xlsx_import_config") {
-      return /* @__PURE__ */ import_react136.default.createElement(
+      return /* @__PURE__ */ import_react135.default.createElement(
         XLSXImportConfigTaskpane_default,
         {
           mitoAPI: props.mitoAPI,
@@ -35569,13 +35539,13 @@ ${finalCode}`;
         }
       );
     } else {
-      return /* @__PURE__ */ import_react136.default.createElement(import_react136.default.Fragment, null);
+      return /* @__PURE__ */ import_react135.default.createElement(import_react135.default.Fragment, null);
     }
   }
   var FileImportTaskpane_default = FileImportTaskpane;
 
   // src/components/taskpanes/FillNa/FillNaTaskpane.tsx
-  var import_react137 = __toESM(require_react());
+  var import_react136 = __toESM(require_react());
   var BOOLEAN_STRINGS = ["True", "true", "False", "false"];
   var getDefaultParams4 = (sheetDataArray2, sheetIndex, defaultFillMethod, startingColumnIDs) => {
     if (sheetDataArray2.length === 0 || sheetDataArray2[sheetIndex] === void 0) {
@@ -35612,9 +35582,9 @@ ${finalCode}`;
     const columnHeaders = columnIDs.map((columnID) => sheetData == null ? void 0 : sheetData.columnIDsMap[columnID]).filter((columnHeader) => columnHeader !== void 0);
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25);
     if (numOtherColumnHeaders === 0) {
-      return /* @__PURE__ */ import_react137.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
+      return /* @__PURE__ */ import_react136.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), ".");
     } else {
-      return /* @__PURE__ */ import_react137.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react137.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " other columns.");
+      return /* @__PURE__ */ import_react136.default.createElement("p", null, "Filled NaNs in ", /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-color-gray-important" }, columnHeadersString), " and ", /* @__PURE__ */ import_react136.default.createElement("span", { className: "text-color-gray-important" }, numOtherColumnHeaders), " other columns.");
     }
   };
   var FillNaTaskpane = (props) => {
@@ -35624,7 +35594,7 @@ ${finalCode}`;
       props.mitoAPI,
       props.analysisData
     );
-    (0, import_react137.useEffect)(() => {
+    (0, import_react136.useEffect)(() => {
       setParams((prevParams) => {
         const newParams = getDefaultParams4(props.sheetDataArray, props.selectedSheetIndex, prevParams.fill_method, props.startingColumnIDs);
         if (newParams) {
@@ -35634,18 +35604,18 @@ ${finalCode}`;
       });
     }, [props.startingColumnIDs]);
     if (params === void 0) {
-      return /* @__PURE__ */ import_react137.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import a dataset before filling NaN values." });
+      return /* @__PURE__ */ import_react136.default.createElement(DefaultEmptyTaskpane_default, { setUIState: props.setUIState, message: "Import a dataset before filling NaN values." });
     }
     const sheetData = props.sheetDataArray[params.sheet_index];
     const columnDtypeMap = (sheetData == null ? void 0 : sheetData.columnDtypeMap) || {};
     const onlyMeanAndMedianColumnSelected = params.column_ids.length === 0 || params.column_ids.map((columnID) => columnDtypeMap[columnID]).filter((columnDtype) => columnDtype !== void 0).map((columnDtype) => isNumberDtype(columnDtype) || isDatetimeDtype(columnDtype) || isTimedeltaDtype(columnDtype)).every((hasDefinedMeanAndMedian) => hasDefinedMeanAndMedian === true);
-    return /* @__PURE__ */ import_react137.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react137.default.createElement(
+    return /* @__PURE__ */ import_react136.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react136.default.createElement(
       DefaultTaskpaneHeader_default,
       {
         header: "Fill NaN Values",
         setUIState: props.setUIState
       }
-    ), /* @__PURE__ */ import_react137.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react137.default.createElement(
+    ), /* @__PURE__ */ import_react136.default.createElement(DefaultTaskpaneBody_default, null, /* @__PURE__ */ import_react136.default.createElement(
       DataframeSelect_default,
       {
         title: "Select the dataframe to fill nan values in.",
@@ -35663,7 +35633,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react137.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the columns to fill nan values in." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-header-3" }, "Columns to Fill NaN Values In"))), /* @__PURE__ */ import_react137.default.createElement(
+    ), /* @__PURE__ */ import_react136.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the columns to fill nan values in." }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-header-3" }, "Columns to Fill NaN Values In"))), /* @__PURE__ */ import_react136.default.createElement(
       MultiToggleColumns_default,
       {
         sheetData,
@@ -35680,7 +35650,7 @@ ${finalCode}`;
           });
         }
       }
-    ), /* @__PURE__ */ import_react137.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the method for filling nan values" }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-header-3" }, "Fill Method")), /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement(
+    ), /* @__PURE__ */ import_react136.default.createElement(Spacer_default, { px: 15 }), /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the method for filling nan values" }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-header-3" }, "Fill Method")), /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement(
       Select_default,
       {
         value: params.fill_method.type,
@@ -35699,7 +35669,7 @@ ${finalCode}`;
         },
         width: "medium"
       },
-      /* @__PURE__ */ import_react137.default.createElement(
+      /* @__PURE__ */ import_react136.default.createElement(
         DropdownItem_default,
         {
           id: "value",
@@ -35707,7 +35677,7 @@ ${finalCode}`;
           subtext: "Replaces NaN values with a specific value that you input."
         }
       ),
-      /* @__PURE__ */ import_react137.default.createElement(
+      /* @__PURE__ */ import_react136.default.createElement(
         DropdownItem_default,
         {
           id: "ffill",
@@ -35715,7 +35685,7 @@ ${finalCode}`;
           subtext: "Replaces NaNs in the column with the value in the row before."
         }
       ),
-      /* @__PURE__ */ import_react137.default.createElement(
+      /* @__PURE__ */ import_react136.default.createElement(
         DropdownItem_default,
         {
           id: "bfill",
@@ -35723,7 +35693,7 @@ ${finalCode}`;
           subtext: "Replaces NaNs in the column with the value in the row after."
         }
       ),
-      /* @__PURE__ */ import_react137.default.createElement(
+      /* @__PURE__ */ import_react136.default.createElement(
         DropdownItem_default,
         {
           id: "mean",
@@ -35732,7 +35702,7 @@ ${finalCode}`;
           disabled: !onlyMeanAndMedianColumnSelected
         }
       ),
-      /* @__PURE__ */ import_react137.default.createElement(
+      /* @__PURE__ */ import_react136.default.createElement(
         DropdownItem_default,
         {
           id: "median",
@@ -35741,7 +35711,7 @@ ${finalCode}`;
           disabled: !onlyMeanAndMedianColumnSelected
         }
       )
-    ))), params.fill_method.type === "value" && /* @__PURE__ */ import_react137.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the dataframe to fill nan values in." }, /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-header-3" }, "Fill Value")), /* @__PURE__ */ import_react137.default.createElement(Col_default, null, /* @__PURE__ */ import_react137.default.createElement(
+    ))), params.fill_method.type === "value" && /* @__PURE__ */ import_react136.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Select the dataframe to fill nan values in." }, /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-header-3" }, "Fill Value")), /* @__PURE__ */ import_react136.default.createElement(Col_default, null, /* @__PURE__ */ import_react136.default.createElement(
       Input_default,
       {
         autoFocus: true,
@@ -35759,7 +35729,7 @@ ${finalCode}`;
           });
         }
       }
-    ))), /* @__PURE__ */ import_react137.default.createElement(Spacer_default, { px: 10 + (params.fill_method.type === "value" ? 0 : 38) }), /* @__PURE__ */ import_react137.default.createElement(
+    ))), /* @__PURE__ */ import_react136.default.createElement(Spacer_default, { px: 10 + (params.fill_method.type === "value" ? 0 : 38) }), /* @__PURE__ */ import_react136.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -35784,7 +35754,7 @@ ${finalCode}`;
         disabledTooltip: "Select at least one column to fill NaN values in"
       },
       getButtonMessage4(sheetData, params.column_ids)
-    ), editApplied && !loading && /* @__PURE__ */ import_react137.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react137.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage3(sheetData, params.column_ids)))));
+    ), editApplied && !loading && /* @__PURE__ */ import_react136.default.createElement(Row_default, { className: "mt-5" }, /* @__PURE__ */ import_react136.default.createElement("p", { className: "text-subtext-1" }, getSuccessMessage3(sheetData, params.column_ids)))));
   };
   var FillNaTaskpane_default = FillNaTaskpane;
 
@@ -35792,48 +35762,48 @@ ${finalCode}`;
   var import_react143 = __toESM(require_react());
 
   // src/components/taskpanes/Graph/GraphSidebarTabs.tsx
-  var import_react138 = __toESM(require_react());
+  var import_react137 = __toESM(require_react());
   function GraphSidebarTabs(props) {
     const changeTab = (tab) => {
       props.setSelectedGraphSidebarTab(tab);
       void props.mitoAPI.log("clicked_graph_" + tab + "_tab");
     };
-    return /* @__PURE__ */ import_react138.default.createElement("div", { className: "graph-sidebar-tab-container" }, /* @__PURE__ */ import_react138.default.createElement(
+    return /* @__PURE__ */ import_react137.default.createElement("div", { className: "graph-sidebar-tab-container" }, /* @__PURE__ */ import_react137.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "setup" /* Setup */ ? "selected" : "unselected"),
         onClick: () => changeTab("setup" /* Setup */)
       },
-      /* @__PURE__ */ import_react138.default.createElement("p", null, "Setup")
-    ), /* @__PURE__ */ import_react138.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement("p", null, "Setup")
+    ), /* @__PURE__ */ import_react137.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "style" /* Style */ ? "selected" : "unselected"),
         onClick: () => changeTab("style" /* Style */)
       },
-      /* @__PURE__ */ import_react138.default.createElement("p", null, "Style")
-    ), /* @__PURE__ */ import_react138.default.createElement(
+      /* @__PURE__ */ import_react137.default.createElement("p", null, "Style")
+    ), /* @__PURE__ */ import_react137.default.createElement(
       "div",
       {
         className: classNames("control-panel-taskpane-tab", props.selectedTab === "export" /* Export */ ? "selected" : "unselected"),
         onClick: () => changeTab("export" /* Export */)
       },
-      /* @__PURE__ */ import_react138.default.createElement("p", null, "Export")
+      /* @__PURE__ */ import_react137.default.createElement("p", null, "Export")
     ));
   }
   var GraphSidebarTabs_default = GraphSidebarTabs;
 
   // src/components/taskpanes/Graph/LoadingSpinner.tsx
-  var import_react139 = __toESM(require_react());
+  var import_react138 = __toESM(require_react());
   function LoadingSpinner() {
     const circles = [...Array(12)].map((_, index) => {
-      return /* @__PURE__ */ import_react139.default.createElement("div", { key: index }, /* @__PURE__ */ import_react139.default.createElement("div", { className: "div-after", style: { background: "#7f58af" } }));
+      return /* @__PURE__ */ import_react138.default.createElement("div", { key: index }, /* @__PURE__ */ import_react138.default.createElement("div", { className: "div-after", style: { background: "#7f58af" } }));
     });
-    return /* @__PURE__ */ import_react139.default.createElement("div", { className: "lds-spinner" }, circles);
+    return /* @__PURE__ */ import_react138.default.createElement("div", { className: "lds-spinner" }, circles);
   }
 
   // src/components/taskpanes/Graph/GraphStyleTab.tsx
-  var import_react140 = __toESM(require_react());
+  var import_react139 = __toESM(require_react());
   function GraphStyleTab(props) {
     var _a;
     const graphCreationParams = props.graphParams.graphCreation;
@@ -35844,7 +35814,7 @@ ${finalCode}`;
       });
       props.setGraphUpdatedNumber((old) => old + 1);
     }
-    return /* @__PURE__ */ import_react140.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react140.default.createElement(
+    return /* @__PURE__ */ import_react139.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Titles" }, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Graph Title")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.title.title || "",
@@ -35854,7 +35824,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "X Axis Title")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "X Axis Title")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.xaxis.title || "",
@@ -35864,7 +35834,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Y Axis Title")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Y Axis Title")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.yaxis.title || "",
@@ -35874,7 +35844,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title: newTitle } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Display Title")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Display Title")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.title.visible,
@@ -35882,7 +35852,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { visible: !graphStylingParams.title.visible } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Display X Axis Title")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Display X Axis Title")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.visible,
@@ -35890,7 +35860,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { visible: !graphStylingParams.xaxis.visible } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Display Y Axis Title")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Display Y Axis Title")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.yaxis.visible,
@@ -35898,7 +35868,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { visible: !graphStylingParams.yaxis.visible } } });
         }
       }
-    ))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react140.default.createElement(
+    ))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Axis Transformations" }, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "X Axis Transform")), /* @__PURE__ */ import_react139.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.xaxis.type || "default",
@@ -35909,37 +35879,37 @@ ${finalCode}`;
         width: "small",
         dropdownWidth: "medium"
       },
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "default" /* DEFAULT */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "linear" /* LINEAR */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "log" /* LOG */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "date" /* DATE */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "category" /* CATEGORY */
         }
       )
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Y Axis Transform")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Y Axis Transform")), /* @__PURE__ */ import_react139.default.createElement(
       Select_default,
       {
         value: props.graphParams.graphStyling.yaxis.type || "default",
@@ -35950,37 +35920,37 @@ ${finalCode}`;
         width: "small",
         dropdownWidth: "medium"
       },
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "default" /* DEFAULT */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "linear" /* LINEAR */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "log" /* LOG */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "date" /* DATE */
         }
       ),
-      /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(
         DropdownItem_default,
         {
           title: "category" /* CATEGORY */
         }
       )
-    ))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react140.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react140.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(import_react140.default.Fragment, null, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react140.default.createElement(
+    ))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Legend", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement("p", { className: "text-body-1" }, "Want to customize the legend? ", /* @__PURE__ */ import_react139.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react139.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Display Legend")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.showlegend,
@@ -35988,7 +35958,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { showlegend: !graphStylingParams.showlegend } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display the legend vertically or horizontally" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Orientation")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Display the legend vertically or horizontally" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Orientation")), /* @__PURE__ */ import_react139.default.createElement(
       Select_default,
       {
         value: graphStylingParams.legend.orientation === "v" ? "vertical" : "horiztonal",
@@ -35997,9 +35967,9 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { orientation: newOrientation } } });
         }
       },
-      /* @__PURE__ */ import_react140.default.createElement(DropdownItem_default, { title: "vertical", id: "v" }),
-      /* @__PURE__ */ import_react140.default.createElement(DropdownItem_default, { title: "horizontal", id: "h" })
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Legend title")), /* @__PURE__ */ import_react140.default.createElement(
+      /* @__PURE__ */ import_react139.default.createElement(DropdownItem_default, { title: "vertical", id: "v" }),
+      /* @__PURE__ */ import_react139.default.createElement(DropdownItem_default, { title: "horizontal", id: "h" })
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Title of legend" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Legend title")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: ((_a = graphStylingParams.legend.title) == null ? void 0 : _a.text) ? graphStylingParams.legend.title.text : "",
@@ -36010,7 +35980,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { title: { text: newLegendTitle } } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The x position of the legend" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "X position (-2 to 3)")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The x position of the legend" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "X position (-2 to 3)")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.legend.x ? graphStylingParams.legend.x.toString() : "",
@@ -36022,7 +35992,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { x: newX } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The y position of the legend" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Y position (-2 to 3)")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The y position of the legend" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Y position (-2 to 3)")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.legend.y ? graphStylingParams.legend.y.toString() : "",
@@ -36034,7 +36004,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { legend: { y: newY } } });
         }
       }
-    )))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react140.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react140.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(import_react140.default.Fragment, null, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react140.default.createElement(
+    )))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Grid Lines", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement("p", { className: "text-body-1" }, "Want to customize the grid lines? ", /* @__PURE__ */ import_react139.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react139.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off vertical grid lines" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Show vertical grid")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.showgrid,
@@ -36042,7 +36012,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { showgrid: !graphStylingParams.xaxis.showgrid } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off horiztonal grid lines" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Show horizontal grid")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "Turn on/off horiztonal grid lines" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Show horizontal grid")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.yaxis.showgrid,
@@ -36050,7 +36020,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { showgrid: !graphStylingParams.yaxis.showgrid } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the vertical grid lines" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Vertical grid width")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the vertical grid lines" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Vertical grid width")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.xaxis.gridwidth ? graphStylingParams.xaxis.gridwidth.toString() : "",
@@ -36062,7 +36032,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { gridwidth: newVerticalGridWidth } } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the horizontal grid lines" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Horizontal grid width")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The width of the horizontal grid lines" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Horizontal grid width")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphStylingParams.yaxis.gridwidth ? graphStylingParams.yaxis.gridwidth.toString() : "",
@@ -36074,7 +36044,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { gridwidth: newHoriztonalGridWidth } } });
         }
       }
-    )))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react140.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react140.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(import_react140.default.Fragment, null, /* @__PURE__ */ import_react140.default.createElement(
+    )))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Colors", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement("p", { className: "text-body-1" }, "Want to set the colors of your graph? ", /* @__PURE__ */ import_react139.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react139.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null, /* @__PURE__ */ import_react139.default.createElement(
       LabelAndColor_default,
       {
         label: "Plot Background Color",
@@ -36083,7 +36053,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { plot_bgcolor: newColor } });
         }
       }
-    ), /* @__PURE__ */ import_react140.default.createElement(
+    ), /* @__PURE__ */ import_react139.default.createElement(
       LabelAndColor_default,
       {
         label: "Paper Background Color",
@@ -36092,7 +36062,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { paper_bgcolor: newColor } });
         }
       }
-    ), /* @__PURE__ */ import_react140.default.createElement(
+    ), /* @__PURE__ */ import_react139.default.createElement(
       LabelAndColor_default,
       {
         label: "Title color",
@@ -36101,7 +36071,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { title: { title_font_color: newColor } } });
         }
       }
-    ), /* @__PURE__ */ import_react140.default.createElement(
+    ), /* @__PURE__ */ import_react139.default.createElement(
       LabelAndColor_default,
       {
         label: "X axis title color",
@@ -36110,7 +36080,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { xaxis: { title_font_color: newColor } } });
         }
       }
-    ), /* @__PURE__ */ import_react140.default.createElement(
+    ), /* @__PURE__ */ import_react139.default.createElement(
       LabelAndColor_default,
       {
         label: "Y axis title color",
@@ -36119,7 +36089,7 @@ ${finalCode}`;
           return updateGraphParam({ graphStyling: { yaxis: { title_font_color: newColor } } });
         }
       }
-    ))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react140.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react140.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react140.default.createElement(import_react140.default.Fragment, null, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react140.default.createElement(
+    ))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Facet Styling", proSection: true, isPro: props.userProfile.isPro }, !props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement("p", { className: "text-body-1" }, "Want to style facet plots? ", /* @__PURE__ */ import_react139.default.createElement("a", { href: "https://trymito.io/plans", target: "_blank", rel: "noreferrer" }, /* @__PURE__ */ import_react139.default.createElement("span", { className: "text-body-1-link" }, "Upgrade to Mito Pro.")))), props.userProfile.isPro && /* @__PURE__ */ import_react139.default.createElement(import_react139.default.Fragment, null, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The number of plots to display per row. Has no effect when facet row is used." }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Number of cols (int)")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : "",
@@ -36131,7 +36101,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_col_wrap: newNumCols } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between columns of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Column spacing (0 to 1)")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between columns of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Column spacing (0 to 1)")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : "",
@@ -36143,7 +36113,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_col_spacing: newColSpacing } });
         }
       }
-    )), /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between rows of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Row spacing (0 to 1)")), /* @__PURE__ */ import_react140.default.createElement(
+    )), /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center", title: "The spacing between rows of facet plots. Set as a fraction of plotting area." }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Row spacing (0 to 1)")), /* @__PURE__ */ import_react139.default.createElement(
       Input_default,
       {
         value: graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : "",
@@ -36155,7 +36125,7 @@ ${finalCode}`;
           return updateGraphParam({ graphCreation: { facet_row_spacing: newRowSpacing } });
         }
       }
-    )))), /* @__PURE__ */ import_react140.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react140.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react140.default.createElement(Col_default, null, /* @__PURE__ */ import_react140.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react140.default.createElement(
+    )))), /* @__PURE__ */ import_react139.default.createElement(CollapsibleSection_default, { title: "Range slider" }, /* @__PURE__ */ import_react139.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react139.default.createElement(Col_default, null, /* @__PURE__ */ import_react139.default.createElement("p", null, "Display range slider")), /* @__PURE__ */ import_react139.default.createElement(
       Toggle_default,
       {
         value: graphStylingParams.xaxis.rangeslider.visible,
@@ -36170,13 +36140,13 @@ ${finalCode}`;
   var GraphStyleTab_default = GraphStyleTab;
 
   // src/components/taskpanes/Graph/GraphExportTab.tsx
-  var import_react142 = __toESM(require_react());
+  var import_react141 = __toESM(require_react());
 
   // src/hooks/useCopyToClipboard.tsx
-  var import_react141 = __toESM(require_react());
+  var import_react140 = __toESM(require_react());
   var useCopyToClipboard = (text, resetTimeout = 2500) => {
-    const [copyStatus, setCopyStatus] = (0, import_react141.useState)(false);
-    const copy = (0, import_react141.useCallback)(() => {
+    const [copyStatus, setCopyStatus] = (0, import_react140.useState)(false);
+    const copy = (0, import_react140.useCallback)(() => {
       if (text == void 0) {
         return;
       }
@@ -36189,7 +36159,7 @@ ${finalCode}`;
         }
       );
     }, [text]);
-    (0, import_react141.useEffect)(() => {
+    (0, import_react140.useEffect)(() => {
       if (!copyStatus) {
         return;
       }
@@ -36224,7 +36194,7 @@ fig.write_html("${props.graphTabName}.html")`
         "graph_type": props.graphParams.graphCreation.graph_type
       });
     };
-    return /* @__PURE__ */ import_react142.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react142.default.createElement("div", null, /* @__PURE__ */ import_react142.default.createElement(
+    return /* @__PURE__ */ import_react141.default.createElement("div", { className: "graph-sidebar-toolbar-content" }, /* @__PURE__ */ import_react141.default.createElement("div", null, /* @__PURE__ */ import_react141.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -36233,7 +36203,7 @@ fig.write_html("${props.graphTabName}.html")`
         tooltip: "Click to copy code that creates graph and displays it in the notebook"
       },
       !showGraphCodeCopied ? "Copy code that displays graph" : "Copied to Clipboard!"
-    ), showGraphCodeCopied ? /* @__PURE__ */ import_react142.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react142.default.createElement(import_react142.default.Fragment, null)), /* @__PURE__ */ import_react142.default.createElement("div", null, /* @__PURE__ */ import_react142.default.createElement(
+    ), showGraphCodeCopied ? /* @__PURE__ */ import_react141.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react141.default.createElement(import_react141.default.Fragment, null)), /* @__PURE__ */ import_react141.default.createElement("div", null, /* @__PURE__ */ import_react141.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -36242,7 +36212,7 @@ fig.write_html("${props.graphTabName}.html")`
         tooltip: "Click to copy code that creates graph and exports it as an html file"
       },
       !exportHTMLGraphCodeCopied ? "Copy code to create graph HTML file" : "Copied to Clipboard!"
-    ), exportHTMLGraphCodeCopied ? /* @__PURE__ */ import_react142.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react142.default.createElement(import_react142.default.Fragment, null)), /* @__PURE__ */ import_react142.default.createElement("div", null, /* @__PURE__ */ import_react142.default.createElement(
+    ), exportHTMLGraphCodeCopied ? /* @__PURE__ */ import_react141.default.createElement(Row_default, { justify: "center", className: "text-subtext-1" }, "Paste copied code in code cell below") : /* @__PURE__ */ import_react141.default.createElement(import_react141.default.Fragment, null)), /* @__PURE__ */ import_react141.default.createElement("div", null, /* @__PURE__ */ import_react141.default.createElement(
       TextButton_default,
       {
         variant: "dark",
@@ -36258,6 +36228,23 @@ fig.write_html("${props.graphTabName}.html")`
     )));
   }
   var GraphExportTab_default = GraphExportTab;
+
+  // src/hooks/useEffectOnElementResize.tsx
+  var import_react142 = __toESM(require_react());
+  var useEffectOnResizeElement = (effect, deps, id) => {
+    (0, import_react142.useEffect)(() => {
+      const resizeObserver = new ResizeObserver(() => {
+        effect();
+      });
+      const element = document.getElementById(id);
+      if (element) {
+        resizeObserver.observe(element);
+      }
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }, [...deps, id]);
+  };
 
   // src/components/taskpanes/Graph/GraphSidebar.tsx
   var LOAD_GRAPH_TIMEOUT = 1e3;
