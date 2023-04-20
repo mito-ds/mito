@@ -1304,8 +1304,8 @@ export const createActions = (
         },
         [ActionEnum.CODEOPTIONS]: {
             type: ActionEnum.CODEOPTIONS,
-            shortTitle: 'Options',
-            longTitle: 'Configure Generated Code',
+            shortTitle: 'Configure',
+            longTitle: 'Configure Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);

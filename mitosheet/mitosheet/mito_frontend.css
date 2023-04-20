@@ -901,7 +901,7 @@
   border: 1px solid var(--mito-medium-purple);
 }
 .mito-input:disabled {
-  border: 1px solid var(--mito-white);
+  border: 1px solid var(--mito-light-gray);
   color: var(--mito-light-gray);
 }
 .mito-input-right-text {

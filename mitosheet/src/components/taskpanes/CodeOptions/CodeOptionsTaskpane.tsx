@@ -31,7 +31,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
 
     useDebouncedEffect(() => {
         void props.mitoAPI.updateCodeOptions(codeOptions);
-    }, [codeOptions], 1000);
+    }, [codeOptions], 100);
 
     return (
         <DefaultTaskpane>
@@ -58,8 +58,6 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                             onChange={function (): void {
                                 const newCodeOptions = {...codeOptions};
                                 newCodeOptions.as_function = !newCodeOptions.as_function;
-                                // Update directly to avoid the timeout here
-                                void props.mitoAPI.updateCodeOptions(codeOptions);
                                 setCodeOptions(newCodeOptions);
                             }}
                         />

@@ -21,7 +21,7 @@ export function getCodeString(
         return '';
     }
 
-    let finalCode = code.join('\n');
+    const finalCode = code.join('\n');
 
     const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion]
 

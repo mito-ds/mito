@@ -216,9 +216,9 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
 
 
-def get_default_code_options() -> CodeOptions:
+def get_default_code_options(steps_manager: StepsManagerType) -> CodeOptions:
     return {
         'as_function': False,
-        'function_name': 'function', # TODO: randomize?
+        'function_name': 'function_' + steps_manager.analysis_name[-4:], # Give it a random name, just so we don't overwrite them
         'function_params': dict()
     }

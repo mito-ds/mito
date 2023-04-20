@@ -270,7 +270,7 @@ class StepsManager:
 
         # The options for the transpiled code. For now, we just store if it should
         # be a function, which we default to False
-        self.code_options: CodeOptions = get_default_code_options()
+        self.code_options: CodeOptions = get_default_code_options(self)
 
     @property
     def curr_step(self) -> Step:

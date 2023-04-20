@@ -22606,7 +22606,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     if (code.length == 0) {
       return "";
     }
-    let finalCode = code.join("\n");
+    const finalCode = code.join("\n");
     const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion];
     if (telemetryEnabled) {
       return `${importStatement}; register_analysis("${analysisName}");
@@ -31267,8 +31267,8 @@ ${finalCode}`;
       },
       ["CodeOptions" /* CODEOPTIONS */]: {
         type: "CodeOptions" /* CODEOPTIONS */,
-        shortTitle: "Options",
-        longTitle: "Configure Generated Code",
+        shortTitle: "Configure",
+        longTitle: "Configure Code",
         actionFunction: () => {
           setEditorState(void 0);
           setUIState((prevUIState) => {
@@ -39923,7 +39923,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [codeOptions, setCodeOptions] = (0, import_react178.useState)(() => props.analysisData.codeOptions);
     useDebouncedEffect(() => {
       void props.mitoAPI.updateCodeOptions(codeOptions);
-    }, [codeOptions], 1e3);
+    }, [codeOptions], 100);
     return /* @__PURE__ */ import_react178.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react178.default.createElement(
       DefaultTaskpaneHeader_default,
       {
@@ -39946,7 +39946,6 @@ fig.write_html("${props.graphTabName}.html")`
           onChange: function() {
             const newCodeOptions = __spreadValues({}, codeOptions);
             newCodeOptions.as_function = !newCodeOptions.as_function;
-            void props.mitoAPI.updateCodeOptions(codeOptions);
             setCodeOptions(newCodeOptions);
           }
         }
