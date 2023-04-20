@@ -54,10 +54,11 @@ const ExcelRangeDynamicSection = (props: ExcelRangeDynamicSectionProps): JSX.Ele
                 }}
                 conditionOptions={{
                     'first empty cell': {'title': 'First Empty Cell', 'subtext': 'Mito will take all rows until it hits an empty cell in the first column.'},
-                    'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will continue take all rows until it hits at least this number of empty cells in one row.', 'placeholderValue': '4'},
                     'bottom left corner value': {'title': 'Bottom Left Corner Value', 'subtext': 'Mito will search for this exact value (including whitespace) as the bottom left corner.', 'placeholderValue': 'end value'},
                     'bottom left corner value starts with': {'title': 'Bottom Left Corner Starts With', 'subtext': 'Mito will search for a cell that starts with this value.', 'placeholderValue': 'end value'},
                     'bottom left corner value contains': {'title': 'Bottom Left Corner Contains', 'subtext': 'Mito will search for a cell that starts with this value.', 'placeholderValue': 'end value'},
+                    'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will continue take all rows until it hits at least this number of empty cells in one row.', 'placeholderValue': '4'},
+                    'row entirely empty': {'title': 'Row Entirely Empty', 'subtext': 'Mito will continue it hits a row where all the columns have no values'},
                 }}
             />
             <Spacer px={10} seperatingLine/>
