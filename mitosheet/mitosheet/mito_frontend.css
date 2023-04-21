@@ -1251,66 +1251,66 @@ a.text-button {
 }
 
 /* css/endo/ColumnHeaders.css */
-.column-headers-container {
+.endo-column-headers-container {
   overflow: hidden;
-  grid-area: r-header;
+  grid-area: column-headers;
   user-select: none;
   display: flex;
 }
-.column-headers-container > div {
+.endo-column-headers-container > div {
   display: flex;
 }
-.column-header-container {
+.endo-column-header-container {
   display: flex;
   flex-direction: column;
 }
-.column-header-resizer {
+.endo-column-header-resizer {
   cursor: col-resize;
   width: 5px;
   height: 100%;
 }
-.column-headers-resizing {
+.endo-column-headers-resizing {
   cursor: col-resize;
 }
-.grabbable {
+.endo-grabbable {
   cursor: move;
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-.grabbable:active {
+.endo-grabbable:active {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
-.column-headers-no-operation .column-header-container:hover {
+.endo-column-headers-no-operation .endo-column-header-container:hover {
   background-color: var(--mito-light-purple) !important;
   color: var(--mito-gray) !important;
 }
-.column-header-container-selected {
+.endo-column-header-container-selected {
   background-color: var(--mito-light-purple) !important;
   color: var(--mito-gray) !important;
 }
-.column-header-text {
+.endo-column-header-text {
   font-weight: bold;
 }
-.column-header-lower-level-container {
+.endo-column-header-lower-level-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-.column-header-lower-level-text {
+.endo-column-header-lower-level-text {
   padding-top: 5px;
   padding-right: 5px;
   padding-left: 5px;
 }
-.column-header-final-container {
+.endo-column-header-final-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   box-sizing: border-box;
 }
-.column-header-final-text {
+.endo-column-header-final-text {
   flex: 1;
   padding-top: 5px;
   padding-left: 5px;
@@ -1324,15 +1324,15 @@ a.text-button {
   -webkit-line-clamp: 2;
   box-sizing: border-box;
 }
-.column-header-final-container-selected .column-header-final-text {
+.endo-column-header-final-container-selected .endo-column-header-final-text {
   padding-top: 4.5px;
   padding-left: 4.5px;
   padding-right: 4.5px;
 }
-.column-header-final-right-side {
+.endo-column-header-final-right-side {
   display: flex;
 }
-.column-header-final-icons {
+.endo-column-header-final-icons {
   padding-right: 5px;
   display: flex;
   flex-direction: column;
@@ -1343,9 +1343,10 @@ a.text-button {
 /* css/endo/EndoGrid.css */
 .endo-grid-container {
   width: 100%;
-  height: 100%;
+  max-height: 100%;
+  flex-grow: 1;
   display: grid;
-  grid-template: "- r-header" auto "c-header scroller" 1fr / auto 1fr;
+  grid-template: "- column-headers" auto "index-headers data" 1fr / auto 1fr;
   --cell-height: 25px;
   position: relative;
   background-color: white;
@@ -1357,9 +1358,9 @@ a.text-button {
   height: 100%;
   overflow: auto;
   position: relative;
-  grid-area: scroller;
+  grid-area: data;
 }
-.renderer {
+.endo-renderer-container {
   top: 0;
   left: 0;
   position: absolute;
@@ -1378,6 +1379,12 @@ a.text-button {
 }
 
 /* css/FormulaBar.css */
+.formula-bar {
+  height: 32px;
+  border-top: 1px solid var(--mito-border);
+  border-bottom: 1px solid var(--mito-border);
+  background: white;
+}
 .formula-bar-column-header {
   max-width: 200px;
   height: 30px;
@@ -1404,13 +1411,13 @@ a.text-button {
   --taskpane-width: 430px;
 }
 :root .toolbar-mito-button-class,
-#mito-toolbar-button-id {
+#mito-mito-toolbar-button-id {
   background-color: var(--mito-very-light-purple);
   border-radius: 3px;
   border: .5px solid var(--mito-light-gray);
 }
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label,
-#mito-toolbar-button-id {
+#mito-mito-toolbar-button-id {
   color: var(--mito-purple);
 }
 .jp-RenderedHTMLCommon > .mito-container-container {
@@ -1453,34 +1460,34 @@ a:visited {
   display: flex;
   flex-direction: column;
 }
-.mito-main-sheet-div {
-  height: 100%;
+.mito-center-content-container {
   width: 100%;
+  flex-grow: 1;
   display: flex;
   flex-direction: row;
   overflow: hidden;
 }
-.mito-formula-bar-and-mitosheet-div {
-  height: calc(100% - 30px);
+.mito-sheet-and-formula-bar-container {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
-.mito-formula-bar-and-mitosheet-div-narrow-taskpane-open {
+.mito-sheet-and-formula-bar-container-narrow-taskpane-open {
   width: calc(100% - var(--taskpane-width));
 }
-.mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open {
+.mito-sheet-and-formula-bar-container-wide-taskpane-open {
   width: 0%;
   height: 0%;
 }
-.mito-default-fullscreen-taskpane-open {
+.mito-taskpane-container-wide {
   visibility: visible;
   width: 100%;
 }
-.mito-default-narrow-taskpane-open {
+.mito-taskpane-container-narrow {
   visibility: visible;
   width: var(--taskpane-width);
 }
-.mito-default-taskpane {
-  height: 100%;
+.mito-taskpane-container {
   width: 0%;
   visibility: hidden;
 }
@@ -1592,14 +1599,14 @@ a:visited {
 }
 
 /* css/endo/IndexHeaders.css */
-.index-headers-container {
+.endo-index-headers-container {
   overflow: hidden;
-  grid-area: c-header;
+  grid-area: index-headers;
   user-select: none;
   background-color: var(--mito-very-light-gray);
   width: 80px;
 }
-.index-headers-container > div {
+.endo-index-headers-container > div {
   display: flex;
   flex-direction: column;
 }
@@ -2384,9 +2391,9 @@ a:visited {
 }
 
 /* css/toolbar.css */
-.toolbar-container {
+.mito-toolbar-container {
   width: 100%;
-  height: 70px;
+  height: min-content;
   padding: 4px;
   display: flex;
   flex-direction: column;
@@ -2396,23 +2403,23 @@ a:visited {
   -webkit-box-sizing: border-box;
   --toolbar-seperator-color: #D0D2DF;
 }
-.toolbar-top {
+.mito-toolbar-top {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-.toolbar-top-left {
+.mito-toolbar-top-left {
   display: flex;
   flex-direction: row;
 }
-.toolbar-top-right {
+.mito-toolbar-top-right {
   display: flex;
   flex-direction: row;
 }
-.toolbar-top-right > * + * {
+.mito-toolbar-top-right > * + * {
   margin-left: 5px;
 }
-.toolbar-dropdown-selector {
+.mito-toolbar-dropdown-selector {
   height: 22px;
   margin-right: 5px !important;
   padding: 0px 3px;
@@ -2422,36 +2429,36 @@ a:visited {
   color: var(--mito-legacy-gray);
   cursor: pointer;
 }
-.toolbar-dropdown-selector-selected {
+.mito-toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);
 }
-.toolbar-dropdown-selector:hover {
+.mito-toolbar-dropdown-selector:hover {
   background: var(--mito-light-purple);
 }
-.toolbar-top-bottom-seperator {
+.mito-toolbar-top-bottom-seperator {
   width: 100%;
   border-top: 1px solid var(--toolbar-seperator-color);
   height: 100%;
   margin-top: 1px;
   padding-bottom: 4px;
 }
-.toolbar-bottom {
+.mito-toolbar-bottom {
   display: flex;
   flex-direction: row;
 }
-.toolbar-bottom-left-half {
+.mito-toolbar-bottom-left-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   flex: 3;
 }
-.toolbar-bottom-right-half {
+.mito-toolbar-bottom-right-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   flex: 1;
 }
-.toolbar-button-container {
+.mito-toolbar-button-container {
   display: flex;
   max-width: 45px;
   min-width: max-content;
@@ -2464,7 +2471,7 @@ a:visited {
   background-color: var(--mito-light-blue);
   color: var(--mito-legacy-gray);
 }
-.toolbar-button {
+.mito-toolbar-button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -2480,17 +2487,17 @@ a:visited {
   color: inherit;
   font-family: Roboto;
 }
-.toolbar-button-container-enabled:hover {
+.mito-toolbar-button-container-enabled:hover {
   background-color: var(--mito-light-purple);
 }
-.toolbar-button-container-disabled {
+.mito-toolbar-button-container-disabled {
   opacity: 50%;
 }
-.toolbar-button-icon-container {
+.mito-toolbar-button-icon-container {
   margin: auto;
   height: 18px;
 }
-.toolbar-button-label {
+.mito-toolbar-button-label {
   font-size: 11px;
   height: 13px;
   text-align: center !important;
@@ -2501,14 +2508,14 @@ a:visited {
   margin-right: 2px;
   padding-right: 2px;
 }
-.toolbar-button-draw-attention {
+.mito-toolbar-button-draw-attention {
   border: 2px solid var(--mito-blue);
   border-radius: 5px;
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
   transform: scale(1);
   animation: pulse 2s infinite;
 }
-.plan-button {
+.mito-plan-button {
   border-radius: 3px;
   background-color: var(--mito-purple);
   font-size: 12px;

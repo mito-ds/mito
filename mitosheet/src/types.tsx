@@ -956,8 +956,6 @@ export interface Action {
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
 
-    // Optionally categorize the action, so it can easily be sorted later
-    category?: 'spreadsheet formula'
 
     // If this action has a keyboard shortcut, then you can display this by setting these values
     displayKeyboardShortcuts?: {

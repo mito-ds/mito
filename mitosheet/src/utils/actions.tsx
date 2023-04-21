@@ -8,14 +8,13 @@ import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPan
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
-import { FunctionDocumentationObject, functionDocumentationObjects } from "../data/function_documentation";
 import MitoAPI, { getRandomId } from "../jupyter/api";
 import { CommCreationStatus } from "../jupyter/comm";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, DataframeFormat, DFSource, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
-import { decreasePrecision, FORMAT_DISABLED_MESSAGE, increasePrecision } from "./format";
+import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
 
 
 export const getDefaultActionsDisabledMessage = (
@@ -1406,12 +1405,7 @@ export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Act
 
 
 /*
-    Sort the provided actions in the order:
-    1. The exact match if it exists
-    2. All of the non-spreadsheet functions in alphabetical order
-    3. All of the spreadsheet functions in alphabetical order, 
-    4. The Search action
-    4. The See_All_Functionality action
+    Sort the provided actions in alphabetical order.
 */
 export const getSortedActions = (actions: Record<ActionEnum, Action>): Action[] => {
 
@@ -1421,15 +1415,8 @@ export const getSortedActions = (actions: Record<ActionEnum, Action>): Action[] 
         const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle
         const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.shortTitle
 
-        // Any spreadsheet formula comes after non spreadsheet formula
-        if (actionOne.category == 'spreadsheet formula' && actionTwo.category != 'spreadsheet formula') {
-            return 1
-        }
-        if (actionOne.category != 'spreadsheet formula' && actionTwo.category == 'spreadsheet formula') {
-            return -1
-        }
 
-        // If both are spreadsheet formulas or not spreadsheet formulas, then sort alphabetically
+        // Sort alphabetically
         if (titleOne < titleTwo) {
             return -1;
         }
@@ -1452,15 +1439,3 @@ export const getSortedActions = (actions: Record<ActionEnum, Action>): Action[] 
 
     return actionsArray;
 }
-
-/*
-    Given a function name, return the function documentation object. 
-
-    Note: This function is here and not in the function_documentation.tsx file because
-    that file is created programatically and this funciton will get overwrriten.
-*/
-export const getFuncDocObjFromFuncName = (func: string): FunctionDocumentationObject | undefined => {
-    return functionDocumentationObjects.find(fdo => fdo.function.toLowerCase() === func.toLowerCase())
-}
-
-
