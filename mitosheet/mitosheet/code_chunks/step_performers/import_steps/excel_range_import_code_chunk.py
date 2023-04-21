@@ -33,19 +33,21 @@ EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE = 'bottom left corner value'
 EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH = 'bottom left corner value starts with'
 EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS = 'bottom left corner value contains'
 EXCEL_RANGE_END_CONDITIONAL_BOTTOM_LEFT_CORNER_CONSECUTIVE_EMPTY_CELLS = 'bottom left corner consecutive empty cells'
+EXCEL_RANGE_CONDITION_ROW_ENTIRELY_EMPTY = 'row entirely empty'
 EXCEL_RANGE_END_CONDTIONS = [
     EXCEL_RANGE_END_CONDITION_FIRST_EMPTY_VALUE,
-    EXCEL_RANGE_END_CONDITIONAL_BOTTOM_LEFT_CORNER_CONSECUTIVE_EMPTY_CELLS,
     EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE,
     EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH,
-    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS
+    EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS,
+    EXCEL_RANGE_END_CONDITIONAL_BOTTOM_LEFT_CORNER_CONSECUTIVE_EMPTY_CELLS,
+    EXCEL_RANGE_CONDITION_ROW_ENTIRELY_EMPTY,
 ]
 
 EXCEL_RANGE_COLUMN_END_CONDITION_FIRST_EMPTY_CELL = 'first empty cell'
 EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS = 'num columns'
 EXCEL_RANGE_COLUMN_END_CONDITIONS = [
     EXCEL_RANGE_COLUMN_END_CONDITION_FIRST_EMPTY_CELL,
-    EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS
+    EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS,
 ]
 
 def get_table_range_params(sheet_name: str, start_condition: Any, end_condition: Any, column_end_condition: Any) -> Dict[str, Any]:
@@ -69,6 +71,7 @@ def get_table_range_params(sheet_name: str, start_condition: Any, end_condition:
     bottom_left_value_starts_with = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_STARTS_WITH else None
     bottom_left_value_contains = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITION_BOTTOM_LEFT_CORNER_VALUE_CONTAINS else None
     bottom_left_consecutive_empty_cells = end_condition['value'] if end_condition['type'] == EXCEL_RANGE_END_CONDITIONAL_BOTTOM_LEFT_CORNER_CONSECUTIVE_EMPTY_CELLS else None
+    row_entirely_empty = True if end_condition['type'] == EXCEL_RANGE_CONDITION_ROW_ENTIRELY_EMPTY else None
 
     num_columns = column_end_condition['value'] if column_end_condition['type'] == EXCEL_RANGE_COLUMN_END_CONDITION_NUM_COLUMNS else None
 
@@ -81,6 +84,7 @@ def get_table_range_params(sheet_name: str, start_condition: Any, end_condition:
         'bottom_left_value': bottom_left_value,
         'bottom_left_value_starts_with': bottom_left_value_starts_with,
         'bottom_left_value_contains': bottom_left_value_contains,
+        'row_entirely_empty': row_entirely_empty,
         'num_columns': num_columns
     }
 

@@ -31,9 +31,9 @@ const ExcelRangeDynamicSection = (props: ExcelRangeDynamicSectionProps): JSX.Ele
                     })
                 }}
                 conditionOptions={{
-                    'upper left corner value': {'title': 'Top Left Corner Value', 'subtext': 'Mito will search for this exact value (including whitespace) as the top left corner.', 'placeholderValue': 'start value'},
+                    'upper left corner value': {'title': 'Top Left Corner Value', 'subtext': 'Mito will search for this exact value (including whitespace).', 'placeholderValue': 'start value'},
                     'upper left corner value starts with': {'title': 'Top Left Corner Starts With', 'subtext': 'Mito will search for a cell that starts with this value.', 'placeholderValue': 'start value'},
-                    'upper left corner value contains': {'title': 'Top Left Corner Contains', 'subtext': 'Mito will search for a cell that contains with this value.', 'placeholderValue': 'start value'},
+                    'upper left corner value contains': {'title': 'Top Left Corner Contains', 'subtext': 'Mito will search for a cell that contains this value.', 'placeholderValue': 'start value'},
                 }}
             />
             <Spacer px={10} seperatingLine/>
@@ -54,10 +54,11 @@ const ExcelRangeDynamicSection = (props: ExcelRangeDynamicSectionProps): JSX.Ele
                 }}
                 conditionOptions={{
                     'first empty cell': {'title': 'First Empty Cell', 'subtext': 'Mito will take all rows until it hits an empty cell in the first column.'},
-                    'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will continue take all rows until it hits at least this number of empty cells in one row.', 'placeholderValue': '4'},
-                    'bottom left corner value': {'title': 'Bottom Left Corner Value', 'subtext': 'Mito will search for this exact value (including whitespace) as the bottom left corner.', 'placeholderValue': 'end value'},
-                    'bottom left corner value starts with': {'title': 'Bottom Left Corner Starts With', 'subtext': 'Mito will search for a cell that starts with this value.', 'placeholderValue': 'end value'},
-                    'bottom left corner value contains': {'title': 'Bottom Left Corner Contains', 'subtext': 'Mito will search for a cell that starts with this value.', 'placeholderValue': 'end value'},
+                    'bottom left corner value': {'title': 'Bottom Left Corner Value', 'subtext': 'Mito will take all rows until it finds this exact value (including whitespace) in the first column.', 'placeholderValue': 'end value'},
+                    'bottom left corner value starts with': {'title': 'Bottom Left Corner Starts With', 'subtext': 'Mito will take all rows until it finds a cell that starts with this value in the first column.', 'placeholderValue': 'end value'},
+                    'bottom left corner value contains': {'title': 'Bottom Left Corner Contains', 'subtext': 'Mito will take all rows until it finds a cell that contains with this value in the first column.', 'placeholderValue': 'end value'},
+                    'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will take all rows until it finds a row with at least this number of empty cells.', 'placeholderValue': '4'},
+                    'row entirely empty': {'title': 'Row Entirely Empty', 'subtext': 'Mito will take all rows unitl it finds a row where all the columns have empty values.'},
                 }}
             />
             <Spacer px={10} seperatingLine/>

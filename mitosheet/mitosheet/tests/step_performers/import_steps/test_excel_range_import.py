@@ -33,7 +33,6 @@ TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc',
 TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
 TEST_DF_7 = pd.DataFrame({'A': [1.0, 2.0, None, None], 'B': [1.0, 2.0, None, None], 'C': [None, 2, 3, None], 'D': [1, 2, 3, 4]})
 
-
 EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B2'],
@@ -249,6 +248,13 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_7, TEST_DF_7],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_7.iloc[0:3]],
+    ), 
+    # Tests row entirely empty
+    (
+        ['A2:D6'],
+        [TEST_DF_7],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'row entirely empty'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_7],
     ), 
     
 ]
