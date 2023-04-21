@@ -16,7 +16,6 @@ from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
 from mitosheet.updates.args_update import do_arg_update
-from mitosheet.utils import get_valid_dataframe_names
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
@@ -104,6 +103,10 @@ def execute_replay_analysis_update(
     previous_public_interface_version = steps_manager.public_interface_version
     previous_code_options = steps_manager.code_options
 
+    # If there are args to the mitosheet call, then set them on the steps manager
+    if len(args) > 0:
+        do_arg_update(steps_manager, args)
+
     try:
         # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
@@ -116,10 +119,6 @@ def execute_replay_analysis_update(
         steps_manager.public_interface_version = previous_public_interface_version
         steps_manager.code_options = previous_code_options
         raise
-
-    # If there are args to the mitosheet call, then set them on the steps manager
-    if len(args) > 0:
-        do_arg_update(steps_manager, args)
 
     # NOTE: We update the analysis name only if the new steps execute correctly,
     # so that we actually do go about overwriting the saved analysis in this case.
