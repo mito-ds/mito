@@ -21158,7 +21158,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       left: void 0
     });
     const dropdownAnchor = (0, import_react4.useRef)(null);
-    const dropdownContainerElement = (0, import_react4.useRef)(document.createElement("div"));
+    const [dropdownContainerElement] = (0, import_react4.useState)(() => {
+      return document.createElement("div");
+    });
     const [isNotFullscreen, setIsNotFullscreen] = (0, import_react4.useState)(fscreen_esm_default.fullscreenElement === void 0 || fscreen_esm_default.fullscreenElement === null);
     const mitoContainerRef = (0, import_react4.useRef)(null);
     const width = props.width || "large";
@@ -21167,10 +21169,10 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       return () => {
         try {
           if (isNotFullscreen) {
-            document.body.removeChild(dropdownContainerElement.current);
+            document.body.removeChild(dropdownContainerElement);
           } else {
             if (mitoContainerRef.current) {
-              mitoContainerRef.current.removeChild(dropdownContainerElement.current);
+              mitoContainerRef.current.removeChild(dropdownContainerElement);
             }
           }
         } catch (e) {
@@ -21181,11 +21183,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
       if (unsavedDropdownAnchor !== null) {
         dropdownAnchor.current = unsavedDropdownAnchor;
         if (isNotFullscreen) {
-          document.body.append(dropdownContainerElement.current);
+          document.body.append(dropdownContainerElement);
         } else {
           const mitoContainer = unsavedDropdownAnchor.closest(".mito-container");
           if (mitoContainer) {
-            mitoContainer.appendChild(dropdownContainerElement.current);
+            mitoContainer.appendChild(dropdownContainerElement);
             mitoContainerRef.current = mitoContainer;
           }
         }
@@ -21208,11 +21210,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         var _a;
         setIsNotFullscreen(!fscreen_esm_default.fullscreenElement);
         if (!fscreen_esm_default.fullscreenElement) {
-          document.body.append(dropdownContainerElement.current);
+          document.body.append(dropdownContainerElement);
         } else {
           const mitoContainer = (_a = dropdownAnchor.current) == null ? void 0 : _a.closest(".mito-container");
           if (mitoContainer) {
-            mitoContainer.appendChild(dropdownContainerElement.current);
+            mitoContainer.appendChild(dropdownContainerElement);
             mitoContainerRef.current = mitoContainer;
           }
         }
@@ -21328,7 +21330,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         childrenToDisplay.length > 0 && /* @__PURE__ */ import_react4.default.createElement("div", { className: "mito-dropdown-items-container" }, childrenToDisplay),
         found === 0 && /* @__PURE__ */ import_react4.default.createElement(Row_default, { justify: "center", style: { paddingTop: "50px" } }, /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-body-2" }, "No options to display"))
       ),
-      dropdownContainerElement.current
+      dropdownContainerElement
     ));
   };
   var Dropdown_default = Dropdown;
