@@ -1,6 +1,6 @@
-.toolbar-container {
+.mito-toolbar-container {
   width: 100%;
-  height:70px;
+  height: min-content;
   padding: 4px;
 
   /* We make the toolbar a flexbox, for the toolbar icons/actions */
@@ -18,27 +18,27 @@
   --toolbar-seperator-color: #D0D2DF;
 }
 
-.toolbar-top {
+.mito-toolbar-top {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.toolbar-top-left {
+.mito-toolbar-top-left {
   display: flex;
   flex-direction: row;
 }
 
-.toolbar-top-right {
+.mito-toolbar-top-right {
   display: flex;
   flex-direction: row;
 }
 
-.toolbar-top-right > * + * {
+.mito-toolbar-top-right > * + * {
   margin-left: 5px;
 }
 
-.toolbar-dropdown-selector {
+.mito-toolbar-dropdown-selector {
   height: 22px;
   margin-right: 5px !important; /* Needs to important due to margin overwrites by JLab rendering*/
   padding: 0px 3px;
@@ -50,16 +50,16 @@
 }
 
 
-.toolbar-dropdown-selector-selected {
+.mito-toolbar-dropdown-selector-selected {
   background: var(--mito-light-purple);
 }
 
-.toolbar-dropdown-selector:hover {
+.mito-toolbar-dropdown-selector:hover {
   background: var(--mito-light-purple);
 }
 
 /* A line that seperates the top and bottom vertically */
-.toolbar-top-bottom-seperator {
+.mito-toolbar-top-bottom-seperator {
   width: 100%;
   border-top: 1px solid var(--toolbar-seperator-color);
   height: 100%;
@@ -69,12 +69,12 @@
   padding-bottom: 4px;
 }
 
-.toolbar-bottom {
+.mito-toolbar-bottom {
   display: flex;
   flex-direction: row;
 }
 
-.toolbar-bottom-left-half {
+.mito-toolbar-bottom-left-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -85,14 +85,14 @@
   flex: 3; 
 }
 
-.toolbar-bottom-right-half {
+.mito-toolbar-bottom-right-half {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   flex: 1;
 }
 
-.toolbar-button-container {
+.mito-toolbar-button-container {
   /* Keep items evenly spaced */
   display: flex;
   max-width: 45px;
@@ -114,7 +114,7 @@
 }
 
 
-.toolbar-button {
+.mito-toolbar-button {
   /* Stack icon and label vertically */
   display: flex;
   flex-direction: column;
@@ -139,20 +139,20 @@
   font-family: Roboto;
 }
 
-.toolbar-button-container-enabled:hover {
+.mito-toolbar-button-container-enabled:hover {
   background-color: var(--mito-light-purple);
 }
 
-.toolbar-button-container-disabled {
+.mito-toolbar-button-container-disabled {
   opacity: 50%;
 }
 
-.toolbar-button-icon-container {
+.mito-toolbar-button-icon-container {
   margin: auto;
   height: 18px;
 }
 
-.toolbar-button-label {
+.mito-toolbar-button-label {
   font-size: 11px;
   height: 13px;
   text-align: center !important;
@@ -165,7 +165,7 @@
   padding-right: 2px;
 }
 
-.toolbar-button-draw-attention {
+.mito-toolbar-button-draw-attention {
   border: 2px solid var(--mito-blue);
   border-radius: 5px;
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
@@ -174,7 +174,7 @@
 }
 
 /* The button in the toolbar that lets the user upgrade or tells them they are pro */
-.plan-button {
+.mito-plan-button {
   border-radius: 3px;
   background-color: var(--mito-purple);
   font-size: 12px;

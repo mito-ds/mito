@@ -74,9 +74,9 @@ const Toolbar = (
     }
 
     return (
-        <div className='toolbar-container'>
-            <div className='toolbar-top'>
-                <div className='toolbar-top-left'>
+        <div className='mito-toolbar-container'>
+            <div className='mito-toolbar-top'>
+                <div className='mito-toolbar-top-left'>
                     <ToolbarMenu type='Edit' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarEditDropdown
                             actions={props.actions}
@@ -150,13 +150,13 @@ const Toolbar = (
                         />
                     </ToolbarMenu>
                 </div>
-                <div className='toolbar-top-right'>
+                <div className='mito-toolbar-top-right'>
                     <GetSupportButton 
                         userProfile={props.userProfile} 
                         setUIState={props.setUIState} 
                         mitoAPI={props.mitoAPI} 
                         width='small'
-                        className='plan-button'
+                        className='mito-plan-button'
                     />
                     <PlanButton
                         uiState={props.uiState}
@@ -166,9 +166,9 @@ const Toolbar = (
                     />
                 </div>
             </div>
-            <div className='toolbar-top-bottom-seperator'/>
-            <div className='toolbar-bottom'>
-                <div className='toolbar-bottom-left-half'>
+            <div className='mito-toolbar-top-bottom-seperator'/>
+            <div className='mito-toolbar-bottom'>
+                <div className='mito-toolbar-bottom-left-half'>
                     <ToolbarButton
                         id='mito-undo-button' // NOTE: this is used to click the undo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.UNDO}
@@ -371,7 +371,7 @@ const Toolbar = (
                         />
                     }
                 </div>
-                <div className='toolbar-bottom-right-half'>
+                <div className='mito-toolbar-bottom-right-half'>
                     {/* 
                         Only when we are not caught up do we display the fast forward button
                     */}

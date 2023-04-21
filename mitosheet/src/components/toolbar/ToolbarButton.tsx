@@ -48,11 +48,11 @@ const ToolbarButton = (
     }): JSX.Element => {
 
     const disabled = props.disabledTooltip !== undefined;
-    const highlightToobarItemClass = props.highlightToolbarButton === true ? 'toolbar-button-draw-attention' : ''
+    const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
 
     return (
         <div 
-            className={classNames('toolbar-button-container', disabled ? 'toolbar-button-container-disabled' : 'toolbar-button-container-enabled')} 
+            className={classNames('mito-toolbar-button-container', disabled ? 'mito-toolbar-button-container-disabled' : 'mito-toolbar-button-container-enabled')} 
             id={props.id}
             onClick={() => {
                 if (disabled) {
@@ -66,7 +66,7 @@ const ToolbarButton = (
             }}
         >
             <button 
-                className={classNames('toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 
+                className={classNames('mito-toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 
                 type="button"
             >
                 {/* 
@@ -77,10 +77,10 @@ const ToolbarButton = (
                     If the icons have different heights, the text won't line up. 
                 */}
                 <span title={props.disabledTooltip || props.action.tooltip}>
-                    <div className='toolbar-button-icon-container'>
+                    <div className='mito-toolbar-button-icon-container'>
                         {getToolbarItemIcon(props.toolbarButtonType)}
                     </div>
-                    <p className='toolbar-button-label'> 
+                    <p className='mito-toolbar-button-label'> 
                         {props.action.shortTitle}
                     </p>
                 </span>

@@ -65,9 +65,9 @@ const ColumnHeaders = (props: {
         <>
             {props.sheetData.numColumns > 0 && 
                 <div 
-                    className={classNames("column-headers-container", {
-                        'column-headers-no-operation': columnHeaderOperation === undefined,
-                        'column-headers-resizing': columnHeaderOperation === 'resize'
+                    className={classNames("endo-column-headers-container", {
+                        'endo-column-headers-no-operation': columnHeaderOperation === undefined,
+                        'endo-column-headers-resizing': columnHeaderOperation === 'resize'
                     })}
                     ref={columnHeadersContainerRef}
 
@@ -129,7 +129,7 @@ const ColumnHeaders = (props: {
                         
                         if (operation === 'resize') {
                             // Get the column header container itself - note the class query
-                            const columnHeaderDivs = getChildrenWithQuery(props.containerRef.current, `.column-header-container[mito-col-index="${dragColumnIndex}"]`)
+                            const columnHeaderDivs = getChildrenWithQuery(props.containerRef.current, `.endo-column-header-container[mito-col-index="${dragColumnIndex}"]`)
                             if (columnHeaderDivs.length === 0) {return}
                             const columnHeaderDiv = columnHeaderDivs[0] as HTMLDivElement;
 

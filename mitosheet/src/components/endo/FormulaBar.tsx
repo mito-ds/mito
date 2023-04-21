@@ -57,13 +57,8 @@ const FormulaBar = (props: {
     return(
         <Row 
             align='center'
-            // Add a border to the top and bottom of the formula bar
-            style={{
-                borderTop: '1px solid var(--mito-border)',
-                borderBottom: '1px solid var(--mito-border)',
-                background: 'white'
-            }}
             suppressTopBottomMargin
+            className='formula-bar'
         >
             <Col offset={.5}>
                 <p className="formula-bar-column-header text-header-3 text-overflow-hide">

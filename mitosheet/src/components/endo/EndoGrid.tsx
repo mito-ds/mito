@@ -703,7 +703,7 @@ function EndoGrid(props: {
                     />
                     {/* We use the rendererStyle to move the grid data to the right location */}
                     <div 
-                        className="renderer" 
+                        className="endo-renderer-container" 
                         style={{
                             transform: `translate(${gridState.scrollPosition.scrollLeft - translate.x}px, ${gridState.scrollPosition.scrollTop - translate.y}px)`,
                         }}

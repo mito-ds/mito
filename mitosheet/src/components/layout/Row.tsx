@@ -77,7 +77,7 @@ const Row = (props: RowProps): JSX.Element => {
 
     return (
         <div
-            className={classNames('spacing-row', marginClass, props.className)}
+            className={classNames(props.className, 'spacing-row', marginClass)}
             title={props.title}
             onClick={props.onClick}
             style={{

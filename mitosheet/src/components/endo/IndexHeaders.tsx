@@ -32,7 +32,7 @@ const IndexHeaders = (props: {
 
     return (
         <>
-            <div className="index-headers-container">
+            <div className="endo-index-headers-container">
                 {props.sheetData.numRows > 0 && 
                     <div style={indexHeadersStyle}>
                         {Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
