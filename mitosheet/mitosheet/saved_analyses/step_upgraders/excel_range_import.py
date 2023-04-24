@@ -258,3 +258,74 @@ def upgrade_excel_range_import_4_to_5(step: Dict[str, Any], later_steps: List[Di
         "step_type": "excel_range_import", 
         "params": params
     }] + later_steps
+
+def upgrade_excel_range_import_5_to_6(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]: 
+    """
+    Changes the sheet name to be a type either of a sheet name or of a sheet index.
+
+    OLD:
+    {
+        "step_version": 5, 
+        "step_type": "excel_range_import", 
+        "params": {
+            "file_path": str,
+            "sheet_name": str,
+            "convert_csv_to_xlsx": bool,
+            "range_imports": {
+                "type": 'range',
+                "df_name": str,
+                "value": str
+            } | {
+                "type": 'dynamic',
+                "df_name": str,
+                "start_condition": {
+                    "type": 'upper left corner value',
+                    "value": str,
+                }
+                "end_condition": {'type': 'first empty cell'} | {'type': 'bottom left corner value', 'value': Any},
+                'column_end_condition': {'type': 'first empty cell'} | {'type': 'num columns', 'value': int}
+            }[]
+        }
+    }
+
+    NEW:
+    {
+        "step_version": 6, 
+        "step_type": "excel_range_import", 
+        "params": {
+            "file_path": str,
+            "sheet": {
+                "type": 'sheet name' | 'sheet index',
+                "value": str | int
+            }
+            "convert_csv_to_xlsx": bool,
+            "range_imports": {
+                "type": 'range',
+                "df_name": str,
+                "value": str
+            } | {
+                "type": 'dynamic',
+                "df_name": str,
+                "start_condition": {
+                    "type": 'upper left corner value',
+                    "value": str,
+                }
+                "end_condition": {'type': 'first empty cell'} | {'type': 'bottom left corner value', 'value': Any},
+                'column_end_condition': {'type': 'first empty cell'} | {'type': 'num columns', 'value': int}
+            }[]
+        }
+    }
+    """
+
+    params = step['params']
+    params['sheet'] = {
+        'type': 'sheet name',
+        'value': params['sheet_name']
+    }
+    del params['sheet_name']
+
+    return [{
+        "step_version": 6, 
+        "step_type": "excel_range_import", 
+        "params": params
+    }] + later_steps

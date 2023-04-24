@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import ColumnHeader
+from mitosheet.types import CodeOptions, ColumnHeader, ParamName, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -61,7 +61,9 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         return 'pd.NaT'
     elif not is_prev_version(pd.__version__, '1.0.0') and column_header is pd.NA:
         return 'pd.NA'
-        
+    elif isinstance(column_header, str) and "'" in column_header:
+        return f"\"{column_header}\""
+
     return repr(column_header)
 
 def list_to_string_without_internal_quotes(list: List[Any]) -> str:
@@ -138,3 +140,85 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
+
+def get_str_param_name(steps_manager: StepsManagerType, index: int) -> str:
+    # We go and find the first state, and then get the name of the df at this index
+    df_name = steps_manager.steps_including_skipped[0].final_defined_state.df_names[index]
+    return df_name + '_path'
+
+def _get_param_names_for_mitosheet_params(steps_manager: StepsManagerType) -> Dict[ParamName, ParamValue]:
+    """
+    Returns a dictionary of the param names and values for the mitosheet params.
+    """
+    from mitosheet.updates.args_update import is_str_df_name
+
+    original_args_values = steps_manager.original_args_raw_strings
+    original_args_names = []
+
+    for index, original_arg_name in enumerate(original_args_values):
+        if is_str_df_name(original_arg_name):
+            original_args_names.append(get_str_param_name(steps_manager, index))
+        else:
+            original_args_names.append(original_arg_name)
+
+    return {param_name: param_value for param_name, param_value in zip(original_args_names, original_args_values)}
+
+
+def _get_param_names_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
+    original_param_names = list(_get_param_names_for_mitosheet_params(steps_manager).keys())
+    additional_params = list(function_params.keys())
+    return ", ".join(original_param_names + additional_params)
+
+def _get_param_values_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
+    original_param_values = list(_get_param_names_for_mitosheet_params(steps_manager).values())
+    additional_params = list(function_params.values())
+    return ", ".join(original_param_values + additional_params)
+
+
+def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
+    """
+    Given a list of code lines, puts it inside of a function.
+    """
+    final_code = []
+
+    # Add the imports
+    final_code += imports
+    if len(imports) == 0: # Make sure we have a newline if there are no imports
+        final_code.append("")
+
+    # The param
+    param_names = _get_param_names_string(steps_manager, function_params)
+    param_values = _get_param_values_string(steps_manager, function_params)
+
+    # Add the function definition
+    final_code.append(f"def {function_name}({param_names}):")
+
+    # Add the code, making sure to indent everything, even if it's on the newline
+    # or if it's the closing paren. We take special care not to mess inside of any code
+    for line in code:
+        line = f"{TAB}" + line
+        line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
+        line = line.replace(f"\n)", f"\n{TAB})")
+        final_code.append(line)
+
+    # Add the return statement, where we return the final dfs
+    return_variables = ", ".join(steps_manager.curr_step.df_names)
+    final_code.append(f"{TAB}return {return_variables}")
+    final_code.append("")
+
+    # Then, add the function call
+    if len(return_variables) > 0:
+        final_code.append(f"{return_variables} = {function_name}({param_values})")
+    else:
+        final_code.append(f"{function_name}({param_values})")
+
+    return final_code
+
+
+
+def get_default_code_options(analysis_name: str) -> CodeOptions:
+    return {
+        'as_function': False,
+        'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
+        'function_params': dict()
+    }

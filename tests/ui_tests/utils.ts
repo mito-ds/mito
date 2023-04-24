@@ -34,7 +34,7 @@ export const clickToolbarButton = async (page: IJupyterLabPageFixture, button: T
 
 export const getNumberOfColumns = async (page: IJupyterLabPageFixture, cellNumber: number) => {
   const cellOuput = await page.notebook.getCellOutput(cellNumber)
-  const columns = await cellOuput?.$$('.column-header-container')
+  const columns = await cellOuput?.$$('.endo-column-header-container')
   return columns?.length || 0;
 }
 

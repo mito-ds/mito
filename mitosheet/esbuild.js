@@ -5,6 +5,7 @@ esbuild
         entryPoints: ["src/jupyterRender.tsx"],
         outfile: 'mitosheet/mito_frontend.js',
         bundle: true,
+        minify: true,
         plugins: [],
         loader: {
             '.ttf': 'dataurl'

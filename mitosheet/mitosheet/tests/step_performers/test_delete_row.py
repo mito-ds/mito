@@ -9,7 +9,7 @@ Contains tests for Delete Row
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only
 
 DELETE_ROW_TESTS = [
@@ -68,7 +68,7 @@ DELETE_ROW_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, labels, output_dfs", DELETE_ROW_TESTS)
 def test_delete_row(input_dfs, sheet_index, labels, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.delete_row(sheet_index, labels)
 
@@ -78,35 +78,35 @@ def test_delete_row(input_dfs, sheet_index, labels, output_dfs):
 
 @pandas_post_1_2_only
 def test_delete_row_datetime_index():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997'])))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2]}, index=pd.to_datetime(['12-22-1997', '12-23-1997'])))
 
     mito.delete_row(0, ['12-22-1997'])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2]}, index=pd.to_datetime(['12-23-1997'])))
-    assert len(mito.transpiled_code) == 1
+    assert len(mito.transpiled_code) == 2
 
 
 def test_optimizes_delete_row():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
 
     mito.delete_row(0, [0])
     mito.delete_row(0, [1])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [3]}, index=[2]))
-    assert mito.transpiled_code == ['df1.drop(labels=[0, 1], inplace=True)']
+    assert mito.transpiled_code == ['df1.drop(labels=[0, 1], inplace=True)', '']
 
 def test_not_optimizes_delete_row_diff_dfs():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'A': [1, 2, 3]}))
 
     mito.delete_row(0, [0])
     mito.delete_row(1, [1])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
     assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3]}, index=[1, 2]))
-    assert len(mito.transpiled_code) == 2
+    assert len(mito.transpiled_code) == 4
 
 def test_optimizes_delete_dataframe():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
 
     mito.delete_row(0, [0])
     mito.delete_dataframe(0)

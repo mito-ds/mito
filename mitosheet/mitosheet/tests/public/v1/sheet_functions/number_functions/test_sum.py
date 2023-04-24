@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 from mitosheet.public.v1.sheet_functions.number_functions import SUM
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -60,7 +60,7 @@ SUM_TESTS_FORMULAS_VALID = [
 
 @pytest.mark.parametrize("formula,result", SUM_TESTS_FORMULAS_VALID)
 def test_SUM_formula_valid(formula, result):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == result

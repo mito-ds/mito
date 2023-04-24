@@ -145,6 +145,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case UpdateType.ArgsUpdate: {
             return 'Updating user profile';
         }
+        case UpdateType.CodeOptionsUpdate: {
+            return 'Updating code options';
+        }
         case UpdateType.SaveAnalysisUpdate: {
             return 'Saving analysis'
         }

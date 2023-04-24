@@ -9,7 +9,7 @@ Contains tests for splitting text to columns.
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 SPLIT_TEXT_TO_COLUMNS_TESTS = [
@@ -109,7 +109,7 @@ SPLIT_TEXT_TO_COLUMNS_TESTS = [
 
 @pytest.mark.parametrize("input_df, column_header, delimiters, output_df", SPLIT_TEXT_TO_COLUMNS_TESTS)
 def test_split_text_to_columns(input_df, column_header, delimiters, output_df):
-    mito = create_mito_wrapper_dfs(input_df)
+    mito = create_mito_wrapper(input_df)
 
     mito.split_text_to_columns(0, column_header, delimiters, '1')
 
@@ -117,7 +117,7 @@ def test_split_text_to_columns(input_df, column_header, delimiters, output_df):
     
 
 def test_step_after_split_text_to_columns():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
+    mito = create_mito_wrapper(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
 
     mito.split_text_to_columns(
         0, 
@@ -132,7 +132,7 @@ def test_step_after_split_text_to_columns():
     assert mito.dfs[0].equals(pd.DataFrame({'A': ['1,2-3\t4 5/6'], 'A-split-0-1': ['1,2-3\t4'], 'A-split-1-1': ['5/6'], 'C': ['1,2-3\t4']}))
 
 def test_split_text_to_columns_then_edit_original_column():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
+    mito = create_mito_wrapper(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
 
     mito.split_text_to_columns(
         0, 
@@ -147,7 +147,7 @@ def test_split_text_to_columns_then_edit_original_column():
 
 
 def test_split_text_to_columns_then_delete_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
+    mito = create_mito_wrapper(pd.DataFrame({'A': ['1,2-3\t4 5/6']}),)
 
     mito.split_text_to_columns(
         0, 

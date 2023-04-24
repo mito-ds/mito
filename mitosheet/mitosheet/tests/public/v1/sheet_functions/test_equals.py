@@ -9,7 +9,7 @@ Contains tests for just setting columns equal to other columns
 
 import pytest
 
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Assume A = 'abc'
 EQUAL_TESTS = {
@@ -23,6 +23,6 @@ EQUAL_TESTS = {
 
 @pytest.mark.parametrize("formula,equals", EQUAL_TESTS)
 def test_equal_a_row(formula, equals):
-    mito = create_mito_wrapper(['abc'])
+    mito = create_mito_wrapper_with_data(['abc'])
     mito.set_formula(formula, 0, 'B', add_column=True)
     assert mito.get_value(0, 'B', 1) == equals

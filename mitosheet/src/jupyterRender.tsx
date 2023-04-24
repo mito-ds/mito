@@ -8,9 +8,9 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 // when we don't gets really complicated trying to replace \t, etc.
 // Do not edit the following lines without updating the get_mito_frontend_code which searches 
 // for this code exactly to replace it.
-const sheetDataBytes = new Uint8Array([]);
-const analysisDataBytes = new Uint8Array([]);
-const userProfileBytes = new Uint8Array([]);
+const sheetDataBytes = new Uint8Array(['REPLACE_THIS_WITH_SHEET_DATA_BYTES' as unknown as number]);
+const analysisDataBytes = new Uint8Array(['REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES' as unknown as number]);
+const userProfileBytes = new Uint8Array(['REPLACE_THIS_WITH_USER_PROFILE_BYTES' as unknown as number]);
 
 const sheetDataArray = getSheetDataArrayFromString(new TextDecoder().decode(sheetDataBytes));
 const analysisData = getAnalysisDataFromString(new TextDecoder().decode(analysisDataBytes));

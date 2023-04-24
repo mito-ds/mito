@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.number_functions import ROUND
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -52,7 +52,7 @@ def test_ROUND_valid_input_direct_series(data, decimals, rounded):
 
 @pytest.mark.parametrize("data,decimals,rounded", ROUND_VALID_TESTS)
 def test_ROUND_valid_input_sheet_formula_defaults_to_one(data, decimals, rounded):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula(f'=ROUND(A, {decimals})', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == rounded
 
@@ -64,7 +64,7 @@ ROUND_INVALID_TESTS = [
 
 @pytest.mark.parametrize("data,decimals", ROUND_INVALID_TESTS)
 def test_ROUND_invalid_input_sheet_formula(data, decimals):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula(f'=100', 0, 'B', add_column=True)
     mito.set_formula(f'=ROUND(A, {decimals})', 0, 'B', add_column=True)
     assert pd.isna(mito.get_value(0, 'B', 1))
@@ -79,7 +79,7 @@ RIGHT_INVALID_FORMULAS = [
 
 @pytest.mark.parametrize("invalid_formula", RIGHT_INVALID_FORMULAS)
 def test_RIGHT_invalid_formula_no_effect(invalid_formula):
-    mito = create_mito_wrapper([' 1 '])
+    mito = create_mito_wrapper_with_data([' 1 '])
     mito.add_column(0, 'B')
     # We should not change the value of the created coumn
     mito.set_formula(invalid_formula, 0, 'B')

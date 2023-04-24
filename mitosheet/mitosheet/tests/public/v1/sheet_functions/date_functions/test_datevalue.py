@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.date_functions import DATEVALUE
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 DATEVALUE_TESTS = [
     (pd.Series(data=['2005-12-13'], dtype='datetime64[ns]')),

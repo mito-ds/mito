@@ -262,6 +262,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                     excelImportEnabled={isExcelImportEnabled(props.userProfile)}
                                     setImportState={props.setImportState}
                                     importCSVFile={props.importCSVFile}
+                                    userProfile={props.userProfile}
                                 />
                             )
                         })}

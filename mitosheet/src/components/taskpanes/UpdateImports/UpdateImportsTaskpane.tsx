@@ -62,7 +62,8 @@ export interface ReplacingDataframeState {
 
 export interface FailedReplayData {
     analysisName: string,
-    error: MitoError
+    error: MitoError,
+    args: string[]
 }
     
 
@@ -99,7 +100,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             let invalidImportIndexes: Record<number, string> | undefined = undefined;
 
             if (failedReplayData !== undefined) {
-                importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName);
+                importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
             } else {
                 importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();

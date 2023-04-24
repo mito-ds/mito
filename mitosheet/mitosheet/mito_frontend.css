@@ -901,7 +901,7 @@
   border: 1px solid var(--mito-medium-purple);
 }
 .mito-input:disabled {
-  border: 1px solid var(--mito-white);
+  border: 1px solid var(--mito-light-gray);
   color: var(--mito-light-gray);
 }
 .mito-input-right-text {
@@ -1343,7 +1343,7 @@ a.text-button {
 /* css/endo/EndoGrid.css */
 .endo-grid-container {
   width: 100%;
-  max-height: 100%;
+  max-height: calc(100% - 32px);
   flex-grow: 1;
   display: grid;
   grid-template: "- column-headers" auto "index-headers data" 1fr / auto 1fr;
@@ -1411,13 +1411,13 @@ a.text-button {
   --taskpane-width: 430px;
 }
 :root .toolbar-mito-button-class,
-#mito-mito-toolbar-button-id {
+#mito-oolbar-button-id {
   background-color: var(--mito-very-light-purple);
   border-radius: 3px;
   border: .5px solid var(--mito-light-gray);
 }
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label,
-#mito-mito-toolbar-button-id {
+#mito-toolbar-button-id {
   color: var(--mito-purple);
 }
 .jp-RenderedHTMLCommon > .mito-container-container {

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../jupyter/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
-import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import TextButton from '../../elements/TextButton';
 import ConfigureIcon from '../../icons/ConfigureIcon';
 import Col from '../../layout/Col';
@@ -131,7 +130,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
 
     const importButtonStatus = getImportButtonStatus(
         selectedFile, 
-        isExcelImportEnabled(props.userProfile),
+        props.userProfile,
         fileBrowserState.loadingImport,
         props.isUpdate
     );

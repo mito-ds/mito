@@ -13,7 +13,7 @@ import numpy as np
 
 from mitosheet.errors import MitoError
 from mitosheet.public.v1.sheet_functions.number_functions import FLOAT
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 FLOAT_VALID_TESTS = [
@@ -92,6 +92,6 @@ def test_FLOAT_raises_error_on_date():
 
 @pytest.mark.parametrize("data,value", FLOAT_VALID_TESTS)
 def test_FLOAT_valid_input_sheet_function(data, value):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula('=FLOAT(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == value
