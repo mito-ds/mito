@@ -1,12 +1,12 @@
-.index-headers-container {
+.endo-index-headers-container {
     overflow: hidden;
-    grid-area: c-header;
+    grid-area: index-headers;
     user-select: none;
     background-color: var(--mito-very-light-gray);
     width: 80px; /* Update the cell editor placement if you change this */
 }
 
-.index-headers-container > div {
+.endo-index-headers-container > div {
     display: flex;
     flex-direction: column;
 }

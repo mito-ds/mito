@@ -1,12 +1,12 @@
-.column-headers-container {
+.endo-column-headers-container {
     overflow: hidden;
     /* NOTE: this must match EndoGrid.css */
-    grid-area: r-header;
+    grid-area: column-headers;
     user-select: none;
     display: flex;
 }
 
-.column-headers-container > div {
+.endo-column-headers-container > div {
     display: flex;
 }
 
@@ -15,23 +15,23 @@
     which is sometimes just a single piece, but in the
     case of a multi-index header, is mulitple items.
 */
-.column-header-container {
+.endo-column-header-container {
     display: flex;
     flex-direction: column;
 }
 
-.column-header-resizer {
+.endo-column-header-resizer {
     /* We make the cursor appear to the user as something you can use to resize */
     cursor: col-resize;
     width: 5px;
     height: 100%;
 }
 
-.column-headers-resizing {
+.endo-column-headers-resizing {
     cursor: col-resize;
 }
 
-.grabbable {
+.endo-grabbable {
     cursor: move; 
     cursor: grab;
     cursor: -moz-grab;
@@ -39,34 +39,34 @@
 }
 
  /* Apply a "closed-hand" cursor during drag operation. */
-.grabbable:active {
+.endo-grabbable:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
 }
 
 /* Don't highlight if we're resizing */
-.column-headers-no-operation .column-header-container:hover {
+.endo-column-headers-no-operation .endo-column-header-container:hover {
     background-color: var(--mito-light-purple) !important;
     color: var(--mito-gray) !important;
 }
 
-.column-header-container-selected {
+.endo-column-header-container-selected {
     background-color: var(--mito-light-purple) !important;
     color: var(--mito-gray) !important;
 }
 
-.column-header-text {
+.endo-column-header-text {
     font-weight: bold;
 }
 
-.column-header-lower-level-container {
+.endo-column-header-lower-level-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.column-header-lower-level-text {
+.endo-column-header-lower-level-text {
     padding-top: 5px;
     padding-right: 5px;
     padding-left: 5px;
@@ -76,14 +76,14 @@
     The container div that holds a single column header 
     at the bottom of the column headers.
 */
-.column-header-final-container {
+.endo-column-header-final-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     box-sizing: border-box;
 }
 
-.column-header-final-text {
+.endo-column-header-final-text {
     flex: 1;
 
     padding-top: 5px;
@@ -113,18 +113,18 @@
 }
 
 /* Stop too much resizing happening with border when a header is selected */
-.column-header-final-container-selected .column-header-final-text {
+.endo-column-header-final-container-selected .endo-column-header-final-text {
     padding-top: 4.5px;
     padding-left: 4.5px;
     padding-right: 4.5px;
 } 
 
 /* Container for the icons and resizer */
-.column-header-final-right-side {
+.endo-column-header-final-right-side {
     display: flex;
 }
 
-.column-header-final-icons {
+.endo-column-header-final-icons {
     padding-right: 5px; /* To give some additional separation with the resizer */
     display: flex;
     flex-direction: column;

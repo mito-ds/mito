@@ -7,7 +7,7 @@
     The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
     button, since we're not able to set the class name of our button in notebooks. 
 */
-:root .toolbar-mito-button-class, #mito-toolbar-button-id {
+:root .toolbar-mito-button-class, #mito-oolbar-button-id {
     background-color: var(--mito-very-light-purple);
     border-radius: 3px;
     border: .5px solid var(--mito-light-gray);
@@ -90,47 +90,41 @@
     flex-direction: column;
 }
 
-/* Contains the Toolbar, Mito Sheet, and Taskpane */ 
-.mito-main-sheet-div {
-    height: 100%;
+.mito-center-content-container {
     width: 100%;
+    flex-grow: 1;
     display: flex;
     flex-direction: row;
     overflow: hidden;
 }
 
-/* 
-    Contains the toolbar and Mito Sheet. This div should take up the entire width of 
-    mito-main-sheet-div when the taskpane is closed and only 70% when the taskpane is opened. 
-*/ 
-.mito-formula-bar-and-mitosheet-div {
-    /* Note that this is the whole height, less the height of the sheet tabs */
-    height: calc(100% - 30px);
+.mito-sheet-and-formula-bar-container {
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 
-.mito-formula-bar-and-mitosheet-div-narrow-taskpane-open {
+.mito-sheet-and-formula-bar-container-narrow-taskpane-open {
     width: calc(100% - var(--taskpane-width));
 }
 
-.mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open {
+.mito-sheet-and-formula-bar-container-wide-taskpane-open {
     width: 0%;
     height: 0%;
 }
 
-.mito-default-fullscreen-taskpane-open {
+.mito-taskpane-container-wide {
     visibility: visible;
     width: 100%;
 }
 
-.mito-default-narrow-taskpane-open {
+.mito-taskpane-container-narrow {
     visibility: visible;
     width: var(--taskpane-width);
 }
 
-.mito-default-taskpane {
-    height: 100%;
+.mito-taskpane-container {
     width: 0%;
     visibility: hidden;
 } 

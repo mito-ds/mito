@@ -872,23 +872,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
-    const graphTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
-    const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
+    const wideTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
+    const narrowTaskpaneOpen = taskpaneOpen && !wideTaskpaneOpen;
 
     /* 
         We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
         set the class of the div containing the Mitosheet and Formula bar, as well as the taskpane div accordingly.
         The class sets the width of the sheet. 
     */
-    const formulaBarAndSheetClassNames = classNames('mito-formula-bar-and-mitosheet-div', {
-        'mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open': graphTaskpaneOpen,
-        'mito-formula-bar-and-mitosheet-div-narrow-taskpane-open': narrowTaskpaneOpen
+    const formulaBarAndSheetClassNames = classNames('mito-sheet-and-formula-bar-container', {
+        'mito-sheet-and-formula-bar-container-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-sheet-and-formula-bar-container-narrow-taskpane-open': narrowTaskpaneOpen
     })
 
     const taskpaneClassNames = classNames({
-        'mito-default-taskpane': !taskpaneOpen,
-        'mito-default-fullscreen-taskpane-open': graphTaskpaneOpen,
-        'mito-default-narrow-taskpane-open': narrowTaskpaneOpen,
+        'mito-taskpane-container': !taskpaneOpen,
+        'mito-taskpane-container-wide': wideTaskpaneOpen,
+        'mito-taskpane-container-narrow': narrowTaskpaneOpen,
     })
 
     return (
@@ -912,7 +912,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                     sheetIndex={uiState.selectedSheetIndex}
                 />
-                <div className="mito-main-sheet-div" id="mito-main-sheet-div"> 
+                <div className="mito-center-content-container" id="mito-center-content-container"> 
                     <div className={formulaBarAndSheetClassNames}>
                         <EndoGrid
                             sheetDataArray={sheetDataArray}
