@@ -20859,7 +20859,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return /* @__PURE__ */ import_react.default.createElement(
       "div",
       {
-        className: classNames("spacing-row", marginClass, props.className),
+        className: classNames(props.className, "spacing-row", marginClass),
         title: props.title,
         onClick: props.onClick,
         style: __spreadProps(__spreadValues({}, props.style), {
@@ -26006,12 +26006,8 @@ ${finalCode}`;
       Row_default,
       {
         align: "center",
-        style: {
-          borderTop: "1px solid var(--mito-border)",
-          borderBottom: "1px solid var(--mito-border)",
-          background: "white"
-        },
-        suppressTopBottomMargin: true
+        suppressTopBottomMargin: true,
+        className: "formula-bar"
       },
       /* @__PURE__ */ import_react41.default.createElement(Col_default, { offset: 0.5 }, /* @__PURE__ */ import_react41.default.createElement("p", { className: "formula-bar-column-header text-header-3 text-overflow-hide" }, formulaBarColumnHeader)),
       /* @__PURE__ */ import_react41.default.createElement(Col_default, null, /* @__PURE__ */ import_react41.default.createElement("div", { className: "formula-bar-vertical-line" })),
@@ -26079,9 +26075,9 @@ ${finalCode}`;
     return /* @__PURE__ */ import_react42.default.createElement(import_react42.default.Fragment, null, props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react42.default.createElement(
       "div",
       {
-        className: classNames("column-headers-container", {
-          "column-headers-no-operation": columnHeaderOperation === void 0,
-          "column-headers-resizing": columnHeaderOperation === "resize"
+        className: classNames("endo-column-headers-container", {
+          "endo-column-headers-no-operation": columnHeaderOperation === void 0,
+          "endo-column-headers-resizing": columnHeaderOperation === "resize"
         }),
         ref: columnHeadersContainerRef,
         onDragOver: (e) => {
@@ -26111,7 +26107,7 @@ ${finalCode}`;
           }
           const dragColumnIndex = parseInt(columnIndexString);
           if (operation === "resize") {
-            const columnHeaderDivs = getChildrenWithQuery(props.containerRef.current, `.column-header-container[mito-col-index="${dragColumnIndex}"]`);
+            const columnHeaderDivs = getChildrenWithQuery(props.containerRef.current, `.endo-column-header-container[mito-col-index="${dragColumnIndex}"]`);
             if (columnHeaderDivs.length === 0) {
               return;
             }
@@ -26526,7 +26522,7 @@ ${finalCode}`;
     const indexHeadersStyle = {
       transform: `translateY(${-translate.y}px)`
     };
-    return /* @__PURE__ */ import_react48.default.createElement(import_react48.default.Fragment, null, /* @__PURE__ */ import_react48.default.createElement("div", { className: "index-headers-container" }, props.sheetData.numRows > 0 && /* @__PURE__ */ import_react48.default.createElement("div", { style: indexHeadersStyle }, Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
+    return /* @__PURE__ */ import_react48.default.createElement(import_react48.default.Fragment, null, /* @__PURE__ */ import_react48.default.createElement("div", { className: "endo-index-headers-container" }, props.sheetData.numRows > 0 && /* @__PURE__ */ import_react48.default.createElement("div", { style: indexHeadersStyle }, Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
       const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
       const selected = getIsCellSelected(
         props.gridState.selections,
@@ -27122,7 +27118,7 @@ ${finalCode}`;
       ), /* @__PURE__ */ import_react50.default.createElement(
         "div",
         {
-          className: "renderer",
+          className: "endo-renderer-container",
           style: {
             transform: `translate(${gridState.scrollPosition.scrollLeft - translate.x}px, ${gridState.scrollPosition.scrollTop - translate.y}px)`
           },
@@ -29064,7 +29060,7 @@ ${finalCode}`;
     const ColumnHeaderResizer = /* @__PURE__ */ import_react67.default.createElement(
       "div",
       {
-        className: "column-header-resizer",
+        className: "endo-column-header-resizer",
         onDragStart: (e) => {
           e.stopPropagation();
           e.dataTransfer.setData("operation", "resize");
@@ -29110,9 +29106,9 @@ ${finalCode}`;
       "div",
       {
         className: classNames(
-          "column-header-container",
-          "column-header-text",
-          { "column-header-container-selected": selected }
+          "endo-column-header-container",
+          "endo-column-header-text",
+          { "endo-column-header-container-selected": selected }
         ),
         style: { color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT },
         key: props.columnIndex,
@@ -29139,7 +29135,7 @@ ${finalCode}`;
         return /* @__PURE__ */ import_react67.default.createElement(
           "div",
           {
-            className: "column-header-lower-level-container",
+            className: "endo-column-header-lower-level-container",
             key: levelIndex,
             "mito-row-index": rowIndex + "",
             "mito-col-index": props.columnIndex,
@@ -29154,7 +29150,7 @@ ${finalCode}`;
           !editingLowerLevelColumnHeader && /* @__PURE__ */ import_react67.default.createElement(
             "p",
             {
-              className: "column-header-lower-level-text text-overflow-hide",
+              className: "endo-column-header-lower-level-text text-overflow-hide",
               style: {
                 maxWidth: `${width - 25}px`
               },
@@ -29231,8 +29227,8 @@ ${finalCode}`;
       /* @__PURE__ */ import_react67.default.createElement(
         "div",
         {
-          className: classNames("column-header-final-container", {
-            "grabbable": props.columnHeaderOperation === "reorder"
+          className: classNames("endo-column-header-final-container", {
+            "endo-grabbable": props.columnHeaderOperation === "reorder"
           }),
           "mito-row-index": "-1",
           "mito-col-index": props.columnIndex,
@@ -29260,7 +29256,7 @@ ${finalCode}`;
         !editingFinalColumnHeader && /* @__PURE__ */ import_react67.default.createElement(import_react67.default.Fragment, null, /* @__PURE__ */ import_react67.default.createElement(
           "div",
           {
-            className: "column-header-final-text",
+            className: "endo-column-header-final-text",
             onClick: (e) => {
               e.stopPropagation();
             },
@@ -29278,7 +29274,7 @@ ${finalCode}`;
             tabIndex: -1
           },
           finalColumnHeader + ""
-        ), /* @__PURE__ */ import_react67.default.createElement("div", { className: "column-header-final-right-side" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "column-header-final-icons", title: "Open the column control panel" }, /* @__PURE__ */ import_react67.default.createElement("span", { title: "Edit filters" }, !hasFilters && /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "dark" })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "purple" }))), hasFilters && /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { nonEmpty: true })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, getTypeIdentifier(columnDtype, "dark")), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, getTypeIdentifier(columnDtype, "purple")))), ColumnHeaderResizer)),
+        ), /* @__PURE__ */ import_react67.default.createElement("div", { className: "endo-column-header-final-right-side" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "endo-column-header-final-icons", title: "Open the column control panel" }, /* @__PURE__ */ import_react67.default.createElement("span", { title: "Edit filters" }, !hasFilters && /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "dark" })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { purpleOrDark: "purple" }))), hasFilters && /* @__PURE__ */ import_react67.default.createElement(FilterIcon, { nonEmpty: true })), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-color-changer-container" }, /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-hide-on-hover" }, getTypeIdentifier(columnDtype, "dark")), /* @__PURE__ */ import_react67.default.createElement("div", { className: "icon-show-on-hover" }, getTypeIdentifier(columnDtype, "purple")))), ColumnHeaderResizer)),
         editingFinalColumnHeader && /* @__PURE__ */ import_react67.default.createElement(
           "form",
           {
@@ -36269,7 +36265,7 @@ fig.write_html("${props.graphTabName}.html")`
     }, []);
     useEffectOnResizeElement(() => {
       setGraphUpdatedNumber((old) => old + 1);
-    }, [], "mito-main-sheet-div");
+    }, [], "mito-center-content-container");
     useEffectOnUpdateEvent(() => {
       void refreshParams();
     }, props.analysisData);
@@ -36295,7 +36291,7 @@ fig.write_html("${props.graphTabName}.html")`
     }, [graphOutput]);
     const getGraphAsync = async () => {
       var _a2;
-      const boundingRect = (_a2 = document.getElementById("mito-main-sheet-div")) == null ? void 0 : _a2.getBoundingClientRect();
+      const boundingRect = (_a2 = document.getElementById("mito-center-content-container")) == null ? void 0 : _a2.getBoundingClientRect();
       if (boundingRect !== void 0) {
         const _stepID = await props.mitoAPI.editGraph(
           graphID,
@@ -40597,7 +40593,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react207.default.createElement(
       "div",
       {
-        className: classNames("text-button", "text-button-variant-dark", "plan-button", "cursor-pointer"),
+        className: classNames("text-button", "text-button-variant-dark", "mito-plan-button", "cursor-pointer"),
         onClick: () => {
           if (disabledDueToReplayAnalysis) {
             return;
@@ -40758,11 +40754,11 @@ fig.write_html("${props.graphTabName}.html")`
   // src/components/toolbar/ToolbarButton.tsx
   var ToolbarButton = (props) => {
     const disabled = props.disabledTooltip !== void 0;
-    const highlightToobarItemClass = props.highlightToolbarButton === true ? "toolbar-button-draw-attention" : "";
+    const highlightToobarItemClass = props.highlightToolbarButton === true ? "mito-toolbar-button-draw-attention" : "";
     return /* @__PURE__ */ import_react215.default.createElement(
       "div",
       {
-        className: classNames("toolbar-button-container", disabled ? "toolbar-button-container-disabled" : "toolbar-button-container-enabled"),
+        className: classNames("mito-toolbar-button-container", disabled ? "mito-toolbar-button-container-disabled" : "mito-toolbar-button-container-enabled"),
         id: props.id,
         onClick: () => {
           if (disabled) {
@@ -40777,10 +40773,10 @@ fig.write_html("${props.graphTabName}.html")`
       /* @__PURE__ */ import_react215.default.createElement(
         "button",
         {
-          className: classNames("toolbar-button", "vertical-align-content", highlightToobarItemClass),
+          className: classNames("mito-toolbar-button", "vertical-align-content", highlightToobarItemClass),
           type: "button"
         },
-        /* @__PURE__ */ import_react215.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react215.default.createElement("div", { className: "toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react215.default.createElement("p", { className: "toolbar-button-label" }, props.action.shortTitle))
+        /* @__PURE__ */ import_react215.default.createElement("span", { title: props.disabledTooltip || props.action.tooltip }, /* @__PURE__ */ import_react215.default.createElement("div", { className: "mito-toolbar-button-icon-container" }, getToolbarItemIcon(props.toolbarButtonType)), /* @__PURE__ */ import_react215.default.createElement("p", { className: "mito-toolbar-button-label" }, props.action.shortTitle))
       ),
       props.children !== void 0 && props.children
     );
@@ -40871,7 +40867,7 @@ fig.write_html("${props.graphTabName}.html")`
     return /* @__PURE__ */ import_react218.default.createElement("div", null, /* @__PURE__ */ import_react218.default.createElement(
       "p",
       {
-        className: classNames("toolbar-dropdown-selector", "text-unselectable", { "toolbar-dropdown-selector-selected": selected }),
+        className: classNames("mito-toolbar-dropdown-selector", "text-unselectable", { "mito-toolbar-dropdown-selector-selected": selected }),
         onClick: () => {
           props.setUIState((prevUIState) => {
             return __spreadProps(__spreadValues({}, prevUIState), { currOpenToolbarDropdown: props.type });
@@ -41100,7 +41096,7 @@ fig.write_html("${props.graphTabName}.html")`
         } })
       );
     }
-    return /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-container" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-top" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-top-left" }, /* @__PURE__ */ import_react226.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react226.default.createElement(
+    return /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-container" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-top" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-top-left" }, /* @__PURE__ */ import_react226.default.createElement(ToolbarDropdownSelector_default, { type: "Edit", uiState: props.uiState, setUIState: props.setUIState }, /* @__PURE__ */ import_react226.default.createElement(
       ToolbarEditDropdown_default,
       {
         actions: props.actions,
@@ -41172,14 +41168,14 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         userProfile: props.userProfile
       }
-    ))), /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-top-right" }, /* @__PURE__ */ import_react226.default.createElement(
+    ))), /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-top-right" }, /* @__PURE__ */ import_react226.default.createElement(
       GetSupportButton_default,
       {
         userProfile: props.userProfile,
         setUIState: props.setUIState,
         mitoAPI: props.mitoAPI,
         width: "small",
-        className: "plan-button"
+        className: "mito-plan-button"
       }
     ), /* @__PURE__ */ import_react226.default.createElement(
       PlanButton_default,
@@ -41189,7 +41185,7 @@ fig.write_html("${props.graphTabName}.html")`
         setUIState: props.setUIState,
         mitoAPI: props.mitoAPI
       }
-    ))), /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-bottom" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-bottom-left-half" }, /* @__PURE__ */ import_react226.default.createElement(
+    ))), /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-top-bottom-seperator" }), /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-bottom" }, /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-bottom-left-half" }, /* @__PURE__ */ import_react226.default.createElement(
       ToolbarButton_default,
       {
         id: "mito-undo-button",
@@ -41393,7 +41389,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState: props.setEditorState,
         disabledTooltip: props.actions["CodeSnippets" /* CODESNIPPETS */].isDisabled()
       }
-    )), /* @__PURE__ */ import_react226.default.createElement("div", { className: "toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react226.default.createElement(
+    )), /* @__PURE__ */ import_react226.default.createElement("div", { className: "mito-toolbar-bottom-right-half" }, props.currStepIdx !== props.lastStepIndex && /* @__PURE__ */ import_react226.default.createElement(
       ToolbarButton_default,
       {
         toolbarButtonType: "CATCH UP" /* CATCH_UP */,
@@ -42379,16 +42375,16 @@ fig.write_html("${props.graphTabName}.html")`
       ));
     };
     const taskpaneOpen = uiState.currOpenTaskpane.type !== "none" /* NONE */;
-    const graphTaskpaneOpen = uiState.currOpenTaskpane.type === "graph" /* GRAPH */ && uiState.selectedTabType === "graph";
-    const narrowTaskpaneOpen = taskpaneOpen && !graphTaskpaneOpen;
-    const formulaBarAndSheetClassNames = classNames("mito-formula-bar-and-mitosheet-div", {
-      "mito-formula-bar-and-mitosheet-div-fullscreen-taskpane-open": graphTaskpaneOpen,
-      "mito-formula-bar-and-mitosheet-div-narrow-taskpane-open": narrowTaskpaneOpen
+    const wideTaskpaneOpen = uiState.currOpenTaskpane.type === "graph" /* GRAPH */ && uiState.selectedTabType === "graph";
+    const narrowTaskpaneOpen = taskpaneOpen && !wideTaskpaneOpen;
+    const formulaBarAndSheetClassNames = classNames("mito-sheet-and-formula-bar-container", {
+      "mito-sheet-and-formula-bar-container-wide-taskpane-open": wideTaskpaneOpen,
+      "mito-sheet-and-formula-bar-container-narrow-taskpane-open": narrowTaskpaneOpen
     });
     const taskpaneClassNames = classNames({
-      "mito-default-taskpane": !taskpaneOpen,
-      "mito-default-fullscreen-taskpane-open": graphTaskpaneOpen,
-      "mito-default-narrow-taskpane-open": narrowTaskpaneOpen
+      "mito-taskpane-container": !taskpaneOpen,
+      "mito-taskpane-container-wide": wideTaskpaneOpen,
+      "mito-taskpane-container-narrow": narrowTaskpaneOpen
     });
     return /* @__PURE__ */ import_react230.default.createElement("div", { className: "mito-container", "data-jp-suppress-context-menu": true, ref: mitoContainerRef, tabIndex: 0 }, /* @__PURE__ */ import_react230.default.createElement(ErrorBoundary_default, { mitoAPI, analyisData: analysisData2, userProfile: userProfile2, sheetDataArray: sheetDataArray2 }, /* @__PURE__ */ import_react230.default.createElement(
       Toolbar_default,
@@ -42410,7 +42406,7 @@ fig.write_html("${props.graphTabName}.html")`
         analysisData: analysisData2,
         sheetIndex: uiState.selectedSheetIndex
       }
-    ), /* @__PURE__ */ import_react230.default.createElement("div", { className: "mito-main-sheet-div", id: "mito-main-sheet-div" }, /* @__PURE__ */ import_react230.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react230.default.createElement(
+    ), /* @__PURE__ */ import_react230.default.createElement("div", { className: "mito-center-content-container", id: "mito-center-content-container" }, /* @__PURE__ */ import_react230.default.createElement("div", { className: formulaBarAndSheetClassNames }, /* @__PURE__ */ import_react230.default.createElement(
       EndoGrid_default,
       {
         sheetDataArray: sheetDataArray2,
