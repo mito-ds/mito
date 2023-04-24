@@ -42650,9 +42650,9 @@ fig.write_html("${props.graphTabName}.html")`
   var Mito_default = Mito;
 
   // src/jupyterRender.tsx
-  var sheetDataBytes = new Uint8Array([]);
-  var analysisDataBytes = new Uint8Array([]);
-  var userProfileBytes = new Uint8Array([]);
+  var sheetDataBytes = new Uint8Array(["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]);
+  var analysisDataBytes = new Uint8Array(["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]);
+  var userProfileBytes = new Uint8Array(["REPLACE_THIS_WITH_USER_PROFILE_BYTES"]);
   var sheetDataArray = getSheetDataArrayFromString(new TextDecoder().decode(sheetDataBytes));
   var analysisData = getAnalysisDataFromString(new TextDecoder().decode(analysisDataBytes));
   var userProfile = getUserProfileFromString(new TextDecoder().decode(userProfileBytes));

@@ -325,18 +325,21 @@ def get_current_kernel_id() -> str:
 
 
 def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mito_backend: MitoBackend) -> str:
+
     js_code = js_code_from_file.replace('REPLACE_THIS_WITH_DIV_ID', div_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_KERNEL_ID', kernel_id)
     js_code = js_code.replace('REPLACE_THIS_WITH_COMM_TARGET_ID', comm_target_id)
-    js_code = js_code.replace('REPLACE_THIS_WITH_CSS', css_code_from_file)
+    # NOTE: because the CSS has strings inside of it, we need to replace the " quotes (which get created during code minifying)
+    # with ` quotes, which properly contain the CSS string
+    js_code = js_code.replace('"REPLACE_THIS_WITH_CSS"', "`" + css_code_from_file + "`")
     # NOTE: we encode these as utf8 encoded byte arrays, so that we can avoid having to do complicated things with 
     # replacing \t, etc, which is required because JSON.parse limits what characters are valid in strings (bah humbug)
     def to_uint8_arr(string: str) -> List[int]:
         return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()
     
-    js_code = js_code.replace('sheetDataBytes = new Uint8Array([]);', f'sheetDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.sheet_data_json)});')
-    js_code = js_code.replace('analysisDataBytes = new Uint8Array([]);', f'analysisDataBytes = new Uint8Array({to_uint8_arr(mito_backend.steps_manager.analysis_data_json)});')
-    js_code = js_code.replace('userProfileBytes = new Uint8Array([]);', f'userProfileBytes = new Uint8Array({to_uint8_arr(mito_backend.get_user_profile_json())});')
+    js_code = js_code.replace('["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.sheet_data_json)}')
+    js_code = js_code.replace('["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.analysis_data_json)}')
+    js_code = js_code.replace('["REPLACE_THIS_WITH_USER_PROFILE_BYTES"]', f'{to_uint8_arr(mito_backend.get_user_profile_json())}')
 
     return js_code
 
