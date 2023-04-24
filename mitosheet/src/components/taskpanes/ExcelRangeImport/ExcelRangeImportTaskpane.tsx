@@ -17,9 +17,9 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { getBaseOfPath } from "../UpdateImports/updateImportsUtils";
 import ExcelRangeImportDynamic from "./ExcelRangeDynamicImportSection";
 import ExcelRangeRangeSection from "./ExcelRangeRangeSection";
+import ExcelRangeSheetSelection from "./ExcelRangeSheetSelection";
 
 
 interface ExcelRangeImportTaskpaneProps {
@@ -30,6 +30,7 @@ interface ExcelRangeImportTaskpaneProps {
     sheetDataArray: SheetData[];
     file_path: string;
     sheet_name: string;
+    sheet_names: string[];
 }
 
 // We have a relatively complex type for the Excel Range Import params, so we define it here.
@@ -52,11 +53,17 @@ export type ExcelRangeDynamicImport = {
 
 export type ExcelRangeImport = ExcelRangeRangeImport | ExcelRangeDynamicImport
 
-
+export type Sheet = {
+    type: 'sheet name',
+    value: string
+} | {
+    type: 'sheet index',
+    value: number
+}
 
 export interface ExcelRangeImportParams {
     file_path: string,
-    sheet_name: string,
+    sheet: Sheet,
     range_imports: ExcelRangeImport[],
     convert_csv_to_xlsx: boolean
 }
@@ -68,7 +75,10 @@ const getDefaultParams = (
 
     return {
         file_path: file_path,
-        sheet_name: sheet_name,
+        sheet: {
+            type: 'sheet name',
+            value: sheet_name
+        },
         range_imports: [{'type': 'range', 'df_name': '', 'value': ''}],
         convert_csv_to_xlsx: !file_path.endsWith('xlsx') && !file_path.endsWith('xlsm')
     }
@@ -116,10 +126,19 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
+    let sheet_name: string | undefined = ''
+    if (params.sheet.type === 'sheet name') {
+        sheet_name = params.sheet.value;
+    } else {
+        sheet_name = props.sheet_names[params.sheet.value < 0 ? props.sheet_names.length + params.sheet.value : params.sheet.value];
+    }
+
 
     let disabledTooltip: undefined | string = undefined;
     if (params.range_imports.length === 0) {
         disabledTooltip = 'Please add range imports above before importing them.';
+    } else if (sheet_name === undefined) {
+        disabledTooltip = 'Select a sheet to import from. The sheet index is out of bounds.';
     } else {
         params.range_imports.forEach(rangeImport => {
             if (rangeImport.df_name === '') {
@@ -152,7 +171,12 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                <p className="text-body-3 text-overflow-wrap">Import ranges from <span className="text-bold">{props.sheet_name}</span> in <span className="text-bold">{getBaseOfPath(props.file_path)}</span>.</p>
+                <ExcelRangeSheetSelection
+                    params={params}
+                    setParams={setParams}
+                    sheet_names={props.sheet_names}
+                    sheet_name={sheet_name}
+                />
                 <Row justify="space-between">
                     <Col>
                         <p className="text-header-3">

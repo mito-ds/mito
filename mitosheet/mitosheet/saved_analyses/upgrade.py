@@ -51,7 +51,7 @@ from mitosheet.saved_analyses.step_upgraders.snowflake_import import upgrade_sno
 from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     INITIAL_BULK_OLD_RENAME_STEP
-from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3, upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5
+from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3, upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5, upgrade_excel_range_import_5_to_6
 from mitosheet.utils import is_prev_version
 
 """
@@ -144,7 +144,8 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         1: upgrade_excel_range_import_1_to_2,
         2: upgrade_excel_range_import_2_to_3,
         3: upgrade_excel_range_import_3_to_4,
-        4: upgrade_excel_range_import_4_to_5
+        4: upgrade_excel_range_import_4_to_5,
+        5: upgrade_excel_range_import_5_to_6
     },
     'snowflake_import': {
         1: upgrade_snowflake_import_1_to_2

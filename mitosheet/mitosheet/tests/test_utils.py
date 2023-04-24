@@ -546,7 +546,7 @@ class MitoWidgetTestWrapper:
     def excel_range_import(
             self, 
             file_path: str,
-            sheet_name: str,
+            sheet: Dict[str, Union[str, int]],
             range_imports: Any,
             convert_csv_to_xlsx: bool,
         ) -> bool:
@@ -559,7 +559,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'file_path': file_path,
-                    'sheet_name': sheet_name,
+                    'sheet': sheet,
                     'range_imports': range_imports,
                     'convert_csv_to_xlsx': convert_csv_to_xlsx
                 }
