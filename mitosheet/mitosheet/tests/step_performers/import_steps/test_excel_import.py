@@ -12,6 +12,7 @@ from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only,
 
 TEST_FILE = 'file.xlsx'
 
+
 @pandas_post_1_only
 @python_post_3_6_only
 def test_can_import_a_single_excel():
