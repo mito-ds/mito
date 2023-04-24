@@ -21191,16 +21191,16 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             mitoContainerRef.current = mitoContainer;
           }
         }
-        updateDropdownPosition(unsavedDropdownAnchor);
+        updateDropdownPosition(unsavedDropdownAnchor, props.display);
       }
     }, []);
     (0, import_react4.useEffect)(() => {
       if (dropdownAnchor.current !== null) {
-        updateDropdownPosition(dropdownAnchor.current);
+        updateDropdownPosition(dropdownAnchor.current, props.display);
       }
       const interval = setInterval(() => {
         if (dropdownAnchor.current !== null) {
-          updateDropdownPosition(dropdownAnchor.current);
+          updateDropdownPosition(dropdownAnchor.current, props.display);
         }
       }, 25);
       return () => clearInterval(interval);
@@ -21219,13 +21219,16 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           }
         }
         if (dropdownAnchor.current) {
-          updateDropdownPosition(dropdownAnchor.current);
+          updateDropdownPosition(dropdownAnchor.current, props.display);
         }
       };
       fscreen_esm_default.addEventListener("fullscreenchange", handleChange);
       return () => fscreen_esm_default.removeEventListener("fullscreenchange", handleChange);
     }, []);
-    const updateDropdownPosition = (dropdownContainer) => {
+    const updateDropdownPosition = (dropdownContainer, display) => {
+      if (!display) {
+        return;
+      }
       const parentElement = dropdownContainer.parentElement || dropdownContainer;
       const parentBoundingClientRect = parentElement.getBoundingClientRect();
       const parentTop = parentBoundingClientRect.top;
@@ -31335,488 +31338,15 @@ ${finalCode}`;
         },
         searchTerms: ["AI Transformation"],
         tooltip: "AI Transformation"
-      },
-      ["abs" /* ABS */]: getSpreadsheetFormulaAction(
-        "abs" /* ABS */,
-        getFuncDocObjFromFuncName("abs"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["and" /* AND */]: getSpreadsheetFormulaAction(
-        "and" /* AND */,
-        getFuncDocObjFromFuncName("and"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["avg" /* AVG */]: getSpreadsheetFormulaAction(
-        "avg" /* AVG */,
-        getFuncDocObjFromFuncName("avg"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["bool" /* BOOL */]: getSpreadsheetFormulaAction(
-        "bool" /* BOOL */,
-        getFuncDocObjFromFuncName("bool"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["clean" /* CLEAN */]: getSpreadsheetFormulaAction(
-        "clean" /* CLEAN */,
-        getFuncDocObjFromFuncName("clean"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["concat" /* CONCAT */]: getSpreadsheetFormulaAction(
-        "concat" /* CONCAT */,
-        getFuncDocObjFromFuncName("concat"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["corr" /* CORR */]: getSpreadsheetFormulaAction(
-        "corr" /* CORR */,
-        getFuncDocObjFromFuncName("corr"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["datevalue" /* DATEVALUE */]: getSpreadsheetFormulaAction(
-        "datevalue" /* DATEVALUE */,
-        getFuncDocObjFromFuncName("datevalue"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["day" /* DAY */]: getSpreadsheetFormulaAction(
-        "day" /* DAY */,
-        getFuncDocObjFromFuncName("day"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["endofbusinessmonth" /* ENDOFBUSINESSMONTH */]: getSpreadsheetFormulaAction(
-        "endofbusinessmonth" /* ENDOFBUSINESSMONTH */,
-        getFuncDocObjFromFuncName("endofbusinessmonth"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["endofmonth" /* ENDOFMONTH */]: getSpreadsheetFormulaAction(
-        "endofmonth" /* ENDOFMONTH */,
-        getFuncDocObjFromFuncName("endofmonth"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["exp" /* EXP */]: getSpreadsheetFormulaAction(
-        "exp" /* EXP */,
-        getFuncDocObjFromFuncName("exp"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["fillnan" /* FILLNAN */]: getSpreadsheetFormulaAction(
-        "fillnan" /* FILLNAN */,
-        getFuncDocObjFromFuncName("fillnan"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["find" /* FIND */]: getSpreadsheetFormulaAction(
-        "find" /* FIND */,
-        getFuncDocObjFromFuncName("find"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["float" /* FLOAT */]: getSpreadsheetFormulaAction(
-        "float" /* FLOAT */,
-        getFuncDocObjFromFuncName("float"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["hour" /* HOUR */]: getSpreadsheetFormulaAction(
-        "hour" /* HOUR */,
-        getFuncDocObjFromFuncName("hour"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["if" /* IF */]: getSpreadsheetFormulaAction(
-        "if" /* IF */,
-        getFuncDocObjFromFuncName("if"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["int" /* INT */]: getSpreadsheetFormulaAction(
-        "int" /* INT */,
-        getFuncDocObjFromFuncName("int"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["kurt" /* KURT */]: getSpreadsheetFormulaAction(
-        "kurt" /* KURT */,
-        getFuncDocObjFromFuncName("kurt"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["left" /* LEFT */]: getSpreadsheetFormulaAction(
-        "left" /* LEFT */,
-        getFuncDocObjFromFuncName("left"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["len" /* LEN */]: getSpreadsheetFormulaAction(
-        "len" /* LEN */,
-        getFuncDocObjFromFuncName("len"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["lower" /* LOWER */]: getSpreadsheetFormulaAction(
-        "lower" /* LOWER */,
-        getFuncDocObjFromFuncName("lower"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["max" /* MAX */]: getSpreadsheetFormulaAction(
-        "max" /* MAX */,
-        getFuncDocObjFromFuncName("max"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["mid" /* MID */]: getSpreadsheetFormulaAction(
-        "mid" /* MID */,
-        getFuncDocObjFromFuncName("mid"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["min" /* MIN */]: getSpreadsheetFormulaAction(
-        "min" /* MIN */,
-        getFuncDocObjFromFuncName("min"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["minute" /* MINUTE */]: getSpreadsheetFormulaAction(
-        "minute" /* MINUTE */,
-        getFuncDocObjFromFuncName("minute"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["month" /* MONTH */]: getSpreadsheetFormulaAction(
-        "month" /* MONTH */,
-        getFuncDocObjFromFuncName("month"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["multiply" /* MULTIPLY */]: getSpreadsheetFormulaAction(
-        "multiply" /* MULTIPLY */,
-        getFuncDocObjFromFuncName("multiply"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["or" /* OR */]: getSpreadsheetFormulaAction(
-        "or" /* OR */,
-        getFuncDocObjFromFuncName("or"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["power" /* POWER */]: getSpreadsheetFormulaAction(
-        "power" /* POWER */,
-        getFuncDocObjFromFuncName("power"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["proper" /* PROPER */]: getSpreadsheetFormulaAction(
-        "proper" /* PROPER */,
-        getFuncDocObjFromFuncName("proper"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["quarter" /* QUARTER */]: getSpreadsheetFormulaAction(
-        "quarter" /* QUARTER */,
-        getFuncDocObjFromFuncName("quarter"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["right" /* RIGHT */]: getSpreadsheetFormulaAction(
-        "right" /* RIGHT */,
-        getFuncDocObjFromFuncName("right"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["round" /* ROUND */]: getSpreadsheetFormulaAction(
-        "round" /* ROUND */,
-        getFuncDocObjFromFuncName("round"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["second" /* SECOND */]: getSpreadsheetFormulaAction(
-        "second" /* SECOND */,
-        getFuncDocObjFromFuncName("second"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["skew" /* SKEW */]: getSpreadsheetFormulaAction(
-        "skew" /* SKEW */,
-        getFuncDocObjFromFuncName("skew"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["startofbusinessmonth" /* STARTOFBUSINESSMONTH */]: getSpreadsheetFormulaAction(
-        "startofbusinessmonth" /* STARTOFBUSINESSMONTH */,
-        getFuncDocObjFromFuncName("startofbusinessmonth"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["startofmonth" /* STARTOFMONTH */]: getSpreadsheetFormulaAction(
-        "startofmonth" /* STARTOFMONTH */,
-        getFuncDocObjFromFuncName("startofmonth"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["striptimetominutes" /* STRIPTIMETOMINUTES */]: getSpreadsheetFormulaAction(
-        "striptimetominutes" /* STRIPTIMETOMINUTES */,
-        getFuncDocObjFromFuncName("striptimetominutes"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["striptimetohours" /* STRIPTIMETOHOURS */]: getSpreadsheetFormulaAction(
-        "striptimetohours" /* STRIPTIMETOHOURS */,
-        getFuncDocObjFromFuncName("striptimetohours"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["striptimetodays" /* STRIPTIMETODAYS */]: getSpreadsheetFormulaAction(
-        "striptimetodays" /* STRIPTIMETODAYS */,
-        getFuncDocObjFromFuncName("striptimetodays"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["striptimetomonths" /* STRIPTIMETOMONTHS */]: getSpreadsheetFormulaAction(
-        "striptimetomonths" /* STRIPTIMETOMONTHS */,
-        getFuncDocObjFromFuncName("striptimetomonths"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["striptimetoyears" /* STRIPTIMETOYEARS */]: getSpreadsheetFormulaAction(
-        "striptimetoyears" /* STRIPTIMETOYEARS */,
-        getFuncDocObjFromFuncName("striptimetoyears"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["substitute" /* SUBSTITUTE */]: getSpreadsheetFormulaAction(
-        "substitute" /* SUBSTITUTE */,
-        getFuncDocObjFromFuncName("substitute"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["sum" /* SUM */]: getSpreadsheetFormulaAction(
-        "sum" /* SUM */,
-        getFuncDocObjFromFuncName("sum"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["text" /* TEXT */]: getSpreadsheetFormulaAction(
-        "text" /* TEXT */,
-        getFuncDocObjFromFuncName("text"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["trim" /* TRIM */]: getSpreadsheetFormulaAction(
-        "trim" /* TRIM */,
-        getFuncDocObjFromFuncName("trim"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["type" /* TYPE */]: getSpreadsheetFormulaAction(
-        "type" /* TYPE */,
-        getFuncDocObjFromFuncName("type"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["upper" /* UPPER */]: getSpreadsheetFormulaAction(
-        "upper" /* UPPER */,
-        getFuncDocObjFromFuncName("upper"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["value" /* VALUE */]: getSpreadsheetFormulaAction(
-        "value" /* VALUE */,
-        getFuncDocObjFromFuncName("value"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["var" /* VAR */]: getSpreadsheetFormulaAction(
-        "var" /* VAR */,
-        getFuncDocObjFromFuncName("var"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["week" /* WEEK */]: getSpreadsheetFormulaAction(
-        "week" /* WEEK */,
-        getFuncDocObjFromFuncName("week"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["weekday" /* WEEEKDAY */]: getSpreadsheetFormulaAction(
-        "weekday" /* WEEEKDAY */,
-        getFuncDocObjFromFuncName("weekday"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      ),
-      ["year" /* YEAR */]: getSpreadsheetFormulaAction(
-        "year" /* YEAR */,
-        getFuncDocObjFromFuncName("year"),
-        gridState,
-        sheetDataArray2,
-        sheetIndex,
-        setEditorState
-      )
+      }
     };
     return actions;
-  };
-  var getSpreadsheetFormulaAction = (type, spreadsheetAction, gridState, sheetDataArray2, sheetIndex, setEditorState) => {
-    const action = {
-      type,
-      shortTitle: (spreadsheetAction == null ? void 0 : spreadsheetAction.function) || "",
-      longTitle: (spreadsheetAction == null ? void 0 : spreadsheetAction.function) || "",
-      actionFunction: () => {
-        const columnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-        let rowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
-        if (rowIndex === -1) {
-          rowIndex = 0;
-        }
-        setEditorState({
-          rowIndex,
-          columnIndex,
-          formula: "=" + (spreadsheetAction == null ? void 0 : spreadsheetAction.function) + "(",
-          arrowKeysScrollInFormula: false,
-          editorLocation: "cell",
-          editingMode: "entire_column"
-        });
-      },
-      isDisabled: () => {
-        const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
-        const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-        const startingColumnID = getCellDataFromCellIndexes(sheetDataArray2[sheetIndex], startingRowIndex, startingColumnIndex).columnID;
-        if (!doesColumnExist(startingColumnID, sheetIndex, sheetDataArray2) || !doesSheetContainData(sheetIndex, sheetDataArray2)) {
-          return "There are no cells in the dataframe to set the formula of. Add data to the sheet.";
-        }
-        return void 0;
-      },
-      searchTerms: (spreadsheetAction == null ? void 0 : spreadsheetAction.search_terms) || [],
-      tooltip: (spreadsheetAction == null ? void 0 : spreadsheetAction.description) ? spreadsheetAction.description : "",
-      category: "spreadsheet formula"
-    };
-    return action;
   };
   var getSortedActions = (actions) => {
     const actionsArray = Object.values(actions);
     actionsArray.sort(function(actionOne, actionTwo) {
       const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle;
       const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.shortTitle;
-      if (actionOne.category == "spreadsheet formula" && actionTwo.category != "spreadsheet formula") {
-        return 1;
-      }
-      if (actionOne.category != "spreadsheet formula" && actionTwo.category == "spreadsheet formula") {
-        return -1;
-      }
       if (titleOne < titleTwo) {
         return -1;
       }
@@ -31834,9 +31364,6 @@ ${finalCode}`;
       actionsArray.push(actions[actionEnum]);
     });
     return actionsArray;
-  };
-  var getFuncDocObjFromFuncName = (func) => {
-    return functionDocumentationObjects.find((fdo) => fdo.function.toLowerCase() === func.toLowerCase());
   };
 
   // src/utils/plotly.tsx
