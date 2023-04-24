@@ -143,13 +143,14 @@ if name == 'mitosheet2':
             To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
             Before installing Mito \n\n
             1. Check that you have Python 3.6 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
-            2. Check that you have Node installed.To check this, open a new terminal, and type node -v.  It should print a version number. If you need to install Node, restart your terminal after doing so.\n\n
-            3. Mito works in Jupyter Lab 2.0 only. We do not yet support Google Collab, VSCode, or Jupyter Lab 3.0.\n\n
-            4. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aarondr77 (@) gmail.com with any questions.\n\n
+            2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aarondr77 (@) gmail.com with any questions.\n\n
             Installation Instructions \n\n
             For more detailed installation instructions, see our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
-            1. pip install mitoinstaller\n\n
-            2. python -m mitoinstaller install
+            1. pip install mitosheet\n\n
+            2. Launch JupyterLab 3.0 and open a new notebook\n\n
+            3. In the notebook, run the following code:\n\n
+            from mitosheet import sheet\n\n
+            mitosheet.sheet()\n\n
             """,
         long_description_content_type='text/markdown'
     )
@@ -202,14 +203,17 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
         description             = package_json["description"],
         license                 = "GNU Affero General Public License v3",
         long_description="""
-            To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
-            Before installing Mito \n\n
-            1. Check that you have Python 3.6 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
-            2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aarondr77 (@) gmail.com with any questions.\n\n
-            Installation Instructions \n\n
-            For more detailed installation instructions, see our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
-            1. pip install mitoinstaller\n\n
-            2. python -m mitoinstaller install
+        To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
+        Before installing Mito \n\n
+        1. Check that you have Python 3.6 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
+        2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aarondr77 (@) gmail.com with any questions.\n\n
+        Installation Instructions \n\n
+        For more detailed installation instructions, see our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
+        1. pip install mitosheet\n\n
+        2. Launch JupyterLab 3.0 and open a new notebook\n\n
+        3. In the notebook, run the following code:\n\n
+        from mitosheet import sheet\n\n
+        mitosheet.sheet()\n\n
         """,
         long_description_content_type = "text/markdown",
         cmdclass                 = cmdclass,
