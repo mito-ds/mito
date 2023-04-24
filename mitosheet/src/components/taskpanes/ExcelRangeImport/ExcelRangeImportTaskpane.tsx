@@ -70,7 +70,7 @@ const getDefaultParams = (
         file_path: file_path,
         sheet_name: sheet_name,
         range_imports: [{'type': 'range', 'df_name': '', 'value': ''}],
-        convert_csv_to_xlsx: !file_path.endsWith('xlsx')
+        convert_csv_to_xlsx: !file_path.endsWith('xlsx') && !file_path.endsWith('xlsm')
     }
 }
 

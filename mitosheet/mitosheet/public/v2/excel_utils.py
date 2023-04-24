@@ -21,6 +21,7 @@ def get_table_range(
         bottom_left_value: Optional[Union[str, int, float, bool]]=None, 
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
+        row_entirely_empty: Optional[bool]=None,
         num_columns: Optional[int]=None
 ) -> Optional[str]:
     """
@@ -86,13 +87,16 @@ def get_table_range(
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
 
-    if bottom_left_corner_consecutive_empty_cells is not None:
+    # Check for number of empty cells conditions
+    if bottom_left_corner_consecutive_empty_cells is not None or row_entirely_empty is not None:
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
             empty_count = sum([1 if c.value is None else 0 for c in row])
-            if empty_count >= bottom_left_corner_consecutive_empty_cells:
+            if (bottom_left_corner_consecutive_empty_cells is not None and empty_count >= bottom_left_corner_consecutive_empty_cells) or \
+                (row_entirely_empty is not None and empty_count >= len(row)):
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
-                break
+                break        
 
+    # Then check for other ending conditions
     if max_found_row_index is None:
         for cell in column:
             if cell.row < min_found_row_index:
