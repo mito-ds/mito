@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.string_functions import FIND
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -41,6 +41,6 @@ def test_FIND_valid_input_direct(data, substring, indexes):
 
 @pytest.mark.parametrize("data,substring,indexes", FIND_VALID_TESTS)
 def test_FIND_valid_input_sheet_function(data, substring, indexes):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula(f'=FIND(A, \"{substring}\")', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == indexes

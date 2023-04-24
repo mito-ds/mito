@@ -9,7 +9,7 @@ Contains tests for +
 import pytest
 from string import ascii_uppercase
 
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # In these tests, we assume the value of column A = 1, B = 2
 ADD_TESTS_VALID = [
@@ -28,7 +28,7 @@ ADD_TESTS_VALID = [
 ]
 @pytest.mark.parametrize("formula,_sum", ADD_TESTS_VALID)
 def test_valid_addition(formula, _sum):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == _sum
@@ -48,14 +48,14 @@ ADD_TESTS_INVALID = [
 ]
 @pytest.mark.parametrize("formula", ADD_TESTS_INVALID)
 def test_invalid_addition(formula):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     # Make sure the value of C has not changed
     assert mito.get_value(0, 'C', 1) == 0
 
 def test_add_chain_fibbonacci():
-    mito = create_mito_wrapper([0])
+    mito = create_mito_wrapper_with_data([0])
     mito.set_formula('=1', 0, 'B', add_column=True)
     # We make a character for every character in the alphabet, and set 
     # it's sum equal to the sum of the two columns before it

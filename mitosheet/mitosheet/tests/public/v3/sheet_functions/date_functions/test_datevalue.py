@@ -12,7 +12,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.date_functions import DATEVALUE
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 DATEVALUE_TESTS = [
     # Just constant tests

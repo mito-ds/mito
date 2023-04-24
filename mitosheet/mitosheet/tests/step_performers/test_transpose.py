@@ -9,7 +9,7 @@ Contains tests for Transpose
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 TRANSPOSE_TESTS = [
     (
@@ -105,7 +105,7 @@ TRANSPOSE_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, output_dfs", TRANSPOSE_TESTS)
 def test_transpose(input_dfs, sheet_index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.transpose(sheet_index)
 
@@ -115,7 +115,7 @@ def test_transpose(input_dfs, sheet_index, output_dfs):
 
 
 def test_transpose_optimized_out():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.transpose(0)
     mito.delete_dataframe(1)
     assert len(mito.transpiled_code) == 0 

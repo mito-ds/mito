@@ -13,14 +13,17 @@ from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_column
 
 def get_table_range(
         file_path: str, 
-        sheet_name: str, 
+        sheet_name: Optional[str]=None,
         upper_left_value: Optional[Union[str, int, float, bool]]=None, 
+        # NOTE: we can't change the order of these first three parameters, for backwards compatibility
+        sheet_index: Optional[int]=None, 
         upper_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         upper_left_value_contains: Optional[Union[str, int, float, bool]]=None,
         bottom_left_corner_consecutive_empty_cells: Optional[int]=None,
         bottom_left_value: Optional[Union[str, int, float, bool]]=None, 
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
+        row_entirely_empty: Optional[bool]=None,
         num_columns: Optional[int]=None
 ) -> Optional[str]:
     """
@@ -28,7 +31,15 @@ def get_table_range(
     file_path and find a range that meets the conditions expressed by it's parameters.
     """
     workbook = load_workbook(file_path)
-    sheet = workbook[sheet_name]
+
+    if sheet_name is None and sheet_index is None:
+        raise ValueError('Either sheet_name or sheet_index must be defined')
+    elif sheet_name is not None and sheet_index is not None:
+        raise ValueError('Only one of sheet_name or sheet_index can be defined')
+    elif sheet_name is not None:
+        sheet = workbook[sheet_name]
+    else:
+        sheet = workbook.worksheets[sheet_index] # type : ignore
 
     # Check exactly one of the start conditions is defined
     if sum([1 if x is not None else 0 for x in [upper_left_value, upper_left_value_starts_with, upper_left_value_contains]]) != 1:
@@ -86,13 +97,16 @@ def get_table_range(
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
 
-    if bottom_left_corner_consecutive_empty_cells is not None:
+    # Check for number of empty cells conditions
+    if bottom_left_corner_consecutive_empty_cells is not None or row_entirely_empty is not None:
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
             empty_count = sum([1 if c.value is None else 0 for c in row])
-            if empty_count >= bottom_left_corner_consecutive_empty_cells:
+            if (bottom_left_corner_consecutive_empty_cells is not None and empty_count >= bottom_left_corner_consecutive_empty_cells) or \
+                (row_entirely_empty is not None and empty_count >= len(row)):
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
-                break
+                break        
 
+    # Then check for other ending conditions
     if max_found_row_index is None:
         for cell in column:
             if cell.row < min_found_row_index:
@@ -132,10 +146,10 @@ def get_read_excel_params_from_range(range: str) -> Tuple[int, int, str]:
     return start_row_index, nrows, usecols
 
 
-def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: str) -> str:
+def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: Union[str, int]) -> str:
     """Converts a CSV file to an XLSX file"""
     
-    xlsx_path = os.path.splitext(csv_path)[0] + '.xlsx'
+    xlsx_path = os.path.splitext(csv_path)[0] + '_tmp.xlsx'
 
     # Loop over each row of the CSV and write it to the XLSX
     with open(csv_path, 'r') as csv_file:
@@ -143,7 +157,7 @@ def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: str) -> str:
         
         wb = openpyxl.Workbook()
         ws = wb.active
-        ws.title = sheet_name
+        ws.title = sheet_name if isinstance(sheet_name, str) else f'Sheet{sheet_name}'
         for row in csv_reader:
             ws.append(row)
 

@@ -11,7 +11,7 @@ from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.utils import get_new_id
 from mitosheet.errors import MitoError
 from mitosheet.steps_manager import StepsManager
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 from mitosheet.column_headers import get_column_header_id
 
 
@@ -44,7 +44,7 @@ CELL_EDIT_ERRORS = [
 
 @pytest.mark.parametrize("formula,error_type", CELL_EDIT_ERRORS)
 def test_steps_manager_cell_edit_errors(formula,error_type):
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     with pytest.raises(MitoError) as e_info:
         mito.mito_backend.steps_manager.handle_edit_event({
@@ -65,7 +65,7 @@ def test_steps_manager_cell_edit_errors(formula,error_type):
 
 
 def test_overwrites_step_valid():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.add_column(0, 'B')
 
     mito.mito_backend.receive_message({
@@ -85,7 +85,7 @@ def test_overwrites_step_valid():
 
 
 def test_failed_overwrite_rolls_back_to_previous_state():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.add_column(0, 'B')
 
     mito.mito_backend.receive_message({

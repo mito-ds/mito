@@ -16,7 +16,7 @@ with atheris.instrument_imports():
     import mitosheet
     from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
     from mitosheet.tests.test_utils import (MitoWidgetTestWrapper,
-                                            create_mito_wrapper_dfs)
+                                            create_mito_wrapper)
 
 
 
@@ -181,7 +181,7 @@ def TestMito(data):
     fdp = atheris.FuzzedDataProvider(data)
 
     df = pd.DataFrame({'A': []})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     frontend_code = get_mito_frontend_code('1', '2', '3', mito.mito_backend)
     
     file = 'tests/out.js'

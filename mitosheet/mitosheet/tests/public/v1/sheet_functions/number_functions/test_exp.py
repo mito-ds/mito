@@ -14,7 +14,7 @@ from math import exp
 
 from mitosheet.errors import MitoError
 from mitosheet.public.v1.sheet_functions.number_functions import EXP
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 EXP_VALID_TESTS = [
@@ -44,6 +44,6 @@ def test_valid_input_direct_is_nan(data, is_nan):
 
 @pytest.mark.parametrize("data,value", EXP_VALID_TESTS)
 def test_valid_input_sheet_function(data, value):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula('=exp(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == value

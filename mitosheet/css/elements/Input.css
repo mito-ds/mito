@@ -35,7 +35,7 @@
 }
 
 .mito-input:disabled {
-    border: 1px solid var(--mito-white);
+    border: 1px solid var(--mito-light-gray);
     color: var(--mito-light-gray)
 }
 

@@ -40,7 +40,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_STARTS_WITH,
     FC_STRING_ENDS_WITH,
 )
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 FILTER_TESTS = [
     (
@@ -328,7 +328,7 @@ FILTER_TESTS = [
 
 @pytest.mark.parametrize("df,condition,value,filtered_df", FILTER_TESTS)
 def test_filter(df, condition, value, filtered_df):
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filter(0, "A", "And", condition, value)
 
     # if both dataframes are empty, then it passes
@@ -349,12 +349,12 @@ DOUBLE_FILTER_TESTS_SELECTED = random.sample(DOUBLE_FILTER_TESTS, 25)
 def test_reapply_filter(test1, test2):
     (df, condition, value, _) = test1
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filter(0, "A", "And", condition, value)
 
     (df, condition, value, filtered_df) = test2
 
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filter(0, "A", "And", condition, value)
 
     # if both dataframes are empty, then it passes
@@ -365,7 +365,7 @@ def test_reapply_filter(test1, test2):
 
 
 def test_filter_formula_column():
-    mito = create_mito_wrapper(["123", "234"])
+    mito = create_mito_wrapper_with_data(["123", "234"])
     mito.set_formula("=A", 0, "B", add_column=True)
     mito.filter(0, "B", "Or", FC_STRING_CONTAINS, "1")
     assert mito.get_column(0, "B", as_list=True) == ["123"]
@@ -373,14 +373,14 @@ def test_filter_formula_column():
 
 
 def test_merge_and_then_filter():
-    mito = create_mito_wrapper(["123", "234"], sheet_two_A_data=["123", "234"])
+    mito = create_mito_wrapper_with_data(["123", "234"], sheet_two_A_data=["123", "234"])
     mito.merge_sheets("lookup", 0, 1, [["A", 'A']], ["A"], ["A"])
     mito.filter(2, "A", "And", FC_STRING_CONTAINS, "1")
     assert mito.get_column(2, "A", as_list=True) == ["123"]
 
 
 def test_filter_and_then_merge_then_filter():
-    mito = create_mito_wrapper(["123", "234"], sheet_two_A_data=["123", "234"])
+    mito = create_mito_wrapper_with_data(["123", "234"], sheet_two_A_data=["123", "234"])
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "1")
     mito.filter(1, "A", "And", FC_STRING_CONTAINS, "1")
     mito.merge_sheets("lookup", 0, 1, [["A", "A"]], ["A"], ["A"])
@@ -393,7 +393,7 @@ def test_filter_and_then_merge_then_filter():
     reason="We currently do weird things on deleting errored columns. Waiting for step refactor!"
 )
 def test_filter_around_column_deletes():
-    mito = create_mito_wrapper(["123", "234"], sheet_two_A_data=["123", "234"])
+    mito = create_mito_wrapper_with_data(["123", "234"], sheet_two_A_data=["123", "234"])
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "1")
     mito.delete_columns(0, "A")
     assert mito.get_column(0, "A", as_list=True) == ["123"]
@@ -403,7 +403,7 @@ def test_filter_around_column_deletes():
 
 def test_double_filter():
     df = pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filters(
         0,
         "A",
@@ -418,7 +418,7 @@ def test_double_filter():
 
 def test_double_filter_reapplied():
     df = pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula("=A", 0, "B", add_column=True)
 
     # add a filter
@@ -443,7 +443,7 @@ def test_double_filter_reapplied():
 
 def test_delete_filter_last_step():
     df = pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula("=A", 0, "B", add_column=True)
 
     # add a filter
@@ -461,7 +461,7 @@ def test_delete_filter_last_step():
 
 def test_delete_filter_no_effect():
     df = pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula("=A", 0, "B", add_column=True)
 
     # add a filter
@@ -485,21 +485,23 @@ def test_delete_filter_no_effect():
 
 def test_transpile_filter():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filter(0, "name", "And", FC_STRING_CONTAINS, "Nate")
 
     assert mito.transpiled_code == [
         "df1 = df1[df1['name'].str.contains('Nate', na=False, regex=False)]",
+        '',
     ]
 
 
 def test_transpile_filter_string_does_not_contain():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filter(0, "name", "And", FC_STRING_DOES_NOT_CONTAIN, "Nate")
 
     assert mito.transpiled_code == [
         "df1 = df1[~df1['name'].str.contains('Nate', na=False, regex=False)]",
+        '',
     ]
 
 
@@ -507,17 +509,18 @@ def test_transpile_date_filter():
     df = pd.DataFrame(
         data={"A": pd.to_datetime(pd.Series(data=["12-2-2020", "12-3-2020"]))}
     )
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filter(0, "A", "And", FC_DATETIME_GREATER, "12-2-2020")
 
     assert mito.transpiled_code == [
         "df1 = df1[df1['A'] > pd.to_datetime('12-2-2020')]",
+        '',
     ]
 
 
 def test_transpile_double_filter_and():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -530,12 +533,13 @@ def test_transpile_double_filter_and():
 
     assert mito.transpiled_code == [
         "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) & (df1['name'] == 'Nate')]",
+        '',
     ]
 
 
 def test_transpile_double_filter_or():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -548,12 +552,13 @@ def test_transpile_double_filter_or():
 
     assert mito.transpiled_code == [
         "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) | (df1['name'] == 'Nate')]",
+        '',
     ]
 
 
 def test_transpile_triple_filter():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -566,13 +571,14 @@ def test_transpile_triple_filter():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(df1['name'].apply(lambda val: any(s in str(val) for s in ['e', 'a']))) | (df1['name'] == 'Nate')]"
+        "df1 = df1[(df1['name'].apply(lambda val: any(s in str(val) for s in ['e', 'a']))) | (df1['name'] == 'Nate')]",
+        '',
     ]
 
 
 def test_simple_filter_group():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -593,7 +599,7 @@ def test_simple_filter_group():
 
 def test_two_filter_groups():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -623,7 +629,7 @@ def test_two_filter_groups():
 
 def test_empty_filter_group():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -640,7 +646,7 @@ def test_empty_filter_group():
 
 def test_filter_group_and_filter():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -664,7 +670,7 @@ def test_filter_group_and_filter():
 
 def test_filter_and_filter_group():
     df1 = pd.DataFrame(data={"name": ["Nate", "Jake"], "Last_Name": ["Rush", "Jack"]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -690,7 +696,7 @@ def test_mixed_filters_and_groups():
     df1 = pd.DataFrame(
         data={"name": ["Nate", "Jake", "Aaron", "Tamir", "Petra", "Julia"]}
     )
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -724,7 +730,7 @@ def test_wrap_lines_on_single_filters():
     df1 = pd.DataFrame(
         data={"name": ["Nate", "Jake", "Aaron", "Tamir", "Petra", "Julia"]}
     )
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(
         0,
         "name",
@@ -744,26 +750,29 @@ def test_wrap_lines_on_single_filters():
     assert mito.dfs[0].equals(pd.DataFrame({"name": ["Aaron"]}, index=[2]))
 
     assert mito.transpiled_code == [
-        "df1 = df1[df1['name'].apply(lambda val: any(s in str(val) for s in ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A']))]"
+        "df1 = df1[df1['name'].apply(lambda val: any(s in str(val) for s in ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A']))]",
+        '',
     ]
 
 
 def test_transpile_boolean_filter():
-    mito = create_mito_wrapper([True, True, False])
+    mito = create_mito_wrapper_with_data([True, True, False])
     mito.filter(0, "A", "And", FC_BOOLEAN_IS_TRUE, None)
     assert mito.transpiled_code == [
         "df1 = df1[df1['A'] == True]",
+        '',
     ]
-    mito = create_mito_wrapper([True, True, False])
+    mito = create_mito_wrapper_with_data([True, True, False])
     mito.filter(0, "A", "And", FC_BOOLEAN_IS_FALSE, None)
     assert mito.transpiled_code == [
         "df1 = df1[df1['A'] == False]",
+        '',
     ]
 
 
 def test_edits_after_filter():
     df = pd.DataFrame({"A": [1, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.add_column(0, "B")
     mito.filter(0, "A", "And", FC_NUMBER_EXACTLY, 1)
@@ -774,7 +783,7 @@ def test_edits_after_filter():
 
 def test_mixed_type_contains_filter():
     df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
@@ -800,7 +809,7 @@ def test_not_exactly_collapses_to_one_clause():
             ],
         }
     )
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.filters(
         0,
@@ -831,7 +840,8 @@ def test_not_exactly_collapses_to_one_clause():
     )
 
     assert mito.transpiled_code == [
-        "df1 = df1[(~df1['A'].isin([1, 2])) & (df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))) & (~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021'])))]"
+        "df1 = df1[(~df1['A'].isin([1, 2])) & (df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))) & (~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021'])))]",
+        '',
     ]
 
 
@@ -842,7 +852,7 @@ def test_boolean_and_empty_collapses_to_one_check():
             "B": [True, True, False, False, False, True, False, True, True],
         }
     )
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filters(
         0,
         "A",
@@ -864,6 +874,7 @@ def test_boolean_and_empty_collapses_to_one_check():
 
     assert mito.transpiled_code == [
         "df1 = df1[(df1['A'] == True) & (df1['B'].isna())]",
+        '',
     ]
 
 
@@ -1294,7 +1305,7 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
 def test_filter_multiple_values_per_clause(
     df, condition, operator, value_one, value_two, transpiled_code
 ):
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.filters(
         0,
         "A",
@@ -1305,12 +1316,12 @@ def test_filter_multiple_values_per_clause(
         ],
     )
 
-    assert mito.transpiled_code == [transpiled_code]
+    assert mito.transpiled_code == [transpiled_code, '',]
 
 
 def test_filter_optimizes_out_after_delete():
     df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "r")
@@ -1320,7 +1331,7 @@ def test_filter_optimizes_out_after_delete():
 
 def test_filter_not_optimizes_out_after_delete_diff_sheet():
     df = pd.DataFrame({"A": ["aaron", "jake", "jon", 1, 2, "nate"]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.duplicate_dataframe(0)
     mito.filter(0, "A", "And", FC_STRING_CONTAINS, "a")
@@ -1332,7 +1343,7 @@ def test_filter_not_optimizes_out_after_delete_diff_sheet():
 
 def test_filter_two_columns_combines():
     df1 = pd.DataFrame({"first": ["Nate", "Jake", "ABC"], "last": ["Rush", "Jack", 'ABC']})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(0, "first", "And", [{"condition": FC_STRING_CONTAINS, "value": "e"}])
     mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Rush"}])
 
@@ -1342,7 +1353,7 @@ def test_filter_two_columns_combines():
 
 def test_filter_two_columns_combines_then_updates():
     df1 = pd.DataFrame({"first": ["Nate", "Jake", "ABC"], "last": ["Rush", "Jack", 'ABC']})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.filters(0, "first", "And", [{"condition": FC_STRING_CONTAINS, "value": "e"}])
     mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Rush"}])
     mito.filters(0, "last", "And", [{"condition": FC_STRING_EXACTLY, "value": "Jack"}])

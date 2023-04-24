@@ -9,7 +9,7 @@ Contains tests for Dataframe Import
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 DATAFRAME_IMPORT_TESTS = [
     (
@@ -23,7 +23,7 @@ DATAFRAME_IMPORT_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, output_dfs", DATAFRAME_IMPORT_TESTS)
 def test_dataframe_import(input_dfs, output_dfs):
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     test_df = input_dfs[0]
     mito.dataframe_import(['test_df'])
 
@@ -35,7 +35,7 @@ def test_import_multiple_dataframes():
     df1 = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])})
     df2 = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])})
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     mito.dataframe_import(['df1', 'df2'])
 
@@ -47,7 +47,7 @@ def test_import_and_delete():
     df1 = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])})
     df2 = pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0], 'C': [True, False, True], 'D': ["string", "with spaces", "and/!other@characters"], 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])})
     df1.to_csv('test.csv', index=False)
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     mito.simple_import(['test.csv'])
     mito.dataframe_import(['df1'])

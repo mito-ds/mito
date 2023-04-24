@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
 import MitoAPI from '../../../jupyter/api';
+import { UserProfile } from '../../../types';
 import { getLastModifiedString } from '../../../utils/time';
 import { ensureInView } from '../../elements/Dropdown';
 import BackArrowIcon from '../../icons/BackArrowIcon';
@@ -32,6 +33,8 @@ interface FileBrowserElementProps {
 
     importCSVFile: (file: FileElement) => Promise<void>;
     setImportState: (newImportState: ImportState) => void;
+
+    userProfile: UserProfile;
 }
 
 /* 
@@ -54,7 +57,7 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
         }
     }, [isSelected])
 
-    const invalidFileError = getInvalidFileError(props.element, props.excelImportEnabled);
+    const invalidFileError = getInvalidFileError(props.element, props.userProfile);
 
     return (
         <div 
