@@ -39142,7 +39142,7 @@ fig.write_html("${props.graphTabName}.html")`
     const params = props.params;
     const setParams = props.setParams;
     const sheet_name = props.sheet_name;
-    return /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-header-3" }, "Find Sheet By")), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement(
+    return /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement(CollapsibleSection_default, { title: "Select Sheet" }, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-header-3" }, "Select Sheet By")), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement(
       Select_default,
       {
         width: "medium",
@@ -39171,7 +39171,7 @@ fig.write_html("${props.graphTabName}.html")`
         {
           title: "Sheet Index",
           id: "sheet index",
-          subtext: "Select a sheet by index to import multiple ranges from. Negative sheet indexes are allowed, and are counted from the end of the sheet list."
+          subtext: "Select a sheet by index in the Excel file. Use a negative index to count backwards from the end of the sheet list"
         }
       )
     ))), params.sheet.type === "sheet name" && /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-header-3" }, "Sheet Name")), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement(
@@ -39197,16 +39197,21 @@ fig.write_html("${props.graphTabName}.html")`
     ))), params.sheet.type === "sheet index" && /* @__PURE__ */ import_react173.default.createElement(import_react173.default.Fragment, null, /* @__PURE__ */ import_react173.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-header-3" }, "Sheet Index")), /* @__PURE__ */ import_react173.default.createElement(Col_default, null, /* @__PURE__ */ import_react173.default.createElement(
       Input_default,
       {
+        width: "medium",
         type: "number",
         value: "" + params.sheet.value,
         onChange: (e) => {
-          const newValue = parseInt(e.target.value);
+          let newValue = e.target.value;
+          const parsedValue = parseInt(newValue);
+          if (!isNaN(parsedValue)) {
+            newValue = parsedValue;
+          }
           const newParams = __spreadValues({}, params);
           newParams.sheet.value = newValue;
           setParams(newParams);
         }
       }
-    ))), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, sheet_name !== void 0 && `${sheet_name} is selected.`, sheet_name === void 0 && `No sheet is selected. The index is out of bounds.`)));
+    ))), /* @__PURE__ */ import_react173.default.createElement("p", { className: "text-subtext-1" }, sheet_name !== void 0 && `${sheet_name} is selected.`, sheet_name === void 0 && `No sheet is selected. The index is out of bounds or invalid.`))), /* @__PURE__ */ import_react173.default.createElement(Spacer_default, { px: 10 }));
   }
   var ExcelRangeSheetSelection_default = ExcelRangeSheetSelection;
 

@@ -149,7 +149,7 @@ def get_read_excel_params_from_range(range: str) -> Tuple[int, int, str]:
 def convert_csv_file_to_xlsx_file(csv_path: str, sheet_name: Union[str, int]) -> str:
     """Converts a CSV file to an XLSX file"""
     
-    xlsx_path = os.path.splitext(csv_path)[0] + '.xlsx'
+    xlsx_path = os.path.splitext(csv_path)[0] + '_tmp.xlsx'
 
     # Loop over each row of the CSV and write it to the XLSX
     with open(csv_path, 'r') as csv_file:
