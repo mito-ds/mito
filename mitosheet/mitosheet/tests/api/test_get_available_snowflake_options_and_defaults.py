@@ -2,7 +2,7 @@ import json
 import os
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
@@ -26,7 +26,7 @@ TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_success():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     table_loc_and_warehouse = {
         'warehouse': 'COMPUTE_WH',

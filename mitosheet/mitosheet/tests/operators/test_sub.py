@@ -8,7 +8,7 @@ Contains tests for -
 """
 import pytest
 
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # In these tests, we assume the value of column A = 1, B = 2
 SUB_TESTS_VALID = [
@@ -30,7 +30,7 @@ SUB_TESTS_VALID = [
 ]
 @pytest.mark.parametrize("formula,_sum", SUB_TESTS_VALID)
 def test_valid_subtraction(formula, _sum):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == _sum
@@ -50,7 +50,7 @@ SUB_TESTS_INVALID = [
 ]
 @pytest.mark.parametrize("formula", SUB_TESTS_INVALID)
 def test_invalid_subtraction(formula):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     # Make sure the value of C has not changed

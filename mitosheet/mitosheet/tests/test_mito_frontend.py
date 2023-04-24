@@ -6,7 +6,7 @@ import pytest
 
 from mitosheet.mito_backend import get_mito_frontend_code
 from mitosheet.steps_manager import StepsManager
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 # See here: https://www.tutorialspoint.com/json_simple/json_simple_escape_characters.htm
@@ -30,7 +30,7 @@ STRINGS_TO_TEST = [
 
 def write_test_code(file: str, string: str) -> None:
     df = pd.DataFrame({'A': [string]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     code = get_mito_frontend_code('a', 'a', 'a', mito.mito_backend)
     with open(file, 'w+') as f:
         f.write(code)

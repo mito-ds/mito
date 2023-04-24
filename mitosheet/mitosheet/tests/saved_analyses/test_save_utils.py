@@ -15,8 +15,8 @@ import pytest
 from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
 from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
-from mitosheet.tests.test_utils import (create_mito_wrapper,
-                                        create_mito_wrapper_dfs)
+from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
+                                        create_mito_wrapper)
 
 # We assume only column A exists
 PERSIST_ANALYSIS_TESTS = [
@@ -28,14 +28,14 @@ PERSIST_ANALYSIS_TESTS = [
 ]
 @pytest.mark.parametrize("b_value,b_formula", PERSIST_ANALYSIS_TESTS)
 def test_recover_analysis(b_value, b_formula):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     # We first write out the analysis
     analysis_name = mito.mito_backend.analysis_name
     write_analysis(mito.mito_backend.steps_manager)
 
     df = pd.DataFrame(data={'A': [1]})
-    new_mito = create_mito_wrapper_dfs(df)
+    new_mito = create_mito_wrapper(df)
     new_mito.replay_analysis(analysis_name)
 
     curr_step = new_mito.curr_step
@@ -46,7 +46,7 @@ def test_recover_analysis(b_value, b_formula):
 
 @pytest.mark.parametrize("b_value,b_formula", PERSIST_ANALYSIS_TESTS)
 def test_persist_analysis_multi_sheet(b_value, b_formula):
-    mito = create_mito_wrapper([1], sheet_two_A_data=[1])
+    mito = create_mito_wrapper_with_data([1], sheet_two_A_data=[1])
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     mito.set_formula(b_formula, 1, 'B', add_column=True)
     # We first write out the analysis
@@ -56,7 +56,7 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [1]})
 
-    new_mito = create_mito_wrapper_dfs(df1, df2)
+    new_mito = create_mito_wrapper(df1, df2)
     new_mito.replay_analysis(analysis_name)
 
     curr_step = new_mito.curr_step
@@ -69,7 +69,7 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
 
 
 def test_persist_rename_column():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.rename_column(0, 'A', 'NEW_COLUMN')
 
     analysis_name = mito.mito_backend.analysis_name
@@ -77,7 +77,7 @@ def test_persist_rename_column():
 
     df1 = pd.DataFrame(data={'A': [1]})
 
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(analysis_name)
 
     curr_step = new_mito.mito_backend.steps_manager.curr_step
@@ -85,7 +85,7 @@ def test_persist_rename_column():
     assert curr_step.dfs[0].equals(pd.DataFrame(data={'NEW_COLUMN': [1]}))
 
 def test_persisit_delete_column():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.delete_columns(0, 'A')
 
     analysis_name = mito.mito_backend.analysis_name
@@ -93,7 +93,7 @@ def test_persisit_delete_column():
 
     df1 = pd.DataFrame(data={'A': [1]})
 
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(analysis_name)
 
     curr_step = new_mito.mito_backend.steps_manager.curr_step
@@ -102,7 +102,7 @@ def test_persisit_delete_column():
 
 
 def test_save_analysis_update():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
     mito.delete_columns(0, 'A')
 
@@ -112,14 +112,14 @@ def test_save_analysis_update():
 
     df1 = pd.DataFrame(data={'A': [1]})
 
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(random_name)
 
     curr_step = new_mito.mito_backend.steps_manager.curr_step
     assert curr_step.dfs[0].keys() == ['B']
 
 def test_save_analysis_update_and_overwrite():
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.add_column(0, 'B')
 
     random_name = 'UUID-test_save' + str(random.random())
@@ -135,7 +135,7 @@ def test_save_analysis_update_and_overwrite():
 
     df1 = pd.DataFrame(data={'A': [1]})
 
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(random_name)
 
     curr_step = new_mito.mito_backend.steps_manager.curr_step
@@ -144,14 +144,14 @@ def test_save_analysis_update_and_overwrite():
 
 def test_failed_replay_does_not_add_steps():
     # Make an analysis and save it
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=A + 1', 0, 'B', add_column=True)
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
     # Try and rerun it on a dataframe it cannot be rerun on
     df = pd.DataFrame(data={'A': [1], 'B': [3]})
-    new_mito = create_mito_wrapper_dfs(df)
+    new_mito = create_mito_wrapper(df)
 
     new_mito.replay_analysis(random_name)
 
@@ -163,7 +163,7 @@ def test_failed_replay_does_not_add_steps():
 def test_pivot_by_replays():
     # Make an analysis and save it
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, 
         ['Name'],
@@ -175,7 +175,7 @@ def test_pivot_by_replays():
     mito.save_analysis(random_name)
 
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
 
     new_mito.replay_analysis(random_name)
 
@@ -192,7 +192,7 @@ def test_pivot_by_replays():
 def test_merge_replays():
     # Make an analysis and save it
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Jake'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.merge_sheets(
         'lookup',
         0, 0,
@@ -204,7 +204,7 @@ def test_merge_replays():
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(random_name)
 
     steps_manager = new_mito.mito_backend.steps_manager
@@ -223,7 +223,7 @@ def test_import_replays():
     df.to_csv(TEST_FILE_PATH, index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATH])
     
@@ -231,7 +231,7 @@ def test_import_replays():
     mito.save_analysis(random_name)
 
     # Try and rerun it on a dataframe it cannot be rerun on
-    new_mito = create_mito_wrapper_dfs()
+    new_mito = create_mito_wrapper()
     new_mito.replay_analysis(random_name)
 
     os.remove(TEST_FILE_PATH)
@@ -248,7 +248,7 @@ def test_import_replays():
 def test_replay_analysis_does_not_make_removed_columns():
 
     df1 = pd.DataFrame(data={'A': [123], 'B': [1234]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     mito.add_column(0, 'C')
 
@@ -257,7 +257,7 @@ def test_replay_analysis_does_not_make_removed_columns():
 
     # Try and rerun it on a dataframe with no column B, and it shouldn't recreate B
     df1 = pd.DataFrame(data={'A': [123]})
-    new_mito = create_mito_wrapper_dfs(df1)
+    new_mito = create_mito_wrapper(df1)
     new_mito.replay_analysis(random_name)
 
 
@@ -273,7 +273,7 @@ def test_upgrades_old_analysis_before_replaying_it():
         f.write(json.dumps(saved_analysis))
 
     df = pd.DataFrame({'A': [123], 'B': [123]})
-    new_mito = create_mito_wrapper_dfs(df)
+    new_mito = create_mito_wrapper(df)
     new_mito.replay_analysis('UUID-test-upgrade')
 
     # This pivot happens to be an identity!
@@ -282,7 +282,7 @@ def test_upgrades_old_analysis_before_replaying_it():
     )
 
 def test_save_analysis_saves_skipped_steps():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
 
@@ -291,11 +291,11 @@ def test_save_analysis_saves_skipped_steps():
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert len(saved_analysis['steps_data']) == 1
     assert saved_analysis['steps_data'][0]['params']['filters'][0]['value'] == 3
 
-    new_mito = create_mito_wrapper([1, 2, 3])
+    new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)
 
     assert new_mito.dfs[0].equals(
@@ -304,17 +304,17 @@ def test_save_analysis_saves_skipped_steps():
 
 
 def test_save_replays_overwrite_by_ids_propererly():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.pivot_sheet(0, ['A'], ['A'], {'A': ['sum']}, step_id='1')
     mito.pivot_sheet(0, ['A'], [], {'A': ['count']}, step_id='1')
 
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert len(saved_analysis['steps_data']) == 1
 
-    new_mito = create_mito_wrapper([1, 2, 3])
+    new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)
 
     assert new_mito.dfs[1].equals(
@@ -322,31 +322,32 @@ def test_save_replays_overwrite_by_ids_propererly():
     )
 
 def test_save_and_replay_different_interface_version_works():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.mito_backend.steps_manager.public_interface_version = 100
 
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    saved_analysis = read_and_upgrade_analysis(random_name)
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
+    print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
 
-    new_mito = create_mito_wrapper([1, 2, 3])
+    new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)
 
     assert new_mito.mito_backend.steps_manager.public_interface_version == 100
 
 def test_replay_failed_analysis_does_not_change_public_interface_version():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.delete_columns(0, ['A'])
     mito.mito_backend.steps_manager.public_interface_version = 100
 
     random_name = 'UUID-test_save' + str(random.random())
     mito.save_analysis(random_name)
 
-    new_mito = create_mito_wrapper_dfs(pd.DataFrame({'B': [1, 2, 3]}))
+    new_mito = create_mito_wrapper(pd.DataFrame({'B': [1, 2, 3]}))
     starting_val = new_mito.mito_backend.steps_manager.public_interface_version
     new_mito.replay_analysis(random_name)
 

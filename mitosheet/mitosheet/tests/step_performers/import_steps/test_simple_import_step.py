@@ -11,7 +11,7 @@ import pandas as pd
 import os
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.utils import is_prev_version
 
 TEST_FILE_PATHS = [
@@ -46,7 +46,7 @@ def test_simple_import(input_df, delimeter, encoding, decimal, skiprows, error_b
     input_df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter, encoding=encoding)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]], [delimeter], [encoding], [decimal], [skiprows], [error_bad_lines])
 
@@ -59,7 +59,7 @@ def test_simple_import(input_df, delimeter, encoding, decimal, skiprows, error_b
 def test_rolls_back_on_failed_import():
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file, that does not exist
     mito.simple_import([FAKE_FILE_PATHS[0]])
 
@@ -73,7 +73,7 @@ def test_can_import_a_single_csv():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -91,7 +91,7 @@ def test_can_import_a_single_csv_with_a_single_column():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -108,7 +108,7 @@ def test_creates_valid_name():
     df.to_csv('1.csv', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import(['1.csv'])
 
@@ -126,7 +126,7 @@ def test_creates_valid_name_nested_path():
     df.to_csv('../1.csv', index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import(['../1.csv'])
 
@@ -145,7 +145,7 @@ def test_can_import_multiple_csv():
     df.to_csv(TEST_FILE_PATHS[1], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import(TEST_FILE_PATHS)
 
@@ -164,7 +164,7 @@ def test_transpiles_single_file():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -175,7 +175,7 @@ def test_transpiles_single_file_with_column_rename():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -186,7 +186,7 @@ def test_transpiles_single_file_and_add_formula():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.set_formula('=A + 1', 0, 'C', add_column=True)
@@ -198,7 +198,7 @@ def test_transpiles_multiple_files_same_name():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0], TEST_FILE_PATHS[0]])
 
@@ -213,7 +213,7 @@ def test_imports_with_different_delimeters():
         df.to_csv(TEST_FILE_PATHS[0], index=False, sep=delimeter)
 
         # Create with no dataframes
-        mito = create_mito_wrapper_dfs()
+        mito = create_mito_wrapper()
         # And then import just a test file
         mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -229,7 +229,7 @@ def test_imports_with_utf_16():
     df.to_csv(TEST_FILE_PATHS[0], index=False, encoding=encoding)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -246,7 +246,7 @@ def test_imports_with_different_encodings_that_python_handles():
         df.to_csv(TEST_FILE_PATHS[0], index=False, encoding=encoding)
 
         # Create with no dataframes
-        mito = create_mito_wrapper_dfs()
+        mito = create_mito_wrapper()
         # And then import just a test file
         mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -263,7 +263,7 @@ def test_imports_with_latin_1():
         df.to_csv(TEST_FILE_PATHS[0], index=False, encoding=encoding)
 
         # Create with no dataframes
-        mito = create_mito_wrapper_dfs()
+        mito = create_mito_wrapper()
         # And then import just a test file
         mito.simple_import([TEST_FILE_PATHS[0]])
 
@@ -277,7 +277,7 @@ def test_can_import_mulitple_csvs_combined():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.simple_import([TEST_FILE_PATHS[0]])
@@ -290,8 +290,10 @@ def test_can_import_mulitple_csvs_combined():
 
     assert mito.transpiled_code == [
         "import pandas as pd",
+        '',
         "test_file = pd.read_csv(r'test_file.csv')",
-        "test_file_1 = pd.read_csv(r'test_file.csv')"
+        "test_file_1 = pd.read_csv(r'test_file.csv')",
+        '',
     ]
 
     # Remove the test file
@@ -302,7 +304,7 @@ def test_simple_import_optimized_by_delete():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.delete_dataframe(0)
@@ -319,7 +321,7 @@ def test_multiple_imports_are_not_deleted_by_single_delete():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0], TEST_FILE_PATHS[0]])
     mito.delete_dataframe(0)
@@ -328,8 +330,10 @@ def test_multiple_imports_are_not_deleted_by_single_delete():
 
     assert mito.transpiled_code == [
         "import pandas as pd",
+        '',
         "test_file = pd.read_csv(r'test_file.csv')",
         "test_file_1 = pd.read_csv(r'test_file.csv')",
+        '',
     ]
 
     # Remove the test file
@@ -341,7 +345,7 @@ def test_multiple_imports_are_deleted_by_mulitple_delete():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0], TEST_FILE_PATHS[0]])
     mito.delete_dataframe(0)
@@ -359,7 +363,7 @@ def test_multiple_seperate_imports_analysis_are_deleted_by_mulitple_delete():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.simple_import([TEST_FILE_PATHS[0]])
@@ -378,7 +382,7 @@ def test_multiple_seperate_imports_analysis_are_deleted_by_mulitple_delete_later
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.simple_import([TEST_FILE_PATHS[0]])
@@ -398,7 +402,7 @@ def test_multiple_imports_deleted_with_events_in_between():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.simple_import([TEST_FILE_PATHS[0]])
@@ -417,7 +421,7 @@ def test_multiple_imports_optimize_stopped_by_rename():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]])
     mito.simple_import([TEST_FILE_PATHS[0]])
@@ -444,7 +448,7 @@ Carey,Price,MTL,G,31,10,500,000,1987-08-16
 Daniel,Sedin,VAN,LW,22,1,1980-09-26
 Henrik,Sedin,VAN,C,33,1,1980-09-26""")
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [True])
     
     assert len(mito.dfs) == 0
@@ -478,7 +482,7 @@ def test_comma_decimal():
     df_result = pd.DataFrame({'KG': [267.88, 458.99, 125.89, 1.55, 1]}) 
     df_comma.to_csv(TEST_FILE_PATHS[0], index=False)
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [','], [DEFAULT_SKIPROWS], [True])
     
     assert mito.dfs[0].equals(df_result)
@@ -491,7 +495,7 @@ def test_can_import_with_skiprows():
     df.to_csv(TEST_FILE_PATHS[0], index=False)
 
     # Create with no dataframes
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     # And then import just a test file
     mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
 

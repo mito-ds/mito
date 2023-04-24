@@ -9,13 +9,13 @@ Contains tests for undo edit events.
 import pandas as pd
 
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 
 def test_undo_deletes_df_name():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5, 6]})
     df2 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df1, df2)
+    mito = create_mito_wrapper(df1, df2)
 
     # Make a new sheet
     mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A'], ['A'])
@@ -25,7 +25,7 @@ def test_undo_deletes_df_name():
 
 
 def test_undo_to_skipped_step_refreshes_step():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 3)
     mito.undo()
@@ -37,7 +37,7 @@ def test_undo_to_skipped_step_refreshes_step():
 
 
 def test_undo_saves_in_last_undone_steps():
-    mito = create_mito_wrapper([1, 2, 3])
+    mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
 

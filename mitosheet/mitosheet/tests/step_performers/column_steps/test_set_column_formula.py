@@ -11,14 +11,14 @@ import pytest
 
 from mitosheet.column_headers import get_column_header_id
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
-from mitosheet.tests.test_utils import (create_mito_wrapper,
-                                        create_mito_wrapper_dfs)
+from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
+                                        create_mito_wrapper)
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.utils import get_new_id
 
 
 def test_edit_cell_formula_on_message_receive():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
 
@@ -26,7 +26,7 @@ def test_edit_cell_formula_on_message_receive():
     assert mito.dfs[0]['B'].equals(mito.dfs[0]['A'])
 
 def test_overwrite_on_double_set():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
     mito.set_formula('=1', 0, 'B')
@@ -36,7 +36,7 @@ def test_overwrite_on_double_set():
     assert mito.curr_step_idx == 3
 
 def test_double_set_does_not_error():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
 
@@ -56,7 +56,7 @@ def test_double_set_does_not_error():
     assert mito.dfs[0]['B'].equals(mito.dfs[0]['A'])
 
 def test_edit_cell_formula_mulitple_msg_receives():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
     mito.set_formula('=1', 0, 'B')
@@ -66,7 +66,7 @@ def test_edit_cell_formula_mulitple_msg_receives():
 
 
 def test_edit_to_same_formula_no_error():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=A', 0, 'B')
 
@@ -89,7 +89,7 @@ def test_edit_to_same_formula_no_error():
 
 
 def test_formulas_fill_missing_parens():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A', 0, 'B')
 
@@ -101,7 +101,7 @@ def test_formulas_fill_missing_parens():
     )
 
 def test_formulas_fill_missing_two_parens():
-    mito = create_mito_wrapper([123])
+    mito = create_mito_wrapper_with_data([123])
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(SUM(A', 0, 'B')
 
@@ -116,7 +116,7 @@ def test_formulas_fill_missing_two_parens():
 def test_multi_sheet_edits_edit_correct_dfs():
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [2]})
-    mito = create_mito_wrapper_dfs(df1, df2)
+    mito = create_mito_wrapper(df1, df2)
 
     mito.add_column(0, 'B')
     mito.add_column(1, 'B')
@@ -129,7 +129,7 @@ def test_multi_sheet_edits_edit_correct_dfs():
 
 def test_only_writes_single_code():
     df = pd.DataFrame(data={'A': [1]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=A', 0, 'B', add_column=True)
     mito.set_formula('=B', 0, 'C', add_column=True)
     mito.set_formula('=A', 0, 'D', add_column=True)
@@ -137,14 +137,18 @@ def test_only_writes_single_code():
 
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', df1['A'])", 
-        "df1.insert(2, 'C', df1['B'])", 
+        '',
+        "df1.insert(2, 'C', df1['B'])",
+        '', 
         "df1.insert(3, 'D', df1['A'])", 
+        '',
         "df1['B'] = 100", 
+        '',
     ]
 
 def test_can_set_formula_referencing_datetime():
     df = pd.DataFrame(data={pd.to_datetime('12-22-1997'): [1]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=1997-12-22 00:00:00', 0, 'B', add_column=True)
 
     assert mito.dfs[0].equals(
@@ -153,7 +157,7 @@ def test_can_set_formula_referencing_datetime():
 
 def test_can_set_formula_referencing_timedelta():
     df = pd.DataFrame(data={pd.to_timedelta('2 days 00:00:00'): [1]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=2 days 00:00:00', 0, 'B', add_column=True)
 
     assert mito.dfs[0].equals(
@@ -163,7 +167,7 @@ def test_can_set_formula_referencing_timedelta():
 
 def test_inplace_edit_overwrites_properly():
     df = pd.DataFrame(data={'A': [1]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=A + 1', 0, 'A')
     mito.set_formula('=A + 2', 0, 'A')
     mito.set_formula('=A + 3', 0, 'A')
@@ -171,11 +175,12 @@ def test_inplace_edit_overwrites_properly():
 
     assert mito.transpiled_code == [
         "df1['A'] = df1['A'] + 2", 
+        '',
     ]
 
 def test_formula_with_letters_df_in_column_header_works():
     df = pd.DataFrame(data={'df': [1]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.set_formula('=df', 0, 'A', add_column=True)
 
     assert mito.dfs[0].equals(
@@ -186,7 +191,7 @@ def test_formula_with_letters_df_in_column_header_works():
     )
 
 def test_set_formula_then_rename_no_optimize_yet():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
@@ -195,13 +200,17 @@ def test_set_formula_then_rename_no_optimize_yet():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'C': [10]}))
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', 0)", 
+        '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
+        '',
         "df1['B'] = 10", 
-        "df1.rename(columns={'B': 'C'}, inplace=True)"
+        '',
+        "df1.rename(columns={'B': 'C'}, inplace=True)",
+        '',
     ]
 
 def test_set_formula_then_delete_optimize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
@@ -210,12 +219,15 @@ def test_set_formula_then_delete_optimize():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', 0)", 
+        '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
-        "df1.drop(['B'], axis=1, inplace=True)"
+        '',
+        "df1.drop(['B'], axis=1, inplace=True)",
+        '',
     ]
 
 def test_set_formula_then_delete_optimizes_multiple():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
     mito.set_formula('=10', 0, 'B', add_column=False)
@@ -227,12 +239,15 @@ def test_set_formula_then_delete_optimizes_multiple():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', 0)", 
+        '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
-        "df1.drop(['B'], axis=1, inplace=True)"
+        '',
+        "df1.drop(['B'], axis=1, inplace=True)",
+        '',
     ]
 
 def test_set_multiple_formula_then_delete_optimizes_multiple():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
     mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
@@ -245,14 +260,18 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', 0)", 
+        '',
         "df1.insert(2, 'C', 0)", 
+        '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
-        "df1.drop(['B', 'C'], axis=1, inplace=True)"
+        '',
+        "df1.drop(['B', 'C'], axis=1, inplace=True)",
+        '',
     ]
 
 
 def test_set_column_formula_in_duplicate_does_not_overoptmize():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.duplicate_dataframe(0) # Duplicate to break up the optimization
     mito.rename_column(1, 'B', 'aaron')
@@ -260,12 +279,15 @@ def test_set_column_formula_in_duplicate_does_not_overoptmize():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [0]}))
     assert mito.transpiled_code == [
         "df1.insert(1, 'B', 0)", 
+        '',
         "df1_copy = df1.copy(deep=True)",
-        "df1_copy.rename(columns={'B': 'aaron'}, inplace=True)"
+        '',
+        "df1_copy.rename(columns={'B': 'aaron'}, inplace=True)",
+        '',
     ]
 
 def test_set_column_formula_then_delete_dataframe_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
     mito.sort(0, 'B', SORT_DIRECTION_ASCENDING) # Sort to break up the optimization
@@ -279,7 +301,7 @@ def test_set_column_formula_then_delete_dataframe_optimizes():
     assert mito.transpiled_code == []
 
 def test_set_column_formula_then_delete_diff_dataframe_not_optimizes():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [1]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [1]}))
 
     mito.duplicate_dataframe(0)
     mito.add_column(0, 'B')
@@ -295,7 +317,7 @@ def test_set_column_formula_then_delete_diff_dataframe_not_optimizes():
     assert len(mito.optimized_code_chunks) >= 3
 
 def test_set_column_formula_with_datetime_index():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00'])))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}, index=pd.to_datetime(['2007-01-22 00:00:00', '2007-01-23 00:00:00', '2007-01-24 00:00:00'])))
     mito.add_column(0, 'B')
     mito.set_formula('=A2007-01-22 00:00:00', 0, 'B', formula_label='2007-01-22 00:00:00')
 
@@ -388,7 +410,7 @@ INDEX_TEST_CASES = [
 
 @pytest.mark.parametrize("input_df, formula, column_header, formula_label,output_df", INDEX_TEST_CASES)
 def test_different_indexes(input_df, formula, column_header, formula_label, output_df):
-    mito = create_mito_wrapper_dfs(input_df)
+    mito = create_mito_wrapper(input_df)
     mito.add_column(0, column_header)
     mito.set_formula(formula, 0, column_header, formula_label=formula_label)
 
@@ -480,7 +502,7 @@ SPECIFIC_INDEX_LABELS_TEST = [
 ]
 @pytest.mark.parametrize("input_df, column_header, formula, formula_label, index_labels, output_df", SPECIFIC_INDEX_LABELS_TEST)
 def test_set_specific_index_labels(input_df, column_header, formula, formula_label, index_labels, output_df):
-    mito = create_mito_wrapper_dfs(input_df)
+    mito = create_mito_wrapper(input_df)
     mito.add_column(0, column_header)
     mito.set_formula(formula, 0, column_header, formula_label=formula_label, index_labels=index_labels)
 
@@ -488,7 +510,7 @@ def test_set_specific_index_labels(input_df, column_header, formula, formula_lab
 
 
 def test_set_specific_index_labels_twice():    
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=A0', 0, 'B', index_labels=[0])
     mito.set_formula('=A1', 0, 'B', index_labels=[0])
@@ -496,7 +518,7 @@ def test_set_specific_index_labels_twice():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
 
 def test_set_specific_index_labels_then_entire_column():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=A0', 0, 'B', index_labels=[0])
     mito.set_formula('=A1', 0, 'B')
@@ -505,7 +527,7 @@ def test_set_specific_index_labels_then_entire_column():
 
 
 def test_set_entire_column_then_specific_index_labels():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=A1', 0, 'B')
     mito.set_formula('=A0', 0, 'B', index_labels=[0])
@@ -513,7 +535,7 @@ def test_set_entire_column_then_specific_index_labels():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 3, 0]}))
 
 def test_set_specific_indexes_then_delete_column():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=A1', 0, 'B')
     mito.set_formula('=A0', 0, 'B', index_labels=[0])
@@ -522,7 +544,7 @@ def test_set_specific_indexes_then_delete_column():
     assert len(mito.optimized_code_chunks) == 1
 
 def test_set_specific_indexes_twice_overwrites_delete_column():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=A0', 0, 'B', index_labels=[0])
     mito.set_formula('=A1', 0, 'B', index_labels=[0])
@@ -530,7 +552,7 @@ def test_set_specific_indexes_twice_overwrites_delete_column():
     assert len(mito.optimized_code_chunks) == 2
 
 def test_set_formula_entire_column_reference():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A:A)', 0, 'B')
 
@@ -538,54 +560,54 @@ def test_set_formula_entire_column_reference():
 
 
 def test_set_formula_rolling_range_reference():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A0:A1)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
 
 def test_set_formula_rolling_range_reference_unsorted_indexes_refences_first():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[1, 2, 0]))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}, index=[1, 2, 0]))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A1:A2)', 0, 'B')
 
 def test_set_formula_rolling_range_reference_string_columns():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c']))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(Aa:Ab)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=['a', 'b', 'c']))
 
 def test_set_formula_rolling_range_reference_unsorted_indexes_refences_backwards():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A2:A1)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}, index=[2, 1, 0]))
 
 def test_set_formula_rolling_range_reference_unsorted_indexes_refences_not_next_to_eachother():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}, index=[2, 1, 0]))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A2:A0)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 5, 3]}, index=[2, 1, 0]))
 
 def test_set_formula_wrong_index_order():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
     mito.set_formula('=SUM(A1:A0)', 0, 'B')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 5, 3]}))
 
 def test_set_formula_wrong_column_order():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
     mito.add_column(0, 'D')
     mito.set_formula('=SUM(C:A)', 0, 'D')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3], 'D': [18, 18, 18]}))
 
 def test_set_formula_wrong_column_order_wrong_index_order():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3], 'C': [1, 2, 3]}))
     mito.add_column(0, 'D')
     mito.set_formula('=SUM(C1:A0)', 0, 'D')
 

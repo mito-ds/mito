@@ -21,24 +21,7 @@ export function getCodeString(
         return '';
     }
 
-    let finalCode = '';
-
-    // When joining code, we do not add blank line between comments
-    // and steps they describe, but we do add blank lines between 
-    // steps. A comment describes a step if it is a single line in the
-    // code array, with no new lines included in it
-    const isCommentLine = (codeLine: string): boolean => {
-        return codeLine.startsWith('#') && codeLine.indexOf('\n') === -1;
-    }
-
-    if (code.length > 0) {
-        for (let i = 0; i < code.length; i++) {
-            if (isCommentLine(code[i])) {
-                finalCode += '\n'
-            }
-            finalCode += code[i] + '\n';
-        }
-    }
+    const finalCode = code.join('\n');
 
     const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion]
 

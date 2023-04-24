@@ -30,6 +30,8 @@ from mitosheet.step_performers.import_steps.simple_import import \
 from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.transpiler.transpile_utils import get_default_code_options
+from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
@@ -185,6 +187,7 @@ class StepsManager:
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
+        self.original_args_raw_strings: List[str] = []
         self.original_args = [
             arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg)
             for arg in args
@@ -265,6 +268,10 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
+        # The options for the transpiled code. For now, we just store if it should
+        # be a function, which we default to False
+        self.code_options: CodeOptions = get_default_code_options(self.analysis_name)
+
     @property
     def curr_step(self) -> Step:
         """
@@ -334,6 +341,7 @@ class StepsManager:
                 'renderCount': self.render_count,
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
+                'codeOptions': self.code_options,
             },
             cls=NpEncoder
         )

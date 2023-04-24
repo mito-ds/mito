@@ -15,11 +15,13 @@ from mitosheet.saved_analyses import read_and_upgrade_analysis
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
+from mitosheet.updates.args_update import do_arg_update
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
     'analysis_name',
-    'step_import_data_list_to_overwrite'
+    'step_import_data_list_to_overwrite',
+    'args'
 ]
 
 def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_overwrite: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -67,6 +69,7 @@ def overwrite_import_data(analysis: Dict[str, Any], step_import_data_list_to_ove
 def execute_replay_analysis_update(
         steps_manager: StepsManagerType,
         analysis_name: str,
+        args: List[str],
         step_import_data_list_to_overwrite: List[Dict[str, Any]]
     ) -> None:
     """
@@ -86,7 +89,7 @@ def execute_replay_analysis_update(
         return
 
     # If we're getting an event telling us to update, we read in the steps from the file
-    analysis = read_and_upgrade_analysis(analysis_name)
+    analysis = read_and_upgrade_analysis(analysis_name, args)
 
     # If there is no analysis with this name, generate an error
     if analysis is None:
@@ -98,15 +101,23 @@ def execute_replay_analysis_update(
         analysis = overwrite_import_data(analysis, step_import_data_list_to_overwrite)
 
     previous_public_interface_version = steps_manager.public_interface_version
+    previous_code_options = steps_manager.code_options
+
+    # If there are args to the mitosheet call, then set them on the steps manager
+    if len(args) > 0:
+        do_arg_update(steps_manager, args)
+
     try:
         # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
+        steps_manager.code_options = analysis['code_options']
 
         steps_manager.execute_steps_data(new_steps_data=analysis['steps_data'])
 
     except:
-        # If we error, reset the public interface version
+        # If we error, reset the public interface version, and code options
         steps_manager.public_interface_version = previous_public_interface_version
+        steps_manager.code_options = previous_code_options
         raise
 
     # NOTE: We update the analysis name only if the new steps execute correctly,

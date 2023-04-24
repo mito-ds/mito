@@ -9,7 +9,7 @@ Contains tests for Promote Row To Header
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only
 
 PROMOTE_ROW_TO_HEADER_TESTS = [
@@ -86,7 +86,7 @@ PROMOTE_ROW_TO_HEADER_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, index, output_dfs", PROMOTE_ROW_TO_HEADER_TESTS)
 def test_fill_na(input_dfs, sheet_index, index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.promote_row_to_header(sheet_index, index)
 
@@ -119,7 +119,7 @@ DATE_INDEX_TESTS = [(
 @pandas_post_1_2_only
 @pytest.mark.parametrize("input_dfs, sheet_index, index, output_dfs", DATE_INDEX_TESTS)
 def test_promote_row_to_header_timedelta_index(input_dfs, sheet_index, index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.promote_row_to_header(sheet_index, index)
 

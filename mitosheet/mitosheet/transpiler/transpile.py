@@ -15,6 +15,7 @@ from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.transpiler.transpile_utils import convert_script_to_function
 from mitosheet.types import StepsManagerType
 
 
@@ -40,10 +41,11 @@ def transpile(
     for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
         preprocess_code = preprocess_step_performer.transpile(
             steps_manager,
-            steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()]
+            steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()],
         )
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
+            code.append('')
 
     # We only transpile up to the currently checked out step
     all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=optimize)
@@ -63,6 +65,9 @@ def transpile(
                 gotten_code.insert(0, comment)
             code.extend(gotten_code)
 
+            # Then add a line of whitespace
+            code.append('')
+
         imports_code.extend(code_chunk_imports)
 
     # If we have a historical step checked out, then we add a comment letting
@@ -71,7 +76,20 @@ def transpile(
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
     # We then deduplicate the imports, keeping the same order as originally. We then 
-    # put them at the start of the code!
+    # put them at the start of the code (and add some whitespace)
     final_imports_code = deduplicate_array(imports_code)
+    if len(final_imports_code) > 0:
+        final_imports_code.append('')
+
+    # If we should transpile this as a function, we do so
+    if steps_manager.code_options['as_function']:
+        final_code = convert_script_to_function(
+            steps_manager,
+            final_imports_code,
+            code,
+            steps_manager.code_options['function_name'],
+            steps_manager.code_options['function_params']
+        )
+        return final_code
 
     return final_imports_code + code

@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only, python_post_3_6_only, pandas_post_1_2_only
 
 TEST_DF_1 = pd.DataFrame({'header 1': [1], 'header 2': [2]})
@@ -18,7 +18,7 @@ TEST_SHEET_NAME = 'sheet1'
 
 def test_clear_undoes_mulitple_steps_on_passed_dataframes():
     df1 = pd.DataFrame(data={'A': [1, 2, 3, 4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
@@ -30,7 +30,7 @@ def test_clear_undoes_mulitple_steps_on_passed_dataframes():
 
 def test_clear_can_be_redone_with_single_redo():
     df1 = pd.DataFrame(data={'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
@@ -48,7 +48,7 @@ def test_clear_can_be_redone_with_single_redo():
 
 def test_clear_then_undo_actually_redoes():
     df1 = pd.DataFrame(data={'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     mito.add_column(0, 'B')
     mito.add_column(0, 'C')
@@ -64,7 +64,7 @@ def test_clear_then_undo_actually_redoes():
 
 def test_clear_keeps_simple_imports_then_resets():
     df0 = pd.DataFrame(data={'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df0)
+    mito = create_mito_wrapper(df0)
     mito.add_column(0, 'B')
 
     df1 = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
@@ -106,7 +106,7 @@ def test_clear_keeps_simple_imports_then_resets():
 @python_post_3_6_only
 def test_clear_resets_excel_imports():
     df0 = pd.DataFrame(data={'A': [1, 2, 3]})
-    mito = create_mito_wrapper_dfs(df0)
+    mito = create_mito_wrapper(df0)
     mito.add_column(0, 'B')
 
     df1 = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
@@ -147,7 +147,7 @@ def test_clear_resets_excel_imports():
 @pandas_post_1_2_only
 @python_post_3_6_only
 def test_does_not_undo_excel_range_import():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     TEST_DF_1.to_excel(TEST_FILE_PATH, sheet_name=TEST_SHEET_NAME, index=False)
     mito.excel_range_import(TEST_FILE_PATH, {'type': 'sheet name', 'value': TEST_SHEET_NAME}, [{'type': 'range', 'df_name': 'df1', 'value': 'A1:B2'}], False)

@@ -11,7 +11,7 @@ from typing import Any, List, Tuple, Union
 import numpy as np
 import pytest
 import math
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Test pure arithmetic
 ARITHMETIC_COMPOSITION_TESTS: List[Tuple[Any, ...]] = [
@@ -82,7 +82,7 @@ FORMULA_COMP_TESTS = ARITHMETIC_COMPOSITION_TESTS + STRING_COMPOSITION_TESTS
 
 @pytest.mark.parametrize("A_input,B_input,formula,result", FORMULA_COMP_TESTS)
 def test_function_composition(A_input, B_input, formula, result):
-    mito = create_mito_wrapper([A_input])
+    mito = create_mito_wrapper_with_data([A_input])
     mito.set_formula(f'={B_input}', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == result

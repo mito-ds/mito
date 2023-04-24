@@ -13,6 +13,7 @@ Examples of this sort of event are:
 - A user undoing an existing step. 
 """
 
+from mitosheet.updates.code_options_update import CODE_OPTIONS_UPDATE
 from mitosheet.updates.undo import UNDO_UPDATE
 from mitosheet.updates.redo import REDO_UPDATE
 from mitosheet.updates.clear import CLEAR_UPDATE
@@ -45,5 +46,6 @@ UPDATES = [
     GO_PRO_UPDATE,
     RENDER_COUNT_UPDATE,
     CHECKLIST_UPDATE,
-    UPDATE_EXISTING_IMPORTS_UPDATE
+    UPDATE_EXISTING_IMPORTS_UPDATE,
+    CODE_OPTIONS_UPDATE
 ]

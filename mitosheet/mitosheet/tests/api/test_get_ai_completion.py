@@ -3,7 +3,7 @@
 import os
 import json
 from mitosheet.enterprise.mito_config import MITO_CONFIG_LLM_URL
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 import mitosheet.api.get_ai_completion as ai
 from mitosheet.tests.decorators import requires_open_ai_credentials
 from mitosheet.user.db import get_user_field, set_user_field
@@ -12,7 +12,7 @@ from mitosheet.user.utils import is_pro
 
 @requires_open_ai_credentials
 def test_get_ai_completion():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     completion = ai.get_ai_completion({
         'user_input': 'test',
@@ -30,7 +30,7 @@ def test_get_ai_completion():
         assert len(json.loads(completion)['error']) > 0
 
 def test_get_ai_completion_with_no_api_key_works():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     if 'OPENAI_API_KEY' in os.environ:
         key = os.environ['OPENAI_API_KEY']
@@ -58,7 +58,7 @@ def test_get_ai_completion_with_no_api_key_works():
 
 def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     if 'OPENAI_API_KEY' in os.environ:
         key = os.environ['OPENAI_API_KEY']

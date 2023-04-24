@@ -1302,6 +1302,26 @@ export const createActions = (
             searchTerms: ['CodeSnippets'],
             tooltip: "CodeSnippets"
         },
+        [ActionEnum.CODEOPTIONS]: {
+            type: ActionEnum.CODEOPTIONS,
+            shortTitle: 'Configure',
+            longTitle: 'Configure Code',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.CODEOPTIONS},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['Code Options', 'function', 'parameterize'],
+            tooltip: "Configure how the code is generated."
+        },
         [ActionEnum.EXPORT_TO_FILE]: {
             type: ActionEnum.EXPORT_TO_FILE,
             shortTitle: 'Generate Export Code',

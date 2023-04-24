@@ -43,6 +43,24 @@ def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_
     # find a dataframe name that is taken
     return new_dataframe_name
 
+def get_valid_python_identifier(original: str, default: str, prefix: str) -> str:
+    """
+    Given a string, turns it into a valid Python identifier.
+    """
+    # We get all the words from the original name, and append them with underscores
+    valid_words = '_'.join(filter(None, [
+        match.group() for match in re.finditer('\w+', original)
+    ]))
+
+    if len(valid_words) == 0:
+        return default
+    
+    # A valid variable name cannot be empty, or start with a number
+    if valid_words[0].isdecimal():
+        valid_words = prefix + valid_words
+
+    return valid_words
+
 def get_valid_dataframe_name(existing_df_names: List[str], original_dataframe_name: str) -> str:
     """
     Given a string, turns it into a valid dataframe name, making sure to 
