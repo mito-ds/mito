@@ -744,6 +744,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                     file_path={uiState.currOpenTaskpane.file_path}
                     sheet_name={uiState.currOpenTaskpane.sheet_name}
+                    sheet_names={uiState.currOpenTaskpane.sheet_names}
                 />
             )
             case TaskpaneType.EXPORT_TO_FILE: return (

@@ -289,7 +289,8 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                         currOpenTaskpane: {
                                             type: TaskpaneType.EXCEL_RANGE_IMPORT,
                                             file_path: props.filePath,
-                                            sheet_name: params.sheet_names[0]
+                                            sheet_name: params.sheet_names[0],
+                                            sheet_names: fileMetadata.sheet_names,
                                         }
                                     }
                                 })

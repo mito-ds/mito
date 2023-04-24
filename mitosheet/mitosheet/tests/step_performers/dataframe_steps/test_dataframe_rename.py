@@ -252,7 +252,7 @@ def test_excel_range_import_then_rename_same_df_optimizes():
     mito = create_mito_wrapper()
     df.to_excel(TEST_XLSX_FILE, sheet_name='Sheet1', index=False)
 
-    mito.excel_range_import(TEST_XLSX_FILE, 'Sheet1', [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B4'}], False)
+    mito.excel_range_import(TEST_XLSX_FILE, {'type': 'sheet name', 'value': 'Sheet1'}, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B4'}], False)
     mito.rename_dataframe(0, 'abc')
 
     assert mito.df_names[0] == 'abc'
@@ -268,7 +268,7 @@ def test_excel_range_import_then_rename_diff_df_not_optimizes():
     mito = create_mito_wrapper(df)
     df.to_excel(TEST_XLSX_FILE, sheet_name='Sheet1', index=False)
 
-    mito.excel_range_import(TEST_XLSX_FILE, 'Sheet1', [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B4'}], False)
+    mito.excel_range_import(TEST_XLSX_FILE, {'type': 'sheet name', 'value': 'Sheet1'}, [{'type': 'range', 'df_name': 'df2', 'value': 'A1:B4'}], False)
     mito.rename_dataframe(0, 'abc')
 
     assert mito.df_names[0] == 'abc'

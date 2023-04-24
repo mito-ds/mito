@@ -1,4 +1,6 @@
 import MitoAPI from "../../../jupyter/api";
+import { UserProfile } from "../../../types";
+import { isAtLeastBenchmarkVersion, isExcelImportEnabled } from "../../../utils/packageVersion";
 import { fuzzyMatch } from "../../../utils/strings";
 import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
 import { FileElement } from "./FileImportTaskpane";
@@ -28,7 +30,10 @@ export const getFileEnding = (elementName: string): string | undefined => {
     Helpful in displaying in-place errors that tells users they cannot
     import xlsx files.
 */
-export const getInvalidFileError = (selectedElement: FileElement, excelImportEnabled: boolean): string | undefined => {
+export const getInvalidFileError = (
+    selectedElement: FileElement, 
+    userProfile: UserProfile,
+): string | undefined => {
     // We do not display an error on directories, as you cannot
     // import them but we don't want to overload you
     if (selectedElement.isDirectory) {
@@ -43,8 +48,11 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
     ]
 
     // If excel import is enabled, then add it as a valid ending
-    if (excelImportEnabled) {
+    if (isExcelImportEnabled(userProfile)) {
         VALID_FILE_ENDINGS.push('xlsx');
+        if (userProfile.pandasVersion !== undefined && isAtLeastBenchmarkVersion(userProfile.pandasVersion, '1.0.0')) {
+            VALID_FILE_ENDINGS.push('xlsm');
+        }
     }
 
     // Check if the file ending is a type that we support out of the box
@@ -70,7 +78,7 @@ export const getInvalidFileError = (selectedElement: FileElement, excelImportEna
     and also the message to display on the button based on which
     element is selected.
 */
-export const getImportButtonStatus = (selectedElement: FileElement | undefined, excelImportEnabled: boolean, loadingImport: boolean, isUpdate: boolean): {disabled: boolean, buttonText: string} => {
+export const getImportButtonStatus = (selectedElement: FileElement | undefined, userProfile: UserProfile, loadingImport: boolean, isUpdate: boolean): {disabled: boolean, buttonText: string} => {
     if (selectedElement === undefined) {
         return {
             disabled: true,
@@ -83,7 +91,7 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
             buttonText: 'That\'s a Directory. Select a File'
         };
     }
-    const invalidFileError = getInvalidFileError(selectedElement, excelImportEnabled);
+    const invalidFileError = getInvalidFileError(selectedElement, userProfile);
     if (invalidFileError !== undefined) {
         return {
             disabled: true,
@@ -105,7 +113,9 @@ export const getImportButtonStatus = (selectedElement: FileElement | undefined, 
 }
 
 export const isExcelFile = (element: FileElement | undefined): boolean => {
-    return element !== undefined && !element?.isDirectory && element?.name.toLowerCase().endsWith('.xlsx');
+    return element !== undefined && !element?.isDirectory && 
+        (element?.name.toLowerCase().endsWith('.xlsx') ||
+        element?.name.toLowerCase().endsWith('.xlsm'))
 }
 
 export const getElementsToDisplay = (importState: FileBrowserState): FileElement[] => {

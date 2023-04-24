@@ -106,7 +106,8 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.EXCEL_RANGE_IMPORT,
         file_path: string,
-        sheet_name: string
+        sheet_name: string,
+        sheet_names: string[]
     } 
     | {type: TaskpaneType.EXPORT_TO_FILE}
     | {type: TaskpaneType.AITRANSFORMATION}

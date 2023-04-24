@@ -418,7 +418,7 @@ export const createActions = (
         [ActionEnum.Export]: {
             type: ActionEnum.Export,
             shortTitle: 'Download',
-            longTitle: 'Download File',
+            longTitle: 'Download File Now',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
