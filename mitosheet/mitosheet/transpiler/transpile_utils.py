@@ -193,12 +193,18 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")
 
-    # Add the code, making sure to indent everything, even if it's on the newline
-    # or if it's the closing paren. We take special care not to mess inside of any code
     for line in code:
+        # Add the code, making sure to indent everything, even if it's on the newline
+        # or if it's the closing paren. We take special care not to mess inside of any code
         line = f"{TAB}" + line
         line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
         line = line.replace(f"\n)", f"\n{TAB})")
+
+        # Then, for any additional function params we defined, we relace the internal param value
+        # TODO: This is a bit hacky, and we should probably do something better when we have things other than file paths
+        for param_name, param_value in function_params.items():
+            line = line.replace(param_value, param_name)
+
         final_code.append(line)
 
     # Add the return statement, where we return the final dfs

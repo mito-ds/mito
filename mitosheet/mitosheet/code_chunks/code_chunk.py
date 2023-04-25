@@ -122,3 +122,12 @@ class CodeChunk:
         code all living in one location.
         """
         return None
+    
+    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+        """
+        Returns a list of parameters that can be parameterized. This is used
+        for the parameterization UI.
+
+        The tuple is (param_name, param_type).
+        """
+        return []

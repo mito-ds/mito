@@ -367,3 +367,50 @@ def test_transpile_pivot_table_indents():
     
     print(mito.transpiled_code)
     assert "    pivot_table = tmp_df.pivot_table(\n        index=['Name'],\n        values=['Height'],\n        aggfunc={'Height': ['sum']}\n    )" in mito.transpiled_code
+
+
+def test_transpile_as_function_single_param(tmp_path):
+    tmp_file = str(tmp_path / 'txt.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "",
+        "def function(var_name):",
+        f"{TAB}txt = pd.read_csv(var_name)",
+        f'{TAB}',
+        f"{TAB}return txt",
+        "",
+        f"txt = function(r'{tmp_file}')"
+    ]
+
+
+def test_transpile_as_function_both_params_and_additional():
+    tmp_file = 'txt.csv'
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper(df1, str(tmp_file), arg_names=['df1', f"'{tmp_file}'"])
+    mito.simple_import([tmp_file])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        'import pandas as pd',
+        '',
+        'def function(df1, txt_path, var_name):',
+        f"{TAB}# Read in filepaths as dataframes",
+        f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
+        '    txt_1 = pd.read_csv(var_name)',
+        f'{TAB}',
+        f"{TAB}return df1, txt, txt_1",
+        "",
+        f"df1, txt, txt_1 = function(df1, 'txt.csv', r'{tmp_file}')"
+    ]
+
+    os.remove(tmp_file)
