@@ -65,7 +65,7 @@ const ColumnHeadersTransformTaskpane = (props: ColumnHeadersTransformTaskpanePro
 
             />
             <DefaultTaskpaneBody
-                requiresEnterprise={{
+                requiresPro={{
                     featureName: "column_headers_transform",
                     mitoAPI: props.mitoAPI
                 }}

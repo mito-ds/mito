@@ -39703,7 +39703,7 @@ fig.write_html("${props.graphTabName}.html")`
     ), /* @__PURE__ */ import_react181.default.createElement(
       DefaultTaskpaneBody_default,
       {
-        requiresEnterprise: {
+        requiresPro: {
           featureName: "column_headers_transform",
           mitoAPI: props.mitoAPI
         },

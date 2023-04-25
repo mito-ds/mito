@@ -41,22 +41,12 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
 
         df = post_state.dfs[sheet_index]
 
-        if transformation['type'] == 'uppercase':
+        if transformation['type'] == 'uppercase' or transformation['type'] == 'lowercase':
             new_columns = []
             renamed_columns = {}
             for col in df.columns:
                 if isinstance(col, str):
-                    new_column = col.upper()
-                    new_columns.append(new_column)
-                    renamed_columns[col] = new_column
-                else:
-                    new_columns.append(col)
-        elif transformation['type'] == 'lowercase':
-            new_columns = []
-            renamed_columns = {}
-            for col in df.columns:
-                if isinstance(col, str):
-                    new_column = col.lower()
+                    new_column = col.upper() if transformation['type'] == 'uppercase' else col.lower()
                     new_columns.append(new_column)
                     renamed_columns[col] = new_column
                 else:
