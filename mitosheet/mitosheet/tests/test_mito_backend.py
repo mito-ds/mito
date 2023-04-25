@@ -7,6 +7,7 @@ import json
 import os
 import pandas as pd
 import pytest
+import numpy as np
 
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
@@ -34,10 +35,16 @@ VALID_DATAFRAMES = [
     (pd.DataFrame(data={1000.123123: [1, 2, 3], 52.100: [1, 2, 3]})),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
-def test_sheet_creates_valid_dataframe(df):
+def test_df_creates_valid_df(df):
     mito = get_mito_backend(df)
     assert mito is not None
     assert list(mito.steps_manager.curr_step.dfs[0].keys()) == list(df.keys())
+
+def test_df_with_nan_creates_backend():
+    df = pd.DataFrame(data={np.nan: [1, 2, 3], 52.100: [1, 2, 3]})
+    mito = get_mito_backend(df)
+    assert mito is not None
+    assert np.array_equal(mito.steps_manager.curr_step.dfs[0].keys(), list(df.keys()), equal_nan=True)
 
 
 def test_create_with_multiple_dataframes():

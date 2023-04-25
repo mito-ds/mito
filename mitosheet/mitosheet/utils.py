@@ -141,6 +141,30 @@ def dfs_to_array_for_json(
     return new_array
 
 
+def _get_column_id_from_header_safe(
+    column_header: ColumnHeader,
+    column_headers_to_column_ids: Dict[ColumnHeader, ColumnID],
+) -> ColumnID:
+    """
+    Returns the column id for a given column header. If the column header
+    is not in the column_headers_to_column_ids map, errors out.
+
+    Takes special care to handle nan column headers, which are not hashable
+    and thus need to be found in a special way.
+    """
+    found_column_id = column_headers_to_column_ids.get(column_header)
+    if found_column_id is None:
+        # If the column header is nan, we need to find it in a special way
+        if isinstance(column_header, float) and np.isnan(column_header):
+            for header, column_id in column_headers_to_column_ids.items():
+                if isinstance(header, float) and np.isnan(header):
+                    return column_id
+        raise ValueError(f'Column header {column_header} not found in column_headers_to_column_ids map')
+
+    return found_column_id
+    
+
+
 def df_to_json_dumpsable(
         state: StateType,
         original_df: pd.DataFrame,
@@ -187,7 +211,7 @@ def df_to_json_dumpsable(
     final_data = []
     column_dtype_map = {}
     for column_index, column_header in enumerate(original_df.columns):
-        column_id = column_headers_to_column_ids[column_header]
+        column_id = _get_column_id_from_header_safe(column_header, column_headers_to_column_ids)
 
         column_final_data: Dict[str, Any] = {
             'columnID': column_id,
@@ -215,7 +239,7 @@ def df_to_json_dumpsable(
         # NOTE: We make sure that all the maps are in the correct order, so things are easy on the
         # front-end and we don't have to worry about sorting
         'columnIDsMap': {
-            column_headers_to_column_ids[column_header]: get_column_header_display(column_header)
+            _get_column_id_from_header_safe(column_header, column_headers_to_column_ids): get_column_header_display(column_header)
             for column_header in original_df.keys()
         },
         'columnFormulasMap': column_formulas,
