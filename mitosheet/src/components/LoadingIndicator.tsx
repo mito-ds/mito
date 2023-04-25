@@ -133,6 +133,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.AiTransformation: {
             return 'Transforming with AI'
         }
+        case StepType.ColumnHeadersTransform: {
+            return 'Transforming Headers'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }
