@@ -39573,7 +39573,7 @@ fig.write_html("${props.graphTabName}.html")`
       void 0,
       []
     );
-    const unparametizedParams = parameterizableParams.filter(([paramName, paramType]) => {
+    const unparametizedParams = parameterizableParams.filter(([paramName]) => {
       return !Object.values(props.codeOptions.function_params).includes(paramName);
     });
     return /* @__PURE__ */ import_react179.default.createElement(import_react179.default.Fragment, null, /* @__PURE__ */ import_react179.default.createElement(Row_default, { justify: "space-between", align: "center" }, /* @__PURE__ */ import_react179.default.createElement(Col_default, null, /* @__PURE__ */ import_react179.default.createElement(LabelAndTooltip_default, { tooltip: "Parameterize your analysis, making it easier to pass in different values." }, "Function Parameters")), /* @__PURE__ */ import_react179.default.createElement(Col_default, null, /* @__PURE__ */ import_react179.default.createElement(

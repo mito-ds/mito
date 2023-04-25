@@ -19,6 +19,7 @@ interface CodeOptionsParametersProps {
 }
 
 const getFileNameFromParamValue = (paramValue: string): string => {
+    // eslint-disable-next-line no-useless-escape
     const fileName = paramValue.replace(/^.*[\\\/]/, ''); // Get the final path
     return fileName.substring(0, fileName.length - 1); // Remove the final quote
 }
@@ -47,7 +48,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
         []
     );
 
-    const unparametizedParams = parameterizableParams.filter(([paramName, paramType]) => {
+    const unparametizedParams = parameterizableParams.filter(([paramName,]) => {
         return !Object.values(props.codeOptions.function_params).includes(paramName);
     });
 
