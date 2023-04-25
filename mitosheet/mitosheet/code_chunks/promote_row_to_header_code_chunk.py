@@ -5,17 +5,21 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import Any, Dict, List, Optional, Tuple
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import \
+    column_header_to_transpiled_code
 from mitosheet.types import ColumnID
+
 
 class PromoteRowToHeaderCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any, should_deduplicate_column_headers: bool):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.index = index
+        self.should_deduplicate_column_headers = should_deduplicate_column_headers
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -29,10 +33,16 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
         
     def get_code(self) -> Tuple[List[str], List[str]]:
         transpiled_index = column_header_to_transpiled_code(self.index)
-        return [
-            f"{self.df_name}.columns = {self.df_name}.loc[{transpiled_index}]",
-            f"{self.df_name}.drop(labels=[{transpiled_index}], inplace=True)",
-        ], []
+
+        code = [f"{self.df_name}.columns = {self.df_name}.loc[{transpiled_index}]"]
+
+        if self.should_deduplicate_column_headers:
+            code.append(f"{self.df_name}.columns = deduplicate_column_headers({self.df_name}.columns.tolist())")
+
+        code.append(f"{self.df_name}.drop(labels=[{transpiled_index}], inplace=True)")
+        
+
+        return code, []
     
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

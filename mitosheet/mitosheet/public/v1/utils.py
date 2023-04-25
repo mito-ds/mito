@@ -1,3 +1,7 @@
+from typing import Any, List
+
+import pandas as pd
+
 from mitosheet.types import ColumnHeader
 
 
@@ -19,3 +23,35 @@ def flatten_column_header(column_header: ColumnHeader) -> ColumnHeader:
         return ' '.join(column_header_str).strip()
 
     return column_header
+
+def deduplicate_column_headers(columns: List[ColumnHeader]) -> List[ColumnHeader]:
+    """
+    Ensures that all column headers are deduplicated, taking special care to
+    handle NaNs.
+    """
+
+    final_column_headers = []
+    seen_column_headers = set()
+    nans_found = 0 # Special case, because it's not hashable
+    for column_header in columns:
+        final_column_header = column_header
+
+
+        if isinstance(final_column_header, float) and pd.isna(final_column_header):
+            if nans_found > 0:
+                final_column_header = f'nan ({nans_found})'
+                nans_found += 1
+            else:
+                nans_found += 1
+        else:
+            header_count = 1
+            final_column_header = f'{column_header} ({header_count})'
+            while final_column_header in seen_column_headers:
+                header_count += 1
+                final_column_header = f'{column_header} ({header_count})'
+
+        final_column_headers.append(final_column_header)
+        seen_column_headers.add(final_column_header)
+
+    return final_column_headers
+
