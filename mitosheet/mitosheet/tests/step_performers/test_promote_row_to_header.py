@@ -119,6 +119,8 @@ def test_promote_row_to_header_multiple_nan():
     assert all(mito.dfs[0].values[0] == [2., 4.])
     assert all(mito.dfs[0].values[1] == [3., 5.])
 
+    assert 'deduplicate_column_headers' in "".join(mito.transpiled_code)
+
 
 DATE_INDEX_TESTS = [(
         [
