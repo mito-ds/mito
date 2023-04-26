@@ -419,7 +419,7 @@ const Plans: NextPage = () => {
                   Pro
                 </h1>
                 <p className={plansStyles.price_text}>
-                  $40 a month
+                  $149.99 a month
                 </p>
                 <p className={plansStyles.plan_description}>
                   For practitioners or small teams automating spreadsheet processes.
