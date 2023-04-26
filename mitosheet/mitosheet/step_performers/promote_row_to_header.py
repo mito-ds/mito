@@ -7,6 +7,8 @@
 
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.promote_row_to_header_code_chunk import PromoteRowToHeaderCodeChunk
 from mitosheet.errors import make_invalid_promote_row_to_header
@@ -15,7 +17,18 @@ from mitosheet.state import State
 from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
+from mitosheet.types import ColumnHeader
 from mitosheet.utils import MAX_ROWS, convert_df_to_parsed_json
+from mitosheet.public.v3 import deduplicate_column_headers
+
+def get_should_deduplicate_column_headers(column_headers: List[ColumnHeader]) -> bool:
+    """
+    Check if the column headers should be deduplicated, taking special care to 
+    handle nans.
+    """
+    return len(set(column_headers)) != len(column_headers) or \
+        sum(isinstance(ch, float) and pd.isna(ch) for ch in column_headers) >= 2
+        
 
 class PromoteRowToHeaderStepPerformer(StepPerformer):
     """
@@ -40,21 +53,24 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
 
         pandas_processing_time = 0.0
 
-        for old_column_header, new_column_header in zip(post_state.dfs[sheet_index].columns, post_state.dfs[sheet_index].loc[index]):
+        df = post_state.dfs[sheet_index]
 
-            column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_column_header)
-            _, partial_pandas_processing_time = rename_column_headers_in_state(
-                post_state,
-                sheet_index,
-                column_id,
-                new_column_header
-            )
-            
-            pandas_processing_time += partial_pandas_processing_time
+        new_headers = df.loc[index].tolist()
+        new_headers = deduplicate_column_headers(new_headers)
 
+        # Then, get all the column headers ids, before renamding them, so we don't have ordering bugs
+        id_to_new_heaeder = {post_state.column_ids.get_column_id_by_header(sheet_index, old): new for old, new in zip(df.columns, new_headers)}
+        # Then, update them in the state
+        for column_id, new_column_header in id_to_new_heaeder.items():
+             post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
+
+        # And then update the columns
         pandas_start_time_drop = perf_counter()
-        post_state.dfs[sheet_index].drop(labels=[index], inplace=True)
+        df.columns = new_headers
         pandas_processing_time_drop = perf_counter() - pandas_start_time_drop
+
+
+        post_state.dfs[sheet_index].drop(labels=[index], inplace=True)
 
         # We make sure that this making of headers will work, and not cause issues 
         # later while trying to convert to json. We throw an error if this causes
@@ -77,7 +93,12 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            PromoteRowToHeaderCodeChunk(prev_state, post_state, get_param(params, 'sheet_index'), get_param(params, 'index'))
+            PromoteRowToHeaderCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(params, 'index'),
+            )
         ]
 
     @classmethod

@@ -19,6 +19,7 @@ themselves.
 """
 import random
 from typing import Any, Collection, Dict, List, Optional
+import numpy as np
 
 import pandas as pd
 
@@ -206,6 +207,13 @@ class ColumnIDMap():
         return self.column_id_to_column_header[sheet_index]
 
     def get_column_id_by_header(self, sheet_index: int, column_header: ColumnHeader) -> str:
+        # We handle nan values here because nan values are not hashable, and so
+        # we can't use them as keys in the column_header_to_column_id dict
+        if isinstance(column_header, float) and np.isnan(column_header):
+            for header, column_id in self.column_header_to_column_id[sheet_index].items():
+                if isinstance(header, float) and np.isnan(header):
+                    return column_id
+
         return self.column_header_to_column_id[sheet_index][column_header]
 
     def get_column_ids_by_headers(self, sheet_index: int, column_headers: List[ColumnHeader]) -> List[ColumnID]:
