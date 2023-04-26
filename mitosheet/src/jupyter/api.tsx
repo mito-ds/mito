@@ -6,6 +6,7 @@ import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
 import { AICompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
+import { ColumnHeadersTransformLowerCaseParams, ColumnHeadersTransformUpperCaseParams } from "../components/taskpanes/ColumnHeadersTransform/ColumnHeadersTransformTaskpane";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
@@ -1174,6 +1175,18 @@ export default class MitoAPI {
         }, {});
 
         return stepID;
+    }
+
+    async editColumnHeadersTransform(
+        params: ColumnHeadersTransformUpperCaseParams | ColumnHeadersTransformLowerCaseParams
+    ): Promise<void> {
+
+        await this.send<string>({
+            'event': 'edit_event',
+            'type': 'column_headers_transform_edit',
+            'step_id': getRandomId(),
+            'params': params
+        }, {})
     }
 
     /*
