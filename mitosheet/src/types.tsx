@@ -858,6 +858,8 @@ export const enum FeedbackID {
     COMPANY = 'company/organization',
     SOURCE = 'source',
     MITO_GOAL = 'mito_goal',
+    FIRST_NAME = 'first_name',
+    LAST_NAME = 'last_name',
 }
 
 /*
