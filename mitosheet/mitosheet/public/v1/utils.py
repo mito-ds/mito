@@ -36,14 +36,13 @@ def deduplicate_column_headers(columns: List[ColumnHeader]) -> List[ColumnHeader
     for column_header in columns:
         final_column_header = column_header
 
-
         if isinstance(final_column_header, float) and pd.isna(final_column_header):
             if nans_found > 0:
                 final_column_header = f'nan ({nans_found})'
                 nans_found += 1
             else:
                 nans_found += 1
-        else:
+        elif final_column_header in seen_column_headers:
             header_count = 1
             final_column_header = f'{column_header} ({header_count})'
             while final_column_header in seen_column_headers:

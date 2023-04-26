@@ -15,11 +15,10 @@ from mitosheet.types import ColumnID
 
 class PromoteRowToHeaderCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any, should_deduplicate_column_headers: bool):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.index = index
-        self.should_deduplicate_column_headers = should_deduplicate_column_headers
 
         self.df_name = self.post_state.df_names[self.sheet_index]
 
@@ -36,8 +35,7 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
 
         code = [f"{self.df_name}.columns = {self.df_name}.loc[{transpiled_index}]"]
 
-        if self.should_deduplicate_column_headers:
-            code.append(f"{self.df_name}.columns = deduplicate_column_headers({self.df_name}.columns.tolist())")
+        code.append(f"{self.df_name}.columns = deduplicate_column_headers({self.df_name}.columns.tolist())")
 
         code.append(f"{self.df_name}.drop(labels=[{transpiled_index}], inplace=True)")
         

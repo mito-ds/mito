@@ -56,10 +56,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         df = post_state.dfs[sheet_index]
 
         new_headers = df.loc[index].tolist()
-        should_deduplicate_column_headers = get_should_deduplicate_column_headers(new_headers)
-
-        if should_deduplicate_column_headers:
-            new_headers = deduplicate_column_headers(new_headers)
+        new_headers = deduplicate_column_headers(new_headers)
 
         # Then, get all the column headers ids, before renamding them, so we don't have ordering bugs
         id_to_new_heaeder = {post_state.column_ids.get_column_id_by_header(sheet_index, old): new for old, new in zip(df.columns, new_headers)}
@@ -85,7 +82,6 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time + pandas_processing_time_drop,
-            'should_deduplicate_column_headers': should_deduplicate_column_headers
         }
 
     @classmethod
@@ -102,7 +98,6 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'index'),
-                get_param(execution_data if execution_data is not None else {}, 'should_deduplicate_column_headers'),
             )
         ]
 

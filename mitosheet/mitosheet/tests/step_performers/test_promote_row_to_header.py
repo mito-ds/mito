@@ -93,6 +93,8 @@ def test_promote_row_to_header(input_dfs, sheet_index, index, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(expected)
+        print(actual)
         assert actual.equals(expected)
 
 
