@@ -1323,8 +1323,8 @@ export const createActions = (
         },
         [ActionEnum.EXPORT_TO_FILE]: {
             type: ActionEnum.EXPORT_TO_FILE,
-            shortTitle: 'Generate Export Code',
-            longTitle: 'Generate Export Code',
+            shortTitle: 'Download File when Executing Code',
+            longTitle: 'Download File when Executing Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
