@@ -194,14 +194,14 @@ export function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, 
 
         // We know the mitosheet.sheet() call is the last thing in the cell, so we 
         // just replace the last closing paren
-        const lastIndex = currentCodeCleaned.lastIndexOf(')');
+        const lastIndex = currentCode.lastIndexOf(')');
         let replacement = ``;
         if (currentCodeCleaned.includes('sheet()')) {
             replacement = `analysis_to_replay="${analysisName}")`;
         } else {
             replacement = `, analysis_to_replay="${analysisName}")`;
         }
-        const newCode = currentCodeCleaned.substring(0, lastIndex) + replacement + currentCodeCleaned.substring(lastIndex + 1);
+        const newCode = currentCode.substring(0, lastIndex) + replacement + currentCode.substring(lastIndex + 1);
         writeToCell(cell, newCode);
         return true;
     } 
