@@ -9,7 +9,6 @@ const IMPORT_STATEMENTS: Record<PublicInterfaceVersion, string> = {
     3: 'from mitosheet.public.v3 import *'
 }
 
-
 export function getCodeString(
     analysisName: string,
     code: string[],
@@ -44,7 +43,8 @@ export function getLastNonEmptyLine(codeText: string): string | undefined {
 }
 
 export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
-    let nameString = codeText.split('sheet(')[1].split(')')[0];
+    const codeTextCleaned = removeWhiteSpace(codeText);
+    let nameString = codeTextCleaned.split('sheet(')[1].split(')')[0];
 
     // If there is a (new) analysis name parameter passed, we ignore it
     if (nameString.includes('analysis_to_replay')) {
@@ -86,7 +86,8 @@ export function isMitosheetCallCode(codeText: string): boolean {
         We detect all three by checking if the line contains `sheet(`!
     */
 
-    return lastLine.indexOf('sheet(') !== -1;
+    const lastLineCleaned = removeWhiteSpace(lastLine)
+    return lastLineCleaned.indexOf('sheet(') !== -1;
 }
 
 
@@ -116,7 +117,7 @@ export function isMitoAnalysisCode(codeText: string): boolean {
 */
 export function containsMitosheetCallWithSpecificAnalysisToReplay(codeText: string, analysisName: string): boolean {
     // Remove any whitespace from codeText
-    const codeTextCleaned = codeText.replace(/\s/g, '');
+    const codeTextCleaned = removeWhiteSpace(codeText);
     return codeTextCleaned.includes('sheet(') && codeTextCleaned.includes(`analysis_to_replay="${analysisName}"`)
 }
 
@@ -126,7 +127,7 @@ export function containsMitosheetCallWithSpecificAnalysisToReplay(codeText: stri
 */
 export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): boolean {
     // Remove any whitespace from codeText
-    const codeTextCleaned = codeText.replace(/\s/g, '');
+    const codeTextCleaned = removeWhiteSpace(codeText)
     return isMitosheetCallCode(codeText) && codeTextCleaned.includes(`analysis_to_replay=`)
 }
 
@@ -136,4 +137,8 @@ export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): 
 */
 export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: string): boolean {
     return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
+}
+
+export function removeWhiteSpace(codeText: string): string {
+    return codeText.replace(/[\s\t]/g, '');
 }

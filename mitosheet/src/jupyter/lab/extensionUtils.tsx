@@ -5,7 +5,7 @@ import {
     IObservableString,
     IObservableUndoableList
 } from '@jupyterlab/observables';
-import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode } from "../../utils/code";
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhiteSpace } from "../../utils/code";
 
 
 export function getParentMitoContainer(): Element | null {
@@ -168,8 +168,6 @@ export function tryOverwriteAnalysisToReplayParameter(cell: ICellModel | undefin
     if (isMitosheetCallCode(getCellText(cell)) && containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), oldAnalysisName)) {
         const currentCode = getCellText(cell);
 
-
-
         const newCode = currentCode.replace(
             RegExp(`analysis_to_replay\\s*=\\s*"${oldAnalysisName}"`),
             `analysis_to_replay="${newAnalysisName}"`
@@ -190,19 +188,20 @@ export function tryOverwriteAnalysisToReplayParameter(cell: ICellModel | undefin
  * a analysis_to_replay parameter, this will return false.
  */
 export function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, analysisName: string): boolean {
-    if (isMitosheetCallCode(getCellText(cell)) && !containsMitosheetCallWithAnyAnalysisToReplay(getCellText(cell))) {
-        const currentCode = getCellText(cell);
+    const currentCode = getCellText(cell);
+    const currentCodeCleaned = removeWhiteSpace(currentCode)
+    if (isMitosheetCallCode(currentCodeCleaned) && !containsMitosheetCallWithAnyAnalysisToReplay(currentCodeCleaned)) {
 
         // We know the mitosheet.sheet() call is the last thing in the cell, so we 
         // just replace the last closing paren
-        const lastIndex = currentCode.lastIndexOf(')');
+        const lastIndex = currentCodeCleaned.lastIndexOf(')');
         let replacement = ``;
-        if (currentCode.includes('sheet()')) {
+        if (currentCodeCleaned.includes('sheet()')) {
             replacement = `analysis_to_replay="${analysisName}")`;
         } else {
             replacement = `, analysis_to_replay="${analysisName}")`;
         }
-        const newCode = currentCode.substring(0, lastIndex) + replacement + currentCode.substring(lastIndex + 1);
+        const newCode = currentCodeCleaned.substring(0, lastIndex) + replacement + currentCodeCleaned.substring(lastIndex + 1);
         writeToCell(cell, newCode);
         return true;
     } 
