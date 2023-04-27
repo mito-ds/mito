@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 from mitosheet.public.v1.sheet_functions.number_functions import POWER
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -77,7 +77,7 @@ POWER_INVALID_LITERAL_TESTS = [
 
 @pytest.mark.parametrize("data,power", POWER_INVALID_LITERAL_TESTS)
 def test_POWER_invalid_literal_power(data, power):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula(f'=ROUND(A, {power})', 0, 'B', add_column=True)
     assert mito.get_value(0, 'B', 1) == 0
 

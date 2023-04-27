@@ -7,7 +7,7 @@
 
 import os
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -35,7 +35,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 5
+        return 6
 
     @classmethod
     def step_type(cls) -> str:
@@ -44,12 +44,12 @@ class ExcelRangeImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_path: str = get_param(params, 'file_path')
-        sheet_name: str = get_param(params, 'sheet_name')
+        sheet: Dict[str, Union[str, int]] = get_param(params, 'sheet')
         range_imports: List[ExcelRangeImport] = get_param(params, 'range_imports')
         convert_csv_to_xlsx: bool = get_param(params, 'convert_csv_to_xlsx')
 
         if convert_csv_to_xlsx:
-            file_path = convert_csv_file_to_xlsx_file(file_path, sheet_name)
+            file_path = convert_csv_file_to_xlsx_file(file_path, sheet_name=sheet['value'])
 
         post_state = prev_state.copy() 
 
@@ -65,7 +65,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 end_condition = range_import['end_condition'] #type: ignore
                 column_end_condition = range_import['column_end_condition'] #type: ignore
 
-                params = get_table_range_params(sheet_name, start_condition, end_condition, column_end_condition)
+                params = get_table_range_params(sheet, start_condition, end_condition, column_end_condition)
                 _range = get_table_range(file_path, **params)
                 
             if _range is None:
@@ -75,7 +75,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
             nrows = end_row_index - start_row_index
             usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
 
-            df = pd.read_excel(file_path, sheet_name=sheet_name, skiprows=start_row_index, nrows=nrows, usecols=usecols)
+            df = pd.read_excel(file_path, sheet_name=sheet['value'], skiprows=start_row_index, nrows=nrows, usecols=usecols)
             final_df_name = get_valid_dataframe_name(post_state.df_names, range_import['df_name'])
             post_state.add_df_to_state(
                 df,
@@ -105,7 +105,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'file_path'),
-                get_param(params, 'sheet_name'),
+                get_param(params, 'sheet'),
                 get_param(params, 'range_imports'),
                 get_param(params, 'convert_csv_to_xlsx'),
             )

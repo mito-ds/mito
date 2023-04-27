@@ -17,7 +17,7 @@ from mitosheet.api.get_available_snowflake_options_and_defaults import get_avail
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 from mitosheet.errors import MitoError
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
 PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
@@ -45,7 +45,7 @@ TEST_SNOWFLAKE_QUERY_PARAMS = {
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     query_params = {
@@ -64,19 +64,12 @@ def test_snowflake_import_integration():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_view_integration():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     query_params = {
         'columns': ['COLUMNA', 'COLUMNB'],
         'limit': 2,
-    }
-
-    table_loc_and_warehouse = {
-        'warehouse': 'COMPUTE_WH',
-        'database': 'PYTESTDATABASE',
-        'schema': 'PYTESTSCHEMA',
-        'table_or_view': 'SIMPLE_PYTEST_TABLE_VIEW'
     }
 
     mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, query_params)
@@ -90,7 +83,7 @@ def test_snowflake_import_view_integration():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_clear_integration():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
@@ -109,7 +102,7 @@ def test_snowflake_import_with_clear_integration():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_success_empty_table():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
@@ -136,7 +129,7 @@ def test_integration_success_empty_table():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_integration_no_table():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
@@ -165,7 +158,7 @@ def test_integration_no_table():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_invalid_column():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
 
@@ -193,7 +186,7 @@ def test_snowflake_import_invalid_column():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration_type_test_simple():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
 
@@ -222,7 +215,7 @@ def test_snowflake_import_integration_type_test_simple():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_integration_column_headers():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
@@ -270,7 +263,7 @@ def test_snowflake_import_integration_column_headers():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_simple_import():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     TEST_FILE_PATHS = [
         'test_file.csv',
@@ -302,7 +295,7 @@ def test_snowflake_import_with_simple_import():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_snowflake_import_with_other_imports_and_deletes():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     TEST_FILE_PATHS = [
         'test_file.csv',
@@ -349,7 +342,7 @@ def test_snowflake_import_with_other_imports_and_deletes():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_credentials_cached_across_mitosheets():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     expected_df = pd.DataFrame({'COLUMNA': ['Aaron', 'Nate', 'Jake'], 'COLUMNB': ["DR", "Rush", 'DR']})
 
@@ -367,7 +360,7 @@ def test_credentials_cached_across_mitosheets():
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_optimized_snowflake_imports():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
     mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)
@@ -379,13 +372,13 @@ def test_optimized_snowflake_imports():
     assert mito.dfs[0].equals(expected_df)
     assert len(mito.dfs) == 2
 
-    assert len(mito.transpiled_code) == 12
+    assert len(mito.transpiled_code) == 14
 
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
 def test_do_not_delete_both_snowflake_imports_when_one_deleted():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
     mito.snowflake_import(TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE, TEST_SNOWFLAKE_QUERY_PARAMS)

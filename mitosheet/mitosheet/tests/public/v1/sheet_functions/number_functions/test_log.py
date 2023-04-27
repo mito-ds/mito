@@ -13,7 +13,7 @@ import numpy as np
 from math import e
 
 from mitosheet.public.v1.sheet_functions.number_functions import LOG
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 LOG_VALID_TESTS = [
     (
@@ -49,7 +49,7 @@ def test_log_with_nan():
     assert log[2] == 2.0
 
 def test_LOG_in_sheet():
-    mito = create_mito_wrapper([100])
+    mito = create_mito_wrapper_with_data([100])
     mito.set_formula('=LOG(A, 10)', 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == 2
     

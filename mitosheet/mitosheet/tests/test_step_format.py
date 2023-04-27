@@ -38,6 +38,7 @@ from mitosheet.step_performers import (
     SnowflakeImportStepPerformer,
     AITransformationStepPerformer
 )
+from mitosheet.step_performers.column_headers_transform import ColumnHeadersTransformStepPerformer
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.delete_row import DeleteRowStepPerformer
 from mitosheet.step_performers.column_steps.split_text_to_columns import SplitTextToColumnsStepPerformer
@@ -285,7 +286,7 @@ def test_params_static():
 
     check_step(
         ExcelRangeImportStepPerformer,
-        5,
+        6,
         'excel_range_import'
     )
 
@@ -307,4 +308,10 @@ def test_params_static():
         'ai_transformation'
     )
 
-    assert len(STEP_PERFORMERS) == 37
+    check_step(
+        ColumnHeadersTransformStepPerformer,
+        1,
+        'column_headers_transform'
+    )
+
+    assert len(STEP_PERFORMERS) == 38

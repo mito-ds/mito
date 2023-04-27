@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.string_functions import LEN
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -36,6 +36,6 @@ def test_LEN_valid_input_direct(data, length):
 
 @pytest.mark.parametrize("data,length", LEN_VALID_TESTS)
 def test_LEN_valid_input_sheet_function(data, length):
-    mito = create_mito_wrapper(data)
+    mito = create_mito_wrapper_with_data(data)
     mito.set_formula('=LEN(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == length

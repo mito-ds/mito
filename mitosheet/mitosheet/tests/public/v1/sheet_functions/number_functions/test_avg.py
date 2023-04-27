@@ -13,7 +13,7 @@ from statistics import mean
 import numpy as np
 
 from mitosheet.public.v1.sheet_functions.number_functions import AVG
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -51,7 +51,7 @@ AVG_TESTS_FORMULAS_VALID = [
 ]
 @pytest.mark.parametrize("formula,result", AVG_TESTS_FORMULAS_VALID)
 def test_AVG_formula_valid(formula, result):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == result
@@ -63,7 +63,7 @@ AVG_TESTS_FORMULAS_NAN_NON_NUMBERS = [
 ]
 @pytest.mark.parametrize("b_formula, non_number_formula, result", AVG_TESTS_FORMULAS_NAN_NON_NUMBERS)
 def test_AVG_formula_non_numbers(b_formula, non_number_formula, result):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     # Make sure column doesn't change with invalid formula
     mito.set_formula(non_number_formula, 0, 'C', add_column=True)

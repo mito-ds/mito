@@ -1,5 +1,5 @@
 from mitosheet.public.v2 import (
-    sheet_functions, utils, flatten_column_header,
+    sheet_functions, utils, flatten_column_header, deduplicate_column_headers,
     to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format)
 
 from mitosheet.public.v3.rolling_range import RollingRange

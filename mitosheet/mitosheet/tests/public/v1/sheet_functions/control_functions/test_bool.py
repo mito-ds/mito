@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np 
 
 from mitosheet.public.v1.sheet_functions.control_functions import BOOL
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 # Raw function tests
 
@@ -33,6 +33,6 @@ def test_bool_direct(series_one, result):
 
 
 def test_bool_in_mitosheet():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [0, 1, 2]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [0, 1, 2]}))
     mito.set_formula('=BOOL(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == [False, True, True]

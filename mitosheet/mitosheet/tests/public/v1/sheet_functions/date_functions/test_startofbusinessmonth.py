@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.date_functions import STARTOFBUSINESSMONTH
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 START_OF_BUSINESS_MONTH_TESTS = [
     (pd.Series(data=[pd.to_datetime('2022-1-1 12:45:23')], dtype='datetime64[ns]'), (pd.Series(data=[pd.to_datetime('2021-12-01 00:00:00')], dtype='datetime64[ns]'))),
@@ -25,6 +25,6 @@ def test_start_of_business_month_works_on_inputs(date, result_date):
     assert STARTOFBUSINESSMONTH(date).tolist() == result_date.tolist()
 
 def test_start_of_business_month_works_in_sheet():
-    mito = create_mito_wrapper(['2022-1-4 12:45:23'])
+    mito = create_mito_wrapper_with_data(['2022-1-4 12:45:23'])
     mito.set_formula('=STARTOFBUSINESSMONTH(A)', 0, 'B', add_column=True)
     assert mito.get_value(0, 'B', 1) == pd.Series(data=[pd.to_datetime('2022-1-3 00:00:00')], dtype='datetime64[ns]').tolist()[0]

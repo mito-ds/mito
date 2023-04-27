@@ -9,7 +9,7 @@ Contains tests for /
 import pytest
 import numpy as np
 
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # In these tests, we assume the value of column A = 1, B = 2
 DIV_TESTS_VALID = [
@@ -35,7 +35,7 @@ DIV_TESTS_VALID = [
 ]
 @pytest.mark.parametrize("formula,mulitple", DIV_TESTS_VALID)
 def test_valid_divison(formula, mulitple):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     assert mito.get_value(0, 'C', 1) == mulitple
@@ -56,7 +56,7 @@ DIV_TESTS_INVALID = [
 ]
 @pytest.mark.parametrize("formula", DIV_TESTS_INVALID)
 def test_invalid_division(formula):
-    mito = create_mito_wrapper([1])
+    mito = create_mito_wrapper_with_data([1])
     mito.set_formula('=2', 0, 'B', add_column=True)
     mito.set_formula(formula, 0, 'C', add_column=True)
     # Make sure the value of C has not changed

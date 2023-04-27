@@ -32,14 +32,14 @@ from mitosheet.step_performers.pivot import (
     PCT_NO_OP, PCT_DATE_YEAR_QUARTER)
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
-from mitosheet.tests.test_utils import (create_mito_wrapper_dfs,
+from mitosheet.tests.test_utils import (create_mito_wrapper,
                                         get_dataframe_generation_code)
 from mitosheet.types import ColumnHeaderWithPivotTransform
 
 
 def test_simple_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.set_formula('=LEN(Name)', 1, 'B', add_column=True)
 
@@ -49,7 +49,7 @@ def test_simple_pivot():
 
 def test_simple_pivot_does_not_let_spaces_stay_in_columns():
     df1 = pd.DataFrame(data={'Name': ['Nate Rush'], 'Height': [4]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, [], ['Name'], {'Height': ['sum']})
 
     assert mito.dfs[1].equals(
@@ -58,7 +58,7 @@ def test_simple_pivot_does_not_let_spaces_stay_in_columns():
 
 def test_pivot_nan_works_with_agg_functions():
     df1 = pd.DataFrame(data={'type': ['person', 'person', 'dog', None], 'B': [10, None, 5, 4]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['type'], [], {'B': ['sum', 'mean', 'min', 'max']})
 
     assert mito.dfs[1].equals(
@@ -69,7 +69,7 @@ def test_pivot_nan_works_with_agg_functions():
 @pandas_pre_1_only
 def test_pivot_transpiles_pivot_by_mulitple_columns_pre_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )
@@ -87,7 +87,7 @@ def test_pivot_transpiles_pivot_by_mulitple_columns_pre_1():
 @pandas_post_1_only
 def test_pivot_transpiles_pivot_by_mulitple_columns_post_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
@@ -103,7 +103,7 @@ def test_pivot_transpiles_pivot_by_mulitple_columns_post_1():
 
 def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': ['Rush', 'Jack'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, ['Height'], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
@@ -119,7 +119,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
 @pandas_pre_1_only
 def test_pivot_transpiles_pivot_mulitple_columns_non_strings_pre_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
@@ -137,7 +137,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings_pre_1():
 @pandas_post_1_only
 def test_pivot_transpiles_pivot_mulitple_columns_non_strings_post_1():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], ['First_Name', 'Last_Name'], {'Height': ['sum']}
     )   
@@ -153,7 +153,7 @@ def test_pivot_transpiles_pivot_mulitple_columns_non_strings_post_1():
 
 def test_pivot_transpiles_with_no_keys_or_values():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], [], {}
     )   
@@ -164,7 +164,7 @@ def test_pivot_transpiles_with_no_keys_or_values():
 
 def test_pivot_transpiles_with_values_but_no_keys():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, [], [], {'Height': 'sum'}
     )   
@@ -176,7 +176,7 @@ def test_pivot_transpiles_with_values_but_no_keys():
 
 def test_pivot_transpiles_with_keys_but_no_values():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, ['First_Name'], [], {}
     )   
@@ -189,7 +189,7 @@ def test_pivot_transpiles_with_keys_but_no_values():
 
 def test_pivot_count_unique():
     df1 = pd.DataFrame(data={'First_Name': ['Nate', 'Nate'], 'Last_Name': [0, 1], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(
         0, ['First_Name'], ['Last_Name'], {'Height': ['count unique']}
     )   
@@ -199,7 +199,7 @@ def test_pivot_count_unique():
 
 def test_pivot_rows_and_values_overlap():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate', 'Aaron', 'Jake', 'Jake'], 'Height': [4, 5, 6, 7, 8]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Name': ['count']})
 
     assert len(mito.steps_including_skipped) == 2
@@ -210,7 +210,7 @@ def test_pivot_rows_and_values_overlap():
 
 def test_pivot_rows_and_values_and_columns_overlap():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate', 'Aaron', 'Jake', 'Jake'], 'Height': [4, 5, 6, 7, 8]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], ['Name'], {'Name': ['count']})
 
     assert len(mito.steps_including_skipped) == 2
@@ -226,7 +226,7 @@ def test_pivot_rows_and_values_and_columns_overlap():
 
 def test_pivot_by_mulitple_functions():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['min', 'max']})
 
     assert len(mito.steps_including_skipped) == 2
@@ -237,7 +237,7 @@ def test_pivot_by_mulitple_functions():
 
 def test_pivot_with_optional_parameter_sheet_index():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['min']})
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['max']}, destination_sheet_index=1)
 
@@ -248,7 +248,7 @@ def test_pivot_with_optional_parameter_sheet_index():
 
 def test_all_other_steps_after_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['min']})
 
     # Run all the other steps
@@ -280,7 +280,7 @@ def test_all_other_steps_after_pivot():
 
 def test_simple_pivot_optimizes_after_delete():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.delete_dataframe(1)
 
@@ -288,7 +288,7 @@ def test_simple_pivot_optimizes_after_delete():
 
 def test_simple_pivot_edit_optimizes_after_delete():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
     mito.delete_dataframe(1)
@@ -297,7 +297,7 @@ def test_simple_pivot_edit_optimizes_after_delete():
 
 def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_pivot():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.add_column(1, 'Test')
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
@@ -307,7 +307,7 @@ def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_pivot():
 
 def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_source():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.add_column(0, 'Test')
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
@@ -317,7 +317,7 @@ def test_simple_pivot_edit_optimizes_after_delete_with_edit_to_source():
 
 def test_simple_pivot_edit_with_delete_after_sort_and_filter():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
     mito.sort(1, 'Height mean', SORT_DIRECTION_ASCENDING)
@@ -328,7 +328,7 @@ def test_simple_pivot_edit_with_delete_after_sort_and_filter():
 
 def test_simple_pivot_edit_after_graph():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.generate_graph('test', BAR, 1, False, [], [], 400, 400)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['mean']}, destination_sheet_index=1)
@@ -341,7 +341,7 @@ def test_simple_pivot_edit_after_graph():
 
 def test_delete_pivot_table_optimizes():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.delete_dataframe(1)
     
@@ -349,7 +349,7 @@ def test_delete_pivot_table_optimizes():
 
 def test_delete_pivot_table_with_additional_edits_optimizes():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.add_column(1, 'C')
     mito.rename_column(1, 'C', 'CC')
@@ -359,7 +359,7 @@ def test_delete_pivot_table_with_additional_edits_optimizes():
 
 def test_edit_pivot_table_then_delete_optimizes():
     df1 = pd.DataFrame(data={'Name': ['Nate', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']})
     mito.add_column(1, 'C')
     mito.rename_column(1, 'C', 'CC')
@@ -369,7 +369,7 @@ def test_edit_pivot_table_then_delete_optimizes():
 
 def test_pivot_deduplicates_multiple_keys():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
     mito.pivot_sheet(0, ['Name', 'Name', 'Name'], [], {'Height': ['sum']})
     mito.pivot_sheet(0, [], ['Name', 'Name', 'Name'], {'Height': ['sum']})
     
@@ -380,7 +380,7 @@ def test_pivot_deduplicates_multiple_keys():
 
 def test_pivot_with_filter_no_effect_on_source_data():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate'], 'Height': [4, 5]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     mito.pivot_sheet(0, ['Name'], [], {'Height': ['sum']}, pivot_filters=[
             {
@@ -399,7 +399,7 @@ def test_pivot_with_filter_no_effect_on_source_data():
 
 def test_pivot_with_filter_reaplies ():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate', 'Jake'], 'Height': [4, 5, 6]})
-    mito = create_mito_wrapper_dfs(df1)
+    mito = create_mito_wrapper(df1)
 
     pivot_filters = [{
             'column_header': 'Height', 
@@ -680,7 +680,7 @@ if tuple([int(i) for i in pd.__version__.split('.')]) > (1, 0, 0):
 
 @pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df", PIVOT_FILTER_TESTS)
 def test_pivot_filter(original_df, pivot_rows, pivot_columns, values, pivot_filters, pivoted_df):
-    mito = create_mito_wrapper_dfs(original_df)
+    mito = create_mito_wrapper(original_df)
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values, pivot_filters=pivot_filters)
 
     assert mito.dfs[0].equals(original_df)
@@ -830,7 +830,7 @@ PIVOT_TRANSFORM_TESTS: List[Any] = [
 ]
 @pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivoted_df", PIVOT_TRANSFORM_TESTS)
 def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted_df):
-    mito = create_mito_wrapper_dfs(original_df)
+    mito = create_mito_wrapper(original_df)
     mito.pivot_sheet(0, pivot_rows, pivot_columns, values)
 
     assert mito.dfs[0].equals(original_df)
@@ -841,7 +841,7 @@ def test_pivot_transform(original_df, pivot_rows, pivot_columns, values, pivoted
 
 def test_pivot_transform_with_filter_source_column():
     df = pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'value': [1, 2, 3, 4]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     pivot_rows_with_transforms = [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}]
     mito.pivot_sheet(0, pivot_rows_with_transforms, [], {'value': ['sum']}, pivot_filters=[
         {
@@ -858,7 +858,7 @@ def test_pivot_transform_with_filter_source_column():
 
 def test_pivot_followed_by_edit_optimizes_creation_one():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.pivot_sheet(0, ['date'], [], {'value': ['count']}, destination_sheet_index=1)
 
@@ -871,7 +871,7 @@ def test_pivot_followed_by_edit_optimizes_creation_one():
 
 def test_pivot_optimizes_with_two_destination_sheet_indexes_the_same():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.pivot_sheet(0, ['date'], [], {'value': ['count']}, destination_sheet_index=1)
     mito.pivot_sheet(0, ['date'], [], {'value': ['count unique']}, destination_sheet_index=1)
@@ -884,7 +884,7 @@ def test_pivot_optimizes_with_two_destination_sheet_indexes_the_same():
 
 def test_pivot_not_optimizes_with_two_destination_sheet_indexes_not_the_same():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.pivot_sheet(0, ['date'], [], {'value': ['count']}, destination_sheet_index=1)
@@ -898,7 +898,7 @@ def test_pivot_not_optimizes_with_two_destination_sheet_indexes_not_the_same():
 
 def test_pivot_not_optimizes_with_pivot_with_no_destination_sheet():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.pivot_sheet(0, ['date'], [], {'value': ['count']}, destination_sheet_index=1)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
@@ -911,7 +911,7 @@ def test_pivot_not_optimizes_with_pivot_with_no_destination_sheet():
 
 def test_pivot_optimizes_edits_to_just_pivot_table_after_redoing_pivot():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.add_column(1, 'A', -1)
     mito.set_formula('=10', 1, 'A', add_column=False)
@@ -928,7 +928,7 @@ def test_pivot_optimizes_edits_to_just_pivot_table_after_redoing_pivot():
 
 def test_pivot_with_rename_works_then_edit_optimized_properly():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
     mito.rename_dataframe(1, 'NEW')
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)

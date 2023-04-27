@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 from mitosheet.public.v1.sheet_functions.misc_functions import FILLNAN
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 FILLNAN_TESTS = [
     (pd.Series([None, None, None]), 0,  [0, 0, 0]),
@@ -24,7 +24,7 @@ FILLNAN_TESTS = [
 
 @pytest.mark.parametrize("series, replacement, result_series", FILLNAN_TESTS)
 def test_fillnan_works_on_sheet(series, replacement, result_series):
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': series}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': series}))
     if type(replacement) == str:
         mito.set_formula(f'=FILLNAN(A, \'{replacement}\')', 0, 'B', add_column=True)
     else:
@@ -34,6 +34,6 @@ def test_fillnan_works_on_sheet(series, replacement, result_series):
     assert mito.get_column(0, 'B', as_list=False).tolist() == result_series
 
 def test_fill_nan_with_series():
-    mito = create_mito_wrapper_dfs(pd.DataFrame(data={'A': [None, None, None], 'B': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [None, None, None], 'B': [1, 2, 3]}))
     mito.set_formula('=FILLNAN(A, B)', 0, 'C', add_column=True)
     assert mito.get_column(0, 'C', as_list=True) == [1, 2, 3]

@@ -7,9 +7,10 @@
 Contains tests for Promote Row To Header
 """
 
+import numpy as np
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only
 
 PROMOTE_ROW_TO_HEADER_TESTS = [
@@ -85,14 +86,42 @@ PROMOTE_ROW_TO_HEADER_TESTS = [
     ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, index, output_dfs", PROMOTE_ROW_TO_HEADER_TESTS)
-def test_fill_na(input_dfs, sheet_index, index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+def test_promote_row_to_header(input_dfs, sheet_index, index, output_dfs):
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.promote_row_to_header(sheet_index, index)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(expected)
+        print(actual)
         assert actual.equals(expected)
+
+
+def test_promote_row_to_header_nan_twice():
+    df = pd.DataFrame({'A': [np.nan, 2, 3], 'B': [4, np.nan, 5]})
+    mito = create_mito_wrapper(df)
+    mito.promote_row_to_header(0, 0)
+    mito.promote_row_to_header(0, 1)
+
+    assert len(mito.dfs) == 1
+    assert np.array_equal(mito.dfs[0].columns, [2, np.nan], equal_nan=True)
+    # Check values are equal, ignoring column headers
+    assert np.array_equal(mito.dfs[0].values[:, 1:], pd.DataFrame({2: [3], np.nan: [5]}).values[:, 1:], equal_nan=True)
+
+def test_promote_row_to_header_multiple_nan():
+    df = pd.DataFrame({'A': [np.nan, 2, 3], 'B': [np.nan, 4, 5]})
+    mito = create_mito_wrapper(df)
+    mito.promote_row_to_header(0, 0)
+
+    assert len(mito.dfs) == 1
+    assert pd.isna(mito.dfs[0].columns[0])
+    assert mito.dfs[0].columns[1] == 'nan (1)'
+    # Check values are equal, ignoring column headers
+    assert all(mito.dfs[0].values[0] == [2., 4.])
+    assert all(mito.dfs[0].values[1] == [3., 5.])
+
+    assert 'deduplicate_column_headers' in "".join(mito.transpiled_code)
 
 
 DATE_INDEX_TESTS = [(
@@ -119,7 +148,7 @@ DATE_INDEX_TESTS = [(
 @pandas_post_1_2_only
 @pytest.mark.parametrize("input_dfs, sheet_index, index, output_dfs", DATE_INDEX_TESTS)
 def test_promote_row_to_header_timedelta_index(input_dfs, sheet_index, index, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.promote_row_to_header(sheet_index, index)
 

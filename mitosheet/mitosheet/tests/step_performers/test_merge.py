@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs, make_multi_index_header_df
+from mitosheet.tests.test_utils import create_mito_wrapper, make_multi_index_header_df
 from mitosheet.tests.decorators import pandas_post_1_only
 
 MERGE_TESTS = [
@@ -115,7 +115,7 @@ MERGE_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
 def test_merge(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.merge_sheets(
         how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two
@@ -250,7 +250,7 @@ MERGE_UNIQUE_TESTS = [
 @pandas_post_1_only
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_TESTS)
 def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.merge_sheets(
         how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two
@@ -429,7 +429,7 @@ OTHER_MERGE_TESTS = [
 ]
 @pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
 def test_merge_all_columns(how, df_one, key_one, df_two, key_two, merged):
-    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito = create_mito_wrapper(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
     assert mito.dfs[2].equals(merged)
@@ -461,7 +461,7 @@ OTHER_MERGE_UNIQUE_TESTS = [
 @pandas_post_1_only
 @pytest.mark.parametrize("how,df_one,key_one,df_two,key_two,merged", OTHER_MERGE_TESTS)
 def test_merge_unique_all_columns(how, df_one, key_one, df_two, key_two, merged):
-    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito = create_mito_wrapper(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], list(df_one.keys()), list(df_two.keys()))
 
     assert mito.dfs[2].equals(merged)
@@ -522,7 +522,7 @@ MERGE_PARTIAL_TESTS = [
 ]
 @pytest.mark.parametrize("how,df_one,key_one,columns_one,df_two,key_two,columns_two,merged", MERGE_PARTIAL_TESTS)
 def test_merge_remove_some_columns(how,df_one, key_one, columns_one, df_two, key_two, columns_two, merged):
-    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito = create_mito_wrapper(df_one, df_two)
     mito.merge_sheets(how, 0, 1, [[key_one, key_two]], columns_one, columns_two)
 
     assert mito.dfs[2].equals(merged)
@@ -530,7 +530,7 @@ def test_merge_remove_some_columns(how,df_one, key_one, columns_one, df_two, key
 def test_incompatible_merge_key_types_error():
     df_one = pd.DataFrame({'A_string': ['Aaron'], 'B': [101], 'C': [11]})
     df_two = pd.DataFrame({'A_number': [1.5], 'D': [100], 'E': [10]})
-    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito = create_mito_wrapper(df_one, df_two)
 
     mito.merge_sheets('lookup', 0, 1, [['A_string', 'A_number']], list(df_one.keys()), list(df_two.keys()))  
 
@@ -540,7 +540,7 @@ def test_incompatible_merge_key_types_error():
 def test_merge_between_multi_index_and_non_errors():
     df_one = make_multi_index_header_df({0: [1, 2], 1: [3, 4]}, ['A', ('B', 'count')])
     df_two = pd.DataFrame({'A': [1, 2], 'B': [5, 6]})
-    mito = create_mito_wrapper_dfs(df_one, df_two)
+    mito = create_mito_wrapper(df_one, df_two)
     mito.merge_sheets('lookup', 0, 1, [[('A', ''), 'A']], list(df_one.keys()), list(df_two.keys()))  
 
     assert len(mito.dfs) == 2
@@ -548,7 +548,7 @@ def test_merge_between_multi_index_and_non_errors():
 def test_delete_merged_sheet_optimizes():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df2 = pd.DataFrame({'A': [1], 'C': [3]})
-    mito = create_mito_wrapper_dfs(df1, df2)
+    mito = create_mito_wrapper(df1, df2)
 
     mito.merge_sheets(
         'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'C']
@@ -559,7 +559,7 @@ def test_delete_merged_sheet_optimizes():
 def test_delete_source_of_merged_sheet_no_optimizes():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df2 = pd.DataFrame({'A': [1], 'C': [3]})
-    mito = create_mito_wrapper_dfs(df1, df2)
+    mito = create_mito_wrapper(df1, df2)
 
     mito.merge_sheets(
         'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'C']

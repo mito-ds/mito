@@ -9,11 +9,11 @@ Contains tests for a reordering a column.
 
 import pandas as pd
 
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 def test_reorder_column_simple():
     df = pd.DataFrame(data={'A': [1], 'B': [2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # Put A in second spot
     mito.reorder_column(0, 'A', 1)
 
@@ -28,7 +28,7 @@ def test_reorder_column_simple():
 
 def test_reorder_column_index_too_large():
     df = pd.DataFrame(data={'A': [1], 'B': [2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
 
     mito.reorder_column(0, 'A', 5)
 
@@ -42,7 +42,7 @@ def test_reorder_column_index_too_large():
 
 def test_reorder_column_index_too_small():
     df = pd.DataFrame(data={'A': [1], 'B': [2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # Put A in second spot
     mito.reorder_column(0, 'B', -1)
 
@@ -56,7 +56,7 @@ def test_reorder_column_index_too_small():
 
 def test_reorder_column_twice():
     df = pd.DataFrame(data={'A': [1], 'B': [2]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # Put A in second spot
     mito.reorder_column(0, 'A', 1)
     mito.reorder_column(0, 'B', 1)
@@ -72,7 +72,7 @@ def test_reorder_column_twice():
 
 def test_reorder_column_several_columns():
     df = pd.DataFrame(data={'A': [1], 'B': [2], 'C': [3], 'D': [4]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # Put A in second spot
     mito.reorder_column(0, 'D', 1)
     mito.reorder_column(0, 'C', 1)
@@ -89,7 +89,7 @@ def test_reorder_column_several_columns():
 
 def test_reorder_column_several_columns_then_delete_optimizes():
     df = pd.DataFrame(data={'A': [1], 'B': [2], 'C': [3], 'D': [4]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     # Put A in second spot
     mito.reorder_column(0, 'D', 1)
     mito.reorder_column(0, 'C', 1)
@@ -99,7 +99,7 @@ def test_reorder_column_several_columns_then_delete_optimizes():
 
 def test_reorder_column_several_columns_then_delete_different_notoptimizes():
     df = pd.DataFrame(data={'A': [1], 'B': [2], 'C': [3], 'D': [4]})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     
     mito.duplicate_dataframe(0)
     mito.reorder_column(0, 'D', 1)

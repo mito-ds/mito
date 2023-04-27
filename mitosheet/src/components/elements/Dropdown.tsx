@@ -235,8 +235,11 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const dropdownAnchor = useRef<HTMLDivElement | null>(null);
 
     // The div that contains the actual dropdown, and is added to the highest
-    // level of the html, so the dropdown's z-index can be above everything else
-    const dropdownContainerElement = useRef(document.createElement("div"));
+    // level of the html, so the dropdown's z-index can be above everything else.
+    // We onlt need one of these 
+    const [dropdownContainerElement] = useState(() => {
+        return document.createElement("div")
+    })
     // We store if this select was created when the element was in fullscreen or
     // not, which is helpful for cleaning up the select
     const [isNotFullscreen, setIsNotFullscreen] = useState(fscreen.fullscreenElement === undefined || fscreen.fullscreenElement === null);
@@ -253,10 +256,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         return () => {
             try {
                 if (isNotFullscreen) {
-                    document.body.removeChild(dropdownContainerElement.current)
+                    document.body.removeChild(dropdownContainerElement)
                 } else {
                     if (mitoContainerRef.current) {
-                        mitoContainerRef.current.removeChild(dropdownContainerElement.current)
+                        mitoContainerRef.current.removeChild(dropdownContainerElement)
                     }
                 }
             } catch {
@@ -275,18 +278,18 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             if (isNotFullscreen) {
                 // Add element to the document, if we're not in 
                 // fullscreen mode
-                document.body.append(dropdownContainerElement.current);
+                document.body.append(dropdownContainerElement);
             } else {
                 // If we are in fullscreen mode, then place the dropdownContainerElement in the
                 // mitoContainer so that it is visible in fullscreen mode
                 const mitoContainer = unsavedDropdownAnchor.closest('.mito-container');
                 if (mitoContainer) {
-                    mitoContainer.appendChild(dropdownContainerElement.current)
+                    mitoContainer.appendChild(dropdownContainerElement)
                     mitoContainerRef.current = mitoContainer;
                 }
             }
 
-            updateDropdownPosition(unsavedDropdownAnchor);
+            updateDropdownPosition(unsavedDropdownAnchor, props.display);
         }
     },[]);
 
@@ -296,11 +299,11 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // wayyyy too laggy. So no thanks.
     useEffect(() => {
         if (dropdownAnchor.current !== null) {
-            updateDropdownPosition(dropdownAnchor.current);
-        }
+            updateDropdownPosition(dropdownAnchor.current, true); // We always just refresh the position when this changes, to avoid random flickering
+        } 
         const interval = setInterval(() => {
             if (dropdownAnchor.current !== null) {
-                updateDropdownPosition(dropdownAnchor.current);
+                updateDropdownPosition(dropdownAnchor.current, props.display);
             }
         }, 25)
         return () => clearInterval(interval);
@@ -318,19 +321,19 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             if (!fscreen.fullscreenElement) {
                 // Add element to the document, if we're not in 
                 // fullscreen mode
-                document.body.append(dropdownContainerElement.current);
+                document.body.append(dropdownContainerElement);
             } else {
                 // If we are in fullscreen mode, then place the dropdownContainerElement in the
                 // mitoContainer so that it is visible in fullscreen mode
                 const mitoContainer = dropdownAnchor.current?.closest('.mito-container');
                 if (mitoContainer) {
-                    mitoContainer.appendChild(dropdownContainerElement.current)
+                    mitoContainer.appendChild(dropdownContainerElement)
                     mitoContainerRef.current = mitoContainer;
                 }
             }
 
             if (dropdownAnchor.current) {
-                updateDropdownPosition(dropdownAnchor.current);
+                updateDropdownPosition(dropdownAnchor.current, props.display);
             }
         };
         fscreen.addEventListener('fullscreenchange', handleChange);
@@ -352,7 +355,13 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         3. Check if (top, left) of the parent can be the (bottom, left) of the dropdown.
         4. If none of the above work, set (top, right) to the (bottom, right) of the dropdown.            
     */
-    const updateDropdownPosition = (dropdownContainer: HTMLDivElement) => {
+    const updateDropdownPosition = (dropdownContainer: HTMLDivElement, display: boolean) => {
+        
+        // If we're not currently displaying the dropdown, bail early!
+        if (!display) {
+            return;
+        }
+
         const parentElement = dropdownContainer.parentElement || dropdownContainer;
         const parentBoundingClientRect = parentElement.getBoundingClientRect();
         const parentTop = parentBoundingClientRect.top;
@@ -498,7 +507,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             </p>
                         </Row>}
                 </div>,
-                dropdownContainerElement.current
+                dropdownContainerElement
             )}
         </div>
     );

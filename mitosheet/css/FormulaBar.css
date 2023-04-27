@@ -1,3 +1,10 @@
+.formula-bar {
+    height: 32px;
+    border-top: 1px solid var(--mito-border);
+    border-bottom: 1px solid var(--mito-border);
+    background: white;
+}
+
 .formula-bar-column-header {
     max-width: 200px;
     height: 30px;

@@ -301,7 +301,7 @@ Contains tests for {original_step_name}
 
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 {step_name.upper()}_TESTS = [
     (
@@ -318,7 +318,7 @@ from mitosheet.tests.test_utils import create_mito_wrapper_dfs
 ]
 @pytest.mark.parametrize(\"input_dfs, {params_string}, output_dfs\", {step_name.upper()}_TESTS)
 def test_{step_name}(input_dfs, {params_string}, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.{step_name}({params_string})
 

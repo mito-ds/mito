@@ -12,7 +12,7 @@ from typing import List
 import pandas as pd
 import pytest
 from mitosheet.errors import MitoError
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.types import ColumnHeader
 from mitosheet.utils import get_new_id
 
@@ -95,7 +95,7 @@ ONE_HOT_ENCODING_TESTS = [
 """
 @pytest.mark.parametrize("input_dfs, sheet_index, column_header, output_dfs", ONE_HOT_ENCODING_TESTS)
 def test_one_hot_encoding(input_dfs, sheet_index, column_header, output_dfs):
-    mito = create_mito_wrapper_dfs(*input_dfs)
+    mito = create_mito_wrapper(*input_dfs)
 
     mito.one_hot_encoding(sheet_index, column_header)
 
@@ -104,13 +104,13 @@ def test_one_hot_encoding(input_dfs, sheet_index, column_header, output_dfs):
         assert actual.equals(expected)
 
 def test_one_hot_encoding_optimized_by_delete():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.one_hot_encoding(0, 'A')
     mito.delete_dataframe(0)
     assert mito.transpiled_code == []
 
 def test_one_hot_encode_twice_error():
-    mito = create_mito_wrapper_dfs(pd.DataFrame({'A': [1, 2, 3]}))
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.one_hot_encoding(0, 'A')
     mito.one_hot_encoding(0, 'A')
     with pytest.raises(MitoError) as e:

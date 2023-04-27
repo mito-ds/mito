@@ -1,7 +1,7 @@
 import json
 from mitosheet.enterprise.mito_config import MITO_CONFIG_CODE_SNIPPETS_URL, MITO_CONFIG_CODE_SNIPPETS_VERSION, MITO_CONFIG_VERSION
 from mitosheet.tests.test_mito_config import delete_all_mito_config_environment_variables
-from mitosheet.tests.test_utils import create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIPPETS
 import os
 from pytest_httpserver import HTTPServer
@@ -23,7 +23,7 @@ TEST_CODE_SNIPPETS = [
 ]
 
 def test_get_code_snippet():
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
 
     assert get_code_snippets({}, mito.mito_backend.steps_manager) == json.dumps({
         'status': 'success',
@@ -35,7 +35,7 @@ def test_get_code_snippets_incorrectly_formatted_url():
     os.environ[MITO_CONFIG_CODE_SNIPPETS_URL] = "invalid_url"
     os.environ[MITO_CONFIG_CODE_SNIPPETS_VERSION] = "1"
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
     assert json.loads(code_snippet_response)['status'] == 'error'
 
@@ -46,7 +46,7 @@ def test_get_code_snippets_incorrectly_formatted_code_snippets():
     os.environ[MITO_CONFIG_CODE_SNIPPETS_URL] = "http://echo.jsontest.com/key/value/one/two"
     os.environ[MITO_CONFIG_CODE_SNIPPETS_VERSION] = "1"
 
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
     assert json.loads(code_snippet_response)['status'] == 'error'
 
@@ -66,7 +66,7 @@ def test_get_code_snippets_from_url_success(httpserver: HTTPServer) -> None:
     os.environ[MITO_CONFIG_CODE_SNIPPETS_VERSION] = "1"
 
     # Create the code snippets response object
-    mito = create_mito_wrapper_dfs()
+    mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
 
     assert json.loads(code_snippet_response)['status'] == 'success'

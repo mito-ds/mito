@@ -98,7 +98,7 @@ const ColumnHeader = (props: {
 
     const ColumnHeaderResizer = (
         <div
-            className='column-header-resizer'
+            className='endo-column-header-resizer'
             onDragStart={(e) => {
                 e.stopPropagation();
                 // Mark that this is a resize
@@ -153,9 +153,9 @@ const ColumnHeader = (props: {
     return (
         <div
             className={classNames(
-                'column-header-container',
-                'column-header-text',
-                { 'column-header-container-selected': selected }
+                'endo-column-header-container',
+                'endo-column-header-text',
+                { 'endo-column-header-container-selected': selected }
             )}
             style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT}}
             key={props.columnIndex}
@@ -187,7 +187,7 @@ const ColumnHeader = (props: {
 
                 return (
                     <div
-                        className='column-header-lower-level-container'
+                        className='endo-column-header-lower-level-container'
                         key={levelIndex}
                         mito-row-index={rowIndex + ''}
                         mito-col-index={props.columnIndex}
@@ -203,7 +203,7 @@ const ColumnHeader = (props: {
                     >
                         {!editingLowerLevelColumnHeader &&
                             <p
-                                className='column-header-lower-level-text text-overflow-hide'
+                                className='endo-column-header-lower-level-text text-overflow-hide'
                                 style={{
                                     maxWidth: `${width - 25}px`, // Make sure it doesn't overflow
                                 }}
@@ -283,8 +283,8 @@ const ColumnHeader = (props: {
                 )
             })}
             <div
-                className={classNames('column-header-final-container', {
-                    'grabbable': props.columnHeaderOperation === 'reorder', // Only display as grabbable when we're not resizing a column
+                className={classNames('endo-column-header-final-container', {
+                    'endo-grabbable': props.columnHeaderOperation === 'reorder', // Only display as endo-grabbable when we're not resizing a column
                 })}
                 mito-row-index={'-1'}
                 mito-col-index={props.columnIndex}
@@ -317,7 +317,7 @@ const ColumnHeader = (props: {
                 {!editingFinalColumnHeader &&
                     <>
                         <div
-                            className='column-header-final-text'
+                            className='endo-column-header-final-text'
                             onClick={(e) => {
                                 e.stopPropagation(); // Stop prop, so we don't call the onclick the header container
                             }}
@@ -338,8 +338,8 @@ const ColumnHeader = (props: {
                             {finalColumnHeader + ''}
                         </div>
 
-                        <div className='column-header-final-right-side' >
-                            <div className='column-header-final-icons' title='Open the column control panel' >
+                        <div className='endo-column-header-final-right-side' >
+                            <div className='endo-column-header-final-icons' title='Open the column control panel' >
                                 <span title='Edit filters'>
                                     {!hasFilters &&
                                         <div className='icon-color-changer-container'>

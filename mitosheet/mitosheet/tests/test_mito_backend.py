@@ -7,9 +7,10 @@ import json
 import os
 import pandas as pd
 import pytest
+import numpy as np
 
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_dfs
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.utils import MAX_COLUMNS
@@ -34,10 +35,16 @@ VALID_DATAFRAMES = [
     (pd.DataFrame(data={1000.123123: [1, 2, 3], 52.100: [1, 2, 3]})),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
-def test_sheet_creates_valid_dataframe(df):
+def test_df_creates_valid_df(df):
     mito = get_mito_backend(df)
     assert mito is not None
     assert list(mito.steps_manager.curr_step.dfs[0].keys()) == list(df.keys())
+
+def test_df_with_nan_creates_backend():
+    df = pd.DataFrame(data={np.nan: [1, 2, 3], 52.100: [1, 2, 3]})
+    mito = get_mito_backend(df)
+    assert mito is not None
+    assert np.array_equal(mito.steps_manager.curr_step.dfs[0].keys(), list(df.keys()), equal_nan=True)
 
 
 def test_create_with_multiple_dataframes():
@@ -89,6 +96,7 @@ def test_can_call_sheet_with_df_and_filename():
     assert code_container == [
         '# Read in filepaths as dataframes',
         'df_1 = pd.read_csv(r\'../1.csv\')',
+        '',
     ]
 
 def test_can_use_utf_16_when_passing_string():
@@ -108,6 +116,7 @@ def test_can_use_utf_16_when_passing_string():
     assert code_container == [
         '# Read in filepaths as dataframes',
         f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
+        '',
     ]
     os.remove('test_file_path.csv')
 
@@ -130,7 +139,7 @@ def test_can_call_with_indexes():
 
 def test_sheet_json_holds_all_columns():
     df = pd.DataFrame({i: [1, 2, 3] for i in range(MAX_COLUMNS + 100)})
-    mito = create_mito_wrapper_dfs(df)
+    mito = create_mito_wrapper(df)
     sheet_data = json.loads(mito.sheet_data_json)[0]
     for i in range(MAX_COLUMNS, MAX_COLUMNS + 100):
         assert sheet_data['columnIDsMap'][str(i)] is not None

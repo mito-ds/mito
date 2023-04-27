@@ -11,7 +11,7 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v1.sheet_functions.number_functions import ABS
-from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -35,6 +35,6 @@ def test_ABS_works_on_inputs(value, absed):
 
 
 def test_abs_works_in_sheet():
-    mito = create_mito_wrapper([-1, 100, -11.100])
+    mito = create_mito_wrapper_with_data([-1, 100, -11.100])
     mito.set_formula('=ABS(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=True) == [1, 100, 11.100]

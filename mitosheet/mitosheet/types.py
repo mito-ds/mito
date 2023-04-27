@@ -91,6 +91,10 @@ MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
 FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
 
+
+ParamName = str
+ParamValue = str
+
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict, Literal
@@ -287,6 +291,11 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
         prints: str
 
+    class CodeOptions(TypedDict):
+        as_function: bool
+        function_name: str
+        function_params: Dict[ParamName, ParamValue]
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -317,6 +326,7 @@ else:
     ColumnReconData = Any # type: ignore
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
+    CodeOptions = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]
