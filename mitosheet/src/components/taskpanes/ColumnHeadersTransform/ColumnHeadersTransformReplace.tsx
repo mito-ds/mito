@@ -60,7 +60,7 @@ const ColumnHeadersTransformReplace = (props: ColumnHeadersTransformReplaceProps
             <Row justify='space-between' align='center'>
                 <Col>
                     <p>
-                        Old
+                        Find
                     </p>
                 </Col>
                 <Col>
@@ -81,7 +81,7 @@ const ColumnHeadersTransformReplace = (props: ColumnHeadersTransformReplaceProps
             <Row justify='space-between' align='center'>
                 <Col>
                     <p>
-                        New
+                        Replace
                     </p>
                 </Col>
                 <Col>

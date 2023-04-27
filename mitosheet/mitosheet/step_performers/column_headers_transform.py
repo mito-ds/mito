@@ -9,6 +9,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.column_headers_transform_code_chunk import ColumnHeadersTransformCodeChunk
+from mitosheet.errors import make_column_exists_error
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -63,7 +64,16 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
                     new_columns.append(col)
         else:
             raise ValueError(f'Unknown transformation type: {transformation["type"]}')
-        
+
+        if len(set(new_columns)) < len(new_columns):
+            # Get the first duplicated column in new_columns
+            seen: Set[str] = set()
+            for new_column_header in new_columns:
+                if new_column_header in seen:
+                    raise make_column_exists_error(new_column_header)
+                else:
+                    seen.add(new_column_header)
+                    
         df.columns = new_columns
 
         for old_column_header, new_column_header in renamed_columns.items():
