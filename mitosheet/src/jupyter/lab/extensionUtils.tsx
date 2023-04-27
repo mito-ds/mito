@@ -5,7 +5,7 @@ import {
     IObservableString,
     IObservableUndoableList
 } from '@jupyterlab/observables';
-import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhiteSpace } from "../../utils/code";
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../../utils/code";
 
 
 export function getParentMitoContainer(): Element | null {
@@ -189,8 +189,9 @@ export function tryOverwriteAnalysisToReplayParameter(cell: ICellModel | undefin
  */
 export function tryWriteAnalysisToReplayParameter(cell: ICellModel | undefined, analysisName: string): boolean {
     const currentCode = getCellText(cell);
-    const currentCodeCleaned = removeWhiteSpace(currentCode)
-    if (isMitosheetCallCode(currentCodeCleaned) && !containsMitosheetCallWithAnyAnalysisToReplay(currentCodeCleaned)) {
+    if (isMitosheetCallCode(currentCode) && !containsMitosheetCallWithAnyAnalysisToReplay(currentCode)) {
+
+        const currentCodeCleaned = removeWhitespaceInPythonCode(currentCode)
 
         // We know the mitosheet.sheet() call is the last thing in the cell, so we 
         // just replace the last closing paren
