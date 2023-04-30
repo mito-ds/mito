@@ -16,11 +16,9 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
 
         all_parameterizable_params = []
 
-        # First, get the original arguments to the mitosheet
+        # First, get the original arguments to the mitosheet - we only let you parameterize df names for now
         for arg in steps_manager.original_args_raw_strings:
-                if is_string_arg_to_mitosheet_call(arg):
-                        all_parameterizable_params.append([arg, 'file_name'])
-                else:
+                if not is_string_arg_to_mitosheet_call(arg):
                         all_parameterizable_params.append([arg, 'df_name'])
 
     
