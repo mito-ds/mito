@@ -31,6 +31,10 @@ interface DropdownButtonProps {
         * @param [disabled] - Disables the dropdown button, which stops the users from clicking it
     */
     disabled?: boolean;
+    /** 
+        * @param [title] - The hover to display
+    */
+    title?: string;
     /**
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
      */
@@ -69,7 +73,7 @@ const DropdownButton = (props: DropdownButtonProps): JSX.Element => {
                 })
             }}
         >
-            <p className='mito-dropdown-button-text'>
+            <p className='mito-dropdown-button-text' title={props.title}>
                 {props.text}
             </p>
             <div className='mito-dropdown-button-icon-container'>

@@ -484,3 +484,25 @@ def test_transpile_parameterize_excel_imports(tmp_path):
         "",
         f"Sheet1, dataframe_1 = function(r'{tmp_file}')"
     ]
+
+def test_transpile_with_function_params_over_mitosheet():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [2]})
+    mito = create_mito_wrapper(df1, df2, arg_names=['df', 'df_copy'])
+    mito.add_column(0, 'C')
+    mito.add_column(1, 'C')
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'param': "df"}})
+
+    print(mito.transpiled_code)
+    assert mito.transpiled_code == [
+        "",
+        "def function(param, df_copy):",
+        f"{TAB}param.insert(2, 'C', 0)",
+        f"{TAB}",
+        f"{TAB}df_copy.insert(2, 'C', 0)",
+        f"{TAB}",
+        f"{TAB}return param, df_copy",
+        "",
+        f"param, df_copy = function(df, df_copy)"
+    ]
