@@ -44,6 +44,7 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                 {makeToolbarDropdownItem(props.actions[ActionEnum.UPDATEIMPORTS], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Export], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.EXPORT_TO_FILE], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Pivot], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Melt], props.userProfile)}

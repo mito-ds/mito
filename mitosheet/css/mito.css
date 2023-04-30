@@ -7,7 +7,7 @@
     The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
     button, since we're not able to set the class name of our button in notebooks. 
 */
-:root .toolbar-mito-button-class, #mito-oolbar-button-id {
+:root .toolbar-mito-button-class, #mito-toolbar-button-id {
     background-color: var(--mito-very-light-purple);
     border-radius: 3px;
     border: .5px solid var(--mito-light-gray);

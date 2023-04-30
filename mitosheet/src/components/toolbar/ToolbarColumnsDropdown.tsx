@@ -40,6 +40,7 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Add_Column], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Column], props.userProfile, true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Column], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.COLUMN_HEADERS_TRANSFORM], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Column_Formula], props.userProfile, true)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Cell_Value], props.userProfile, true)}

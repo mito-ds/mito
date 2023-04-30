@@ -299,8 +299,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // wayyyy too laggy. So no thanks.
     useEffect(() => {
         if (dropdownAnchor.current !== null) {
-            updateDropdownPosition(dropdownAnchor.current, props.display);
-        }
+            updateDropdownPosition(dropdownAnchor.current, true); // We always just refresh the position when this changes, to avoid random flickering
+        } 
         const interval = setInterval(() => {
             if (dropdownAnchor.current !== null) {
                 updateDropdownPosition(dropdownAnchor.current, props.display);
