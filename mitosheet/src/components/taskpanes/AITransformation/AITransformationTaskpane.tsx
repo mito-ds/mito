@@ -18,7 +18,7 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { shallowEqual } from "../../../utils/objects";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
-import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
+import AIPrivacyPolicy from "./AIPrivacyPolicy";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -245,236 +245,173 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     if (!aiPrivacyPolicyAccepted) {
         return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader 
-                    header="Mito Python Copilot"
-                    setUIState={props.setUIState}           
-                />
-                <DefaultTaskpaneBody>
-                    <p>
-                        Welcome to the Mito Python Copilot powered by OpenAI. Before getting started, take a second to review our privacy policy. 
-                    </p>
-                    <Spacer px={10}/>
-                    <CollapsibleSection title={'What data does Mito Python Copilot collect?'}>
-                        <p>
-                            Mito Python Copilot uses the prompt and metadata about your dataframe to generate code that works in the context of your analysis. Without this information, the Mito generated code will require additional customization.
-                        </p>
-                        <Spacer px={5}/>
-                        <p>
-                            Private data that is contained in the dataframe name, column headers, or first five rows of data might be shared with Mito and OpenAI. 
-                        </p>
-                    </CollapsibleSection>
-                    <Spacer px={10}/>
-                    <CollapsibleSection title={'How is my data used?'}>
-                        <p>
-                            The data collected by the Mito Python Copilot is used to construct a prompt for OpenAI. Mito supplements the prompt you provided with the additional metadata to give OpenAI the best chance of generating helpful code.
-                        </p>
-                        <Spacer px={5}/>
-                        <p>
-                            The data collected is also used by Mito to improve the Mito Python Copilot. Such uses include:
-                        </p>
-                        <li>
-                            Evaluating Mito Python Copilot to determine its effectiveness.
-                        </li>
-                        <li>
-                            Conducting research to improve Mito Python Copilot.
-                        </li>
-                        <li>
-                            Detecting potential abuse of Mito Python Copilot.
-                        </li>
-                        <Spacer px={5}/>
-                        <p>
-                            Read <a className='text-underline text-color-mito-purple' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">Mito</a> and <a className='text-underline text-color-mito-purple' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">OpenAI’s</a> privacy policy for more information.
-                        </p>
-                    </CollapsibleSection>
-                    <Spacer px={10}/>
-                    <CollapsibleSection title={'How can I further protect my data?'}>
-                        <p>
-                            The Mito Python Copilot uses OpenAI to generate code by default. Doing so requires sending your information to OpenAI. To further protect your data, Mito Enterprise users can connect the Mito Python Copilot to a self-hosted large language model. Doing so means that Mito does not need to collect or share any information about your data with OpenAI. Your data will never leave your system.
-                        </p>
-                        <Spacer px={5}/>
-                        <p>
-                            To learn more about this option, reach out to the <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">Mito team</a>. 
-                        </p>
-                    </CollapsibleSection>
-                </DefaultTaskpaneBody>
-                <DefaultTaskpaneFooter>
-                    <TextButton
-                        onClick={() => {
-                            void props.mitoAPI.updateAcceptAITransformationPrivacyPolicy();
-                        }}
-                        variant='dark'
-                    >
-                        Accept Privacy Policy
-                    </TextButton>
-                </DefaultTaskpaneFooter>
-            </DefaultTaskpane>
-        )
-    } else {
-        return (
-            <DefaultTaskpane>
-                <DefaultTaskpaneHeader 
-                    header="Mito Python Copilot"
-                    setUIState={props.setUIState}           
-                />
-                <DefaultTaskpaneBody>
-                    <CollapsibleSection title={"Examples"} open={openSections['Examples']}>
-                    <Row justify="space-between" align="center">
-                        {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
-                        {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
-                    </Row>
-                    <Row justify="space-between" align="center">
-                        {getExample('rename headers lowercase', setPromptState, setOpenSections, setParams)}
-                        {getExample('duplicate this dataframe', setPromptState, setOpenSections, setParams)}
-                    </Row>
-                    </CollapsibleSection>
-                    <Spacer px={10}/>
-                    <CollapsibleSection title={"Prompt"} open={openSections['Prompt']}>
-                        <TextArea 
-                            value={promptState.userInput} 
-                            placeholder='delete columns with nans'
-                            onChange={(e) => {
-                                const newUserInput = e.target.value;
-                                setPromptState({userInput: newUserInput, error: undefined, hint: undefined, loading: false});
-                            }}
-                            height='small'
-                            autoFocus
-                            darkBorder
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                    void generateCode()
-                                }
-                            }} 
-                        />
-                        <TextButton
-                            onClick={() => generateCode()}
-                            disabled={promptState.userInput.length === 0 || promptState.loading}
-                            variant='dark'
-                        >
-                            Generate Code
-                        </TextButton>
-                        {promptState.error !== undefined && 
-                            <>
-                                <p className="text-color-error">{promptState.error} &nbsp;
-                                    {promptState.error?.includes('You have used Mito AI 20 times') && 
-                                    <>
-                                        Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
-                                    </>
-                                    }
-                                </p>
-                            </>
-                        }
-                        {promptState.loading && 
-                            <p className="text-subtext-1">{promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
-                        }
-                        <Spacer px={10}/>
-                        <TextArea 
-                            value={params.edited_completion} 
-                            placeholder='Generated code will appear here...'
-                            spellCheck={false}
-                            onChange={(e) => {
-                                const newEditedCompletion = e.target.value;
-
-                                const newParams = {
-                                    ...params,
-                                    edited_completion: newEditedCompletion
-                                };
-
-                                // Save these new previous params
-                                props.setPreviousAITransformParams(prevPreviousParams => {
-                                    return getNewPreviousParams(prevPreviousParams, params, newParams);
-                                })
-
-                                setParams(prevParams => {
-                                    return {
-                                        ...prevParams,
-                                        edited_completion: newEditedCompletion
-                                    }
-                                });
-                            }}
-                            height={
-                                // We shrink the box if the code is small
-                                params.completion.trim().split(/\r\n|\r|\n/).length < 5
-                                    ? 'small' : 'medium'
-                            } 
-                            disabled={params.completion.length === 0 || promptState.loading}
-                            darkBorder
-                        />
-                        <TextButton 
-                            onClick={() => {
-                                edit();
-                            }}
-                            variant='dark'
-                            disabled={params.edited_completion.length === 0 || promptState.loading}
-                        >
-                            Execute Generated Code
-                        </TextButton>
-                        {error !== undefined &&
-                            <>
-                                <p className="text-color-error">{error}</p> 
-                                {getAdditionalErrorHelp(error)}
-                            </>
-                        }
-                        {appliedEditInLastTwoSeconds && 
-                            <p className="text-subtext-1">Successfully Executed Code</p>
-                        }
-                        {props.previousAITransformParams.length > 1 && 
-                            <Row justify="space-around" align="center" suppressTopBottomMargin>
-                                <Col className="text-subtext-1">
-                                    <Row suppressTopBottomMargin>
-                                        <Col
-                                            onClick={() => {
-                                                const newIndex = currentlySelectedParamsIndex - 1;
-                                                if (newIndex < 0) {
-                                                    return;
-                                                }
-                                                const newParams = props.previousAITransformParams[newIndex];
-                                                setParams(newParams);
-                                                setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
-                                            }}
-                                        >
-                                            <span role="img" aria-label="previous">{currentlySelectedParamsIndex !== 0 ? '◀' : '◁'} </span>&nbsp;
-                                        </Col>
-                                        <Col>Your Prompts ({Math.min(getCurrentlySelectedParamsIndex(props.previousAITransformParams, params) + 1, props.previousAITransformParams.length)} / {props.previousAITransformParams.length})</Col>
-                                        <Col
-                                            onClick={() => {
-                                                const currentIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
-                                                const newIndex = currentIndex + 1;
-                                                if (newIndex > props.previousAITransformParams.length - 1) {
-                                                    return;
-                                                }
-                                                const newParams = props.previousAITransformParams[newIndex];
-                                                setParams(newParams);
-                                                setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
-                                            }}
-                                        >
-                                            &nbsp; <span role="img" aria-label="next">{currentlySelectedParamsIndex < (props.previousAITransformParams.length - 1) ? '▶' : '▷'}</span>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        }
-                    </CollapsibleSection>
-                    <Spacer px={10}/>
-                    <CollapsibleSection 
-                        title={"Result"} 
-                        open={openSections['Result'] || result !== undefined}
-                        disabled={result === undefined}
-                    >
-                        <AITransformationResultSection
-                            setUIState={props.setUIState}
-                            result={result}
-                            sheetDataArray={props.sheetDataArray}
-                            mitoAPI={props.mitoAPI}
-                            params={params}
-                        />
-                    </CollapsibleSection>
-                </DefaultTaskpaneBody>
-            </DefaultTaskpane>
+            <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />
         )
     }
+    
+    return (
+        <DefaultTaskpane>
+            <DefaultTaskpaneHeader 
+                header="Mito AI"
+                setUIState={props.setUIState}           
+            />
+            <DefaultTaskpaneBody>
+                <CollapsibleSection title={"Examples"} open={openSections['Examples']}>
+                <Row justify="space-between" align="center">
+                    {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
+                    {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
+                </Row>
+                <Row justify="space-between" align="center">
+                    {getExample('rename headers lowercase', setPromptState, setOpenSections, setParams)}
+                    {getExample('duplicate this dataframe', setPromptState, setOpenSections, setParams)}
+                </Row>
+                </CollapsibleSection>
+                <Spacer px={10}/>
+                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']}>
+                    <TextArea 
+                        value={promptState.userInput} 
+                        placeholder='delete columns with nans'
+                        onChange={(e) => {
+                            const newUserInput = e.target.value;
+                            setPromptState({userInput: newUserInput, error: undefined, hint: undefined, loading: false});
+                        }}
+                        height='small'
+                        autoFocus
+                        darkBorder
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                void generateCode()
+                            }
+                        }} 
+                    />
+                    <TextButton
+                        onClick={() => generateCode()}
+                        disabled={promptState.userInput.length === 0 || promptState.loading}
+                        variant='dark'
+                    >
+                        Generate Code
+                    </TextButton>
+                    {promptState.error !== undefined && 
+                        <>
+                            <p className="text-color-error">{promptState.error} &nbsp;
+                                {promptState.error?.includes('You have used Mito AI 20 times') && 
+                                <>
+                                    Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
+                                </>
+                                }
+                            </p>
+                        </>
+                    }
+                    {promptState.loading && 
+                        <p className="text-subtext-1">{promptState.hint !== undefined ? `Hint: ${promptState.hint}` : ''}</p>
+                    }
+                    <Spacer px={10}/>
+                    <TextArea 
+                        value={params.edited_completion} 
+                        placeholder='Generated code will appear here...'
+                        spellCheck={false}
+                        onChange={(e) => {
+                            const newEditedCompletion = e.target.value;
+
+                            const newParams = {
+                                ...params,
+                                edited_completion: newEditedCompletion
+                            };
+
+                            // Save these new previous params
+                            props.setPreviousAITransformParams(prevPreviousParams => {
+                                return getNewPreviousParams(prevPreviousParams, params, newParams);
+                            })
+
+                            setParams(prevParams => {
+                                return {
+                                    ...prevParams,
+                                    edited_completion: newEditedCompletion
+                                }
+                            });
+                        }}
+                        height={
+                            // We shrink the box if the code is small
+                            params.completion.trim().split(/\r\n|\r|\n/).length < 5
+                                ? 'small' : 'medium'
+                        } 
+                        disabled={params.completion.length === 0 || promptState.loading}
+                        darkBorder
+                    />
+                    <TextButton 
+                        onClick={() => {
+                            edit();
+                        }}
+                        variant='dark'
+                        disabled={params.edited_completion.length === 0 || promptState.loading}
+                    >
+                        Execute Generated Code
+                    </TextButton>
+                    {error !== undefined &&
+                        <>
+                            <p className="text-color-error">{error}</p> 
+                            {getAdditionalErrorHelp(error)}
+                        </>
+                    }
+                    {appliedEditInLastTwoSeconds && 
+                        <p className="text-subtext-1">Successfully Executed Code</p>
+                    }
+                    {props.previousAITransformParams.length > 1 && 
+                        <Row justify="space-around" align="center" suppressTopBottomMargin>
+                            <Col className="text-subtext-1">
+                                <Row suppressTopBottomMargin>
+                                    <Col
+                                        onClick={() => {
+                                            const newIndex = currentlySelectedParamsIndex - 1;
+                                            if (newIndex < 0) {
+                                                return;
+                                            }
+                                            const newParams = props.previousAITransformParams[newIndex];
+                                            setParams(newParams);
+                                            setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
+                                        }}
+                                    >
+                                        <span role="img" aria-label="previous">{currentlySelectedParamsIndex !== 0 ? '◀' : '◁'} </span>&nbsp;
+                                    </Col>
+                                    <Col>Your Prompts ({Math.min(getCurrentlySelectedParamsIndex(props.previousAITransformParams, params) + 1, props.previousAITransformParams.length)} / {props.previousAITransformParams.length})</Col>
+                                    <Col
+                                        onClick={() => {
+                                            const currentIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
+                                            const newIndex = currentIndex + 1;
+                                            if (newIndex > props.previousAITransformParams.length - 1) {
+                                                return;
+                                            }
+                                            const newParams = props.previousAITransformParams[newIndex];
+                                            setParams(newParams);
+                                            setPromptState({userInput: newParams.user_input, error: undefined, hint: undefined, loading: false});
+                                        }}
+                                    >
+                                        &nbsp; <span role="img" aria-label="next">{currentlySelectedParamsIndex < (props.previousAITransformParams.length - 1) ? '▶' : '▷'}</span>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    }
+                </CollapsibleSection>
+                <Spacer px={10}/>
+                <CollapsibleSection 
+                    title={"Result"} 
+                    open={openSections['Result'] || result !== undefined}
+                    disabled={result === undefined}
+                >
+                    <AITransformationResultSection
+                        setUIState={props.setUIState}
+                        result={result}
+                        sheetDataArray={props.sheetDataArray}
+                        mitoAPI={props.mitoAPI}
+                        params={params}
+                    />
+                </CollapsibleSection>
+            </DefaultTaskpaneBody>
+        </DefaultTaskpane>
+    )
 }
 
 export default AITransformationTaskpane;
