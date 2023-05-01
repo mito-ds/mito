@@ -136,7 +136,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                 width="block"
                                 value={paramName}
                                 onChange={(e) => {
-                                    let newParamName = e.target.value;
+                                    const newParamName = e.target.value;
                                     let finalNewParamName = newParamName;
 
                                     const newCodeOptions = {...props.codeOptions};

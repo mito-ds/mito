@@ -245,7 +245,7 @@ const Toolbar = (
                                         currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
                                     }
                                 })
-                            }}/>
+                                }}/>
                             <DropdownItem 
                                 title='Download File when Executing Code' 
                                 subtext='Download the file to the same folder as this notebook when you run the generated code.'
@@ -255,7 +255,7 @@ const Toolbar = (
                                         currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
                                     }
                                 })
-                            }}/>
+                                }}/>
                         </Dropdown>
                     </ToolbarButton>
 
