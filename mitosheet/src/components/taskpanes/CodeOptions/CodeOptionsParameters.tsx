@@ -128,7 +128,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('"') || paramValue.startsWith("'") ? 'file_name' : 'df_name')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") ? 'file_name' : 'df_name')}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>

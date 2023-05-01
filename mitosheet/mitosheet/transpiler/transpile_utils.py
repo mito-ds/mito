@@ -222,6 +222,7 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
         line = f"{TAB}" + line
         line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
         line = line.replace(f"\n)", f"\n{TAB})")
+        line = line.replace(f"\n]", f"\n{TAB}]")
 
         # Then, for any additional function params we defined, we relace the internal param value. Note that 
         # we only replace for 
