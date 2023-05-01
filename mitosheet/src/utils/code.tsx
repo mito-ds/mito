@@ -139,5 +139,25 @@ export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: 
 }
 
 export function removeWhitespaceInPythonCode(codeText: string): string {
-    return codeText.replace(/[\s\t]/g, '');
+
+    const pattern = /('[^']*'|"[^"]*")/;
+    // This pattern matches:
+    // 1. A single-quoted string containing any character except for '.
+    // 2. OR a double-quoted string containing any character except for ".
+    
+    // Split the text into quoted strings and non-quoted sections.
+    const parts = codeText.split(pattern);
+    
+    // Remove all whitespace from non-quoted sections.
+    const partsWithoutSpaces = parts.map((part) => {
+        if (pattern.test(part)) {
+            return part; // Keep quoted strings unchanged.
+        }
+        return part.replace(/\s+/g, '');
+    });
+    
+    // Join the parts back into a single string.
+    const result = partsWithoutSpaces.join('');
+    
+    return result;
 }
