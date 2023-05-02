@@ -14,6 +14,9 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationExamplesSection from "./AITransformationExamplesSection";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { getSelectionForCompletion } from "./aiUtils";
+import LoadingCircle from "../../icons/LoadingCircle";
+import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
+import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -67,6 +70,24 @@ export interface AICompletionSelection {
     'selected_index_labels': IndexLabel[]
 }
 
+type AITransformationTaskpaneState = {
+    type: 'default'
+} | {
+    type: 'loading completion',
+    userInput: string,
+} | {
+    type: 'executing code',
+    userInput: string,
+    completion: AICompletionOrError,
+} | {
+    type: 'error loading completion',
+    userInput: string,
+} | {
+    type: 'error executing code',
+    userInput: string,
+    error: string
+}
+
 /* 
     This is the AITransformation taskpane.
 */
@@ -75,17 +96,15 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === undefined;
     const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
 
-
-    const [chatInput, setChatInput] = useState<string>('');
-    const [loadingCompletion, setLoadingCompletion] = useState<boolean>(false);
-    const [completionOrError, setCompletionOrError] = useState<AICompletionOrError>(undefined);
+    const [userInput, setUserInput] = useState<string>('');
+    const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const taskpaneBodyRef = useRef<HTMLDivElement | null>(null);
     const setTaskpaneBodyRef = (element: HTMLDivElement | null) => {taskpaneBodyRef.current = element;}
 
 
-    const {previousParamsAndResults, loadingParams, edit, error} = useSendEditOnClickNoParams<AITransformationParams, AITransformationResult>(
+    const {previousParamsAndResults, edit} = useSendEditOnClickNoParams<AITransformationParams, AITransformationResult>(
         StepType.AiTransformation,
         props.mitoAPI,
         props.analysisData,
@@ -96,38 +115,54 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     }, [])
 
     useEffect(() => {
-        // Scroll to the bottom, when the number of chats change
+        // Scroll to the bottom, when the number of chats change, or our state changes
         if (taskpaneBodyRef.current !== null) {
             taskpaneBodyRef.current.scrollTop = taskpaneBodyRef.current.scrollHeight;
         }
 
-    }, [previousParamsAndResults.length])
+    }, [previousParamsAndResults.length, taskpaneState.type])
 
-    const submitChatInput = async () => {
-        if (chatInput === '') {
+    // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
+    useEffectOnRedo(() => {
+        setTaskpaneState({type: 'default'})
+    }, props.analysisData)
+    useEffectOnUndo(() => {
+        setTaskpaneState({type: 'default'})
+    }, props.analysisData)
+
+    const submitChatInput = async (userInput: string) => {
+        if (userInput === '') {
             return;
         }
 
-        setCompletionOrError(undefined); setLoadingCompletion(true);
-        const completionOrError = await props.mitoAPI.getAICompletion(chatInput, getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray));
-        setCompletionOrError(completionOrError); setLoadingCompletion(false);
+        setTaskpaneState({type: 'loading completion', userInput: userInput})
+        setUserInput('')
+        const completionOrError = await props.mitoAPI.getAICompletion(userInput, getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray));
 
-        setChatInput('');
-
-        if (completionOrError !== undefined && !('error' in completionOrError)) {
-            edit({
-                user_input: chatInput,
+        if (completionOrError === undefined || 'error' in completionOrError) {
+            setTaskpaneState({type: 'error loading completion', userInput: userInput})
+            return;
+        } else {
+            setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
+            const possibleError = await edit({
+                user_input: userInput,
                 prompt_version: completionOrError.prompt_version,
                 prompt: completionOrError.prompt,
                 completion: completionOrError.completion,
                 edited_completion: completionOrError.completion 
             })
+            
+            if (possibleError !== undefined) {
+                setTaskpaneState({type: 'error executing code', userInput: userInput, error: possibleError})
+            } else {
+                setTaskpaneState({type: 'default'})
+            }
         }
     }
 
-    const chatHeight = Math.min(100, Math.max(30, 30 + (chatInput.split('\n').length - 1) * 20));
+    const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 20));
 
-    const shouldDisplayExamples = previousParamsAndResults.length === 0 && !loadingParams && !loadingCompletion && completionOrError === undefined;
+    const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
     
     return (
         <DefaultTaskpane>
@@ -139,7 +174,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 {shouldDisplayExamples && 
                     <AITransformationExamplesSection
                         sheetDataArray={props.sheetDataArray}
-                        setChatInput={setChatInput}
+                        setChatInput={setUserInput}
                         previousParamsAndResults={previousParamsAndResults}
                     />
                 }
@@ -151,13 +186,13 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             <>
                                 <Row 
                                     justify="start" align="center"
-                                    className="ai-transformation-chat-user"
+                                    className="ai-transformation-message ai-transformation-message-user"
                                 >
                                     <p>{paramAndResult.params.user_input}</p>
                                 </Row>
                                 <Row 
                                     justify="start" align="center"
-                                    className="ai-transformation-chat-user"
+                                    className="ai-transformation-message ai-transformation-message-ai"
                                 >
                                     <AITransformationResultSection
                                         setUIState={props.setUIState}
@@ -170,39 +205,49 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </>
                         )
                     })}
-                    {loadingCompletion &&
-                        <Row
-                            justify="start" align="center"
-                            className="ai-transformation-chat-user"
-                        >
-                            <p>Generating code...</p>
-                        </Row>
+                    {(taskpaneState.type === 'loading completion' || taskpaneState.type === 'executing code') &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <Row
+                                justify="space-between" align="center"
+                                className="ai-transformation-message ai-transformation-message-ai"
+                            >
+                                <Col>
+                                    {
+                                        taskpaneState.type === 'loading completion' 
+                                        ? <p>Generating code...</p>
+                                        : <p>Executing code...</p>
+                                    }
+                                </Col>
+                                <Col>
+                                    <LoadingCircle/>
+                                </Col>
+                            </Row>
+                        </>
                     }
-                    {!loadingCompletion && completionOrError !== undefined && 'error' in completionOrError &&
-                        <Row
-                            justify="start" align="center"
-                            className="ai-transformation-chat-user"
-                        >
-                            <p>Error generating completion...</p>
-                        </Row>
-                    }
-                    {!loadingCompletion && loadingParams !== undefined && 
-                        <Row
-                            justify="start" align="center"
-                            className="ai-transformation-chat-user"
-                        >
-                            <p>Executing code...</p>
-                            <p>{loadingParams.user_input}</p>
-                        </Row>
-                    }
-                    {error !== undefined && 
-                        <Row
-                            justify="start" align="center"
-                            className="ai-transformation-chat-user"
-                        >
-                            <p>Error executing code...</p>
-                            <p>{error}</p>
-                        </Row>
+                    {(taskpaneState.type === 'error loading completion' || taskpaneState.type === 'error executing code') &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-ai"
+                            >
+                                {taskpaneState.type === 'error loading completion'
+                                    ? <p>Error loading completion. This is likely because you are not connected to the internet, or there is a firewall blocking OpenAI.</p>
+                                    : <p>Error executing code. Please try a different prompt.</p>
+                                }
+                            </Row>
+                        </>
                     }
                 </div>
             </DefaultTaskpaneBody>
@@ -220,29 +265,29 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 ref={chatInputRef}
                                 className="ai-transformation-chat-input"
                                 placeholder="Send a message."
-                                value={chatInput}
+                                value={userInput}
                                 onChange={(e) => {
-                                    setChatInput(e.target.value);
+                                    setUserInput(e.target.value);
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         if (!e.shiftKey) {
                                             e.preventDefault()
-                                            submitChatInput()
+                                            submitChatInput(userInput)
                                         }
                                     }
                                 }}
                                 onKeyUp={(e) => {
                                     if (e.key === 'Enter') {
                                         if (e.shiftKey) {
-                                            setChatInput(chatInput + '\n')
+                                            setUserInput(userInput + '\n')
                                         }
                                     }
                                 }}
                             />
                         </div>
                     </Col>
-                    <Col span={1.5} onClick={submitChatInput}>
+                    <Col span={1.5} onClick={() => submitChatInput(userInput)}>
                         <SendArrowIcon/>
                     </Col>
                 </Row>

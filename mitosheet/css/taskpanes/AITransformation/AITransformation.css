@@ -27,7 +27,7 @@
     border-radius: 3px;
 }
 
-.ai-transformation-chat-user {
+.ai-transformation-message {
 
     box-sizing: border-box;
 
@@ -40,6 +40,13 @@
     background: var(--mito-very-light-gray);
     border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
+    border: 1px solid var(--mito-light-gray);
+}
+.ai-transformation-message-user {
+    border: 1px solid var(--mito-light-gray);
+}
+.ai-transformation-message-ai {
+    background: #FEF4FF;
 }
 
 .ai-transformation-example:hover {
@@ -62,4 +69,5 @@
 .ai-transformation-result-section {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }

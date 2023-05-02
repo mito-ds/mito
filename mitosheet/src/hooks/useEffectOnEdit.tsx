@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { AnalysisData } from "../types";
 
 /* 
@@ -6,11 +6,11 @@ import { AnalysisData } from "../types";
     successful edit.
 */
 export const useEffectOnEdit = (effect: () => void, analysisData: AnalysisData): void => { 
-    const previousEditCount = useRef(0);
+    const [previousEditCount, setPreviousEditCount] = useState(() => analysisData.stepSummaryList.length);
     useEffect(() => {
-        if (analysisData.stepSummaryList.length > previousEditCount.current) {
+        if (analysisData.stepSummaryList.length > previousEditCount) {
             effect();
         }
-        previousEditCount.current = analysisData.stepSummaryList.length;
+        setPreviousEditCount(analysisData.stepSummaryList.length);
     }, [analysisData.stepSummaryList.length])
 }
