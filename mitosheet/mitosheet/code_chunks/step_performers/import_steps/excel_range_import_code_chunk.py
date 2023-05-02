@@ -136,7 +136,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
             code.append(f'xlsx_file_path = convert_csv_file_to_xlsx_file(\'{self.file_path}\', {transpiled_sheet_name})')
             transpiled_file_path = f'xlsx_file_path'
         else:
-            transpiled_file_path = f'\'{self.file_path}\''
+            transpiled_file_path = f'r\'{self.file_path}\''
 
 
         for idx, range_import in enumerate(self.range_imports):
@@ -150,7 +150,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 skiprows, nrows, usecols = get_read_excel_params_from_range(_range)
                 
                 code.append(
-                    f'{df_name} = pd.read_excel(r{transpiled_file_path}, sheet_name={transpiled_sheet_name}, skiprows={skiprows}, nrows={nrows}, usecols=\'{usecols}\')'
+                    f'{df_name} = pd.read_excel({transpiled_file_path}, sheet_name={transpiled_sheet_name}, skiprows={skiprows}, nrows={nrows}, usecols=\'{usecols}\')'
                 )
 
             else:
@@ -163,9 +163,9 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 params_code = param_dict_to_code(params, as_single_line=True)
 
                 code.extend([
-                    f'_range = get_table_range(r{transpiled_file_path}, {params_code})',
+                    f'_range = get_table_range({transpiled_file_path}, {params_code})',
                     'skiprows, nrows, usecols = get_read_excel_params_from_range(_range)',
-                    f'{df_name} = pd.read_excel(r{transpiled_file_path}, sheet_name={transpiled_sheet_name}, skiprows=skiprows, nrows=nrows, usecols=usecols)'
+                    f'{df_name} = pd.read_excel({transpiled_file_path}, sheet_name={transpiled_sheet_name}, skiprows=skiprows, nrows=nrows, usecols=usecols)'
                 ])
                 
 
