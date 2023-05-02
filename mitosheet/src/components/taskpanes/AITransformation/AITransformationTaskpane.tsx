@@ -17,6 +17,7 @@ import { getSelectionForCompletion } from "./aiUtils";
 import LoadingCircle from "../../icons/LoadingCircle";
 import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
 import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
+import AIPrivacyPolicy from "./AIPrivacyPolicy";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -160,7 +161,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
 
-    console.log('taskpaneState', taskpaneState)
+
+    if (!aiPrivacyPolicyAccepted) {
+        return (
+            <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />
+        )
+    }
     
     return (
         <DefaultTaskpane>
