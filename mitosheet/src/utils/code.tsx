@@ -138,6 +138,7 @@ export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: 
     return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
 }
 
+// Removes all whitespace from a string, except for whitespace in quoted strings.
 export function removeWhitespaceInPythonCode(codeText: string): string {
 
     const pattern = /('[^']*'|"[^"]*")/;
