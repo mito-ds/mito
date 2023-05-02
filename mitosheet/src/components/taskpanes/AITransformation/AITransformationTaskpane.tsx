@@ -123,12 +123,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     }, [previousParamsAndResults.length, taskpaneState.type])
 
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
-    useEffectOnRedo(() => {
-        setTaskpaneState({type: 'default'})
-    }, props.analysisData)
-    useEffectOnUndo(() => {
-        setTaskpaneState({type: 'default'})
-    }, props.analysisData)
+    useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
+    useEffectOnUndo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
 
     const submitChatInput = async (userInput: string) => {
         if (userInput === '') {
@@ -160,9 +156,11 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         }
     }
 
-    const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 20));
+    const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 14));
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
+
+    console.log('taskpaneState', taskpaneState)
     
     return (
         <DefaultTaskpane>
@@ -263,7 +261,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         >
                             <textarea
                                 ref={chatInputRef}
-                                className="ai-transformation-chat-input"
+                                className="ai-transformation-user-input-text-area"
                                 placeholder="Send a message."
                                 value={userInput}
                                 onChange={(e) => {

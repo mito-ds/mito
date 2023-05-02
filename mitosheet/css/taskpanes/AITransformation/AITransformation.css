@@ -14,17 +14,20 @@
     border-radius: 3px;
 }
 
-.ai-transformation-chat-input {
+.ai-transformation-user-input-text-area {
     box-sizing: border-box;
     height: 100%;
     width: 100%;
+    resize: none;
 
     /* Auto layout */
     padding: 5px;
 
     background-color: var(--mito-very-light-gray);
-    border: 1px solid var(--mito-gray);
+    border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
+
+    font-size: 13px;
 }
 
 .ai-transformation-message {
@@ -43,6 +46,7 @@
     border: 1px solid var(--mito-light-gray);
 }
 .ai-transformation-message-user {
+    white-space: pre-line; /* Preserve line breaks */
     border: 1px solid var(--mito-light-gray);
 }
 .ai-transformation-message-ai {
