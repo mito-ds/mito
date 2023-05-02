@@ -10,7 +10,7 @@ import pandas as pd
 
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
-
+from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 
 def test_transpile_single_column():
     mito = create_mito_wrapper_with_data(['abc'])
@@ -461,6 +461,8 @@ def test_transpile_as_function_multiple_params(tmp_path):
         f"txt, file = function(r'{tmp_file1}', r'{tmp_file2}')"
     ]
 
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_transpile_parameterize_excel_imports(tmp_path):
     tmp_file = str(tmp_path / 'txt.xlsx')
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
@@ -494,7 +496,7 @@ def test_transpile_with_function_params_over_mitosheet():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'param': "df"}})
 
-    print(mito.transpiled_code)
+    
     assert mito.transpiled_code == [
         "",
         "def function(param, df_copy):",
