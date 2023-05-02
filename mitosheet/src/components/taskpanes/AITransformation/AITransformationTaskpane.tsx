@@ -18,6 +18,7 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationResultSection from "./AITransformationResultSection";
 import { shallowEqual } from "../../../utils/objects";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
+import AIPrivacyPolicy from "./AIPrivacyPolicy";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -174,7 +175,7 @@ const getAdditionalErrorHelp = (error: string | undefined): JSX.Element | undefi
 const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Element => {
 
     const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === undefined;
-    const aiPrivacyPolicyNotAccepted = !props.userProfile.aiPrivacyPolicy;
+    const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
 
     const [openSections, setOpenSections] = useState<SectionState>({
         'Examples': true,
@@ -198,7 +199,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     )
 
     useEffect(() => {
-        void props.mitoAPI.log('opened_ai_transformation', {apiKeyNotDefined: apiKeyNotDefined, aiPrivacyPolicyNotAccepted: aiPrivacyPolicyNotAccepted})
+        void props.mitoAPI.log('opened_ai_transformation', {apiKeyNotDefined: apiKeyNotDefined, aiPrivacyPolicyNotAccepted: !aiPrivacyPolicyAccepted})
     }, [])
 
     if (params === undefined) {
@@ -242,50 +243,31 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const currentlySelectedParamsIndex = getCurrentlySelectedParamsIndex(props.previousAITransformParams, params);
 
 
-    const aiFeatureDisabled = aiPrivacyPolicyNotAccepted;
-
+    if (!aiPrivacyPolicyAccepted) {
+        return (
+            <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />
+        )
+    }
+    
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="AI Transformation"
+                header="Mito AI"
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody>
-                {(aiPrivacyPolicyNotAccepted) && 
-                    <>
-                        <p className="text-body-1">
-                            Mito AI is a beta feature. To improve the feature, we collect data used by the AI feature, including: dataframe names, column headers, and cell values.
-                        </p>
-                        <Spacer px={5}/>
-                        <p className="text-body-1">
-                            Behind the scenes, we use OpenAI to help generate code for Mito AI. As such, this data is also sent to OpenAI. You can see their <a className='text-underline' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">privacy policy here</a>.
-                        </p>
-                        <Spacer px={5}/>
-                        <p className="text-body-1">
-                            You can see our <a className='text-underline' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">privacy policy here.</a>
-                        </p>
-                        <TextButton
-                            onClick={() => {
-                                void props.mitoAPI.updateAcceptAITransformationPrivacyPolicy();
-                            }}
-                            variant='dark'
-                        >
-                            Accept Privacy Policy for Mito AI
-                        </TextButton>
-                    </>
-                }
-                <CollapsibleSection title={"Examples"} open={openSections['Examples']} disabled={aiFeatureDisabled}>
-                    <Row justify="space-between" align="center">
-                        {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
-                        {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
-                    </Row>
-                    <Row justify="space-between" align="center">
-                        {getExample('rename headers lowercase', setPromptState, setOpenSections, setParams)}
-                        {getExample('duplicate this dataframe', setPromptState, setOpenSections, setParams)}
-                    </Row>
+                <CollapsibleSection title={"Examples"} open={openSections['Examples']}>
+                <Row justify="space-between" align="center">
+                    {getExample('delete columns with nans', setPromptState, setOpenSections, setParams)}
+                    {getExample('sort dataframe by values', setPromptState, setOpenSections, setParams)}
+                </Row>
+                <Row justify="space-between" align="center">
+                    {getExample('rename headers lowercase', setPromptState, setOpenSections, setParams)}
+                    {getExample('duplicate this dataframe', setPromptState, setOpenSections, setParams)}
+                </Row>
                 </CollapsibleSection>
                 <Spacer px={10}/>
-                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']} disabled={aiFeatureDisabled}>
+                <CollapsibleSection title={"Prompt"} open={openSections['Prompt']}>
                     <TextArea 
                         value={promptState.userInput} 
                         placeholder='delete columns with nans'

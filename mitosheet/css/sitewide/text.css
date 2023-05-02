@@ -94,7 +94,7 @@
     can override the color with this text
 */
 .text-color-mito-purple {
-    color: var(--mito-purple);
+    color: var(--mito-purple) !important;
 }
 .text-color-white-important {
     color: white !important;
@@ -173,7 +173,7 @@
 }
 
 .text-underline {
-    text-decoration: underline;
+    text-decoration: underline !important;
 }
 .text-bold {
     font-weight: bold;
