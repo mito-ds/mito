@@ -40,6 +40,11 @@ interface ColProps {
        * @param [title] - Title to put on the column div
     */
     title?: string;
+    /** 
+        * @param [style] - You can pass an arbitrary set of styles to the row to style it,
+        * to make this component more flexible
+    */
+    style?: React.CSSProperties,
 }
 
 
@@ -61,7 +66,8 @@ const Col = (props: ColProps): JSX.Element => {
                 width: width, 
                 marginLeft: marginLeft, 
                 marginRight: marginRight,
-                flex: props.flex
+                flex: props.flex,
+                ...props.style
             }}
             onClick={props.onClick}
             title={props.title}
