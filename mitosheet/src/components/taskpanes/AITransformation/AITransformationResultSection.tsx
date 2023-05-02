@@ -36,7 +36,9 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
     }
 
     return (
-        <>
+        <div
+            className="ai-transformation-result-section"
+        >
             {result.last_line_value !== undefined && result.last_line_value !== null && 
                 <p><span className="text-bold">Value:</span> {result.last_line_value}</p>
             }
@@ -159,7 +161,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             {sentFeedback !== undefined && 
                 <p>Thanks for the feedback - {sentFeedback === 'Down' ? "we're working hard to improve." : "we're glad things are working well!"}</p>
             }
-        </>
+        </div>
 
     )
 }

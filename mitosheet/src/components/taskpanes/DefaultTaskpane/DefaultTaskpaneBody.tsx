@@ -45,6 +45,11 @@ const DefaultTaskpaneBody = (
             mitoAPI: MitoAPI
         }
 
+        /**
+         * @param [setRef] - A callback to set the ref
+         **/
+        setRef?: (ref: HTMLDivElement) => void;
+
     }): JSX.Element => {
 
     const shouldPromptProUpgrade = !props.userProfile?.isPro && props.requiresPro !== undefined;
@@ -68,7 +73,10 @@ const DefaultTaskpaneBody = (
                     featureName={props.requiresEnterprise.featureName}
                 />
             }
-            <div className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade})}> 
+            <div 
+                className={classNames('default-taskpane-body-div', {'default-taskpane-body-div-no-scroll' : props.noScroll, 'default-taskpane-body-disabled': shouldPromptProUpgrade || shouldPromptEnterpriseUpgrade})}
+                ref={props.setRef}
+            > 
                 {props.children}
             </div>
         </>

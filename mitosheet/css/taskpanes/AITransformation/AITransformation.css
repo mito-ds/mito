@@ -14,6 +14,34 @@
     border-radius: 3px;
 }
 
+.ai-transformation-chat-input {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+
+    /* Auto layout */
+    padding: 5px;
+
+    background-color: var(--mito-very-light-gray);
+    border: 1px solid var(--mito-gray);
+    border-radius: 3px;
+}
+
+.ai-transformation-chat-user {
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+
+    background: var(--mito-very-light-gray);
+    border: 1px solid var(--mito-light-gray);
+    border-radius: 3px;
+}
+
 .ai-transformation-example:hover {
     border: 1px solid var(--mito-light-purple);
 }
@@ -29,4 +57,9 @@
 
 .ai-transformation-feedback-button-selected {
     background-color: var(--mito-light-gray);
+}
+
+.ai-transformation-result-section {
+    display: flex;
+    flex-direction: column;
 }

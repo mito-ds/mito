@@ -1,6 +1,5 @@
 // Copyright (c) Mito
 
-import { ChecklistID } from "../components/checklists/checklistData";
 import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/AuthenticateToSnowflakeCard";
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
@@ -1608,18 +1607,6 @@ export default class MitoAPI {
         })
 
         await this.send(message, {})
-    }
-
-    async updateChecklist(checklistID: ChecklistID, completedItems: string[], clearOtherItems: boolean): Promise<void> {
-        await this.send({
-            'event': 'update_event',
-            'type': 'checklist_update',
-            'params': {
-                'checklist_id': checklistID,
-                'completed_items': completedItems,
-                'clear_other_items': clearOtherItems
-            }
-        }, {})
     }
 
     /*
