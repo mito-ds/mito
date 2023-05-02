@@ -40,12 +40,12 @@ export interface AITransformationParams {
 }
 
 export type AICompletionOrError = {error: string} 
-    | {
-        user_input: string,
-        prompt_version: string,
-        prompt: string,
-        completion: string
-    } | undefined
+| {
+    user_input: string,
+    prompt_version: string,
+    prompt: string,
+    completion: string
+} | undefined
 
 interface ColumnReconData {
     created_columns: ColumnHeader[]
@@ -101,6 +101,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
+    const setChatInputRef = (element: HTMLTextAreaElement | null) => {
+        chatInputRef.current = element;
+        element?.focus();
+    }
     const taskpaneBodyRef = useRef<HTMLDivElement | null>(null);
     const setTaskpaneBodyRef = (element: HTMLDivElement | null) => {taskpaneBodyRef.current = element;}
 
@@ -161,6 +165,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
 
+    console.log(previousParamsAndResults)
+
 
     if (!aiPrivacyPolicyAccepted) {
         return (
@@ -177,6 +183,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             <DefaultTaskpaneBody setRef={setTaskpaneBodyRef}>
                 {shouldDisplayExamples && 
                     <AITransformationExamplesSection
+                        selectedSheetIndex={props.uiState.selectedSheetIndex}
                         sheetDataArray={props.sheetDataArray}
                         setChatInput={setUserInput}
                         previousParamsAndResults={previousParamsAndResults}
@@ -224,8 +231,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 <Col>
                                     {
                                         taskpaneState.type === 'loading completion' 
-                                        ? <p>Generating code...</p>
-                                        : <p>Executing code...</p>
+                                            ? <p>Generating code...</p>
+                                            : <p>Executing code...</p>
                                     }
                                 </Col>
                                 <Col>
@@ -266,7 +273,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             }}
                         >
                             <textarea
-                                ref={chatInputRef}
+                                ref={setChatInputRef}
                                 className="ai-transformation-user-input-text-area"
                                 placeholder="Send a message."
                                 value={userInput}
@@ -277,7 +284,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                     if (e.key === 'Enter') {
                                         if (!e.shiftKey) {
                                             e.preventDefault()
-                                            submitChatInput(userInput)
+                                            void submitChatInput(userInput)
                                         }
                                     }
                                 }}
@@ -291,7 +298,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             />
                         </div>
                     </Col>
-                    <Col span={1.5} onClick={() => submitChatInput(userInput)}>
+                    <Col span={1.5} onClick={() => {void submitChatInput(userInput)}}>
                         <SendArrowIcon/>
                     </Col>
                 </Row>

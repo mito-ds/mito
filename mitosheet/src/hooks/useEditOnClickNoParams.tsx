@@ -32,11 +32,11 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
     const [currParamsIndex, setCurrParamsIndex] = useState(0);
 
     useEffectOnUndo(() => {
-        void refreshOnUndo()
+        refreshOnUndo()
     }, analysisData)
 
     useEffectOnRedo(() => {
-        void refreshOnRedo();
+        refreshOnRedo();
     }, analysisData)
 
     // NOTE: all edit events are the name of the step + _edit
@@ -45,7 +45,7 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
     // This function actually sends the edit message to the backend
     const edit = async (params: ParamType) => {
 
-        let newStepID = getRandomId();
+        const newStepID = getRandomId();
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
 
         // Handle if we return an error
@@ -60,25 +60,31 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
 
             // Save the params
             setPreviousParams(prevPreviousParams => [...prevPreviousParams, params]);
+            console.log("SAVED PARAMS", params);
             return undefined;
         }
     }
 
-    const refreshOnUndo = async () => {
-        setCurrParamsIndex(prevCurrStepIDIndex => prevCurrStepIDIndex - 1);
+    const refreshOnUndo = () => {
+        setCurrParamsIndex(prevCurrStepIDIndex => Math.max(prevCurrStepIDIndex - 1, 0));
     }
 
-    const refreshOnRedo = async () => {
-        setCurrParamsIndex(prevCurrStepIDIndex => prevCurrStepIDIndex + 1);     
+    const refreshOnRedo = () => {
+        setCurrParamsIndex(prevCurrStepIDIndex => Math.min(prevCurrStepIDIndex + 1, previousParams.length));     
     }
 
     // When we do a successful edit, then get the new result
     useEffectOnEdit(() => {
         if (analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
+            console.log("GOT NEW RESULTS", analysisData.lastResult)
             const result = analysisData.lastResult as ResultType;
             setResults(prevResults => [...prevResults, result]);
         }
     }, analysisData)
+
+    console.log("PREVIOUS PARAMS", previousParams);
+    console.log("RESULTS", results);
+    console.log("CURR PARAMS INDEX", currParamsIndex)
 
 
     // Zip previousParams and results together
@@ -88,7 +94,7 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
             results: results[index]
         }
     }).splice(0, currParamsIndex);
-33
+    33
     return {
         edit,
         previousParamsAndResults,
