@@ -5,7 +5,7 @@
   font-size: 2rem;
   color: var(--color-text-primary);
 
-  background-color: var(--color-text-highlight);
+  background-color: var(--color-purple);
   max-width: 20rem;
   padding: 10px 15px;
   border-radius: 10px;
@@ -23,7 +23,7 @@
 }
 
 .text_button:hover {
-  background-color: var(--color-text-highlight-light);
+  background-color: var(--color-light-purple);
 }
 
 .text_button button,

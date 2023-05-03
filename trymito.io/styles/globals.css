@@ -4,8 +4,8 @@
   --color-light-background-accent: #3a3a3a; 
   --color-text-primary: #ffffff;
   --color-text-secondary: #D0D0D0;
-  --color-text-highlight: #9D6CFF; 
-  --color-text-highlight-light: #ac84fc; 
+  --color-purple: #9D6CFF; 
+  --color-light-purple: #ac84fc; 
 
   --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
   --color-twitter-blue: #479BE9;
@@ -204,6 +204,10 @@ a {
     margin-top: 10rem;
   }
 
+  .display-inline-block {
+    display: inline-block !important;
+  }
+
   .display-desktop-only-inline-block {
     display: inline-block !important;
   }
@@ -247,11 +251,11 @@ a {
 }
 
 .text-nav:hover {
-  color: var(--color-text-highlight);
+  color: var(--color-purple);
 }
 
 .text-highlight {
-  color: var(--color-text-highlight)
+  color: var(--color-purple)
 }
 
 .text-primary {
@@ -268,6 +272,10 @@ a {
 
 .text-twitter-blue {
   color: var(--color-twitter-blue)
+}
+
+.text-color-purple {
+  color: var(--color-purple)
 }
 
 /* 

@@ -1,0 +1,15 @@
+.ai_thesis_bullets_container {
+    border-left: 3px solid radial-gradient(164.34% 50% at 50% 50%, #9D6CFF 0%, rgba(157, 108, 255, 0) 100%);
+}
+
+.ai_thesis_bullet {
+    margin-left: 20px;
+}
+
+.ai_thesis_bullet:hover {
+    color: var(--color-light-purple);
+}
+
+.ai_thesis_bullet_selected {
+    color: var(--color-purple);
+}

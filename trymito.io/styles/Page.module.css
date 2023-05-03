@@ -46,12 +46,12 @@
 
 .link_with_p_tag_margins,
 .link {
-    color: var(--color-text-highlight);
+    color: var(--color-purple);
 }
 
 .link_with_p_tag_margins:hover,
 .link:hover {
-    color: var(--color-text-highlight-light);
+    color: var(--color-light-purple);
 }
   
 @media only screen and (min-width: 50em) {
