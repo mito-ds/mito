@@ -40,11 +40,11 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             className="ai-transformation-result-section"
         >
             {result.last_line_value !== undefined && result.last_line_value !== null && 
-                <p><span className="text-bold">Value:</span> {result.last_line_value}</p>
+                <p><span>Value:</span> {result.last_line_value}</p>
             }
             {result.prints.length > 0 && 
                 <>
-                    <p><span className="text-bold">Printed:</span></p>
+                    <p><span>Printed:</span></p>
                     <pre>{result.prints}</pre>
                 </>
             }
@@ -64,7 +64,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                        <span className="text-bold">Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} columns)
+                        <span>Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} columns)
                     </div>
                 )
             })}
@@ -84,7 +84,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     }
                                 })
                             }}>
-                            <span className="text-bold">Modified:</span> <span className="text-underline">{dfName}</span> {rowChangeTest}
+                            <span>Modified:</span> <span className="text-underline">{dfName}</span> {rowChangeTest}
                         </div>
                         {columnReconData.created_columns.map((ch, index) => {
                             return <div key={dfName + 'added' + index} className="ml-5px">Added column: {getDisplayColumnHeader(ch)}</div>
@@ -104,7 +104,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             {result.deleted_dataframe_names.map(dfName => {
                 return (
                     <div key={dfName}>
-                        <span className="text-bold">Deleted:</span> <span>{dfName}</span> 
+                        <span>Deleted:</span> <span>{dfName}</span> 
                     </div>
                 )
             })}
@@ -113,13 +113,13 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                 && Object.entries(result.modified_dataframes_recons).length === 0 
                 && result.prints.length === 0
                 && result.deleted_dataframe_names.length === 0 && 
-                <p className="text-bold">
+                <p>
                     No changes
                 </p>
             }
             <Row justify="space-between" align="center">
                 <Col>
-                    <p className="text-bold">
+                    <p>
                         How did Mito AI Assistant do?
                     </p>
                 </Col>

@@ -732,7 +732,8 @@ export default class MitoAPI {
     
     async getAICompletion(
         user_input: string, 
-        selection: AICompletionSelection | undefined
+        selection: AICompletionSelection | undefined,
+        previous_failed_completions: [string, string][]
     ): Promise<
         {error: string} | 
         {
@@ -749,7 +750,8 @@ export default class MitoAPI {
             'type': 'get_ai_completion',
             'params': {
                 'user_input': user_input,
-                'selection': selection
+                'selection': selection,
+                'previous_failed_completions': previous_failed_completions
             }
         }, {})
 

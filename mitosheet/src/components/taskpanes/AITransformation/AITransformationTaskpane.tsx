@@ -83,11 +83,15 @@ type AITransformationTaskpaneState = {
 } | {
     type: 'error loading completion',
     userInput: string,
+    error: string
 } | {
     type: 'error executing code',
     userInput: string,
-    error: string
+    error: string,
+    attempt: number,
 }
+
+const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
 
 /* 
     This is the AITransformation taskpane.
@@ -102,8 +106,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
-        chatInputRef.current = element;
-        element?.focus();
+        if (chatInputRef.current === null) {
+            chatInputRef.current = element;
+            element?.focus();
+        }
     }
     const taskpaneBodyRef = useRef<HTMLDivElement | null>(null);
     const setTaskpaneBodyRef = (element: HTMLDivElement | null) => {taskpaneBodyRef.current = element;}
@@ -138,35 +144,52 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
         setTaskpaneState({type: 'loading completion', userInput: userInput})
         setUserInput('')
-        const completionOrError = await props.mitoAPI.getAICompletion(userInput, getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray));
 
-        if (completionOrError === undefined || 'error' in completionOrError) {
-            setTaskpaneState({type: 'error loading completion', userInput: userInput})
-            return;
-        } else {
-            setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
-            const possibleError = await edit({
-                user_input: userInput,
-                prompt_version: completionOrError.prompt_version,
-                prompt: completionOrError.prompt,
-                completion: completionOrError.completion,
-                edited_completion: completionOrError.completion 
-            })
+        const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
+
+        const previousFailedCompletions: [string, string][] = [];
+        for (let i = 0; i < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION; i++) {
             
-            if (possibleError !== undefined) {
-                setTaskpaneState({type: 'error executing code', userInput: userInput, error: possibleError})
+            const completionOrError = await props.mitoAPI.getAICompletion(
+                userInput, 
+                selections,
+                previousFailedCompletions
+            );
+
+            if (completionOrError === undefined || 'error' in completionOrError) {
+                setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completionOrError?.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
+                return;
             } else {
-                setTaskpaneState({type: 'default'})
+                setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
+                const possibleError = await edit({
+                    user_input: userInput,
+                    prompt_version: completionOrError.prompt_version,
+                    prompt: completionOrError.prompt,
+                    completion: completionOrError.completion,
+                    edited_completion: completionOrError.completion 
+                })
+                
+                if (possibleError !== undefined) {
+                    setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
+                    previousFailedCompletions.push([completionOrError.completion, possibleError])
+                } else {
+                    setTaskpaneState({type: 'default'});
+                    return;
+                }
             }
         }
+        setTaskpaneState(prevTaskpaneState => {
+            if (prevTaskpaneState.type === 'error executing code') {
+                return {...prevTaskpaneState, attempt: prevTaskpaneState.attempt + 1}
+            } else {
+                return prevTaskpaneState;
+            }
+        })
     }
 
     const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 14));
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
-
-    console.log(previousParamsAndResults)
-
 
     if (!aiPrivacyPolicyAccepted) {
         return (
@@ -185,8 +208,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     <AITransformationExamplesSection
                         selectedSheetIndex={props.uiState.selectedSheetIndex}
                         sheetDataArray={props.sheetDataArray}
-                        setChatInput={setUserInput}
+                        setUserInput={setUserInput}
                         previousParamsAndResults={previousParamsAndResults}
+                        chatInputRef={chatInputRef}
                     />
                 }
                 <div
@@ -241,7 +265,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                         </>
                     }
-                    {(taskpaneState.type === 'error loading completion' || taskpaneState.type === 'error executing code') &&
+                    {taskpaneState.type === 'error loading completion' &&
                         <>
                             <Row
                                 justify="start" align="center"
@@ -253,10 +277,56 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="start" align="center"
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
-                                {taskpaneState.type === 'error loading completion'
-                                    ? <p>Error loading completion. This is likely because you are not connected to the internet, or there is a firewall blocking OpenAI.</p>
-                                    : <p>Error executing code. Please try a different prompt.</p>
-                                }
+                                <div className="flexbox-column">
+                                    <p>
+                                        Error loading completion
+                                    </p>
+                                    <p>
+                                        {
+                                            taskpaneState.error
+                                        } 
+                                        {/** Display additional calls to action if they are relevant */}
+                                        {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
+                                            <>
+                                                To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                            </>
+                                        }
+                                        {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
+                                            <>
+                                                To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                            </>
+                                        }
+                                    </p>
+                                </div>
+                            </Row>
+                        </>
+                    }
+                    {taskpaneState.type === 'error executing code' &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-ai"
+                            >
+                                <div className="flexbox-column">
+                                    <p>
+                                        Executing failed. {
+                                            taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION
+                                            ? `Trying again (Attempt ${taskpaneState.attempt + 1}/${NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION})` 
+                                            : 'Please change the prompt and try again.'
+                                        }
+                                    </p>
+                                    <p>
+                                        {
+                                            taskpaneState.error
+                                        }
+                                    </p>
+                                </div>
                             </Row>
                         </>
                     }
@@ -298,7 +368,10 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             />
                         </div>
                     </Col>
-                    <Col span={1.5} onClick={() => {void submitChatInput(userInput)}}>
+                    <Col span={1.5} onClick={() => {
+                        void submitChatInput(userInput)
+                        chatInputRef.current?.focus()
+                    }}>
                         <SendArrowIcon/>
                     </Col>
                 </Row>

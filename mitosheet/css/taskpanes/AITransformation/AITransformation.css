@@ -31,7 +31,6 @@
 }
 
 .ai-transformation-message {
-
     box-sizing: border-box;
 
     display: flex;
@@ -44,9 +43,12 @@
     border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
     border: 1px solid var(--mito-light-gray);
+
+    word-break: break-all; /* Wrap long text */
+    white-space: pre-line; /* Preserve line breaks */
+
 }
 .ai-transformation-message-user {
-    white-space: pre-line; /* Preserve line breaks */
     border: 1px solid var(--mito-light-gray);
 }
 .ai-transformation-message-ai {

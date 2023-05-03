@@ -12,16 +12,19 @@ interface AITransformationExamplesSectionProps {
     previousParamsAndResults: {params: AITransformationParams, results: AITransformationResult}[]
     sheetDataArray: SheetData[]
     selectedSheetIndex: number,
-    setChatInput: React.Dispatch<React.SetStateAction<string>>
+    setUserInput: React.Dispatch<React.SetStateAction<string>>
+    chatInputRef: React.MutableRefObject<HTMLTextAreaElement | null>
 }
 
 
 
-const getExample = (userInput: string, setChatInput: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
+const getExample = (userInput: string, setUserInput: React.Dispatch<React.SetStateAction<string>>, chatInputRef: React.MutableRefObject<HTMLTextAreaElement | null>): JSX.Element => {
     return (
         <Row 
             onClick={() => {
-                setChatInput(userInput);
+                setUserInput(userInput);
+                chatInputRef.current?.focus();
+                console.log("FOCUSING", chatInputRef.current)
             }} 
             justify="center" align="center" className="ai-transformation-example"
         >
@@ -47,12 +50,12 @@ const AITransformationExamplesSection = (props: AITransformationExamplesSectionP
                     Examples
                 </div>
                 {props.sheetDataArray.length === 0 &&
-                    getExample('create a dataframe named df with sample data', props.setChatInput)
+                    getExample('create a dataframe named df with sample data', props.setUserInput, props.chatInputRef)
                 }
-                {getExample('delete all columns with nan values', props.setChatInput)}
-                {getExample('fully capitalize column headers', props.setChatInput)}
-                {firstColumnInSheet && getExample(`sort column ${getDisplayColumnHeader(firstColumnInSheet)} by values`, props.setChatInput)}
-                {dateColumnThatIsString && getExample(`convert column ${getDisplayColumnHeader(dateColumnThatIsString)} to datetime`, props.setChatInput)}
+                {getExample('delete all columns with nan values', props.setUserInput, props.chatInputRef)}
+                {getExample('fully capitalize column headers', props.setUserInput, props.chatInputRef)}
+                {firstColumnInSheet && getExample(`sort column ${getDisplayColumnHeader(firstColumnInSheet)} by values`, props.setUserInput, props.chatInputRef)}
+                {dateColumnThatIsString && getExample(`convert column ${getDisplayColumnHeader(dateColumnThatIsString)} to datetime`, props.setUserInput, props.chatInputRef)}
             </div>
             <Spacer px={10}/>
         </>
