@@ -41,7 +41,7 @@ interface ColProps {
     */
     title?: string;
     /** 
-        * @param [style] - You can pass an arbitrary set of styles to the row to style it,
+        * @param [style] - You can pass an arbitrary set of styles to the col to style it,
         * to make this component more flexible
     */
     style?: React.CSSProperties,

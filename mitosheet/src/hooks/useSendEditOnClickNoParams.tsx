@@ -60,7 +60,6 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
 
             // Save the params
             setPreviousParams(prevPreviousParams => [...prevPreviousParams, params]);
-            console.log("SAVED PARAMS", params);
             return undefined;
         }
     }
@@ -76,16 +75,10 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
     // When we do a successful edit, then get the new result
     useEffectOnEdit(() => {
         if (analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
-            console.log("GOT NEW RESULTS", analysisData.lastResult)
             const result = analysisData.lastResult as ResultType;
             setResults(prevResults => [...prevResults, result]);
         }
     }, analysisData)
-
-    console.log("PREVIOUS PARAMS", previousParams);
-    console.log("RESULTS", results);
-    console.log("CURR PARAMS INDEX", currParamsIndex)
-
 
     // Zip previousParams and results together
     const previousParamsAndResults = previousParams.map((param, index) => {
@@ -94,7 +87,7 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
             results: results[index]
         }
     }).splice(0, currParamsIndex);
-    33
+
     return {
         edit,
         previousParamsAndResults,

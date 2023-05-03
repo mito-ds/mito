@@ -5,7 +5,7 @@ import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
-import useSendEditOnClickNoParams from "../../../hooks/useEditOnClickNoParams";
+import useSendEditOnClickNoParams from "../../../hooks/useSendEditOnClickNoParams";
 import SendArrowIcon from "../../icons/SendArrowIcon";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
