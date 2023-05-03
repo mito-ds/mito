@@ -86,8 +86,10 @@ type AITransformationTaskpaneState = {
 } | {
     type: 'error executing code',
     userInput: string,
-    error: string
+    attempt: number,
 }
+
+const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
 
 /* 
     This is the AITransformation taskpane.
@@ -138,27 +140,42 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
         setTaskpaneState({type: 'loading completion', userInput: userInput})
         setUserInput('')
-        const completionOrError = await props.mitoAPI.getAICompletion(userInput, getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray));
 
-        if (completionOrError === undefined || 'error' in completionOrError) {
-            setTaskpaneState({type: 'error loading completion', userInput: userInput})
-            return;
-        } else {
-            setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
-            const possibleError = await edit({
-                user_input: userInput,
-                prompt_version: completionOrError.prompt_version,
-                prompt: completionOrError.prompt,
-                completion: completionOrError.completion,
-                edited_completion: completionOrError.completion 
-            })
+        const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
+
+        const previousFailedCompletions: [string, string][] = [];
+        for (let i = 0; i < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION; i++) {
             
-            if (possibleError !== undefined) {
-                setTaskpaneState({type: 'error executing code', userInput: userInput, error: possibleError})
+            const completionOrError = await props.mitoAPI.getAICompletion(
+                userInput, 
+                selections,
+                previousFailedCompletions
+            );
+
+            if (completionOrError === undefined || 'error' in completionOrError) {
+                setTaskpaneState({type: 'error loading completion', userInput: userInput})
+                return;
             } else {
-                setTaskpaneState({type: 'default'})
+                setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
+                const possibleError = await edit({
+                    user_input: userInput,
+                    prompt_version: completionOrError.prompt_version,
+                    prompt: completionOrError.prompt,
+                    completion: completionOrError.completion,
+                    edited_completion: completionOrError.completion 
+                })
+                console.log(completionOrError.completion)
+                
+                if (possibleError !== undefined) {
+                    setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i})
+                    previousFailedCompletions.push([completionOrError.completion, possibleError])
+                } else {
+                    setTaskpaneState({type: 'default'});
+                    return;
+                }
             }
         }
+        setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION})
     }
 
     const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 14));
@@ -241,7 +258,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                         </>
                     }
-                    {(taskpaneState.type === 'error loading completion' || taskpaneState.type === 'error executing code') &&
+                    {taskpaneState.type === 'error loading completion' &&
                         <>
                             <Row
                                 justify="start" align="center"
@@ -253,10 +270,30 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="start" align="center"
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
-                                {taskpaneState.type === 'error loading completion'
-                                    ? <p>Error loading completion. This is likely because you are not connected to the internet, or there is a firewall blocking OpenAI.</p>
-                                    : <p>Error executing code. Please try a different prompt.</p>
-                                }
+                                <p>Error loading completion. This is likely because you are not connected to the internet, or there is a firewall blocking OpenAI.</p>
+                            </Row>
+                        </>
+                    }
+                    {taskpaneState.type === 'error executing code' &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-ai"
+                            >
+                                    <p>
+                                        Error executing code. 
+                                        {
+                                            taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION
+                                            ? `Trying again (Attempt ${taskpaneState.attempt + 1}/${NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION})` 
+                                            : 'Please change the prompt and try again.'
+                                        }
+                                    </p>
                             </Row>
                         </>
                     }
