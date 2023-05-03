@@ -94,6 +94,14 @@ type AITransformationTaskpaneState = {
 
 const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
 
+const AILoadingCircle = (): JSX.Element => {
+    return (
+        <Col>
+            <LoadingCircle/>
+        </Col>
+    )
+}
+
 /* 
     This is the AITransformation taskpane.
 */
@@ -241,7 +249,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </>
                         )
                     })}
-                    {(taskpaneState.type === 'loading completion' || taskpaneState.type === 'executing code') &&
+                    {taskpaneState.type === 'loading completion' &&
                         <>
                             <Row
                                 justify="start" align="center"
@@ -254,15 +262,28 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
                                 <Col>
-                                    {
-                                        taskpaneState.type === 'loading completion' 
-                                            ? <p>Generating code...</p>
-                                            : <p>Executing code...</p>
-                                    }
+                                    <p>Generating code...</p>
                                 </Col>
+                                <AILoadingCircle/>
+                            </Row>
+                        </>
+                    }
+                    {taskpaneState.type === 'executing code' &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <Row
+                                justify="space-between" align="center"
+                                className="ai-transformation-message ai-transformation-message-ai"
+                            >
                                 <Col>
-                                    <LoadingCircle/>
+                                    <p>Executing code...</p>
                                 </Col>
+                                <AILoadingCircle/>
                             </Row>
                         </>
                     }
@@ -311,23 +332,29 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 <p>{taskpaneState.userInput}</p>
                             </Row>
                             <Row
-                                justify="start" align="center"
+                                justify="space-between" align="center"
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
                                 <div className="flexbox-column">
                                     <p>
-                                        Executing failed. {
+                                        Execution failed. {
                                             taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION
-                                            ? `Trying again (Attempt ${taskpaneState.attempt + 1}/${NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION})` 
-                                            : 'Please change the prompt and try again.'
+                                                ? `Trying again (Attempt ${taskpaneState.attempt + 1}/${NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION})` 
+                                                : 'Please change the prompt and try again.'
                                         }
                                     </p>
-                                    <p>
-                                        {
-                                            taskpaneState.error
-                                        }
-                                    </p>
+                                    {/** We only display the final error as otherwise it flickers too much */}
+                                    {taskpaneState.attempt >= NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION &&
+                                        <code>
+                                            {
+                                                taskpaneState.error
+                                            }
+                                        </code>
+                                    }
                                 </div>
+                                {taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION &&
+                                    <AILoadingCircle/>
+                                }
                             </Row>
                         </>
                     }

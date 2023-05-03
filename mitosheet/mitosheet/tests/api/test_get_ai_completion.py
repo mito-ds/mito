@@ -44,7 +44,8 @@ def test_get_ai_completion_with_no_api_key_works():
 
     completion = ai.get_ai_completion({
         'user_input': 'test',
-        'selection': None
+        'selection': None,
+        'previous_failed_completions': []
     }, mito.mito_backend.steps_manager)
 
     assert json.loads(completion)['user_input'] == 'test'
@@ -76,7 +77,8 @@ def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
     completion = ai.get_ai_completion({
         'user_input': 'test',
-        'selection': None
+        'selection': None,
+        'previous_failed_completions': []
     }, mito.mito_backend.steps_manager)
 
 

@@ -227,6 +227,7 @@ function activateMitosheetExtension(
             }
         }
     });
+    
 
     app.commands.addCommand('mitosheet:create-mitosheet-from-dataframe-output', {
         label: 'creates a new mitosheet from the dataframe that is printed',

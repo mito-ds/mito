@@ -117,9 +117,9 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     No changes
                 </p>
             }
-            <Row justify="space-between" align="center">
+            <Row justify="space-between" align="center" suppressTopBottomMargin>
                 <Col>
-                    <p>
+                    <p className="text-body-2">
                         How did Mito AI Assistant do?
                     </p>
                 </Col>
@@ -159,7 +159,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
 
             </Row>
             {sentFeedback !== undefined && 
-                <p>Thanks for the feedback - {sentFeedback === 'Down' ? "we're working hard to improve." : "we're glad things are working well!"}</p>
+                <p className="text-body-2">Thanks for the feedback - {sentFeedback === 'Down' ? "we're working hard to improve." : "we're glad things are working well!"}</p>
             }
         </div>
 
