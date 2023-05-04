@@ -62,7 +62,11 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     except SyntaxError as e:
         raise make_exec_error(e)
 
-    last_expression = ast_before.body[-1]
+    try:
+        last_expression = ast_before.body[-1]
+    except:
+        raise make_exec_error(Exception('No code was generated'))
+    
     if not isinstance(last_expression, ast.Expr):
         has_last_line_expression_value = False
     else:
