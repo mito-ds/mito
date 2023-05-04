@@ -15,7 +15,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, MitoError, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { CommContainer, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
@@ -753,6 +753,21 @@ export default class MitoAPI {
                 'selection': selection,
                 'previous_failed_completions': previous_failed_completions
             }
+        }, {})
+
+        if (resultString !== undefined && resultString !== '') {
+            return JSON.parse(resultString);
+        }
+        return undefined;
+    }
+
+    
+    async getParameterizableParams(): Promise<ParameterizableParams | undefined> {
+
+        const resultString = await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_parameterizable_params',
+            'params': {}
         }, {})
 
         if (resultString !== undefined && resultString !== '') {
