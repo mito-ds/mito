@@ -57,7 +57,8 @@ const ExcelRangeDynamicSection = (props: ExcelRangeDynamicSectionProps): JSX.Ele
                     'bottom left corner value': {'title': 'Bottom Left Corner Value', 'subtext': 'Mito will take all rows until it finds this exact value (including whitespace) in the first column.', 'placeholderValue': 'end value'},
                     'bottom left corner value starts with': {'title': 'Bottom Left Corner Starts With', 'subtext': 'Mito will take all rows until it finds a cell that starts with this value in the first column.', 'placeholderValue': 'end value'},
                     'bottom left corner value contains': {'title': 'Bottom Left Corner Contains', 'subtext': 'Mito will take all rows until it finds a cell that contains with this value in the first column.', 'placeholderValue': 'end value'},
-                    'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will take all rows until it finds a row with at least this number of empty cells.', 'placeholderValue': '4'},
+                    'bottom left corner consecutive empty cells': {'title': 'Number of Empty Cells in Row', 'subtext': 'Mito will take all rows until it finds a row with at least this number of empty cells.', 'placeholderValue': '4'},
+                    'bottom left corner consecutive empty cells in first column': {'title': 'Consecutive Empty in Column', 'subtext': 'Mito will take all rows until the first column has this number of empty cells in a row.', 'placeholderValue': '4'},
                     'row entirely empty': {'title': 'Row Entirely Empty', 'subtext': 'Mito will take all rows unitl it finds a row where all the columns have empty values.'},
                 }}
             />
