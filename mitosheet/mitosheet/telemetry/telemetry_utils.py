@@ -16,6 +16,8 @@ import time
 from copy import copy
 from typing import Any, Dict, Optional
 
+import requests
+
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
@@ -28,6 +30,7 @@ import analytics
 
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+analytics
 
 
 from mitosheet._version import __version__, package_name
@@ -391,4 +394,14 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
         print(
             log_event, 
             final_params
+        )
+
+    analytics_url = steps_manager.mito_config.get_analytics_url() if steps_manager is not None else None
+    if analytics_url is not None:
+        requests.post(
+            analytics_url,
+            json={
+                'user_id': get_user_field(UJ_STATIC_USER_ID),
+                'log_event': log_event
+            }
         )
