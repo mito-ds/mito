@@ -56,7 +56,7 @@ def transpile(
         all_code_chunks.append(postprocessing_code_chunk(steps_manager.curr_step.initial_defined_state, steps_manager.curr_step.final_defined_state))
 
     for code_chunk in all_code_chunks:
-        comment = '# ' + code_chunk.get_description_comment()
+        comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
         (gotten_code, code_chunk_imports) = code_chunk.get_code()
 
         # Make sure to not generate comments or code for steps with no code 

@@ -1,5 +1,4 @@
 import React from "react";
-import { ChecklistID } from "./components/checklists/checklistData";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
@@ -71,8 +70,10 @@ export enum UpdateType {
     CodeOptionsUpdate = 'code_options_update',
 }
 
-type ParamName = string;
-type ParamValue = string;
+export type ParamName = string;
+export type ParamValue = string;
+export type ParamType = 'file_name' | 'df_name'
+export type ParameterizableParams = [ParamValue, ParamType][];
 
 export type CodeOptions = {
     as_function: boolean,
@@ -777,7 +778,6 @@ export interface MitoConfig {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
-    receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
     isEnterprise: boolean;
