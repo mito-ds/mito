@@ -106,18 +106,20 @@ def get_table_range(
             if cell.row <= min_found_row_index:
                 continue
 
-            # Check if we're at the end of the column, in which case the last cell is the max
-            if cell.row == sheet.max_row:
-                max_found_row_index = cell.row - empty_count + 1 # minus b/c we don't want to take the empty cells
-                break
+            
 
             if cell.value is None:
                 empty_count += 1
             else:
                 empty_count = 0
 
+            # Check if we're at the end of the column, in which case the last cell is the max
+            if cell.row == sheet.max_row:
+                max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
+                break
+
             if empty_count == bottom_left_consecutive_empty_cells_in_first_column:
-                max_found_row_index = cell.row - empty_count + 1 # minus b/c we don't want to take the empty cells
+                max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
                 break
             
 
