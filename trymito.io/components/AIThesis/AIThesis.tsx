@@ -6,19 +6,40 @@ import { useEffect, useState } from 'react'
 
 const AIThesis = (): JSX.Element => {
     
-    const aiThesisPoints: Record<string, string> = {
-        'Chat bots are fastest, but not always': 
-            "AI powered chat bots are already the fastest way to perform simple transformations of your data, like adding filters. \
-            But transformations that require lots of configuration and iteration are still easier to do in a spreadsheet, like pivot tables. \
-            It takes more time to write out the instructions for a pivot table than it does to just build it in a spreadsheet.",
-        'Spreadsheets are prompt building champions': 
-            "The more the AI knows about your data and analysis, the better chance the AI has at generating useful code. \
-            Spreadsheets are really good at giving the AI the context it needs because they understand your data's structure, content, and edit history. \
-            This makes spreadsheets great at building prompts without requiring too much user input.",
-        'Don\'t blindly trust the machines':
-            "AI's are far from perfect, but its important that your analysis is. So you need tools to help you stay in the loop. \
-            Spreadsheets are the best tool for this because they allow you to see the data and the code side by side. \
-            This makes it easy to spot errors and understand how the AI is interpreting your data."
+    const aiThesisPoints: Record<string, JSX.Element> = {
+        'Chat bots are fastest, but not always': <div>
+            <p>
+                AI powered chat bots are already the fastest way to perform simple transformations of your data, like adding filters.
+            </p>
+            <p>
+                But transformations that require lots of configuration and iteration are still easier to do in a spreadsheet, like pivot tables.
+            </p>
+            <p>
+                It takes more time to write out the instructions for a pivot table than it does to just build it in a spreadsheet.
+            </p>
+        </div>,
+        'Spreadsheets are prompt building champions': <div>
+            <p>
+                The more the AI knows about your data and analysis, the better chance the AI has at generating useful code. 
+            </p>
+            <p>
+                Spreadsheets are really good at giving the AI the context it needs because they understand your data's structure, content, and edit history. 
+            </p>
+            <p>
+                This makes spreadsheets great at building prompts without requiring too much user input.
+            </p>
+        </div>,
+        'Don\'t blindly trust the machines': <div>
+            <p>
+                AIs are far from perfect, but its important that your analysis is. So you need tools to help you stay in the loop.
+            </p>
+            <p>
+                Spreadsheets are the best tool for this because they allow you to see the data and the code side by side.
+            </p>
+            <p>
+                This makes it easy to spot errors and understand how the AI is interpreting your data.
+            </p>
+        </div>
     }
 
     const [displayedAIThesisIdx, setDisplayedAIThesisIdx] = useState(0)
@@ -32,7 +53,7 @@ const AIThesis = (): JSX.Element => {
                     return 0
                 }
             })
-        }, 5000);
+        }, 15000);
         return () => clearInterval(interval);
     }, [])
 
@@ -46,13 +67,13 @@ const AIThesis = (): JSX.Element => {
                     {Object.keys(aiThesisPoints).map((thesisKey: string, idx: number) => {
                         const selectedClass = displayedAIThesisIdx === idx ? aiThesisStyles.ai_thesis_bullet_selected : '' 
                         return (
-                            <p 
+                            <li 
                                 onClick={() => setDisplayedAIThesisIdx(idx)}
                                 key={idx}
                                 className={aiThesisStyles.ai_thesis_bullet + ' ' + selectedClass}
                             >
                                 {thesisKey}
-                            </p>
+                            </li>
                         )
                     })}
                 </div>
