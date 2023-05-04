@@ -56,7 +56,6 @@ def get_table_range(
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
             elif upper_left_value_starts_with is not None and str(cell.value).startswith(str(upper_left_value_starts_with)):
-                print(str(cell.value), str(upper_left_value_starts_with))
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
             elif upper_left_value_contains is not None and str(upper_left_value_contains) in str(cell.value):
