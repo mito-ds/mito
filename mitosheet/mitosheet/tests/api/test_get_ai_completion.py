@@ -16,7 +16,8 @@ def test_get_ai_completion():
 
     completion = ai.get_ai_completion({
         'user_input': 'test',
-        'selection': None
+        'selection': None,
+        'previous_failed_completions': []
     }, mito.mito_backend.steps_manager)
 
     try:
