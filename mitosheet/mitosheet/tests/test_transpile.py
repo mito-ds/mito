@@ -10,7 +10,7 @@ import pandas as pd
 
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
-
+from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 
 def test_transpile_single_column():
     mito = create_mito_wrapper_with_data(['abc'])
@@ -367,3 +367,144 @@ def test_transpile_pivot_table_indents():
     
     print(mito.transpiled_code)
     assert "    pivot_table = tmp_df.pivot_table(\n        index=['Name'],\n        values=['Height'],\n        aggfunc={'Height': ['sum']}\n    )" in mito.transpiled_code
+
+
+def test_transpile_as_function_single_param(tmp_path):
+    tmp_file = str(tmp_path / 'txt.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "",
+        "def function(var_name):",
+        f"{TAB}txt = pd.read_csv(var_name)",
+        f'{TAB}',
+        f"{TAB}return txt",
+        "",
+        f"txt = function(r'{tmp_file}')"
+    ]
+
+
+def test_transpile_as_function_both_params_and_additional():
+    tmp_file = 'txt.csv'
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper(df1, str(tmp_file), arg_names=['df1', f"'{tmp_file}'"])
+    mito.simple_import([tmp_file])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        'import pandas as pd',
+        '',
+        'def function(df1, txt_path, var_name):',
+        f"{TAB}# Read in filepaths as dataframes",
+        f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
+        '    txt_1 = pd.read_csv(var_name)',
+        f'{TAB}',
+        f"{TAB}return df1, txt, txt_1",
+        "",
+        f"df1, txt, txt_1 = function(df1, 'txt.csv', r'{tmp_file}')"
+    ]
+
+    os.remove(tmp_file)
+
+def test_transpile_as_function_single_param_multiple_times(tmp_path):
+    tmp_file = str(tmp_path / 'txt.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file])
+    mito.simple_import([tmp_file])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "",
+        "def function(var_name):",
+        f"{TAB}txt = pd.read_csv(var_name)",
+        f"{TAB}txt_1 = pd.read_csv(var_name)",
+        f'{TAB}',
+        f"{TAB}return txt, txt_1",
+        "",
+        f"txt, txt_1 = function(r'{tmp_file}')"
+    ]
+
+def test_transpile_as_function_multiple_params(tmp_path):
+    tmp_file1 = str(tmp_path / 'txt.csv')
+    tmp_file2 = str(tmp_path / 'file.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file1, index=False)
+    df1.to_csv(tmp_file2, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file1])
+    mito.simple_import([tmp_file2])
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name1': f"r'{tmp_file1}'", 'var_name2': f"r'{tmp_file2}'"}})
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "",
+        "def function(var_name1, var_name2):",
+        f"{TAB}txt = pd.read_csv(var_name1)",
+        f"{TAB}file = pd.read_csv(var_name2)",
+        f'{TAB}',
+        f"{TAB}return txt, file",
+        "",
+        f"txt, file = function(r'{tmp_file1}', r'{tmp_file2}')"
+    ]
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_transpile_parameterize_excel_imports(tmp_path):
+    tmp_file = str(tmp_path / 'txt.xlsx')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_excel(tmp_file, index=False)
+
+    mito = create_mito_wrapper()
+    mito.excel_import(tmp_file, sheet_names=['Sheet1'], has_headers=True, skiprows=0)
+    mito.excel_range_import(tmp_file, {'type': 'sheet name', 'value': 'Sheet1'}, [{'type': 'range', 'df_name': 'dataframe_1', 'value': 'A1:B2'}], convert_csv_to_xlsx=False)
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        "import pandas as pd",
+        "",
+        "def function(var_name):",
+        f"{TAB}sheet_df_dictonary = pd.read_excel(var_name, engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)",
+        f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
+        f'{TAB}',
+        f"{TAB}dataframe_1 = pd.read_excel(var_name, sheet_name='Sheet1', skiprows=0, nrows=1, usecols='A:B')",
+        f'{TAB}',
+        f"{TAB}return Sheet1, dataframe_1",
+        "",
+        f"Sheet1, dataframe_1 = function(r'{tmp_file}')"
+    ]
+
+def test_transpile_with_function_params_over_mitosheet():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [2]})
+    mito = create_mito_wrapper(df1, df2, arg_names=['df', 'df_copy'])
+    mito.add_column(0, 'C')
+    mito.add_column(1, 'C')
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'param': "df"}})
+
+    
+    assert mito.transpiled_code == [
+        "",
+        "def function(param, df_copy):",
+        f"{TAB}param.insert(2, 'C', 0)",
+        f"{TAB}",
+        f"{TAB}df_copy.insert(2, 'C', 0)",
+        f"{TAB}",
+        f"{TAB}return param, df_copy",
+        "",
+        f"param, df_copy = function(df, df_copy)"
+    ]

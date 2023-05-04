@@ -385,7 +385,7 @@ class StepsManager:
                     "step_idx": index,
                     "step_type": step.step_type,
                     "step_display_name": code_chunks[0].get_display_name(),
-                    "step_description": code_chunks[0].get_description_comment(),
+                    "step_description": code_chunks[0].get_description_comment().strip().replace('\n', '\n# '),
                 }
             )
 

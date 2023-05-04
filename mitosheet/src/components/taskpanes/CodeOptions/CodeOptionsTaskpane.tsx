@@ -11,6 +11,7 @@ import Col from "../../layout/Col";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import Input from "../../elements/Input";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
+import CodeOptionsParameters from "./CodeOptionsParameters";
 
 
 interface CodeOptionsTaskpaneProps {
@@ -81,6 +82,11 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                         ></Input>
                     </Col>
                 </Row>
+                <CodeOptionsParameters
+                    mitoAPI={props.mitoAPI}
+                    codeOptions={codeOptions}
+                    setCodeOptions={setCodeOptions}
+                />
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

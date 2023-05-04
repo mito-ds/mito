@@ -14,6 +14,47 @@
     border-radius: 3px;
 }
 
+.ai-transformation-user-input-text-area {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    resize: none;
+
+    /* Auto layout */
+    padding: 5px;
+
+    background-color: var(--mito-very-light-gray);
+    border: 1px solid var(--mito-light-gray);
+    border-radius: 3px;
+
+    font-size: 13px;
+}
+
+.ai-transformation-message {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+
+    background: var(--mito-very-light-gray);
+    border: 1px solid var(--mito-light-gray);
+    border-radius: 3px;
+    border: 1px solid var(--mito-light-gray);
+
+    word-break: break-all; /* Wrap long text */
+    white-space: pre-line; /* Preserve line breaks */
+
+}
+.ai-transformation-message-user {
+    border: 1px solid var(--mito-light-gray);
+}
+.ai-transformation-message-ai {
+    background: #FEF4FF;
+}
+
 .ai-transformation-example:hover {
     border: 1px solid var(--mito-light-purple);
 }
@@ -29,4 +70,10 @@
 
 .ai-transformation-feedback-button-selected {
     background-color: var(--mito-light-gray);
+}
+
+.ai-transformation-result-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }

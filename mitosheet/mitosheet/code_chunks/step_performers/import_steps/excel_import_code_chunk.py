@@ -37,7 +37,8 @@ class ExcelImportCodeChunk(CodeChunk):
             self.decimal
         )
 
-        read_excel_line = f'sheet_df_dictonary = pd.read_excel(r\'{self.file_name}\', engine=\'openpyxl\''
+        tranpiled_file_name = column_header_to_transpiled_code(self.file_name)
+        read_excel_line = f'sheet_df_dictonary = pd.read_excel(r{tranpiled_file_name}, engine=\'openpyxl\''
         for key, value in read_excel_params.items():
             # We use this slighly misnamed function to make sure values get transpiled right
             read_excel_line += f", {key}={column_header_to_transpiled_code(value)}"
@@ -56,6 +57,9 @@ class ExcelImportCodeChunk(CodeChunk):
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.post_state.dfs) - len(self.sheet_names), len(self.post_state.dfs))]
+    
+    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+        return [(f'r{column_header_to_transpiled_code(self.file_name)}', 'file_name')]
 
     
 def build_read_excel_params(

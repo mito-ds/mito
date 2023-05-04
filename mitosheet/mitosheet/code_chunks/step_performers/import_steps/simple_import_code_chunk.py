@@ -132,3 +132,6 @@ class SimpleImportCodeChunk(CodeChunk):
             return self._combine_right_simple_import(other_code_chunk)
 
         return None
+    
+    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+        return list(zip(map(lambda x: f"r{column_header_to_transpiled_code(x)}", self.file_names), ['file_name'] * len(self.file_names)))
