@@ -136,7 +136,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
             code.append(f'xlsx_file_path = convert_csv_file_to_xlsx_file(\'{self.file_path}\', {transpiled_sheet_name})')
             transpiled_file_path = f'xlsx_file_path'
         else:
-            transpiled_file_path = f'\'{self.file_path}\''
+            transpiled_file_path = f'r\'{self.file_path}\''
 
 
         for idx, range_import in enumerate(self.range_imports):
@@ -200,4 +200,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
             return self._combine_right_with_excel_range_import_code_chunk(other_code_chunk)
 
         return None
+    
+    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+        return [(f'r{column_header_to_transpiled_code(self.file_path)}', 'file_name')]
     
