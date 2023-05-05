@@ -17,3 +17,15 @@
 .ai_thesis_bullet_selected {
     color: var(--color-purple);
 }
+
+.ai_preview_video_container {  
+    margin-top: 5rem;
+}
+
+.ai_preview_video {
+    max-width: 100%;
+    border-radius: 2rem;
+    padding: .5rem 1rem; 
+    background: var(--color-video-background);
+    border: 5px solid rgba(198, 169, 255, 0.25);
+}

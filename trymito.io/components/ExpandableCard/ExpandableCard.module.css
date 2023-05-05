@@ -1,0 +1,51 @@
+.expandable_card_container {
+    /* 
+        Reduce the padding so we can increase the size of the header to 
+        make it easily clickable w/o making it look rediculous
+    */
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+
+    /* When we scroll to a card, make sure its not cutoff by the header */
+    scroll-margin-top: 7rem; 
+
+}
+
+.expandable_card_container:hover {
+    background-color: var(--color-light-purple);
+}
+
+.expandable_card_container_selected {
+    background-color: var(--color-light-purple);
+    padding-bottom: 2rem;
+}
+
+.expandable_card_container_selected p, .expandable_card_container:hover p {
+    color: var(--color-background);
+}
+
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    height: 20px;
+}
+
+.expandable_card_container p:first-of-type {
+    margin-top: 0;
+}
+
+@media only screen and (min-width: 50em) { 
+    .expandable_card_container {
+        max-width: 70rem;
+    }
+
+    .header {
+        height: 70px;
+    }
+}

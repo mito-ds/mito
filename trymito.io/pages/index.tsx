@@ -11,27 +11,9 @@ import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
-import { useEffect, useState } from 'react';
 import AIThesis from '../components/AIThesis/AIThesis';
 
 const Home: NextPage = () => {
-
-  const jobTitles = ['analysts', 'controllers', 'associates', 'data scientists', "CTO's"]
-
-  const [jobTitleIndex, setJobTitleIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setJobTitleIndex((prevJobTitleIndex) => {
-        if (prevJobTitleIndex < jobTitles.length - 1) {
-          return prevJobTitleIndex + 1
-        } else {
-          return 0
-        }
-      })
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [])
 
   return (
     <>
@@ -51,8 +33,8 @@ const Home: NextPage = () => {
               </h1>
 
               <p className={titleStyles.description}>
-                Join thousands of bank <span className='text-color-purple'>{jobTitles[jobTitleIndex]}</span><br></br>
-                saving themselves from repetitive work. 
+                Join thousands of analysts at the world's largest banks
+                saving themselves from hours of repetitive work. 
               </p>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
@@ -121,22 +103,7 @@ const Home: NextPage = () => {
             <AIThesis/>
           </section>
 
-          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
-            <div>
-              <h2 className={homeStyles.case_study_text}>
-                Enigma’s Director of Finance saves 16 hours per month with Mito
-              </h2>
-              <TextButton 
-                text="Read Tom's Story"
-                href="https://blog.trymito.io/enigma-case-study/"
-              />
-            </div>
-            <div className={homeStyles.case_study_headshot}>
-              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
-            </div>
-          </section>
-
-          <section className={pageStyles.background_card + ' ' + homeStyles.metrics_container}>
+          <section className={homeStyles.metrics_container}>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
                 50,000+
@@ -163,6 +130,20 @@ const Home: NextPage = () => {
             </div>
           </section>
 
+          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
+            <div>
+              <h2 className={homeStyles.case_study_text}>
+                Enigma’s Director of Finance saves 16 hours per month with Mito
+              </h2>
+              <TextButton 
+                text="Read Tom's Story"
+                href="https://blog.trymito.io/enigma-case-study/"
+              />
+            </div>
+            <div className={homeStyles.case_study_headshot}>
+              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
+            </div>
+          </section>
 
           <section className={homeStyles.tweet_section}>
             <div className={homeStyles.tweet_section_header + ' center'}>

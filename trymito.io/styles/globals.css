@@ -178,6 +178,14 @@ a {
   margin-top: 3rem;
 }
 
+.margin-top-3rem {
+  margin-top: 3rem !important;
+}
+
+.margin-left-2rem {
+  margin-left: 2rem !important;
+}
+
 @media only screen and (min-width: 50em) {
   html,body {
     font-size: 16px;
