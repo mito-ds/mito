@@ -8,7 +8,7 @@ import CloseIconLight from '../../public/CloseIconLight.png'
 
 const ExpandableCard = (props: {
     title: string, 
-    shortTitle?: string
+    shortTitle: string
     className?: string,
     children: JSX.Element, 
     isOpen: boolean,
