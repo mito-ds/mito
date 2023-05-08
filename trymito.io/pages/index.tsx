@@ -33,7 +33,7 @@ const Home: NextPage = () => {
               </h1>
 
               <p className={titleStyles.description}>
-                Join thousands of analysts at the world&aspo;s largest banks
+                Join thousands of analysts at the world&apos;s largest banks
                 saving themselves from hours of repetitive work. 
               </p>
               
@@ -105,14 +105,14 @@ const Home: NextPage = () => {
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>
                 </h1>
                 <p className='display-mobile-only'> 
-                  Mito is a Jupyter extension, so you don&aspo;t need to set up any new infrastructure. 
-                  Get started with Mito in seconds. It&aspo;s easy as pip install mitosheet.
+                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. 
+                  Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Mito is a Jupyter extension, so you don&aspo;t need to set up any new infrastructure.
+                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Get started with Mito in seconds. It&aspo;s easy as <span className='code-background'>pip install mitosheet</span>
+                  Get started with Mito in seconds. It&apos;s easy as <span className='code-background'>pip install mitosheet</span>
                 </p>
 
                 <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
