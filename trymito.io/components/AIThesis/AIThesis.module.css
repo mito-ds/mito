@@ -1,3 +1,7 @@
+.ai_thesis_container {
+    margin-top: 8rem
+}
+
 .ai_thesis_bullets_container {
     border-left: 3px solid radial-gradient(164.34% 50% at 50% 50%, #9D6CFF 0%, rgba(157, 108, 255, 0) 100%);
 }
@@ -19,7 +23,7 @@
 }
 
 .ai_preview_video_container {  
-    margin-top: 5rem;
+    margin: auto;
 }
 
 .ai_preview_video {

@@ -36,6 +36,10 @@
     height: 20px;
 }
 
+.header p {
+    margin-top: 0 !important;
+}
+
 .expandable_card_container p:first-of-type {
     margin-top: 0;
 }
@@ -49,3 +53,4 @@
         height: 70px;
     }
 }
+

@@ -8,6 +8,7 @@ import CloseIconLight from '../../public/CloseIconLight.png'
 
 const ExpandableCard = (props: {
     title: string, 
+    shortTitle?: string
     className?: string,
     children: JSX.Element, 
     isOpen: boolean,
@@ -35,9 +36,13 @@ const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
             <div 
                 className={expandableCardStyles.header}
             >
-                <p><b>
+                <p className='display-desktop-only-block'><b>
                     {props.title}
                 </b></p>
+                <p className='display-mobile-only'><b>
+                    {props.title}
+                </b></p>
+                
                 
                 <div>
                     <Image
