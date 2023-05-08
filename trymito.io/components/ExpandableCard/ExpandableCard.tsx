@@ -40,7 +40,7 @@ const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
                     {props.title}
                 </b></p>
                 <p className='display-mobile-only'><b>
-                    {props.title}
+                    {props.shortTitle}
                 </b></p>
                 
                 
