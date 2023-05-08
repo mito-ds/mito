@@ -15,6 +15,7 @@
 
   --mito-light-blue: #E8EBF8;
   --mito-gray: #494650;
+  --jupyter-orange: #F37726;
 
   /* 
     We can't currently use css variables in media queries unforuntetly! 
@@ -286,6 +287,10 @@ a {
   color: var(--color-purple)
 }
 
+.text-color-jupyter-orange {
+  color: var(--jupyter-orange);
+}
+
 /* 
   Margins
 */
@@ -310,3 +315,11 @@ a {
   margin-bottom: 3rem;
 }
 
+.code-background {
+  font-family: monospace;
+  background-color: #D0D0D0;
+  color: #494650;
+  font-size: 1rem;
+  padding: .25rem .5rem;
+  border-radius: 2px;
+}

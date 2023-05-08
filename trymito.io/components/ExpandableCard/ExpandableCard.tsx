@@ -14,7 +14,7 @@ const ExpandableCard = (props: {
     onClick: () => void;
 }): JSX.Element => {
 
-    const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
+const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
     const imageAlt = props.isOpen ? 'Close Card': 'Open Card'
     const imageHeight = props.isOpen ? 5 : 20
 

@@ -15,7 +15,7 @@ const AIThesis = (): JSX.Element => {
                     Spreadsheets + AI = 👑
                 </h1>
                 <ExpandableCard 
-                    title={'Chatbots are fastest, but not always'} 
+                    title={'Chatbots are fastest'} 
                     className='margin-top-3rem'
                     isOpen={aISectionOpen===0}
                     key={0}
@@ -27,11 +27,11 @@ const AIThesis = (): JSX.Element => {
                 >
                     <p>
                         AI powered chatbots are already the fastest way to perform simple data transformations.
-                        But transformations that require lots of configuration and iteration are still easier to do in a spreadsheet, like pivot tables.
+                        But transformations that require lots of configuration and iteration, like pivot tables, are still easier in a spreadsheet.
                     </p>
                 </ExpandableCard>
                 <ExpandableCard 
-                    title={'Spreadsheets are prompt building champions'} 
+                    title={'Spreadsheets are prompt builders'} 
                     isOpen={aISectionOpen===1}
                     key={1}
                     onClick={() => {
@@ -44,7 +44,7 @@ const AIThesis = (): JSX.Element => {
                     </p>
                 </ExpandableCard>
                 <ExpandableCard 
-                    title={"Don't blindly trust the machines"} 
+                    title={"Analysts are subject matter experts"} 
                     isOpen={aISectionOpen===2}
                     key={2}
                     onClick={() => {
@@ -52,7 +52,7 @@ const AIThesis = (): JSX.Element => {
                     }}
                 >
                     <p>
-                        AIs are far from perfect, but its important that your analysis is. So you need tools to help you stay in the loop.
+                        AIs are far from perfect, but its important that your analysis is.
                         Spreadsheets are the most efficient tool for catching and correcting the AI's mistakes.
                     </p>
                 </ExpandableCard>

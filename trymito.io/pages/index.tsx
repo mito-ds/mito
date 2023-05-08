@@ -67,8 +67,8 @@ const Home: NextPage = () => {
                   Stop sitting through Python trainings or waiting for IT support. 
                   Take automation into your own hands using the tools you already know.
                 </p>
-                <a href="https://docs.trymito.io/how-to/using-the-generated-code" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn More →
+                <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  View all 100+ transformations →
                 </a>
               </div>
               <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
@@ -78,7 +78,7 @@ const Home: NextPage = () => {
           
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
-                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
                 <h1>
@@ -86,17 +86,41 @@ const Home: NextPage = () => {
                 </h1>
                 <p className='display-mobile-only'>
                   Just say the word. The Mito AI assistant will write the code.
-                  Create pivot tables, write formulas, filter, and much more. 
                 </p>
                 <p className='display-desktop-only-inline-block'>
                   Just say the word. The Mito AI assistant will write the code.
                 </p>
-                <a href="https://docs.trymito.io/how-to/pivot-tables" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn More →
+                <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  Learn more about Mito AI →
                 </a>
               </div>
               <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
-                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
+
+            <div className={pageStyles.subsection}>
+              <div className={homeStyles.functionality_text}>
+                <h1>
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span>
+                </h1>
+                <p className='display-mobile-only'> 
+                  Mito is a Jupyter extension, so you don't need to set up any new infrastructure. 
+                  Get started with Mito in seconds. It's easy as pip install mitosheet.
+                </p>
+                <p className='display-desktop-only-inline-block'>
+                  Mito is a Jupyter extension, so you don't need to set up any new infrastructure.
+                </p>
+                <p className='display-desktop-only-inline-block'>
+                  Get started with Mito in seconds. It's easy as <span className='code-background'>pip install mitosheet</span>
+                </p>
+
+                <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  Download Mito for Jupyter →
+                </a>
+              </div>
+              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+                <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
