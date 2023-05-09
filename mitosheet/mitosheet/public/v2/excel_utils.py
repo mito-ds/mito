@@ -98,16 +98,13 @@ def get_table_range(
                 (row_entirely_empty is not None and empty_count >= len(row)):
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
                 break
-<<<<<<< HEAD
             
     # Check for number of empty cells conditions for columns
-    if bottom_left_consecutive_empty_cells_in_first_column is not None:
+    if max_found_row_index is None and bottom_left_consecutive_empty_cells_in_first_column is not None:
         empty_count = 0
         for cell in column:
             if cell.row <= min_found_row_index:
                 continue
-
-            
 
             if cell.value is None:
                 empty_count += 1
@@ -123,7 +120,6 @@ def get_table_range(
                 max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
                 break
             
-=======
 
     if max_found_row_index is None and number_of_empty_rows is not None:
         num_empty = 0
@@ -134,7 +130,10 @@ def get_table_range(
             
             if num_empty >= number_of_empty_rows:
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
->>>>>>> a15d9aab (mitosheet: begin adding number of empty rows)
+                break
+            if row[0].row == sheet.max_row:
+                max_found_row_index = row[0].row # Stop at the end as well
+                break
 
 
     # Then check for other ending conditions
