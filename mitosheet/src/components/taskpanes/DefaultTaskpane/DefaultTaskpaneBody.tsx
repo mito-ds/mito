@@ -43,6 +43,7 @@ const DefaultTaskpaneBody = (
             message?: string,
             featureName: string,
             mitoAPI: MitoAPI
+            enabledForEnterprisePackages?: 'mitosheet-private' | undefined
         }
 
         /**
@@ -52,8 +53,11 @@ const DefaultTaskpaneBody = (
 
     }): JSX.Element => {
 
+
     const shouldPromptProUpgrade = !props.userProfile?.isPro && props.requiresPro !== undefined;
-    const shouldPromptEnterpriseUpgrade = !props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined;
+
+    const enableFeatureForEnterprise = props.requiresEnterprise?.enabledForEnterprisePackages === props.userProfile?.enterprisePackageName
+    const shouldPromptEnterpriseUpgrade = !enableFeatureForEnterprise && !props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined;
 
     return (
         <>
@@ -65,12 +69,12 @@ const DefaultTaskpaneBody = (
                     featureName={props.requiresPro.featureName}
                 />
             }
-            {!props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined &&
+            {!enableFeatureForEnterprise && !props.userProfile?.isEnterprise && props.requiresEnterprise !== undefined &&
                 <MitoUpgradePrompt
-                    message={props.requiresEnterprise.message}
+                    message={props.requiresEnterprise?.message}
                     proOrEnterprise='Enterprise'
-                    mitoAPI={props.requiresEnterprise.mitoAPI}
-                    featureName={props.requiresEnterprise.featureName}
+                    mitoAPI={props.requiresEnterprise?.mitoAPI}
+                    featureName={props.requiresEnterprise?.featureName}
                 />
             }
             <div 

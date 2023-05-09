@@ -781,6 +781,7 @@ export interface UserProfile {
 
     isPro: boolean;
     isEnterprise: boolean;
+    enterprisePackageName: 'mitosheet-private' | undefined;
 
     pandasVersion: string;
     pythonVersion: string;

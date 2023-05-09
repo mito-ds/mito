@@ -6,7 +6,7 @@ import TextButton from './TextButton';
 const MitoUpgradePrompt = (props: {
     message: string | undefined;
     proOrEnterprise: 'Pro' | 'Enterprise'
-    mitoAPI: MitoAPI
+    mitoAPI?: MitoAPI
     featureName?: string
 }): JSX.Element => {
 
@@ -16,7 +16,7 @@ const MitoUpgradePrompt = (props: {
 
     useEffect(() => {
         const logEventType = props.proOrEnterprise === 'Pro' ? 'prompted_pro_upgrade' : 'prompted_enterprise_upgrade';
-        void props.mitoAPI.log(logEventType, {feature: props.featureName});
+        void props.mitoAPI?.log(logEventType, {feature: props.featureName});
     }, [])
 
     return (

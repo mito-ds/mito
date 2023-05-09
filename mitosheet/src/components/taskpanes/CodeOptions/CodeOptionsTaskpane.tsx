@@ -43,7 +43,8 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
             <DefaultTaskpaneBody
                 requiresEnterprise={{
                     featureName: "code_options",
-                    mitoAPI: props.mitoAPI
+                    mitoAPI: props.mitoAPI,
+                    enabledForEnterprisePackages: 'mitosheet-private'
                 }}
                 userProfile={props.userProfile}
             >

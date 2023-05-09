@@ -12,7 +12,7 @@ import hashlib
 import os
 from datetime import datetime
 import sys
-from typing import Optional
+from typing import Literal, Optional
 
 import pandas as pd
 from mitosheet._version import __version__, package_name
@@ -87,7 +87,11 @@ def is_pro() -> bool:
 
     return pro if pro is not None else False
 
+def get_enterprise_package_name() -> Optional[Literal['mitosheet-private']]:
+    if package_name == 'mitosheet-private':
+        return 'mitosheet-private'
 
+    return None
 
 def is_local_deployment() -> bool:
     """
