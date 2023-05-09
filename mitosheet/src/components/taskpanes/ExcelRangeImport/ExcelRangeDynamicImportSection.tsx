@@ -59,6 +59,7 @@ const ExcelRangeDynamicSection = (props: ExcelRangeDynamicSectionProps): JSX.Ele
                     'bottom left corner value contains': {'title': 'Bottom Left Corner Contains', 'subtext': 'Mito will take all rows until it finds a cell that contains with this value in the first column.', 'placeholderValue': 'end value'},
                     'bottom left corner consecutive empty cells': {'title': 'Consecutive Empty Cells', 'subtext': 'Mito will take all rows until it finds a row with at least this number of empty cells.', 'placeholderValue': '4'},
                     'row entirely empty': {'title': 'Row Entirely Empty', 'subtext': 'Mito will take all rows unitl it finds a row where all the columns have empty values.'},
+                    'number of empty rows': {'title': 'Number of Empty Rows', 'subtext': 'Mito will take all rows unitl it finds a this number of empty rows. They do not need to be consecutive.', 'placeholderValue': '4'},
                 }}
             />
             <Spacer px={10} seperatingLine/>
