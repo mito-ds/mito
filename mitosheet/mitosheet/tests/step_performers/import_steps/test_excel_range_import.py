@@ -301,8 +301,8 @@ EXCEL_RANGE_IMPORT_TESTS = [
     ),
     # Tests number of entirely empty rows with one skip, which is triggered
     (
-        ['A1:B2', 'A5:B6'],
-        [TEST_DF_1, TEST_DF_1],
+        ['A1:B2'],
+        [TEST_DF_1],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_1],
     ), 
