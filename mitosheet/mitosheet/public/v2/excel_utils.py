@@ -19,7 +19,8 @@ def get_table_range(
         sheet_index: Optional[int]=None, 
         upper_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         upper_left_value_contains: Optional[Union[str, int, float, bool]]=None,
-        bottom_left_corner_consecutive_empty_cells: Optional[int]=None,
+        bottom_left_corner_consecutive_empty_cells: Optional[int]=None, # TODO: at some point, we should rename this to num_empty_cells_in_final_row
+        bottom_left_consecutive_empty_cells_in_first_column: Optional[int]=None,
         bottom_left_value: Optional[Union[str, int, float, bool]]=None, 
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
@@ -42,14 +43,6 @@ def get_table_range(
     else:
         sheet = workbook.worksheets[sheet_index] # type : ignore
 
-    # Check exactly one of the start conditions is defined
-    if sum([1 if x is not None else 0 for x in [upper_left_value, upper_left_value_starts_with, upper_left_value_contains]]) != 1:
-        raise ValueError('Exactly one of upper_left_value, upper_left_value_starts_with, upper_left_value_contains must be defined')
-
-    # Check at most 1 one of the end conditions is defined
-    if sum([1 if x is not None else 0 for x in [bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains, bottom_left_corner_consecutive_empty_cells]]) > 1:
-        raise ValueError('At most one of bottom_left_value, bottom_left_value_starts_with, bottom_left_value_contains must be defined')
-
     # We get the last defined rows, so we don't waste time searching data we don't need
     dimension = sheet.calculate_dimension()
     (min_search_col, min_search_row), (max_search_col, max_search_row) = get_col_and_row_indexes_from_range(dimension)
@@ -63,11 +56,10 @@ def get_table_range(
             if upper_left_value is not None and cell.value == upper_left_value:
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
-            elif upper_left_value_starts_with is not None and str(cell.value).startswith(str(upper_left_value_starts_with)):
-                print(str(cell.value), str(upper_left_value_starts_with))
+            if upper_left_value_starts_with is not None and str(cell.value).startswith(str(upper_left_value_starts_with)):
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
-            elif upper_left_value_contains is not None and str(upper_left_value_contains) in str(cell.value):
+            if upper_left_value_contains is not None and str(upper_left_value_contains) in str(cell.value):
                 min_found_col_index, min_found_row_index = cell.column, cell.row
                 break
         
@@ -98,7 +90,7 @@ def get_table_range(
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
 
-    # Check for number of empty cells conditions
+    # Check for number of empty cells conditions for rows
     if bottom_left_corner_consecutive_empty_cells is not None or row_entirely_empty is not None:
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
             empty_count = sum([1 if c.value is None else 0 for c in row])
@@ -107,6 +99,7 @@ def get_table_range(
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
                 break
 
+    
     if max_found_row_index is None and number_of_empty_rows is not None:
         num_empty = 0
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
@@ -116,33 +109,65 @@ def get_table_range(
             
             if num_empty >= number_of_empty_rows:
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
+                break
+            if row[0].row == sheet.max_row: # If we hit the end, then stop here, as this all empty rows
+                max_found_row_index = row[0].row
+                break
 
+        assert max_found_row_index is not None, 'Could not find the max row index'
+
+            
+    # Check for number of empty cells conditions for columns
+    if max_found_row_index is None and bottom_left_consecutive_empty_cells_in_first_column is not None:
+        empty_count = 0
+        for cell in column:
+            if cell.row <= min_found_row_index:
+                continue            
+
+            if cell.value is None:
+                empty_count += 1
+            else:
+                empty_count = 0
+
+            # Check if we're at the end of the column, in which case the last cell is the max
+            if cell.row == sheet.max_row:
+                max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
+                break
+
+            if empty_count == bottom_left_consecutive_empty_cells_in_first_column:
+                max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
+                break
+            
 
     # Then check for other ending conditions
     if max_found_row_index is None:
         for cell in column:
-            if cell.row < min_found_row_index:
+            if cell.row <= min_found_row_index:
                 continue
             
             # Stop as soon as we match the final value
-            if bottom_left_value is None and cell.value is None:
+            if bottom_left_value is not None and bottom_left_value == cell.value:
+                max_found_row_index = cell.row
+                break
+            if bottom_left_value_starts_with is not None and str(cell.value).startswith(str(bottom_left_value_starts_with)):
+                max_found_row_index = cell.row
+                break
+            if bottom_left_value_contains is not None and str(bottom_left_value_contains) in str(cell.value):
+                max_found_row_index = cell.row
+                break
+            # NOTE: IF you add more conditions here, then add them to the condition below as well checking they are None
+            # so that we can continue to handle the default case of finding the first empty cells
+            if (bottom_left_value is None) and (bottom_left_value_starts_with is None) and (bottom_left_value_contains is None) \
+                  and cell.value is None: 
+                # NOTE: Check this condition last, as it's the final end condition, and for backwards compatibility
+                # this means that the user is looking for the first empty cell. NOTE
                 max_found_row_index = cell.row - 1 # minus b/c this is one past the end
-                break
-            elif bottom_left_value == cell.value:
-                max_found_row_index = cell.row
-                break
-            elif bottom_left_value_starts_with is not None and str(cell.value).startswith(str(bottom_left_value_starts_with)):
-                max_found_row_index = cell.row
-                break
-            elif bottom_left_value_contains is not None and str(bottom_left_value_contains) in str(cell.value):
-                max_found_row_index = cell.row
                 break
 
     # If we looped over the entire column without ending, then we set the max row index
     # as the length of the entire column
     if max_found_row_index is None:
         max_found_row_index = len(column)
-
 
     return f'{get_column_from_column_index(min_found_col_index - 1)}{min_found_row_index}:{get_column_from_column_index(max_found_col_index - 1)}{max_found_row_index}'
 
