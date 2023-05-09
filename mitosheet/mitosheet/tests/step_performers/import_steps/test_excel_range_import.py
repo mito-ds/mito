@@ -257,6 +257,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'row entirely empty'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_7],
     ), 
+<<<<<<< HEAD
     # Doesn't check starting cell for contains, and skips NaN values if the bottom left corner value is in the import code
     (
         ['A1:A3'],
@@ -277,6 +278,28 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_8],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells in first column', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_8],
+=======
+    # Tests number of entirely empty rows with one skip
+    (
+        ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, 'header 1', 1], 'header 2': [2, None, 'header 2', 2]})],
+    ), 
+    # Tests number of entirely empty rows with two skips
+    (
+        ['A1:B2', 'A5:B6'],
+        [TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, None, 'header 1', 1], 'header 2': [2, None, None, 'header 2', 2]})],
+    ), 
+    # Tests number of entirely empty rows hits the end of the sheet
+    (
+        ['A1:B2'],
+        [TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 10}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_1],
+>>>>>>> a15d9aab (mitosheet: begin adding number of empty rows)
     ), 
     
 ]
