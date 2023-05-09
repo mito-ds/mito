@@ -25,6 +25,7 @@ def get_table_range(
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
         row_entirely_empty: Optional[bool]=None,
+        cumulative_number_of_empty_rows: Optional[int]=None,
         num_columns: Optional[int]=None
 ) -> Optional[str]:
     """
@@ -69,7 +70,7 @@ def get_table_range(
     if min_found_col_index is None or min_found_row_index is None:
         return None
 
-    # Then we find find where the rows are defined to
+    # Then we find find where the columns are defined to
     if num_columns is None:
         max_found_col_index = None
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=min_found_row_index, min_col=min_found_col_index):
@@ -85,7 +86,7 @@ def get_table_range(
     if max_found_col_index is None:
         max_found_col_index = max_search_col
 
-    # Then we find the max column index
+    # Then we find the max row index
     column = sheet[get_column_from_column_index(min_found_col_index - 1)] # We need to subtract 1 as we 0 index
     max_found_row_index = None
 
@@ -99,13 +100,11 @@ def get_table_range(
                 break
             
     # Check for number of empty cells conditions for columns
-    if bottom_left_consecutive_empty_cells_in_first_column is not None:
+    if max_found_row_index is None and bottom_left_consecutive_empty_cells_in_first_column is not None:
         empty_count = 0
         for cell in column:
             if cell.row <= min_found_row_index:
                 continue
-
-            
 
             if cell.value is None:
                 empty_count += 1
@@ -121,6 +120,20 @@ def get_table_range(
                 max_found_row_index = cell.row - empty_count # minus b/c we don't want to take the empty cells
                 break
             
+
+    if max_found_row_index is None and cumulative_number_of_empty_rows is not None:
+        num_empty = 0
+        for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
+            is_empty_row = all([c.value is None for c in row])
+            if is_empty_row:
+                num_empty += 1
+            
+            if num_empty >= cumulative_number_of_empty_rows:
+                max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
+                break
+            if row[0].row == sheet.max_row:
+                max_found_row_index = row[0].row # Stop at the end as well
+                break
 
 
     # Then check for other ending conditions
