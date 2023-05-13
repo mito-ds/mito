@@ -1,7 +1,7 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
 import MitoAPI from '../../../jupyter/api'
-import { EditorState, GridState, SheetData, UIState } from '../../../types';
+import { AnalysisData, EditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
 import CellEditor from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
@@ -32,6 +32,7 @@ const FloatingCellEditor = (props: {
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    analysisData: AnalysisData
 }): JSX.Element => {
 
     const [editorStyle, setEditorStyle] = useState<EditorStyle>({
@@ -154,6 +155,7 @@ const FloatingCellEditor = (props: {
                 mitoAPI={props.mitoAPI}
                 currentSheetView={currentSheetView}
                 closeOpenEditingPopups={props.closeOpenEditingPopups}
+                analysisData={props.analysisData}
             />
         </div>
     )

@@ -57,6 +57,10 @@ export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
         nameString = nameString.split('view_df')[0].trim();
     }
 
+    if (nameString.includes('sheet_functions')) {
+        nameString = nameString.split('sheet_functions')[0].trim();
+    }
+
     // Get the args and trim them up
     let args = nameString.split(',').map(dfName => dfName.trim());
     

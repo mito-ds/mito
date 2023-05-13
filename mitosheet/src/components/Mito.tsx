@@ -938,6 +938,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             mitoContainerRef={mitoContainerRef}
                             closeOpenEditingPopups={closeOpenEditingPopups}
                             commCreationStatus={commCreationStatus}
+                            analysisData={analysisData}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

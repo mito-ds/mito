@@ -14,6 +14,8 @@ import time
 from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union
 
+from traitlets import Callable
+
 import numpy as np
 import pandas as pd
 from ipykernel import get_connection_file
@@ -50,7 +52,7 @@ class MitoBackend():
     """
     mito_comm: Optional[Comm] = None
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None):
+    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None, user_defined_functions: Optional[List[Callable]]=None):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -62,7 +64,7 @@ class MitoBackend():
         self.mito_config = MitoConfig() # type: ignore
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay)
+        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions)
 
         # And the api
         self.api = API(self.steps_manager, self)
@@ -285,10 +287,11 @@ def get_mito_backend(
         *args: Any,
         comm_target_id: str='',
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
+        user_defined_functions: Optional[List[Callable]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
-    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay) 
+    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions) 
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -343,13 +346,13 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
 
     return js_code
 
-
 def sheet(
         *args: Any,
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
+        sheet_functions: Optional[List[Callable]]=None,
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -375,6 +378,7 @@ def sheet(
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
 
+
     # If the user.json does not exist, we create it. This ensures if the file is deleted in between
     # when the package is imported and mitosheet.sheet is called, the user still gets a user.json. 
     # We don't need to upgrade as creating the file will automatically use the most recent version
@@ -387,12 +391,12 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
-        mito_backend = get_mito_backend(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay)
+        mito_backend = get_mito_backend(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay, user_defined_functions=sheet_functions)
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs
         if mito_backend.steps_manager.data_type_in_mito == DataTypeInMito.PERSONAL:
-            log('used_personal_data') 
+            log('used_personal_data')
 
     except:
         log('mitosheet_sheet_call_failed', failed=True)

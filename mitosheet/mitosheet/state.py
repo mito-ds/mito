@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Collection, List, Dict, Optional
+from typing import Any, Callable, Collection, List, Dict, Optional
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
@@ -45,6 +45,30 @@ def get_default_dataframe_format() -> DataframeFormat:
     }
 
 
+def check_valid_sheet_functions(
+        sheet_functions: Optional[List[Callable]]=None,
+    ):
+    if sheet_functions is None:
+        return
+    for sheet_function in sheet_functions:
+        if not callable(sheet_function):
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is not callable.")
+        
+        # Check if has a __name__ attribute
+        if not hasattr(sheet_function, '__name__'):
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which does not have a __name__ attribute. Please use a named function instead.")
+        
+        if sheet_function.__name__ == '<lambda>':
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is a lambda function. Please use a named function instead.")
+        
+        # Check the name is all caps
+        if not sheet_function.__name__.isupper():
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which has a name that is not all caps. Please use a named function instead.")
+    
+
+
+
+
 class State:
     """
     State is a container that stores the current state of a Mito analysis,
@@ -66,6 +90,7 @@ class State:
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
         graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None,
+        user_defined_functions: Optional[List[Callable]]=None
     ):
 
         # The dataframes that are in the state
@@ -134,6 +159,12 @@ class State:
         # This is helpful for undoing, for example. 
         self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
+        # User defined functions. Check them for validity, and wrap them in the correct wrappers
+        from mitosheet.public.v3.errors import handle_sheet_function_errors
+        check_valid_sheet_functions(user_defined_functions)
+        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
+        self.user_defined_functions = user_defined_functions if user_defined_functions is not None else {}
+
     def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":
         """
         Returns a copy of the state, while only making deep copies of
@@ -151,7 +182,8 @@ class State:
             column_formulas=deepcopy(self.column_formulas),
             column_filters=deepcopy(self.column_filters),
             df_formats=deepcopy(self.df_formats),
-            graph_data_dict=deepcopy(self.graph_data_dict)
+            graph_data_dict=deepcopy(self.graph_data_dict),
+            user_defined_functions=deepcopy(self.user_defined_functions)
         )
 
     def add_df_to_state(

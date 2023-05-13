@@ -8,7 +8,7 @@ import json
 import random
 import string
 from copy import copy, deepcopy
-from typing import Any, Collection, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -169,7 +169,13 @@ class StepsManager:
     and parameters stay the same and are append-only.
     """
 
-    def __init__(self, args: Collection[Union[pd.DataFrame, str]], mito_config: MitoConfig, analysis_to_replay: Optional[str]=None):
+    def __init__(
+            self, 
+            args: Collection[Union[pd.DataFrame, str]], 
+            mito_config: MitoConfig, 
+            analysis_to_replay: Optional[str]=None,
+            user_defined_functions: Optional[List[Callable]]=None,
+        ):
         """
         When initalizing the StepsManager, we also do preprocessing
         of the arguments that were passed to the mitosheet.
@@ -204,7 +210,7 @@ class StepsManager:
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args), {})
+            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions), {})
         ]
 
         """
@@ -342,6 +348,7 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
                 'codeOptions': self.code_options,
+                'userFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
             },
             cls=NpEncoder
         )

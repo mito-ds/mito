@@ -743,6 +743,7 @@ export interface AnalysisData {
     lastResult: any;
     experiment: Experiment | undefined;
     codeOptions: CodeOptions;
+    userFunctions: string[];
 }
 
 export interface MitoConfig {

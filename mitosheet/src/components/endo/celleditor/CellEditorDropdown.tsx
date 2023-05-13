@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../../../css/endo/CellEditor.css';
 import { FunctionDocumentationObject } from '../../../data/function_documentation';
-import { EditorState, SheetData } from '../../../types';
+import { AnalysisData, EditorState, SheetData } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
@@ -37,6 +37,7 @@ export const getDisplayedDropdownType = (
     selectionStart: number | null | undefined,
     cellEditorError: string | undefined,
     loading: boolean,
+    analysisData: AnalysisData,
 ): DisplayedDropdownType | undefined => {
 
     const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
@@ -45,7 +46,7 @@ export const getDisplayedDropdownType = (
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);
-    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength);
+    const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength, analysisData);
 
     const documentationFunction = getDocumentationFunction(fullFormula, selectionStart);
 

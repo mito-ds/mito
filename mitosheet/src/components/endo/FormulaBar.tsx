@@ -6,7 +6,7 @@ import React from 'react';
 import "../../../css/FormulaBar.css";
 import "../../../css/mito.css";
 import MitoAPI from '../../jupyter/api';
-import { EditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
+import { AnalysisData, EditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
@@ -29,6 +29,7 @@ const FormulaBar = (props: {
     mitoAPI: MitoAPI,
     selection: MitoSelection,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    analysisData: AnalysisData
 }): JSX.Element => {
 
     const rowIndex = props.selection.startingRowIndex
@@ -83,6 +84,7 @@ const FormulaBar = (props: {
                         mitoAPI={props.mitoAPI}
                         currentSheetView={currentSheetView}
                         closeOpenEditingPopups={props.closeOpenEditingPopups}
+                        analysisData={props.analysisData}
                     />
                 } 
                 {props.editorState?.editorLocation !== 'formula bar' &&
