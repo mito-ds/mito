@@ -12,8 +12,16 @@ import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
+import { useEffect, useState } from 'react';
 
 const Home: NextPage = () => {
+
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {setCopied(false)}, 3000)
+    }
+  }, [copied])
 
   return (
     <>
@@ -85,10 +93,10 @@ const Home: NextPage = () => {
                   <span className='text-highlight'>Transform</span> your data with AI
                 </h1>
                 <p className='display-mobile-only'>
-                  Just say the word. The Mito AI assistant will write the code.
+                  Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Just say the word. The Mito AI assistant will write the code.
+                  Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
                 <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                   Learn more about Mito AI →
@@ -112,7 +120,14 @@ const Home: NextPage = () => {
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Get started with Mito in seconds. It&apos;s easy as <span className='code-background'>pip install mitosheet</span>
+                  Get started with Mito in seconds. It&apos;s easy as &nbsp;
+                  <span className='code-background' onClick={async () => {
+                    // Copy to clickboard on click
+                    await navigator.clipboard.writeText('pip install mitosheet');
+                    setCopied(true);
+                  }}>
+                    pip install mitosheet
+                  </span> {copied && "- copied!"}
                 </p>
 
                 <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
@@ -124,8 +139,9 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <AIThesis/>
           </section>
+          
+          <AIThesis/>
 
           <section className={homeStyles.metrics_container}>
             <div className={homeStyles.metric_container}>

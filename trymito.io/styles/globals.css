@@ -328,3 +328,7 @@ a {
   padding: .25rem .5rem;
   border-radius: 2px;
 }
+
+.code-background:hover {
+  background-color: var(--color-light-purple);
+}
