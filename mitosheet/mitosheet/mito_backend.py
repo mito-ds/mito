@@ -12,9 +12,7 @@ import os
 import re
 import time
 from sysconfig import get_python_version
-from typing import Any, Dict, List, Optional, Union
-
-from traitlets import Callable
+from typing import Any, Dict, List, Optional, Union, Callable
 
 import numpy as np
 import pandas as pd
