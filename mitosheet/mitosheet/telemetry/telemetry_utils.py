@@ -30,7 +30,6 @@ import analytics
 
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
-analytics
 
 
 from mitosheet._version import __version__, package_name
