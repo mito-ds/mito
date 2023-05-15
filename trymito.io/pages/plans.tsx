@@ -243,6 +243,14 @@ const TRANSFORMATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+  {
+    feature: 'User Defined Functions',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
 ]
 
 const CODE_GENERATION_FEATURES: Feature[] = [
