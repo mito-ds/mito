@@ -11,6 +11,7 @@ import pandas as pd
 from mitosheet.column_headers import ColumnIDMap
 from mitosheet.types import FrontendFormulaAndLocation
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
+from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
@@ -50,6 +51,10 @@ def check_valid_sheet_functions(
     ):
     if sheet_functions is None:
         return
+    
+    if not is_enterprise() and not is_running_test():
+        raise ValueError("sheet_functions are only supported in the enterprise version of Mito.")
+
     for sheet_function in sheet_functions:
         if not callable(sheet_function):
             raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is not callable.")
