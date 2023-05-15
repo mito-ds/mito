@@ -1,5 +1,9 @@
 .ai_thesis_container {
-    margin-top: 8rem
+    margin-top: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
 }
 
 .ai_thesis_bullets_container {

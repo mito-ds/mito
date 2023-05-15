@@ -9,22 +9,21 @@ const AIThesis = (): JSX.Element => {
     const [aISectionOpen, setAISectionOpen] = useState<number| undefined>(undefined)
 
     return (
+
         <div className={pageStyles.background_card + ' ' + aiThesisStyles.ai_thesis_container}>
             <h1 className='margin-left-2rem'>
-                Spreadsheets + AI = 👑
+                Built for AI automation
             </h1>
             <div className={pageStyles.subsection + ' ' + pageStyles.subsection_narrow_space_betweeen}>
                 <div>
                     <ExpandableCard 
-                        title={'Chatbots are fastest, sometimes'}
-                        shortTitle={'Chatbots are fastest'} 
+                        title={'Sometimes chatbots, sometimes spreadsheets'}
+                        shortTitle={'Sometimes chatbots, sometimes spreadsheets'} 
                         className='margin-top-3rem'
                         isOpen={aISectionOpen===0}
                         key={0}
                         onClick={() => {
-                            setAISectionOpen((prevAISectionOPen) => {
-                                return prevAISectionOPen !== 0 ? 0 : undefined
-                            })
+                            setAISectionOpen(aISectionOpen !== 0 ? 0 : undefined)
                         }}
                     >
                         <p>
@@ -33,22 +32,8 @@ const AIThesis = (): JSX.Element => {
                         </p>
                     </ExpandableCard>
                     <ExpandableCard 
-                        title={'Spreadsheets are prompt builders'} 
-                        shortTitle={'Spreadsheets build prompts'}
-                        isOpen={aISectionOpen===1}
-                        key={1}
-                        onClick={() => {
-                            setAISectionOpen(aISectionOpen !== 1 ? 1 : undefined)
-                        }}
-                    >
-                        <p>
-                            The more the AI knows about your data and analysis, the better chance the code it generates is useful. 
-                            Spreadsheets are really good at giving the AI the context it needs because they understand your data&apos;s structure, content, and edit history. 
-                        </p>
-                    </ExpandableCard>
-                    <ExpandableCard 
-                        title={"Analysts are subject matter experts"}
-                        shortTitle={"Analysts are SMEs"} 
+                        title={"Analysts stay in control"}
+                        shortTitle={"Analysts stay in control"} 
                         isOpen={aISectionOpen===2}
                         key={2}
                         onClick={() => {
@@ -60,6 +45,22 @@ const AIThesis = (): JSX.Element => {
                             Spreadsheets are the most efficient tool for catching and correcting the AI&apos;s mistakes.
                         </p>
                     </ExpandableCard>
+                    
+                    <ExpandableCard 
+                        title={'Spreadsheets improve AI performance'} 
+                        shortTitle={'Spreadsheets improve AI performance'}
+                        isOpen={aISectionOpen===1}
+                        key={1}
+                        onClick={() => {
+                            setAISectionOpen(aISectionOpen !== 1 ? 1 : undefined)
+                        }}
+                    >
+                        <p>
+                            The more the AI knows about your data and analysis, the better chance the code it generates is useful. 
+                            Spreadsheets are really good at giving the AI the context it needs because they understand your data&apos;s structure, content, and edit history. 
+                        </p>
+                    </ExpandableCard>
+                    
                 </div>
 
                 <div className={aiThesisStyles.ai_preview_video_container}>
