@@ -101,6 +101,7 @@ export interface StepSummary {
     // each of the different steps, and type these more strongly!
     // Currently, we aren't sending this data!
     params?: Record<string, unknown>;
+    result?: any;
 }
 
 /**
