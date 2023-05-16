@@ -12,7 +12,7 @@ from mitosheet.column_headers import ColumnIDMap
 from mitosheet.types import FrontendFormulaAndLocation
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.user.utils import is_enterprise, is_running_test
-from mitosheet.utils import get_first_unused_dataframe_name
+from mitosheet.utils import check_valid_sheet_functions, get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
 DATAFRAME_SOURCE_PASSED = "passed"  # passed in mitosheet.sheet
@@ -44,34 +44,6 @@ def get_default_dataframe_format() -> DataframeFormat:
         "border": {},
         "conditional_formats": []
     }
-
-
-def check_valid_sheet_functions(
-        sheet_functions: Optional[List[Callable]]=None,
-    ):
-    if sheet_functions is None:
-        return
-    
-    if not is_enterprise() and not is_running_test():
-        raise ValueError("sheet_functions are only supported in the enterprise version of Mito.")
-
-    for sheet_function in sheet_functions:
-        if not callable(sheet_function):
-            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is not callable.")
-        
-        # Check if has a __name__ attribute
-        if not hasattr(sheet_function, '__name__'):
-            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which does not have a __name__ attribute. Please use a named function instead.")
-        
-        if sheet_function.__name__ == '<lambda>':
-            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is a lambda function. Please use a named function instead.")
-        
-        # Check the name is all caps
-        if not sheet_function.__name__.isupper():
-            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which has a name that is not all caps. Please use a named function instead.")
-    
-
-
 
 
 class State:
@@ -165,8 +137,9 @@ class State:
         self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
         # User defined functions. Check them for validity, and wrap them in the correct wrappers
-        from mitosheet.public.v3.errors import handle_sheet_function_errors
         check_valid_sheet_functions(user_defined_functions)
+
+        from mitosheet.public.v3.errors import handle_sheet_function_errors
         user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
         self.user_defined_functions = user_defined_functions if user_defined_functions is not None else {}
 
