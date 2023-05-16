@@ -67,3 +67,14 @@ def test_sheet_functions_with_non_caps_error():
         mito = create_mito_wrapper(df, sheet_functions=[lower])
 
 
+def test_pass_sheet_function_returns_list():
+    def COLUMN_SUM(df):
+        return [df.sum() for x in range(len(df))]
+
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, sheet_functions=[COLUMN_SUM])
+
+    mito.set_formula('=COLUMN_SUM(A0)', 0, 'B', add_column=True)
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 6, 6]}))
+
+
