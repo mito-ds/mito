@@ -23,7 +23,7 @@ export const getSelectionForCompletion = (uiState: UIState, gridState: GridState
     }
 }
 
-const DEFAULT_CHAT_HEIGHT = 35;
+const DEFAULT_CHAT_HEIGHT = 30;
 const MAX_CHAT_HEIGHT = 100;
 
 export const getChatHeight = (userInput: string, chatInputRef: React.MutableRefObject<HTMLTextAreaElement | null>): number => {
