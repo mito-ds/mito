@@ -143,7 +143,7 @@ const Home: NextPage = () => {
           
           <AIThesis/>
 
-          <section className={homeStyles.metrics_container}>
+          <section className={homeStyles.metrics_container + ' margin-top-8rem'}>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
                 50,000+

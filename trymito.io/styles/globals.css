@@ -176,18 +176,6 @@ a {
   flex-direction: column;
 }
 
-.margin-top-3rem-mobile-only {
-  margin-top: 3rem;
-}
-
-.margin-top-3rem {
-  margin-top: 3rem !important;
-}
-
-.margin-left-2rem {
-  margin-left: 2rem !important;
-}
-
 @media only screen and (min-width: 50em) {
   html,body {
     font-size: 16px;
@@ -312,6 +300,10 @@ a {
   margin-top: 4rem;
 }
 
+.margin-top-8rem {
+  margin-top: 8rem;
+}
+
 .margin-bottom-2rem {
   margin-bottom: 2rem;
 }
@@ -320,6 +312,19 @@ a {
   margin-bottom: 3rem;
 }
 
+.margin-top-3rem-mobile-only {
+  margin-top: 3rem;
+}
+
+.margin-left-2rem {
+  margin-left: 2rem;
+}
+
+.margin-left-3rem {
+  margin-left: 3rem;
+}
+
+
 .code-background {
   font-family: monospace;
   background-color: #D0D0D0;
@@ -327,8 +332,16 @@ a {
   font-size: 1rem;
   padding: .25rem .5rem;
   border-radius: 2px;
+  cursor: pointer;
 }
 
 .code-background:hover {
   background-color: var(--color-light-purple);
+}
+
+.toast-notification {
+  background-color: var(--color-purple);
+  color: var(--color-text-primary);
+  padding: .25rem .5rem;
+  border-radius: 2px;
 }

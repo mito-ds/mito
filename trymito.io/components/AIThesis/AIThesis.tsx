@@ -18,7 +18,7 @@ const AIThesis = (): JSX.Element => {
                 <div>
                     <ExpandableCard 
                         title={'Sometimes chatbots, sometimes spreadsheets'}
-                        shortTitle={'Sometimes chatbots, sometimes spreadsheets'} 
+                        shortTitle={'Choose the right tool'} 
                         className='margin-top-3rem'
                         isOpen={aISectionOpen===0}
                         key={0}
@@ -48,7 +48,7 @@ const AIThesis = (): JSX.Element => {
                     
                     <ExpandableCard 
                         title={'Spreadsheets improve AI performance'} 
-                        shortTitle={'Spreadsheets improve AI performance'}
+                        shortTitle={'Spreadsheets improve AI'}
                         isOpen={aISectionOpen===1}
                         key={1}
                         onClick={() => {
