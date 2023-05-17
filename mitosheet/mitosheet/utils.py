@@ -19,7 +19,6 @@ import pandas as pd
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns
 from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
-from mitosheet.user.utils import is_enterprise, is_running_test
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -411,6 +410,7 @@ def check_valid_sheet_functions(
     if sheet_functions is None:
         return
 
+    from mitosheet.user.utils import is_enterprise, is_running_test
     if not is_enterprise() and not is_running_test():
         raise ValueError("sheet_functions are only supported in the enterprise version of Mito.")
 
