@@ -407,7 +407,7 @@ def is_snowflake_credentials_available() -> bool:
 
 def check_valid_sheet_functions(
         sheet_functions: Optional[List[Callable]]=None,
-    ):
+    ) -> None:
     if sheet_functions is None:
         return
 

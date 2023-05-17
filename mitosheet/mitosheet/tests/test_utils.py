@@ -96,9 +96,11 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         import mitosheet as original
         local_vars = original.__dict__
 
+    user_defined_functions = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
+
     local_vars = {
         **local_vars,
-        **{f.__name__: f for f in test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions}
+        **{f.__name__: f for f in user_defined_functions}
     }
 
     try:
