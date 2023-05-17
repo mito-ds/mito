@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.enterprise.mito_config import MITO_CONFIG_LLM_URL
 from mitosheet.types import Selection, StepsManagerType
 import os
@@ -127,12 +127,14 @@ def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: 
 def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
         selection: Optional[Selection] = params.get('selection', None)
         user_input: str = params['user_input']
+        previous_failed_completions: List[Tuple[str, str]] = params['previous_failed_completions']
 
         prompt = get_prompt(
                 steps_manager.curr_step.final_defined_state.df_names,
                 steps_manager.curr_step.final_defined_state.dfs,
                 selection,
-                user_input
+                user_input,
+                previous_failed_completions,
         )
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
@@ -157,6 +159,8 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 return json.dumps({
                         'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
                 })
+        
+        print(prompt)
 
         if res.status_code == 200:
                 res_json = res.json()

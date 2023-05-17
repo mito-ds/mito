@@ -20,7 +20,7 @@ class AITransformationCodeChunk(CodeChunk):
         return 'AI Transformation'
     
     def get_description_comment(self) -> str:
-        return self.user_input.strip()
+        return self.user_input
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         import_lines = get_import_lines_to_add(self.final_code)

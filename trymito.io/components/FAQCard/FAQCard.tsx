@@ -4,8 +4,8 @@ import { useState } from 'react'
 import pageStyles from '../../styles/Page.module.css'
 import faqCardStyles from './FAQCard.module.css'
 
-import OpenFaq from '../../public/OpenFaq.png'
-import CloseFaq from '../../public/CloseFaq.png'
+import OpenFaq from '../../public/OpenIconLight.png'
+import CloseFaq from '../../public/CloseIconDark.png'
 
 const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JSX.Element => {
 

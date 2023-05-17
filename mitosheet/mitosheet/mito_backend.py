@@ -107,7 +107,6 @@ class MitoBackend():
             # Dynamic, update each time
             'userEmail': get_user_field(UJ_USER_EMAIL),
             'receivedTours': get_user_field(UJ_RECEIVED_TOURS),
-            'receivedChecklists': get_user_field(UJ_RECEIVED_CHECKLISTS),
             'isPro': is_pro(),
             'isEnterprise': is_enterprise(),
             'telemetryEnabled': telemetry_turned_on(),
