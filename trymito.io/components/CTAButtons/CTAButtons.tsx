@@ -9,7 +9,7 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
         <div className={styles.cta_buttons_container}> 
             {props.variant === 'download' && 
                 <TextButton 
-                    text='Install Mito for Free'
+                    text='Install Mito'
                     href={MITO_INSTALLATION_DOCS_LINK}
                 />
             }

@@ -46,12 +46,12 @@
 
 .link_with_p_tag_margins,
 .link {
-    color: var(--color-text-highlight);
+    color: var(--color-purple);
 }
 
 .link_with_p_tag_margins:hover,
 .link:hover {
-    color: var(--color-text-highlight-light);
+    color: var(--color-light-purple);
 }
   
 @media only screen and (min-width: 50em) {
@@ -74,9 +74,13 @@
         flex-basis: 100%;
     }
 
-    /* Make sure there is at least 5rem between divs inside the subsection */
+    /* Make sure there is at space between divs inside the subsection */
     .subsection > div + div {
         margin-left: 5rem;
+    }
+
+    .subsection_narrow_space_betweeen > div + div {
+        margin-left: 2rem;
     }
 
     .subsection_second_element_mobile_spacing {

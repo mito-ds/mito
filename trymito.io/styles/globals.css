@@ -4,8 +4,8 @@
   --color-light-background-accent: #3a3a3a; 
   --color-text-primary: #ffffff;
   --color-text-secondary: #D0D0D0;
-  --color-text-highlight: #9D6CFF; 
-  --color-text-highlight-light: #ac84fc; 
+  --color-purple: #9D6CFF; 
+  --color-light-purple: #ac84fc; 
 
   --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
   --color-twitter-blue: #479BE9;
@@ -15,6 +15,7 @@
 
   --mito-light-blue: #E8EBF8;
   --mito-gray: #494650;
+  --jupyter-orange: #F37726;
 
   /* 
     We can't currently use css variables in media queries unforuntetly! 
@@ -152,7 +153,8 @@ a {
 }
 
 .display-desktop-only-inline-block,
-.display-desktop-only-flex {
+.display-desktop-only-flex,
+.display-desktop-only-block {
   display: none !important;
 }
 
@@ -172,10 +174,6 @@ a {
 .flex-column {
   display: flex;
   flex-direction: column;
-}
-
-.margin-top-3rem-mobile-only {
-  margin-top: 3rem;
 }
 
 @media only screen and (min-width: 50em) {
@@ -204,8 +202,16 @@ a {
     margin-top: 10rem;
   }
 
+  .display-inline-block {
+    display: inline-block !important;
+  }
+
   .display-desktop-only-inline-block {
     display: inline-block !important;
+  }
+
+  .display-desktop-only-block {
+    display: block !important;
   }
 
   .display-desktop-only-flex {
@@ -247,11 +253,11 @@ a {
 }
 
 .text-nav:hover {
-  color: var(--color-text-highlight);
+  color: var(--color-purple);
 }
 
 .text-highlight {
-  color: var(--color-text-highlight)
+  color: var(--color-purple)
 }
 
 .text-primary {
@@ -270,6 +276,14 @@ a {
   color: var(--color-twitter-blue)
 }
 
+.text-color-purple {
+  color: var(--color-purple)
+}
+
+.text-color-jupyter-orange {
+  color: var(--jupyter-orange);
+}
+
 /* 
   Margins
 */
@@ -286,6 +300,10 @@ a {
   margin-top: 4rem;
 }
 
+.margin-top-8rem {
+  margin-top: 8rem;
+}
+
 .margin-bottom-2rem {
   margin-bottom: 2rem;
 }
@@ -294,3 +312,36 @@ a {
   margin-bottom: 3rem;
 }
 
+.margin-top-3rem-mobile-only {
+  margin-top: 3rem;
+}
+
+.margin-left-2rem {
+  margin-left: 2rem;
+}
+
+.margin-left-3rem {
+  margin-left: 3rem;
+}
+
+
+.code-background {
+  font-family: monospace;
+  background-color: #D0D0D0;
+  color: #494650;
+  font-size: 1rem;
+  padding: .25rem .5rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.code-background:hover {
+  background-color: var(--color-light-purple);
+}
+
+.toast-notification {
+  background-color: var(--color-purple);
+  color: var(--color-text-primary);
+  padding: .25rem .5rem;
+  border-radius: 2px;
+}

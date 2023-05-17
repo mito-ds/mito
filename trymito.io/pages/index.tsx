@@ -11,8 +11,17 @@ import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
+import AIThesis from '../components/AIThesis/AIThesis';
+import { useEffect, useState } from 'react';
 
 const Home: NextPage = () => {
+
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {setCopied(false)}, 3000)
+    }
+  }, [copied])
 
   return (
     <>
@@ -28,14 +37,14 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
               <h1 className={titleStyles.title}>
-                Edit a spreadsheet, generate Python code
+                Spreadsheets, meet <span className='text-color-purple'>AI Automation</span>
               </h1>
 
               <p className={titleStyles.description}>
-                Automate entire spreadsheet workflows without having to learn Python.<br/>
-                Save yourself weeks by using Mito in Jupyter.
+                Join thousands of analysts at the world&apos;s largest banks
+                saving themselves from hours of repetitive work. 
               </p>
-            
+              
               <div className={homeStyles.cta_button_and_video_spacer}>
                 <CTAButtons variant='download'/>
               </div>
@@ -51,20 +60,23 @@ const Home: NextPage = () => {
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
                 <h1>
-                  <span className='text-highlight'>Automate</span> analyses with Python
+                  <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
+                  Generate Python.
                 </h1>
-                <p className='display-mobile-only'>
-                  Every edit to the Mito spreadsheet automatically generates Python code. 
-                  Mito is the fastest way to fully automate a spreadsheet workflow.
+                <p className='display-mobile-only'> 
+                  Every edit you make to the Mito spreadsheet automatically generates Python code.
+                  Stop sitting through Python trainings or waiting for IT support. 
+                  Take automation into your own hands using the tools you already know.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Every edit to the Mito spreadsheet automatically generates Python code. 
+                  Every edit you make to the Mito spreadsheet automatically generates Python code.
                 </p>
-                <p className='display-desktop-only-inline-block'>
-                  Mito is the fastest way to fully automate a spreadsheet workflow.
+                <p>
+                  Stop sitting through Python trainings or waiting for IT support. 
+                  Take automation into your own hands using the tools you already know.
                 </p>
-                <a href="https://docs.trymito.io/how-to/using-the-generated-code" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn More →
+                <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  View all 100+ transformations →
                 </a>
               </div>
               <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
@@ -74,73 +86,64 @@ const Home: NextPage = () => {
           
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
-                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
                 <h1>
-                  <span className='text-highlight'>Transform</span> data with a spreadsheet
+                  <span className='text-highlight'>Transform</span> your data with AI
                 </h1>
                 <p className='display-mobile-only'>
-                  Edit your data with the tool you know from Excel and Google Sheets. 
-                  Create pivot tables, write formulas, filter, and much more. 
+                  Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Edit your data with the tool you know from Excel and Google Sheets. 
+                  Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
-                <p className='display-desktop-only-inline-block'>
-                  Create pivot tables, write formulas, filter, and much more. 
-                </p>
-                <a href="https://docs.trymito.io/how-to/pivot-tables" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn More →
+                <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  Learn more about Mito AI →
                 </a>
               </div>
               <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
-                <Image src={'/transform.png'} alt='Use Mito to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
-            
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
                 <h1>
-                  <span className='text-highlight'> Present </span> your data visually
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span>
                 </h1>
-                <p className='display-mobile-only'>
-                  Present your data by formatting, graphing, and more.
-                  From data ingestion to presentation, Mito has you covered.
+                <p className='display-mobile-only'> 
+                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. 
+                  Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Present your data by formatting, graphing, and more.
+                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
-                <p className='display-desktop-only-inline-block'> 
-                  From data ingestion to presentation, Mito has you covered.
+                <p className='display-desktop-only-inline-block'>
+                  Get started with Mito in seconds. It&apos;s easy as &nbsp;
+                  <span className='code-background' onClick={async () => {
+                    // Copy to clickboard on click
+                    await navigator.clipboard.writeText('pip install mitosheet');
+                    setCopied(true);
+                  }}>
+                    pip install mitosheet
+                  </span> {copied && "- copied!"}
                 </p>
-                <a href="https://docs.trymito.io/how-to/graphing" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn More →
+
+                <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  Download Mito for Jupyter →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media}>
-                <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
+              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+                <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
-          </section>
 
-          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
-            <div>
-              <h2 className={homeStyles.case_study_text}>
-                Enigma’s Director of Finance saves 16 hours per month with Mito
-              </h2>
-              <TextButton 
-                text="Read Tom's Story"
-                href="https://blog.trymito.io/enigma-case-study/"
-              />
-            </div>
-            <div className={homeStyles.case_study_headshot}>
-              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
-            </div>
           </section>
+          
+          <AIThesis/>
 
-          <section className={pageStyles.background_card + ' ' + homeStyles.metrics_container}>
+          <section className={homeStyles.metrics_container + ' margin-top-8rem'}>
             <div className={homeStyles.metric_container}>
               <h1 className={homeStyles.gradient_text}>
                 50,000+
@@ -167,6 +170,20 @@ const Home: NextPage = () => {
             </div>
           </section>
 
+          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
+            <div>
+              <h2 className={homeStyles.case_study_text}>
+                Enigma’s Director of Finance saves 16 hours per month with Mito
+              </h2>
+              <TextButton 
+                text="Read Tom's Story"
+                href="https://blog.trymito.io/enigma-case-study/"
+              />
+            </div>
+            <div className={homeStyles.case_study_headshot}>
+              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
+            </div>
+          </section>
 
           <section className={homeStyles.tweet_section}>
             <div className={homeStyles.tweet_section_header + ' center'}>
