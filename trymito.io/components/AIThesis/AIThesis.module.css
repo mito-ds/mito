@@ -1,0 +1,39 @@
+.ai_thesis_container {
+    margin-top: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+}
+
+.ai_thesis_bullets_container {
+    border-left: 3px solid radial-gradient(164.34% 50% at 50% 50%, #9D6CFF 0%, rgba(157, 108, 255, 0) 100%);
+}
+
+.ai_thesis_bullet {
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: 20px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.ai_thesis_bullet:hover {
+    color: var(--color-light-purple);
+}
+
+.ai_thesis_bullet_selected {
+    color: var(--color-purple);
+}
+
+.ai_preview_video_container {  
+    margin: auto;
+}
+
+.ai_preview_video {
+    max-width: 100%;
+    border-radius: 2rem;
+    padding: .5rem 1rem; 
+    background: var(--color-video-background);
+    border: 5px solid rgba(198, 169, 255, 0.25);
+}

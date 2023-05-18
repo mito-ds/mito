@@ -11,7 +11,7 @@
     width: 125px;
     font-size: 2rem;
     height: 35px;
-    color: var(--color-text-highlight);
+    color: var(--color-purple);
     
     cursor: pointer;
 }

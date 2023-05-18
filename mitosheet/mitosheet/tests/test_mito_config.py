@@ -7,7 +7,8 @@
 import os
 from mitosheet.enterprise.mito_config import (
     DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, 
-    MEC_VERSION_KEYS, 
+    MEC_VERSION_KEYS,
+    MITO_CONFIG_ANALYTICS_URL, 
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
     MITO_CONFIG_CODE_SNIPPETS, 
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
@@ -63,7 +64,8 @@ def test_none_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }
 
 def test_none_config_version_is_string():
@@ -97,7 +99,8 @@ def test_version_2_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }
 
     # Delete the environmnet variables for the next test
@@ -118,7 +121,8 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }    
 
     # Delete the environmnet variables for the next test
@@ -139,7 +143,8 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }    
 
     delete_all_mito_config_environment_variables()
@@ -160,7 +165,8 @@ def test_mito_config_dont_display_snowflake_import():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }    
 
     delete_all_mito_config_environment_variables()
@@ -179,7 +185,8 @@ def test_mito_config_dont_display_ai_transform():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: False,
-        MITO_CONFIG_LLM_URL: None
+        MITO_CONFIG_LLM_URL: None,
+        MITO_CONFIG_ANALYTICS_URL: None
     }    
 
     delete_all_mito_config_environment_variables()
