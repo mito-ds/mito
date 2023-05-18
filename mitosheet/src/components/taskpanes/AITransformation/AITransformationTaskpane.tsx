@@ -13,7 +13,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import AITransformationExamplesSection from "./AITransformationExamplesSection";
 import AITransformationResultSection from "./AITransformationResultSection";
-import { getSelectionForCompletion } from "./aiUtils";
+import { getChatHeight, getSelectionForCompletion } from "./aiUtils";
 import LoadingCircle from "../../icons/LoadingCircle";
 import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
 import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
@@ -196,7 +196,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         })
     }
 
-    const chatHeight = Math.min(100, Math.max(30, 30 + (userInput.split('\n').length - 1) * 14));
+    const chatHeight = getChatHeight(userInput, chatInputRef);
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
 

@@ -60,6 +60,7 @@
 }
 
 .ai-transformation-feedback-button {
+    font-size: 12px;
     padding: 5px;
     border-radius: 3px;
 }
