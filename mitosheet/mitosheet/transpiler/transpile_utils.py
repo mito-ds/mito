@@ -198,6 +198,14 @@ def _get_return_variables_string(steps_manager: StepsManagerType, function_param
 
     return ", ".join(final_df_names)
 
+import re
+
+def replace_newlines_with_newline_and_tab(text: str) -> str:
+    pattern = r'(?<!\\)\n'  # Negative lookbehind for '\'
+    replacement = '\n' + f'{TAB}'  # Newline followed by a tab
+    result = re.sub(pattern, replacement, text)
+    return result
+
 def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
@@ -218,11 +226,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     for line in code:
         # Add the code, making sure to indent everything, even if it's on the newline
-        # or if it's the closing paren. We take special care not to mess inside of any code
-        line = f"{TAB}" + line
-        line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
-        line = line.replace(f"\n)", f"\n{TAB})")
-        line = line.replace(f"\n]", f"\n{TAB}]")
+        # or if it's the closing paren. We take special care not to mess inside of any strings, simply
+        # by indenting any newline that is not preceeded by a \
+        line = f"{TAB}{line}"
+        line = replace_newlines_with_newline_and_tab(line)
 
         # Then, for any additional function params we defined, we relace the internal param value. Note that 
         # we only replace for 

@@ -365,7 +365,7 @@ def test_transpile_pivot_table_indents():
         {'Height': ['sum']}
     )
     
-    print(mito.transpiled_code)
+    print("\n".join(mito.transpiled_code))
     assert "    pivot_table = tmp_df.pivot_table(\n        index=['Name'],\n        values=['Height'],\n        aggfunc={'Height': ['sum']}\n    )" in mito.transpiled_code
 
 
@@ -508,3 +508,61 @@ def test_transpile_with_function_params_over_mitosheet():
         "",
         f"param, df_copy = function(df, df_copy)"
     ]
+
+def test_transpile_does_not_effect_chars_in_strings():
+    mito = create_mito_wrapper()
+    quote = '"'
+    mito.ai_transformation(
+        'do a test',
+        'v1',
+        'test',
+        'test',
+        """
+df = pd.DataFrame({'A': ["has a new \
+line in it", '\t', '     ']})
+        """
+    )
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+
+def function():
+    df = pd.DataFrame({'A': ["has a new \
+line in it", '\t', '     ']})
+    
+    return df
+
+df = function()"""
+
+def test_transpile_with_multiline_ai_completion():
+    mito = create_mito_wrapper()
+    mito.ai_transformation(
+        'do a test',
+        'v1',
+        'test',
+        'test',
+        """
+import pandas as pd
+
+# create sample dataframe
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+
+print(df)
+        """
+    )
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert "\n".join(mito.transpiled_code) == """
+def function():
+    import pandas as pd
+    
+    # create sample dataframe
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+    
+    print(df)
+    
+    return df
+
+df = function()"""
