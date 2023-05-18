@@ -407,12 +407,12 @@ def is_snowflake_credentials_available() -> bool:
 def check_valid_sheet_functions(
         sheet_functions: Optional[List[Callable]]=None,
     ) -> None:
-    if sheet_functions is None:
+    if sheet_functions is None or len(sheet_functions) == 0:
         return
 
     from mitosheet.user.utils import is_enterprise, is_running_test
     if not is_enterprise() and not is_running_test():
-        raise ValueError("sheet_functions are only supported in the enterprise version of Mito.")
+        raise ValueError("sheet_functions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
     if not isinstance(sheet_functions, list):
         raise ValueError(f"sheet_functions must be a list, but got {type(sheet_functions)}")

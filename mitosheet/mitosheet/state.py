@@ -204,6 +204,7 @@ class State:
             self.column_formulas.append(
                 {column_id: [] for column_id in column_ids}
             )
+
             self.column_filters.append(
                 {
                     column_id: {"operator": "And", "filters": []}
@@ -219,7 +220,6 @@ class State:
             # Return the index of this sheet
             return len(self.dfs) - 1
         else:
-
             # Update dfs by switching which df is at this index specifically
             self.dfs[sheet_index] = new_df
             # Also update the dataframe name, if it is passed. Otherwise, we don't change it
