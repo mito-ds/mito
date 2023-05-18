@@ -1,5 +1,4 @@
 import React from "react";
-import { ChecklistID } from "./components/checklists/checklistData";
 import { ModalInfo } from "./components/modals/modals";
 import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
 import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
@@ -71,8 +70,10 @@ export enum UpdateType {
     CodeOptionsUpdate = 'code_options_update',
 }
 
-type ParamName = string;
-type ParamValue = string;
+export type ParamName = string;
+export type ParamValue = string;
+export type ParamType = 'file_name' | 'df_name'
+export type ParameterizableParams = [ParamValue, ParamType][];
 
 export type CodeOptions = {
     as_function: boolean,
@@ -100,6 +101,7 @@ export interface StepSummary {
     // each of the different steps, and type these more strongly!
     // Currently, we aren't sending this data!
     params?: Record<string, unknown>;
+    result?: any;
 }
 
 /**
@@ -697,7 +699,8 @@ export enum MitoEnterpriseConfigKey {
     ENABLE_SNOWFLAKE = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT',
     DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT',
     DISPLAY_AI_TRANSFORM = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION',
-    LLM_URL = 'MITO_CONFIG_LLM_URL'
+    LLM_URL = 'MITO_CONFIG_LLM_URL',
+    ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL',
 }
 
 export type PublicInterfaceVersion = 1 | 2 | 3;
@@ -777,7 +780,6 @@ export interface MitoConfig {
 export interface UserProfile {
     userEmail: string;
     receivedTours: string[];
-    receivedChecklists: Record<ChecklistID, string[] | undefined>;
 
     isPro: boolean;
     isEnterprise: boolean;

@@ -18,14 +18,14 @@ ARGS_UPDATE_EVENT = 'args_update'
 ARGS_UPDATE_PARAMS = ['args']
 
 
-def is_str_df_name(arg: str) -> bool:
+def is_string_arg_to_mitosheet_call(arg_value: str) -> bool:
     """
     Helper function that returns true if this argument
     name is in fact a file path - aka it is passed
     as a string to the mitosheet (not a dataframe
     variable directly).
     """
-    return arg.startswith('\'') or arg.startswith('\"')
+    return arg_value.startswith('\'') or arg_value.startswith('\"')
 
 
 def do_arg_update(steps_manager: StepsManagerType, args: List[str]) -> None:
@@ -44,7 +44,7 @@ def do_arg_update(steps_manager: StepsManagerType, args: List[str]) -> None:
     """
 
     # Get all the string arguments, and strip off the quotes
-    str_args = [arg for arg in args if is_str_df_name(arg)]
+    str_args = [arg for arg in args if is_string_arg_to_mitosheet_call(arg)]
     str_args = [str_arg[1:-1] for str_arg in str_args]
 
     # Then, we turn these into dataframe names.
@@ -57,7 +57,7 @@ def do_arg_update(steps_manager: StepsManagerType, args: List[str]) -> None:
     final_names = []
     used_str_df_names = 0
     for arg in args:
-        if is_str_df_name(arg):
+        if is_string_arg_to_mitosheet_call(arg):
             final_names.append(str_df_names[used_str_df_names])
             used_str_df_names += 1
         else:

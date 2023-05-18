@@ -4,6 +4,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+from copy import copy
+import re
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
@@ -146,34 +148,63 @@ def get_str_param_name(steps_manager: StepsManagerType, index: int) -> str:
     df_name = steps_manager.steps_including_skipped[0].final_defined_state.df_names[index]
     return df_name + '_path'
 
-def _get_param_names_for_mitosheet_params(steps_manager: StepsManagerType) -> Dict[ParamName, ParamValue]:
+def _get_params_dict_for_function_call(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> Dict[ParamName, ParamValue]:
     """
-    Returns a dictionary of the param names and values for the mitosheet params.
+    Returns a dictionary of the param names and values for the function call. Takes special care
+    to when you pass function_params that overwrite some of the original args to the function call.
     """
-    from mitosheet.updates.args_update import is_str_df_name
+    from mitosheet.updates.args_update import is_string_arg_to_mitosheet_call
 
     original_args_values = steps_manager.original_args_raw_strings
     original_args_names = []
 
-    for index, original_arg_name in enumerate(original_args_values):
-        if is_str_df_name(original_arg_name):
-            original_args_names.append(get_str_param_name(steps_manager, index))
-        else:
-            original_args_names.append(original_arg_name)
+    for index, original_arg_value in enumerate(original_args_values):
 
-    return {param_name: param_value for param_name, param_value in zip(original_args_names, original_args_values)}
+        if original_arg_value in function_params.values():
+            # If this arg is being overwritten by a param, we need to get the name of the param
+            # instead of the original arg name
+            param_name = list(function_params.keys())[list(function_params.values()).index(original_arg_value)]
+            original_args_names.append(param_name)
+        else:
+            if is_string_arg_to_mitosheet_call(original_arg_value):
+                original_args_names.append(get_str_param_name(steps_manager, index))
+            else:
+                original_args_names.append(original_arg_value)
+
+    args_dict = {param_name: param_value for param_name, param_value in zip(original_args_names, original_args_values)}
+
+    # Then, we extend with the new params, not including any params that are already in the args
+    for param_name, param_value in function_params.items():
+        if param_name not in args_dict:
+            args_dict[param_name] = param_value
+
+    return args_dict
 
 
 def _get_param_names_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
-    original_param_names = list(_get_param_names_for_mitosheet_params(steps_manager).keys())
-    additional_params = list(function_params.keys())
-    return ", ".join(original_param_names + additional_params)
+    params_names = list(_get_params_dict_for_function_call(steps_manager, function_params).keys())
+    return ", ".join(params_names)
 
 def _get_param_values_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
-    original_param_values = list(_get_param_names_for_mitosheet_params(steps_manager).values())
-    additional_params = list(function_params.values())
-    return ", ".join(original_param_values + additional_params)
+    params_values = list(_get_params_dict_for_function_call(steps_manager, function_params).values())
+    return ", ".join(params_values)
 
+def _get_return_variables_string(steps_manager: StepsManagerType, function_params: Dict[ParamName, ParamValue]) -> str:
+     
+    final_df_names = copy(steps_manager.curr_step.df_names)
+    for param_name, param_value in function_params.items():
+        if param_value in final_df_names:
+            final_df_names[final_df_names.index(param_value)] = param_name
+
+    return ", ".join(final_df_names)
+
+import re
+
+def replace_newlines_with_newline_and_tab(text: str) -> str:
+    pattern = r'(?<!\\)\n'  # Negative lookbehind for '\'
+    replacement = '\n' + f'{TAB}'  # Newline followed by a tab
+    result = re.sub(pattern, replacement, text)
+    return result
 
 def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
     """
@@ -193,22 +224,31 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")
 
-    # Add the code, making sure to indent everything, even if it's on the newline
-    # or if it's the closing paren. We take special care not to mess inside of any code
     for line in code:
-        line = f"{TAB}" + line
-        line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
-        line = line.replace(f"\n)", f"\n{TAB})")
+        # Add the code, making sure to indent everything, even if it's on the newline
+        # or if it's the closing paren. We take special care not to mess inside of any strings, simply
+        # by indenting any newline that is not preceeded by a \
+        line = f"{TAB}{line}"
+        line = replace_newlines_with_newline_and_tab(line)
+
+        # Then, for any additional function params we defined, we relace the internal param value. Note that 
+        # we only replace for 
+        for param_name, param_value in function_params.items():
+            if "'" in param_value or '"' in param_value:
+                line = line.replace(param_value, param_name)
+            else:
+                line = re.sub(r'\b%s\b' % re.escape(param_value), param_name, line) 
+
         final_code.append(line)
 
     # Add the return statement, where we return the final dfs
-    return_variables = ", ".join(steps_manager.curr_step.df_names)
-    final_code.append(f"{TAB}return {return_variables}")
+    return_variables_string = _get_return_variables_string(steps_manager, function_params)
+    final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
     # Then, add the function call
-    if len(return_variables) > 0:
-        final_code.append(f"{return_variables} = {function_name}({param_values})")
+    if len(return_variables_string) > 0:
+        final_code.append(f"{return_variables_string} = {function_name}({param_values})")
     else:
         final_code.append(f"{function_name}({param_values})")
 

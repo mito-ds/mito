@@ -5,12 +5,12 @@
 }
     
 .cta_subbutton {
-    color: var(--color-text-highlight);
+    color: var(--color-purple);
     padding-top: 1rem;
 }
 
 .cta_subbutton:hover {
-    color: var(--color-text-highlight-light)
+    color: var(--color-light-purple)
 }
 
 @media only screen and (min-width: 50em) {

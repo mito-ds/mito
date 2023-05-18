@@ -289,7 +289,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 }
             }
 
-            updateDropdownPosition(unsavedDropdownAnchor, props.display);
+            updateDropdownPosition(unsavedDropdownAnchor);
         }
     },[]);
 
@@ -299,11 +299,11 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // wayyyy too laggy. So no thanks.
     useEffect(() => {
         if (dropdownAnchor.current !== null) {
-            updateDropdownPosition(dropdownAnchor.current, true); // We always just refresh the position when this changes, to avoid random flickering
+            updateDropdownPosition(dropdownAnchor.current);
         } 
         const interval = setInterval(() => {
             if (dropdownAnchor.current !== null) {
-                updateDropdownPosition(dropdownAnchor.current, props.display);
+                updateDropdownPosition(dropdownAnchor.current);
             }
         }, 25)
         return () => clearInterval(interval);
@@ -333,7 +333,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             }
 
             if (dropdownAnchor.current) {
-                updateDropdownPosition(dropdownAnchor.current, props.display);
+                updateDropdownPosition(dropdownAnchor.current);
             }
         };
         fscreen.addEventListener('fullscreenchange', handleChange);
@@ -355,13 +355,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         3. Check if (top, left) of the parent can be the (bottom, left) of the dropdown.
         4. If none of the above work, set (top, right) to the (bottom, right) of the dropdown.            
     */
-    const updateDropdownPosition = (dropdownContainer: HTMLDivElement, display: boolean) => {
+    const updateDropdownPosition = (dropdownContainer: HTMLDivElement) => {
         
-        // If we're not currently displaying the dropdown, bail early!
-        if (!display) {
-            return;
-        }
-
         const parentElement = dropdownContainer.parentElement || dropdownContainer;
         const parentBoundingClientRect = parentElement.getBoundingClientRect();
         const parentTop = parentBoundingClientRect.top;

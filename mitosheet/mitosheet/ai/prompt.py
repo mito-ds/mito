@@ -2,7 +2,8 @@
 
 
 
-from typing import List, Optional, Union
+import string
+from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -106,27 +107,78 @@ The dataframe {current_selection['selected_df_name']} is currently selected.
 
     return input_data_string
 
+def get_transformation_and_code_string(transformation: str, code: Optional[str]=None) -> str:
+    if code is None:
+        return f"""Transformation: {transformation}
+Code:
+```
+"""
+    else:
+        return f"""Transformation: {transformation}
+Code:
+```
+{code}
+```"""
+
+
 def get_example_string(df_names: List[str], current_selection: Optional[Selection]) -> str:
 
     # TODO: If there is a previous edit in the mitosheet, we could use this as the example, as it's about as in-context as you can get
 
     # Otherwise, we make up a fake edit
     if current_selection is not None:
-        return f"""Transformation: replace 1 with 2
-Code:
-```
-{current_selection['selected_df_name']}.replace(1, 2, inplace=True)
-```"""
+        return get_transformation_and_code_string(
+            f"replace 1 with 2",
+            f"{current_selection['selected_df_name']}.replace(1, 2, inplace=True)"
+        )
     else:
         df_name = df_names[0] if len(df_names) > 0 else 'df'
-        return f"""Transformation: replace 1 with 2 in {df_name}
-Code:
+        return get_transformation_and_code_string(
+            f"replace 1 with 2 in {df_name}",
+            f"{df_name}.replace(1, 2, inplace=True)"
+        )
+
+
+def get_previous_failed_completions_string(previous_failed_completions: List[Tuple[str, str]], user_input: str) -> str:
+    if len(previous_failed_completions) == 0:
+        return ""
+    
+    final_str = ''
+    for index, (code, error) in enumerate(previous_failed_completions):
+
+        if index == 0:
+            final_str += f"""{code}
 ```
-{df_name}.replace(1, 2, inplace=True)
-```"""
+Error:
+```
+{error}
+```
+
+"""
+        else:
+            final_str += f"""Fixing previous errors, {get_transformation_and_code_string(user_input, code)}
+Error:
+```
+{error}
+```
+
+"""
+
+                
+    final_str += f"Fixing previous errors, {get_transformation_and_code_string(user_input)}"
+
+    return final_str
 
 
-def get_prompt(df_names: List[str], dfs: List[pd.DataFrame], current_selection: Optional[Selection], user_input: str) -> str:
+def get_prompt(
+        df_names: List[str], 
+        dfs: List[pd.DataFrame], 
+        current_selection: Optional[Selection], 
+        user_input: str,
+        previous_failed_completions: List[Tuple[str, str]]
+    ) -> str:
+
+    previous_failed_completions_string = get_previous_failed_completions_string(previous_failed_completions, user_input)
 
     if len(dfs) > 0:
         input_data_string = get_input_data_string(df_names, dfs, current_selection)
@@ -138,16 +190,13 @@ def get_prompt(df_names: List[str], dfs: List[pd.DataFrame], current_selection: 
 
 {example_string}
 
-Transformation: {user_input}
-Code:
-```
+{get_transformation_and_code_string(user_input)}{previous_failed_completions_string}
 """
     else:
+
         return f"""
 You are a pandas developer who has just started a new script. You are looking to 
 make the following transformation.
 
-Transformation: {user_input}
-Code:
-```
+{get_transformation_and_code_string(user_input)}{previous_failed_completions_string}
 """
