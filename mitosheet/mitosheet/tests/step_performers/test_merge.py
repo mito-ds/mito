@@ -596,7 +596,7 @@ def test_merge_with_two_destination_sheet_indexes_not_the_same():
         'lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2
     )
     mito.merge_sheets(
-        'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=3
+        'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B']
     )
 
     # There should be only be four dataframes

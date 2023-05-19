@@ -44,7 +44,14 @@ class MergeCodeChunk(CodeChunk):
 
         self.df_one_name = self.post_state.df_names[self.sheet_index_one]
         self.df_two_name = self.post_state.df_names[self.sheet_index_two]
-        self.df_new_name = self.post_state.df_names[len(self.post_state.dfs) - 1]
+
+        if self.destination_sheet_index is None:
+            self.df_new_name = self.post_state.df_names[-1]
+        else:
+            # If we're repivoting an existing pivot table, we have
+            # to make sure to overwrite the correct pivot table 
+            # by using the right name
+            self.df_new_name = self.post_state.df_names[self.destination_sheet_index]
 
     def get_display_name(self) -> str:
         return 'Merged'
@@ -144,4 +151,4 @@ class MergeCodeChunk(CodeChunk):
     def get_edited_sheet_indexes(self) -> List[int]:
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
-        return []
+        return None

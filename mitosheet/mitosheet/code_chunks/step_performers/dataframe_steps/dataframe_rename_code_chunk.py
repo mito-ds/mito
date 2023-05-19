@@ -75,7 +75,10 @@ class DataframeRenameCodeChunk(CodeChunk):
         )
 
     def _combine_left_with_merge_code_chunk(self, merge_code_chunk: MergeCodeChunk) -> Optional[CodeChunk]:
-        destination_sheet_index = len(merge_code_chunk.post_state.dfs) - 1
+        destination_sheet_index = merge_code_chunk.destination_sheet_index
+        if destination_sheet_index is None:
+            destination_sheet_index = len(merge_code_chunk.post_state.dfs) - 1
+
         if destination_sheet_index != self.sheet_index:
             return None
 
@@ -88,6 +91,7 @@ class DataframeRenameCodeChunk(CodeChunk):
             merge_code_chunk.merge_key_column_ids,
             merge_code_chunk.selected_column_ids_one,
             merge_code_chunk.selected_column_ids_two,
+            merge_code_chunk.destination_sheet_index,
         )
 
     def _combine_left_with_import_code_chunk(

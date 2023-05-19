@@ -934,3 +934,12 @@ def test_pivot_with_rename_works_then_edit_optimized_properly():
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
 
+
+def test_delete_source_of_pivot_table_no_optimizes():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+
+    mito.delete_dataframe(0)
+
+    assert len(mito.transpiled_code) > 0

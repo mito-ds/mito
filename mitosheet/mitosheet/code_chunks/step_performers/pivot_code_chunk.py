@@ -276,7 +276,7 @@ class PivotCodeChunk(CodeChunk):
     def get_edited_sheet_indexes(self) -> List[int]:
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
-        return []
+        return None
 
 
 def get_code_for_transform_columns(df_name: str, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:
