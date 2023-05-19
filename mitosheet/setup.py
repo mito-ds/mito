@@ -114,7 +114,8 @@ if name == 'mitosheet2':
             'openpyxl',
             # xlsxwriter is needed for adding formatting to exported Excel sheets. 
             # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
-            'xlsxwriter>=0.6.9,<=3.0.2 '
+            'xlsxwriter>=0.6.9,<=3.0.2',
+            'urllib3<2'
         ],
         extras_require = {
             'test': [
@@ -231,7 +232,8 @@ elif name == 'mitosheet' or name == 'mitosheet3' or name == 'mitosheet-private':
             'openpyxl',
             # xlsxwriter is needed for adding formatting to exported Excel sheets. 
             # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
-            'xlsxwriter>=0.6.9,<=3.0.2'
+            'xlsxwriter>=0.6.9,<=3.0.2',
+            'urllib3<2'
         ],
         extras_require = {
             'test': [

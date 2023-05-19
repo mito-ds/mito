@@ -238,24 +238,24 @@ const Toolbar = (
                         >
                             <DropdownItem 
                                 title='Download File Now' 
-                                subtext='Download the file to your browser now'
+                                subtext='Download the file to your downloads folder.'
                                 onClick={() => {props.setUIState(prevUIState => {
                                     return {
                                         ...prevUIState,
                                         currOpenTaskpane: {type: TaskpaneType.DOWNLOAD}
                                     }
                                 })
-                            }}/>
+                                }}/>
                             <DropdownItem 
                                 title='Download File when Executing Code' 
-                                subtext='Download the file to Jupyter each time you run the generated code'
+                                subtext='Download the file to the same folder as this notebook when you run the generated code.'
                                 onClick={() => {props.setUIState(prevUIState => {
                                     return {
                                         ...prevUIState,
                                         currOpenTaskpane: {type: TaskpaneType.EXPORT_TO_FILE}
                                     }
                                 })
-                            }}/>
+                                }}/>
                         </Dropdown>
                     </ToolbarButton>
 

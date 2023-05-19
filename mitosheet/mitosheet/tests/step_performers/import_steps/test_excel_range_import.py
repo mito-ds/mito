@@ -32,6 +32,7 @@ TEST_DF_4 = pd.DataFrame({'header 102': ['abc', 'def'], 'header 202': ['hig', 'j
 TEST_DF_5 = pd.DataFrame({'A': ['abc', 'def'], 'B': ['abc', 'def'], 'C': ['abc', 'dev'], 'D': ['abc', 'dev'], 'E': ['abc', 'dev']})
 TEST_DF_6 = pd.DataFrame({1: [1, 1, 1], 2: [2, 2, 2]})
 TEST_DF_7 = pd.DataFrame({'A': [1.0, 2.0, None, None], 'B': [1.0, 2.0, None, None], 'C': [None, 2, 3, None], 'D': [1, 2, 3, 4]})
+TEST_DF_8 = pd.DataFrame({'A': [None, 'A']})
 
 EXCEL_RANGE_IMPORT_TESTS = [
     (
@@ -158,7 +159,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_5.columns[0]}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 3}, 'df_name': 'dataframe_1'}],
         [TEST_DF_5.iloc[:, :3]],
     ),
-    # we have a bottom left corner value as well as a number of columns
+    # we have a bottom left corner value as well as a number of empty rowsof columns
     (
         ['A1:E3'],
         [TEST_DF_5],
@@ -256,6 +257,63 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'row entirely empty'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_7],
     ), 
+    # Tests number of entirely empty rows with one skip
+    (
+        ['A1:B2', 'A4:B5'],
+        [TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, 'header 1', 1], 'header 2': [2, None, 'header 2', 2]})],
+    ), 
+    # Tests number of entirely empty rows with two skips
+    (
+        ['A1:B2', 'A5:B6'],
+        [TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, None, 'header 1', 1], 'header 2': [2, None, None, 'header 2', 2]})],
+    ), 
+    # Tests number of entirely empty rows hits the end of the sheet
+    (
+        ['A1:B2'],
+        [TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 10}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_1],
+    ), 
+    # Doesn't check starting cell for contains, and skips NaN values if the bottom left corner value is in the import code
+    (
+        ['A1:A3'],
+        [TEST_DF_8],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner value contains', 'value': 'A'}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_8],
+    ), 
+    # Number of consecutive empty cells in a column
+    (
+        ['A1:A3', 'A6:A8'],
+        [TEST_DF_8, TEST_DF_8],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells in first column', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_8],
+    ), 
+    # Number of consecutive empty cells in a column end of sheet
+    (
+        ['A1:A3'],
+        [TEST_DF_8],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value contains', 'value': 'A'}, 'end_condition': {'type': 'bottom left corner consecutive empty cells in first column', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_8],
+    ),
+    # Tests number of entirely empty rows with one skip, which is triggered
+    (
+        ['A1:B2'],
+        [TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_1],
+    ), 
+    # Tests number of entirely empty rows executes after column end condition is found
+    (
+        ['A1:B2'],
+        [TEST_DF_7],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_7.iloc[0:3, 0:2]],
+    ), 
+
     
 ]
 @pandas_post_1_2_only
@@ -600,3 +658,20 @@ def test_excel_range_import_sheet_index():
     assert TEST_DF_2.equals(mito.dfs[1])
     assert TEST_DF_2.equals(mito.dfs[2])
     assert TEST_DF_1.equals(mito.dfs[3])
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_excel_range_import_can_add_multiple_end_conditions_no_error():
+    # Use ExcelWriter to write two sheets
+    with pd.ExcelWriter(TEST_FILE_PATH) as writer:
+        TEST_DF_8.to_excel(writer, index=False)
+    
+    from mitosheet.public.v3 import get_table_range
+
+    range1 = get_table_range(TEST_FILE_PATH, sheet_index=0, upper_left_value='A', bottom_left_value='B', bottom_left_consecutive_empty_cells_in_first_column=2)
+    range2 = get_table_range(TEST_FILE_PATH, sheet_index=0, upper_left_value='A', bottom_left_value='A', bottom_left_consecutive_empty_cells_in_first_column=2)
+    range3 = get_table_range(TEST_FILE_PATH, sheet_index=0, upper_left_value='A', bottom_left_value='A', bottom_left_consecutive_empty_cells_in_first_column=3)
+    assert range1 == 'A1:A3'
+    assert range2 == 'A1:A3'
+    assert range3 == 'A1:A3'
+

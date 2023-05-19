@@ -363,6 +363,8 @@ class StepsManager:
                         "step_type": step.step_type,
                         "step_display_name": "Created a mitosheet",
                         "step_description": "Created a new mitosheet",
+                        "params": step.params,
+                        "result": step.execution_data.get('result', None) if step.execution_data else None
                     }
                 )
                 continue
@@ -385,7 +387,9 @@ class StepsManager:
                     "step_idx": index,
                     "step_type": step.step_type,
                     "step_display_name": code_chunks[0].get_display_name(),
-                    "step_description": code_chunks[0].get_description_comment(),
+                    "step_description": code_chunks[0].get_description_comment().strip().replace('\n', '\n# '),
+                    "params": step.params,
+                    "result": step.execution_data.get('result', None) if step.execution_data else None
                 }
             )
 

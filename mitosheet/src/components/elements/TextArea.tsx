@@ -65,11 +65,20 @@ const TextArea = (props: {
         * @param [onKeyDown] - Function to be called when a key is pressed down
     */
     onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+    /** 
+        * @param [onKeyUp] - Function to be called when a key is released
+    */
+    onKeyUp?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 
     /** 
         * @param [spellcheck] - Turn off spellcheck
     */
     spellCheck?: boolean;
+
+    /** 
+        * @param ref - Callback to set the ref of the text area
+    */
+    ref?: (ref: HTMLTextAreaElement) => void;
 }): JSX.Element => {
 
     // Create better default values to handle optional params 
@@ -83,6 +92,7 @@ const TextArea = (props: {
 
     return (
         <textarea 
+            ref={props.ref}
             className={classNames('text-area', 'text-body-2', widthClass, heightClass, props.className, {'text-area-dark-border': props.darkBorder})}
             onChange={props.onChange} 
             autoFocus={autoFocus}
@@ -91,6 +101,7 @@ const TextArea = (props: {
             value={props.value}
             disabled={props.disabled}
             onKeyDown={props.onKeyDown}
+            onKeyUp={props.onKeyUp}
             spellCheck={props.spellCheck}
         />
     )
