@@ -67,7 +67,8 @@ class State:
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
         graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None,
-        user_defined_functions: Optional[List[Callable]]=None
+        user_defined_functions: Optional[List[Callable]]=None,
+        user_defined_importers: Optional[List[Callable]]=None,
     ):
 
         # The dataframes that are in the state
@@ -141,7 +142,9 @@ class State:
 
         from mitosheet.public.v3.errors import handle_sheet_function_errors
         user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
-        self.user_defined_functions = user_defined_functions if user_defined_functions is not None else {}
+        self.user_defined_functions = user_defined_functions if user_defined_functions is not None else []
+
+        self.user_defined_importers = user_defined_importers if user_defined_importers is not None else []
 
     def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":
         """
@@ -161,7 +164,8 @@ class State:
             column_filters=deepcopy(self.column_filters),
             df_formats=deepcopy(self.df_formats),
             graph_data_dict=deepcopy(self.graph_data_dict),
-            user_defined_functions=deepcopy(self.user_defined_functions)
+            user_defined_functions=deepcopy(self.user_defined_functions),
+            user_defined_importers=deepcopy(self.user_defined_importers),
         )
 
     def add_df_to_state(

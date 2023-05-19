@@ -50,7 +50,13 @@ class MitoBackend():
     """
     mito_comm: Optional[Comm] = None
     
-    def __init__(self, *args: List[Union[pd.DataFrame, str]], analysis_to_replay: Optional[str]=None, user_defined_functions: Optional[List[Callable]]=None):
+    def __init__(
+            self, 
+            *args: List[Union[pd.DataFrame, str]], 
+            analysis_to_replay: Optional[str]=None, 
+            user_defined_functions: Optional[List[Callable]]=None,
+            user_defined_importers: Optional[List[Callable]]=None,
+        ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
         passed through *args.
@@ -62,7 +68,13 @@ class MitoBackend():
         self.mito_config = MitoConfig() # type: ignore
             
         # Set up the state container to hold private widget state
-        self.steps_manager = StepsManager(args, mito_config=self.mito_config, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions)
+        self.steps_manager = StepsManager(
+            args, 
+            mito_config=self.mito_config, 
+            analysis_to_replay=analysis_to_replay, 
+            user_defined_functions=user_defined_functions,
+            user_defined_importers=user_defined_importers
+        )
 
         # And the api
         self.api = API(self.steps_manager, self)
@@ -285,10 +297,11 @@ def get_mito_backend(
         comm_target_id: str='',
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
+        user_defined_importers: Optional[List[Callable]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
-    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions) 
+    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers) 
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -350,6 +363,7 @@ def sheet(
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
         sheet_functions: Optional[List[Callable]]=None,
+        importers: Optional[List[Callable]]=None,
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -388,7 +402,13 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
-        mito_backend = get_mito_backend(*args, comm_target_id=comm_target_id, analysis_to_replay=analysis_to_replay, user_defined_functions=sheet_functions)
+        mito_backend = get_mito_backend(
+            *args, 
+            comm_target_id=comm_target_id, 
+            analysis_to_replay=analysis_to_replay, 
+            user_defined_functions=sheet_functions,
+            user_defined_importers=importers
+        )
 
         # Log they have personal data in the tool if they passed a dataframe
         # that is not tutorial data or sample data from import docs

@@ -175,6 +175,7 @@ class StepsManager:
             mito_config: MitoConfig, 
             analysis_to_replay: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
+            user_defined_importers: Optional[List[Callable]]=None,
         ):
         """
         When initalizing the StepsManager, we also do preprocessing
@@ -210,7 +211,7 @@ class StepsManager:
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions), {})
+            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers), {})
         ]
 
         """
@@ -348,7 +349,8 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
                 'codeOptions': self.code_options,
-                'userFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
+                'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
+                'userDefinedImporters': [f.__name__ for f in (self.curr_step.post_state.user_defined_importers if self.curr_step.post_state else [])],
             },
             cls=NpEncoder
         )

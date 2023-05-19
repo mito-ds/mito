@@ -288,7 +288,7 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
     const allFunctionNamesAndDescription = functionDocumentationObjects.map(f => {
         return {function: f.function, description: f.description, search_terms: f.search_terms}}
     ).concat(
-        analysisData.userFunctions.map(f => {return {function: f, description: 'User-defined function', search_terms: [f]}})
+        analysisData.userDefinedFunctions.map(f => {return {function: f, description: 'User-defined function', search_terms: [f]}})
     );
 
 
