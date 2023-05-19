@@ -140,7 +140,7 @@ class MergeCodeChunk(CodeChunk):
         # And then return it
         return merge_code, []
 
-    def get_created_sheet_indexes(self) -> List[int]:
+    def get_created_sheet_indexes(self) -> Optional[List[int]]:
         if self.destination_sheet_index is None:
             return [len(self.post_state.dfs) - 1]
         else:
@@ -148,7 +148,7 @@ class MergeCodeChunk(CodeChunk):
             # overwrites it instead. See get_edited_sheet_indexes below
             return None
 
-    def get_edited_sheet_indexes(self) -> List[int]:
+    def get_edited_sheet_indexes(self) -> Optional[List[int]]:
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
         return None
