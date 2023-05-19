@@ -705,6 +705,15 @@ export enum MitoEnterpriseConfigKey {
 
 export type PublicInterfaceVersion = 1 | 2 | 3;
 
+type UserDefinedImporterParamName = string;
+type UserDefinedImporterParamType = 'str' | 'int' | 'float';
+
+export type UserDefinedImporter = {
+    name: string,
+    docstring: string,
+    params: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
+}
+
 
 /**
  * An object representing all the data about the analysis that is occuring currently.
@@ -747,7 +756,7 @@ export interface AnalysisData {
     experiment: Experiment | undefined;
     codeOptions: CodeOptions;
     userDefinedFunctions: string[];
-    userDefinedImporters: string[];
+    userDefinedImporters: UserDefinedImporter[];
 }
 
 export interface MitoConfig {

@@ -13,10 +13,24 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.user_defined_import_code_chunk import \
     UserDefinedImportCodeChunk
+from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.types import ColumnID
+
+
+def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]:
+    if state is None:
+        return []
+
+    return [
+        {
+            'name': f.__name__,
+            'docstring': f.__doc__,
+            'parameters': [],
+        }
+        for f in state.user_defined_importers
+    ]
 
 
 class UserDefinedImportStepPerformer(StepPerformer):
@@ -34,7 +48,6 @@ class UserDefinedImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        print("PARAMS", params)
         importer: str = get_param(params, 'importer')
 
         # We make a new state to modify it
@@ -42,8 +55,15 @@ class UserDefinedImportStepPerformer(StepPerformer):
 
         pandas_start_time = perf_counter()
         
-        print("NAMES", importer, post_state.user_defined_importers, [f.__name__ for f in post_state.user_defined_importers])
-        importer_function = next(f for f in post_state.user_defined_importers if f.__name__ == importer)
+        try:
+            importer_function = next(f for f in post_state.user_defined_importers if f.__name__ == importer)
+        except:
+            raise MitoError(
+                'user_defined_importer_not_found',
+                f"Importer {importer} not found.",
+                f"User defined importer {importer} not found. Please check that it is defined in the `importers` list passed to mitosheet.sheet.",
+                error_modal=True
+            )
         result = importer_function()
 
         if isinstance(result, pd.DataFrame):

@@ -37,7 +37,7 @@ const getDefaultParams = (
 
     // Otherwise, return the first importer
     return {
-        importer: analysisData.userDefinedImporters[0]
+        importer: analysisData.userDefinedImporters[0].name
     }
 }
 
@@ -97,7 +97,10 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                             >
                                 {props.analysisData.userDefinedImporters.map(importer => {
                                     return (
-                                        <DropdownItem title={importer}/>
+                                        <DropdownItem 
+                                            title={importer.name}
+                                            subtext={importer.docstring}
+                                        />
                                     )
                                 })}
                             </Select>

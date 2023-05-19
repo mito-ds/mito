@@ -97,10 +97,12 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         local_vars = original.__dict__
 
     user_defined_functions = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
+    user_defined_importers = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_importers if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
 
     local_vars = {
         **local_vars,
-        **{f.__name__: f for f in user_defined_functions}
+        **{f.__name__: f for f in user_defined_functions},
+        **{f.__name__: f for f in user_defined_importers},
     }
 
     try:
@@ -685,7 +687,7 @@ class MitoWidgetTestWrapper:
             {
                 'event': 'edit_event',
                 'id': get_new_id(),
-                'type': 'userdefinedimport_edit',
+                'type': 'user_defined_import_edit',
                 'step_id': get_new_id(),
                 'params': {
                     'importer': importer,
@@ -1611,12 +1613,13 @@ def create_mito_wrapper(
         *args: Union[pd.DataFrame, str], 
         arg_names: Optional[List[str]]=None,
         sheet_functions: Optional[List[Callable]]=None,
+        importers: Optional[List[Callable]]=None,
     ) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions)
+    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
     if arg_names is not None:

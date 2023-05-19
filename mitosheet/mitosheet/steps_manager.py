@@ -17,6 +17,7 @@ from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
+from mitosheet.step_performers.user_defined_import import get_user_defined_importers_for_frontend
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -350,7 +351,7 @@ class StepsManager:
                 'experiment': self.experiment,
                 'codeOptions': self.code_options,
                 'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
-                'userDefinedImporters': [f.__name__ for f in (self.curr_step.post_state.user_defined_importers if self.curr_step.post_state else [])],
+                'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
             },
             cls=NpEncoder
         )
