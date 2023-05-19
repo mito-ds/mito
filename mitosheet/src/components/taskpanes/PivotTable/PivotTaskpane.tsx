@@ -36,6 +36,8 @@ export type PivotTaskpaneProps = {
 
 const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
 
+    console.log(props.existingPivotParams)
+
     const {params, setParams, error} = useLiveUpdatingParams(
         () => getDefaultPivotParams(props.sheetDataArray, props.sourceSheetIndex, props.existingPivotParams),
         StepType.Pivot,

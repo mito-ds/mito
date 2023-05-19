@@ -12,6 +12,7 @@ import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTa
 import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
+import { MergeParams } from "../components/taskpanes/Merge/MergeTaskpane";
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
@@ -491,6 +492,7 @@ export default class MitoAPI {
         }, {})
 
         if (params !== undefined && params !== '') {
+            console.log(JSON.parse(params))
             return JSON.parse(params) as T
         }
         return undefined;
@@ -504,6 +506,14 @@ export default class MitoAPI {
         destinationSheetIndex: number
     ): Promise<BackendPivotParams | undefined> {
         return await this.getParams('pivot', undefined, {
+            'destination_sheet_index': destinationSheetIndex
+        })
+    }
+
+    async getMergeParams(
+        destinationSheetIndex: number
+    ): Promise<MergeParams | undefined> {
+        return await this.getParams('merge', undefined, {
             'destination_sheet_index': destinationSheetIndex
         })
     }

@@ -378,10 +378,35 @@ export const Mito = (props: MitoProps): JSX.Element => {
             }
         }
 
+        const openEditedMerge = async (): Promise<void> => {
+            const existingMergeParams = await mitoAPI.getMergeParams(uiState.selectedSheetIndex);
+            console.log('existingMergeParams: ', existingMergeParams)
+
+            if (existingMergeParams !== undefined) {
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.MERGE,
+                            destinationSheetIndex: existingMergeParams.destination_sheet_index,
+                            existingMergeParams: existingMergeParams
+                        },
+                        selectedTabType: 'data'
+                    }
+                })
+            }
+        }
+
+
         const source = dfSources[uiState.selectedSheetIndex];
         // Open the pivot if it's a pivot, and there's no other taskpane open
         if (source !== undefined && source === DFSource.Pivoted && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
             void openEditedPivot()
+        }
+
+        if (source !== undefined && source === DFSource.Merged && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
+            void openEditedMerge()
         }
 
         // Close the cell editor if it is open
@@ -593,6 +618,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     analysisData={analysisData}
+                    existingMergeParams={uiState.currOpenTaskpane.existingMergeParams}
+                    destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                 />
             )
             case TaskpaneType.CONCAT: return (

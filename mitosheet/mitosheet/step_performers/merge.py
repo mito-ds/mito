@@ -14,6 +14,7 @@ from mitosheet.code_chunks.step_performers.merge_code_chunk import MergeCodeChun
 from mitosheet.errors import (get_recent_traceback, make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
+from mitosheet.step_performers.pivot import get_new_pivot_df_name
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import (
@@ -45,6 +46,9 @@ class MergeStepPerformer(StepPerformer):
         merge_key_column_ids: List[List[ColumnID]] = get_param(params, 'merge_key_column_ids')
         selected_column_ids_one: List[ColumnID] = get_param(params, 'selected_column_ids_one')
         selected_column_ids_two: List[ColumnID] = get_param(params, 'selected_column_ids_two')
+        destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
+
+        print(destination_sheet_index)
 
         merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
         merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
@@ -70,9 +74,12 @@ class MergeStepPerformer(StepPerformer):
         pandas_processing_time = perf_counter() - pandas_start_time
 
         # Add this dataframe to the new post state
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED)
+        df_name = None if destination_sheet_index is None else post_state.df_names[destination_sheet_index]
+        destination_sheet_index = post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED, destination_sheet_index, df_name)
+        print(destination_sheet_index)
 
         return post_state, {
+            'destination_sheet_index': destination_sheet_index,
             'pandas_processing_time': pandas_processing_time
         }
 
@@ -94,6 +101,7 @@ class MergeStepPerformer(StepPerformer):
                 get_param(params, 'merge_key_column_ids'),
                 get_param(params, 'selected_column_ids_one'),
                 get_param(params, 'selected_column_ids_two'),
+                get_param(params, 'destination_sheet_index'),
             )
         ]
     

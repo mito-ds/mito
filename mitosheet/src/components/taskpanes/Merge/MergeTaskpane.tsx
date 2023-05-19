@@ -47,6 +47,7 @@ export interface MergeParams {
     merge_key_column_ids: [ColumnID, ColumnID][],
     selected_column_ids_one: ColumnID[],
     selected_column_ids_two: ColumnID[],
+    destination_sheet_index?: number
 }
 
 
@@ -56,6 +57,12 @@ export type MergeTaskpaneProps = {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     analysisData: AnalysisData;
+    /* 
+        These props are only defined if we are editing a merge
+        that already exists, and these are what we then default it to
+    */
+    existingMergeParams?: MergeParams;
+    destinationSheetIndex?: number;
 };
 
 
@@ -102,19 +109,28 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
         merge_key_column_ids: suggestedMergeKeys ? [suggestedMergeKeys] : [],
         selected_column_ids_one: selectedColumnIDsOne,
         selected_column_ids_two: selectedColumnIDsTwo,
+        destination_sheet_index: undefined
     }
 }
 
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
+    console.log('props: ', props.existingMergeParams)
+
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
+        () => props.existingMergeParams === undefined ? getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex) : props.existingMergeParams,
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
-        50 // 50 ms debounce delay
+        50, // 50 ms debounce delay,
+        undefined,
+        {
+            doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
+        }
     )
+
+    console.log('params: ', params)
 
     /*
         If the merge params are undefined, then display this error message.

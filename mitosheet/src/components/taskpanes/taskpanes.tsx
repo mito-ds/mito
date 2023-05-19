@@ -3,6 +3,7 @@
 import { CommCreationErrorStatus } from "../../jupyter/comm";
 import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
+import { MergeParams } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
 
 /* 
@@ -69,14 +70,20 @@ export type TaskpaneInfo =
         graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT_FILES}
-    | {type: TaskpaneType.MERGE}
+    | {
+        type: TaskpaneType.MERGE, 
+        // Optional params only defined if this is a merge
+        // editing an existing merge
+        existingMergeParams?: MergeParams,
+        destinationSheetIndex?: number, 
+    }
     | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {
         type: TaskpaneType.PIVOT,
         sourceSheetIndex: number,
         // Optional params only defined if this is a pivot
-        // editing a specific existing pivot table
+        // editing an existing pivot table
         destinationSheetIndex?: number;
         existingPivotParams?: BackendPivotParams, 
     } 

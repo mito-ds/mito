@@ -21,7 +21,18 @@ UNIQUE_IN_RIGHT = 'unique in right'
 class MergeCodeChunk(CodeChunk):
 
 
-    def __init__(self, prev_state: State, post_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID]):
+    def __init__(
+        self, 
+        prev_state: State, 
+        post_state: State, 
+        how: str, 
+        sheet_index_one: int, 
+        sheet_index_two: int, 
+        merge_key_column_ids: List[List[ColumnID]], 
+        selected_column_ids_one: List[ColumnID], 
+        selected_column_ids_two: List[ColumnID],
+        destination_sheet_index: Optional[int]
+    ):
         super().__init__(prev_state, post_state)
         self.how: str = how 
         self.sheet_index_one: int = sheet_index_one 
@@ -29,6 +40,7 @@ class MergeCodeChunk(CodeChunk):
         self.merge_key_column_ids: List[List[ColumnID]] = merge_key_column_ids 
         self.selected_column_ids_one: List[ColumnID] = selected_column_ids_one 
         self.selected_column_ids_two: List[ColumnID] = selected_column_ids_two
+        self.destination_sheet_index = destination_sheet_index
 
         self.df_one_name = self.post_state.df_names[self.sheet_index_one]
         self.df_two_name = self.post_state.df_names[self.sheet_index_two]
@@ -49,6 +61,14 @@ class MergeCodeChunk(CodeChunk):
 
         if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
             return [f'{self.df_new_name} = pd.DataFrame()'], ['import pandas as pd']
+
+        if self.destination_sheet_index is None:
+            self.new_df_name = self.post_state.df_names[-1]
+        else:
+            # If we're repivoting an existing pivot table, we have
+            # to make sure to overwrite the correct pivot table 
+            # by using the right name
+            self.new_df_name = self.post_state.df_names[self.destination_sheet_index]
 
         # Now, we build the merge code 
         merge_code = []
@@ -114,4 +134,14 @@ class MergeCodeChunk(CodeChunk):
         return merge_code, []
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs) - 1]
+        if self.destination_sheet_index is None:
+            return [len(self.post_state.dfs) - 1]
+        else:
+            # Note: editing a dataframe does not create a sheet index, it 
+            # overwrites it instead. See get_edited_sheet_indexes below
+            return None
+
+    def get_edited_sheet_indexes(self) -> List[int]:
+        if self.destination_sheet_index is not None:
+            return [self.destination_sheet_index]
+        return []
