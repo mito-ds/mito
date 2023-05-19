@@ -117,6 +117,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
             [PopupLocation.TopRight]: {type: PopupType.None}
         }
     })
+
+    console.log(sheetDataArray)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
@@ -380,7 +382,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         const openEditedMerge = async (): Promise<void> => {
             const existingMergeParams = await mitoAPI.getMergeParams(uiState.selectedSheetIndex);
-            console.log('existingMergeParams: ', existingMergeParams)
 
             if (existingMergeParams !== undefined) {
                 setUIState(prevUIState => {
@@ -389,7 +390,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         currOpenModal: {type: ModalEnum.None},
                         currOpenTaskpane: {
                             type: TaskpaneType.MERGE,
-                            destinationSheetIndex: existingMergeParams.destination_sheet_index,
+                            destinationSheetIndex: uiState.selectedSheetIndex,
                             existingMergeParams: existingMergeParams
                         },
                         selectedTabType: 'data'

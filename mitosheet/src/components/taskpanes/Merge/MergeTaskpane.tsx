@@ -127,7 +127,8 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         undefined,
         {
             doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
-        }
+        },
+        props.sheetDataArray
     )
 
     console.log('params: ', params)

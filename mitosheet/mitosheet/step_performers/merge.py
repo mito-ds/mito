@@ -75,6 +75,8 @@ class MergeStepPerformer(StepPerformer):
 
         # Add this dataframe to the new post state
         df_name = None if destination_sheet_index is None else post_state.df_names[destination_sheet_index]
+        print(df_name)
+        print(new_df)
         destination_sheet_index = post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED, destination_sheet_index, df_name)
         print(destination_sheet_index)
 
@@ -107,6 +109,9 @@ class MergeStepPerformer(StepPerformer):
     
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        destination_sheet_index = get_param(params, 'destination_sheet_index')
+        if destination_sheet_index: # If editing an existing sheet, that is what is changed
+            return {destination_sheet_index}
         return {-1}
 
 def _execute_merge(
