@@ -96,6 +96,9 @@
 .text-color-mito-purple {
     color: var(--mito-purple) !important;
 }
+.text-color-mito-light-purple {
+    color: var(--mito-light-purple)
+}
 .text-color-white-important {
     color: white !important;
 }
@@ -185,5 +188,4 @@
 
 .text-color-gray-disabled {
     color: var(--mito-gray-disabled);
-   
 }

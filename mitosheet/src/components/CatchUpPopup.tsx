@@ -5,6 +5,7 @@ import "../../css/CatchUpPopup.css";
 import Col from './layout/Col';
 import Row from './layout/Row';
 import CatchUpIcon from './icons/CatchUpIcon';
+import { classNames } from '../utils/classNames';
 
 /*
     A small upper-left modal that displays a message to the user
@@ -13,6 +14,7 @@ import CatchUpIcon from './icons/CatchUpIcon';
 const CatchUpPopup = (props: {
     fastForward: () => void,
     deleteStepsAfterIdx: () => void
+    isPro: boolean
 }): JSX.Element => {
 
     return (
@@ -36,13 +38,13 @@ const CatchUpPopup = (props: {
                     </p>                    
                 </Col>
             </Row>
-            <Row onClick={props.deleteStepsAfterIdx}>
+            <Row onClick={props.isPro ? props.deleteStepsAfterIdx : () => {}}>
                 <Col>
                     <CatchUpIcon variant='light'/>
                 </Col>
                 <Col offset={1}>
-                    <p>
-                        <span className='text-underline'> Delete hidden steps </span> to work from here.
+                    <p className={classNames({'text-color-mito-light-purple': !props.isPro})} title={!props.isPro ? 'Bulk step undo requires Mito Pro or Enterprise' : undefined}>
+                        <span className='text-underline'> Undo hidden steps </span> to work from here.
                     </p>                    
                 </Col>
             </Row>

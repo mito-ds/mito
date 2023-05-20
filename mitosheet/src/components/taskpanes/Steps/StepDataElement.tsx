@@ -37,6 +37,7 @@ export type StepDataElementProps = {
     lastIndex: number;
     stepData: StepSummary;
     mitoAPI: MitoAPI;
+    isPro: boolean
     displayDropdown: boolean;
     setDisplayDropdown: React.Dispatch<React.SetStateAction<number | undefined>>
 };
@@ -191,7 +192,12 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
                 display={props.displayDropdown}
                 closeDropdown={() => {props.setDisplayDropdown(undefined)}}
             >
-                <DropdownItem title={'Delete all following steps'} onClick={() => deleteFollowingSteps()} />
+                <DropdownItem 
+                    title={'Undo all following steps'} 
+                    onClick={() => deleteFollowingSteps()} 
+                    disabled={!props.isPro}
+                    subtext={!props.isPro ? 'Bulk step undo requires Mito Pro or Enterprise' : undefined}
+                />
                 <DropdownItem title={'View analysis at this step'} onClick={() => toggleStepRollBack()} />
             </Dropdown>
         </div>

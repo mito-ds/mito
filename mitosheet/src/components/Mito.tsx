@@ -636,6 +636,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
+                    userProfile={userProfile}
                 />
             )
             case TaskpaneType.IMPORT_FIRST: return (
@@ -985,6 +986,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         deleteStepsAfterIdx={() => {
                             void mitoAPI.updateDeleteStepsAfterIdx(analysisData.currStepIdx)
                         }}
+                        isPro={userProfile.isPro}
                     />
                 }
             </ErrorBoundary>

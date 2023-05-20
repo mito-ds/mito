@@ -68,6 +68,7 @@ export enum UpdateType {
     ChecklistUpdate = 'checklist_update',
     UpdateExistingImportUpdate = 'update_existing_import_update',
     CodeOptionsUpdate = 'code_options_update',
+    DeleteStepsAfterIdxUpdate = 'delete_steps_after_idx_update',
 }
 
 export type ParamName = string;

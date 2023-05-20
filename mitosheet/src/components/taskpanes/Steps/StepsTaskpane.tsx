@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import { StepSummary } from '../../../types';
+import { StepSummary, UserProfile } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import '../../../../css/taskpanes/Steps/StepTaskpane.css'
 import StepDataElement from './StepDataElement';
@@ -16,6 +16,7 @@ export type StepTaskpaneProps = {
     currStepIdx: number;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI
+    userProfile: UserProfile
 };
 
 /* 
@@ -44,6 +45,7 @@ function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
                                 stepData={stepSummary}
                                 mitoAPI={props.mitoAPI}
                                 stepIdx={stepSummary.step_idx}
+                                isPro={props.userProfile.isPro}
                                 displayDropdown={displayStepDropdown===stepSummary.step_idx}
                                 setDisplayDropdown={() => {
                                     setDisplayStepDropdown(prevDisplayStepDropdown => {
