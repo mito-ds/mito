@@ -982,6 +982,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         fastForward={() => {
                             void mitoAPI.updateCheckoutStepByIndex(lastStepSummary.step_idx);
                         }}
+                        deleteStepsAfterIdx={() => {
+                            void mitoAPI.updateDeleteStepsAfterIdx(analysisData.currStepIdx)
+                        }}
                     />
                 }
             </ErrorBoundary>

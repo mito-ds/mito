@@ -25,14 +25,20 @@ import RedoIcon from '../../icons/RedoIcon';
 import ClearIcon from '../../icons/ClearIcon';
 import OneHotEncodingIcon from '../../icons/OneHotEncodingIcon';
 import AIIcon from '../../icons/AIIcon';
+import Dropdown from '../../elements/Dropdown';
+import DropdownItem from '../../elements/DropdownItem';
+
 
 
 export type StepDataElementProps = {
     beforeCurrIdx: boolean;
+    stepIdx: number;
     isCurrIdx: boolean;
     lastIndex: number;
     stepData: StepSummary;
     mitoAPI: MitoAPI;
+    displayDropdown: boolean;
+    setDisplayDropdown: React.Dispatch<React.SetStateAction<number | undefined>>
 };
 
 /* 
@@ -145,14 +151,14 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
 */
 function StepDataElement(props: StepDataElementProps): JSX.Element {
 
-    // const toggleStepRollBack = (): void => {
-    //     if (props.isCurrIdx) {
-    //         // If this step is checked out, we go back to the last index
-    //         void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
-    //     } else {
-    //         void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
-    //     }
-    // }
+    const toggleStepRollBack = (): void => {
+        if (props.isCurrIdx) {
+            // If this step is checked out, we go back to the last index
+            void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
+        } else {
+            void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
+        }
+    }
 
     const deleteFollowingSteps = (): void => {
         void props.mitoAPI.updateDeleteStepsAfterIdx(props.stepData.step_idx)
@@ -161,9 +167,14 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
     {/* We grey out any steps that are before the current step */ }
     return (
         <div 
-            className='step-taskpane-step-container' 
+            className='step-taskpane-step-container'
             style={{opacity: props.beforeCurrIdx ? '1': '.5'}}
-            //onClick={toggleStepRollBack}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                props.setDisplayDropdown(props.stepIdx);
+            }}
+            onClick={toggleStepRollBack}
         >
             <div className='step-taskpane-step-icon'>
                 {getIcon(props.stepData.step_type)}
@@ -176,9 +187,13 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
                     {props.stepData.step_description}
                 </div>
             </div>
-            <div onClick={() => deleteFollowingSteps()}>
-                X 
-            </div>
+            <Dropdown 
+                display={props.displayDropdown}
+                closeDropdown={() => {props.setDisplayDropdown(undefined)}}
+            >
+                <DropdownItem title={'Delete all following steps'} onClick={() => deleteFollowingSteps()} />
+                <DropdownItem title={'View analysis at this step'} onClick={() => toggleStepRollBack()} />
+            </Dropdown>
         </div>
     )
 }

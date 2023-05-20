@@ -20,8 +20,6 @@ def test_delete_following_steps():
 
     mito.delete_steps_after_idx(1)
 
-    print(mito.dfs[0])
-
     assert mito.dfs[0].equals(
         pd.DataFrame({'A': [1], 'B': [0]})
     )
@@ -39,9 +37,6 @@ def test_delete_following_steps_then_undo():
     )
 
     mito.undo()
-
-    print(mito.dfs[0])
-    print(pd.DataFrame({'A': [1], 'B': [0], 'C': [0]}))
 
     assert mito.dfs[0].equals(
         pd.DataFrame({'A': [1], 'B': [0], 'C': [0]})

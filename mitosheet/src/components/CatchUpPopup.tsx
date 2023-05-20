@@ -10,11 +10,13 @@ import CatchUpIcon from './icons/CatchUpIcon';
     A small upper-left modal that displays a message to the user
     to let them know to fast forward
 */
-const CatchUpPopup = (props: {fastForward: () => void}): JSX.Element => {
+const CatchUpPopup = (props: {
+    fastForward: () => void,
+    deleteStepsAfterIdx: () => void
+}): JSX.Element => {
 
     return (
         <div 
-            onClick={props.fastForward}
             className='catch-up-popup-container'
         >
             <Row>
@@ -24,13 +26,23 @@ const CatchUpPopup = (props: {fastForward: () => void}): JSX.Element => {
                     </p>
                 </Col>
             </Row>
-            <Row>
+            <Row onClick={props.fastForward} >
                 <Col>
                     <CatchUpIcon variant='light'/>
                 </Col>
                 <Col offset={1}>
                     <p>
-                        <span className='text-underline'> Catch up</span> to start editing.
+                        <span className='text-underline'> Catch up</span> to continue analysis.
+                    </p>                    
+                </Col>
+            </Row>
+            <Row onClick={props.deleteStepsAfterIdx}>
+                <Col>
+                    <CatchUpIcon variant='light'/>
+                </Col>
+                <Col offset={1}>
+                    <p>
+                        <span className='text-underline'> Delete hidden steps </span> to work from here.
                     </p>                    
                 </Col>
             </Row>
