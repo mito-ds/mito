@@ -246,11 +246,25 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
-    # Then, add the function call
-    if len(return_variables_string) > 0:
-        final_code.append(f"{return_variables_string} = {function_name}({param_values})")
+    if len(function_params) > 0:
+        params_dict = _get_params_dict_for_function_call(steps_manager, function_params)
+        for param_name, param_value in params_dict.items():
+            final_code.append(f"{param_name} = {param_value}")
+        if len(function_params) > 0:
+            final_code.append("")
+
+        params = param_names
     else:
-        final_code.append(f"{function_name}({param_values})")
+        params = param_values
+
+    # Then, add the function call
+    print('param_values: ', param_values)
+    print('params_names: ', param_names)
+    print('function_params: ', function_params)
+    if len(return_variables_string) > 0:
+        final_code.append(f"{return_variables_string} = {function_name}({params})")
+    else:
+        final_code.append(f"{function_name}({params})")
 
     return final_code
 

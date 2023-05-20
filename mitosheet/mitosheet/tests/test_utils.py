@@ -1586,6 +1586,10 @@ def create_mito_wrapper(*args: Union[pd.DataFrame, str], arg_names: Optional[Lis
     mito_backend = get_mito_backend(*args)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
+    print("ARGS")
+    print(*args)
+    print(arg_names)
+
     if arg_names is not None:
         test_wrapper.argsUpdate(arg_names)
 
