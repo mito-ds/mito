@@ -22,7 +22,7 @@ def execute_following_steps_update(
     """
     Checks out a specific step by index
     """
-    steps_manager.execute_delete_following_steps(step_idx)
+    steps_manager.execute_delete_steps_after_idx(step_idx)
 
 DELETE_STEPS_AFTER_IDX_UPDATE = {
     'event_type': DELETE_STEPS_AFTER_IDX_UPDATE_EVENT,
