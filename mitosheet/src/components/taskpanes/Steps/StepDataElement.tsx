@@ -145,13 +145,17 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
 */
 function StepDataElement(props: StepDataElementProps): JSX.Element {
 
-    const toggleStepRollBack = (): void => {
-        if (props.isCurrIdx) {
-            // If this step is checked out, we go back to the last index
-            void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
-        } else {
-            void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
-        }
+    // const toggleStepRollBack = (): void => {
+    //     if (props.isCurrIdx) {
+    //         // If this step is checked out, we go back to the last index
+    //         void props.mitoAPI.updateCheckoutStepByIndex(props.lastIndex);
+    //     } else {
+    //         void props.mitoAPI.updateCheckoutStepByIndex(props.stepData.step_idx);
+    //     }
+    // }
+
+    const deleteFollowingSteps = (): void => {
+        void props.mitoAPI.updateDeleteStepsAfterIdx(props.stepData.step_idx)
     }
 
     {/* We grey out any steps that are before the current step */ }
@@ -159,7 +163,7 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
         <div 
             className='step-taskpane-step-container' 
             style={{opacity: props.beforeCurrIdx ? '1': '.5'}}
-            onClick={toggleStepRollBack}
+            //onClick={toggleStepRollBack}
         >
             <div className='step-taskpane-step-icon'>
                 {getIcon(props.stepData.step_type)}
@@ -171,6 +175,9 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
                 <div className='text-body-2 text-overflow-scroll hide-scrollbar'>
                     {props.stepData.step_description}
                 </div>
+            </div>
+            <div onClick={() => deleteFollowingSteps()}>
+                X 
             </div>
         </div>
     )

@@ -10,7 +10,7 @@ import CatchUpIcon from './icons/CatchUpIcon';
     A small upper-left modal that displays a message to the user
     to let them know to fast forward
 */
-const FastForwardPopup = (props: {fastForward: () => void}): JSX.Element => {
+const CatchUpPopup = (props: {fastForward: () => void}): JSX.Element => {
 
     return (
         <div 
@@ -34,9 +34,8 @@ const FastForwardPopup = (props: {fastForward: () => void}): JSX.Element => {
                     </p>                    
                 </Col>
             </Row>
-            
         </div>
     );
 };
 
-export default FastForwardPopup;
+export default CatchUpPopup;

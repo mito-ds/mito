@@ -1198,6 +1198,20 @@ class MitoWidgetTestWrapper:
                 },
             }
         )
+
+    @check_transpiled_code_after_call
+    def delete_steps_after_idx(self, index: int) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'delete_steps_after_idx_update',
+                'params': {
+                    'step_idx': index,
+                },
+            }
+        )
+    
     
     @check_transpiled_code_after_call
     def checklist_update(self, checklist_id: str, completed_items: List[str], clear_other_items: bool) -> bool:

@@ -28,6 +28,7 @@ from mitosheet.updates.go_pro import GO_PRO_UPDATE
 from mitosheet.updates.render_count import RENDER_COUNT_UPDATE
 from mitosheet.updates.checklist_update import CHECKLIST_UPDATE
 from mitosheet.updates.update_existing_imports import UPDATE_EXISTING_IMPORTS_UPDATE
+from mitosheet.updates.delete_steps_after_idx import DELETE_STEPS_AFTER_IDX_UPDATE
 
 
 # All update events must be listed in this variable.
@@ -47,5 +48,6 @@ UPDATES = [
     RENDER_COUNT_UPDATE,
     CHECKLIST_UPDATE,
     UPDATE_EXISTING_IMPORTS_UPDATE,
-    CODE_OPTIONS_UPDATE
+    CODE_OPTIONS_UPDATE,
+    DELETE_STEPS_AFTER_IDX_UPDATE
 ]
