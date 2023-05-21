@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import MitoAPI from '../../../jupyter/api';
-import { AnalysisData, EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import { AnalysisData, EditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../types';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
@@ -13,7 +14,6 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
 import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
 import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
-import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
@@ -493,7 +493,7 @@ const CellEditor = (props: {
         // Mark this as loading
         setLoading(true);
         
-        let errorMessage: MitoError | undefined = undefined;
+        let errorMessage: any = undefined; // TODO: fix type
 
         // Make sure to send the write type of message, depending on the editor
         if (props.editorState.rowIndex == -1) {

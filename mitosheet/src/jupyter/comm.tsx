@@ -36,8 +36,10 @@
  * we return an error to the user.
  */
 
+import { AnalysisData, SheetData, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
+import { MitoResponse, getRandomId } from "./api";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
  * Note the difference between the Lab and Notebook comm interfaces. 
@@ -70,6 +72,14 @@ export type CommContainer = {
 }
 
 export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
+
+// Max delay is the longest we'll wait for the API to return a value
+// There is no real reason for these to expire, so we set it very high
+// at 5 minutes
+const MAX_DELAY = 5 * 60_000;
+// How often we poll to see if we have a response yet
+const RETRY_DELAY = 250;
+const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 export type CommCreationErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
 export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatus;
@@ -202,4 +212,169 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
     }
 
     return 'non_valid_location_error'
+}
+
+export type FetchFunctionSuccessReturnType<ResultType> = {
+    sheetDataArray: SheetData[] | undefined,
+    analysisData: AnalysisData | undefined,
+    userProfile: UserProfile | undefined,
+    result: ResultType
+};
+export type FetchFunctionErrorReturnType = {
+    error: string,
+    shortError: string,
+    showErrorModal: boolean,
+    traceback?: string,
+};
+export type FetchFunctionReturnType<ResultType> =  FetchFunctionSuccessReturnType<ResultType> | FetchFunctionErrorReturnType;
+export type FetchFunction = <ResultType>(params: Record<string, unknown>) => Promise<FetchFunctionReturnType<ResultType>>;
+
+export async function getCommFetchWrapper(kernelID: string, commTargetID: string): Promise<FetchFunction | CommCreationErrorStatus> {
+    let commContainer: CommContainer | CommCreationErrorStatus = 'non_valid_location_error';
+    if (isInJupyterNotebook()) {
+        commContainer = await getNotebookComm(commTargetID);
+    } else if (isInJupyterLab()) {
+        commContainer = await getLabComm(kernelID, commTargetID);
+    }
+
+    // If it's an error, return the error
+    if (typeof commContainer === 'string') {
+        return commContainer;
+    }
+
+    const comm = commContainer.comm;
+    const _send = comm.send;
+
+    if (commContainer.type === 'notebook') {
+        commContainer.comm.on_msg((msg) => receiveResponse(msg));
+    } else {
+        commContainer.comm.onMsg = (msg) => receiveResponse(msg);
+    }
+
+    const unconsumedResponses = getCommFetchWrapper.unconsumedResponses || (getCommFetchWrapper.unconsumedResponses = []);
+
+    function receiveResponse(rawResponse: Record<string, unknown>): void {
+        const response = (rawResponse as any).content.data as MitoResponse; // TODO: turn this into one of the funcitons that checks types, to avoid the echo!
+        unconsumedResponses.push(response);
+    }
+
+    function getResponseData<ResultType> (id: string, maxRetries = MAX_RETRIES): Promise<FetchFunctionReturnType<ResultType>> {
+
+        return new Promise((resolve) => {
+            let tries = 0;
+            const interval = setInterval(() => {
+                // Only try at most MAX_RETRIES times
+                tries++;
+                if (tries > maxRetries) {
+                    console.error(`No response on message: {id: ${id}}`);
+                    clearInterval(interval);
+                    // If we fail, we return an empty response
+                    return resolve({
+                        error: `No response on message: {id: ${id}}`,
+                        shortError: `No response received`,
+                        showErrorModal: false
+                    })
+                }
+
+                // See if there is an API response to this one specificially
+                const index = unconsumedResponses.findIndex((response) => {
+                    return response['id'] === id;
+                })
+                if (index !== -1) {
+                    // Clear the interval
+                    clearInterval(interval);
+
+                    const response = unconsumedResponses[index];
+                    unconsumedResponses.splice(index, 1);
+                    console.log("RESONSE", response)
+
+                    if (response['event'] == 'edit_error') {
+                        return resolve({
+                            error: response['to_fix'],
+                            shortError: response['header'],
+                            // TODO: clean the below line up. For some reason, when data is undefined,
+                            // we show the error modal. But I am not sure why this is the case...
+                            showErrorModal: response['data'] === undefined,
+                            traceback: response['traceback']
+                        });
+                    }
+
+                    const sharedVariables = response.shared_variables;
+                    
+                    return resolve({
+                        sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : undefined,
+                        analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : undefined,
+                        userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : undefined,
+                        result: response['data'] as ResultType
+                    });
+                }
+            }, RETRY_DELAY);
+        })
+    }
+
+    
+    async function send<ResultType>(msg: Record<string, unknown>): Promise<FetchFunctionReturnType<ResultType>> {
+        // Generate a random id, and add it to the message
+        const id = getRandomId();
+        msg['id'] = id;
+
+        // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
+        console.log(`Sending: {type: ${msg['type']}, id: ${id}}`)
+
+        // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
+        // to see if they get defined
+        //await waitUntilConditionReturnsTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+
+        // We notably need to .call so that we can actually bind the comm.send function
+        // to the correct `this`. We don't want `this` to be the MitoAPI object running 
+        // this code, so we bind the comm object
+        _send.call(comm, msg);
+
+        // Only set loading to true after half a second, so we don't set it for no reason
+        let loadingUpdated = false;
+        const timeout: NodeJS.Timeout = setTimeout(() => {
+            // TODO: handle loading!
+            /*this.setUIState((prevUIState) => {
+                loadingUpdated = true;
+                const newLoadingCalls = [...prevUIState.loading];
+                newLoadingCalls.push([id, msg['step_id'] as string | undefined, msg['type'] as string])
+                return {
+                    ...prevUIState,
+                    loading: newLoadingCalls
+                }
+            });*/
+        }, 500);
+
+        // Wait for the response, if we should
+        const response = await getResponseData<ResultType>(id, MAX_RETRIES);
+
+        // Stop the loading from being updated if it hasn't already run
+        clearTimeout(timeout);
+
+        // If loading has been updated, then we remove the loading with this value
+        if (loadingUpdated) {
+            // TODO: fix loading
+            /*this.setUIState((prevUIState) => {
+                const newLoadingCalls = [...prevUIState.loading];
+                const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
+                newLoadingCalls.splice(messageIndex, 1);
+                return {
+                    ...prevUIState,
+                    loading: newLoadingCalls
+                }
+            }); */
+        }
+
+        // Return this id
+        return response;
+    }
+    
+    return send;
+}
+
+
+// Allow us to save the canvas for performance reasons
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace getCommFetchWrapper {
+    export let unconsumedResponses: MitoResponse[];
 }

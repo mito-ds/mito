@@ -155,7 +155,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         })
 
 
-        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const newParams = 'error' in response ? undefined : response.result;
         if (newParams !== undefined) {
             if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
                 _setParams(newParams);
@@ -194,7 +195,8 @@ function useSendEditOnClick<ParamType, ResultType>(
             return newStepIDData;
         })
 
-        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const newParams = 'error' in response ? undefined : response.result;
         if (newParams !== undefined) {
             if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
                 _setParams(newParams);

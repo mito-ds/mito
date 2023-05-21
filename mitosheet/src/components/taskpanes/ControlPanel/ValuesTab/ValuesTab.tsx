@@ -113,12 +113,13 @@ export function ValuesTab(
     async function loadUniqueValueCounts() {
         setLoading(true);
 
-        const _uniqueValueObj = await props.mitoAPI.getUniqueValueCounts(
+        const response = await props.mitoAPI.getUniqueValueCounts(
             props.selectedSheetIndex,
             props.columnID,
             searchString,
             sort
         );
+        const _uniqueValueObj = 'error' in response ? undefined : response.result;
 
         if (_uniqueValueObj !== undefined) {
             const _uniqueValueObjs = _uniqueValueObj.uniqueValueCounts

@@ -126,7 +126,9 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
             return;
         }
 
-        const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
+        const newBackendParams = 'error' in response ? undefined : response.result;
+
         if (newBackendParams !== undefined) {
             _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
         } else {

@@ -40,10 +40,12 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
     const [loading, setLoading] = useState(true)
 
     async function loadDescribe() {
-        const loadedDescribe = await props.mitoAPI.getColumnDescribe(
+        const response = await props.mitoAPI.getColumnDescribe(
             props.selectedSheetIndex, 
             props.columnID
         );
+        const loadedDescribe = 'error' in response ? {} : response.result;
+
         setDescribe(loadedDescribe);
         setLoading(false);
     }

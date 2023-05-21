@@ -729,7 +729,8 @@ export const createActions = (
                 // create a new pivot table. That is: if a user is on a pivot table, then
                 // we let them edit that pivot table
                 if (dfSources[sheetIndex] === DFSource.Pivoted) {
-                    const existingPivotParams = await mitoAPI.getPivotParams(sheetIndex);
+                    const response = await mitoAPI.getPivotParams(sheetIndex);
+                    const existingPivotParams = 'error' in response ? undefined : response.result;
                     if (existingPivotParams !== undefined) {
                         setUIState(prevUIState => {
                             return {

@@ -59,7 +59,10 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
 
     const [parameterizableParams] = useStateFromAPIAsync<ParameterizableParams, undefined>(
         [],
-        () => {return props.mitoAPI.getParameterizableParams()},
+        async () => {
+            const response = await props.mitoAPI.getParameterizableParams();
+            return 'error' in response ? undefined : response.result;
+        },
         undefined,
         []
     );

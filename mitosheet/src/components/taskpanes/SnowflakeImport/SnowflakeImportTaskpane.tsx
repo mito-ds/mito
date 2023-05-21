@@ -149,7 +149,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
 
     const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
         setLoadingAvailableOptionsAndDefaults(true)
-        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
+        const response = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
+        const availableSnowflakeOptionsAndDefaults = 'error' in response ? undefined : response.result;
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
         if (availableSnowflakeOptionsAndDefaults?.type === 'success') {

@@ -100,10 +100,13 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
             let invalidImportIndexes: Record<number, string> | undefined = undefined;
 
             if (failedReplayData !== undefined) {
-                importData = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
+                const response = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
+                importData = 'error' in response ? undefined : response.result;
+
                 invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
             } else {
-                importData = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
+                const response = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
+                importData = 'error' in response ? undefined : response.result;
                 invalidImportIndexes = {};
             }
 
@@ -235,7 +238,9 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 importCSVFile={async (file: FileElement) => {
                     const fullPath = [...props.currPathParts]
                     fullPath.push(file.name);
-                    const filePath = await props.mitoAPI.getPathJoined(fullPath);
+                    const pathJoinResponse = await props.mitoAPI.getPathJoined(fullPath);
+                    const filePath = 'error' in pathJoinResponse ? undefined : pathJoinResponse.result;
+
 
                     if (filePath === undefined) {
                         return
@@ -249,10 +254,11 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                     }
 
                     // First, check that this is a valid import, and if it is, then update this
-                    const indexToErrorMap = await props.mitoAPI.getTestImports([{
+                    let response = await props.mitoAPI.getTestImports([{
                         'step_id': 'fake_id',
                         'imports': [dataframeCreationData]
                     }])
+                    const indexToErrorMap = 'error' in response ? undefined : response.result;
 
                     // if it's not a valid import, then we send the user to the CSV config screen
                     if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {
@@ -320,10 +326,11 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                     }
 
                     // First, check that this is a valid import
-                    const indexToErrorMap = await props.mitoAPI.getTestImports([{
+                    const response = await props.mitoAPI.getTestImports([{
                         'step_id': 'fake_id',
                         'imports': [dataframeCreationData]
                     }])
+                    const indexToErrorMap = 'error' in response ? undefined : response.result;
 
                     // if it's not a valid import, then we send the user to the CSV config screen
                     if (indexToErrorMap === undefined || Object.keys(indexToErrorMap).length > 0) {

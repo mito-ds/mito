@@ -203,7 +203,10 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     // Get the metadata of the CSV file
     const [fileMetadata] = useStateFromAPIAsync<CSVFileMetadata | undefined, undefined>(
         undefined,
-        () => {return props.mitoAPI.getCSVFilesMetadata(props.params?.file_names || [])},
+        async () => {
+            const response = await props.mitoAPI.getCSVFilesMetadata(props.params?.file_names || [])
+            return 'error' in response ? undefined : response.result;
+        },
         (loadedData) => {
             props.setParams(prevParams => {
                 return {

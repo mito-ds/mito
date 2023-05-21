@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import MitoAPI from "../jupyter/api"
-import { CommCreationStatus, getCommContainer } from "../jupyter/comm"
+import { CommCreationStatus, getCommFetchWrapper } from "../jupyter/comm"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
 
 
@@ -43,11 +43,11 @@ export const useMitoAPI = (
          * timeout.
          */
         const init = async () => {
-            const commContainerOrError = await getCommContainer(kernelID, commTargetID)
-            if (typeof commContainerOrError === 'string') { // Check if it it's an error
-                setCommCreationStatus(commContainerOrError);
+            const fetchFunction = await getCommFetchWrapper(kernelID, commTargetID)
+            if (typeof fetchFunction === 'string') { // Check if it it's an error
+                setCommCreationStatus(fetchFunction);
             } else {
-                void mitoAPI.init(commContainerOrError);
+                void mitoAPI.init(fetchFunction);
                 setCommCreationStatus('finished');
             }
         }

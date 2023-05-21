@@ -72,10 +72,12 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         }
 
         if (props.uiState.exportConfiguration.exportType === 'csv') {
-            const csvString = await props.mitoAPI.getDataframeAsCSV(props.selectedSheetIndex);
+            const response = await props.mitoAPI.getDataframeAsCSV(props.selectedSheetIndex);
+            const csvString = 'error' in response ? '' : response.result;
             setExportString(csvString);
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-            const excelString = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.sheetIndexes);
+            const response = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.sheetIndexes);
+            const excelString = 'error' in response ? '' : response.result;
             setExportString(excelString);
         }
     }

@@ -98,7 +98,10 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
     // Load the metadata about the Excel file from the API
     const [fileMetadata, loading] = useStateFromAPIAsync<ExcelFileMetadata, string>(
         {sheet_names: [], size: 0},
-        (filePath: string) => {return props.mitoAPI.getExcelFileMetadata(filePath)},
+        async (filePath: string) => {
+            const response = await props.mitoAPI.getExcelFileMetadata(filePath);
+            return 'error' in response ? undefined : response.result;
+        },
         (loadedData) => {
             if (loadedData !== undefined) {
                 props.setParams(prevParams => {

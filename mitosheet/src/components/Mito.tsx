@@ -240,7 +240,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
             // because on the first render, we might be displaying outdated data, as the anlaysis has not
             // been replayed yet. This is a function of not being a widget with constantly synced state 
             // variables
-            const currentRenderCount = await mitoAPI.getRenderCount();
+            const response = await mitoAPI.getRenderCount();
+            const currentRenderCount = await 'error' in response ? undefined : response.result;
 
             // Note we check this is the first render AND that we have a created comm. This ensures
             // we only try to send messages when possible
@@ -361,7 +362,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     */
     useEffect(() => {
         const openEditedPivot = async (): Promise<void> => {
-            const existingPivotParams = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
+            const response = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
+            const existingPivotParams = 'error' in response ? undefined : response.result;
+
             if (existingPivotParams !== undefined) {
                 setUIState(prevUIState => {
                     return {

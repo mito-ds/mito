@@ -39,7 +39,8 @@ const AuthenticateToSnowflakeCard = (props: {
 
     const validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {
         setLoading(true)
-        const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
+        const response = await props.mitoAPI.validateSnowflakeCredentials(credentials);
+        const credentialsValidityCheckResult = 'error' in response ? undefined : response.result;
         setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult)
         if (credentialsValidityCheckResult?.type === 'success') {
             props.onValidCredentials()

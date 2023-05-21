@@ -64,7 +64,8 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                 setImportState={setImportState}
                 importCSVFile={async (file) => {
                     // Get the full file path
-                    const filePath = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
+                    const response = await props.mitoAPI.getPathJoined([...props.currPathParts, file.name]);
+                    const filePath = 'error' in response ? undefined : response.result;
                     if (filePath === undefined) {
                         return;
                     }

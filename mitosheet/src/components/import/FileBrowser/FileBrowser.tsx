@@ -109,7 +109,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 loadingFolder: true
             }
         })
-        const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
+        const response = await props.mitoAPI.getPathContents(currPathParts);
+        const _pathContents = 'error' in response ? undefined : response.result;
         if (_pathContents) {
             setFileBrowserState(prevImportState => {
                 return {

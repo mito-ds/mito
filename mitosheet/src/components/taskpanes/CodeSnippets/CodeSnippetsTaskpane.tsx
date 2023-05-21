@@ -39,8 +39,10 @@ const CONFIRMATION_TEXT_CODE_WRITTEN = 'Code snippet written to code cell below.
     This is the CodeSnippets taskpane.
 */
 const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => {
-    const [codeSnippetAPIResult] = useStateFromAPIAsync<CodeSnippetAPIResult | undefined, []>(undefined, () => {
-        return props.mitoAPI.getCodeSnippets();
+    const [codeSnippetAPIResult] = useStateFromAPIAsync<CodeSnippetAPIResult | undefined, []>(undefined, async () => {
+        const response = await props.mitoAPI.getCodeSnippets();
+        return 'error' in response ? undefined : response.result
+
     }, undefined, [])
 
     const [searchString, setSearchString] = useState('');
