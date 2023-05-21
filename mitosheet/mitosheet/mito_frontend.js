@@ -28185,11 +28185,13 @@ ${finalCode}`;
           props.selectedSheetIndex,
           props.columnID
         );
+        console.log("RESPONSE", response);
         return "error" in response ? void 0 : response.result;
       },
       void 0,
       []
     );
+    console.log("DESCRIBE", describe);
     return /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null, /* @__PURE__ */ import_react61.default.createElement("div", { className: "text-header-3" }, /* @__PURE__ */ import_react61.default.createElement("p", null, " Column Summary Statistics ")), /* @__PURE__ */ import_react61.default.createElement("div", { key: loading.toString() }, !loading && /* @__PURE__ */ import_react61.default.createElement("table", { className: "column-describe-table-container" }, Object.keys(describe).map((key2) => {
       const value = describe[key2];
       let valueToDisplay = value;

@@ -45,11 +45,14 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                 props.selectedSheetIndex, 
                 props.columnID
             );
+            console.log("RESPONSE", response)
             return 'error' in response ? undefined : response.result;
         },
         undefined,
         []
     )
+
+    console.log("DESCRIBE", describe)
 
     return (
         <React.Fragment>

@@ -27,7 +27,7 @@ def get_column_describe(params: Dict[str, Any], steps_manager: StepsManagerType)
 
     describe_obj = {}
 
-    for index, row in describe.iteritems():
+    for index, row in describe.items():
         # We turn all the items to strings, as some items are not valid JSON
         # e.g. some wacky numpy datatypes. This allows us to send all of this 
         # to the front-end.
