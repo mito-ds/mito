@@ -32,36 +32,35 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
                 'stop': ['```']
         }
 
-user_email = None
-user_id = None
-num_usages = None
-
+__user_email = None
+__user_id = None
+__num_usages = None
 
 def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
-        global user_email, user_id, num_usages
+        global __user_email, __user_id, __num_usages
 
-        if user_email is None:
-                user_email = get_user_field(UJ_USER_EMAIL)
-        if user_id is None:
-                user_id = get_user_field(UJ_STATIC_USER_ID)
-        if num_usages is None:
-                num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+        if __user_email is None:
+                __user_email = get_user_field(UJ_USER_EMAIL)
+        if __user_id is None:
+                __user_id = get_user_field(UJ_STATIC_USER_ID)
+        if __num_usages is None:
+                __num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
 
-        if num_usages is None:
-                num_usages = 0
+        if __num_usages is None:
+                __num_usages = 0
 
         pro = is_pro()
 
-        if not pro and num_usages >= 20:
+        if not pro and __num_usages >= 20:
                 return {
                         'error': f'You have used Mito AI 20 times.'
                 }
                 
 
         data = {
-                'email': user_email,
-                'user_id': user_id,
+                'email': __user_email,
+                'user_id': __user_id,
                 'data': _get_ai_completion_data(prompt)
         }
 
@@ -78,8 +77,8 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
         
 
         if res.status_code == 200:
-                num_usages = num_usages + 1
-                set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages + 1)
+                __num_usages = __num_usages + 1
+                set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages + 1)
                 return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,

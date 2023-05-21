@@ -21,11 +21,11 @@ except ImportError:
 # only need to enter credentials once per kernel's lifespan. This global variable is accessed 
 # by all mitosheets in the notebook! Caching the credentials also allows us to not pass 
 # the snowflake credentials to the step performer, which ensures they don't get written into the analysis json.
-cached_snowflake_credentials: Optional[SnowflakeCredentials] = None
+__cached_snowflake_credentials: Optional[SnowflakeCredentials] = None
 
 def get_cached_snowflake_credentials() -> Optional[SnowflakeCredentials]:
-    global cached_snowflake_credentials
-    return cached_snowflake_credentials
+    global __cached_snowflake_credentials
+    return __cached_snowflake_credentials
 
 def get_validate_snowflake_credentials_error(username: str, password: str, account: str) -> Optional[Exception]:
         try:
@@ -67,8 +67,8 @@ def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manag
         }
 
     # cache the snowflake credentials 
-    global cached_snowflake_credentials
-    cached_snowflake_credentials = params
+    global __cached_snowflake_credentials
+    __cached_snowflake_credentials = params
         
     return {
         'type': 'success'

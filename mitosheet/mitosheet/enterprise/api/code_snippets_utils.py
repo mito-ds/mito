@@ -14,7 +14,7 @@ from mitosheet.types import CodeSnippet
 # Global variable used to cache the custom code snippets so that when users
 # open the code snippets taskpane multiple times in the same mito instantiation, 
 # we can display the custom code snippets without querying the url each time.
-cached_custom_code_snippets: Optional[List[CodeSnippet]] = None
+__cached_custom_code_snippets: Optional[List[CodeSnippet]] = None
 
 # Helper functions for generating the proper return type
 def create_error_return_obj(error_message: str) -> Dict[str, str]:
@@ -89,9 +89,9 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> Dict[str, An
     """
 
     # If there are cached custom code snippets, use them
-    global cached_custom_code_snippets
-    if cached_custom_code_snippets is not None:
-        return create_success_return_obj(cached_custom_code_snippets)
+    global __cached_custom_code_snippets
+    if __cached_custom_code_snippets is not None:
+        return create_success_return_obj(__cached_custom_code_snippets)
 
     # Try to load code snippets from the URL
     try:
@@ -118,7 +118,7 @@ def get_custom_code_snippets(mito_config_code_snippets_url: str) -> Dict[str, An
         return create_error_return_obj(code_snippet_format_error)
     
     # Cache the code snippets so we don't need to request them from the url next time
-    cached_custom_code_snippets = code_snippets
+    __cached_custom_code_snippets = code_snippets
     log('using_custom_code_snippets')
     return create_success_return_obj(code_snippets)
         

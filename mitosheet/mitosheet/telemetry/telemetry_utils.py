@@ -217,16 +217,16 @@ except:
     ipywidgets_version = 'no pandas'
 
 
-location = None
+__location = None
 
 def _get_environment_params() -> Dict[str, Any]:
     """
     Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
     """
-    global location
-    if location is None:
-        location = get_location()
+    global __location
+    if __location is None:
+        __location = get_location()
     
     # Add the python properties to every log event we can
     environment_params = {
@@ -237,7 +237,7 @@ def _get_environment_params() -> Dict[str, Any]:
         'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location,
+        'location': __location,
         'is_docker': is_docker()
     }
 
