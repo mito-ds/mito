@@ -9,8 +9,7 @@ Contains handlers for the Mito API
 from queue import Queue
 from threading import Thread
 from time import perf_counter
-from typing import Any, Callable, Dict, List, NoReturn, Union
-from mitosheet.errors import get_recent_traceback
+from typing import Any, Callable, Dict, NoReturn
 
 from mitosheet.types import MitoWidgetType
 from mitosheet.api.get_column_describe import get_column_describe

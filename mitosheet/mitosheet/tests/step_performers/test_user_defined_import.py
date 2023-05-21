@@ -12,12 +12,12 @@ import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 
-def create_df():
+def create_df() -> pd.DataFrame:
     import pandas as pd
     df = pd.DataFrame({'A': [1]})
     return df
 
-def create_df_diff():
+def create_df_diff() -> pd.DataFrame:
     import pandas as pd
     df = pd.DataFrame({'A': [2]})
     return df

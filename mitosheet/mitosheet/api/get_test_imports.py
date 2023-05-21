@@ -4,7 +4,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import json
 from typing import Any, Dict
 
 from mitosheet.errors import MitoError

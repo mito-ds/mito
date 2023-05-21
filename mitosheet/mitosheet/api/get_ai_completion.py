@@ -4,20 +4,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import json
-from typing import Any, Dict, List, Optional, Tuple
-from mitosheet.enterprise.mito_config import MITO_CONFIG_LLM_URL
-from mitosheet.types import Selection, StepsManagerType
 import os
+from typing import Any, Dict, List, Optional, Tuple
+
+import requests  # type: ignore
 
 from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
-
-
-import requests #type: ignore
-
+from mitosheet.types import Selection, StepsManagerType
 from mitosheet.user.db import get_user_field, set_user_field
-from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
-from mitosheet.user.utils import is_pro # type: ignore
+from mitosheet.user.schemas import (UJ_AI_MITO_API_NUM_USAGES,
+                                    UJ_STATIC_USER_ID, UJ_USER_EMAIL)
+from mitosheet.user.utils import is_pro
 
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'

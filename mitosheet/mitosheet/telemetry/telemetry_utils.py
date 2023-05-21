@@ -72,7 +72,7 @@ def telemetry_turned_on() -> bool:
 
 __online = None
 
-def is_online():
+def is_online() -> bool:
     global __online
     if __online is None:
         try:
