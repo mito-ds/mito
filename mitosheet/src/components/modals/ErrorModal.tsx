@@ -4,7 +4,7 @@ import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { UIState, UserProfile } from '../../types';
 import GetSupportButton from '../elements/GetSupportButton';
 
@@ -14,7 +14,7 @@ import GetSupportButton from '../elements/GetSupportButton';
 */
 const ErrorModal = (
     props: {
-        error: {error: string, shortError: string, traceback?: string} | undefined, 
+        error: {error: string, errorShort: string, traceback?: string} | undefined, 
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI;
         userProfile: UserProfile
@@ -27,7 +27,7 @@ const ErrorModal = (
 
     return (
         <DefaultModal
-            header={props.error.shortError}
+            header={props.error.errorShort}
             modalType={ModalEnum.Error}
             wide
             viewComponent={

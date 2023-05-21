@@ -1,11 +1,12 @@
 import { useState } from "react"
-import MitoAPI from "../jupyter/api"
-import { CommCreationErrorStatus, CommCreationStatus, FetchFunction } from "../jupyter/comm"
+import MitoAPI from "../api/api"
+import { CommCreationErrorStatus, CommCreationStatus } from "../jupyter/comm"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
+import { SendFunction } from "../api/send"
 
 
 export const useMitoAPI = (
-    getFetchFunction: () => Promise<FetchFunction | CommCreationErrorStatus>,
+    getSendFunction: () => Promise<SendFunction | CommCreationErrorStatus>,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
@@ -18,7 +19,7 @@ export const useMitoAPI = (
         () => {
             return new MitoAPI(
                 async () => {
-                    const fetchFunction = await getFetchFunction();
+                    const fetchFunction = await getSendFunction();
                     if (typeof fetchFunction === 'string') { // Check if it's an error
                         setCommCreationStatus(fetchFunction);
                         return undefined;

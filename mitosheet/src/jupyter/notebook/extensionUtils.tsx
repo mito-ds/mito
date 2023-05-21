@@ -1,4 +1,4 @@
-import MitoAPI from "../api";
+import MitoAPI from "../../api/api";
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode } from "../../utils/code";
 import { PublicInterfaceVersion } from "../../types";
 

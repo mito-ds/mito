@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from "react";
-import MitoAPI from "../../jupyter/api";
+import MitoAPI from "../../api/api";
 import { DISCORD_INVITE_LINK } from "../../data/documentationLinks";
 import { AnalysisData, SheetData, UserProfile } from "../../types";
 

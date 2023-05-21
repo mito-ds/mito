@@ -4,7 +4,7 @@ import React from 'react';
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 
 // Import 
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { AnalysisData, UIState } from '../../types';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';

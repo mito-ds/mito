@@ -4,7 +4,7 @@ import React from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { getPivotFrontendParamsFromBackendParams, getPivotBackendParamsFromFrontendParams, getDefaultPivotParams } from './pivotUtils';
 import { AnalysisData, BackendPivotParams, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';

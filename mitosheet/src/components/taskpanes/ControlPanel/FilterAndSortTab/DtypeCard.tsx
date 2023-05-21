@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useState } from 'react';
-import MitoAPI from '../../../../jupyter/api';
+import MitoAPI, { getRandomId } from '../../../../api/api';
 import { ColumnID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';
@@ -106,16 +106,15 @@ export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JS
     A card that allows a user to change the dtype of a column.
 */
 function DtypeCard(props: DtypeCardProps): JSX.Element {
-    const [stepID, setStepID] = useState<string | undefined>(undefined);
+    const [stepID] = useState<string | undefined>(() => getRandomId());
 
     async function changeColumnDtype(newDtype: string) {
-        const newStepID = await props.mitoAPI.editChangeColumnDtype(
+        await props.mitoAPI.editChangeColumnDtype(
             props.selectedSheetIndex,
             [props.columnID],
             newDtype,
             stepID
         )
-        setStepID(newStepID);
     }
 
     return (  

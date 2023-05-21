@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { CodeOptions, ParamType, ParameterizableParams } from "../../../types";
 
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";

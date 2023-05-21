@@ -1,9 +1,8 @@
 // Copyright (c) Mito
 
 import React, { useState } from 'react';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
-import { isMitoError } from '../../../utils/errors';
 import FileBrowser from '../../import/FileBrowser/FileBrowser';
 import CSVImportConfigTaskpane from './CSVImportConfigTaskpane';
 import XLSXImportConfigTaskpane from './XLSXImportConfigTaskpane';
@@ -74,12 +73,12 @@ function FileImportTaskpane(props: ImportTaskpaneProps): JSX.Element {
                     const result = await props.mitoAPI.editSimpleImport([filePath]);
 
                     // If it is an error, we open the import taskpane with an error
-                    if (isMitoError(result)) {
+                    if ('error' in result) {
                         setImportState({
                             screen: 'csv_import_config',
                             fileName: file.name,
                             filePath: filePath,
-                            error: result.to_fix
+                            error: result.error
                         })
                     }
                 }}

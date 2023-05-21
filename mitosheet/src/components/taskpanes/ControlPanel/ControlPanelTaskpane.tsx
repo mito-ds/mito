@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from 'react';
 import "../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI, { getRandomId } from '../../../api/api';
 import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
@@ -62,7 +62,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
     const [filters, _setFilters] = useState(columnFilters !== undefined ? columnFilters.filters : []);
     const [operator, _setOperator] = useState(columnFilters !== undefined ? columnFilters.operator : 'And');
     const [updateNumber, setUpdateNumber] = useState(0);
-    const [stepID, setStepID] = useState('');
+    const [stepID] = useState(() => getRandomId());
 
     // We wrap the _setFilters call we use internally, so that on undo
     // and redo we can call the internal one, but all other calls will 
@@ -133,7 +133,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             return;
         } 
         
-        const _stepID = await props.mitoAPI.editFilter(
+        await props.mitoAPI.editFilter(
             props.selectedSheetIndex,
             columnID,
             filtersToApply,
@@ -143,7 +143,6 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
         )
 
         setEditedFilter(true) 
-        setStepID(_stepID);    
     }
 
     return (

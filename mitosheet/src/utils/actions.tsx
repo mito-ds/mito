@@ -8,7 +8,7 @@ import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPan
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
-import MitoAPI, { getRandomId } from "../jupyter/api";
+import MitoAPI, { getRandomId } from "../api/api";
 import { CommCreationStatus } from "../jupyter/comm";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { Action, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
@@ -599,7 +599,7 @@ export const createActions = (
                     graphParams,
                     '100%',
                     '100%',
-                    undefined, 
+                    getRandomId(), 
                 );
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},

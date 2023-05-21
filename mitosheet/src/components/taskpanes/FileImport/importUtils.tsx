@@ -1,4 +1,4 @@
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { UserProfile } from "../../../types";
 import { isAtLeastBenchmarkVersion, isExcelImportEnabled } from "../../../utils/packageVersion";
 import { fuzzyMatch } from "../../../utils/strings";

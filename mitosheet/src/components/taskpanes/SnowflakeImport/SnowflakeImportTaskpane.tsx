@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 import { classNames } from "../../../utils/classNames";

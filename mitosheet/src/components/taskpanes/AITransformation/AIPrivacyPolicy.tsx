@@ -2,7 +2,7 @@ import React from "react";
 import { UIState } from "../../../types";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";

@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../jupyter/api";
+import MitoAPI from "../../api/api";
 import { ExcelExportState, SheetData } from "../../components/../types";
 
 const ExcelFormatSection = (props: {

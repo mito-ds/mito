@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";

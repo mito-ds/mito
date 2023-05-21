@@ -5,7 +5,7 @@ import SheetTab from './SheetTab';
 
 // import css
 import "../../../css/footer.css"
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
 import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';

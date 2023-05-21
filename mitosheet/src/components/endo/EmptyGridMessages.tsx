@@ -1,6 +1,6 @@
 import React from 'react';
 import { CommCreationStatus } from '../../jupyter/comm';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';

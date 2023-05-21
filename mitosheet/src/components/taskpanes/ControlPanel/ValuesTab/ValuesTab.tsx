@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useRef, useState } from 'react';
-import MitoAPI from '../../../../jupyter/api';
+import MitoAPI from '../../../../api/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
 import { FilterType, FilterGroupType, ColumnID, UIState, ColumnFormatType } from '../../../../types';
@@ -119,29 +119,41 @@ export function ValuesTab(
             searchString,
             sort
         );
-        const _uniqueValueObj = 'error' in response ? undefined : response.result;
+        const uniqueValueCountsObj = 'error' in response ? undefined : response.result;
 
-        if (_uniqueValueObj !== undefined) {
-            const _uniqueValueObjs = _uniqueValueObj.uniqueValueCounts
-            /*  
-                Add back all of the values that were filtered out of the column, so the user can toggle
-                them back on. Note that this lets users toggle them back on even if they were removed in a previous step! 
-            */ 
-            const allDoesNotContainsFilters: (string | number | boolean)[] = getAllDoesNotContainsFilterValues(props.filters, props.columnDtype)
-            allDoesNotContainsFilters.forEach(key => {
-                _uniqueValueObjs.push({
-                    value: key,
-                    percentOccurence: 0,
-                    countOccurence: 0,
-                    isNotFiltered: false,
-                })
-            })
-        
-            setUniqueValueCounts(_uniqueValueObjs);
-            setIsAllData(_uniqueValueObj.isAllData);
-        } else {
+        if (uniqueValueCountsObj === undefined) {
             setUniqueValueCounts([])
+            setLoading(false);
+            return undefined;
         }
+
+        const uniqueValueCounts: UniqueValueCount[] = [];
+        for (let i = 0; i < uniqueValueCountsObj.uniqueValueRowDataArray.length; i++) {
+            uniqueValueCounts.push({
+                value: uniqueValueCountsObj.uniqueValueRowDataArray[i][0],
+                percentOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][1] as number) * 100,
+                countOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][2] as number),
+                isNotFiltered: true
+            })
+        }
+
+        /*  
+            Add back all of the values that were filtered out of the column, so the user can toggle
+            them back on. Note that this lets users toggle them back on even if they were removed in a previous step! 
+        */ 
+        const allDoesNotContainsFilters: (string | number | boolean)[] = getAllDoesNotContainsFilterValues(props.filters, props.columnDtype)
+        allDoesNotContainsFilters.forEach(key => {
+            uniqueValueCounts.push({
+                value: key,
+                percentOccurence: 0,
+                countOccurence: 0,
+                isNotFiltered: false,
+            })
+        })
+    
+        setUniqueValueCounts(uniqueValueCounts);
+        setIsAllData(uniqueValueCountsObj.isAllData);
+
         setLoading(false);
     }
 

@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { ModalEnum } from './modals';
 import DefaultModal from '../DefaultModal';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import TextButton from '../elements/TextButton';
 import { UIState } from '../../types';
 

@@ -3,7 +3,7 @@
 import fscreen from 'fscreen';
 import React from 'react';
 import "../../../css/toolbar.css";
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { getColumnFormatDropdownItems } from '../../utils/format';
 import Dropdown from '../elements/Dropdown';

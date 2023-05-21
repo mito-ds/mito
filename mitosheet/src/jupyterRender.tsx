@@ -36,14 +36,14 @@ document.head.append(style)
 const div = document.getElementById(divID);
 console.log("Rendering to div", div);
 
-async function getFetchFunction() {
+async function getSendFunction() {
     const fetchFromComm = await getCommFetchWrapper(kernelID, commTargetID);
     return fetchFromComm;
 
 }
 ReactDOM.render(
     <Mito
-        getFetchFunction={getFetchFunction}
+        getSendFunction={getSendFunction}
         sheetDataArray={sheetDataArray}
         analysisData={analysisData}
         userProfile={userProfile}

@@ -1,7 +1,6 @@
 import { useState } from "react";
-import MitoAPI, { getRandomId } from "../jupyter/api";
+import MitoAPI, { getRandomId } from "../api/api";
 import { AnalysisData } from "../types";
-import { isMitoError } from "../utils/errors";
 import { useEffectOnEdit } from "./useEffectOnEdit";
 import { useEffectOnRedo } from "./useEffectOnRedo";
 import { useEffectOnUndo } from "./useEffectOnUndo";
@@ -49,8 +48,8 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
 
         // Handle if we return an error
-        if (isMitoError(possibleError)) {
-            return possibleError.to_fix;
+        if ('error' in possibleError) {
+            return possibleError.error;
         } else {
             // Update the params and results to clear anything later than then current params index
             const newParamsIndex = currParamsIndex + 1;

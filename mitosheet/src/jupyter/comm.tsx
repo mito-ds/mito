@@ -36,9 +36,9 @@
  * we return an error to the user.
  */
 
-import { AnalysisData, SheetData, UserProfile } from "../types";
+import { MitoResponse } from "../api/api";
+import { SendFunction, SendFunctionReturnType } from "../api/send";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { MitoResponse } from "./api";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
@@ -212,22 +212,9 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
     return 'non_valid_location_error'
 }
 
-export type FetchFunctionSuccessReturnType<ResultType> = {
-    sheetDataArray: SheetData[] | undefined,
-    analysisData: AnalysisData | undefined,
-    userProfile: UserProfile | undefined,
-    result: ResultType
-};
-export type FetchFunctionErrorReturnType = {
-    error: string,
-    shortError: string,
-    showErrorModal: boolean,
-    traceback?: string,
-};
-export type FetchFunctionReturnType<ResultType> =  FetchFunctionSuccessReturnType<ResultType> | FetchFunctionErrorReturnType;
-export type FetchFunction = <ResultType>(params: Record<string, unknown>) => Promise<FetchFunctionReturnType<ResultType>>;
 
-export async function getCommFetchWrapper(kernelID: string, commTargetID: string): Promise<FetchFunction | CommCreationErrorStatus> {
+
+export async function getCommFetchWrapper(kernelID: string, commTargetID: string): Promise<SendFunction | CommCreationErrorStatus> {
     let commContainer: CommContainer | CommCreationErrorStatus = 'non_valid_location_error';
     if (isInJupyterNotebook()) {
         commContainer = await getNotebookComm(commTargetID);
@@ -256,7 +243,7 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
         unconsumedResponses.push(response);
     }
 
-    function getResponseData<ResultType> (id: string, maxRetries = MAX_RETRIES): Promise<FetchFunctionReturnType<ResultType>> {
+    function getResponseData<ResultType> (id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
 
         return new Promise((resolve) => {
             let tries = 0;
@@ -271,7 +258,7 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
                     // If we fail, we return an empty response
                     return resolve({
                         error: `No response on message: {id: ${id}}`,
-                        shortError: `No response received`,
+                        errorShort: `No response received`,
                         showErrorModal: false
                     })
                 }
@@ -288,14 +275,12 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
                     const response = unconsumedResponses[index];
                     unconsumedResponses.splice(index, 1);
 
-                    if (response['event'] == 'edit_error') {
+                    if (response['event'] == 'error') {
                         return resolve({
-                            error: response['to_fix'],
-                            shortError: response['header'],
-                            // TODO: clean the below line up. For some reason, when data is undefined,
-                            // we show the error modal. But I am not sure why this is the case...
-                            showErrorModal: response['data'] === undefined,
-                            traceback: response['traceback']
+                            error: response.error,
+                            errorShort: response.errorShort,
+                            showErrorModal: response.showErrorModal,
+                            traceback: response.traceback
                         });
                     }
 
@@ -313,7 +298,7 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
     }
 
     
-    async function send<ResultType>(msg: Record<string, unknown>): Promise<FetchFunctionReturnType<ResultType>> {
+    async function send<ResultType>(msg: Record<string, unknown>): Promise<SendFunctionReturnType<ResultType>> {
 
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
         console.log(`Sending: {type: ${msg['type']}, id: ${msg.id}}`)
@@ -334,7 +319,7 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
 }
 
 
-// Allow us to save the canvas for performance reasons
+// Save the unconsumed responses
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export declare namespace getCommFetchWrapper {
     export let unconsumedResponses: MitoResponse[];

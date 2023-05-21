@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import MitoAPI from "../../../api/api";
+import { SendFunctionErrorReturnType } from "../../../api/send";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, MitoError, SheetData, UIState, UserProfile } from "../../../types";
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
@@ -14,8 +15,8 @@ import { SnowflakeImportParams } from "../SnowflakeImport/SnowflakeImportTaskpan
 import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
-import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
 import UpdateSnowflakeCredentialsScreen from "./UpdateSnowflakeCredentialsScreen";
+import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
 
 
 interface UpdateImportsTaskpaneProps {
@@ -62,7 +63,7 @@ export interface ReplacingDataframeState {
 
 export interface FailedReplayData {
     analysisName: string,
-    error: MitoError,
+    error: SendFunctionErrorReturnType,
     args: string[]
 }
     
@@ -137,7 +138,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                     setInvalidReplayError(PRE_REPLAY_IMPORT_ERROR_TEXT);
                 } else {
                     // Otherwise, display the error that occured when replaying the analysis 
-                    setInvalidReplayError(getErrorTextFromToFix(failedReplayData.error.to_fix));
+                    setInvalidReplayError(getErrorTextFromToFix(failedReplayData.error.error));
                 }
             }
         },
@@ -254,7 +255,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                     }
 
                     // First, check that this is a valid import, and if it is, then update this
-                    let response = await props.mitoAPI.getTestImports([{
+                    const response = await props.mitoAPI.getTestImports([{
                         'step_id': 'fake_id',
                         'imports': [dataframeCreationData]
                     }])

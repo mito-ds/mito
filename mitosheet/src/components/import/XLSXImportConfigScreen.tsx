@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { isAtLeastBenchmarkVersion } from '../../utils/packageVersion';

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -98,6 +98,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                 {props.analysisData.userDefinedImporters.map(importer => {
                                     return (
                                         <DropdownItem 
+                                            key={importer.name}
                                             title={importer.name}
                                             subtext={importer.docstring}
                                         />
@@ -114,7 +115,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                     width='block'
                     onClick={() => {
                         if (params !== undefined) {
-                            edit(params);
+                            void edit(params);
                         }
                     }}
                     disabled={params === undefined}

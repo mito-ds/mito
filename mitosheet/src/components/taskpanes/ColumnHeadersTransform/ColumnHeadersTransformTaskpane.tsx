@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
 
 import TextButton from "../../elements/TextButton";

@@ -30,7 +30,7 @@ interface ErrorModalInfo {
     type: ModalEnum.Error;
     error: {
         error: string,
-        shortError: string,
+        errorShort: string,
         traceback?: string
     }
 }

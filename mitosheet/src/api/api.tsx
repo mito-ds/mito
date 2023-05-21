@@ -7,20 +7,21 @@ import { ModalEnum } from "../components/modals/modals";
 import { AICompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
 import { ColumnHeadersTransformLowerCaseParams, ColumnHeadersTransformUpperCaseParams } from "../components/taskpanes/ColumnHeadersTransform/ColumnHeadersTransformTaskpane";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
-import { UniqueValueCount, UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
 import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
 import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { MAX_WAIT_FOR_COMM_CREATION } from "../jupyter/comm";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
-import { FetchFunction, FetchFunctionErrorReturnType } from "./comm";
+import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
+import { SendFunction, SendFunctionErrorReturnType } from "./send";
 
 
 
-export type MitoAPIResult<ResultType> = {result: ResultType} | FetchFunctionErrorReturnType 
+export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
 
 export const getRandomId = (): string => {
@@ -72,13 +73,12 @@ interface MitoSuccessOrInplaceErrorResponse {
     'data': unknown
 }
 interface MitoErrorModalResponse {
-    event: 'edit_error'
+    event: 'error'
     id: string,
-    type: string;
-    header: string;
-    to_fix: string;
+    error: string;
+    errorShort: string;
+    showErrorModal: boolean;
     traceback?: string;
-    data: undefined;
 }
 
 export type MitoResponse = MitoSuccessOrInplaceErrorResponse | MitoErrorModalResponse
@@ -89,55 +89,33 @@ declare global {
 }
 
 /*
-    The MitoAPI class contains functions for interacting with the Mito backend. 
-    
-    All interactions with the backend should go through this call, so that:
-    1. If we ever move to a more standard API, the migration is protected by this interface!
-    2. We can make sure that every backend call can be met with a response.
-
-    At a high-level, this MitoAPI class works in the following way:
-    1. The frontend wants to send a message, for example an `add_column_edit` message.
-    2. The `sendColumnAddMessage` is called, and it:
-        1. Takes the correct inputs to generate this message
-        2. Sends the actual message to the backend, making sure to include an 'id'.
-        NOTE: an 'id' identifies a _message_ and is distinct from the 'step_id'.
-        3. This function then waits for a response from the backend
-    3. The backend receives the message, and processes it:
-        1. If it is successful, it sends a response that contains the same 
-           'id' as the 'add_column_edit' message it received. 
-        2. If it fails, it sends an error message that also includes this 
-           'id'. 
-    4.  This response includes the data necessary to update the frontend, either
-        the sheet_data_array, etc or the error.
-    5. The frontend checks periodically if it has gotten any response with the 'id'
-       of the message that it sent. If a response with this 'id' has been received,
-       then it processes that response by:
-        1. Updating the sheet/code on success
-        2. Updating the error modal on failure. NOTE: in the future, we can make
-           it return the error in-place instead.
-        3. Stopping waiting and returning control to the caller.
+    The MitoAPI class contains functions for interacting with the Mito backend. It
+    uses the send function to communicate with the backend, while also:
+    1. Updating the set state updaters to update the Mito component
+    2. Setting the error modal if there is an error
 */
 export default class MitoAPI {    
-    _send: FetchFunction | undefined;
-    getFetchFunction: () => Promise<FetchFunction | undefined>
+    _send: SendFunction | undefined;
+    getSendFunction: () => Promise<SendFunction | undefined>
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     
     constructor(
-        getFetchFunction: () => Promise<FetchFunction | undefined>,
+        getSendFunction: () => Promise<SendFunction | undefined>,
         setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
         setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
         setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
         setUIState: React.Dispatch<React.SetStateAction<UIState>>
     ) {
-        this.getFetchFunction = getFetchFunction;
+        this.getSendFunction = getSendFunction;
         this.setSheetDataArray = setSheetDataArray;
         this.setAnalysisData = setAnalysisData; 
         this.setUserProfile = setUserProfile;
         this.setUIState = setUIState;
     }
+
 
 
     async send<ResultType>(params: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
@@ -147,13 +125,15 @@ export default class MitoAPI {
         params['id'] = id;
 
         if (this._send === undefined) {
-            console.log("GETTING SEND");
-            this._send = await this.getFetchFunction();
+            const _send = await this.getSendFunction();
+            this._send = this._send || _send;
         } 
+
+        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send === undefined}, MAX_WAIT_FOR_COMM_CREATION);
 
         if (this._send === undefined) {
             console.error("Unable to establish comm. Quitting");
-            return {error: 'Connection error. Unable to establish comm.', shortError: 'Connection error', showErrorModal: true};
+            return {error: 'Connection error. Unable to establish comm.', errorShort: 'Connection error', showErrorModal: true};
         }
 
         let loadingUpdated = false;
@@ -172,7 +152,6 @@ export default class MitoAPI {
 
         // We use a centralized send function, and handle all errors here
         const response = await this._send<ResultType>(params);
-
 
         // Stop the loading from being updated if it hasn't already run
         clearTimeout(timeout);
@@ -229,7 +208,6 @@ export default class MitoAPI {
         Gets the path data for given path parts
     */
     async getPathContents(pathParts: string[]): Promise<MitoAPIResult<PathContents>> {
-        // TODO: I actually need to parse this from it's string value
         return await this.send<PathContents>({
             'event': 'api_call',
             'type': 'get_path_contents',
@@ -288,7 +266,7 @@ export default class MitoAPI {
             'params': {
                 'sheet_indexes': sheetIndexes
             },
-        }); // TODO: increase timeout
+        });
     }
 
 
@@ -321,6 +299,8 @@ export default class MitoAPI {
     /*
         Returns a list of the key, values that is returned by .describing 
         this column
+
+        TODO: This is broken. Fix it up!
     */
     async getColumnDescribe(sheetIndex: number, columnID: ColumnID): Promise<MitoAPIResult<Record<string, string>>> {
         return await this.send<Record<string, string>>({
@@ -395,9 +375,8 @@ export default class MitoAPI {
         columnID: ColumnID,
         searchString: string,
         sort: UniqueValueSortType,
-    ): Promise<MitoAPIResult<{ uniqueValueCounts: UniqueValueCount[], isAllData: boolean }>> {
-
-        const resultOrError = await this.send<string>({
+    ): Promise<MitoAPIResult<{ uniqueValueRowDataArray: (string | number | boolean)[][], isAllData: boolean }>> {
+        return await this.send<{ uniqueValueRowDataArray: (string | number | boolean)[][], isAllData: boolean }>({
             'event': 'api_call',
             'type': 'get_unique_value_counts',
             'params': {
@@ -407,42 +386,17 @@ export default class MitoAPI {
                 'sort': sort
             },
         })
-
-        if ('error' in resultOrError){
-            return resultOrError;
-        }
-
-        const uniqueValueCountsString = resultOrError.result;
-
-        const uniqueValueCountsObj: { uniqueValueRowDataArray: (string | number | boolean)[][], isAllData: boolean } = JSON.parse(uniqueValueCountsString);
-        const uniqueValueCounts: UniqueValueCount[] = [];
-        for (let i = 0; i < uniqueValueCountsObj.uniqueValueRowDataArray.length; i++) {
-            uniqueValueCounts.push({
-                value: uniqueValueCountsObj.uniqueValueRowDataArray[i][0],
-                percentOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][1] as number) * 100,
-                countOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][2] as number),
-                isNotFiltered: true
-            })
-        }
-
-        return {result: {
-            uniqueValueCounts: uniqueValueCounts,
-            isAllData: uniqueValueCountsObj.isAllData
-        }}
     }
 
     /*
         Gets a preview of the split text to columns step
     */
-    async getSplitTextToColumnsPreview(params: SplitTextToColumnsParams): Promise<(string | number | boolean)[][] | undefined> {
-
-        await this.send<string>({
+    async getSplitTextToColumnsPreview(params: SplitTextToColumnsParams): Promise<MitoAPIResult<{dfPreviewRowDataArray: (string | number | boolean)[][]}>> {
+        return await this.send({
             'event': 'api_call',
             'type': 'get_split_text_to_columns_preview',
             'params': params
         })
-        // TODO: we need to get the key dfPreviewRowDataArray in the above result
-        return undefined;
     }
 
 	
@@ -476,7 +430,6 @@ export default class MitoAPI {
 
     
     async getTestImports(updated_step_import_data_list: StepImportData[]): Promise<MitoAPIResult<Record<number, string>>> {
-
         return await this.send<Record<number, string>>({
             'event': 'api_call',
             'type': 'get_test_imports',
@@ -528,17 +481,8 @@ export default class MitoAPI {
         user_input: string, 
         selection: AICompletionSelection | undefined,
         previous_failed_completions: [string, string][]
-    ): Promise<
-        {error: string} | 
-        {
-            user_input: string,
-            prompt_version: string,
-            prompt: string,
-            completion: string
-        } | undefined
-        > {
-
-        await this.send<string>({
+    ): Promise<MitoAPIResult<{error: string} | {user_input: string, prompt_version: string, prompt: string, completion: string}>> {
+        return await this.send<{error: string} | {user_input: string, prompt_version: string, prompt: string, completion: string}>({
             'event': 'api_call',
             'type': 'get_ai_completion',
             'params': {
@@ -547,12 +491,7 @@ export default class MitoAPI {
                 'previous_failed_completions': previous_failed_completions
             }
         })
-
-        return {
-            'error': 'how to handle this one'
-        }
     }
-
     
     async getParameterizableParams(): Promise<MitoAPIResult<ParameterizableParams | undefined>> {
         return await this.send<ParameterizableParams | undefined>({
@@ -563,7 +502,6 @@ export default class MitoAPI {
     }
 
     // AUTOGENERATED LINE: API GET (DO NOT DELETE)
-
 
 
     /**
@@ -593,18 +531,11 @@ export default class MitoAPI {
         graphParams: GraphParamsFrontend,
         height: string,
         width: string,
-        stepID?: string,
-    ): Promise<string> {
-
-        // If this is overwriting a graph event, then we do not need to
-        // create a new id, as we already have it!
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
+        stepID: string,
+    ): Promise<MitoAPIResult<never>> {
         const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
 
-        await this.send<string>({
+        return await this.send({
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
@@ -620,8 +551,6 @@ export default class MitoAPI {
                 'include_plotlyjs': (window as any).Plotly === undefined
             }
         })
-
-        return stepID
     }
 
     async editGraphDelete(
@@ -658,7 +587,6 @@ export default class MitoAPI {
         graphID: GraphID,
         newGraphTabName: string
     ): Promise<void> {
-        
         await this.send<string>({
             'event': 'edit_event',
             'type': 'graph_rename_edit',
@@ -677,23 +605,17 @@ export default class MitoAPI {
         sheetIndex: number,
         columnHeader: string,
         columnHeaderIndex: number,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-        await this.send({
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
             'event': 'edit_event',
             'type': 'add_column_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'column_header': columnHeader,
                 'column_header_index': columnHeaderIndex
             }
         })
-
-        return stepID;
     }
 
     /*
@@ -703,15 +625,13 @@ export default class MitoAPI {
         sheetIndex: number,
         columnIDs: ColumnID[],
     ): Promise<void> {
-        const stepID = getRandomId();
-
         // Filter out any undefined values, which would occur if the index column is selected
         columnIDs = columnIDs.filter(columnID => columnID !== undefined)
 
         await this.send({
             'event': 'edit_event',
             'type': 'delete_column_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'column_ids': columnIDs
@@ -726,12 +646,10 @@ export default class MitoAPI {
         sheetIndex: number,
         labels: (string | number)[],
     ): Promise<void> {
-
-        const stepID = getRandomId();
         await this.send({
             'event': 'edit_event',
             'type': 'delete_row_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'labels': labels
@@ -743,12 +661,10 @@ export default class MitoAPI {
     async editTranspose(
         sheet_index: number,
     ): Promise<void> {
-
-        const stepID = getRandomId();
         await this.send({
             'event': 'edit_event',
             'type': 'transpose_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 sheet_index: sheet_index,
             }
@@ -760,12 +676,10 @@ export default class MitoAPI {
         sheet_index: number,
         column_id: ColumnID,
     ): Promise<void> {
-
-        const stepID = getRandomId();
         await this.send({
             'event': 'edit_event',
             'type': 'one_hot_encoding_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 sheet_index: sheet_index,
                 column_id: column_id,
@@ -778,39 +692,13 @@ export default class MitoAPI {
         sheet_index: number,
         drop: boolean,
     ): Promise<void> {
-
-        const stepID = getRandomId();
         await this.send({
             'event': 'edit_event',
             'type': 'reset_index_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 sheet_index: sheet_index,
                 drop: drop,
-            }
-        })
-    }
-    
-    
-    async editAiTransformation(
-        user_input: string,
-        prompt_version: string,
-        prompt: string,
-        completion: string,
-        edited_completion: string,
-    ): Promise<void> {
-
-        const stepID = getRandomId();
-        await this.send({
-            'event': 'edit_event',
-            'type': 'ai_transformation_edit',
-            'step_id': stepID,
-            'params': {
-                user_input: user_input,
-                prompt_version: prompt_version,
-                prompt: prompt,
-                completion: completion,
-                edited_completion: edited_completion,
             }
         })
     }
@@ -826,12 +714,10 @@ export default class MitoAPI {
         sheetIndex: number,
         index: string | number,
     ): Promise<void> {
-        const stepID = getRandomId();
-
         await this.send({
             'event': 'edit_event',
             'type': 'promote_row_to_header_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'index': index
@@ -848,12 +734,10 @@ export default class MitoAPI {
         columnID: ColumnID,
         newIndex: number
     ): Promise<void> {
-        const stepID = getRandomId();
-
         await this.send({
             'event': 'edit_event',
             'type': 'reorder_column_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
@@ -868,24 +752,16 @@ export default class MitoAPI {
     async editDataframeRename(
         sheetIndex: number,
         newDataframeName: string,
-        stepID?: string,
-    ): Promise<string> {
-
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
             'event': 'edit_event',
             'type': 'dataframe_rename_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 'sheet_index': sheetIndex,
                 'new_dataframe_name': newDataframeName
             }
         })
-
-        return stepID;
     }
 
     /*
@@ -898,14 +774,9 @@ export default class MitoAPI {
         filters: (FilterType | FilterGroupType)[],
         operator: 'And' | 'Or',
         filterLocation: ControlPanelTab,
-        stepID?: string,
-    ): Promise<string> {
-        // Create a new id, if we need it!
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
+        stepID: string,
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
             event: 'edit_event',
             type: 'filter_column_edit',
             'step_id': stepID,
@@ -917,35 +788,6 @@ export default class MitoAPI {
                 filter_location: filterLocation
             }
         });
-        return stepID;
-    }
-
-    /*
-        Does a sort with the passed parameters, returning the ID of the edit
-        event that was generated (in case you want to overwrite it).
-    */
-    async editSort(
-        sheetIndex: number,
-        columnID: ColumnID,
-        sortDirection: SortDirection,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            event: 'edit_event',
-            type: 'sort_edit',
-            'step_id': stepID,
-            'params': {
-                sheet_index: sheetIndex,
-                column_id: columnID,
-                sort_direction: sortDirection,
-            }
-        });
-
-        return stepID;
     }
 
     /*
@@ -956,16 +798,11 @@ export default class MitoAPI {
         columnID: ColumnID,
         newColumnHeader: string,
         level?: number,
-        stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID === '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
             event: 'edit_event',
             type: 'rename_column_edit',
-            'step_id': stepID,
+            'step_id': getRandomId(),
             'params': {
                 sheet_index: sheetIndex,
                 column_id: columnID,
@@ -973,8 +810,6 @@ export default class MitoAPI {
                 level: level
             }
         });
-
-        return stepID;
     }
 
     async editColumnHeadersTransform(
@@ -1097,12 +932,8 @@ export default class MitoAPI {
         columnIDs: ColumnID[],
         newDtype: string,
         stepID?: string
-    ): Promise<string> {
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
             'event': 'edit_event',
             'type': 'change_column_dtype_edit',
             'step_id': stepID,
@@ -1112,8 +943,6 @@ export default class MitoAPI {
                 'new_dtype': newDtype
             }
         });
-
-        return stepID;
     }
 
     /*
@@ -1134,35 +963,6 @@ export default class MitoAPI {
         })
     }
 
-    /*
-        Imports the given file names.
-    */
-    async editExcelImport(
-        fileName: string,
-        sheetNames: string[],
-        hasHeaders: boolean,
-        skiprows: number,
-        stepID?: string
-    ): Promise<string> {
-
-        if (stepID === undefined || stepID == '') {
-            stepID = getRandomId();
-        }
-
-        await this.send({
-            'event': 'edit_event',
-            'type': 'excel_import_edit',
-            'step_id': stepID,
-            'params': {
-                'file_name': fileName,
-                'sheet_names': sheetNames,
-                'has_headers': hasHeaders,
-                'skiprows': skiprows,
-            }
-        }) // Excel imports can take a while, so set a long delay (TODO)
-
-        return stepID;
-    }
 
     /*
         Sends an undo message, which removes the last step that was created. 
@@ -1423,6 +1223,6 @@ export default class MitoAPI {
         message['type'] = logEventType;
 
         // Don't wait a for a response, since we dont' care
-        this.send(message);
+        void this.send(message);
     }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';

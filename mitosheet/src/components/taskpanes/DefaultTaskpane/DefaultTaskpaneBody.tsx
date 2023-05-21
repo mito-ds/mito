@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import "../../../../css/taskpanes/DefaultTaskpane.css";
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import MitoUpgradePrompt from '../../elements/MitoProUpgradePrompt';

@@ -3,7 +3,7 @@
 import React from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { StepSummary } from '../../../types';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import '../../../../css/taskpanes/Steps/StepTaskpane.css'
 import StepDataElement from './StepDataElement';
 import { UIState } from '../../../types';

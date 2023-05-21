@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useState } from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import { updateObjectWithPartialObject } from '../../utils/objects';
 import '../../../css/layout/CollapsibleSection.css'
