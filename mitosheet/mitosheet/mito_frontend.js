@@ -1077,7 +1077,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect48(create, deps) {
+          function useEffect47(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1647,7 +1647,7 @@
           exports.useCallback = useCallback10;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
-          exports.useEffect = useEffect48;
+          exports.useEffect = useEffect47;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo2;
@@ -23045,247 +23045,54 @@ ${finalCode}`;
   // src/hooks/useLiveUpdatingParams.tsx
   var import_react26 = __toESM(require_react());
 
-  // src/utils/time.tsx
-  var MINUTE = 60;
-  var HOUR = 60 * MINUTE;
-  var DAY = 24 * HOUR;
-  var WEEK = 7 * DAY;
-  var MONTH = 4 * WEEK;
-  var YEAR = 365 * DAY;
-  var getLastModifiedString = (timestamp) => {
-    if (timestamp === null || timestamp === void 0) {
-      return "--";
-    }
-    const delta = Math.floor(Date.now() / 1e3) - timestamp;
-    if (delta < HOUR) {
-      const numMinutes = Math.round(delta / MINUTE);
-      return `${numMinutes} minutes ago`;
-    } else if (delta < DAY) {
-      const numHours = Math.round(delta / HOUR);
-      return `${numHours} hours ago`;
-    } else if (delta < WEEK) {
-      const numDays = Math.round(delta / DAY);
-      return `${numDays} days ago`;
-    } else if (delta < MONTH) {
-      const numWeeks = Math.round(delta / WEEK);
-      return `${numWeeks} weeks ago`;
-    } else if (delta < YEAR) {
-      const numMonths = Math.round(delta / MONTH);
-      return `${numMonths} months ago`;
-    } else {
-      const numYears = Math.round(delta / YEAR);
-      return `${numYears} years ago`;
-    }
-  };
-  var sleep = async (timeoutInMilliseconds) => {
-    await new Promise((resolve) => setTimeout(resolve, timeoutInMilliseconds));
-  };
-  var waitUntilConditionReturnsTrueOrTimeout = async (condition, timeoutInMilliseconds) => {
-    let isConditionMet = await condition();
-    for (let i = 0; i < timeoutInMilliseconds / 200 && !isConditionMet; i++) {
-      if (!isConditionMet) {
-        await sleep(timeoutInMilliseconds / 200);
-      } else {
-        break;
-      }
-      isConditionMet = await condition();
-    }
-    return isConditionMet;
-  };
-
-  // src/jupyter/comm.tsx
-  var MAX_WAIT_FOR_COMM_CREATION = 1e4;
-  var MAX_DELAY = 5 * 6e4;
-  var RETRY_DELAY = 250;
-  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
-  var getNotebookCommConnectedToBackend = async (comm) => {
-    return new Promise((resolve) => {
-      const checkForEcho = async () => {
-        let echoReceived = false;
-        comm.on_msg((msg) => {
-          if (msg.content.data.echo) {
-            echoReceived = true;
-          }
-        });
-        await waitUntilConditionReturnsTrueOrTimeout(() => {
-          return echoReceived;
-        }, MAX_WAIT_FOR_COMM_CREATION);
-        return resolve(echoReceived);
-      };
-      void checkForEcho();
-    });
-  };
-  var getNotebookComm = async (commTargetID2) => {
-    var _a, _b, _c, _d;
-    let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
-    await waitUntilConditionReturnsTrueOrTimeout(async () => {
-      var _a2, _b2, _c2, _d2;
-      potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
-      return potentialComm !== void 0;
-    }, MAX_WAIT_FOR_COMM_CREATION);
-    if (potentialComm === void 0) {
-      return "non_working_extension_error";
-    } else {
-      if (!await getNotebookCommConnectedToBackend(potentialComm)) {
-        return "no_backend_comm_registered_error";
-      }
-      return {
-        "type": "notebook",
-        "comm": potentialComm
-      };
-    }
-  };
-  var getLabCommConnectedToBackend = async (comm) => {
-    return new Promise((resolve) => {
-      const checkForEcho = async () => {
-        const originalOnMsg = comm.onMsg;
-        let echoReceived = false;
-        comm.onMsg = (msg) => {
-          if (msg.content.data.echo) {
-            echoReceived = true;
-          }
-        };
-        await waitUntilConditionReturnsTrueOrTimeout(() => {
-          return echoReceived;
-        }, MAX_WAIT_FOR_COMM_CREATION);
-        comm.onMsg = originalOnMsg;
-        return resolve(echoReceived);
-      };
-      void checkForEcho();
-    });
-  };
-  var getLabComm = async (kernelID2, commTargetID2) => {
-    let potentialComm = void 0;
-    await waitUntilConditionReturnsTrueOrTimeout(async () => {
-      var _a;
-      try {
-        potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
-      } catch (e) {
-        console.error(e);
-        return true;
-      }
-      return potentialComm !== void 0 && potentialComm !== "no_backend_comm_registered_error";
-    }, MAX_WAIT_FOR_COMM_CREATION);
-    if (potentialComm === void 0) {
-      return "non_working_extension_error";
-    } else if (potentialComm === "no_backend_comm_registered_error") {
-      return "no_backend_comm_registered_error";
-    } else {
-      potentialComm.open();
-      if (!await getLabCommConnectedToBackend(potentialComm)) {
-        return "no_backend_comm_registered_error";
-      } else {
-        return {
-          "type": "lab",
-          "comm": potentialComm
-        };
-      }
-    }
-  };
-  async function getCommFetchWrapper(kernelID2, commTargetID2) {
-    let commContainer = "non_valid_location_error";
-    if (isInJupyterNotebook()) {
-      commContainer = await getNotebookComm(commTargetID2);
-    } else if (isInJupyterLab()) {
-      commContainer = await getLabComm(kernelID2, commTargetID2);
-    }
-    if (typeof commContainer === "string") {
-      return commContainer;
-    }
-    const comm = commContainer.comm;
-    const _send = comm.send;
-    if (commContainer.type === "notebook") {
-      commContainer.comm.on_msg((msg) => receiveResponse(msg));
-    } else {
-      commContainer.comm.onMsg = (msg) => receiveResponse(msg);
-    }
-    const unconsumedResponses = getCommFetchWrapper.unconsumedResponses || (getCommFetchWrapper.unconsumedResponses = []);
-    function receiveResponse(rawResponse) {
-      const response = rawResponse.content.data;
-      unconsumedResponses.push(response);
-    }
-    function getResponseData(id, maxRetries = MAX_RETRIES) {
-      return new Promise((resolve) => {
-        let tries = 0;
-        const interval = setInterval(() => {
-          tries++;
-          if (tries > maxRetries) {
-            console.error(`No response on message: {id: ${id}}`);
-            clearInterval(interval);
-            return resolve({
-              error: `No response on message: {id: ${id}}`,
-              shortError: `No response received`,
-              showErrorModal: false
-            });
-          }
-          const index = unconsumedResponses.findIndex((response) => {
-            return response["id"] === id;
-          });
-          if (index !== -1) {
-            clearInterval(interval);
-            const response = unconsumedResponses[index];
-            unconsumedResponses.splice(index, 1);
-            console.log("RESONSE", response);
-            if (response["event"] == "edit_error") {
-              return resolve({
-                error: response["to_fix"],
-                shortError: response["header"],
-                showErrorModal: response["data"] === void 0,
-                traceback: response["traceback"]
-              });
-            }
-            const sharedVariables = response.shared_variables;
-            return resolve({
-              sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : void 0,
-              analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : void 0,
-              userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : void 0,
-              result: response["data"]
-            });
-          }
-        }, RETRY_DELAY);
-      });
-    }
-    async function send(msg) {
-      const id = getRandomId();
-      msg["id"] = id;
-      console.log(`Sending: {type: ${msg["type"]}, id: ${id}}`);
-      _send.call(comm, msg);
-      let loadingUpdated = false;
-      const timeout = setTimeout(() => {
-      }, 500);
-      const response = await getResponseData(id, MAX_RETRIES);
-      clearTimeout(timeout);
-      if (loadingUpdated) {
-      }
-      return response;
-    }
-    return send;
-  }
-
   // src/jupyter/api.tsx
   var getRandomId = () => {
     return "_" + Math.random().toString(36).substr(2, 9);
   };
   var MitoAPI = class {
-    constructor(setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
+    constructor(getFetchFunction2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) {
+      this.getFetchFunction = getFetchFunction2;
       this.setSheetDataArray = setSheetDataArray;
       this.setAnalysisData = setAnalysisData;
       this.setUserProfile = setUserProfile;
       this.setUIState = setUIState;
     }
-    async init(fetchFunction) {
-      this._send = fetchFunction;
-    }
     async send(params) {
-      await waitUntilConditionReturnsTrueOrTimeout(() => {
-        console.log("WAITING", this._send !== void 0);
-        return this._send !== void 0;
-      }, MAX_WAIT_FOR_COMM_CREATION);
+      const id = getRandomId();
+      params["id"] = id;
+      if (this._send === void 0) {
+        console.log("GETTING SEND");
+        this._send = await this.getFetchFunction();
+      }
       if (this._send === void 0) {
         console.error("Unable to establish comm. Quitting");
         return { error: "Connection error. Unable to establish comm.", shortError: "Connection error", showErrorModal: true };
       }
+      let loadingUpdated = false;
+      const timeout = setTimeout(() => {
+        this.setUIState((prevUIState) => {
+          loadingUpdated = true;
+          const newLoadingCalls = [...prevUIState.loading];
+          newLoadingCalls.push([params["id"], params["step_id"], params["type"]]);
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            loading: newLoadingCalls
+          });
+        });
+      }, 500);
       const response = await this._send(params);
+      clearTimeout(timeout);
+      if (loadingUpdated) {
+        this.setUIState((prevUIState) => {
+          const newLoadingCalls = [...prevUIState.loading];
+          const messageIndex = newLoadingCalls.findIndex((value) => {
+            return value[0] === id;
+          });
+          newLoadingCalls.splice(messageIndex, 1);
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            loading: newLoadingCalls
+          });
+        });
+      }
       if ("error" in response) {
         if (response.showErrorModal) {
           this.setUIState((prevUIState) => {
@@ -33327,6 +33134,7 @@ ${finalCode}`;
       const loadData = async () => {
         setLoading(true);
         const loadedData = await apiCall(...params);
+        console.log("LOADED DATA", loadedData);
         if (loadedData !== void 0) {
           setState(loadedData);
           if (onLoad !== void 0) {
@@ -34006,6 +33814,54 @@ ${finalCode}`;
 
   // src/components/import/FileBrowser/FileBrowserElement.tsx
   var import_react125 = __toESM(require_react());
+
+  // src/utils/time.tsx
+  var MINUTE = 60;
+  var HOUR = 60 * MINUTE;
+  var DAY = 24 * HOUR;
+  var WEEK = 7 * DAY;
+  var MONTH = 4 * WEEK;
+  var YEAR = 365 * DAY;
+  var getLastModifiedString = (timestamp) => {
+    if (timestamp === null || timestamp === void 0) {
+      return "--";
+    }
+    const delta = Math.floor(Date.now() / 1e3) - timestamp;
+    if (delta < HOUR) {
+      const numMinutes = Math.round(delta / MINUTE);
+      return `${numMinutes} minutes ago`;
+    } else if (delta < DAY) {
+      const numHours = Math.round(delta / HOUR);
+      return `${numHours} hours ago`;
+    } else if (delta < WEEK) {
+      const numDays = Math.round(delta / DAY);
+      return `${numDays} days ago`;
+    } else if (delta < MONTH) {
+      const numWeeks = Math.round(delta / WEEK);
+      return `${numWeeks} weeks ago`;
+    } else if (delta < YEAR) {
+      const numMonths = Math.round(delta / MONTH);
+      return `${numMonths} months ago`;
+    } else {
+      const numYears = Math.round(delta / YEAR);
+      return `${numYears} years ago`;
+    }
+  };
+  var sleep = async (timeoutInMilliseconds) => {
+    await new Promise((resolve) => setTimeout(resolve, timeoutInMilliseconds));
+  };
+  var waitUntilConditionReturnsTrueOrTimeout = async (condition, timeoutInMilliseconds) => {
+    let isConditionMet = await condition();
+    for (let i = 0; i < timeoutInMilliseconds / 200 && !isConditionMet; i++) {
+      if (!isConditionMet) {
+        await sleep(timeoutInMilliseconds / 200);
+      } else {
+        break;
+      }
+      isConditionMet = await condition();
+    }
+    return isConditionMet;
+  };
 
   // src/components/icons/CSVFileIcon.tsx
   var import_react122 = __toESM(require_react());
@@ -41956,10 +41812,21 @@ fig.write_html("${props.graphTabName}.html")`
 
   // src/hooks/useMitoAPI.tsx
   var import_react239 = __toESM(require_react());
-  var useMitoAPI = (kernelID2, commTargetID2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
+  var useMitoAPI = (getFetchFunction2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
+    const [commCreationStatus, setCommCreationStatus] = (0, import_react239.useState)("loading");
     const [mitoAPI] = (0, import_react239.useState)(
       () => {
         return new MitoAPI(
+          async () => {
+            const fetchFunction = await getFetchFunction2();
+            if (typeof fetchFunction === "string") {
+              setCommCreationStatus(fetchFunction);
+              return void 0;
+            } else {
+              setCommCreationStatus("finished");
+              return fetchFunction;
+            }
+          },
           setSheetDataArray,
           setAnalysisData,
           setUserProfile,
@@ -41967,19 +41834,6 @@ fig.write_html("${props.graphTabName}.html")`
         );
       }
     );
-    const [commCreationStatus, setCommCreationStatus] = (0, import_react239.useState)("loading");
-    (0, import_react239.useEffect)(() => {
-      const init = async () => {
-        const fetchFunction = await getCommFetchWrapper(kernelID2, commTargetID2);
-        if (typeof fetchFunction === "string") {
-          setCommCreationStatus(fetchFunction);
-        } else {
-          void mitoAPI.init(fetchFunction);
-          setCommCreationStatus("finished");
-        }
-      };
-      void init();
-    }, []);
     return {
       mitoAPI,
       commCreationStatus
@@ -42013,7 +41867,7 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react240.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react240.useState)(["."]);
     const [previousAITransformParams, setPreviousAITransformParams] = (0, import_react240.useState)([]);
-    const { mitoAPI, commCreationStatus } = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
+    const { mitoAPI, commCreationStatus } = useMitoAPI(props.getFetchFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react240.useEffect)(() => {
       if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
@@ -42747,6 +42601,166 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var Mito_default = Mito;
 
+  // src/jupyter/comm.tsx
+  var MAX_WAIT_FOR_COMM_CREATION = 1e4;
+  var MAX_DELAY = 5 * 6e4;
+  var RETRY_DELAY = 25;
+  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+  var getNotebookCommConnectedToBackend = async (comm) => {
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        let echoReceived = false;
+        comm.on_msg((msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        });
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WAIT_FOR_COMM_CREATION);
+        return resolve(echoReceived);
+      };
+      void checkForEcho();
+    });
+  };
+  var getNotebookComm = async (commTargetID2) => {
+    var _a, _b, _c, _d;
+    let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
+      var _a2, _b2, _c2, _d2;
+      potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
+      return potentialComm !== void 0;
+    }, MAX_WAIT_FOR_COMM_CREATION);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else {
+      if (!await getNotebookCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
+      }
+      return {
+        "type": "notebook",
+        "comm": potentialComm
+      };
+    }
+  };
+  var getLabCommConnectedToBackend = async (comm) => {
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        const originalOnMsg = comm.onMsg;
+        let echoReceived = false;
+        comm.onMsg = (msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        };
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WAIT_FOR_COMM_CREATION);
+        comm.onMsg = originalOnMsg;
+        return resolve(echoReceived);
+      };
+      void checkForEcho();
+    });
+  };
+  var getLabComm = async (kernelID2, commTargetID2) => {
+    let potentialComm = void 0;
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
+      var _a;
+      try {
+        potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
+      } catch (e) {
+        console.error(e);
+        return true;
+      }
+      return potentialComm !== void 0 && potentialComm !== "no_backend_comm_registered_error";
+    }, MAX_WAIT_FOR_COMM_CREATION);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else if (potentialComm === "no_backend_comm_registered_error") {
+      return "no_backend_comm_registered_error";
+    } else {
+      potentialComm.open();
+      if (!await getLabCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
+      } else {
+        return {
+          "type": "lab",
+          "comm": potentialComm
+        };
+      }
+    }
+  };
+  async function getCommFetchWrapper(kernelID2, commTargetID2) {
+    let commContainer = "non_valid_location_error";
+    if (isInJupyterNotebook()) {
+      commContainer = await getNotebookComm(commTargetID2);
+    } else if (isInJupyterLab()) {
+      commContainer = await getLabComm(kernelID2, commTargetID2);
+    }
+    if (typeof commContainer === "string") {
+      return commContainer;
+    }
+    const comm = commContainer.comm;
+    const _send = comm.send;
+    if (commContainer.type === "notebook") {
+      commContainer.comm.on_msg((msg) => receiveResponse(msg));
+    } else {
+      commContainer.comm.onMsg = (msg) => receiveResponse(msg);
+    }
+    const unconsumedResponses = getCommFetchWrapper.unconsumedResponses || (getCommFetchWrapper.unconsumedResponses = []);
+    function receiveResponse(rawResponse) {
+      const response = rawResponse.content.data;
+      unconsumedResponses.push(response);
+    }
+    function getResponseData(id, maxRetries = MAX_RETRIES) {
+      return new Promise((resolve) => {
+        let tries = 0;
+        const interval = setInterval(() => {
+          tries++;
+          if (tries > maxRetries) {
+            console.error(`No response on message: {id: ${id}}`);
+            clearInterval(interval);
+            return resolve({
+              error: `No response on message: {id: ${id}}`,
+              shortError: `No response received`,
+              showErrorModal: false
+            });
+          }
+          const index = unconsumedResponses.findIndex((response) => {
+            return response["id"] === id;
+          });
+          if (index !== -1) {
+            clearInterval(interval);
+            const response = unconsumedResponses[index];
+            unconsumedResponses.splice(index, 1);
+            if (response["event"] == "edit_error") {
+              return resolve({
+                error: response["to_fix"],
+                shortError: response["header"],
+                showErrorModal: response["data"] === void 0,
+                traceback: response["traceback"]
+              });
+            }
+            const sharedVariables = response.shared_variables;
+            return resolve({
+              sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : void 0,
+              analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : void 0,
+              userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : void 0,
+              result: response["data"]
+            });
+          }
+        }, RETRY_DELAY);
+      });
+    }
+    async function send(msg) {
+      console.log(`Sending: {type: ${msg["type"]}, id: ${msg.id}}`);
+      _send.call(comm, msg);
+      const response = await getResponseData(msg.id, MAX_RETRIES);
+      return response;
+    }
+    return send;
+  }
+
   // src/jupyterRender.tsx
   var sheetDataBytes = new Uint8Array(["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]);
   var analysisDataBytes = new Uint8Array(["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]);
@@ -42763,12 +42777,15 @@ fig.write_html("${props.graphTabName}.html")`
   document.head.append(style);
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
+  async function getFetchFunction() {
+    const fetchFromComm = await getCommFetchWrapper(kernelID, commTargetID);
+    return fetchFromComm;
+  }
   import_react_dom2.default.render(
     /* @__PURE__ */ React230.createElement(
       Mito_default,
       {
-        kernelID,
-        commTargetID,
+        getFetchFunction,
         sheetDataArray,
         analysisData,
         userProfile

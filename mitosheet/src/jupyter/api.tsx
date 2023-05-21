@@ -16,8 +16,7 @@ import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTa
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
-import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { FetchFunction, FetchFunctionErrorReturnType, MAX_WAIT_FOR_COMM_CREATION } from "./comm";
+import { FetchFunction, FetchFunctionErrorReturnType } from "./comm";
 
 
 
@@ -118,20 +117,22 @@ declare global {
            it return the error in-place instead.
         3. Stopping waiting and returning control to the caller.
 */
-export default class MitoAPI {
+export default class MitoAPI {    
     _send: FetchFunction | undefined;
-    
+    getFetchFunction: () => Promise<FetchFunction | undefined>
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     
     constructor(
+        getFetchFunction: () => Promise<FetchFunction | undefined>,
         setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
         setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
         setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
         setUIState: React.Dispatch<React.SetStateAction<UIState>>
     ) {
+        this.getFetchFunction = getFetchFunction;
         this.setSheetDataArray = setSheetDataArray;
         this.setAnalysisData = setAnalysisData; 
         this.setUserProfile = setUserProfile;
@@ -139,23 +140,55 @@ export default class MitoAPI {
     }
 
 
-    // NOTE: see comment in useMitoAPI above. We will get rid of this function
-    // when we move away from the widget framework and have a better place to
-    // call async functions
-    async init(fetchFunction: FetchFunction): Promise<void> {
-        this._send = fetchFunction;
-    }
-
     async send<ResultType>(params: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
-        // TODO: Wait until this._send is defined!
-        await waitUntilConditionReturnsTrueOrTimeout(() => {console.log("WAITING", this._send !== undefined); return this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+
+        // Generate a random id, and add it to the params
+        const id = getRandomId();
+        params['id'] = id;
+
+        if (this._send === undefined) {
+            console.log("GETTING SEND");
+            this._send = await this.getFetchFunction();
+        } 
+
         if (this._send === undefined) {
             console.error("Unable to establish comm. Quitting");
             return {error: 'Connection error. Unable to establish comm.', shortError: 'Connection error', showErrorModal: true};
         }
 
+        let loadingUpdated = false;
+        const timeout: NodeJS.Timeout = setTimeout(() => {
+            // TODO: handle loading!
+            this.setUIState((prevUIState) => {
+                loadingUpdated = true;
+                const newLoadingCalls = [...prevUIState.loading];
+                newLoadingCalls.push([params['id'] as string, params['step_id'] as string | undefined, params['type'] as string])
+                return {
+                    ...prevUIState,
+                    loading: newLoadingCalls
+                }
+            });
+        }, 500);
+
         // We use a centralized send function, and handle all errors here
         const response = await this._send<ResultType>(params);
+
+
+        // Stop the loading from being updated if it hasn't already run
+        clearTimeout(timeout);
+
+        // If loading has been updated, then we remove the loading with this value
+        if (loadingUpdated) {
+            this.setUIState((prevUIState) => {
+                const newLoadingCalls = [...prevUIState.loading];
+                const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
+                newLoadingCalls.splice(messageIndex, 1);
+                return {
+                    ...prevUIState,
+                    loading: newLoadingCalls
+                }
+            });
+        }
 
         // Handle errors
         if ('error' in response) {

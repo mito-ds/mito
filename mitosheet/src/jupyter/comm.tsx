@@ -38,7 +38,7 @@
 
 import { AnalysisData, SheetData, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { MitoResponse, getRandomId } from "./api";
+import { MitoResponse } from "./api";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
@@ -78,7 +78,7 @@ export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 // at 5 minutes
 const MAX_DELAY = 5 * 60_000;
 // How often we poll to see if we have a response yet
-const RETRY_DELAY = 250;
+const RETRY_DELAY = 25;
 const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 export type CommCreationErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
@@ -99,8 +99,6 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 
             // Give the onMsg a while to run
             await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
-
-            // TODO: do we need to on_msg here, I am not sure how
 
             return resolve(echoReceived);
         }
@@ -262,9 +260,11 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
 
         return new Promise((resolve) => {
             let tries = 0;
+
             const interval = setInterval(() => {
                 // Only try at most MAX_RETRIES times
                 tries++;
+
                 if (tries > maxRetries) {
                     console.error(`No response on message: {id: ${id}}`);
                     clearInterval(interval);
@@ -276,6 +276,7 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
                     })
                 }
 
+
                 // See if there is an API response to this one specificially
                 const index = unconsumedResponses.findIndex((response) => {
                     return response['id'] === id;
@@ -286,7 +287,6 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
 
                     const response = unconsumedResponses[index];
                     unconsumedResponses.splice(index, 1);
-                    console.log("RESONSE", response)
 
                     if (response['event'] == 'edit_error') {
                         return resolve({
@@ -314,56 +314,17 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
 
     
     async function send<ResultType>(msg: Record<string, unknown>): Promise<FetchFunctionReturnType<ResultType>> {
-        // Generate a random id, and add it to the message
-        const id = getRandomId();
-        msg['id'] = id;
 
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
-        console.log(`Sending: {type: ${msg['type']}, id: ${id}}`)
-
-        // If we still haven't created the comm, then we wait for up to MAX_WAIT_FOR_COMM_CREATION 
-        // to see if they get defined
-        //await waitUntilConditionReturnsTrueOrTimeout(() => {return this.commContainer !== undefined && this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+        console.log(`Sending: {type: ${msg['type']}, id: ${msg.id}}`)
 
         // We notably need to .call so that we can actually bind the comm.send function
         // to the correct `this`. We don't want `this` to be the MitoAPI object running 
         // this code, so we bind the comm object
         _send.call(comm, msg);
 
-        // Only set loading to true after half a second, so we don't set it for no reason
-        let loadingUpdated = false;
-        const timeout: NodeJS.Timeout = setTimeout(() => {
-            // TODO: handle loading!
-            /*this.setUIState((prevUIState) => {
-                loadingUpdated = true;
-                const newLoadingCalls = [...prevUIState.loading];
-                newLoadingCalls.push([id, msg['step_id'] as string | undefined, msg['type'] as string])
-                return {
-                    ...prevUIState,
-                    loading: newLoadingCalls
-                }
-            });*/
-        }, 500);
-
         // Wait for the response, if we should
-        const response = await getResponseData<ResultType>(id, MAX_RETRIES);
-
-        // Stop the loading from being updated if it hasn't already run
-        clearTimeout(timeout);
-
-        // If loading has been updated, then we remove the loading with this value
-        if (loadingUpdated) {
-            // TODO: fix loading
-            /*this.setUIState((prevUIState) => {
-                const newLoadingCalls = [...prevUIState.loading];
-                const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
-                newLoadingCalls.splice(messageIndex, 1);
-                return {
-                    ...prevUIState,
-                    loading: newLoadingCalls
-                }
-            }); */
-        }
+        const response = await getResponseData<ResultType>(msg.id as string, MAX_RETRIES);
 
         // Return this id
         return response;

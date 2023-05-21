@@ -5,7 +5,7 @@
 # Distributed under the terms of The Mito Enterprise license.
 
 import json
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 import requests #type: ignore
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import NEWLINE, NEWLINE_TAB
@@ -17,16 +17,16 @@ from mitosheet.types import CodeSnippet
 cached_custom_code_snippets: Optional[List[CodeSnippet]] = None
 
 # Helper functions for generating the proper return type
-def create_error_return_obj(error_message: str) -> str:
-    return json.dumps({
+def create_error_return_obj(error_message: str) -> Dict[str, str]:
+    return {
             'status': 'error',
             'error_message': error_message
-    })
-def create_success_return_obj(code_snippets: List[CodeSnippet]) -> str:
-    return json.dumps({
+    }
+def create_success_return_obj(code_snippets: List[CodeSnippet]) -> Dict[str, Any]:
+    return {
             'status': 'success',
             'code_snippets': code_snippets 
-    })
+    }
 
 def get_code_snippets_format_error(code_snippets: Any) -> Optional[str]:
     """
@@ -83,7 +83,7 @@ def get_code_snippets_format_error(code_snippets: Any) -> Optional[str]:
 
     return None
 
-def get_custom_code_snippets(mito_config_code_snippets_url: str) -> str:
+def get_custom_code_snippets(mito_config_code_snippets_url: str) -> Dict[str, Any]:
     """
     Load the code snippets from the provided url and validate that they are in the correct format
     """

@@ -89,7 +89,7 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
     return []
 
 
-def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Dict[str, Any]]:
     """
     Returns a list all the imported files and dataframes, and their import params. Does so by turning
     the import into a list of imports that only import a single dataframe, as this is convenient
@@ -140,4 +140,4 @@ def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any],
             })
 
     # Then, turn this into the output format
-    return json.dumps(import_steps_with_just_one_dataframe)
+    return import_steps_with_just_one_dataframe

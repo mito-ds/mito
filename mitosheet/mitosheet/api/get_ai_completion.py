@@ -37,7 +37,7 @@ user_id = None
 num_usages = None
 
 
-def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
+def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
         global user_email, user_id, num_usages
 
         if user_email is None:
@@ -54,9 +54,9 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         pro = is_pro()
 
         if not pro and num_usages >= 20:
-                return json.dumps({
+                return {
                         'error': f'You have used Mito AI 20 times.'
-                })
+                }
                 
 
         data = {
@@ -72,27 +72,26 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         try:
                 res = requests.post(MITO_AI_URL, headers=headers, json=data)
         except:
-                return json.dumps({
+                return {
                         'error': f'There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall.'
-                })
+                }
         
 
         if res.status_code == 200:
                 num_usages = num_usages + 1
                 set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages + 1)
-                return json.dumps({
+                return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': res.json()['completion'],
-                })
-                return 
+                }
         
-        return json.dumps({
+        return {
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]}'
-        })
+        }
 
-def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> str:
+def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> Dict[str, Any]:
 
         data = _get_ai_completion_data(prompt)
         headers = {
@@ -102,29 +101,29 @@ def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: 
         try:
                 res = requests.post(url, headers=headers, json=data)
         except:
-                return json.dumps({
+                return {
                         'error': f'There was an error accessing the API at {url}. This is likely due to internet connectivity problems or a firewall.'
-                })
+                }
 
         if res.status_code == 200:
                 res_json = res.json()
                 completion: str = res_json['choices'][0]['message']["content"]
                 # We strip all blank lines from the generated code, if they are at the start or end
                 completion = completion.strip()
-                return json.dumps({
+                return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': completion,
-                })
+                }
 
-        return json.dumps({
+        return {
                 'error': f'There was an error accessing the API at {url}. {res.json()["error"]["message"]}'
-        })
+        }
 
 
 
-def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
         selection: Optional[Selection] = params.get('selection', None)
         user_input: str = params['user_input']
         previous_failed_completions: List[Tuple[str, str]] = params['previous_failed_completions']
@@ -156,24 +155,22 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         try:
                 res = requests.post(OPEN_AI_URL, headers=headers, json=data)
         except:
-                return json.dumps({
+                return {
                         'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
-                })
+                }
         
-        print(prompt)
-
         if res.status_code == 200:
                 res_json = res.json()
                 completion: str = res_json['choices'][0]['message']["content"]
                 # We strip all blank lines from the generated code, if they are at the start or end
                 completion = completion.strip()
-                return json.dumps({
+                return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': completion,
-                })
+                }
 
-        return json.dumps({
+        return {
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
-        })
+        }

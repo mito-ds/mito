@@ -35,7 +35,7 @@ def get_step_import_data_from_saved_analysis(analysis_name: str, args: List[str]
         return step_import_data_list
 
 
-def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Dict[str, Any]]:
     """
     Returns a list all the imported files and dataframes, and their import params. Does so by turning
     the import into a list of imports that only import a single dataframe, as this is convenient
@@ -52,8 +52,6 @@ def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any],
     analysis_name = params["analysis_name"]
     args = params["args"]
     
-
     # We turn import steps into a version of the step that just creates a single dataframe
     # as this is what is easiest to work with on the frontend
-    result = json.dumps(get_step_import_data_from_saved_analysis(analysis_name, args))
-    return result
+    return get_step_import_data_from_saved_analysis(analysis_name, args)

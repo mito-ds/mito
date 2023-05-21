@@ -2,6 +2,7 @@ import * as React from 'react'
 import ReactDOM from 'react-dom';
 import Mito from './components/Mito';
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from './jupyter/jupyterUtils';
+import { getCommFetchWrapper } from './jupyter/comm';
 
 // We replace the following byte arrays with the real byte arrays of the utf8 encoded
 // JSON for the sheet data array, etc. We pass this encoded because the JSON parsing
@@ -34,10 +35,15 @@ document.head.append(style)
 // Then, render the mitosheet to the div id
 const div = document.getElementById(divID);
 console.log("Rendering to div", div);
+
+async function getFetchFunction() {
+    const fetchFromComm = await getCommFetchWrapper(kernelID, commTargetID);
+    return fetchFromComm;
+
+}
 ReactDOM.render(
     <Mito
-        kernelID={kernelID}
-        commTargetID={commTargetID}
+        getFetchFunction={getFetchFunction}
         sheetDataArray={sheetDataArray}
         analysisData={analysisData}
         userProfile={userProfile}

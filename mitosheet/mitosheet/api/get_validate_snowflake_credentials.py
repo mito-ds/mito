@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from mitosheet.types import SnowflakeCredentials, StepsManagerType
 
 # The snowflake-connector-python package is only available in Python > 3.6 
@@ -39,7 +39,7 @@ def get_validate_snowflake_credentials_error(username: str, password: str, accou
         except Exception as e:
             return e
 
-def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> str:
+def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Takes Snowflake Credentials and validates them by creating a snowflake connection. If it succeeds, it stores the credentials
     as a global variable and returns a success object. If it fails, returns an error object.
@@ -49,10 +49,10 @@ def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manag
     """
 
     if not SNOWFLAKE_CONNECTOR_IMPORTED: 
-        return json.dumps({
+        return {
             'type': 'error',    
             'error_message': 'snowflake-connector-python not accessible. Ensure it is installed.'
-        })
+        }
 
     username = params['username']
     password = params['password']
@@ -61,16 +61,16 @@ def get_validate_snowflake_credentials(params: SnowflakeCredentials, steps_manag
     exception = get_validate_snowflake_credentials_error(username, password, account)
 
     if exception is not None:
-        return json.dumps({
+        return {
             'type': 'error',    
             'error_message': f'{exception}'
-        })
+        }
 
     # cache the snowflake credentials 
     global cached_snowflake_credentials
     cached_snowflake_credentials = params
         
-    return json.dumps({
+    return {
         'type': 'success'
-    })
+    }
                 

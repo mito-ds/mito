@@ -11,7 +11,7 @@ from mitosheet.is_type_utils import is_number_dtype
 from mitosheet.types import StepsManagerType
 
 
-def get_column_describe(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_column_describe(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Sends back a string that can be parsed to a JSON object that
     contains _all_ the results from the series .describe function
@@ -46,4 +46,4 @@ def get_column_describe(params: Dict[str, Any], steps_manager: StepsManagerType)
         describe_obj['median'] = str(round(series.median(), 2))
         describe_obj['sum'] = str(round(series.sum(), 2))
 
-    return json.dumps(describe_obj)
+    return describe_obj

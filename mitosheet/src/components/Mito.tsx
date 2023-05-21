@@ -80,10 +80,10 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 import { useMitoAPI } from '../hooks/useMitoAPI';
+import { CommCreationErrorStatus, FetchFunction } from '../jupyter/comm';
 
 export type MitoProps = {
-    kernelID: string,
-    commTargetID: string,
+    getFetchFunction: () => Promise<FetchFunction | CommCreationErrorStatus>
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
     userProfile: UserProfile,
@@ -132,7 +132,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [previousAITransformParams, setPreviousAITransformParams] = useState<AITransformationParams[]>([])
 
     // Create the Mito API
-    const {mitoAPI, commCreationStatus} = useMitoAPI(props.kernelID, props.commTargetID, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
+    const {mitoAPI, commCreationStatus} = useMitoAPI(props.getFetchFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
     
     // If the comm ends up failing to be created, then we open a taskpane that let's
     // the user know of this error
