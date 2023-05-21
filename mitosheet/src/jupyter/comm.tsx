@@ -76,7 +76,7 @@ export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 // Max delay is the longest we'll wait for the API to return a value
 // There is no real reason for these to expire, so we set it very high
 // at 5 minutes
-const MAX_DELAY = 5 * 60_000;
+const MAX_DELAY = 5 * 60_100;
 // How often we poll to see if we have a response yet
 const RETRY_DELAY = 25;
 const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;

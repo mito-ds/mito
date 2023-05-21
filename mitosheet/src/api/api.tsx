@@ -116,8 +116,7 @@ export default class MitoAPI {
         this.setUIState = setUIState;
     }
 
-
-
+    
     async send<ResultType>(params: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
 
         // Generate a random id, and add it to the params
@@ -129,7 +128,7 @@ export default class MitoAPI {
             this._send = this._send || _send;
         } 
 
-        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send === undefined}, MAX_WAIT_FOR_COMM_CREATION);
+        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
 
         if (this._send === undefined) {
             console.error("Unable to establish comm. Quitting");
@@ -138,7 +137,6 @@ export default class MitoAPI {
 
         let loadingUpdated = false;
         const timeout: NodeJS.Timeout = setTimeout(() => {
-            // TODO: handle loading!
             this.setUIState((prevUIState) => {
                 loadingUpdated = true;
                 const newLoadingCalls = [...prevUIState.loading];
@@ -239,10 +237,6 @@ export default class MitoAPI {
         Returns a string encoding of the CSV file to download
     */
     async getDataframeAsCSV(sheetIndex: number): Promise<MitoAPIResult<string>> {
-
-        // Note: We increase MAX_RETRIES to 250 although 100 worked locally for a dataset with 10M
-        // rows and 4 columns, because the server is slower. 
-        // TODO: FIX UP TIMEOUT TO MAKE IT LONGER
         return await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_csv',

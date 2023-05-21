@@ -251,20 +251,18 @@ class MitoBackend():
             # send some data with the response so that the frontend
             # knows to ignore the error moda 
             response = {
-                'event': 'edit_error',
+                'event': 'error',
                 'id': event['id'],
-                'type': e.type_,
-                'header': e.header,
-                'to_fix': e.to_fix,
-                'traceback': e.traceback,
+                'error': e.to_fix,
+                'errorShort': e.header,
+                'traceback': e.traceback
             }
             if not e.error_modal:
                 response['data'] = {
-                    'event': 'edit_error',
-                    'type': e.type_,
-                    'header': e.header,
-                    'to_fix': e.to_fix,
-                    'traceback': e.traceback,
+                    'event': 'error',
+                    'error': e.to_fix,
+                    'errorShort': e.header,
+                    'traceback': e.traceback
                 }
 
             # Report it to the user, and then return
@@ -276,11 +274,10 @@ class MitoBackend():
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
             self.mito_send({
-                'event': 'edit_error',
+                'event': 'error',
                 'id': event['id'],
-                'type': 'execution_error',
-                'header': 'Execution Error',
-                'to_fix': 'Sorry, there was an error during executing this code.',
+                'error': 'Sorry, there was an error during executing this code.',
+                'errorShort': 'Execution Error',
                 'traceback': get_recent_traceback()
             })
 

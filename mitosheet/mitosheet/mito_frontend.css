@@ -231,6 +231,11 @@
   height: 100vw;
 }
 
+/* css/sitewide/hover.css */
+.highlight-on-hover:hover {
+  background: var(--mito-lightest-purple);
+}
+
 /* css/sitewide/icons.css */
 .icon-color-changer-container .icon-show-on-hover {
   display: none;
@@ -766,11 +771,6 @@
 }
 .w-100p {
   width: 100%;
-}
-
-/* css/sitewide/hover.css */
-.highlight-on-hover:hover {
-  background: var(--mito-lightest-purple);
 }
 
 /* css/elements/DropdownItem.css */
@@ -1991,6 +1991,68 @@ a:visited {
   border-radius: 4px;
 }
 
+/* css/taskpanes/AITransformation/AITransformation.css */
+.ai-transformation-example {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 3px 5px;
+  gap: 10px;
+  background: #F5F5F5;
+  border: 1px solid #ACACAD;
+  border-radius: 3px;
+}
+.ai-transformation-user-input-text-area {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  resize: none;
+  padding: 5px;
+  background-color: var(--mito-very-light-gray);
+  border: 1px solid var(--mito-light-gray);
+  border-radius: 3px;
+  font-size: 13px;
+}
+.ai-transformation-message {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 10px;
+  gap: 10px;
+  background: var(--mito-very-light-gray);
+  border: 1px solid var(--mito-light-gray);
+  border-radius: 3px;
+  border: 1px solid var(--mito-light-gray);
+  word-break: break-all;
+  white-space: pre-line;
+}
+.ai-transformation-message-user {
+  border: 1px solid var(--mito-light-gray);
+}
+.ai-transformation-message-ai {
+  background: #FEF4FF;
+}
+.ai-transformation-example:hover {
+  border: 1px solid var(--mito-light-purple);
+}
+.ai-transformation-feedback-button {
+  padding: 5px;
+  border-radius: 3px;
+}
+.ai-transformation-feedback-button:hover {
+  background-color: var(--mito-light-gray);
+}
+.ai-transformation-feedback-button-selected {
+  background-color: var(--mito-light-gray);
+}
+.ai-transformation-result-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* css/taskpanes/Import/FileBrowser.css */
 .file-browser {
   height: 100%;
@@ -2238,68 +2300,6 @@ a:visited {
   border-width: 0 1px 0 1px;
   padding: 4px;
   overflow: scroll;
-}
-
-/* css/taskpanes/AITransformation/AITransformation.css */
-.ai-transformation-example {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 3px 5px;
-  gap: 10px;
-  background: #F5F5F5;
-  border: 1px solid #ACACAD;
-  border-radius: 3px;
-}
-.ai-transformation-user-input-text-area {
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
-  resize: none;
-  padding: 5px;
-  background-color: var(--mito-very-light-gray);
-  border: 1px solid var(--mito-light-gray);
-  border-radius: 3px;
-  font-size: 13px;
-}
-.ai-transformation-message {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 10px;
-  gap: 10px;
-  background: var(--mito-very-light-gray);
-  border: 1px solid var(--mito-light-gray);
-  border-radius: 3px;
-  border: 1px solid var(--mito-light-gray);
-  word-break: break-all;
-  white-space: pre-line;
-}
-.ai-transformation-message-user {
-  border: 1px solid var(--mito-light-gray);
-}
-.ai-transformation-message-ai {
-  background: #FEF4FF;
-}
-.ai-transformation-example:hover {
-  border: 1px solid var(--mito-light-purple);
-}
-.ai-transformation-feedback-button {
-  padding: 5px;
-  border-radius: 3px;
-}
-.ai-transformation-feedback-button:hover {
-  background-color: var(--mito-light-gray);
-}
-.ai-transformation-feedback-button-selected {
-  background-color: var(--mito-light-gray);
-}
-.ai-transformation-result-section {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 }
 
 /* css/loading-indicator.css */
