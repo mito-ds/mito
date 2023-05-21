@@ -7,13 +7,13 @@ import Spacer from "../../layout/Spacer";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { SendFunctionErrorStatus } from "../../../api/send";
+import { SendFunctionError } from "../../../api/send";
 
 
 interface CannotCreateCommTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     userProfile: UserProfile
-    commCreationErrorStatus: SendFunctionErrorStatus
+    commCreationErrorStatus: SendFunctionError
 }
 
 

@@ -36,9 +36,13 @@ document.head.append(style)
 const div = document.getElementById(divID);
 console.log("Rendering to div", div);
 
+/**
+ * The jupyter send function wraps a comm, and assumes the backend always will respond
+ * with a single message.
+ */
 async function getSendFunction() {
-    const fetchFromComm = await getCommSend(kernelID, commTargetID);
-    return fetchFromComm;
+    const sendFromComm = await getCommSend(kernelID, commTargetID);
+    return sendFromComm;
 
 }
 ReactDOM.render(

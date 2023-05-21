@@ -1,11 +1,11 @@
 import { useState } from "react"
 import MitoAPI from "../api/api"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
-import { SendFunction, SendFunctionErrorStatus, SendFunctionStatus } from "../api/send"
+import { SendFunction, SendFunctionError, SendFunctionStatus } from "../api/send"
 
 
 export const useMitoAPI = (
-    getSendFunction: () => Promise<SendFunction | SendFunctionErrorStatus>,
+    getSendFunction: () => Promise<SendFunction | SendFunctionError>,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,

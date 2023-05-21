@@ -23132,11 +23132,11 @@ ${finalCode}`;
       }
       return response;
     }
-    _startLoading(params) {
+    _startLoading(msg) {
       return setTimeout(() => {
         this.setUIState((prevUIState) => {
           const newLoadingCalls = [...prevUIState.loading];
-          newLoadingCalls.push([params["id"], params["step_id"], params["type"]]);
+          newLoadingCalls.push([msg["id"], msg["step_id"], msg["type"]]);
           return __spreadProps(__spreadValues({}, prevUIState), {
             loading: newLoadingCalls
           });
@@ -23158,9 +23158,9 @@ ${finalCode}`;
         });
       });
     }
-    async send(params) {
+    async send(msg) {
       const id = getRandomId();
-      params["id"] = id;
+      msg["id"] = id;
       if (this._send === void 0) {
         const _send = await this.getSendFunction();
         this._send = this._send || _send;
@@ -23172,8 +23172,8 @@ ${finalCode}`;
         console.error(`Unable to establish comm. Quitting before sending message with id ${id}`);
         return { error: "Connection error. Unable to establish comm.", errorShort: "Connection error", showErrorModal: true };
       }
-      const loadingTimeout = this._startLoading(params);
-      const response = await this._send(params);
+      const loadingTimeout = this._startLoading(msg);
+      const response = await this._send(msg);
       this._stopLoading(id, loadingTimeout);
       if ("error" in response) {
         return this._handleErrorResponse(response);
@@ -42686,8 +42686,8 @@ fig.write_html("${props.graphTabName}.html")`
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
   async function getSendFunction() {
-    const fetchFromComm = await getCommSend(kernelID, commTargetID);
-    return fetchFromComm;
+    const sendFromComm = await getCommSend(kernelID, commTargetID);
+    return sendFromComm;
   }
   import_react_dom2.default.render(
     /* @__PURE__ */ React230.createElement(

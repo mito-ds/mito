@@ -9,8 +9,10 @@ from mitosheet.tests.decorators import requires_open_ai_credentials
 from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES
 from mitosheet.user.utils import is_pro
+from mitosheet.tests.decorators import skip_if_offline
 
 @requires_open_ai_credentials
+@skip_if_offline
 def test_get_ai_completion():
     mito = create_mito_wrapper()
 
@@ -21,15 +23,16 @@ def test_get_ai_completion():
     }, mito.mito_backend.steps_manager)
 
     try:
-        assert json.loads(completion)['user_input'] == 'test'
-        assert len(json.loads(completion)['prompt_version']) > 0
-        assert len(json.loads(completion)['prompt']) > 0
-        assert len(json.loads(completion)['completion']) > 0
+        assert completion['user_input'] == 'test'
+        assert len(completion['prompt_version']) > 0
+        assert len(completion['prompt']) > 0
+        assert len(completion['completion']) > 0
     except:
         # This integrates with an external API, so if this doesn't work, we should get an error
         # We add this since this test is flakey
-        assert len(json.loads(completion)['error']) > 0
+        assert len(completion['error']) > 0
 
+@skip_if_offline
 def test_get_ai_completion_with_no_api_key_works():
     mito = create_mito_wrapper()
 
@@ -49,15 +52,16 @@ def test_get_ai_completion_with_no_api_key_works():
         'previous_failed_completions': []
     }, mito.mito_backend.steps_manager)
 
-    assert json.loads(completion)['user_input'] == 'test'
-    assert len(json.loads(completion)['prompt_version']) > 0
-    assert len(json.loads(completion)['prompt']) > 0
-    assert len(json.loads(completion)['completion']) > 0
+    assert completion['user_input'] == 'test'
+    assert len(completion['prompt_version']) > 0
+    assert len(completion['prompt']) > 0
+    assert len(completion['completion']) > 0
 
     if key is not None:
         os.environ['OPENAI_API_KEY'] = key
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages)
 
+@skip_if_offline
 def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
     mito = create_mito_wrapper()
@@ -84,9 +88,9 @@ def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
 
     if is_pro():
-        assert 'completion' in json.loads(completion)
+        assert 'completion' in completion
     else:
-        assert 'You have used Mito AI 20 times.' in json.loads(completion)['error']
+        assert 'You have used Mito AI 20 times.' in completion['error']
 
 
     if key is not None:

@@ -70,6 +70,19 @@ def telemetry_turned_on() -> bool:
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
 
+__online = None
+
+def is_online():
+    global __online
+    if __online is None:
+        try:
+            import requests
+            requests.get('https://google.com')
+            __online = True
+        except:
+            __online = False
+
+    return __online
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
@@ -323,7 +336,7 @@ def identify() -> None:
     operating_system = platform.system()
 
     
-    if not is_running_test():
+    if not is_running_test() and is_online():
         # NOTE: we do not log anything when tests are running
         analytics.identify(static_user_id, {
             'version_python': sys.version_info,
@@ -380,8 +393,8 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     final_params = {**final_params, **_get_experiment_params()}
 
     # Finially, do the acutal logging. We do not log anything when tests are
-    # running, or if telemetry is turned off
-    if not is_running_test() and telemetry_turned_on():
+    # running, or if telemetry is turned off, or if we're offline
+    if not is_running_test() and telemetry_turned_on() and is_online():
         analytics.track(
             get_user_field(UJ_STATIC_USER_ID), 
             log_event, 

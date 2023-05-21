@@ -143,11 +143,11 @@ export default class MitoAPI {
         return response;
     }
 
-    _startLoading(params: Record<string, unknown>): NodeJS.Timeout {
+    _startLoading(msg: Record<string, unknown>): NodeJS.Timeout {
         return setTimeout(() => {
             this.setUIState((prevUIState) => {
                 const newLoadingCalls = [...prevUIState.loading];
-                newLoadingCalls.push([params['id'] as string, params['step_id'] as string | undefined, params['type'] as string])
+                newLoadingCalls.push([msg['id'] as string, msg['step_id'] as string | undefined, msg['type'] as string])
                 return {
                     ...prevUIState,
                     loading: newLoadingCalls
@@ -176,11 +176,11 @@ export default class MitoAPI {
         
     }
     
-    async send<ResultType>(params: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
+    async send<ResultType>(msg: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
 
         // Generate a random id, and add it to the params
         const id = getRandomId();
-        params['id'] = id;
+        msg['id'] = id;
 
         if (this._send === undefined) {
             const _send = await this.getSendFunction();
@@ -194,8 +194,8 @@ export default class MitoAPI {
             return {error: 'Connection error. Unable to establish comm.', errorShort: 'Connection error', showErrorModal: true};
         }
 
-        const loadingTimeout = this._startLoading(params);        
-        const response = await this._send<ResultType>(params);
+        const loadingTimeout = this._startLoading(msg);        
+        const response = await this._send<ResultType>(msg);
         this._stopLoading(id, loadingTimeout);
 
         if ('error' in response) {

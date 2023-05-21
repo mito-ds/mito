@@ -37,7 +37,7 @@
  */
 
 import { MitoResponse } from "../api/api";
-import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionErrorStatus, SendFunctionReturnType } from "../api/send";
+import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType } from "../api/send";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
@@ -105,7 +105,7 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 }
 
 
-export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
+export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionError> => {
 
     let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
@@ -157,7 +157,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
 }
 
 
-export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
+export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
     // Potentially returns undefined if the command is not yet started
     let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
@@ -199,7 +199,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
+export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
     if (isInJupyterNotebook()) {
         return getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {
@@ -211,8 +211,8 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
 
 
 
-export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionErrorStatus> {
-    let commContainer: CommContainer | SendFunctionErrorStatus = 'non_valid_location_error';
+export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionError> {
+    let commContainer: CommContainer | SendFunctionError = 'non_valid_location_error';
     if (isInJupyterNotebook()) {
         commContainer = await getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {

@@ -247,29 +247,19 @@ class MitoBackend():
             # Log processing this event failed
             log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
 
-            # If the error says to ignore the error modal, then we
-            # send some data with the response so that the frontend
-            # knows to ignore the error moda 
-            response = {
+            # Report it to the user, and then return
+            self.mito_send({
                 'event': 'error',
                 'id': event['id'],
                 'error': e.to_fix,
                 'errorShort': e.header,
-                'traceback': e.traceback
-            }
-            if not e.error_modal:
-                response['data'] = {
-                    'event': 'error',
-                    'error': e.to_fix,
-                    'errorShort': e.header,
-                    'traceback': e.traceback
-                }
-
-            # Report it to the user, and then return
-            self.mito_send(response)
+                'traceback': e.traceback,
+                'showErrorModal': e.error_modal
+            })
         except:
             if is_running_test():
                 print(get_recent_traceback())
+            
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
@@ -278,7 +268,8 @@ class MitoBackend():
                 'id': event['id'],
                 'error': 'Sorry, there was an error during executing this code.',
                 'errorShort': 'Execution Error',
-                'traceback': get_recent_traceback()
+                'traceback': get_recent_traceback(),
+                'showErrorModal': True
             })
 
         return False

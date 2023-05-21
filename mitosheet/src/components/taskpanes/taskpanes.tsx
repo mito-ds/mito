@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { SendFunctionErrorStatus } from "../../api/send";
+import { SendFunctionError } from "../../api/send";
 import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
@@ -101,7 +101,7 @@ export type TaskpaneInfo =
     }
     | {
         type: TaskpaneType.CANNOTCREATECOMM,
-        commCreationErrorStatus: SendFunctionErrorStatus
+        commCreationErrorStatus: SendFunctionError
     }
     | {type: TaskpaneType.CODESNIPPETS}
     | {type: TaskpaneType.SNOWFLAKEIMPORT}
