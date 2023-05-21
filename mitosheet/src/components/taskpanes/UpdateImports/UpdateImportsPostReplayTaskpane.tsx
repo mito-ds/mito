@@ -112,7 +112,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             if (props.updatedStepImportData === undefined) {
                                 return
                             }
-                            const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                            const response = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                            const _invalidImportIndexes = 'error' in response ? undefined : response.result;
                             if (_invalidImportIndexes === undefined) {
                                 return;
                             }

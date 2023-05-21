@@ -23764,20 +23764,6 @@ ${finalCode}`;
         }
       });
     }
-    async editSetCellValue(sheetIndex, columnID, dataframeRowIndex, newValue, cell_editor_location) {
-      return await this.send({
-        "event": "edit_event",
-        "type": "set_cell_value_edit",
-        "step_id": getRandomId(),
-        "params": {
-          "sheet_index": sheetIndex,
-          "column_id": columnID,
-          "row_index": dataframeRowIndex,
-          "new_value": newValue,
-          "cell_editor_location": cell_editor_location
-        }
-      });
-    }
     async editChangeColumnDtype(sheetIndex, columnIDs, newDtype, stepID) {
       return await this.send({
         "event": "edit_event",
@@ -28130,7 +28116,6 @@ ${finalCode}`;
       const loadData = async () => {
         setLoading(true);
         const loadedData = await apiCall(...params);
-        console.log("LOADED DATA", loadedData);
         if (loadedData !== void 0) {
           setState(loadedData);
           if (onLoad !== void 0) {
@@ -36457,6 +36442,7 @@ ${finalCode}`;
       },
       [props.filePath]
     );
+    console.log(fileMetadata);
     const params = props.params;
     if (params === void 0) {
       return /* @__PURE__ */ import_react156.default.createElement("div", { className: "text-body-1" }, "There has been an error loading your Excel file metadata. Please try again, or contact support.");
@@ -39441,7 +39427,8 @@ fig.write_html("${props.graphTabName}.html")`
             if (props.updatedStepImportData === void 0) {
               return;
             }
-            const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+            const response = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+            const _invalidImportIndexes = "error" in response ? void 0 : response.result;
             if (_invalidImportIndexes === void 0) {
               return;
             }
@@ -39486,7 +39473,7 @@ fig.write_html("${props.graphTabName}.html")`
   var import_react185 = __toESM(require_react());
   var PRE_REPLAY_IMPORT_ERROR_TEXT = "Please fix failed data imports to replay analysis.";
   var UpdateImportsPreReplayTaskpane = (props) => {
-    var _a;
+    var _a, _b;
     const [loadingUpdate, setLoadingUpdate] = (0, import_react185.useState)(false);
     let updateImportBody = null;
     const loadingImportDataAndErrors = props.importDataAndErrors === void 0;
@@ -39515,6 +39502,9 @@ fig.write_html("${props.graphTabName}.html")`
     }
     const allErrorsUpdated = Object.keys(((_a = props.importDataAndErrors) == null ? void 0 : _a.invalidImportMessages) || {}).filter((index) => !props.updatedIndexes.includes(parseInt(index))).length === 0;
     const invalidPostUpdate = Object.keys(props.postUpdateInvalidImportMessages).length > 0;
+    console.log("Invalid Import Messages", (_b = props.importDataAndErrors) == null ? void 0 : _b.invalidImportMessages);
+    console.log("updatedIndexes", props.updatedIndexes);
+    console.log(allErrorsUpdated, invalidPostUpdate, loadingImportDataAndErrors, loadingUpdate);
     const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors || loadingUpdate;
     return /* @__PURE__ */ import_react185.default.createElement(DefaultTaskpane_default, null, /* @__PURE__ */ import_react185.default.createElement(
       DefaultTaskpaneHeader_default,
@@ -39553,7 +39543,8 @@ fig.write_html("${props.graphTabName}.html")`
             if (props.updatedStepImportData === void 0) {
               return;
             }
-            const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+            const response = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+            const _invalidImportIndexes = "error" in response ? void 0 : response.result;
             if (_invalidImportIndexes === void 0) {
               return;
             }
@@ -39634,7 +39625,8 @@ fig.write_html("${props.graphTabName}.html")`
         if (failedReplayData !== void 0) {
           const response = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
           importData = "error" in response ? void 0 : response.result;
-          invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+          const invalidImportIndexesResponse = await props.mitoAPI.getTestImports(importData || []);
+          invalidImportIndexes = "error" in invalidImportIndexesResponse ? {} : invalidImportIndexesResponse.result;
         } else {
           const response = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
           importData = "error" in response ? void 0 : response.result;

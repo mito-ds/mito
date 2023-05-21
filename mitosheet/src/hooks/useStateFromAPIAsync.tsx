@@ -24,8 +24,6 @@ export function useStateFromAPIAsync<ResultType, ParamType>(
             // Get the data and save it
             const loadedData = await apiCall(...params);
 
-            console.log("LOADED DATA", loadedData);
-
             if (loadedData !== undefined) {
                 setState(loadedData);
                 if (onLoad !== undefined) {

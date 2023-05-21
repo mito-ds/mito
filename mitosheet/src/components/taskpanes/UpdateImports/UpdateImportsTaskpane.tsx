@@ -104,7 +104,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 const response = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
                 importData = 'error' in response ? undefined : response.result;
 
-                invalidImportIndexes = await props.mitoAPI.getTestImports(importData || []);
+                const invalidImportIndexesResponse = await props.mitoAPI.getTestImports(importData || []);
+                invalidImportIndexes = 'error' in invalidImportIndexesResponse ? {} : invalidImportIndexesResponse.result;
             } else {
                 const response = await props.mitoAPI.getImportedFilesAndDataframesFromCurrentSteps();
                 importData = 'error' in response ? undefined : response.result;

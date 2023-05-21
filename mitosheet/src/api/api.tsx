@@ -293,8 +293,6 @@ export default class MitoAPI {
     /*
         Returns a list of the key, values that is returned by .describing 
         this column
-
-        TODO: This is broken. Fix it up!
     */
     async getColumnDescribe(sheetIndex: number, columnID: ColumnID): Promise<MitoAPIResult<Record<string, string>>> {
         return await this.send<Record<string, string>>({
@@ -889,30 +887,6 @@ export default class MitoAPI {
                 'formula_label': formula_label,
                 'new_formula': newFormula,
                 'index_labels_formula_is_applied_to': index_labels_formula_is_applied_to,
-                'cell_editor_location': cell_editor_location // Just for logging purposes
-            }
-        });
-    }
-
-    /*
-        Sets the value of a specific cell
-    */
-    async editSetCellValue(
-        sheetIndex: number,
-        columnID: ColumnID,
-        dataframeRowIndex: number | string,
-        newValue: string,
-        cell_editor_location: string
-    ): Promise<MitoAPIResult<never>> {
-        return await this.send({
-            'event': 'edit_event',
-            'type': 'set_cell_value_edit',
-            'step_id': getRandomId(),
-            'params': {
-                'sheet_index': sheetIndex,
-                'column_id': columnID,
-                'row_index': dataframeRowIndex,
-                'new_value': newValue,
                 'cell_editor_location': cell_editor_location // Just for logging purposes
             }
         });

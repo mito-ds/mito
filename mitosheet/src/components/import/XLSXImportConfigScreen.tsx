@@ -107,7 +107,6 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                 props.setParams(prevParams => {
                     // If it's an update to an existing import, we just select the first sheet, as we only ever want one sheet selected
                     // but if it's a normal import, we select all the files
-
                     return {
                         ...prevParams,
                         sheet_names: !props.isUpdate ? loadedData.sheet_names : loadedData.sheet_names.slice(0, 1)
@@ -117,6 +116,8 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
         },
         [props.filePath]
     );
+
+    console.log(fileMetadata)
 
 
     const params = props.params;
