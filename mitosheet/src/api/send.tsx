@@ -6,6 +6,11 @@
  * 
  */
 
+export const MAX_WEIGHT_FOR_SEND_CREATION = 10_000;
+
+export type SendFunctionErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
+export type SendFunctionStatus = 'loading' | 'finished' | SendFunctionErrorStatus;
+
 import { AnalysisData, SheetData, UserProfile } from "../types";
 
 export type SendFunctionSuccessReturnType<ResultType> = {

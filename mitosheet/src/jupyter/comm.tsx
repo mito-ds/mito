@@ -37,7 +37,7 @@
  */
 
 import { MitoResponse } from "../api/api";
-import { SendFunction, SendFunctionReturnType } from "../api/send";
+import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionErrorStatus, SendFunctionReturnType } from "../api/send";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
@@ -71,7 +71,6 @@ export type CommContainer = {
     'comm': NotebookComm
 }
 
-export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 
 // Max delay is the longest we'll wait for the API to return a value
 // There is no real reason for these to expire, so we set it very high
@@ -81,8 +80,6 @@ const MAX_DELAY = 5 * 60_100;
 const RETRY_DELAY = 25;
 const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
-export type CommCreationErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
-export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatus;
 
 export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Promise<boolean> => {
 
@@ -98,7 +95,7 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
             })
 
             // Give the onMsg a while to run
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WEIGHT_FOR_SEND_CREATION);
 
             return resolve(echoReceived);
         }
@@ -108,13 +105,13 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 }
 
 
-export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
 
     let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
         return potentialComm !== undefined;
-    }, MAX_WAIT_FOR_COMM_CREATION)
+    }, MAX_WEIGHT_FOR_SEND_CREATION)
 
     if (potentialComm === undefined) {
         return 'non_working_extension_error';
@@ -147,7 +144,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
             }
 
             // Give the onMsg a while to run, quiting early if we get an echo
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WEIGHT_FOR_SEND_CREATION);
 
             // Reset the onMsg
             comm.onMsg = originalOnMsg;
@@ -160,7 +157,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
 }
 
 
-export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
     // Potentially returns undefined if the command is not yet started
     let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
@@ -174,7 +171,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
         }
         // We don't return true until we get a comm
         return potentialComm !== undefined && potentialComm !== 'no_backend_comm_registered_error';
-    }, MAX_WAIT_FOR_COMM_CREATION)
+    }, MAX_WEIGHT_FOR_SEND_CREATION)
 
 
     if (potentialComm === undefined) {
@@ -202,7 +199,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionErrorStatus> => {
     if (isInJupyterNotebook()) {
         return getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {
@@ -214,8 +211,8 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
 
 
 
-export async function getCommFetchWrapper(kernelID: string, commTargetID: string): Promise<SendFunction | CommCreationErrorStatus> {
-    let commContainer: CommContainer | CommCreationErrorStatus = 'non_valid_location_error';
+export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionErrorStatus> {
+    let commContainer: CommContainer | SendFunctionErrorStatus = 'non_valid_location_error';
     if (isInJupyterNotebook()) {
         commContainer = await getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {
@@ -236,11 +233,11 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
         commContainer.comm.onMsg = (msg) => receiveResponse(msg);
     }
 
-    const unconsumedResponses = getCommFetchWrapper.unconsumedResponses || (getCommFetchWrapper.unconsumedResponses = []);
+    // We save the unconsumed responses on the getCommSend function
+    const unconsumedResponses = getCommSend.unconsumedResponses || (getCommSend.unconsumedResponses = []);
 
     function receiveResponse(rawResponse: Record<string, unknown>): void {
-        const response = (rawResponse as any).content.data as MitoResponse; // TODO: turn this into one of the funcitons that checks types, to avoid the echo!
-        unconsumedResponses.push(response);
+        unconsumedResponses.push((rawResponse as any).content.data as MitoResponse);
     }
 
     function getResponseData<ResultType> (id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -263,11 +260,9 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
                     })
                 }
 
-
                 // See if there is an API response to this one specificially
-                const index = unconsumedResponses.findIndex((response) => {
-                    return response['id'] === id;
-                })
+                const index = unconsumedResponses.findIndex((response) =>  response['id'] === id)
+
                 if (index !== -1) {
                     // Clear the interval
                     clearInterval(interval);
@@ -321,6 +316,6 @@ export async function getCommFetchWrapper(kernelID: string, commTargetID: string
 
 // Save the unconsumed responses
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export declare namespace getCommFetchWrapper {
+export declare namespace getCommSend {
     export let unconsumedResponses: MitoResponse[];
 }

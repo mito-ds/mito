@@ -23093,165 +23093,8 @@ ${finalCode}`;
     return isConditionMet;
   };
 
-  // src/jupyter/comm.tsx
-  var MAX_WAIT_FOR_COMM_CREATION = 1e4;
-  var MAX_DELAY = 5 * 60100;
-  var RETRY_DELAY = 25;
-  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
-  var getNotebookCommConnectedToBackend = async (comm) => {
-    return new Promise((resolve) => {
-      const checkForEcho = async () => {
-        let echoReceived = false;
-        comm.on_msg((msg) => {
-          if (msg.content.data.echo) {
-            echoReceived = true;
-          }
-        });
-        await waitUntilConditionReturnsTrueOrTimeout(() => {
-          return echoReceived;
-        }, MAX_WAIT_FOR_COMM_CREATION);
-        return resolve(echoReceived);
-      };
-      void checkForEcho();
-    });
-  };
-  var getNotebookComm = async (commTargetID2) => {
-    var _a, _b, _c, _d;
-    let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
-    await waitUntilConditionReturnsTrueOrTimeout(async () => {
-      var _a2, _b2, _c2, _d2;
-      potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
-      return potentialComm !== void 0;
-    }, MAX_WAIT_FOR_COMM_CREATION);
-    if (potentialComm === void 0) {
-      return "non_working_extension_error";
-    } else {
-      if (!await getNotebookCommConnectedToBackend(potentialComm)) {
-        return "no_backend_comm_registered_error";
-      }
-      return {
-        "type": "notebook",
-        "comm": potentialComm
-      };
-    }
-  };
-  var getLabCommConnectedToBackend = async (comm) => {
-    return new Promise((resolve) => {
-      const checkForEcho = async () => {
-        const originalOnMsg = comm.onMsg;
-        let echoReceived = false;
-        comm.onMsg = (msg) => {
-          if (msg.content.data.echo) {
-            echoReceived = true;
-          }
-        };
-        await waitUntilConditionReturnsTrueOrTimeout(() => {
-          return echoReceived;
-        }, MAX_WAIT_FOR_COMM_CREATION);
-        comm.onMsg = originalOnMsg;
-        return resolve(echoReceived);
-      };
-      void checkForEcho();
-    });
-  };
-  var getLabComm = async (kernelID2, commTargetID2) => {
-    let potentialComm = void 0;
-    await waitUntilConditionReturnsTrueOrTimeout(async () => {
-      var _a;
-      try {
-        potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
-      } catch (e) {
-        console.error(e);
-        return true;
-      }
-      return potentialComm !== void 0 && potentialComm !== "no_backend_comm_registered_error";
-    }, MAX_WAIT_FOR_COMM_CREATION);
-    if (potentialComm === void 0) {
-      return "non_working_extension_error";
-    } else if (potentialComm === "no_backend_comm_registered_error") {
-      return "no_backend_comm_registered_error";
-    } else {
-      potentialComm.open();
-      if (!await getLabCommConnectedToBackend(potentialComm)) {
-        return "no_backend_comm_registered_error";
-      } else {
-        return {
-          "type": "lab",
-          "comm": potentialComm
-        };
-      }
-    }
-  };
-  async function getCommFetchWrapper(kernelID2, commTargetID2) {
-    let commContainer = "non_valid_location_error";
-    if (isInJupyterNotebook()) {
-      commContainer = await getNotebookComm(commTargetID2);
-    } else if (isInJupyterLab()) {
-      commContainer = await getLabComm(kernelID2, commTargetID2);
-    }
-    if (typeof commContainer === "string") {
-      return commContainer;
-    }
-    const comm = commContainer.comm;
-    const _send = comm.send;
-    if (commContainer.type === "notebook") {
-      commContainer.comm.on_msg((msg) => receiveResponse(msg));
-    } else {
-      commContainer.comm.onMsg = (msg) => receiveResponse(msg);
-    }
-    const unconsumedResponses = getCommFetchWrapper.unconsumedResponses || (getCommFetchWrapper.unconsumedResponses = []);
-    function receiveResponse(rawResponse) {
-      const response = rawResponse.content.data;
-      unconsumedResponses.push(response);
-    }
-    function getResponseData(id, maxRetries = MAX_RETRIES) {
-      return new Promise((resolve) => {
-        let tries = 0;
-        const interval = setInterval(() => {
-          tries++;
-          if (tries > maxRetries) {
-            console.error(`No response on message: {id: ${id}}`);
-            clearInterval(interval);
-            return resolve({
-              error: `No response on message: {id: ${id}}`,
-              errorShort: `No response received`,
-              showErrorModal: false
-            });
-          }
-          const index = unconsumedResponses.findIndex((response) => {
-            return response["id"] === id;
-          });
-          if (index !== -1) {
-            clearInterval(interval);
-            const response = unconsumedResponses[index];
-            unconsumedResponses.splice(index, 1);
-            if (response["event"] == "error") {
-              return resolve({
-                error: response.error,
-                errorShort: response.errorShort,
-                showErrorModal: response.showErrorModal,
-                traceback: response.traceback
-              });
-            }
-            const sharedVariables = response.shared_variables;
-            return resolve({
-              sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : void 0,
-              analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : void 0,
-              userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : void 0,
-              result: response["data"]
-            });
-          }
-        }, RETRY_DELAY);
-      });
-    }
-    async function send(msg) {
-      console.log(`Sending: {type: ${msg["type"]}, id: ${msg.id}}`);
-      _send.call(comm, msg);
-      const response = await getResponseData(msg.id, MAX_RETRIES);
-      return response;
-    }
-    return send;
-  }
+  // src/api/send.tsx
+  var MAX_WEIGHT_FOR_SEND_CREATION = 1e4;
 
   // src/api/api.tsx
   var getRandomId = () => {
@@ -23265,58 +23108,7 @@ ${finalCode}`;
       this.setUserProfile = setUserProfile;
       this.setUIState = setUIState;
     }
-    async send(params) {
-      const id = getRandomId();
-      params["id"] = id;
-      if (this._send === void 0) {
-        const _send = await this.getSendFunction();
-        this._send = this._send || _send;
-      }
-      await waitUntilConditionReturnsTrueOrTimeout(() => {
-        return this._send !== void 0;
-      }, MAX_WAIT_FOR_COMM_CREATION);
-      if (this._send === void 0) {
-        console.error("Unable to establish comm. Quitting");
-        return { error: "Connection error. Unable to establish comm.", errorShort: "Connection error", showErrorModal: true };
-      }
-      let loadingUpdated = false;
-      const timeout = setTimeout(() => {
-        this.setUIState((prevUIState) => {
-          loadingUpdated = true;
-          const newLoadingCalls = [...prevUIState.loading];
-          newLoadingCalls.push([params["id"], params["step_id"], params["type"]]);
-          return __spreadProps(__spreadValues({}, prevUIState), {
-            loading: newLoadingCalls
-          });
-        });
-      }, 500);
-      const response = await this._send(params);
-      clearTimeout(timeout);
-      if (loadingUpdated) {
-        this.setUIState((prevUIState) => {
-          const newLoadingCalls = [...prevUIState.loading];
-          const messageIndex = newLoadingCalls.findIndex((value) => {
-            return value[0] === id;
-          });
-          newLoadingCalls.splice(messageIndex, 1);
-          return __spreadProps(__spreadValues({}, prevUIState), {
-            loading: newLoadingCalls
-          });
-        });
-      }
-      if ("error" in response) {
-        if (response.showErrorModal) {
-          this.setUIState((prevUIState) => {
-            return __spreadProps(__spreadValues({}, prevUIState), {
-              currOpenModal: {
-                type: "Error" /* Error */,
-                error: response
-              }
-            });
-          });
-        }
-        return response;
-      }
+    _updateSharedStateVariables(response) {
       if (response.sheetDataArray) {
         this.setSheetDataArray(response.sheetDataArray);
       }
@@ -23326,9 +23118,69 @@ ${finalCode}`;
       if (response.userProfile) {
         this.setUserProfile(response.userProfile);
       }
-      return {
-        result: response.result
-      };
+    }
+    _handleErrorResponse(response) {
+      if (response.showErrorModal) {
+        this.setUIState((prevUIState) => {
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            currOpenModal: {
+              type: "Error" /* Error */,
+              error: response
+            }
+          });
+        });
+      }
+      return response;
+    }
+    _startLoading(params) {
+      return setTimeout(() => {
+        this.setUIState((prevUIState) => {
+          const newLoadingCalls = [...prevUIState.loading];
+          newLoadingCalls.push([params["id"], params["step_id"], params["type"]]);
+          return __spreadProps(__spreadValues({}, prevUIState), {
+            loading: newLoadingCalls
+          });
+        });
+      }, 500);
+    }
+    _stopLoading(id, timeout) {
+      clearTimeout(timeout);
+      this.setUIState((prevUIState) => {
+        const newLoadingCalls = [...prevUIState.loading];
+        const messageIndex = newLoadingCalls.findIndex((value) => {
+          return value[0] === id;
+        });
+        if (messageIndex >= 0) {
+          newLoadingCalls.splice(messageIndex, 1);
+        }
+        return __spreadProps(__spreadValues({}, prevUIState), {
+          loading: newLoadingCalls
+        });
+      });
+    }
+    async send(params) {
+      const id = getRandomId();
+      params["id"] = id;
+      if (this._send === void 0) {
+        const _send = await this.getSendFunction();
+        this._send = this._send || _send;
+      }
+      await waitUntilConditionReturnsTrueOrTimeout(() => {
+        return this._send !== void 0;
+      }, MAX_WEIGHT_FOR_SEND_CREATION);
+      if (this._send === void 0) {
+        console.error(`Unable to establish comm. Quitting before sending message with id ${id}`);
+        return { error: "Connection error. Unable to establish comm.", errorShort: "Connection error", showErrorModal: true };
+      }
+      const loadingTimeout = this._startLoading(params);
+      const response = await this._send(params);
+      this._stopLoading(id, loadingTimeout);
+      if ("error" in response) {
+        return this._handleErrorResponse(response);
+      } else {
+        this._updateSharedStateVariables(response);
+        return { result: response.result };
+      }
     }
     async getPathContents(pathParts) {
       return await this.send({
@@ -26071,7 +25923,7 @@ ${finalCode}`;
           });
           void props.mitoAPI.log("clicked_empty_grid_import_button");
         },
-        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "Excel Range Import" /* EXCEL_RANGE_IMPORT */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.commCreationStatus !== "finished"
+        disabled: props.uiState.currOpenTaskpane.type === "import files" /* IMPORT_FILES */ || props.uiState.currOpenTaskpane.type === "Excel Range Import" /* EXCEL_RANGE_IMPORT */ || props.uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && props.uiState.currOpenTaskpane.failedReplayData !== void 0 || props.sendFunctionStatus !== "finished"
       },
       "Import Files"
     )), /* @__PURE__ */ import_react44.default.createElement("p", { className: "mt-5px text-body-1", style: { textAlign: "center" } }, "Or import dfs using the syntax ", /* @__PURE__ */ import_react44.default.createElement("code", null, "mitosheet.sheet(df1, df2)"), " in the code above.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No data in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows > 0 && props.sheetData.numColumns === 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No columns in dataframe.")), props.sheetData !== void 0 && props.sheetData.numRows === 0 && props.sheetData.numColumns > 0 && /* @__PURE__ */ import_react44.default.createElement(GridDataEmptyContainer, null, /* @__PURE__ */ import_react44.default.createElement("p", { className: "text-body-1", style: { textAlign: "center" } }, "No rows in dataframe.")));
@@ -26982,7 +26834,7 @@ ${finalCode}`;
           sheetData,
           mitoAPI,
           uiState: props.uiState,
-          commCreationStatus: props.commCreationStatus
+          sendFunctionStatus: props.sendFunctionStatus
         }
       ), /* @__PURE__ */ import_react51.default.createElement(
         "div",
@@ -30039,23 +29891,23 @@ ${finalCode}`;
   };
 
   // src/utils/actions.tsx
-  var getDefaultActionsDisabledMessage = (uiState, commCreationStatus) => {
+  var getDefaultActionsDisabledMessage = (uiState, sendFunctionStatus) => {
     let defaultActionDisabledMessage = void 0;
     const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === "UpdateImports" /* UPDATEIMPORTS */ && uiState.currOpenTaskpane.failedReplayData !== void 0;
     if (disabledDueToReplayAnalysis) {
       defaultActionDisabledMessage = "Please resolve issues with the failed replay analysis before making further edits.";
-    } else if (commCreationStatus === "loading") {
+    } else if (sendFunctionStatus === "loading") {
       defaultActionDisabledMessage = "Mito is still trying to connect to the backend. Please wait a moment.";
-    } else if (commCreationStatus === "non_working_extension_error") {
+    } else if (sendFunctionStatus === "non_working_extension_error") {
       defaultActionDisabledMessage = "Mito is installed incorrectly. Please fix your installation and try again.";
-    } else if (commCreationStatus === "non_valid_location_error") {
+    } else if (sendFunctionStatus === "non_valid_location_error") {
       defaultActionDisabledMessage = "Mito does not currently support this location. Please use Mito in JupyerLab or Jupter Notebooks.";
-    } else if (commCreationStatus === "no_backend_comm_registered_error") {
+    } else if (sendFunctionStatus === "no_backend_comm_registered_error") {
       defaultActionDisabledMessage = "Kernel has been restarted. Please rerun the cell that created this mitosheet.";
     }
     return defaultActionDisabledMessage;
   };
-  var createActions = (sheetDataArray2, gridState, dfSources, closeOpenEditingPopups, setEditorState, uiState, setUIState, setGridState, mitoAPI, mitoContainerRef, analysisData2, userProfile2, commCreationStatus) => {
+  var createActions = (sheetDataArray2, gridState, dfSources, closeOpenEditingPopups, setEditorState, uiState, setUIState, setGridState, mitoAPI, mitoContainerRef, analysisData2, userProfile2, sendFunctionStatus) => {
     const sheetIndex = gridState.sheetIndex;
     const sheetData = sheetDataArray2[sheetIndex];
     const dfFormat = (sheetData == null ? void 0 : sheetData.dfFormat) || getDefaultDataframeFormat();
@@ -30065,7 +29917,7 @@ ${finalCode}`;
     const { startingColumnFormula, arrowKeysScrollInFormula } = getStartingFormula(sheetData, void 0, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData2.stepSummaryList[analysisData2.stepSummaryList.length - 1];
-    const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
+    const defaultActionDisabledMessage = getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
     const actions = {
       ["add column" /* Add_Column */]: {
         type: "add column" /* Add_Column */,
@@ -31121,7 +30973,7 @@ ${finalCode}`;
           });
         },
         isDisabled: () => {
-          return commCreationStatus !== "finished" ? defaultActionDisabledMessage : void 0;
+          return sendFunctionStatus !== "finished" ? defaultActionDisabledMessage : void 0;
         },
         searchTerms: ["update", "imports", "replay", "refresh", "change"],
         tooltip: "Change imported data to rerun the same edits on new data."
@@ -40033,7 +39885,7 @@ fig.write_html("${props.graphTabName}.html")`
   // src/hooks/useMitoAPI.tsx
   var import_react189 = __toESM(require_react());
   var useMitoAPI = (getSendFunction2, setSheetDataArray, setAnalysisData, setUserProfile, setUIState) => {
-    const [commCreationStatus, setCommCreationStatus] = (0, import_react189.useState)("loading");
+    const [sendFunctionStatus, setCommCreationStatus] = (0, import_react189.useState)("loading");
     const [mitoAPI] = (0, import_react189.useState)(
       () => {
         return new MitoAPI(
@@ -40056,7 +39908,7 @@ fig.write_html("${props.graphTabName}.html")`
     );
     return {
       mitoAPI,
-      commCreationStatus
+      sendFunctionStatus
     };
   };
 
@@ -41927,19 +41779,19 @@ fig.write_html("${props.graphTabName}.html")`
     const [highlightAddColButton, setHighlightAddColButton] = (0, import_react240.useState)(false);
     const [currPathParts, setCurrPathParts] = (0, import_react240.useState)(["."]);
     const [previousAITransformParams, setPreviousAITransformParams] = (0, import_react240.useState)([]);
-    const { mitoAPI, commCreationStatus } = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
+    const { mitoAPI, sendFunctionStatus } = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState);
     (0, import_react240.useEffect)(() => {
-      if (commCreationStatus === "no_backend_comm_registered_error" || commCreationStatus === "non_valid_location_error" || commCreationStatus === "non_working_extension_error") {
+      if (sendFunctionStatus === "no_backend_comm_registered_error" || sendFunctionStatus === "non_valid_location_error" || sendFunctionStatus === "non_working_extension_error") {
         setUIState((prevUIState) => {
           return __spreadProps(__spreadValues({}, prevUIState), {
             currOpenTaskpane: {
               type: "CannotCreateComm" /* CANNOTCREATECOMM */,
-              commCreationErrorStatus: commCreationStatus
+              commCreationErrorStatus: sendFunctionStatus
             }
           });
         });
       }
-    }, [commCreationStatus]);
+    }, [sendFunctionStatus]);
     (0, import_react240.useEffect)(() => {
       void mitoAPI.log("mitosheet_rendered");
     }, [mitoAPI]);
@@ -41988,13 +41840,13 @@ fig.write_html("${props.graphTabName}.html")`
       const handleRender = async () => {
         const response = await mitoAPI.getRenderCount();
         const currentRenderCount = "error" in response ? void 0 : response.result;
-        if (currentRenderCount === 0 && commCreationStatus === "finished") {
+        if (currentRenderCount === 0 && sendFunctionStatus === "finished") {
           await updateMitosheetCallCellOnFirstRender();
         }
         await mitoAPI.updateRenderCount();
       };
       void handleRender();
-    }, [mitoAPI, commCreationStatus]);
+    }, [mitoAPI, sendFunctionStatus]);
     (0, import_react240.useEffect)(() => {
       if (analysisData2.renderCount >= 1) {
         writeGeneratedCodeToCell(analysisData2.analysisName, analysisData2.code, userProfile2.telemetryEnabled, analysisData2.publicInterfaceVersion);
@@ -42547,7 +42399,7 @@ fig.write_html("${props.graphTabName}.html")`
       mitoContainerRef,
       analysisData2,
       userProfile2,
-      commCreationStatus
+      sendFunctionStatus
     );
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
     const getCurrTour = () => {
@@ -42621,7 +42473,7 @@ fig.write_html("${props.graphTabName}.html")`
         setEditorState,
         mitoContainerRef,
         closeOpenEditingPopups,
-        commCreationStatus,
+        sendFunctionStatus,
         analysisData: analysisData2
       }
     )), uiState.currOpenTaskpane.type !== "none" /* NONE */ && /* @__PURE__ */ import_react240.default.createElement("div", { className: taskpaneClassNames }, getCurrOpenTaskpane())), getCurrTour(), /* @__PURE__ */ import_react240.default.createElement(
@@ -42661,6 +42513,162 @@ fig.write_html("${props.graphTabName}.html")`
   };
   var Mito_default = Mito;
 
+  // src/jupyter/comm.tsx
+  var MAX_DELAY = 5 * 60100;
+  var RETRY_DELAY = 25;
+  var MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+  var getNotebookCommConnectedToBackend = async (comm) => {
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        let echoReceived = false;
+        comm.on_msg((msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        });
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WEIGHT_FOR_SEND_CREATION);
+        return resolve(echoReceived);
+      };
+      void checkForEcho();
+    });
+  };
+  var getNotebookComm = async (commTargetID2) => {
+    var _a, _b, _c, _d;
+    let potentialComm = (_d = (_c = (_b = (_a = window.Jupyter) == null ? void 0 : _a.notebook) == null ? void 0 : _b.kernel) == null ? void 0 : _c.comm_manager) == null ? void 0 : _d.new_comm(commTargetID2);
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
+      var _a2, _b2, _c2, _d2;
+      potentialComm = (_d2 = (_c2 = (_b2 = (_a2 = window.Jupyter) == null ? void 0 : _a2.notebook) == null ? void 0 : _b2.kernel) == null ? void 0 : _c2.comm_manager) == null ? void 0 : _d2.new_comm(commTargetID2);
+      return potentialComm !== void 0;
+    }, MAX_WEIGHT_FOR_SEND_CREATION);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else {
+      if (!await getNotebookCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
+      }
+      return {
+        "type": "notebook",
+        "comm": potentialComm
+      };
+    }
+  };
+  var getLabCommConnectedToBackend = async (comm) => {
+    return new Promise((resolve) => {
+      const checkForEcho = async () => {
+        const originalOnMsg = comm.onMsg;
+        let echoReceived = false;
+        comm.onMsg = (msg) => {
+          if (msg.content.data.echo) {
+            echoReceived = true;
+          }
+        };
+        await waitUntilConditionReturnsTrueOrTimeout(() => {
+          return echoReceived;
+        }, MAX_WEIGHT_FOR_SEND_CREATION);
+        comm.onMsg = originalOnMsg;
+        return resolve(echoReceived);
+      };
+      void checkForEcho();
+    });
+  };
+  var getLabComm = async (kernelID2, commTargetID2) => {
+    let potentialComm = void 0;
+    await waitUntilConditionReturnsTrueOrTimeout(async () => {
+      var _a;
+      try {
+        potentialComm = await ((_a = window.commands) == null ? void 0 : _a.execute("mitosheet:create-mitosheet-comm", { kernelID: kernelID2, commTargetID: commTargetID2 }));
+      } catch (e) {
+        console.error(e);
+        return true;
+      }
+      return potentialComm !== void 0 && potentialComm !== "no_backend_comm_registered_error";
+    }, MAX_WEIGHT_FOR_SEND_CREATION);
+    if (potentialComm === void 0) {
+      return "non_working_extension_error";
+    } else if (potentialComm === "no_backend_comm_registered_error") {
+      return "no_backend_comm_registered_error";
+    } else {
+      potentialComm.open();
+      if (!await getLabCommConnectedToBackend(potentialComm)) {
+        return "no_backend_comm_registered_error";
+      } else {
+        return {
+          "type": "lab",
+          "comm": potentialComm
+        };
+      }
+    }
+  };
+  async function getCommSend(kernelID2, commTargetID2) {
+    let commContainer = "non_valid_location_error";
+    if (isInJupyterNotebook()) {
+      commContainer = await getNotebookComm(commTargetID2);
+    } else if (isInJupyterLab()) {
+      commContainer = await getLabComm(kernelID2, commTargetID2);
+    }
+    if (typeof commContainer === "string") {
+      return commContainer;
+    }
+    const comm = commContainer.comm;
+    const _send = comm.send;
+    if (commContainer.type === "notebook") {
+      commContainer.comm.on_msg((msg) => receiveResponse(msg));
+    } else {
+      commContainer.comm.onMsg = (msg) => receiveResponse(msg);
+    }
+    const unconsumedResponses = getCommSend.unconsumedResponses || (getCommSend.unconsumedResponses = []);
+    function receiveResponse(rawResponse) {
+      unconsumedResponses.push(rawResponse.content.data);
+    }
+    function getResponseData(id, maxRetries = MAX_RETRIES) {
+      return new Promise((resolve) => {
+        let tries = 0;
+        const interval = setInterval(() => {
+          tries++;
+          if (tries > maxRetries) {
+            console.error(`No response on message: {id: ${id}}`);
+            clearInterval(interval);
+            return resolve({
+              error: `No response on message: {id: ${id}}`,
+              errorShort: `No response received`,
+              showErrorModal: false
+            });
+          }
+          const index = unconsumedResponses.findIndex((response) => response["id"] === id);
+          if (index !== -1) {
+            clearInterval(interval);
+            const response = unconsumedResponses[index];
+            unconsumedResponses.splice(index, 1);
+            if (response["event"] == "error") {
+              return resolve({
+                error: response.error,
+                errorShort: response.errorShort,
+                showErrorModal: response.showErrorModal,
+                traceback: response.traceback
+              });
+            }
+            const sharedVariables = response.shared_variables;
+            return resolve({
+              sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : void 0,
+              analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : void 0,
+              userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : void 0,
+              result: response["data"]
+            });
+          }
+        }, RETRY_DELAY);
+      });
+    }
+    async function send(msg) {
+      console.log(`Sending: {type: ${msg["type"]}, id: ${msg.id}}`);
+      _send.call(comm, msg);
+      const response = await getResponseData(msg.id, MAX_RETRIES);
+      return response;
+    }
+    return send;
+  }
+
   // src/jupyterRender.tsx
   var sheetDataBytes = new Uint8Array(["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]);
   var analysisDataBytes = new Uint8Array(["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]);
@@ -42678,7 +42686,7 @@ fig.write_html("${props.graphTabName}.html")`
   var div = document.getElementById(divID);
   console.log("Rendering to div", div);
   async function getSendFunction() {
-    const fetchFromComm = await getCommFetchWrapper(kernelID, commTargetID);
+    const fetchFromComm = await getCommSend(kernelID, commTargetID);
     return fetchFromComm;
   }
   import_react_dom2.default.render(

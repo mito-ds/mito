@@ -1,19 +1,18 @@
 import { useState } from "react"
 import MitoAPI from "../api/api"
-import { CommCreationErrorStatus, CommCreationStatus } from "../jupyter/comm"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
-import { SendFunction } from "../api/send"
+import { SendFunction, SendFunctionErrorStatus, SendFunctionStatus } from "../api/send"
 
 
 export const useMitoAPI = (
-    getSendFunction: () => Promise<SendFunction | CommCreationErrorStatus>,
+    getSendFunction: () => Promise<SendFunction | SendFunctionErrorStatus>,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
-): {mitoAPI: MitoAPI, commCreationStatus: CommCreationStatus} => {
+): {mitoAPI: MitoAPI, sendFunctionStatus: SendFunctionStatus} => {
 
-    const [commCreationStatus, setCommCreationStatus] = useState<CommCreationStatus>('loading');
+    const [sendFunctionStatus, setCommCreationStatus] = useState<SendFunctionStatus>('loading');
 
     const [mitoAPI] = useState<MitoAPI>(
         () => {
@@ -38,6 +37,6 @@ export const useMitoAPI = (
 
     return {
         mitoAPI: mitoAPI,
-        commCreationStatus: commCreationStatus,
+        sendFunctionStatus: sendFunctionStatus,
     }
 }

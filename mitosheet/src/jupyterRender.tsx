@@ -2,7 +2,7 @@ import * as React from 'react'
 import ReactDOM from 'react-dom';
 import Mito from './components/Mito';
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from './jupyter/jupyterUtils';
-import { getCommFetchWrapper } from './jupyter/comm';
+import { getCommSend } from './jupyter/comm';
 
 // We replace the following byte arrays with the real byte arrays of the utf8 encoded
 // JSON for the sheet data array, etc. We pass this encoded because the JSON parsing
@@ -37,7 +37,7 @@ const div = document.getElementById(divID);
 console.log("Rendering to div", div);
 
 async function getSendFunction() {
-    const fetchFromComm = await getCommFetchWrapper(kernelID, commTargetID);
+    const fetchFromComm = await getCommSend(kernelID, commTargetID);
     return fetchFromComm;
 
 }

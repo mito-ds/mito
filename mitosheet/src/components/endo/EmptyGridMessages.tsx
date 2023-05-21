@@ -1,9 +1,9 @@
 import React from 'react';
-import { CommCreationStatus } from '../../jupyter/comm';
 import MitoAPI from '../../api/api';
 import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { SendFunctionStatus } from '../../api/send';
 
 
 /**
@@ -26,7 +26,7 @@ const EmptyGridMessages = (props: {
     sheetData: SheetData | undefined, 
     setUIState: React.Dispatch<React.SetStateAction<UIState>>, 
     mitoAPI: MitoAPI, uiState: UIState,
-    commCreationStatus: CommCreationStatus
+    sendFunctionStatus: SendFunctionStatus
 }): JSX.Element => {
 
     return (
@@ -51,7 +51,7 @@ const EmptyGridMessages = (props: {
                                 props.uiState.currOpenTaskpane.type === TaskpaneType.IMPORT_FILES ||
                                 props.uiState.currOpenTaskpane.type === TaskpaneType.EXCEL_RANGE_IMPORT ||
                                 (props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined) ||
-                                props.commCreationStatus !== 'finished'
+                                props.sendFunctionStatus !== 'finished'
                             }
                         >
                             Import Files

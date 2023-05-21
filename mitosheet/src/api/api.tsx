@@ -14,10 +14,9 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { MAX_WAIT_FOR_COMM_CREATION } from "../jupyter/comm";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { SendFunction, SendFunctionErrorReturnType } from "./send";
+import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 
 
@@ -116,6 +115,66 @@ export default class MitoAPI {
         this.setUIState = setUIState;
     }
 
+    _updateSharedStateVariables<ResultType>(response: SendFunctionSuccessReturnType<ResultType>) {
+        if (response.sheetDataArray) {
+            this.setSheetDataArray(response.sheetDataArray);
+        } 
+        if (response.analysisData) {
+            this.setAnalysisData(response.analysisData);
+        }
+        if (response.userProfile) {
+            this.setUserProfile(response.userProfile);
+        }
+    }
+
+    _handleErrorResponse(response: SendFunctionErrorReturnType) {
+        if (response.showErrorModal) {
+            this.setUIState((prevUIState) => {
+                return {
+                    ...prevUIState,
+                    currOpenModal: {
+                        type: ModalEnum.Error,
+                        error: response
+                    }
+                }
+            })
+        } 
+
+        return response;
+    }
+
+    _startLoading(params: Record<string, unknown>): NodeJS.Timeout {
+        return setTimeout(() => {
+            this.setUIState((prevUIState) => {
+                const newLoadingCalls = [...prevUIState.loading];
+                newLoadingCalls.push([params['id'] as string, params['step_id'] as string | undefined, params['type'] as string])
+                return {
+                    ...prevUIState,
+                    loading: newLoadingCalls
+                }
+            });
+        }, 500);
+    }
+
+    _stopLoading(id: string, timeout: NodeJS.Timeout) {
+        
+        // Stop the loading from being updated if it hasn't already run
+        clearTimeout(timeout);
+
+        // If loading has been updated, then we remove the loading with this value
+        this.setUIState((prevUIState) => {
+            const newLoadingCalls = [...prevUIState.loading];
+            const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
+            if (messageIndex >= 0) {
+                newLoadingCalls.splice(messageIndex, 1);
+            }
+            return {
+                ...prevUIState,
+                loading: newLoadingCalls
+            }
+        });
+        
+    }
     
     async send<ResultType>(params: Record<string, unknown>): Promise<MitoAPIResult<ResultType>> {
 
@@ -128,78 +187,26 @@ export default class MitoAPI {
             this._send = this._send || _send;
         } 
 
-        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send !== undefined}, MAX_WAIT_FOR_COMM_CREATION);
+        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send !== undefined}, MAX_WEIGHT_FOR_SEND_CREATION);
 
         if (this._send === undefined) {
-            console.error("Unable to establish comm. Quitting");
+            console.error(`Unable to establish comm. Quitting before sending message with id ${id}`);
             return {error: 'Connection error. Unable to establish comm.', errorShort: 'Connection error', showErrorModal: true};
         }
 
-        let loadingUpdated = false;
-        const timeout: NodeJS.Timeout = setTimeout(() => {
-            this.setUIState((prevUIState) => {
-                loadingUpdated = true;
-                const newLoadingCalls = [...prevUIState.loading];
-                newLoadingCalls.push([params['id'] as string, params['step_id'] as string | undefined, params['type'] as string])
-                return {
-                    ...prevUIState,
-                    loading: newLoadingCalls
-                }
-            });
-        }, 500);
-
-        // We use a centralized send function, and handle all errors here
+        const loadingTimeout = this._startLoading(params);        
         const response = await this._send<ResultType>(params);
+        this._stopLoading(id, loadingTimeout);
 
-        // Stop the loading from being updated if it hasn't already run
-        clearTimeout(timeout);
-
-        // If loading has been updated, then we remove the loading with this value
-        if (loadingUpdated) {
-            this.setUIState((prevUIState) => {
-                const newLoadingCalls = [...prevUIState.loading];
-                const messageIndex = newLoadingCalls.findIndex((value) => {return value[0] === id})
-                newLoadingCalls.splice(messageIndex, 1);
-                return {
-                    ...prevUIState,
-                    loading: newLoadingCalls
-                }
-            });
-        }
-
-        // Handle errors
         if ('error' in response) {
-            // If this asks us to show the error modal, we do so.
-            if (response.showErrorModal) {
-                this.setUIState((prevUIState) => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {
-                            type: ModalEnum.Error,
-                            error: response
-                        }
-                    }
-                })
-            } 
-
-            return response;
+            // If it is an error response, then handle the error
+            return this._handleErrorResponse(response);
+        } else {
+            // Otherwise, we simple update the state variables, and return the response
+            this._updateSharedStateVariables(response);
+            return {result: response.result}
         }
 
-        // Otherwise, we simple update the state variables
-        if (response.sheetDataArray) {
-            this.setSheetDataArray(response.sheetDataArray);
-        } 
-        if (response.analysisData) {
-            this.setAnalysisData(response.analysisData);
-        }
-        if (response.userProfile) {
-            this.setUserProfile(response.userProfile);
-        }
-
-        // And return the result
-        return {
-            result: response.result
-        }
     }
 
     /*

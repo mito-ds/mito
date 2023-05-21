@@ -1,6 +1,5 @@
 import React from "react";
 import { DOCUMENTATION_LINK_INSTALL } from "../../../data/documentationLinks";
-import { CommCreationErrorStatus } from "../../../jupyter/comm";
 import { UIState, UserProfile } from "../../../types"
 import GetSupportButton from "../../elements/GetSupportButton";
 import Spacer from "../../layout/Spacer";
@@ -8,12 +7,13 @@ import Spacer from "../../layout/Spacer";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { SendFunctionErrorStatus } from "../../../api/send";
 
 
 interface CannotCreateCommTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     userProfile: UserProfile
-    commCreationErrorStatus: CommCreationErrorStatus
+    commCreationErrorStatus: SendFunctionErrorStatus
 }
 
 
