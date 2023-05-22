@@ -126,8 +126,6 @@ export const getDefaultMergeParams = (
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    console.log(props.existingMergeParams)
-
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
         () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.existingMergeParams),
         StepType.Merge,
@@ -173,6 +171,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             onChange={(mergeType: string) => {
                                 const newMergeTypeEnum = mergeType as MergeType
                                 setParams(prevParams => {
+                                    console.log('c')
                                     return {
                                         ...prevParams,
                                         how: newMergeTypeEnum
@@ -236,6 +235,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         disabledColumnIDs={mergeKeyColumnIDsOne}
                         onChange={(newSelectedColumnIDs: ColumnID[]) => {
                             setParams(oldDropDuplicateParams => {
+                                console.log('a')
                                 return {
                                     ...oldDropDuplicateParams,
                                     selected_column_ids_one: newSelectedColumnIDs
@@ -261,6 +261,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             disabledColumnIDs={mergeKeyColumnIDsTwo}
                             onChange={(newSelectedColumnIDs: ColumnID[]) => {
                                 setParams(oldDropDuplicateParams => {
+                                    console.log('b')
                                     return {
                                         ...oldDropDuplicateParams,
                                         selected_column_ids_two: newSelectedColumnIDs

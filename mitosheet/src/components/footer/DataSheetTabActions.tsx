@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../jupyter/api';
 import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { openExistingMergeTaskpane, openExistingPivotTaskpane } from '../../utils/EditedTaskpanes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -41,7 +42,10 @@ export default function SheetTabActions(props: {
     display: boolean
 }): JSX.Element {
 
-    const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
+    const importSource = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
+    const mergeSource = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Merged;
+    const pivotSource = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Pivoted;
+
 
     // Log opening the data sheet tab actions
     useEffect(() => {
@@ -138,7 +142,7 @@ export default function SheetTabActions(props: {
             onClick={openDownloadTaskpane}
         />,
         // if this dataframe is imported, then allow the user to change the import
-        imported ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
+        importSource ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
             props.closeOpenEditingPopups();
             props.setUIState(prevUIState => {
                 return {
@@ -148,6 +152,14 @@ export default function SheetTabActions(props: {
                     }
                 }
             })
+        }}/> : undefined,
+        mergeSource ? <DropdownItem key='Edit Merge Configuration' title='Edit Merge Configuration' onClick={() => {
+            props.closeOpenEditingPopups();
+            openExistingMergeTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
+        }}/> : undefined,
+        pivotSource ? <DropdownItem key='Edit Pivot Configuration' title='Edit Pivot Configuration' onClick={() => {
+            props.closeOpenEditingPopups();
+            openExistingPivotTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
         }}/> : undefined,
         <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
         <DropdownItem 
@@ -171,6 +183,7 @@ export default function SheetTabActions(props: {
                 void onDelete()
             }}
         />
+
     ].filter(element => element !== null && element !== undefined) as JSX.Element[];
 
     return (

@@ -79,6 +79,7 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 import { useMitoAPI } from '../hooks/useMitoAPI';
+import { openExistingPivotTaskpane } from '../utils/EditedTaskpanes';
 
 export type MitoProps = {
     kernelID: string,
@@ -360,53 +361,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         2. if the cell editor is open, close it.
     */
     useEffect(() => {
-        const openEditedPivot = async (): Promise<void> => {
-            const existingPivotParams = await mitoAPI.getPivotParams(uiState.selectedSheetIndex);
-            if (existingPivotParams !== undefined) {
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {
-                            type: TaskpaneType.PIVOT,
-                            sourceSheetIndex: existingPivotParams.sheet_index,
-                            destinationSheetIndex: uiState.selectedSheetIndex,
-                            existingPivotParams: existingPivotParams
-                        },
-                        selectedTabType: 'data'
-                    }
-                })
-            }
-        }
-
-        const openEditedMerge = async (): Promise<void> => {
-            const existingMergeParams = await mitoAPI.getMergeParams(uiState.selectedSheetIndex);
-
-            if (existingMergeParams !== undefined) {
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {
-                            type: TaskpaneType.MERGE,
-                            destinationSheetIndex: uiState.selectedSheetIndex,
-                            existingMergeParams: existingMergeParams
-                        },
-                        selectedTabType: 'data'
-                    }
-                })
-            }
-        }
-
 
         const source = dfSources[uiState.selectedSheetIndex];
         // Open the pivot if it's a pivot, and there's no other taskpane open
         if (source !== undefined && source === DFSource.Pivoted && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
-            void openEditedPivot()
-        }
-
-        if (source !== undefined && source === DFSource.Merged && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
-            void openEditedMerge()
+            void openExistingPivotTaskpane(mitoAPI, uiState.selectedSheetIndex, setUIState)
         }
 
         // Close the cell editor if it is open

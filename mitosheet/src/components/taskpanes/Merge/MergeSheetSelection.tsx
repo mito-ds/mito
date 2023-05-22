@@ -29,6 +29,7 @@ const MergeSheetSection = (props: {
                         onChange={(dfName: string) => {
                             const newSheetIndex = dfNames.indexOf(dfName)
                             props.setParams(prevParams => {
+                                console.log('f')
                                 const newParams = getDefaultMergeParams(props.sheetDataArray, newSheetIndex, prevParams.sheet_index_two, prevParams);
                                 return newParams ? newParams : prevParams;
                             })
@@ -54,6 +55,7 @@ const MergeSheetSection = (props: {
                         onChange={(dfName: string) => {
                             const newSheetIndex = dfNames.indexOf(dfName)
                             props.setParams(prevParams => {
+                                console.log('g')
                                 const newParams = getDefaultMergeParams(props.sheetDataArray, prevParams.sheet_index_one, newSheetIndex, prevParams);
                                 return newParams ? newParams : prevParams;
                             })

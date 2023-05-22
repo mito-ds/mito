@@ -42,8 +42,11 @@ const MergeKeysSelectionSection = (props: {
                                 value={mergeKeyColumnIDOne}
                                 onChange={(columnID: ColumnID) => {
                                     props.setParams(prevParams => {
+                                        console.log(4)
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys[index][0] = columnID
+
+                                        console.log(newMergeKeys)
                                         return {
                                             ...prevParams,
                                             merge_key_column_ids: newMergeKeys
@@ -71,6 +74,7 @@ const MergeKeysSelectionSection = (props: {
                             <Select
                                 value={mergeKeyColumnIDTwo}
                                 onChange={(columnID: ColumnID) => {
+                                    console.log(3)
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys[index][1] = columnID
@@ -97,6 +101,7 @@ const MergeKeysSelectionSection = (props: {
                         <Col>
                             <XIcon
                                 onClick={() => {
+                                    console.log(2)
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys.splice(index, 1)
@@ -121,6 +126,7 @@ const MergeKeysSelectionSection = (props: {
                 width="medium"
                 variant="dark"
                 onClick={() => {
+                    console.log("1")
                     props.setParams(prevParams => {
                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                         const newSuggestedMergeKeys = getFirstSuggestedMergeKeys(props.sheetDataArray, props.params.sheet_index_one, props.params.sheet_index_two, props.params.merge_key_column_ids);
