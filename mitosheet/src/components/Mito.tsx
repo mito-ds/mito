@@ -118,7 +118,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
     })
 
-    console.log(sheetDataArray)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);

@@ -40,6 +40,7 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
 
         if found_params is not None:
+            print(found_params)
             return json.dumps(found_params)
     
     # Return nothing, if there is no pivot that meets this criteria

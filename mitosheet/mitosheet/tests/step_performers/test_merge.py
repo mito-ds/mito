@@ -585,6 +585,8 @@ def test_merge_with_destination_sheet_indexes_the_same():
     # There should be only be three dataframes
     assert len(mito.dfs) == 3
 
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [1], 'B_df1': [2], 'B_df2': [3]}))
+
 def test_merge_with_two_destination_sheet_indexes_not_the_same():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df2 = pd.DataFrame({'A': [1], 'B': [3]})
@@ -601,3 +603,39 @@ def test_merge_with_two_destination_sheet_indexes_not_the_same():
 
     # There should be only be four dataframes
     assert len(mito.dfs) == 4
+
+def test_update_merge_then_undo():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'],
+    )
+
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2
+    )
+
+    mito.undo()
+
+    assert len(mito.dfs) == 3
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [1], 'B_df1': [2], 'B_df2': [3]}))
+
+
+def test_merge_edit_update_merge_overwrites_edits():
+
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'],
+    )
+
+    mito.add_column(2, 'C')
+
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2
+    )
+
+    assert len(mito.dfs) == 3
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [1], 'B_df1': [2], 'B_df2': [3]}))

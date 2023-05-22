@@ -163,6 +163,8 @@ class PivotStepPerformer(StepPerformer):
 
 
         return post_state, {
+            # Add the destination_sheet_index to the execution data so we can identify 
+            # which sheet to get the params of when updating the pivot table
             'destination_sheet_index': destination_sheet_index,
             'was_series': was_series,
             'pandas_processing_time': pandas_processing_time
@@ -181,7 +183,7 @@ class PivotStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'sheet_index'),
-                get_param(params, 'destination_sheet_index'),
+                get_param(params, 'destination_sheet_index'), 
                 get_param(params, 'pivot_rows_column_ids_with_transforms'),
                 get_param(params, 'pivot_columns_column_ids_with_transforms'),
                 get_param(params, 'pivot_filters'),
@@ -195,7 +197,7 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         destination_sheet_index = get_param(params, 'destination_sheet_index')
-        if destination_sheet_index: # If editing an existing sheet, that is what is changed
+        if destination_sheet_index is not None: # If editing an existing sheet, that is what is changed
             return {destination_sheet_index}
         return {-1}
     

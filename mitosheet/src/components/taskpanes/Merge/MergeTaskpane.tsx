@@ -66,7 +66,17 @@ export type MergeTaskpaneProps = {
 };
 
 
-export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams): MergeParams | undefined => {
+export const getDefaultMergeParams = (
+    sheetDataArray: SheetData[], 
+    _sheetIndexOne: number, 
+    _sheetIndexTwo?: number, 
+    previousParams?: MergeParams, // When we change the merge params, we use the previous params to handle cases like switching input sheets
+    existingMergeParams?: MergeParams // If we are editing a merge, this is the configuration to start with
+): MergeParams | undefined => {
+    if (existingMergeParams) {
+        return existingMergeParams;
+    }
+
     if (sheetDataArray.length < 2) {
         return undefined;
     }
@@ -116,10 +126,10 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    console.log('props: ', props.existingMergeParams)
+    console.log(props.existingMergeParams)
 
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => props.existingMergeParams === undefined ? getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex) : props.existingMergeParams,
+        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.existingMergeParams),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
@@ -130,8 +140,6 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         },
         props.sheetDataArray
     )
-
-    console.log('params: ', params)
 
     /*
         If the merge params are undefined, then display this error message.

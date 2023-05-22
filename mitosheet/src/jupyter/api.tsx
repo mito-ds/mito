@@ -492,7 +492,6 @@ export default class MitoAPI {
         }, {})
 
         if (params !== undefined && params !== '') {
-            console.log(JSON.parse(params))
             return JSON.parse(params) as T
         }
         return undefined;

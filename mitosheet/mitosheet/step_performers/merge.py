@@ -75,6 +75,8 @@ class MergeStepPerformer(StepPerformer):
         )
 
         return post_state, {
+            # Add the destination_sheet_index to the execution data so we can identify 
+            # which sheet to get the params of when updating the merge configuration
             'destination_sheet_index': destination_sheet_index,
             'pandas_processing_time': pandas_processing_time
         }
@@ -104,8 +106,7 @@ class MergeStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         destination_sheet_index = get_param(params, 'destination_sheet_index')
-        if destination_sheet_index: # If editing an existing sheet, that is what is changed
-            print('modified sheet index: ', destination_sheet_index)
+        if destination_sheet_index is not None: # If editing an existing sheet, that is what is changed
             return {destination_sheet_index}
         return {-1}
 
