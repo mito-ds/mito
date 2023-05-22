@@ -317,7 +317,7 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
     result = get_final_result_series_or_primitive(
         default_value,
         argv,
-        lambda df: df.sum().sum(),
+        lambda df: df.max().max(),
         lambda previous_value, new_value: max(previous_value, new_value),
         lambda previous_series, new_series: pd.concat([previous_series, new_series], axis=1).max(axis=1)
     )
