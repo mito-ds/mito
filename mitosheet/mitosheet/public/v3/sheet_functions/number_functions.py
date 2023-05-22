@@ -319,6 +319,12 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
                 if is_datetime_dtype(str(arg[col].dtype)):
                     default_value = pd.Timestamp.min
                     break
+        elif isinstance(arg, RollingRange):
+            # Check if any series are datetimes
+            for col in arg.obj.columns:
+                if is_datetime_dtype(str(arg.obj[col].dtype)):
+                    default_value = pd.Timestamp.min
+                    break
 
     result = get_final_result_series_or_primitive(
         default_value,
