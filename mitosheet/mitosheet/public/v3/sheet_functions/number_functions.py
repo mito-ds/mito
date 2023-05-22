@@ -26,7 +26,7 @@ from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import DatetimeRestrictedInputType, FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import DatetimeFunctionReturnType, DatetimeRestrictedInputType, FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
@@ -280,7 +280,7 @@ def LOG(arg: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType
 
 @cast_values_in_all_args_to_type('number', ['datetime'])
 @handle_sheet_function_errors
-def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Union[NumberFunctionReturnType, DatetimeRestrictedInputType]:
+def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Union[NumberFunctionReturnType, DatetimeFunctionReturnType]:
     """
     {
         "function": "MAX",
@@ -327,9 +327,9 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
     return result if not kept_default_max_value else 0
 
 
-@cast_values_in_all_args_to_type('number')
+@cast_values_in_all_args_to_type('number', ['datetime'])
 @handle_sheet_function_errors
-def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
+def MIN(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Union[NumberFunctionReturnType, DatetimeFunctionReturnType]:
     """
     {
         "function": "MIN",
@@ -351,9 +351,17 @@ def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         ]
     }
     """
+    default_value = sys.maxsize
+    for arg in argv:
+        if isinstance(arg, pd.Series) and is_datetime_dtype(str(arg.dtype)):
+            default_value = pd.Timestamp.max
+            break
+        elif isinstance(arg, pd.Timestamp) or isinstance(arg, datetime):
+            default_value = pd.Timestamp.max
+            break
 
     result = get_final_result_series_or_primitive(
-        sys.maxsize,
+        default_value,
         argv,
         lambda df: df.sum().sum(),
         lambda previous_value, new_value: min(previous_value, new_value),
@@ -361,7 +369,7 @@ def MIN(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
     )
 
     # If we don't find any arguements, we default to 0 -- like Excel
-    kept_default_min_value = not isinstance(result, pd.Series) and result == sys.maxsize
+    kept_default_min_value = not isinstance(result, pd.Series) and result == default_value
     return result if not kept_default_min_value else 0
 
 

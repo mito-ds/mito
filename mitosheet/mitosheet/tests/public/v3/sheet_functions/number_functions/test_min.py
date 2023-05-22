@@ -28,6 +28,9 @@ MIN_VALID_TESTS = [
     ([2.0, pd.Series(['1', '2', '3'])], pd.Series([1.0, 2.0, 2.0])),
     ([2.0, pd.Series(['1.0', '2.0', '3.0'])], pd.Series([1.0, 2.0, 2.0])),
     ([2.0, pd.Series([None, '2.0', '3.0'])], pd.Series([2.0, 2.0, 2.0])),
+    ([pd.Series(pd.to_datetime(['1-1-2000', '1-2-2000'])), pd.Series(pd.to_datetime(['1-1-2001', '1-3-1997']))], pd.Series(pd.to_datetime(['1-1-2000', '1-3-1997']))),
+    ([pd.to_datetime('1-1-2000'), pd.Series(pd.to_datetime(['1-1-2001', '1-3-1997']))], pd.Series(pd.to_datetime(['1-1-2000', '1-3-1997']))),
+
     
     # Dataframes
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([1,2,3])], pd.Series([1, 2, 3])),
