@@ -94,7 +94,7 @@ def get_arg_cast_to_type(
     # Wrapper that make sure we skip any primitive types we want to ignore
     def element_conversion_function(arg: Any) -> Any:
         arg_type_name = get_primitive_type_name_from_primitive_value(arg)
-        if arg_type_name in primitive_types_to_ignore:
+        if arg_type_name in primitive_types_to_ignore: # type: ignore
             return arg
 
         return element_conversion_function_without_skip(arg)
@@ -102,12 +102,12 @@ def get_arg_cast_to_type(
     if series_conversion_function_without_skip is not None:
         def series_conversion_function(arg: Any) -> Any:
             arg_type_name = get_primitive_type_name_from_series(arg)
-            if arg_type_name in primitive_types_to_ignore:
+            if arg_type_name in primitive_types_to_ignore: # type: ignore
                 return arg
 
-            return series_conversion_function_without_skip(arg)
+            return series_conversion_function_without_skip(arg) # type: ignore
     else:
-        series_conversion_function = None
+        series_conversion_function = None # type: ignore
 
     if is_primitive_value(arg):
         return element_conversion_function(arg)
