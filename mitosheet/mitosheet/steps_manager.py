@@ -523,7 +523,7 @@ class StepsManager:
         # In this case, if they press undo right after clearing, then we assume they probably
         # want to undo the clear, aka to redo all those steps
         if len(self.undone_step_list_store) > 0:
-            if self.undone_step_list_store[-1][0] == "reset":
+            if self.undone_step_list_store[-1][0] == "reset" or self.undone_step_list_store[-1][0] == "undo_to_step_index":
                 return self.execute_redo()
 
         # Otherwise, we just undo the most recent step that the user has created
@@ -565,6 +565,10 @@ class StepsManager:
             # move order, we have to execute from the very start
             self.execute_and_update_steps(new_steps, last_valid_index=0)
 
+        elif undo_or_clear == "undo_to_step_index":
+            new_steps = step_list
+            self.execute_and_update_steps(new_steps)
+
         # Remove the item we just redid from the undone_step_list_store, so
         # that we don't redo it again
         self.undone_step_list_store.pop()
@@ -598,6 +602,25 @@ class StepsManager:
         self.execute_and_update_steps(new_steps, last_valid_index=0)
 
         self.undone_step_list_store.append(("reset", old_steps))
+
+    def execute_undo_to_step_index(self, step_idx: int) -> None:
+        """
+        A execute_undo_to_step_index update, removes all steps in the analysis
+        that come after the provided step_idx
+        """
+        if len(self.steps_including_skipped) == 1:
+            return
+
+        old_steps = copy(self.steps_including_skipped)
+
+        new_steps = self.steps_including_skipped[:step_idx + 1]
+
+        # We need to set the last_valid_index to 0 as we are changing
+        # the step order
+        self.execute_and_update_steps(new_steps, last_valid_index=0)
+
+        self.undone_step_list_store.append(("undo_to_step_index", old_steps))
+
 
     def execute_and_update_steps(
         self, new_steps: List[Step], last_valid_index: Optional[int] = None
