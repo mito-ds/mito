@@ -117,8 +117,6 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
         [props.filePath]
     );
 
-    console.log(fileMetadata)
-
 
     const params = props.params;
     if (params === undefined) {

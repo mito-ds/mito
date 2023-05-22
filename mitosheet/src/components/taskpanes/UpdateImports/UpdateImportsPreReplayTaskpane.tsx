@@ -91,9 +91,6 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
     const allErrorsUpdated = Object.keys(props.importDataAndErrors?.invalidImportMessages || {}).filter(index => !props.updatedIndexes.includes(parseInt(index))).length === 0;
     const invalidPostUpdate = Object.keys(props.postUpdateInvalidImportMessages).length > 0;
 
-    console.log("Invalid Import Messages", props.importDataAndErrors?.invalidImportMessages)
-    console.log("updatedIndexes", props.updatedIndexes)
-    console.log(allErrorsUpdated, invalidPostUpdate, loadingImportDataAndErrors, loadingUpdate)
     const retryButtonDisabled = !allErrorsUpdated || invalidPostUpdate || loadingImportDataAndErrors || loadingUpdate;
 
     return (
