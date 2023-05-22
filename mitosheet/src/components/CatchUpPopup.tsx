@@ -38,7 +38,7 @@ const CatchUpPopup = (props: {
                     </p>                    
                 </Col>
             </Row>
-            <Row onClick={props.isPro ? props.deleteStepsAfterIdx : () => {}}>
+            <Row onClick={props.isPro ? props.deleteStepsAfterIdx : undefined}>
                 <Col>
                     <CatchUpIcon variant='light'/>
                 </Col>
