@@ -984,7 +984,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             void mitoAPI.updateCheckoutStepByIndex(lastStepSummary.step_idx);
                         }}
                         deleteStepsAfterIdx={() => {
-                            void mitoAPI.updateDeleteStepsAfterIdx(analysisData.currStepIdx)
+                            void mitoAPI.updateUndoToStepIndex(analysisData.currStepIdx)
                         }}
                         isPro={userProfile.isPro}
                     />

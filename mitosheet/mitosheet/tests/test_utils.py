@@ -1200,12 +1200,12 @@ class MitoWidgetTestWrapper:
         )
 
     @check_transpiled_code_after_call
-    def delete_steps_after_idx(self, index: int) -> bool:
+    def undo_to_step_index(self, index: int) -> bool:
         return self.mito_backend.receive_message(
             {
                 'event': 'update_event',
                 'id': get_new_id(),
-                'type': 'delete_steps_after_idx_update',
+                'type': 'undo_to_step_index_update',
                 'params': {
                     'step_idx': index,
                 },

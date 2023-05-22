@@ -44,7 +44,7 @@ const CatchUpPopup = (props: {
                 </Col>
                 <Col offset={1}>
                     <p className={classNames({'text-color-mito-light-purple': !props.isPro})} title={!props.isPro ? 'Bulk step undo requires Mito Pro or Enterprise' : undefined}>
-                        <span className='text-underline'> Undo hidden steps </span> to work from here.
+                        <span className='text-underline'>Undo hidden steps</span> to work from here.
                     </p>                    
                 </Col>
             </Row>

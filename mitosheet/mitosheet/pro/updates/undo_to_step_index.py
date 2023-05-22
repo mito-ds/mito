@@ -4,14 +4,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 """
-Rolls back/forward to a specific step, by index
+Rolls back to a specific step, by index
 """
 
 from mitosheet.types import StepsManagerType
 
 
-DELETE_STEPS_AFTER_IDX_UPDATE_EVENT = 'delete_steps_after_idx_update'
-DELETE_STEPS_AFTER_IDX_UPDATE_PARAMS = [
+UNDO_TO_STEP_INDEX_UPDATE_EVENT = 'undo_to_step_index_update'
+UNDO_TO_STEP_INDEX_UPDATE_PARAMS = [
     'step_idx'
 ]
 
@@ -22,10 +22,10 @@ def execute_following_steps_update(
     """
     Checks out a specific step by index
     """
-    steps_manager.execute_delete_steps_after_idx(step_idx)
+    steps_manager.execute_undo_to_step_index(step_idx)
 
-DELETE_STEPS_AFTER_IDX_UPDATE = {
-    'event_type': DELETE_STEPS_AFTER_IDX_UPDATE_EVENT,
-    'params': DELETE_STEPS_AFTER_IDX_UPDATE_PARAMS,
+UNDO_TO_STEP_INDEX_UPDATE = {
+    'event_type': UNDO_TO_STEP_INDEX_UPDATE_EVENT,
+    'params': UNDO_TO_STEP_INDEX_UPDATE_PARAMS,
     'execute': execute_following_steps_update
 }

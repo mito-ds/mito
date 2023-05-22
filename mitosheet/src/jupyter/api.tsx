@@ -1594,13 +1594,13 @@ export default class MitoAPI {
     /*
         Deletes all future steps
     */
-    async updateDeleteStepsAfterIdx(
+    async updateUndoToStepIndex(
         stepIndex: number
     ): Promise<void> {
 
         await this.send({
             'event': 'update_event',
-            'type': 'delete_steps_after_idx_update',
+            'type': 'undo_to_step_index_update',
             'params': {
                 'step_idx': stepIndex
             }

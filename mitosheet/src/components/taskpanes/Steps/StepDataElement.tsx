@@ -162,7 +162,7 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
     }
 
     const deleteFollowingSteps = (): void => {
-        void props.mitoAPI.updateDeleteStepsAfterIdx(props.stepData.step_idx)
+        void props.mitoAPI.updateUndoToStepIndex(props.stepData.step_idx)
     }
 
     {/* We grey out any steps that are before the current step */ }
