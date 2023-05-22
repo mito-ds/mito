@@ -302,6 +302,7 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
         ]
     }
     """
+
     # If the user passes numbers, we start the default as the smallest possible number
     # but if it's a datetime, we start the default as the earliest possible date
     default_value = -sys.maxsize - 1
@@ -312,7 +313,12 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
         elif isinstance(arg, pd.Timestamp) or isinstance(arg, datetime):
             default_value = pd.Timestamp.min
             break
-
+        elif isinstance(arg, pd.DataFrame):
+            # Check if any series are datetimes
+            for col in arg.columns:
+                if is_datetime_dtype(str(arg[col].dtype)):
+                    default_value = pd.Timestamp.min
+                    break
 
     result = get_final_result_series_or_primitive(
         default_value,
@@ -359,6 +365,18 @@ def MIN(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
         elif isinstance(arg, pd.Timestamp) or isinstance(arg, datetime):
             default_value = pd.Timestamp.max
             break
+        elif isinstance(arg, pd.DataFrame):
+            # Check if any series are datetimes
+            for col in arg.columns:
+                if is_datetime_dtype(str(arg[col].dtype)):
+                    default_value = pd.Timestamp.max
+                    break
+        elif isinstance(arg, RollingRange):
+            # Check if any series are datetimes
+            for col in arg.obj.columns:
+                if is_datetime_dtype(str(arg.obj[col].dtype)):
+                    default_value = pd.Timestamp.max
+                    break
 
     result = get_final_result_series_or_primitive(
         default_value,

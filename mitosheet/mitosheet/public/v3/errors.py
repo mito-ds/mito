@@ -96,5 +96,6 @@ def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
         except MitoError:
             raise 
         except:
+            print(get_recent_traceback())
             raise make_function_error(sheet_function.__name__, error_modal=False)
     return wrapped_sheet_function

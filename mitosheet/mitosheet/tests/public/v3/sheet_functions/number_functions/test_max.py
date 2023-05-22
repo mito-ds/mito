@@ -35,12 +35,14 @@ MAX_VALID_TESTS = [
     ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([0,2,3])], pd.Series([2, 2, 3])),
     ([pd.DataFrame({'a': [0, 2, 4], 'b': [1, 2, 4]}), 2], 4),
     ([pd.DataFrame({'a': ['$1', '$1', '$1'], 'b': [2, None, 2]}), pd.Series([1,2,3])], pd.Series([2.0, 2.0, 3.0])),
+    ([pd.DataFrame({'a': pd.to_datetime(['1-1-2001', '1-3-1997']), 'b': pd.to_datetime(['1-1-2001', '1-3-1997'])})], pd.to_datetime('1-1-2001')),
 
     # Rolling ranges
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 0), 1], pd.Series([5, 6, 6])), #A0 = MAX(B0:C1, 1)
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, -1), 1], pd.Series([4, 5, 6])), #A1 = MAX(B0:C1, 1)
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 2, 1), 1], pd.Series([6, 6, 1])), #A0 = MAX(B1:C2, 1)
     ([RollingRange(pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}), 3, -1), 1], pd.Series([5, 6, 6])), #A1 = MAX(B0:C2, 1)
+    ([RollingRange(pd.DataFrame({'a': pd.to_datetime(['1-1-2001', '1-1-2001', '1-3-1997']), 'b': pd.to_datetime(['1-1-2001', '1-1-2001', '1-3-1997'])}), 2, 0), pd.to_datetime('1-1-2000')], pd.Series(pd.to_datetime(['1-1-2001', '1-1-2001', '1-1-2000']))), #A0 = MAX(B0:C1, 1)
 ]
 
 MAX_INVALID_CAST_TESTS = [
