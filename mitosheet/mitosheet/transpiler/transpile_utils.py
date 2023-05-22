@@ -248,33 +248,24 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     # Build the params and variables taking special care to ensure that dataframes and file paths 
     # that are passed as parameters to the function. 
-    params = []
-    num_variables_created = 0
-    saturdated_params_dict = _get_params_dict_for_function_call(steps_manager, function_params)
-    saturated_params_names_list = list(saturdated_params_dict.keys())
-    saturdated_params_values_list = list(saturdated_params_dict.values())
+    final_params_to_call_function_with = []
 
-    for idx, param_name in enumerate(saturated_params_names_list):
-        if param_name in function_params.keys():
-            # If the paramater was set by the user, then add is as a variable
-            params.append(param_name)
-            num_variables_created += 1
-
-            final_code.append(f"{param_name} = {saturdated_params_values_list[idx]}")
+    for param_name, param_value in _get_params_dict_for_function_call(steps_manager, function_params).items():
+        if param_name in function_params:
+            final_params_to_call_function_with.append(param_name)
+            final_code.append(f"{param_name} = {param_value}")
         else:
-            # If the parameter was not set by the user, then just pass the value 
-            # to the function.
-            params.append(saturdated_params_values_list[idx])
+            final_params_to_call_function_with.append(param_value)
 
-    if num_variables_created > 0:
+    if len(function_params) > 0:
         final_code.append("")
 
-    params_string = ", ".join(params)
+    final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
 
     if len(return_variables_string) > 0:
-        final_code.append(f"{return_variables_string} = {function_name}({params_string})")
+        final_code.append(f"{return_variables_string} = {function_name}({final_params_to_call_function_with_string})")
     else:
-        final_code.append(f"{function_name}({params_string})")
+        final_code.append(f"{function_name}({final_params_to_call_function_with_string})")
 
     return final_code
 
