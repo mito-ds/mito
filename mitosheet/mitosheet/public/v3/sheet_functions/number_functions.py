@@ -363,7 +363,7 @@ def MIN(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
     result = get_final_result_series_or_primitive(
         default_value,
         argv,
-        lambda df: df.sum().sum(),
+        lambda df: df.min().min(),
         lambda previous_value, new_value: min(previous_value, new_value),
         lambda previous_series, new_series: pd.concat([previous_series, new_series], axis=1).min(axis=1)
     )
