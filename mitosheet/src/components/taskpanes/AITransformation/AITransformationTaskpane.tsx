@@ -112,6 +112,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const [userInput, setUserInput] = useState<string>('');
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
+    const [successfulCompletionSinceOpen, setSuccessfulCompletionSinceOpen] = useState<boolean>(false);
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
@@ -143,7 +144,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         // Update the UIState for Recon
         props.setUIState(prevUIState => {
 
-            if (previousParamsAndResults.length === 0) {
+            if (previousParamsAndResults.length === 0 || !successfulCompletionSinceOpen) {
                 return{
                     ...prevUIState,
                     dataRecon: undefined
@@ -197,6 +198,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 selections,
                 previousFailedCompletions
             );
+
+            if (completionOrError !== undefined && !('error' in completionOrError) && !successfulCompletionSinceOpen) {
+                // When we get the first successful completion since we open the taskpane, keep track of it
+                // so we know to display the recon highlighting going forward
+                setSuccessfulCompletionSinceOpen(true)
+            }
 
             if (completionOrError === undefined || 'error' in completionOrError) {
                 setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completionOrError?.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
