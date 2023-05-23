@@ -166,6 +166,15 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     }, [previousParamsAndResults.length, taskpaneState.type])
 
+    useEffect( () => () => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                dataRecon: undefined
+            }
+        })
+    }, [] );
+
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
     useEffectOnUndo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
@@ -249,7 +258,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 <div
                     className="ai-transformation-chat-container"
                 >
-                    {previousParamsAndResults.map((paramAndResult) => {
+                    {previousParamsAndResults.map((paramAndResult, idx) => {
                         return (
                             <>
                                 <Row 
@@ -263,11 +272,13 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                     className="ai-transformation-message ai-transformation-message-ai"
                                 >
                                     <AITransformationResultSection
+                                        uiState={props.uiState}
                                         setUIState={props.setUIState}
                                         result={paramAndResult.results}
                                         sheetDataArray={props.sheetDataArray}
                                         mitoAPI={props.mitoAPI}
                                         params={paramAndResult.params}
+                                        isMostRecentResult={idx === previousParamsAndResults.length - 1}
                                     />
                                 </Row>
                             </>

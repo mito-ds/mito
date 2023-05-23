@@ -8,13 +8,16 @@ import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import { AITransformationParams, AITransformationResult } from "./AITransformationTaskpane";
+import EyeIcon from "../../icons/EyeIcon";
 
 interface AITransformationResultSectionProps {
     mitoAPI: MitoAPI;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     result: AITransformationResult | undefined;
     sheetDataArray: SheetData[]
     params: AITransformationParams
+    isMostRecentResult: boolean
 }
 
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
@@ -108,6 +111,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </div>
                 )
             })}
+            
             {(result.last_line_value === undefined || result.last_line_value === null) 
                 && result.created_dataframe_names.length === 0 
                 && Object.entries(result.modified_dataframes_recons).length === 0 
@@ -116,6 +120,43 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                 <p>
                     No changes
                 </p>
+            }
+            {(result.created_dataframe_names.length > 0 || Object.entries(result.modified_dataframes_recons).length > 0 || result.deleted_dataframe_names.length > 0) &&
+                props.isMostRecentResult &&
+                <Row 
+                    justify="space-between" 
+                    onClick={() => {
+                        props.setUIState(prevUIState => {
+
+                            if (prevUIState.dataRecon !== undefined) {
+                                return {
+                                    ...prevUIState, 
+                                    dataRecon: undefined
+                                }
+                            }
+
+                            const newDataRecon = {
+                                created_dataframe_names: result.created_dataframe_names,
+                                deleted_dataframe_names: result.deleted_dataframe_names,
+                                modified_dataframes_recons: result.modified_dataframes_recons
+                            } 
+
+                            return {
+                                ...prevUIState, 
+                                dataRecon: newDataRecon
+                            }
+                        })
+                    }}
+                >
+                    <Col>
+                        <p className="text-body-2">
+                            View changes in sheet
+                        </p>
+                    </Col>
+                    <Col offsetRight={.5}>
+                        <EyeIcon variant={props.uiState.dataRecon !== undefined ? 'selected' : 'unselected'} /> 
+                    </Col>
+                </Row>
             }
             <Row justify="space-between" align="center" suppressTopBottomMargin>
                 <Col>
@@ -156,7 +197,6 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                         </Col>
                     </Row>
                 </Col>
-
             </Row>
             {sentFeedback !== undefined && 
                 <p className="text-body-2">Thanks for the feedback - {sentFeedback === 'Down' ? "we're working hard to improve." : "we're glad things are working well!"}</p>

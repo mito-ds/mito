@@ -7,6 +7,7 @@ import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
+import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
@@ -28,9 +29,6 @@ const GridData = (props: {
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || EVEN_ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ODD_ROW_TEXT_COLOR_DEFAULT;
-
-    console.log(props.uiState.dataRecon)
-
 
     return (
         <>  
@@ -72,9 +70,11 @@ const GridData = (props: {
                             }
 
                             const createdColumnHeadersList = props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.created_columns || []
-                            const createdColumnRecon = createdColumnHeadersList.includes(columnHeader)
-                            const modifiedColumnHeadersList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.renamed_columns || {})
-                            const modified_columns = modifiedColumnHeadersList.includes(columnHeader)
+                            const createdDataframesList = props.uiState.dataRecon?.created_dataframe_names || []
+                            const createdColumnRecon = createdColumnHeadersList.includes(columnHeader) || createdDataframesList.includes(sheetData.dfName)
+
+                            const modifiedColumnHeadersList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.modified_columns || {})
+                            const modified_columns = modifiedColumnHeadersList.includes(getDisplayColumnHeader(columnHeader))
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,

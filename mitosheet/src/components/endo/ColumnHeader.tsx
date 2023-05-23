@@ -155,7 +155,9 @@ const ColumnHeader = (props: {
 
     //If there is a dataRecon set, highlight the column headers that have been created or renamed
     const createdColumnHeadersList = props.uiState.dataRecon?.modified_dataframes_recons[props.sheetData.dfName]?.column_recon.created_columns || []
-    const createdColumnHeaderRecon = createdColumnHeadersList.includes(columnHeader)
+    const createdDataframesList = props.uiState.dataRecon?.created_dataframe_names || []
+    const createdColumnHeaderRecon = createdColumnHeadersList.includes(columnHeader) || createdDataframesList.includes(props.sheetData.dfName)
+
     const renamedColumnHeaderList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[props.sheetData.dfName]?.column_recon.renamed_columns || {})
     const renamedColumnHeaderRecon = renamedColumnHeaderList.includes(getDisplayColumnHeader(columnHeader))
 
