@@ -1,4 +1,5 @@
-import { GridState, SheetData, UIState } from "../../../types";
+import { ColumnHeader, GridState, SheetData, UIState } from "../../../types";
+import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelections, getIndexLabelsInSelections } from "../../endo/selectionUtils";
 import { AICompletionSelection } from "./AITransformationTaskpane";
 
@@ -40,3 +41,24 @@ export const getChatHeight = (userInput: string, chatInputRef: React.MutableRefO
         return chatOrScrollMax;
     }
 }
+
+
+export const reconIsColumnCreated = (columnHeader: ColumnHeader, uiState: UIState, sheetData: SheetData): boolean => {
+    const createdColumnHeadersList = uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.created_columns || []
+    const createdDataframesList = uiState.dataRecon?.created_dataframe_names || []
+    return createdColumnHeadersList.includes(columnHeader) || createdDataframesList.includes(sheetData.dfName)
+}
+
+export const reconIsColumnModified = (columnHeader: ColumnHeader, uiState: UIState, sheetData: SheetData) => {
+    const modifiedColumnHeadersList = Object.values(uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.modified_columns || {})
+    return modifiedColumnHeadersList.includes(getDisplayColumnHeader(columnHeader))
+}
+
+export const reconIsColumnRenamed = (columnHeader: ColumnHeader, uiState: UIState, sheetData: SheetData) => {
+    const renamedColumnHeaderList = Object.values(uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.renamed_columns || {})
+    return renamedColumnHeaderList.includes(getDisplayColumnHeader(columnHeader))
+}
+
+
+
+    

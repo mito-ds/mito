@@ -15,6 +15,7 @@ import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
+import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 
 export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
 
@@ -154,21 +155,18 @@ const ColumnHeader = (props: {
     )
 
     //If there is a dataRecon set, highlight the column headers that have been created or renamed
-    const createdColumnHeadersList = props.uiState.dataRecon?.modified_dataframes_recons[props.sheetData.dfName]?.column_recon.created_columns || []
-    const createdDataframesList = props.uiState.dataRecon?.created_dataframe_names || []
-    const createdColumnHeaderRecon = createdColumnHeadersList.includes(columnHeader) || createdDataframesList.includes(props.sheetData.dfName)
+    const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState, props.sheetData)
+    const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState, props.sheetData)
 
-    const renamedColumnHeaderList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[props.sheetData.dfName]?.column_recon.renamed_columns || {})
-    const renamedColumnHeaderRecon = renamedColumnHeaderList.includes(getDisplayColumnHeader(columnHeader))
-
-    const backgroundColor = createdColumnHeaderRecon ? CREATED_RECON_COLOR : renamedColumnHeaderRecon ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
+    // Give priority to the recon colors, then formatting colors, then default colors
+    const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
     
     return (
         <div
             className={classNames(
                 'endo-column-header-container',
                 'endo-column-header-text',
-                {' endo-column-header-container-selected': selected}
+                {'endo-column-header-container-selected': selected}
             )}
             style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: backgroundColor}}
             key={props.columnIndex}

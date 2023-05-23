@@ -45,10 +45,10 @@
     text-align: right;
 }
 
-.mito-grid-created-column-recon {
+.created-recon-background-color {
     background-color: var(--mito-recon-created);
 }
 
-.mito-grid-modified-column-recon {
+.modified-recon-background-color {
     background-color: var(--mito-recon-modified);
 }

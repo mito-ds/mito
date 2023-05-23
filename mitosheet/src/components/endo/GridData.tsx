@@ -7,7 +7,7 @@ import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
-import { getDisplayColumnHeader } from '../../utils/columnHeaders';
+import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
@@ -69,20 +69,16 @@ const GridData = (props: {
                                 return null;
                             }
 
-                            const createdColumnHeadersList = props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.created_columns || []
-                            const createdDataframesList = props.uiState.dataRecon?.created_dataframe_names || []
-                            const createdColumnRecon = createdColumnHeadersList.includes(columnHeader) || createdDataframesList.includes(sheetData.dfName)
-
-                            const modifiedColumnHeadersList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.modified_columns || {})
-                            const modified_columns = modifiedColumnHeadersList.includes(getDisplayColumnHeader(columnHeader))
+                            const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState, sheetData)
+                            const isColumnModified = reconIsColumnModified(columnHeader, props.uiState, sheetData)
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype),
-                                'mito-grid-created-column-recon': createdColumnRecon,
-                                'mito-grid-modified-column-recon': modified_columns,
+                                'created-recon-background-color': isColumnCreated,
+                                'modified-recon-background-color': isColumnModified,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];

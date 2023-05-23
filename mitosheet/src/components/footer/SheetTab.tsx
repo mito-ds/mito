@@ -135,7 +135,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             className={classNames(
                 'tab', 
                 {'tab-graph': props.tabIDObj.tabType === 'graph'}, 
-                {'tab-selected': props.isSelectedTab}, // This goes after recon highlighting so it takes precedent
+                {'tab-selected': props.isSelectedTab},
                 'cursor-pointer',
                 {'tab-created-recon': createdSheetTab},
                 {'tab-modified-recon': modifiedSheetTab},
