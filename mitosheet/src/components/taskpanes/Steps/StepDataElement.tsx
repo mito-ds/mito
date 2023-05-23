@@ -25,14 +25,21 @@ import RedoIcon from '../../icons/RedoIcon';
 import ClearIcon from '../../icons/ClearIcon';
 import OneHotEncodingIcon from '../../icons/OneHotEncodingIcon';
 import AIIcon from '../../icons/AIIcon';
+import Dropdown from '../../elements/Dropdown';
+import DropdownItem from '../../elements/DropdownItem';
+
 
 
 export type StepDataElementProps = {
     beforeCurrIdx: boolean;
+    stepIdx: number;
     isCurrIdx: boolean;
     lastIndex: number;
     stepData: StepSummary;
     mitoAPI: MitoAPI;
+    isPro: boolean
+    displayDropdown: boolean;
+    setDisplayDropdown: React.Dispatch<React.SetStateAction<number | undefined>>
 };
 
 /* 
@@ -154,11 +161,20 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
         }
     }
 
+    const deleteFollowingSteps = (): void => {
+        void props.mitoAPI.updateUndoToStepIndex(props.stepData.step_idx)
+    }
+
     {/* We grey out any steps that are before the current step */ }
     return (
         <div 
-            className='step-taskpane-step-container' 
+            className='step-taskpane-step-container'
             style={{opacity: props.beforeCurrIdx ? '1': '.5'}}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                props.setDisplayDropdown(props.stepIdx);
+            }}
             onClick={toggleStepRollBack}
         >
             <div className='step-taskpane-step-icon'>
@@ -172,6 +188,18 @@ function StepDataElement(props: StepDataElementProps): JSX.Element {
                     {props.stepData.step_description}
                 </div>
             </div>
+            <Dropdown 
+                display={props.displayDropdown}
+                closeDropdown={() => {props.setDisplayDropdown(undefined)}}
+            >
+                <DropdownItem 
+                    title={'Undo all following steps'} 
+                    onClick={() => deleteFollowingSteps()} 
+                    disabled={!props.isPro}
+                    subtext={!props.isPro ? 'Bulk step undo requires Mito Pro or Enterprise' : undefined}
+                />
+                <DropdownItem title={'View analysis at this step'} onClick={() => toggleStepRollBack()} />
+            </Dropdown>
         </div>
     )
 }

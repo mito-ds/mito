@@ -133,6 +133,14 @@ const EXPLORATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+  {
+    feature: "Bulk Undo Operations",
+    planSupport: {
+      'Open Source': false,
+      'Pro': true,
+      'Enterprise': true
+    }
+  }
 ]
 
 const PRESENTATION_FEATURES: Feature[] = [

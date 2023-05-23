@@ -246,11 +246,26 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
-    # Then, add the function call
+    # Build the params and variables taking special care to ensure that dataframes and file paths 
+    # that are passed as parameters to the function. 
+    final_params_to_call_function_with = []
+
+    for param_name, param_value in _get_params_dict_for_function_call(steps_manager, function_params).items():
+        if param_name in function_params:
+            final_params_to_call_function_with.append(param_name)
+            final_code.append(f"{param_name} = {param_value}")
+        else:
+            final_params_to_call_function_with.append(param_value)
+
+    if len(function_params) > 0:
+        final_code.append("")
+
+    final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
+
     if len(return_variables_string) > 0:
-        final_code.append(f"{return_variables_string} = {function_name}({param_values})")
+        final_code.append(f"{return_variables_string} = {function_name}({final_params_to_call_function_with_string})")
     else:
-        final_code.append(f"{function_name}({param_values})")
+        final_code.append(f"{function_name}({final_params_to_call_function_with_string})")
 
     return final_code
 
