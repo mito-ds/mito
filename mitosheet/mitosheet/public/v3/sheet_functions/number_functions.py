@@ -592,6 +592,42 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         lambda previous_series, new_series: previous_series + new_series
     )
 
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "SUMPRODUCT",
+        "description": "Returns the sum of the product of the passed arguments.",
+        "search_terms": ["sum product", "sumproduct", "sum", "product", "weighted average"],
+        "examples": [
+            "SUMPRODUCT(A:A, B:B)",
+            "SUMPRODUCT(A:B)"
+        ],
+        "syntax": "SUMPRODUCT(array1, [array2, ...])",
+        "syntax_elements": [{
+                "element": "array1",
+                "description": "The first array argument whose components you want to multiply and then add."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional series to multiply then add."
+            }
+        ]
+    }
+    """
+
+    # We need to make sure that all of the passed arguments are the same length
+    # so we can multiply them together
+    for arg in argv:
+        length = len(arg)
+        if length != len(argv[0]):
+            raise ValueError(f"SUMPRODUCT requires all arguments to be the same length, but got {length} and {len(argv[0])}")
+        
+    # Put all the series and dataframes into a single series, prod the rows, and then
+    # sum the results
+    return pd.concat(argv, axis=1).fillna(1).prod(axis=1).sum()
+        
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
@@ -665,6 +701,7 @@ NUMBER_FUNCTIONS = {
     'ROUND': ROUND,
     'SKEW': SKEW,
     'SUM': SUM,
+    'SUMPRODUCT': SUMPRODUCT,
     'STDEV': STDEV,
     'VALUE': VALUE,
     'VAR': VAR
