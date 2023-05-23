@@ -29,6 +29,9 @@ const GridData = (props: {
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || EVEN_ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ODD_ROW_TEXT_COLOR_DEFAULT;
 
+    console.log(props.uiState.dataRecon)
+
+
     return (
         <>  
             {sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
@@ -54,6 +57,7 @@ const GridData = (props: {
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
                             const cellIsSelected = getIsCellSelected(props.gridState.selections, rowIndex, columnIndex);
+                            const columnHeader = props.sheetData?.data[columnIndex]?.columnHeader;
 
                             const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
                             const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[index]} : undefined;
@@ -63,15 +67,22 @@ const GridData = (props: {
                                 conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
                             }
 
-                            if (cellData === undefined || columnDtype == undefined) {
+                            if (cellData === undefined || columnDtype === undefined || columnHeader === undefined) {
                                 return null;
                             }
+
+                            const createdColumnHeadersList = props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.created_columns || []
+                            const createdColumnRecon = createdColumnHeadersList.includes(columnHeader)
+                            const modifiedColumnHeadersList = Object.values(props.uiState.dataRecon?.modified_dataframes_recons[sheetData.dfName]?.column_recon.renamed_columns || {})
+                            const modified_columns = modifiedColumnHeadersList.includes(columnHeader)
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
-                                'right-align-number-series': isNumberDtype(columnDtype)
+                                'right-align-number-series': isNumberDtype(columnDtype),
+                                'mito-grid-created-column-recon': createdColumnRecon,
+                                'mito-grid-modified-column-recon': modified_columns,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];

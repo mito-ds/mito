@@ -48,7 +48,7 @@ export type AICompletionOrError = {error: string}
     completion: string
 } | undefined
 
-interface ColumnReconData {
+export interface ColumnReconData {
     created_columns: ColumnHeader[]
     deleted_columns: ColumnHeader[]
     modified_columns: ColumnHeader[],
@@ -139,6 +139,30 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         if (taskpaneBodyRef.current !== null) {
             taskpaneBodyRef.current.scrollTop = taskpaneBodyRef.current.scrollHeight;
         }
+
+        // Update the UIState for Recon
+        props.setUIState(prevUIState => {
+
+            if (previousParamsAndResults.length === 0) {
+                return{
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            }
+
+            const mostRecentResults = previousParamsAndResults[previousParamsAndResults.length - 1].results;
+            
+            const newDataRecon =  {
+                created_dataframe_names: mostRecentResults.created_dataframe_names,
+                deleted_dataframe_names: mostRecentResults.deleted_dataframe_names,
+                modified_dataframes_recons: mostRecentResults.modified_dataframes_recons
+            } 
+
+            return {
+                ...prevUIState,
+                dataRecon: newDataRecon
+            }
+        })
 
     }, [previousParamsAndResults.length, taskpaneState.type])
 

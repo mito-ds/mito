@@ -30,4 +30,8 @@
 
     /* Color for success message */
     --mito-green: #10710D;
+
+    /* Colors used in recon */
+    --mito-recon-created: #96D394;
+    --mito-recon-modified: #EDDAA2;
 }

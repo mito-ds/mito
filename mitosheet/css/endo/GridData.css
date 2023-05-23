@@ -44,3 +44,11 @@
     /* Right align number series */
     text-align: right;
 }
+
+.mito-grid-created-column-recon {
+    background-color: var(--mito-recon-created);
+}
+
+.mito-grid-modified-column-recon {
+    background-color: var(--mito-recon-modified);
+}

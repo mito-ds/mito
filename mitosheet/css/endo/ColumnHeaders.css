@@ -56,6 +56,14 @@
     color: var(--mito-gray) !important;
 }
 
+.endo-column-header-created-column-recon {
+    background-color: var(--mito-recon-created);
+}
+
+.endo-column-header-modified-column-recon {
+    background-color: var(--mito-recon-modified);
+}
+
 .endo-column-header-text {
     font-weight: bold;
 }

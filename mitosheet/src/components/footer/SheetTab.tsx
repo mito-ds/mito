@@ -74,6 +74,7 @@ type SheetTabProps = {
     tabIDObj: {tabType: 'data', sheetIndex: number} | {tabType: 'graph', graphID: GraphID};
     isSelectedTab: boolean;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    uiState: UIState;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
@@ -125,9 +126,21 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
         focusGrid(endoGridContainer)
     }
 
+    // If there is a dataRecon set, highlight the sheet tabs that are created or modified
+    const createdSheetTab = props.uiState.dataRecon?.created_dataframe_names.includes(props.tabName)
+    const modifiedSheetTab = Object.keys((props.uiState.dataRecon?.modified_dataframes_recons || {})).includes(props.tabName)
+
     return (
         <div 
-            className={classNames('tab', {'tab-graph': props.tabIDObj.tabType === 'graph'}, {'tab-selected': props.isSelectedTab}, 'cursor-pointer')} 
+            className={classNames(
+                'tab', 
+                {'tab-graph': props.tabIDObj.tabType === 'graph'}, 
+                {'tab-selected': props.isSelectedTab}, // This goes after recon highlighting so it takes precedent
+                'cursor-pointer',
+                {'tab-created-recon': createdSheetTab},
+                {'tab-modified-recon': modifiedSheetTab},
+                
+            )} 
             onClick={() => {
 
                 if (props.tabIDObj.tabType === 'graph') {

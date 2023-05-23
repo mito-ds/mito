@@ -652,6 +652,7 @@ function EndoGrid(props: {
                     <>
                         <ColumnHeaders
                             sheetData={sheetData}
+                            uiState={uiState}
                             setUIState={setUIState}
                             sheetIndex={sheetIndex}
                             containerRef={containerRef}
