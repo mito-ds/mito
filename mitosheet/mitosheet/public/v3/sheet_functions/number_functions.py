@@ -618,15 +618,27 @@ def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnTyp
     """
 
     # We need to make sure that all of the passed arguments are the same length
-    # so we can multiply them together
+    # so we can multiply them together. They must be all dataframes or all series
     for arg in argv:
         length = len(arg)
         if length != len(argv[0]):
-            raise ValueError(f"SUMPRODUCT requires all arguments to be the same length, but got {length} and {len(argv[0])}")
+            raise ValueError(f"SUMPRODUCT requires all arguments to be the same dimensions.")
         
-    # Put all the series and dataframes into a single series, prod the rows, and then
-    # sum the results
-    return pd.concat(argv, axis=1).fillna(1).prod(axis=1).sum()
+        if type(arg) != type(argv[0]):
+            raise ValueError(f"SUMPRODUCT requires all arguments to be the same dimensions.")
+        
+    if isinstance(argv[0], pd.Series):
+        # Put all the values into a single dataframe, prod the rows, and then
+        # sum the results
+        return pd.concat(argv, axis=1).fillna(1).prod(axis=1).sum()
+    else:
+        # Multiply argv into a single dataframe
+        result = argv[0]
+        for arg in argv[1:]:
+            result = result * arg
+
+        # And then sum the results
+        return result.sum().sum()
         
 
 @cast_values_in_arg_to_type('arg', 'number')

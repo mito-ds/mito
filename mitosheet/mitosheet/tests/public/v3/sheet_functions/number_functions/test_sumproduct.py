@@ -20,7 +20,7 @@ SUM_PRODUCT_VALID_TETS = [
     ([pd.Series([1,2,3]), pd.Series([1,2,3]), pd.Series([1,2,3])], 1 + 8 + 27),
     
     # Dataframes and series
-    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.Series([3,3,3])], 18),
+    ([pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]}), pd.DataFrame({'a': [1, 1, 1], 'b': [2, 2, 2]})], 3 + 8 * 3),
 ]
 
 SUM_INVALID_CAST_TESTS = [
@@ -29,7 +29,7 @@ SUM_INVALID_CAST_TESTS = [
     ([pd.Series(['1','2','3']), pd.Series([1,1,1])], 6),
 
     # Dataframes
-    ([pd.DataFrame({'a': ['1', '1', '1'], 'b': [2, 2, 2]}), pd.Series([3,3,3])], 18),
+    ([pd.DataFrame({'a': ['1', '1', '1'], 'b': [2, 2, 2]}), pd.DataFrame({'a': ['2', '2', '2'], 'b': [1, 1, 1]})], 12.0),
 ]
 
 @pytest.mark.parametrize("_argv,expected", SUM_PRODUCT_VALID_TETS + SUM_INVALID_CAST_TESTS)
