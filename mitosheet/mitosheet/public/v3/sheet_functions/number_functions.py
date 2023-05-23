@@ -17,6 +17,7 @@ from datetime import datetime
 import math
 from typing import Optional, Union
 import sys
+from mitosheet.errors import MitoError
 from mitosheet.is_type_utils import is_datetime_dtype
 import numpy as np
 
@@ -620,22 +621,29 @@ def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnTyp
     # We need to make sure that all of the passed arguments are the same length
     # so we can multiply them together. They must be all dataframes or all series
     for arg in argv:
+        error = MitoError(
+            'invalid_args_error',
+            'SUMPRODUCT',
+            f"SUMPRODUCT requires all arguments to be the same dimensions.",
+            error_modal=False
+        )
+
         length = len(arg)
         if length != len(argv[0]):
-            raise ValueError(f"SUMPRODUCT requires all arguments to be the same dimensions.")
+            raise error
         
         if type(arg) != type(argv[0]):
-            raise ValueError(f"SUMPRODUCT requires all arguments to be the same dimensions.")
+            raise error
         
     if isinstance(argv[0], pd.Series):
         # Put all the values into a single dataframe, prod the rows, and then
         # sum the results
-        return pd.concat(argv, axis=1).fillna(1).prod(axis=1).sum()
+        return pd.concat(argv, axis=1).fillna(1).prod(axis=1)
     else:
-        # Multiply argv into a single dataframe
+        # Multiply argv into a single dataframe - making the columns the same first
         result = argv[0]
         for arg in argv[1:]:
-            result = result * arg
+            result = result.mul(arg, fill_value=1)
 
         # And then sum the results
         return result.sum().sum()
