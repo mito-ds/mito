@@ -108,6 +108,13 @@
 .text-color-medium-gray-important {
     color: var(--mito-medium-gray) !important;
 }
+.text-color-recon-created {
+    color: var(--mito-recon-created-text-color) !important;
+}
+.text-color-recon-modified {
+    color: var(--mito-recon-modified-text-color) !important;
+}
+
 
 /*
     Set the text to an error color. In the future, we

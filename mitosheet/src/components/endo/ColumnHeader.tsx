@@ -20,8 +20,8 @@ import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITrans
 export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
-export const CREATED_RECON_COLOR = '#96D394' // This is var(--mito-recon-created) - update this if we change this variable
-export const MODIFIED_RECON_COLOR = '#EDDAA2' // This is var(--mito-recon-modified) - update this if we change this variable
+export const CREATED_RECON_COLOR = '#96D394' // This is var(--mito-recon-created-background-color) - update this if we change this variable
+export const MODIFIED_RECON_COLOR = '#EDDAA2' // This is var(--mito-recon-modified-background-color) - update this if we change this variable
 
 /* 
     A single column header at the top of the sheet. If the edited

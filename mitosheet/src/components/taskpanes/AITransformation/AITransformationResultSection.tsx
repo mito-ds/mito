@@ -67,7 +67,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             })
                         }}>
-                        <span>Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} columns)
+                        <span className={classNames({'text-color-recon-created': props.isMostRecentResult})}>Created:</span> <span className="text-underline">{dfName}</span>  ({numRows} rows, {numColumns} columns)
                     </div>
                 )
             })}
@@ -87,16 +87,16 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     }
                                 })
                             }}>
-                            <span>Modified:</span> <span className="text-underline">{dfName}</span> {rowChangeTest}
+                            <span className={classNames({'text-color-recon-modified': props.isMostRecentResult})}>Modified:</span> <span className="text-underline">{dfName}</span> {rowChangeTest}
                         </div>
                         {columnReconData.created_columns.map((ch, index) => {
-                            return <div key={dfName + 'added' + index} className="ml-5px">Added column: {getDisplayColumnHeader(ch)}</div>
+                            return <div key={dfName + 'added' + index} className="ml-5px"><span className={classNames({'text-color-recon-created': props.isMostRecentResult})}>Added column: </span>{getDisplayColumnHeader(ch)}</div>
                         })}
                         {columnReconData.modified_columns.map((ch, index) => {
-                            return <div key={dfName + 'modified' + index} className="ml-5px">Modified column: {getDisplayColumnHeader(ch)}</div>
+                            return <div key={dfName + 'modified' + index} className="ml-5px"><span className={classNames({'text-color-recon-modified': props.isMostRecentResult})}>Modified column: </span>{getDisplayColumnHeader(ch)}</div>
                         })}
                         {Object.entries(columnReconData.renamed_columns).map(([oldCh, newCh], index) => {
-                            return <div key={dfName + 'renamed' + index} className="ml-5px">Renamed column: {getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
+                            return <div key={dfName + 'renamed' + index} className="ml-5px"><span className={classNames({'text-color-recon-modified': props.isMostRecentResult})}>Renamed column: </span>{getDisplayColumnHeader(oldCh)} to {getDisplayColumnHeader(newCh)} </div>
                         })}
                         {columnReconData.deleted_columns.map((ch, index) => {
                             return <div key={dfName + 'removed' + index} className="ml-5px">Deleted column: {getDisplayColumnHeader(ch)}</div>

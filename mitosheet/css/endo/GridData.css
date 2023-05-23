@@ -46,9 +46,9 @@
 }
 
 .created-recon-background-color {
-    background-color: var(--mito-recon-created);
+    background-color: var(--mito-recon-created-background-color);
 }
 
 .modified-recon-background-color {
-    background-color: var(--mito-recon-modified);
+    background-color: var(--mito-recon-modified-background-color);
 }
