@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
+import { AITransformationResult, AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 
@@ -48,23 +48,6 @@ export type AICompletionOrError = {error: string}
     completion: string
 } | undefined
 
-export interface ColumnReconData {
-    created_columns: ColumnHeader[]
-    deleted_columns: ColumnHeader[]
-    modified_columns: ColumnHeader[],
-    renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
-}
-
-export interface AITransformationResult {
-    last_line_value: string | boolean | number | undefined | null,
-    created_dataframe_names: string[],
-    deleted_dataframe_names: string[],
-    modified_dataframes_recons: Record<string, {
-        'column_recon': ColumnReconData,
-        'num_added_or_removed_rows': number
-    }>,
-    prints: string
-}
 
 export interface AICompletionSelection {
     'selected_df_name': string, 
@@ -167,14 +150,16 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     }, [previousParamsAndResults.length, taskpaneState.type])
 
-    useEffect( () => () => {
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                dataRecon: undefined
-            }
-        })
-    }, [] );
+    useEffect(function() {
+        return function() {
+            props.setUIState(function(prevUIState) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            })
+        }
+    }, []);
 
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)

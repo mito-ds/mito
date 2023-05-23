@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SheetData, UIState } from "../../../types";
+import { AITransformationResult, SheetData, UIState } from "../../../types";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
 import MitoAPI from "../../../jupyter/api";
@@ -7,7 +7,7 @@ import { classNames } from "../../../utils/classNames";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
-import { AITransformationParams, AITransformationResult } from "./AITransformationTaskpane";
+import { AITransformationParams } from "./AITransformationTaskpane";
 import EyeIcon from "../../icons/EyeIcon";
 
 interface AITransformationResultSectionProps {
@@ -128,6 +128,8 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     onClick={() => {
                         props.setUIState(prevUIState => {
 
+                            // If the user clicks the eye when the recon is displayed, 
+                            // turn off the recon
                             if (prevUIState.dataRecon !== undefined) {
                                 return {
                                     ...prevUIState, 
@@ -135,6 +137,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 }
                             }
 
+                            // If the recon is already displayed, then display it. 
                             const newDataRecon = {
                                 created_dataframe_names: result.created_dataframe_names,
                                 deleted_dataframe_names: result.deleted_dataframe_names,

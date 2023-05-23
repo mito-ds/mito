@@ -1,12 +1,12 @@
 import React from "react";
-import { ColumnHeader, SheetData } from "../../../types";
+import { AITransformationResult, ColumnHeader, SheetData } from "../../../types";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { isDatetimeDtype, isNumberDtype, isStringDtype } from "../../../utils/dtypes";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
-import { AITransformationParams, AITransformationResult } from "./AITransformationTaskpane";
+import { AITransformationParams } from "./AITransformationTaskpane";
 
 interface AITransformationExamplesSectionProps {
     previousParamsAndResults: {params: AITransformationParams, results: AITransformationResult}[]

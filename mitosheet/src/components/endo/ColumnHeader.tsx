@@ -155,8 +155,8 @@ const ColumnHeader = (props: {
     )
 
     //If there is a dataRecon set, highlight the column headers that have been created or renamed
-    const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState, props.sheetData)
-    const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState, props.sheetData)
+    const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, props.sheetData)
+    const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState.dataRecon, props.sheetData)
 
     // Give priority to the recon colors, then formatting colors, then default colors
     const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;

@@ -69,8 +69,8 @@ const GridData = (props: {
                                 return null;
                             }
 
-                            const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState, sheetData)
-                            const isColumnModified = reconIsColumnModified(columnHeader, props.uiState, sheetData)
+                            const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
+                            const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
