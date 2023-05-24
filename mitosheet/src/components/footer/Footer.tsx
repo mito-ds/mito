@@ -69,6 +69,7 @@ function Footer(props: FooterProps): JSX.Element {
                             tabName={dfName}
                             tabIDObj={{tabType: 'data', sheetIndex: idx}}
                             isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
+                            uiState={props.uiState}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
@@ -86,6 +87,7 @@ function Footer(props: FooterProps): JSX.Element {
                             tabName={graphData.graphTabName}
                             tabIDObj={{tabType: 'graph', graphID: graphID}}
                             isSelectedTab={selectedTabType === 'graph' && graphID === selectedGraphID}
+                            uiState={props.uiState}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
