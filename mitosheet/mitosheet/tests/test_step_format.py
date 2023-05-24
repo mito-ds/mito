@@ -51,6 +51,7 @@ from mitosheet.enterprise.step_performers.one_hot_encoding import OneHotEncoding
 from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderStepPerformer
 from mitosheet.pro.step_performers.set_dataframe_format import SetDataframeFormatStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 
 def check_step(
         step_performer: Type[StepPerformer], 
@@ -314,4 +315,10 @@ def test_params_static():
         'column_headers_transform'
     )
 
-    assert len(STEP_PERFORMERS) == 38
+    check_step(
+        UserDefinedImportStepPerformer,
+        1,
+        'user_defined_import'
+    )
+
+    assert len(STEP_PERFORMERS) == 39

@@ -10,7 +10,7 @@ This file contains helpful functions and classes for testing operations.
 from copy import deepcopy
 import json
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from numpy import number
@@ -95,6 +95,15 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     else:
         import mitosheet as original
         local_vars = original.__dict__
+
+    user_defined_functions = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
+    user_defined_importers = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_importers if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
+
+    local_vars = {
+        **local_vars,
+        **{f.__name__: f for f in user_defined_functions},
+        **{f.__name__: f for f in user_defined_importers},
+    }
 
     try:
         exec(code, 
@@ -660,6 +669,27 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'sheet_index': sheet_index,
                     'transformation': transformation,
+                    
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def user_defined_import(
+            self, 
+            importer: str,
+        ) -> bool:
+
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'user_defined_import_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'importer': importer,
                     
                 }
             }
@@ -1592,12 +1622,17 @@ def create_mito_wrapper_with_data(sheet_one_A_data: List[Any], sheet_two_A_data:
     mito_backend = get_mito_backend(*dfs)
     return MitoWidgetTestWrapper(mito_backend)
 
-def create_mito_wrapper(*args: Union[pd.DataFrame, str], arg_names: Optional[List[str]]=None) -> MitoWidgetTestWrapper:
+def create_mito_wrapper(
+        *args: Union[pd.DataFrame, str], 
+        arg_names: Optional[List[str]]=None,
+        sheet_functions: Optional[List[Callable]]=None,
+        importers: Optional[List[Callable]]=None,
+    ) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_backend = get_mito_backend(*args)
+    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
     if arg_names is not None:

@@ -10,7 +10,7 @@ import json
 from random import randint
 import re
 import uuid
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 import os
 
 import numpy as np
@@ -402,3 +402,33 @@ def is_snowflake_credentials_available() -> bool:
 
     return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None and \
         PYTEST_SNOWFLAKE_USERNAME != 'None' and PYTEST_SNOWFLAKE_PASSWORD != 'None' and PYTEST_SNOWFLAKE_ACCOUNT != 'None'
+
+
+def check_valid_sheet_functions(
+        sheet_functions: Optional[List[Callable]]=None,
+    ) -> None:
+    if sheet_functions is None or len(sheet_functions) == 0:
+        return
+
+    from mitosheet.user.utils import is_enterprise, is_running_test
+    if not is_enterprise() and not is_running_test():
+        raise ValueError("sheet_functions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+
+    if not isinstance(sheet_functions, list):
+        raise ValueError(f"sheet_functions must be a list, but got {type(sheet_functions)}")
+    
+    for sheet_function in sheet_functions:
+        if not callable(sheet_function):
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is not callable.")
+        
+        # Check if has a __name__ attribute
+        if not hasattr(sheet_function, '__name__'):
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which does not have a __name__ attribute. Please use a named function instead.")
+        
+        if sheet_function.__name__ == '<lambda>':
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which is a lambda function. Please use a named function instead.")
+        
+        # Check the name is all caps
+        if not sheet_function.__name__.isupper():
+            raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which has a name that is not all caps. Please use a named function instead.")
+    

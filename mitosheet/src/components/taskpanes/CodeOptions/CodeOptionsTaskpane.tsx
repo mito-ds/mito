@@ -49,6 +49,23 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
             >
                 <Row justify='space-between' align='center'>
                     <Col>
+                        <LabelAndTooltip tooltip="Will put the analysis data directly in the notebook, so that you can send the notebook to another Mito user.">
+                            Make Sharable
+                        </LabelAndTooltip>
+                    </Col>
+                    <Col>
+                        <Toggle 
+                            value={props.analysisData.codeOptions.as_function} 
+                            onChange={function (): void {
+                                const newCodeOptions = {...codeOptions};
+                                newCodeOptions.as_function = !newCodeOptions.as_function;
+                                setCodeOptions(newCodeOptions);
+                            }}
+                        />
+                    </Col>
+                </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
                         <LabelAndTooltip tooltip="A Python function is a reusable block of code that performs a specific task. It takes input, processes it, and returns output, making your code more organized and able to be easily rerun on new datasets.">
                             Generate Function
                         </LabelAndTooltip>

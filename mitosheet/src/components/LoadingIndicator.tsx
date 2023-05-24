@@ -136,6 +136,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.ColumnHeadersTransform: {
             return 'Transforming Headers'
         }
+        case StepType.UserDefinedImport: {
+            return 'Importing'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }

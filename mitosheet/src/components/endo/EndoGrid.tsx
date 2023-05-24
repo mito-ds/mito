@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
 import MitoAPI from "../../jupyter/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection } from "../../types";
+import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
@@ -89,6 +89,7 @@ function EndoGrid(props: {
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     commCreationStatus: CommCreationStatus;
+    analysisData: AnalysisData
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -638,6 +639,7 @@ function EndoGrid(props: {
                 containerRef={containerRef}
                 mitoAPI={props.mitoAPI}
                 closeOpenEditingPopups={props.closeOpenEditingPopups}
+                analysisData={props.analysisData}
             />
             <div 
                 className='endo-grid-container' 
@@ -735,6 +737,7 @@ function EndoGrid(props: {
                         containerRef={containerRef}
                         mitoAPI={mitoAPI}
                         closeOpenEditingPopups={props.closeOpenEditingPopups}
+                        analysisData={props.analysisData}
                     />
                 }
             </div>
