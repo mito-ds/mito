@@ -62,6 +62,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         data = {
                 'email': user_email,
                 'user_id': user_id,
+                'user_input': user_input, # We add this just so we can log it
                 'data': _get_ai_completion_data(prompt)
         }
 
@@ -86,7 +87,6 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
                         'prompt': prompt,
                         'completion': res.json()['completion'],
                 })
-                return 
         
         return json.dumps({
                 'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'
