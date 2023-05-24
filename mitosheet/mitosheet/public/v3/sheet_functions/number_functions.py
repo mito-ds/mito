@@ -17,6 +17,7 @@ from datetime import datetime
 import math
 from typing import Optional, Union
 import sys
+from mitosheet.errors import MitoError
 from mitosheet.is_type_utils import is_datetime_dtype
 import numpy as np
 
@@ -592,6 +593,61 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         lambda previous_series, new_series: previous_series + new_series
     )
 
+@cast_values_in_all_args_to_type('number')
+@handle_sheet_function_errors
+def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "SUMPRODUCT",
+        "description": "Returns the sum of the product of the passed arguments.",
+        "search_terms": ["sum product", "sumproduct", "sum", "product", "weighted average"],
+        "examples": [
+            "SUMPRODUCT(A:A, B:B)",
+            "SUMPRODUCT(A:B)"
+        ],
+        "syntax": "SUMPRODUCT(array1, [array2, ...])",
+        "syntax_elements": [{
+                "element": "array1",
+                "description": "The first array argument whose components you want to multiply and then add."
+            },
+            {
+                "element": "value2, ... [OPTIONAL]",
+                "description": "Additional series to multiply then add."
+            }
+        ]
+    }
+    """
+
+    # We need to make sure that all of the passed arguments are the same length
+    # so we can multiply them together. They must be all dataframes or all series
+    for arg in argv:
+        error = MitoError(
+            'invalid_args_error',
+            'SUMPRODUCT',
+            f"SUMPRODUCT requires all arguments to be the same dimensions.",
+            error_modal=False
+        )
+
+        length = len(arg)
+        if length != len(argv[0]):
+            raise error
+        
+        if type(arg) != type(argv[0]):
+            raise error
+        
+    if isinstance(argv[0], pd.Series):
+        # Put all the values into a single dataframe, prod the rows, and then
+        # sum the results
+        return pd.concat(argv, axis=1).fillna(1).prod(axis=1)
+    else:
+        # Multiply argv into a single dataframe - making the columns the same first
+        result = argv[0]
+        for arg in argv[1:]:
+            result = result.mul(arg, fill_value=1)
+
+        # And then sum the results
+        return result.sum().sum()
+        
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
@@ -665,6 +721,7 @@ NUMBER_FUNCTIONS = {
     'ROUND': ROUND,
     'SKEW': SKEW,
     'SUM': SUM,
+    'SUMPRODUCT': SUMPRODUCT,
     'STDEV': STDEV,
     'VALUE': VALUE,
     'VAR': VAR
