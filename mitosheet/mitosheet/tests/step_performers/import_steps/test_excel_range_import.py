@@ -159,7 +159,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': TEST_DF_5.columns[0]}, 'end_condition': {'type': 'first empty cell'}, 'column_end_condition': {'type': 'num columns', 'value': 3}, 'df_name': 'dataframe_1'}],
         [TEST_DF_5.iloc[:, :3]],
     ),
-    # we have a bottom left corner value as well as a number of columns
+    # we have a bottom left corner value as well as a number of empty rowsof columns
     (
         ['A1:E3'],
         [TEST_DF_5],
@@ -261,21 +261,21 @@ EXCEL_RANGE_IMPORT_TESTS = [
     (
         ['A1:B2', 'A4:B5'],
         [TEST_DF_1, TEST_DF_1],
-        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [pd.DataFrame({'header 1': [1, None, 'header 1', 1], 'header 2': [2, None, 'header 2', 2]})],
     ), 
     # Tests number of entirely empty rows with two skips
     (
         ['A1:B2', 'A5:B6'],
         [TEST_DF_1, TEST_DF_1],
-        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 3}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [pd.DataFrame({'header 1': [1, None, None, 'header 1', 1], 'header 2': [2, None, None, 'header 2', 2]})],
     ), 
     # Tests number of entirely empty rows hits the end of the sheet
     (
         ['A1:B2'],
         [TEST_DF_1],
-        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 10}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 10}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
         [TEST_DF_1],
     ), 
     # Doesn't check starting cell for contains, and skips NaN values if the bottom left corner value is in the import code
@@ -300,12 +300,19 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [TEST_DF_8],
     ),
     # Tests number of entirely empty rows with one skip, which is triggered
-     (
-         ['A1:B2', 'A5:B6'],
-         [TEST_DF_1, TEST_DF_1],
-         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
-         [TEST_DF_1],
-     ), 
+    (
+        ['A1:B2'],
+        [TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'first empty cell'}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_1],
+    ), 
+    # Tests number of entirely empty rows executes after column end condition is found
+    (
+        ['A1:B2'],
+        [TEST_DF_7],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
+        [TEST_DF_7.iloc[0:3, 0:2]],
+    ), 
 
     
 ]

@@ -89,7 +89,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
                 return 
         
         return json.dumps({
-                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]}'
+                'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'
         })
 
 def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> str:

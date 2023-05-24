@@ -7,7 +7,7 @@ from functools import wraps
 import inspect
 from typing import Any, Callable, Tuple
 
-from mitosheet.errors import MitoError, make_function_error
+from mitosheet.errors import MitoError, get_recent_traceback, make_function_error
 
 
 def make_invalid_param_type_conversion_error(value: Any, target_type: str) -> MitoError:
@@ -99,4 +99,5 @@ def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
             raise 
         except:
             raise make_function_error(sheet_function.__name__, error_modal=False)
+    
     return wrapped_sheet_function

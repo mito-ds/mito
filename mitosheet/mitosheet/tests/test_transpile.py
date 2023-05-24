@@ -365,7 +365,7 @@ def test_transpile_pivot_table_indents():
         {'Height': ['sum']}
     )
     
-    print(mito.transpiled_code)
+    print("\n".join(mito.transpiled_code))
     assert "    pivot_table = tmp_df.pivot_table(\n        index=['Name'],\n        values=['Height'],\n        aggfunc={'Height': ['sum']}\n    )" in mito.transpiled_code
 
 
@@ -386,7 +386,9 @@ def test_transpile_as_function_single_param(tmp_path):
         f'{TAB}',
         f"{TAB}return txt",
         "",
-        f"txt = function(r'{tmp_file}')"
+        f"var_name = r'{tmp_file}'",
+        "",
+        f"txt = function(var_name)"
     ]
 
 
@@ -410,7 +412,9 @@ def test_transpile_as_function_both_params_and_additional():
         f'{TAB}',
         f"{TAB}return df1, txt, txt_1",
         "",
-        f"df1, txt, txt_1 = function(df1, 'txt.csv', r'{tmp_file}')"
+        f"var_name = r'{tmp_file}'",
+        "",
+        f"df1, txt, txt_1 = function(df1, 'txt.csv', var_name)"
     ]
 
     os.remove(tmp_file)
@@ -434,7 +438,9 @@ def test_transpile_as_function_single_param_multiple_times(tmp_path):
         f'{TAB}',
         f"{TAB}return txt, txt_1",
         "",
-        f"txt, txt_1 = function(r'{tmp_file}')"
+        f"var_name = r'{tmp_file}'",
+        "",
+        f"txt, txt_1 = function(var_name)"
     ]
 
 def test_transpile_as_function_multiple_params(tmp_path):
@@ -458,7 +464,10 @@ def test_transpile_as_function_multiple_params(tmp_path):
         f'{TAB}',
         f"{TAB}return txt, file",
         "",
-        f"txt, file = function(r'{tmp_file1}', r'{tmp_file2}')"
+        f"var_name1 = r'{tmp_file1}'",
+        f"var_name2 = r'{tmp_file2}'",
+        "",
+        f"txt, file = function(var_name1, var_name2)"
     ]
 
 @pandas_post_1_2_only
@@ -484,7 +493,9 @@ def test_transpile_parameterize_excel_imports(tmp_path):
         f'{TAB}',
         f"{TAB}return Sheet1, dataframe_1",
         "",
-        f"Sheet1, dataframe_1 = function(r'{tmp_file}')"
+        f"var_name = r'{tmp_file}'",
+        "",
+        f"Sheet1, dataframe_1 = function(var_name)"
     ]
 
 def test_transpile_with_function_params_over_mitosheet():
@@ -506,5 +517,65 @@ def test_transpile_with_function_params_over_mitosheet():
         f"{TAB}",
         f"{TAB}return param, df_copy",
         "",
-        f"param, df_copy = function(df, df_copy)"
+        f"param = df",
+        "",
+        f"param, df_copy = function(param, df_copy)"
     ]
+
+def test_transpile_does_not_effect_chars_in_strings():
+    mito = create_mito_wrapper()
+    quote = '"'
+    mito.ai_transformation(
+        'do a test',
+        'v1',
+        'test',
+        'test',
+        """
+df = pd.DataFrame({'A': ["has a new \
+line in it", '\t', '     ']})
+        """
+    )
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+
+def function():
+    df = pd.DataFrame({'A': ["has a new \
+line in it", '\t', '     ']})
+    
+    return df
+
+df = function()"""
+
+def test_transpile_with_multiline_ai_completion():
+    mito = create_mito_wrapper()
+    mito.ai_transformation(
+        'do a test',
+        'v1',
+        'test',
+        'test',
+        """
+import pandas as pd
+
+# create sample dataframe
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+
+print(df)
+        """
+    )
+
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert "\n".join(mito.transpiled_code) == """
+def function():
+    import pandas as pd
+    
+    # create sample dataframe
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+    
+    print(df)
+    
+    return df
+
+df = function()"""

@@ -184,6 +184,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case UpdateType.UpdateExistingImportUpdate: {
             return 'Changing imports'
         }
+        case UpdateType.UndoToStepIndex: {
+            return 'Undoing steps'
+        }
     }
 }
 

@@ -69,6 +69,7 @@ export enum UpdateType {
     ChecklistUpdate = 'checklist_update',
     UpdateExistingImportUpdate = 'update_existing_import_update',
     CodeOptionsUpdate = 'code_options_update',
+    UndoToStepIndex = 'undo_to_step_index_update',
 }
 
 export type ParamName = string;
@@ -102,6 +103,7 @@ export interface StepSummary {
     // each of the different steps, and type these more strongly!
     // Currently, we aren't sending this data!
     params?: Record<string, unknown>;
+    result?: any;
 }
 
 /**

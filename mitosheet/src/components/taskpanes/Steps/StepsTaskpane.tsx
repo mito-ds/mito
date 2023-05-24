@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
-import React from 'react';
+import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import { StepSummary } from '../../../types';
+import { StepSummary, UserProfile } from '../../../types';
 import MitoAPI from '../../../jupyter/api';
 import '../../../../css/taskpanes/Steps/StepTaskpane.css'
 import StepDataElement from './StepDataElement';
@@ -16,6 +16,7 @@ export type StepTaskpaneProps = {
     currStepIdx: number;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI
+    userProfile: UserProfile
 };
 
 /* 
@@ -23,6 +24,8 @@ export type StepTaskpaneProps = {
     a user to interact with them
 */
 function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
+
+    const [displayStepDropdown, setDisplayStepDropdown] = useState<number | undefined>(undefined)
 
     return (
         <DefaultTaskpane>
@@ -41,6 +44,18 @@ function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
                                 lastIndex={props.stepSummaryList[props.stepSummaryList.length - 1].step_idx}
                                 stepData={stepSummary}
                                 mitoAPI={props.mitoAPI}
+                                stepIdx={stepSummary.step_idx}
+                                isPro={props.userProfile.isPro}
+                                displayDropdown={displayStepDropdown===stepSummary.step_idx}
+                                setDisplayDropdown={() => {
+                                    setDisplayStepDropdown(prevDisplayStepDropdown => {
+                                        if (prevDisplayStepDropdown === stepSummary.step_idx) {
+                                            return undefined
+                                        } else {
+                                            return stepSummary.step_idx
+                                        }
+                                    })
+                                }}
                             />
                         )
                     })}

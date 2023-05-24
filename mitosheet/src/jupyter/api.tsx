@@ -1591,6 +1591,22 @@ export default class MitoAPI {
         }, {});
     }
 
+    /*
+        Deletes all future steps
+    */
+    async updateUndoToStepIndex(
+        stepIndex: number
+    ): Promise<void> {
+
+        await this.send({
+            'event': 'update_event',
+            'type': 'undo_to_step_index_update',
+            'params': {
+                'step_idx': stepIndex
+            }
+        }, {});
+    }
+
     /* 
         Tells the backend to mark the user as having gone through the tour in the user.json
     */

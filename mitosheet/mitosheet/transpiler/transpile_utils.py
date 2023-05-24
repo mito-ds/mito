@@ -198,6 +198,14 @@ def _get_return_variables_string(steps_manager: StepsManagerType, function_param
 
     return ", ".join(final_df_names)
 
+import re
+
+def replace_newlines_with_newline_and_tab(text: str) -> str:
+    pattern = r'(?<!\\)\n'  # Negative lookbehind for '\'
+    replacement = '\n' + f'{TAB}'  # Newline followed by a tab
+    result = re.sub(pattern, replacement, text)
+    return result
+
 def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
@@ -218,11 +226,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     for line in code:
         # Add the code, making sure to indent everything, even if it's on the newline
-        # or if it's the closing paren. We take special care not to mess inside of any code
-        line = f"{TAB}" + line
-        line = line.replace(f"\n{TAB}", f"\n{TAB}{TAB}")
-        line = line.replace(f"\n)", f"\n{TAB})")
-        line = line.replace(f"\n]", f"\n{TAB}]")
+        # or if it's the closing paren. We take special care not to mess inside of any strings, simply
+        # by indenting any newline that is not preceeded by a \
+        line = f"{TAB}{line}"
+        line = replace_newlines_with_newline_and_tab(line)
 
         # Then, for any additional function params we defined, we relace the internal param value. Note that 
         # we only replace for 
@@ -239,11 +246,26 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
-    # Then, add the function call
+    # Build the params and variables taking special care to ensure that dataframes and file paths 
+    # that are passed as parameters to the function. 
+    final_params_to_call_function_with = []
+
+    for param_name, param_value in _get_params_dict_for_function_call(steps_manager, function_params).items():
+        if param_name in function_params:
+            final_params_to_call_function_with.append(param_name)
+            final_code.append(f"{param_name} = {param_value}")
+        else:
+            final_params_to_call_function_with.append(param_value)
+
+    if len(function_params) > 0:
+        final_code.append("")
+
+    final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
+
     if len(return_variables_string) > 0:
-        final_code.append(f"{return_variables_string} = {function_name}({param_values})")
+        final_code.append(f"{return_variables_string} = {function_name}({final_params_to_call_function_with_string})")
     else:
-        final_code.append(f"{function_name}({param_values})")
+        final_code.append(f"{function_name}({final_params_to_call_function_with_string})")
 
     return final_code
 
