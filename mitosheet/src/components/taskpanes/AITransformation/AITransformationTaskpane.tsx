@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
+import { AITransformationResult, AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 
@@ -48,23 +48,6 @@ export type AICompletionOrError = {error: string}
     completion: string
 } | undefined
 
-interface ColumnReconData {
-    created_columns: ColumnHeader[]
-    deleted_columns: ColumnHeader[]
-    modified_columns: ColumnHeader[],
-    renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
-}
-
-export interface AITransformationResult {
-    last_line_value: string | boolean | number | undefined | null,
-    created_dataframe_names: string[],
-    deleted_dataframe_names: string[],
-    modified_dataframes_recons: Record<string, {
-        'column_recon': ColumnReconData,
-        'num_added_or_removed_rows': number
-    }>,
-    prints: string
-}
 
 export interface AICompletionSelection {
     'selected_df_name': string, 
@@ -112,6 +95,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const [userInput, setUserInput] = useState<string>('');
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
+    const [successfulCompletionSinceOpen, setSuccessfulCompletionSinceOpen] = useState<boolean>(false);
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
@@ -140,7 +124,42 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             taskpaneBodyRef.current.scrollTop = taskpaneBodyRef.current.scrollHeight;
         }
 
+        // Update the UIState for Recon
+        props.setUIState(prevUIState => {
+
+            if (previousParamsAndResults.length === 0 || !successfulCompletionSinceOpen) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            }
+
+            const mostRecentResults = previousParamsAndResults[previousParamsAndResults.length - 1].results;
+            
+            const newDataRecon =  {
+                created_dataframe_names: mostRecentResults.created_dataframe_names,
+                deleted_dataframe_names: mostRecentResults.deleted_dataframe_names,
+                modified_dataframes_recons: mostRecentResults.modified_dataframes_recons
+            } 
+
+            return {
+                ...prevUIState,
+                dataRecon: newDataRecon
+            }
+        })
+
     }, [previousParamsAndResults.length, taskpaneState.type])
+
+    useEffect(function() {
+        return function() {
+            props.setUIState(function(prevUIState) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            })
+        }
+    }, []);
 
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
@@ -164,6 +183,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 selections,
                 previousFailedCompletions
             );
+
+            if (completionOrError !== undefined && !('error' in completionOrError) && !successfulCompletionSinceOpen) {
+                // When we get the first successful completion since we open the taskpane, keep track of it
+                // so we know to display the recon highlighting going forward
+                setSuccessfulCompletionSinceOpen(true)
+            }
 
             if (completionOrError === undefined || 'error' in completionOrError) {
                 setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completionOrError?.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
@@ -225,7 +250,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 <div
                     className="ai-transformation-chat-container"
                 >
-                    {previousParamsAndResults.map((paramAndResult) => {
+                    {previousParamsAndResults.map((paramAndResult, idx) => {
                         return (
                             <>
                                 <Row 
@@ -239,11 +264,13 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                     className="ai-transformation-message ai-transformation-message-ai"
                                 >
                                     <AITransformationResultSection
+                                        uiState={props.uiState}
                                         setUIState={props.setUIState}
                                         result={paramAndResult.results}
                                         sheetDataArray={props.sheetDataArray}
                                         mitoAPI={props.mitoAPI}
                                         params={paramAndResult.params}
+                                        isMostRecentResult={idx === previousParamsAndResults.length - 1}
                                     />
                                 </Row>
                             </>

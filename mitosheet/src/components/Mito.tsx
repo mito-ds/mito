@@ -115,7 +115,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
-        }
+        },
+        dataRecon: undefined
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
