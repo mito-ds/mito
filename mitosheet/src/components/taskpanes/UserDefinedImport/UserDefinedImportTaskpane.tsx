@@ -120,7 +120,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                     disabled={params === undefined}
                     disabledTooltip={NO_IMPORTERS_MESSAGE}
                 >
-                    Import Ranges
+                    Import Data
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
