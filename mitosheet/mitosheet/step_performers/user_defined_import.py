@@ -6,6 +6,7 @@
 # Distributed under the terms of the GPL License.
 
 from time import perf_counter
+import traceback
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
@@ -64,7 +65,18 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 f"User defined importer {importer} not found. Please check that it is defined in the `importers` list passed to mitosheet.sheet.",
                 error_modal=True
             )
-        result = importer_function()
+        
+        try:
+            result = importer_function()
+        except:
+            traceback_final_line = traceback.format_exc().splitlines()[-1]
+
+            raise MitoError(
+                'user_defined_importer_error',
+                f"Importer {importer} raised an error.",
+                f"User defined importer {importer} raised an error: {traceback_final_line}",
+                error_modal=False
+            )
 
         if isinstance(result, pd.DataFrame):
             new_dfs = [result]

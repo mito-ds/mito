@@ -90,26 +90,26 @@ const AITransformationExamplesSection = (props: AITransformationExamplesSectionP
                 </div>
                 {props.sheetDataArray.length === 0 
                     ? 
-                        <>
-                            {getExample('create a dataframe named df with sample data', props.setUserInput, props.chatInputRef)}
-                            {getExample('import the most recent csv from the current folder', props.setUserInput, props.chatInputRef)}
-                        </>
+                    <>
+                        {getExample('create a dataframe named df with sample data', props.setUserInput, props.chatInputRef)}
+                        {getExample('import the most recent csv from the current folder', props.setUserInput, props.chatInputRef)}
+                    </>
                     : 
-                        <>
-                            {firstColumnInSheet && getExample(`sort the column ${getDisplayColumnHeader(firstColumnInSheet)} in ascending order`, props.setUserInput, props.chatInputRef)}
-                            {firstDateColumnThatIsString && getExample(`convert ${getDisplayColumnHeader(firstDateColumnThatIsString)} to a datetime`, props.setUserInput, props.chatInputRef)}
-                            {firstNumberColumnThatIsString && getExample(`convert ${getDisplayColumnHeader(firstNumberColumnThatIsString)} to a number`, props.setUserInput, props.chatInputRef)}
-                            {firstColumnThatIsString && getExample(`extract the first character from ${getDisplayColumnHeader(firstColumnThatIsString)}`, props.setUserInput, props.chatInputRef)}
-                            {firstColumnThatIsNumber && getExample(`add 100 to ${getDisplayColumnHeader(firstColumnThatIsNumber)}`, props.setUserInput, props.chatInputRef)}
-                            {firstColumnThatIsDate && getExample(`extract the month from ${getDisplayColumnHeader(firstColumnThatIsDate)}`, props.setUserInput, props.chatInputRef)}
-                            {numDefinedExamples < 3 &&
+                    <>
+                        {firstColumnInSheet && getExample(`sort the column ${getDisplayColumnHeader(firstColumnInSheet)} in ascending order`, props.setUserInput, props.chatInputRef)}
+                        {firstDateColumnThatIsString && getExample(`convert ${getDisplayColumnHeader(firstDateColumnThatIsString)} to a datetime`, props.setUserInput, props.chatInputRef)}
+                        {firstNumberColumnThatIsString && getExample(`convert ${getDisplayColumnHeader(firstNumberColumnThatIsString)} to a number`, props.setUserInput, props.chatInputRef)}
+                        {firstColumnThatIsString && getExample(`extract the first character from ${getDisplayColumnHeader(firstColumnThatIsString)}`, props.setUserInput, props.chatInputRef)}
+                        {firstColumnThatIsNumber && getExample(`add 100 to ${getDisplayColumnHeader(firstColumnThatIsNumber)}`, props.setUserInput, props.chatInputRef)}
+                        {firstColumnThatIsDate && getExample(`extract the month from ${getDisplayColumnHeader(firstColumnThatIsDate)}`, props.setUserInput, props.chatInputRef)}
+                        {numDefinedExamples < 3 &&
                                 <>
                                     {getExample('can you delete columns with any null values', props.setUserInput, props.chatInputRef)}
                                     {getExample('fully capitalize column headers', props.setUserInput, props.chatInputRef)}
                                 </>
 
-                            }
-                        </>
+                        }
+                    </>
                 }
                 <Row justify="center">
                     <p className="text-subtext-1">or send any message to Mito AI below.</p>

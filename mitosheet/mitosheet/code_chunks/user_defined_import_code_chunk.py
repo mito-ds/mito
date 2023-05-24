@@ -15,13 +15,13 @@ class UserDefinedImportCodeChunk(CodeChunk):
         super().__init__(prev_state, post_state)
         self.importer = importer
 
-        self.df_name = post_state.df_names[-1]
+        self.df_names = [df_name for index, df_name in enumerate(self.post_state.df_names) if index >= len(self.prev_state.df_names)]
 
     def get_display_name(self) -> str:
         return 'User Defined Import'
     
     def get_description_comment(self) -> str:
-        return f"Imported {self.df_name} using {self.importer}"
+        return f"Imported {', '.join(self.df_names)} using {self.importer}"
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         # For each new dataframe, we get it's name

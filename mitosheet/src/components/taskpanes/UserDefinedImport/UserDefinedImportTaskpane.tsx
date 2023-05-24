@@ -49,6 +49,7 @@ const NO_IMPORTERS_MESSAGE = 'You have not defined any importers. To define impo
 const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.Element => {
 
     const [params, setParams] = useState(() => getDefaultParams(props.analysisData));
+    const [error, setError] = useState<string | undefined>(undefined);
 
     const {edit} = useSendEditOnClickNoParams<UserDefinedImportParams, undefined>(
         StepType.UserDefinedImport,
@@ -72,49 +73,56 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
             >
                 {params === undefined &&
                     <p>
-                        
+                        Pass importers to the mitosheet.sheet call with the `importers` parameter. An importer is just a function that returns some number of pandas dataframes.
                     </p>
                 }
                 {params !== undefined &&
-                    <Row justify='space-between' align='center' title='TODO'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Import Method
-                            </p>
-                        </Col>
-                        <Col>
-                            <Select
-                                width='medium'
-                                value={params.importer}
-                                onChange={(newValue) => {                                    
-                                    setParams(prevParams => {
-                                        return {
-                                            ...prevParams,
-                                            importer: newValue
-                                        }
-                                    })
-                                }}
-                            >
-                                {props.analysisData.userDefinedImporters.map(importer => {
-                                    return (
-                                        <DropdownItem 
-                                            title={importer.name}
-                                            subtext={importer.docstring}
-                                        />
-                                    )
-                                })}
-                            </Select>
-                        </Col>
-                    </Row>
+                    <>
+                        <Row justify='space-between' align='center' title='TODO'>
+                            <Col>
+                                <p className='text-header-3'>
+                                    Import Method
+                                </p>
+                            </Col>
+                            <Col>
+                                <Select
+                                    width='medium'
+                                    value={params.importer}
+                                    onChange={(newValue) => {                                    
+                                        setParams(prevParams => {
+                                            return {
+                                                ...prevParams,
+                                                importer: newValue
+                                            }
+                                        })
+                                    }}
+                                >
+                                    {props.analysisData.userDefinedImporters.map(importer => {
+                                        return (
+                                            <DropdownItem 
+                                                key={importer.name}
+                                                title={importer.name}
+                                                subtext={importer.docstring}
+                                            />
+                                        )
+                                    })}
+                                </Select>
+                            </Col>
+                        </Row>
+                        {error !== undefined && 
+                            <p className="text-color-error">{error}</p>
+                        }
+                    </>
                 }
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton
                     variant='dark'
                     width='block'
-                    onClick={() => {
+                    onClick={async () => {
                         if (params !== undefined) {
-                            edit(params);
+                            const error = await edit(params);
+                            setError(error)
                         }
                     }}
                     disabled={params === undefined}

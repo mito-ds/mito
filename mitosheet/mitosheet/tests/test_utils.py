@@ -681,7 +681,6 @@ class MitoWidgetTestWrapper:
             importer: str,
         ) -> bool:
 
-        
 
         return self.mito_backend.receive_message(
             {
