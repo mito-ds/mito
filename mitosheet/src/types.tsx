@@ -863,6 +863,7 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
+    dataRecon: AIRecon | undefined
 }
 
 /**
@@ -1030,4 +1031,25 @@ export type CodeSnippetAPIResult =
         'status': 'error',
         'error_message': string
     }
+
+export interface ColumnReconData {
+    created_columns: ColumnHeader[]
+    deleted_columns: ColumnHeader[]
+    modified_columns: ColumnHeader[],
+    renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
+}
+
+export interface AIRecon {
+    created_dataframe_names: string[],
+    deleted_dataframe_names: string[],
+    modified_dataframes_recons: Record<string, {    
+        'column_recon': ColumnReconData,    
+        'num_added_or_removed_rows': number
+    }>
+}
+
+export interface AITransformationResult extends AIRecon {
+    last_line_value: string | boolean | number | undefined | null,  
+    prints: string[],
+}
 

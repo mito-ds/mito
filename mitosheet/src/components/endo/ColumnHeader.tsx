@@ -15,10 +15,13 @@ import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
+import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 
+export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
 
 export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
-export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
+export const CREATED_RECON_COLOR = '#E4EFDC' // This is var(--mito-recon-created-background-color) - update this if we change this variable
+export const MODIFIED_RECON_COLOR = '#FDF3D0' // This is var(--mito-recon-modified-background-color) - update this if we change this variable
 
 /* 
     A single column header at the top of the sheet. If the edited
@@ -55,6 +58,7 @@ const ColumnHeader = (props: {
     containerRef: React.RefObject<HTMLDivElement>;
     columnHeaderOperation: 'reorder' | 'resize' | undefined;
     setColumnHeaderOperation: React.Dispatch<React.SetStateAction<'reorder' | 'resize' | undefined>>;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
@@ -150,14 +154,24 @@ const ColumnHeader = (props: {
         />
     )
 
+    //If there is a dataRecon set, highlight the column headers that have been created or renamed
+    const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, props.sheetData)
+    const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState.dataRecon, props.sheetData)
+
+    // Give priority to the recon colors, then formatting colors, then default colors
+    const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
+    
     return (
         <div
             className={classNames(
                 'endo-column-header-container',
                 'endo-column-header-text',
-                { 'endo-column-header-container-selected': selected }
+                {
+                    'endo-column-header-container-selected': selected,
+                    'recon': isColumnCreated || isColumnRenamed
+                },
             )}
-            style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT}}
+            style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: backgroundColor}}
             key={props.columnIndex}
             mito-col-index={props.columnIndex + ''}
             onDragStart={(e) => {

@@ -102,6 +102,15 @@
     background-color: var(--mito-lightest-purple)
 }
 
+/* The recon colors must be defined before the tab-selected class so the order is applied correctly */
+.tab-created-recon {
+    background-color: var(--mito-recon-created-background-color);
+}
+
+.tab-modified-recon {
+    background-color: var(--mito-recon-modified-background-color);
+}
+
 .tab-selected {
     background-color: var(--mito-purple);
     /* The selected sheet tab does not need a border */
