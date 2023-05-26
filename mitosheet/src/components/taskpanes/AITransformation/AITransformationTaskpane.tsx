@@ -19,6 +19,7 @@ import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
 import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
 import AIPrivacyPolicy from "./AIPrivacyPolicy";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
+import { classNames } from "../../../utils/classNames";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -324,7 +325,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="start" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
                             >
                                 <div className="flexbox-column">
                                     <p>
@@ -360,7 +361,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="space-between" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
                             >
                                 <div className="flexbox-column">
                                     <p>
