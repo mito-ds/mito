@@ -295,7 +295,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                         </>
                     }
-                    {taskpaneState.type === 'executing code' &&
+                    {/** To avoid double displaying messages, special check if it's result already */}
+                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length > 0 && (previousParamsAndResults[previousParamsAndResults.length - 1].params.user_input !== taskpaneState.userInput)) &&
                         <>
                             <Row
                                 justify="start" align="center"
