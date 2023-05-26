@@ -62,7 +62,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
         data = {
                 'email': user_email,
                 'user_id': user_id,
-                'user_input': user_input, # We add this just so we can log it
+                'user_input': user_input,
                 'data': _get_ai_completion_data(prompt)
         }
 
