@@ -60,6 +60,7 @@ type AITransformationTaskpaneState = {
 } | {
     type: 'loading completion',
     userInput: string,
+    loadingMessage: string,
 } | {
     type: 'executing code',
     userInput: string,
@@ -76,6 +77,17 @@ type AITransformationTaskpaneState = {
 }
 
 const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
+const LOADING_HINTS = [
+    'Click the Graph button in the toolbar to generate graphs.',
+    'You can ask Mito AI to transform any sheets in your mitosheet.',
+    'Mito can merge multiple dataframes together.',
+    'Mito AI can create pivot tables.',
+    'Use the view changes button to see the changes Mito AI made to your data.'
+]
+
+const getRandomHint = () => {
+    return LOADING_HINTS[Math.floor(Math.random() * LOADING_HINTS.length)]
+}
 
 const AILoadingCircle = (): JSX.Element => {
     return (
@@ -150,8 +162,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     }, [previousParamsAndResults.length, taskpaneState.type])
 
-    useEffect(function() {
-        return function() {
+    useEffect(() => {
+        return () => {
             props.setUIState(function(prevUIState) {
                 return {
                     ...prevUIState,
@@ -160,6 +172,21 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             })
         }
     }, []);
+
+    useEffect(() => {
+        if (taskpaneState.type === 'loading completion') {
+            const interval = setInterval(() => {
+                setTaskpaneState(prevTaskpaneState => {
+                    if (prevTaskpaneState.type === 'loading completion') {
+                        return {...prevTaskpaneState, loadingMessage: 'Still generating code... ' + getRandomHint()}
+                    }
+                    return prevTaskpaneState;
+                });
+            }, 15_000)
+            return () => clearInterval(interval)
+        }
+
+    }, [taskpaneState.type])
 
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
@@ -170,7 +197,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             return;
         }
 
-        setTaskpaneState({type: 'loading completion', userInput: userInput})
+        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: 'Generating code...'})
         setUserInput('')
 
         const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
@@ -289,7 +316,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
                                 <Col>
-                                    <p>Generating code...</p>
+                                    <p>{taskpaneState.loadingMessage}</p>
                                 </Col>
                                 <AILoadingCircle/>
                             </Row>
