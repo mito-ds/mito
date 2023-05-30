@@ -137,9 +137,6 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                 previous_failed_completions,
         )
 
-        import time
-        time.sleep(1000)
-
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
         byo_url = steps_manager.mito_config.get_llm_url()
 
