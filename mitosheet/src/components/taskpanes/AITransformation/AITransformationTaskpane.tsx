@@ -78,11 +78,13 @@ type AITransformationTaskpaneState = {
 
 const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
 const LOADING_HINTS = [
-    'Click the Graph button in the toolbar to generate graphs.',
-    'You can ask Mito AI to transform any sheets in your mitosheet.',
-    'Mito can merge multiple dataframes together.',
-    'Mito AI can create pivot tables.',
-    'Use the view changes button to see the changes Mito AI made to your data.'
+    'Ask Mito AI to transform any sheet in Mito.',
+    'Unhappy with the Mito AI result? Use the Undo button to go back.',
+    'Mito AI is great at parsing strings.',
+    'Aftering using Mito AI, new columns are green & modified columns are yellow.',
+    'If Mito AI fails, try breaking your prompt into several smaller prompts.',
+    "Don't foget to verify the AI generated code is correct.",
+    'Mito AI is great at applying a transformation to multiple columns at once.',
 ]
 
 const getRandomHint = () => {
@@ -178,7 +180,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             const interval = setInterval(() => {
                 setTaskpaneState(prevTaskpaneState => {
                     if (prevTaskpaneState.type === 'loading completion') {
-                        return {...prevTaskpaneState, loadingMessage: 'Still generating code... ' + getRandomHint()}
+                        return {
+                            ...prevTaskpaneState, 
+                            loadingMessage: 'Still generating code... ' + getRandomHint()}
                     }
                     return prevTaskpaneState;
                 });
