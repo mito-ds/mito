@@ -135,6 +135,11 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
     old_columns = old_df.columns.to_list()
     new_columns = new_df.columns.to_list()
 
+    # If there are duplicated columns in the new dataframe, we throw an error
+    # as we don't support this elsewhere in the codebase
+    if len(new_columns) != len(set(new_columns)):
+        raise Exception('There are duplicated columns in the new dataframe')
+
     old_df_head = old_df.head(5)
     new_df_head = new_df.head(5)
 

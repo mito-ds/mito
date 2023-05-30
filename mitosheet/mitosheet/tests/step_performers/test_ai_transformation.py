@@ -147,6 +147,18 @@ df2
             pd.DataFrame({'a': [123]})
         ]
     ),
+    # Rename two headers to the same thing fails
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0]})
+        ],
+        """
+df1.rename(columns={'A': 'B', 'B': 'B'}, inplace=True)
+""",
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0]})
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, edited_completion, output_dfs", AI_TRANSFORMATION_TESTS)
 def test_ai_transformation(input_dfs, edited_completion, output_dfs):
