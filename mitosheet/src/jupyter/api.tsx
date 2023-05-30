@@ -70,6 +70,7 @@ export enum UserJsonFields {
     UJ_RECEIVED_CHECKLISTS = 'received_checklists',
     UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy',
     UJ_AI_MITO_API_NUM_USAGES = 'ai_mito_api_num_usages',
+    UJ_AI_AUTO_EXECUTE = 'ai_auto_execute',
 }
 
 interface MitoSuccessOrInplaceErrorResponse {
@@ -1518,6 +1519,22 @@ export default class MitoAPI {
             'params': {
                 'field': UserJsonFields.UJ_USER_EMAIL,
                 'value': userEmail
+            }
+        }, {});
+    }
+
+    /*
+        Sends the user_email to the backend so the user can sign in
+    */
+    async setAIAutoExecute(
+        value: 'open_ai' | 'all' | 'none'
+    ): Promise<void> {
+        await this.send({
+            'event': 'update_event',
+            'type': 'set_user_field_update',
+            'params': {
+                'field': UserJsonFields.UJ_AI_AUTO_EXECUTE,
+                'value': value
             }
         }, {});
     }

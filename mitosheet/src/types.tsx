@@ -807,7 +807,10 @@ export interface UserProfile {
     snowflakeCredentials: SnowflakeCredentials | null;
     openAIAPIKey: string | null | undefined
     aiPrivacyPolicy: boolean,
+    aiAutoExecute: 'open_ai' | 'all' | 'none';
+
     mitoConfig: MitoConfig;
+
 }
 
 

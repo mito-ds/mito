@@ -35,7 +35,7 @@ from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
-from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
+from mitosheet.user.schemas import (UJ_AI_AUTO_EXECUTE, UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
@@ -132,6 +132,7 @@ class MitoBackend():
             'snowflakeCredentials': get_cached_snowflake_credentials(),
             'openAIAPIKey': os.environ.get('OPENAI_API_KEY', None),
             'aiPrivacyPolicy': get_user_field(UJ_AI_PRIVACY_POLICY),
+            'aiAutoExecute': get_user_field(UJ_AI_AUTO_EXECUTE),
         })
 
 

@@ -13,7 +13,7 @@ from mitosheet.experiments.experiment_utils import set_experiment
 
 from mitosheet.user.db import set_user_field
 from mitosheet.user import initialize_user
-from mitosheet.user.schemas import UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS, UJ_USER_EMAIL
+from mitosheet.user.schemas import UJ_AI_AUTO_EXECUTE, UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS, UJ_USER_EMAIL
 from mitosheet.startup.startup_utils import create_startup_file, remove_startup_file
 from mitosheet.user.utils import check_pro_acccess_code
 
@@ -26,6 +26,7 @@ def main() -> None:
     python -m mitosheet turnoffpro
     python -m mitosheet turnoffdataframebutton
     python -m mitosheet turnondataframebutton
+    python -m mitosheet aiautoexecute {'open_ai' | 'all' | 'none'}
 
     We also have 
     python -m mitosheet clearemail
@@ -75,6 +76,9 @@ def main() -> None:
             print("Turning on the 'View in Mito' dataframe button")
             create_startup_file()
             print("Turned on the 'View in Mito' dataframe button\nThe next time you launch Jupyter Lab, the button will be visible")
+        if sys.argv[-2] == 'aiautoexecute':
+            print("Setting AI auto execute to", sys.argv[-1])
+            set_user_field(UJ_AI_AUTO_EXECUTE, sys.argv[-1])
         if len(sys.argv) > 2:
             if sys.argv[-3] == 'setexperiment':
                 print("Setting experiment", sys.argv[-2], "to variant", sys.argv[-1])

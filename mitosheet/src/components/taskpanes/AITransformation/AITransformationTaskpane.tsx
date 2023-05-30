@@ -20,6 +20,7 @@ import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
 import AIPrivacyPolicy from "./AIPrivacyPolicy";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
 import { classNames } from "../../../utils/classNames";
+import TextButton from "../../elements/TextButton";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -41,13 +42,13 @@ export interface AITransformationParams {
     edited_completion: string
 }
 
-export type AICompletionOrError = {error: string} 
-| {
+export type AICompletion = {
     user_input: string,
     prompt_version: string,
     prompt: string,
     completion: string
-} | undefined
+}
+export type AICompletionOrError = {error: string} | AICompletion | undefined
 
 
 export interface AICompletionSelection {
@@ -63,9 +64,15 @@ type AITransformationTaskpaneState = {
     userInput: string,
     loadingMessage: string,
 } | {
+    type: 'awaiting execution confirmation',
+    userInput: string,
+    completion: AICompletion,
+    failedCompletions: [string, string][],
+} | {
     type: 'executing code',
     userInput: string,
-    completion: AICompletionOrError,
+    completion: AICompletion,
+    failedCompletions: [string, string][],
 } | {
     type: 'error loading completion',
     userInput: string,
@@ -91,6 +98,16 @@ const LOADING_HINTS = [
 
 const getRandomHint = () => {
     return LOADING_HINTS[Math.floor(Math.random() * LOADING_HINTS.length)]
+}
+
+const getAutoExecute = (userProfile: UserProfile): boolean => {
+    if (userProfile.aiAutoExecute === 'all') {
+        return true
+    } else if (userProfile.aiAutoExecute === 'none') {
+        return false
+    }
+
+    return userProfile.aiAutoExecute === 'open_ai' && userProfile.openAIAPIKey !== null && userProfile.openAIAPIKey !== undefined
 }
 
 const AILoadingCircle = (): JSX.Element => {
@@ -198,20 +215,20 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
     useEffectOnUndo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
 
-    const submitChatInput = async (userInput: string) => {
-        if (userInput === '') {
-            return;
-        }
-
-        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint()})
-        setUserInput('')
-
+    const getCompletionAndExecute = async (
+        userInput: string, 
+        autoExecuteCode: boolean,
+        defaultCompletion?: AICompletion | undefined, 
+        failedCompletions?: [string, string][]
+    ) => {
+        
         const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
 
-        const previousFailedCompletions: [string, string][] = [];
-        for (let i = 0; i < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION; i++) {
-            
-            const completionOrError = await props.mitoAPI.getAICompletion(
+        const previousFailedCompletions: [string, string][] = [...failedCompletions || []];
+        for (let i = previousFailedCompletions.length; i < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION; i++) {
+
+            const useDefault = i === 0 && defaultCompletion !== undefined;
+            const completionOrError = useDefault ? defaultCompletion : await props.mitoAPI.getAICompletion(
                 userInput, 
                 selections,
                 previousFailedCompletions
@@ -227,22 +244,19 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completionOrError?.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
                 return;
             } else {
-                setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
-                const possibleError = await edit({
-                    user_input: userInput,
-                    prompt_version: completionOrError.prompt_version,
-                    prompt: completionOrError.prompt,
-                    completion: completionOrError.completion,
-                    edited_completion: completionOrError.completion 
-                })
-                
-                if (possibleError !== undefined) {
-                    setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
-                    previousFailedCompletions.push([completionOrError.completion, possibleError])
-                } else {
-                    setTaskpaneState({type: 'default'});
+
+                // If we're not auto executing, quit here for user confirmation. If we're using the deafult completion, then
+                // we don't need to ask for confirmation
+                if (!autoExecuteCode && !useDefault) {
+                    setTaskpaneState({type: 'awaiting execution confirmation', userInput: userInput, completion: completionOrError, failedCompletions: previousFailedCompletions})
                     return;
                 }
+
+                const result = await executeCode(userInput, completionOrError, previousFailedCompletions);
+                if (result.type === 'success') {
+                    return;
+                }
+                previousFailedCompletions.push(result.failedCompletion);
             }
         }
         setTaskpaneState(prevTaskpaneState => {
@@ -254,6 +268,38 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         })
     }
 
+
+    const executeCode = async (userInput: string, completion: AICompletion, failedCompletions: [string, string][]): Promise<{type: 'error', failedCompletion: [string, string]} | {type: 'success'}> => {
+
+        setTaskpaneState({type: 'executing code', completion: completion, userInput: userInput, failedCompletions: failedCompletions})
+        const possibleError = await edit({
+            user_input: userInput,
+            prompt_version: completion.prompt_version,
+            prompt: completion.prompt,
+            completion: completion.completion,
+            edited_completion: completion.completion 
+        })
+        
+        if (possibleError !== undefined) {
+            setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: failedCompletions.length, error: possibleError})
+            return {type: 'error', failedCompletion: [userInput, completion.completion]}
+        } else {
+            setTaskpaneState({type: 'default'});
+            return {type: 'success'};
+        }
+    }
+
+    const submitChatInput = async (userInput: string) => {
+        if (userInput === '') {
+            return;
+        }
+
+        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint()})
+        setUserInput('')
+
+        await getCompletionAndExecute(userInput, getAutoExecute(props.userProfile));
+    }
+
     const chatHeight = getChatHeight(userInput, chatInputRef);
 
     const shouldDisplayExamples = previousParamsAndResults.length === 0 && taskpaneState.type === 'default';
@@ -263,7 +309,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />
         )
     }
-    
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -329,8 +375,47 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                         </>
                     }
+                    {taskpaneState.type === 'awaiting execution confirmation' &&
+                        <>
+                            <Row
+                                justify="start" align="center"
+                                className="ai-transformation-message ai-transformation-message-user"
+                            >
+                                <p>{taskpaneState.userInput}</p>
+                            </Row>
+                            <div
+                                className="ai-transformation-message ai-transformation-message-ai flexbox-column-important"
+                            >
+                                <p>{taskpaneState.completion.completion}</p>
+                                <Row justify="space-between" align="center">
+                                    <Col>
+                                        <TextButton 
+                                            variant="light"
+                                            onClick={async () => {
+                                                await getCompletionAndExecute(taskpaneState.userInput, false, taskpaneState.completion, taskpaneState.failedCompletions);
+                                            }}
+                                        >
+                                            Execute Code
+                                        </TextButton>
+                                    </Col>
+                                    <Col>
+                                        <TextButton 
+                                            variant="dark"
+                                            width="medium"
+                                            onClick={async () => {
+                                                await props.mitoAPI.setAIAutoExecute('all');
+                                                await getCompletionAndExecute(taskpaneState.userInput, true, taskpaneState.completion, taskpaneState.failedCompletions);
+                                            }}
+                                        >
+                                            Always Execute Generated Code
+                                        </TextButton>
+                                    </Col>
+                                </Row>
+                            </div>
+                        </>
+                    }
                     {/** To avoid double displaying messages, special check if it's result already */}
-                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length > 0 && (previousParamsAndResults[previousParamsAndResults.length - 1].params.user_input !== taskpaneState.userInput)) &&
+                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length === 0 || (previousParamsAndResults[previousParamsAndResults.length - 1].params.user_input !== taskpaneState.userInput)) &&
                         <>
                             <Row
                                 justify="start" align="center"
