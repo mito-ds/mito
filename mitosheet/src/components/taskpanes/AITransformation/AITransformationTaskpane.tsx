@@ -78,13 +78,14 @@ type AITransformationTaskpaneState = {
 
 const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
 const LOADING_HINTS = [
-    'Ask Mito AI to transform any sheet in Mito.',
-    'Unhappy with the Mito AI result? Use the Undo button to go back.',
+    'Mito AI can transform any sheet in Mito.',
+    'Unhappy with the results? Try the Undo button.',
     'Mito AI is great at parsing strings.',
-    'Aftering using Mito AI, new columns are green & modified columns are yellow.',
-    'If Mito AI fails, try breaking your prompt into several smaller prompts.',
-    "Don't foget to verify the AI generated code is correct.",
-    'Mito AI is great at applying a transformation to multiple columns at once.',
+    'New columns will be colored green.',
+    'Modified modified columns will be colored yellow.',
+    'Try breaking big prompts into smaller prompts.',
+    "Make sure to verify the AI generated code is correct.",
+    'Mito AI can apply a transformation to multiple columns.',
 ]
 
 const getRandomHint = () => {
@@ -182,7 +183,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     if (prevTaskpaneState.type === 'loading completion') {
                         return {
                             ...prevTaskpaneState, 
-                            loadingMessage: 'Still generating code... ' + getRandomHint()}
+                            loadingMessage: getRandomHint()}
                     }
                     return prevTaskpaneState;
                 });
@@ -201,7 +202,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             return;
         }
 
-        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: 'Generating code...'})
+        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint()})
         setUserInput('')
 
         const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
@@ -320,7 +321,8 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
                                 <Col>
-                                    <p>{taskpaneState.loadingMessage}</p>
+                                    <p>Generating code...</p>
+                                    <p className="text-body-2">Hint: {taskpaneState.loadingMessage}</p>
                                 </Col>
                                 <AILoadingCircle/>
                             </Row>
