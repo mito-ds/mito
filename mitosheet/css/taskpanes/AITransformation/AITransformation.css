@@ -55,6 +55,12 @@
     background: #FEF4FF;
 }
 
+.ai-transformation-error-message {
+    word-break: keep-all;
+    white-space: pre-line; /* Preserve line breaks */
+    overflow-wrap: break-word; 
+}
+
 .ai-transformation-example:hover {
     border: 1px solid var(--mito-light-purple);
 }

@@ -10,6 +10,8 @@ from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES
 from mitosheet.user.utils import is_pro
 
+from mitosheet.api.get_ai_completion import OPEN_SOURCE_AI_COMPLETIONS_LIMIT
+
 @requires_open_ai_credentials
 def test_get_ai_completion():
     mito = create_mito_wrapper()
@@ -70,7 +72,7 @@ def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
         key = None
         num_usages = 0
 
-    set_user_field(UJ_AI_MITO_API_NUM_USAGES, 20)
+    set_user_field(UJ_AI_MITO_API_NUM_USAGES, 101)
 
     # Reload it to refresh variables stored
     import importlib
@@ -86,7 +88,7 @@ def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
     if is_pro():
         assert 'completion' in json.loads(completion)
     else:
-        assert 'You have used Mito AI 20 times.' in json.loads(completion)['error']
+        assert f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times.' in json.loads(completion)['error']
 
 
     if key is not None:
