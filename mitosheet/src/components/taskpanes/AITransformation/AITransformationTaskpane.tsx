@@ -19,6 +19,7 @@ import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
 import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
 import AIPrivacyPolicy from "./AIPrivacyPolicy";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
+import { classNames } from "../../../utils/classNames";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -358,9 +359,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="start" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
                             >
-                                <div className="flexbox-column">
+                                <div className="flexbox-column" style={{width: '100%'}}>
                                     <p>
                                         Error loading completion
                                     </p>
@@ -371,12 +372,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         {/** Display additional calls to action if they are relevant */}
                                         {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
                                             <>
-                                                To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
                                             </>
                                         }
-                                        {taskpaneState.error.includes('You have used Mito AI 20 times') && 
+                                        {taskpaneState.error.includes('You have used Mito AI') && 
                                             <>
-                                                Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
+                                                &nbsp; Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
                                             </>
                                         }
                                     </p>
@@ -394,7 +395,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="space-between" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
                             >
                                 <div className="flexbox-column">
                                     <p>
