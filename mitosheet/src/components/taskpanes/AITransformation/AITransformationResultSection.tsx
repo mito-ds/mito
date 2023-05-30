@@ -43,7 +43,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
             className="ai-transformation-result-section"
         >
             <Row justify="space-between">
-                <Col span={22.5}>
+                <Col span={22}>
                     {result.last_line_value !== undefined && result.last_line_value !== null && 
                         <p><span>Value:</span> {result.last_line_value}</p>
                     }
@@ -124,7 +124,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                         </p>
                     }
                 </Col>
-                <Col span={1.5}>
+                <Col span={1.5} offset={.5}>
                     {(result.created_dataframe_names.length > 0 || Object.entries(result.modified_dataframes_recons).length > 0 || result.deleted_dataframe_names.length > 0) &&
                         props.isMostRecentResult &&
                         <EyeIcon 
