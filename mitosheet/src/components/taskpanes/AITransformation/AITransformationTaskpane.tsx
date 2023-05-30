@@ -144,6 +144,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         props.setUIState(prevUIState => {
 
             if (previousParamsAndResults.length === 0 || !successfulExecutionSinceOpen) {
+                console.log("HERE")
                 return {
                     ...prevUIState,
                     dataRecon: undefined
@@ -164,7 +165,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             }
         })
 
-    }, [previousParamsAndResults.length, taskpaneState.type])
+    }, [previousParamsAndResults.length, taskpaneState.type, successfulExecutionSinceOpen])
 
     useEffect(() => {
         return () => {
