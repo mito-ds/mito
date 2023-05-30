@@ -12,6 +12,11 @@
     flex-direction: column;
 }
 
+.flexbox-column-important {
+    display: flex;
+    flex-direction: column !important;
+}
+
 .flexbox-space-between {
     justify-content: space-between;
 }
