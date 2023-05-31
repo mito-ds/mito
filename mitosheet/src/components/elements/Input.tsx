@@ -105,6 +105,11 @@ interface InputProps {
         * @param [selectTextOnFocus] - Select all of the text when clicked. Helpful, for example, if there is only a space in the input  
     */
     selectTextOnFocus?: boolean
+
+    /**
+     * @param [style] - Optional style to apply to this input
+     */
+    style?: React.CSSProperties
 }
 
 /**
@@ -149,7 +154,7 @@ const Input = (props: InputProps): JSX.Element => {
             <input
                 id={props.id}
                 className={classNames('mito-input', 'text-body-2', widthClass, props.className)}
-                style={{paddingRight: paddingRight}}
+                style={{paddingRight: paddingRight, ...props.style}}
                 value={props.value}
                 placeholder={props.placeholder}
                 onKeyDown={(e) => {

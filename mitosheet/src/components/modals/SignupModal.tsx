@@ -50,7 +50,7 @@ const StepOne = (
                 <h1 className='text-header-1' style={{margin: 0}}>
                     Sign Up for Mito
                 </h1>
-                <p className='signup-modal-text'>
+                <p className='signup-modal-text' style={{marginTop: '10px'}}>
                     We’ll send you periodic product updates and welcome any feedback. And no spam. Duh.
                 </p>
             </div>
@@ -77,6 +77,7 @@ const StepOne = (
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setFirstResponse(e.target.value)}}
                     placeholder={FirstPlaceholder}
                     required
+                    style={{marginBottom: '10px'}}
                 />
                 <div className='mt-10px' style={{marginTop: '10px'}}>
                     <TextButton
