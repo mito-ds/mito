@@ -354,9 +354,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="start" align="center"
-                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
-                                <div className="flexbox-column" style={{width: '100%'}}>
+                                <div className="flexbox-column">
                                     <p>
                                         Error loading completion
                                     </p>
@@ -390,7 +390,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="space-between" align="center"
-                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai', 'ai-transformation-error-message')}
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
                                 <div className="flexbox-column">
                                     <p>
