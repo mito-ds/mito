@@ -111,7 +111,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const [userInput, setUserInput] = useState<string>('');
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
-    const [successfulExecutionSinceOpen, setSuccessfulExecutionSinceOpen] = useState<boolean>(false);
+    const [displayRecon, setDisplayRecon] = useState<boolean>(false);
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
@@ -143,7 +143,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         // Update the UIState for Recon
         props.setUIState(prevUIState => {
 
-            if (previousParamsAndResults.length === 0 || !successfulExecutionSinceOpen) {
+            if (previousParamsAndResults.length === 0 || !displayRecon) {
                 return {
                     ...prevUIState,
                     dataRecon: undefined
@@ -164,7 +164,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             }
         })
 
-    }, [previousParamsAndResults.length, taskpaneState.type, successfulExecutionSinceOpen])
+    }, [previousParamsAndResults.length, taskpaneState.type, displayRecon])
 
     useEffect(() => {
         return () => {
@@ -234,8 +234,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
                     previousFailedCompletions.push([completionOrError.completion, possibleError])
                 } else {
+                    console.log("Setting success to true")
                     setTaskpaneState({type: 'default'});
-                    setSuccessfulExecutionSinceOpen(true); // Mark a successful execution
+                    setDisplayRecon(true); // Mark a successful execution
                     return;
                 }
             }
@@ -299,6 +300,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         mitoAPI={props.mitoAPI}
                                         params={paramAndResult.params}
                                         isMostRecentResult={idx === previousParamsAndResults.length - 1}
+                                        setDisplayRecon={setDisplayRecon}
                                     />
                                 </Row>
                             </>
