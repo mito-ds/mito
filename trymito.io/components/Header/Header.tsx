@@ -37,7 +37,7 @@ const Header = (): JSX.Element => {
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                 </li>
                 <li className='text-nav'>
-                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We're hiring!</a>
+                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We&apos;re hiring!</a>
                 </li>
               </ul>
             </nav>
@@ -86,9 +86,6 @@ const Header = (): JSX.Element => {
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='text-nav'>
-                  <Link href='/teams'>Teams</Link>
-                </li>
-                <li className='text-nav'>
                   <Link href='/security'>Security</Link>
                 </li>
                 <li className='text-nav'>
@@ -99,6 +96,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='text-nav'>
                   <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
+                </li>
+                <li className='text-nav'>
+                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We&apos;re hiring!</a>
                 </li>
               </ul>
             </nav>
