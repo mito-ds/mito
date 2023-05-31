@@ -382,7 +382,7 @@ const SignupModal = (
 
     return (
         <div className='overlay'>
-            <div className={classNames('signup-modal-container', {'signup-modal-container-tall': step === 1})}>
+            <div className={classNames('signup-modal-container')}>
                 <div className='signup-modal-left-column-container'>
                     {step === 1 &&
                         <StepOne
