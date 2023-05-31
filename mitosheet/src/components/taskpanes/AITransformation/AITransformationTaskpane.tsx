@@ -111,7 +111,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const [userInput, setUserInput] = useState<string>('');
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
-    const [successfulExecutionSinceOpenOrReconTurnedOff, setSuccessfulExecutionSinceOpenOrReconTurnedOff] = useState<boolean>(false);
+    const [displayRecon, setDisplayRecon] = useState<boolean>(false);
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
@@ -143,7 +143,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
         // Update the UIState for Recon
         props.setUIState(prevUIState => {
 
-            if (previousParamsAndResults.length === 0 || !successfulExecutionSinceOpenOrReconTurnedOff) {
+            if (previousParamsAndResults.length === 0 || !displayRecon) {
                 return {
                     ...prevUIState,
                     dataRecon: undefined
@@ -164,7 +164,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             }
         })
 
-    }, [previousParamsAndResults.length, taskpaneState.type, successfulExecutionSinceOpenOrReconTurnedOff])
+    }, [previousParamsAndResults.length, taskpaneState.type, displayRecon])
 
     useEffect(() => {
         return () => {
@@ -236,7 +236,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 } else {
                     console.log("Setting success to true")
                     setTaskpaneState({type: 'default'});
-                    setSuccessfulExecutionSinceOpenOrReconTurnedOff(true); // Mark a successful execution
+                    setDisplayRecon(true); // Mark a successful execution
                     return;
                 }
             }
@@ -300,7 +300,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         mitoAPI={props.mitoAPI}
                                         params={paramAndResult.params}
                                         isMostRecentResult={idx === previousParamsAndResults.length - 1}
-                                        setSuccessfulExecutionSinceOpenOrReconTurnedOff={setSuccessfulExecutionSinceOpenOrReconTurnedOff}
+                                        setDisplayRecon={setDisplayRecon}
                                     />
                                 </Row>
                             </>

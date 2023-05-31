@@ -18,7 +18,7 @@ interface AITransformationResultSectionProps {
     sheetDataArray: SheetData[]
     params: AITransformationParams
     isMostRecentResult: boolean
-    setSuccessfulExecutionSinceOpenOrReconTurnedOff: React.Dispatch<React.SetStateAction<boolean>>
+    setDisplayRecon: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
@@ -138,8 +138,8 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                     // highlighted in the sheet anymore
                                     if (prevUIState.dataRecon !== undefined) {
                                         
-                                        // Turn off the recon in the taskpane 
-                                        props.setSuccessfulExecutionSinceOpenOrReconTurnedOff(false)
+                                        // We don't want to display the recon in this case, until there is a successful execution
+                                        props.setDisplayRecon(false)
 
                                         return {
                                             ...prevUIState, 
