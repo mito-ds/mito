@@ -18,6 +18,7 @@ interface AITransformationResultSectionProps {
     sheetDataArray: SheetData[]
     params: AITransformationParams
     isMostRecentResult: boolean
+    setDisplayRecon: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
@@ -133,8 +134,13 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                                 props.setUIState(prevUIState => {
 
                                     // If the user clicks the eye when the recon is displayed, 
-                                    // turn off the recon
+                                    // remove the dataRecon from the UIState so that it is not 
+                                    // highlighted in the sheet anymore
                                     if (prevUIState.dataRecon !== undefined) {
+                                        
+                                        // We don't want to display the recon in this case, until there is a successful execution
+                                        props.setDisplayRecon(false)
+
                                         return {
                                             ...prevUIState, 
                                             dataRecon: undefined
