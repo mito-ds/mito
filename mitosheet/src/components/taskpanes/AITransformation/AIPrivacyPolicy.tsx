@@ -71,6 +71,16 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                         To learn more about this option, reach out to the <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">Mito team</a>. 
                     </p>
                 </CollapsibleSection>
+                <Spacer px={10}/>
+                <CollapsibleSection title={'How can I use my own OpenAI API key?'}>
+                    <p>
+                        So that your completion request never touches Mito servers, you can use your own OpenAI API key. Doing so ensures you are not vulnerable to any attacks on Mito's infrastructure. 
+                    </p>
+                    <Spacer px={5}/>
+                    <p>
+                        To use your own OpenAI API key, set the environment variable OPENAI_API_KEY to your OpenAI key. You can get one <a className='text-underline text-color-mito-purple' href='https://platform.openai.com/account/api-keys' target='_blank' rel="noreferrer">here</a>.
+                    </p>
+                </CollapsibleSection>
                 <Spacer px={5}/>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
