@@ -74,7 +74,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                 <Spacer px={10}/>
                 <CollapsibleSection title={'How can I use my own OpenAI API key?'}>
                     <p>
-                        So that your completion request never touches Mito servers, you can use your own OpenAI API key. Doing so ensures you are not vulnerable to any attacks on Mito's infrastructure. 
+                        So that your completion request never touches Mito servers, you can use your own OpenAI API key. Doing so ensures you are not vulnerable to any attacks on Mito&apos;s infrastructure. 
                     </p>
                     <Spacer px={5}/>
                     <p>
