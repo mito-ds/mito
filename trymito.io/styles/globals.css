@@ -250,6 +250,7 @@ a {
 .text-nav {
   color: var(--color-text-primary);
   font-size: 1.25rem;
+  border-radius: 3px;
 }
 
 .text-nav:hover {
