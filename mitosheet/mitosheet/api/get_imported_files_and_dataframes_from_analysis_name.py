@@ -9,6 +9,7 @@ import os
 from typing import Any, Dict, List
 
 import pandas as pd
+from mitosheet.errors import get_recent_traceback
 from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.saved_analyses import read_and_upgrade_analysis
@@ -51,7 +52,11 @@ def get_imported_files_and_dataframes_from_analysis_name(params: Dict[str, Any],
     """
     analysis_name = params["analysis_name"]
     args = params["args"]
+    print("HERE1")
     
     # We turn import steps into a version of the step that just creates a single dataframe
     # as this is what is easiest to work with on the frontend
-    return get_step_import_data_from_saved_analysis(analysis_name, args)
+    try:
+        return get_step_import_data_from_saved_analysis(analysis_name, args)
+    except:
+        print("FAILED", get_recent_traceback())

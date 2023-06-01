@@ -47,7 +47,7 @@ MAX_QUEUED_API_CALLS = 3
 # so the API calls are handled in the main thread, to make printing easy.
 # In newer versions of JupyterLab, to see these print statements:
 # View > Show Log Console > in the console set Log Level to Debug
-THREADED = True
+THREADED = False
 
 
 class API:
@@ -169,6 +169,7 @@ def handle_api_event(
             result = get_imported_files_and_dataframes_from_current_steps(params, steps_manager)
         elif event["type"] == 'get_imported_files_and_dataframes_from_analysis_name':
             result = get_imported_files_and_dataframes_from_analysis_name(params, steps_manager)
+            print("RESULT", result)
         elif event["type"] == "get_test_imports":
             result = get_test_imports(params, steps_manager)
         elif event["type"] == "get_render_count":

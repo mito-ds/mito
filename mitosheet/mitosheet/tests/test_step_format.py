@@ -36,7 +36,7 @@ from mitosheet.step_performers import (
     ExportToFileStepPerformer,
     ResetIndexStepPerformer,
     SnowflakeImportStepPerformer,
-    AITransformationStepPerformer
+    AITransformationStepPerformer,
 )
 from mitosheet.step_performers.column_headers_transform import ColumnHeadersTransformStepPerformer
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
@@ -52,6 +52,7 @@ from mitosheet.step_performers.promote_row_to_header import PromoteRowToHeaderSt
 from mitosheet.pro.step_performers.set_dataframe_format import SetDataframeFormatStepPerformer
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
+from mitosheet.saved_analyses.upgrade import STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT
 
 def check_step(
         step_performer: Type[StepPerformer], 
@@ -299,7 +300,7 @@ def test_params_static():
 
     check_step(
         SnowflakeImportStepPerformer,
-        1,
+        2,
         'snowflake_import'
     )
 
@@ -322,3 +323,13 @@ def test_params_static():
     )
 
     assert len(STEP_PERFORMERS) == 39
+
+
+def test_upgraders_bump_step_number():
+    for step_type, upgrader_dict in STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT.items():
+        # Skip old steps we don't have anymore
+        if step_type == 'change_column_format':
+            continue
+    
+        step_performer = [step_performer for step_performer in STEP_PERFORMERS if step_performer.step_type() == step_type][0]
+        assert step_performer.step_version() == max(upgrader_dict) + 1

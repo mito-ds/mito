@@ -37,7 +37,7 @@
  */
 
 import { MitoResponse } from "../api/api";
-import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType } from "../api/send";
+import { MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType } from "../api/send";
 import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
@@ -95,7 +95,7 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
             })
 
             // Give the onMsg a while to run
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WEIGHT_FOR_SEND_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_SEND_CREATION);
 
             return resolve(echoReceived);
         }
@@ -111,7 +111,7 @@ export const getNotebookComm = async (commTargetID: string): Promise<CommContain
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
         return potentialComm !== undefined;
-    }, MAX_WEIGHT_FOR_SEND_CREATION)
+    }, MAX_WAIT_FOR_SEND_CREATION)
 
     if (potentialComm === undefined) {
         return 'non_working_extension_error';
@@ -144,7 +144,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
             }
 
             // Give the onMsg a while to run, quiting early if we get an echo
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WEIGHT_FOR_SEND_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_SEND_CREATION);
 
             // Reset the onMsg
             comm.onMsg = originalOnMsg;
@@ -171,7 +171,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
         }
         // We don't return true until we get a comm
         return potentialComm !== undefined && potentialComm !== 'no_backend_comm_registered_error';
-    }, MAX_WEIGHT_FOR_SEND_CREATION)
+    }, MAX_WAIT_FOR_SEND_CREATION)
 
 
     if (potentialComm === undefined) {
@@ -269,6 +269,8 @@ export async function getCommSend(kernelID: string, commTargetID: string): Promi
 
                     const response = unconsumedResponses[index];
                     unconsumedResponses.splice(index, 1);
+
+                    console.log("RAW", response)
 
                     if (response['event'] == 'error') {
                         return resolve({

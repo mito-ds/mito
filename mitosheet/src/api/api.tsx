@@ -15,8 +15,7 @@ import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTa
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
-import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { MAX_WEIGHT_FOR_SEND_CREATION, SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
+import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 
 
@@ -185,9 +184,7 @@ export default class MitoAPI {
         if (this._send === undefined) {
             const _send = await this.getSendFunction();
             this._send = this._send || _send;
-        } 
-
-        await waitUntilConditionReturnsTrueOrTimeout(() => {return this._send !== undefined}, MAX_WEIGHT_FOR_SEND_CREATION);
+        }
 
         if (this._send === undefined) {
             console.error(`Unable to establish comm. Quitting before sending message with id ${id}`);
@@ -317,7 +314,7 @@ export default class MitoAPI {
      * of a step with a step id or with specific execution data
      */
     async getParams<ParamType>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<MitoAPIResult<ParamType | undefined>> {
-        return await this.send<ParamType | undefined>({
+        const response = await this.send<ParamType | undefined | null>({
             'event': 'api_call',
             'type': 'get_params',
             'params': {
@@ -326,6 +323,19 @@ export default class MitoAPI {
                 'execution_data_to_match': executionDataToMatch
             },
         })
+
+        // Do so work to not return null, as this one sometimes does
+        if ('error' in response) {
+            return response;
+        } else {
+            const result = response.result;
+            if (result === null) {
+                return {result: undefined};
+            } else {
+                return {result: result};
+            }
+        }
+
     }
 
     /*

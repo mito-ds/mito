@@ -6,7 +6,7 @@
  * 
  */
 
-export const MAX_WEIGHT_FOR_SEND_CREATION = 10_000;
+export const MAX_WAIT_FOR_SEND_CREATION = 10_000;
 
 export type SendFunctionError = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
 export type SendFunctionStatus = 'loading' | 'finished' | SendFunctionError;
