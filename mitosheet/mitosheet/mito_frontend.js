@@ -32836,7 +32836,6 @@ ${finalCode}`;
           var _a;
           setUserInput(userInput);
           (_a = chatInputRef.current) == null ? void 0 : _a.focus();
-          console.log("FOCUSING", chatInputRef.current);
         },
         justify: "center",
         align: "center",
@@ -39036,7 +39035,6 @@ fig.write_html("${props.graphTabName}.html")`
     if (stepImportDataList === void 0) {
       return [];
     }
-    console.log("HERE", stepImportDataList);
     return stepImportDataList.map((stepImportData) => {
       return stepImportData.imports;
     }).flat();
@@ -39464,7 +39462,6 @@ fig.write_html("${props.graphTabName}.html")`
         let invalidImportIndexes = void 0;
         if (failedReplayData !== void 0) {
           const response = await props.mitoAPI.getImportedFilesAndDataframesFromAnalysisName(failedReplayData.analysisName, failedReplayData.args);
-          console.log("RESPONSE", response);
           importData = "error" in response ? void 0 : response.result;
           const invalidImportIndexesResponse = await props.mitoAPI.getTestImports(importData || []);
           invalidImportIndexes = "error" in invalidImportIndexesResponse ? {} : invalidImportIndexesResponse.result;
@@ -39473,7 +39470,6 @@ fig.write_html("${props.graphTabName}.html")`
           importData = "error" in response ? void 0 : response.result;
           invalidImportIndexes = {};
         }
-        console.log("HERE1", importData, invalidImportIndexes);
         if (importData !== void 0 && invalidImportIndexes !== void 0) {
           return {
             importData,
@@ -42634,7 +42630,6 @@ fig.write_html("${props.graphTabName}.html")`
             clearInterval(interval);
             const response = unconsumedResponses[index];
             unconsumedResponses.splice(index, 1);
-            console.log("RAW", response);
             if (response["event"] == "error") {
               return resolve({
                 error: response.error,

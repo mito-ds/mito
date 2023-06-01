@@ -270,8 +270,6 @@ export async function getCommSend(kernelID: string, commTargetID: string): Promi
                     const response = unconsumedResponses[index];
                     unconsumedResponses.splice(index, 1);
 
-                    console.log("RAW", response)
-
                     if (response['event'] == 'error') {
                         return resolve({
                             error: response.error,

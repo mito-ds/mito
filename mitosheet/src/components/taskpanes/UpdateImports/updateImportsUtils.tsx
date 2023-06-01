@@ -39,8 +39,6 @@ export const getAllDataframeCreationData = (stepImportDataList: StepImportData[]
         return [];
     }
 
-    console.log("HERE", stepImportDataList)
-
     return stepImportDataList.map(stepImportData => {
         return stepImportData.imports;
     }).flat();

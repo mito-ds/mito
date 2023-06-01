@@ -24,7 +24,6 @@ const getExample = (userInput: string, setUserInput: React.Dispatch<React.SetSta
             onClick={() => {
                 setUserInput(userInput);
                 chatInputRef.current?.focus();
-                console.log("FOCUSING", chatInputRef.current)
             }} 
             justify="center" align="center" className="ai-transformation-example"
         >
