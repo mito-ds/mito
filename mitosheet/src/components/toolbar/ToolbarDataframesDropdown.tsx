@@ -41,6 +41,7 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                     makeToolbarDropdownItem(props.actions[ActionEnum.SNOWFLAKEIMPORT], props.userProfile)
                     : <></>
                 }
+                {makeToolbarDropdownItem(props.actions[ActionEnum.USERDEFINEDIMPORT], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions[ActionEnum.UPDATEIMPORTS], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Export], props.userProfile)}

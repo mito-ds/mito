@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { AnalysisData, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
@@ -267,7 +267,7 @@ export const getSuggestedColumnHeaders = (formula: string, sheetData: SheetData)
  * @param minLength - the minimum length of the function match to look for. As column header suggestions take precedence over the formula suggestions, we limit our search to stop at where the column header was found.
  * @returns - a tuple: the matched length (which becomes the replacement length), a list of [functions, function description] pairs. 
  */
-export const getSuggestedFunctions = (formula: string, minLength: number): [number, [string, string][]] => {
+export const getSuggestedFunctions = (formula: string, minLength: number, analysisData: AnalysisData): [number, [string, string][]] => {
     
     // If the formula is empty, suggest some placeholder functions, so that the user knows that 
     // functions exist in the first place
@@ -285,8 +285,15 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
         })];
     }
 
+    const allFunctionNamesAndDescription = functionDocumentationObjects.map(f => {
+        return {function: f.function, description: f.description, search_terms: f.search_terms}}
+    ).concat(
+        analysisData.userDefinedFunctions.map(f => {return {function: f, description: 'User-defined function', search_terms: [f]}})
+    );
+
+
     // Then, we lookup based on the name of the function
-    const maxFunctionNameLength = Math.max(...functionDocumentationObjects.map(f => f.function.length));
+    const maxFunctionNameLength = Math.max(...allFunctionNamesAndDescription.map(f => f.function.length));
 
     for (let i = maxFunctionNameLength; i > minLength - 1; i--) {
         const substring = formula.substring(formula.length - i).toLowerCase();
@@ -296,7 +303,7 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
         if (substring === '' || (charBeforeSubstringStarts && charBeforeSubstringStarts.match(/^[0-9a-z]+$/i))) {
             continue;
         }
-        const foundFunctionObjects = functionDocumentationObjects.filter(f => {
+        const foundFunctionObjects = allFunctionNamesAndDescription.filter(f => {
             // We first check the titles of the function
             if (f.function.toLowerCase().startsWith(substring)) {
                 return true;
@@ -318,7 +325,6 @@ export const getSuggestedFunctions = (formula: string, minLength: number): [numb
             return [substring.length, suggestedFunctions];
         }
     }
-
 
     return [0, []];
 }

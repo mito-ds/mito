@@ -83,7 +83,7 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'Formatting Export',
+    feature: 'Admin Settings',
     planSupport: {
       'Open Source': false,
       'Pro': false,
@@ -91,7 +91,7 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'Admin Settings',
+    feature: 'On-Prem AI',
     planSupport: {
       'Open Source': false,
       'Pro': false,
@@ -251,6 +251,14 @@ const TRANSFORMATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+  {
+    feature: 'User Defined Functions',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
 ]
 
 const CODE_GENERATION_FEATURES: Feature[] = [
@@ -378,7 +386,7 @@ const Plans: NextPage = () => {
                 Plans & Pricing
               </h1>
               <p className={titleStyles.description}>
-                Use Mito alone or with your team. Teams that use Mito save days a month on repetative spreadsheet workflows.
+                Use Mito alone, with your team, or turn your entire organization into Automators.
               </p>
             </section>
             <section className={plansStyles.plan_cards}>
@@ -395,22 +403,22 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      Data exploration tools
+                      Basic EDA tools
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Data transformation tools
+                      Automatic Code Generation
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Automatic code generation
+                      20 Mito AI Completions
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Customer support
+                      Community Support
                     </p>
                   </PlanBullet>
                 </div>
@@ -427,7 +435,7 @@ const Plans: NextPage = () => {
                   Pro
                 </h1>
                 <p className={plansStyles.price_text}>
-                  $149.99 a month
+                  $49.99 a month
                 </p>
                 <p className={plansStyles.plan_description}>
                   For practitioners or small teams automating spreadsheet processes.
@@ -445,12 +453,12 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Advanced features
+                      Unlimited AI completions
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Dedicated customer support
+                      Advanced Features
                     </p>
                   </PlanBullet>
                 </div>
@@ -485,7 +493,7 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Custom integrations
+                      LLM and Database integrations
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -633,7 +641,7 @@ const Plans: NextPage = () => {
                             On-prem <br/> AI
                           </h1>
                           <p>
-                            Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system. (coming soon)
+                            Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system.
                           </p>
                       </div>
                   </div>
@@ -667,10 +675,10 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h1>
-                          Connect to more data sources
+                          Integrate with your data sources
                         </h1>
                         <p>
-                          Connect to databases so users can import any data set without having to write custom pandas code. (coming soon)
+                          Connect to databases so users can import any data set without having to write custom pandas code.
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>

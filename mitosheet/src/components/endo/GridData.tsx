@@ -7,6 +7,7 @@ import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
+import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
@@ -54,6 +55,7 @@ const GridData = (props: {
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
                             const cellData = props.sheetData?.data[columnIndex]?.columnData[rowIndex];
                             const cellIsSelected = getIsCellSelected(props.gridState.selections, rowIndex, columnIndex);
+                            const columnHeader = props.sheetData?.data[columnIndex]?.columnHeader;
 
                             const conditionalFormatMap = sheetData?.conditionalFormattingResult.results[columnID];
                             const conditionalFormat = conditionalFormatMap ? {...conditionalFormatMap[index]} : undefined;
@@ -63,15 +65,22 @@ const GridData = (props: {
                                 conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
                             }
 
-                            if (cellData === undefined || columnDtype == undefined) {
+                            if (cellData === undefined || columnDtype === undefined || columnHeader === undefined) {
                                 return null;
                             }
+
+                            const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
+                            const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
-                                'right-align-number-series': isNumberDtype(columnDtype)
+                                'right-align-number-series': isNumberDtype(columnDtype),
+                                'recon created-recon-background-color': isColumnCreated && rowIndex % 2 !== 0,
+                                'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,
+                                'recon modified-recon-background-color': isColumnModified && rowIndex % 2 !== 0,
+                                'recon modified-recon-background-color-dark': isColumnModified && rowIndex % 2 === 0,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];

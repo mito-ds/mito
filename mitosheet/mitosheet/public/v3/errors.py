@@ -91,6 +91,8 @@ def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
 
         # We ensure that all of the paramters match the type that is given to them
         for index, (parameter, arg) in enumerate(zip(parameters.values(), args)):
+            if parameter.annotation == inspect.Parameter.empty:
+                continue
             if not any(isinstance(arg, t) for t in get_type_args(parameter.annotation)):
                 raise make_invalid_arg_error(sheet_function.__name__, parameter.name, index, type(arg).__name__)
         

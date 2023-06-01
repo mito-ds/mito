@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import MitoAPI from "../../../jupyter/api";
-import { AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
+import { AITransformationResult, AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 
@@ -19,6 +19,7 @@ import { useEffectOnRedo } from "../../../hooks/useEffectOnRedo";
 import { useEffectOnUndo } from "../../../hooks/useEffectOnUndo";
 import AIPrivacyPolicy from "./AIPrivacyPolicy";
 import { DOCUMENTATION_LINK_AI_TRANSFORM } from "../../../data/documentationLinks";
+import { classNames } from "../../../utils/classNames";
 
 interface AITransformationTaskpaneProps {
     mitoAPI: MitoAPI;
@@ -48,23 +49,6 @@ export type AICompletionOrError = {error: string}
     completion: string
 } | undefined
 
-interface ColumnReconData {
-    created_columns: ColumnHeader[]
-    deleted_columns: ColumnHeader[]
-    modified_columns: ColumnHeader[],
-    renamed_columns: Record<string | number, ColumnHeader> // NOTE: this type is off!
-}
-
-export interface AITransformationResult {
-    last_line_value: string | boolean | number | undefined | null,
-    created_dataframe_names: string[],
-    deleted_dataframe_names: string[],
-    modified_dataframes_recons: Record<string, {
-        'column_recon': ColumnReconData,
-        'num_added_or_removed_rows': number
-    }>,
-    prints: string
-}
 
 export interface AICompletionSelection {
     'selected_df_name': string, 
@@ -77,6 +61,7 @@ type AITransformationTaskpaneState = {
 } | {
     type: 'loading completion',
     userInput: string,
+    loadingMessage: string,
 } | {
     type: 'executing code',
     userInput: string,
@@ -93,6 +78,20 @@ type AITransformationTaskpaneState = {
 }
 
 const NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION = 3;
+const LOADING_HINTS = [
+    'Mito AI can transform any sheet in Mito.',
+    'Unhappy with the results? Try the Undo button.',
+    'Mito AI is great at parsing strings.',
+    'New columns will be colored green.',
+    'Modified modified columns will be colored yellow.',
+    'Try breaking big prompts into smaller prompts.',
+    "Make sure to verify the AI generated code is correct.",
+    'Mito AI can apply a transformation to multiple columns.',
+]
+
+const getRandomHint = () => {
+    return LOADING_HINTS[Math.floor(Math.random() * LOADING_HINTS.length)]
+}
 
 const AILoadingCircle = (): JSX.Element => {
     return (
@@ -112,6 +111,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
 
     const [userInput, setUserInput] = useState<string>('');
     const [taskpaneState, setTaskpaneState] = useState<AITransformationTaskpaneState>({type: 'default'});
+    const [displayRecon, setDisplayRecon] = useState<boolean>(false);
 
     const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
     const setChatInputRef = (element: HTMLTextAreaElement | null) => {
@@ -140,7 +140,59 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             taskpaneBodyRef.current.scrollTop = taskpaneBodyRef.current.scrollHeight;
         }
 
-    }, [previousParamsAndResults.length, taskpaneState.type])
+        // Update the UIState for Recon
+        props.setUIState(prevUIState => {
+
+            if (previousParamsAndResults.length === 0 || !displayRecon) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            }
+
+            const mostRecentResults = previousParamsAndResults[previousParamsAndResults.length - 1].results;
+            
+            const newDataRecon =  {
+                created_dataframe_names: mostRecentResults.created_dataframe_names,
+                deleted_dataframe_names: mostRecentResults.deleted_dataframe_names,
+                modified_dataframes_recons: mostRecentResults.modified_dataframes_recons
+            } 
+
+            return {
+                ...prevUIState,
+                dataRecon: newDataRecon
+            }
+        })
+
+    }, [previousParamsAndResults.length, taskpaneState.type, displayRecon])
+
+    useEffect(() => {
+        return () => {
+            props.setUIState(function(prevUIState) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            })
+        }
+    }, []);
+
+    useEffect(() => {
+        if (taskpaneState.type === 'loading completion') {
+            const interval = setInterval(() => {
+                setTaskpaneState(prevTaskpaneState => {
+                    if (prevTaskpaneState.type === 'loading completion') {
+                        return {
+                            ...prevTaskpaneState, 
+                            loadingMessage: getRandomHint()}
+                    }
+                    return prevTaskpaneState;
+                });
+            }, 15_000)
+            return () => clearInterval(interval)
+        }
+
+    }, [taskpaneState.type])
 
     // If we undo or redo, we want to reset the taskpane state, so we can clear out any errors
     useEffectOnRedo(() => {setTaskpaneState({type: 'default'})}, props.analysisData)
@@ -151,7 +203,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             return;
         }
 
-        setTaskpaneState({type: 'loading completion', userInput: userInput})
+        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint()})
         setUserInput('')
 
         const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
@@ -182,7 +234,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
                     previousFailedCompletions.push([completionOrError.completion, possibleError])
                 } else {
+                    console.log("Setting success to true")
                     setTaskpaneState({type: 'default'});
+                    setDisplayRecon(true); // Mark a successful execution
                     return;
                 }
             }
@@ -225,7 +279,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 <div
                     className="ai-transformation-chat-container"
                 >
-                    {previousParamsAndResults.map((paramAndResult) => {
+                    {previousParamsAndResults.map((paramAndResult, idx) => {
                         return (
                             <>
                                 <Row 
@@ -239,11 +293,14 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                     className="ai-transformation-message ai-transformation-message-ai"
                                 >
                                     <AITransformationResultSection
+                                        uiState={props.uiState}
                                         setUIState={props.setUIState}
                                         result={paramAndResult.results}
                                         sheetDataArray={props.sheetDataArray}
                                         mitoAPI={props.mitoAPI}
                                         params={paramAndResult.params}
+                                        isMostRecentResult={idx === previousParamsAndResults.length - 1}
+                                        setDisplayRecon={setDisplayRecon}
                                     />
                                 </Row>
                             </>
@@ -263,12 +320,14 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             >
                                 <Col>
                                     <p>Generating code...</p>
+                                    <p className="text-body-2">Hint: {taskpaneState.loadingMessage}</p>
                                 </Col>
                                 <AILoadingCircle/>
                             </Row>
                         </>
                     }
-                    {taskpaneState.type === 'executing code' &&
+                    {/** To avoid double displaying messages, special check if it's result already */}
+                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length === 0 || (previousParamsAndResults[previousParamsAndResults.length - 1].params.user_input !== taskpaneState.userInput)) &&
                         <>
                             <Row
                                 justify="start" align="center"
@@ -297,7 +356,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="start" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
                                 <div className="flexbox-column">
                                     <p>
@@ -310,12 +369,12 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         {/** Display additional calls to action if they are relevant */}
                                         {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
                                             <>
-                                                To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
                                             </>
                                         }
-                                        {taskpaneState.error.includes('You have used Mito AI 20 times') && 
+                                        {taskpaneState.error.includes('You have used Mito AI') && 
                                             <>
-                                                Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
+                                                &nbsp; Please <a className='text-underline' href="https://trymito.io/plans" target='_blank' rel="noreferrer">upgrade to Mito Pro</a> or <a className='text-underline' href={DOCUMENTATION_LINK_AI_TRANSFORM} target='_blank' rel="noreferrer">set your own OPENAI_API key in your environment variables.</a>
                                             </>
                                         }
                                     </p>
@@ -333,7 +392,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             </Row>
                             <Row
                                 justify="space-between" align="center"
-                                className="ai-transformation-message ai-transformation-message-ai"
+                                className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
                                 <div className="flexbox-column">
                                     <p>

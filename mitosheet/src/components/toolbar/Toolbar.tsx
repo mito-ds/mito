@@ -73,6 +73,15 @@ const Toolbar = (
         )
     }
 
+    importDropdownItems.push(
+        <DropdownItem title='Custom Imports' key='Custom Imports' onClick={() => {props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.USERDEFINEDIMPORT}
+            }
+        })}}/>
+    )
+
     return (
         <div className='mito-toolbar-container'>
             <div className='mito-toolbar-top'>
