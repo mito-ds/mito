@@ -46,7 +46,7 @@ const Header = (): JSX.Element => {
           <div className={stylesHeader.desktop_right_nav_bar}>
               <GithubButton 
                 variant='Star'
-                text='Star on Github'
+                text='Github'
               />              
               <TranslucentButton
                 href={MITO_INSTALLATION_DOCS_LINK}
