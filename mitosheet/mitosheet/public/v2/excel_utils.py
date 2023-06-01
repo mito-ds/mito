@@ -25,7 +25,7 @@ def get_table_range(
         bottom_left_value_starts_with: Optional[Union[str, int, float, bool]]=None,
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
         row_entirely_empty: Optional[bool]=None,
-        number_of_empty_rows: Optional[int]=None,
+        cumulative_number_of_empty_rows: Optional[int]=None,
         num_columns: Optional[int]=None
 ) -> Optional[str]:
     """
@@ -121,14 +121,14 @@ def get_table_range(
                 break
             
 
-    if max_found_row_index is None and number_of_empty_rows is not None:
+    if max_found_row_index is None and cumulative_number_of_empty_rows is not None:
         num_empty = 0
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
             is_empty_row = all([c.value is None for c in row])
             if is_empty_row:
                 num_empty += 1
             
-            if num_empty >= number_of_empty_rows:
+            if num_empty >= cumulative_number_of_empty_rows:
                 max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
                 break
             if row[0].row == sheet.max_row:

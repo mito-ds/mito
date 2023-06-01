@@ -25,6 +25,7 @@ const ColumnHeaders = (props: {
     containerRef: React.RefObject<HTMLDivElement>;
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>; 
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
@@ -201,6 +202,7 @@ const ColumnHeaders = (props: {
                                     containerRef={props.containerRef}
                                     columnHeaderOperation={columnHeaderOperation}
                                     setColumnHeaderOperation={setColumnHeaderOperation}
+                                    uiState={props.uiState}
                                     setUIState={props.setUIState}
                                     mitoAPI={props.mitoAPI}
                                     closeOpenEditingPopups={props.closeOpenEditingPopups}

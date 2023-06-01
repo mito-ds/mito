@@ -1,9 +1,5 @@
-import { useState } from "react";
 import MitoAPI, { getRandomId } from "../api/api";
-import { AnalysisData } from "../types";
-import { useEffectOnEdit } from "./useEffectOnEdit";
-import { useEffectOnRedo } from "./useEffectOnRedo";
-import { useEffectOnUndo } from "./useEffectOnUndo";
+import { AnalysisData, StepType } from "../types";
 
 /* 
     This custom hook is built for taskpanes that have params that do not need to be stored
@@ -17,27 +13,13 @@ import { useEffectOnUndo } from "./useEffectOnUndo";
     this hook.
 */
 function useSendEditOnClickNoParams<ParamType, ResultType>(
-    stepType: string,
+    stepType: StepType,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
 ): {
         edit: (params: ParamType) => Promise<string | undefined>, // This function actually sends the edit message to the backend. Returns an error or undefined if no error
         previousParamsAndResults: {params: ParamType, results: ResultType}[]; // All params that have been applied through this hook successfully, and their results
     } {
-
-    const [previousParams, setPreviousParams] = useState<ParamType[]>([]);
-    const [results, setResults] = useState<ResultType[]>([]);
-
-    const [currParamsIndex, setCurrParamsIndex] = useState(0);
-
-    useEffectOnUndo(() => {
-        refreshOnUndo()
-    }, analysisData)
-
-    useEffectOnRedo(() => {
-        refreshOnRedo();
-    }, analysisData)
-
     // NOTE: all edit events are the name of the step + _edit
     const editEvent = stepType + '_edit';
 
@@ -50,42 +32,17 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
         // Handle if we return an error
         if ('error' in possibleError) {
             return possibleError.error;
-        } else {
-            // Update the params and results to clear anything later than then current params index
-            const newParamsIndex = currParamsIndex + 1;
-            setPreviousParams(prevPreviousParams => prevPreviousParams.slice(0, newParamsIndex));
-            setResults(prevResults => prevResults.slice(0, newParamsIndex));
-            setCurrParamsIndex(newParamsIndex);
-
-            // Save the params
-            setPreviousParams(prevPreviousParams => [...prevPreviousParams, params]);
-            return undefined;
-        }
+        } 
     }
 
-    const refreshOnUndo = () => {
-        setCurrParamsIndex(prevCurrStepIDIndex => Math.max(prevCurrStepIDIndex - 1, 0));
-    }
-
-    const refreshOnRedo = () => {
-        setCurrParamsIndex(prevCurrStepIDIndex => Math.min(prevCurrStepIDIndex + 1, previousParams.length));     
-    }
-
-    // When we do a successful edit, then get the new result
-    useEffectOnEdit(() => {
-        if (analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
-            const result = analysisData.lastResult as ResultType;
-            setResults(prevResults => [...prevResults, result]);
-        }
-    }, analysisData)
-
-    // Zip previousParams and results together
-    const previousParamsAndResults = previousParams.map((param, index) => {
+    // Get the previous params and results from the analysis data, and zip them together
+    const steps = analysisData.stepSummaryList.filter(step => step.step_type === stepType);
+    const previousParamsAndResults = steps.map((step) => {
         return {
-            params: param,
-            results: results[index]
+            params: step.params as ParamType,
+            results: step.result as ResultType
         }
-    }).splice(0, currParamsIndex);
+    })
 
     return {
         edit,

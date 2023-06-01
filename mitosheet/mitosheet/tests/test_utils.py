@@ -681,7 +681,6 @@ class MitoWidgetTestWrapper:
             importer: str,
         ) -> bool:
 
-        
 
         return self.mito_backend.receive_message(
             {
@@ -1229,6 +1228,20 @@ class MitoWidgetTestWrapper:
                 },
             }
         )
+
+    @check_transpiled_code_after_call
+    def undo_to_step_index(self, index: int) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'undo_to_step_index_update',
+                'params': {
+                    'step_idx': index,
+                },
+            }
+        )
+    
     
     @check_transpiled_code_after_call
     def checklist_update(self, checklist_id: str, completed_items: List[str], clear_other_items: bool) -> bool:

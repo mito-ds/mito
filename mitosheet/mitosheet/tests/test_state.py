@@ -14,7 +14,6 @@ def test_state_can_add_df_to_end():
     state = State([df])
     state.add_df_to_state(df, DATAFRAME_SOURCE_IMPORTED)
     for key, value in state.__dict__.items():
-        print(key)
         if isinstance(value, list) and key != 'user_defined_functions' and key != 'user_defined_importers':
             assert len(value) == 2
     

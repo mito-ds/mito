@@ -157,7 +157,7 @@ class Step:
             # Sometimes step execution returns None, which functionally means that 
             # nothing changed in the step (but we need not error). In this case, we
             # just don't change anything in the state
-            new_post_state, execution_data = new_prev_state, []
+            new_post_state, execution_data = new_prev_state, {}
         
         # Update the relevant state variables
         self.prev_state = new_prev_state

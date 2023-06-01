@@ -8,6 +8,7 @@ import TranslucentButton from "../TranslucentButton/TranslucentButton"
 import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
+export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
 
 const Header = (): JSX.Element => {
 
@@ -21,16 +22,10 @@ const Header = (): JSX.Element => {
                 <Image src="/Mito.svg" alt="Mito Logo" width={50} height={30}/>
               </a>
             </Link>
-          </div>
-
-          <div className={stylesHeader.desktop_center_nav_bar + ' ' + stylesHeader.desktop_header_component}>
-            <nav>
+            <nav className={stylesHeader.desktop_menu_items +' display-desktop-only-inline-block'}>
               <ul>
                 <li className='text-nav'>
                   <Link href='/plans'>Plans</Link>
-                </li>
-                <li className='text-nav'>
-                  <Link href='/teams'>Teams</Link>
                 </li>
                 <li className='text-nav'>
                   <Link href='/security'>Security</Link>
@@ -41,6 +36,9 @@ const Header = (): JSX.Element => {
                 <li className='text-nav'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                 </li>
+                <li className='text-nav'>
+                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We&apos;re hiring!</a>
+                </li>
               </ul>
             </nav>
           </div>
@@ -48,7 +46,7 @@ const Header = (): JSX.Element => {
           <div className={stylesHeader.desktop_right_nav_bar}>
               <GithubButton 
                 variant='Star'
-                text='Star on Github'
+                text='Github'
               />              
               <TranslucentButton
                 href={MITO_INSTALLATION_DOCS_LINK}
@@ -88,9 +86,6 @@ const Header = (): JSX.Element => {
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='text-nav'>
-                  <Link href='/teams'>Teams</Link>
-                </li>
-                <li className='text-nav'>
                   <Link href='/security'>Security</Link>
                 </li>
                 <li className='text-nav'>
@@ -101,6 +96,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='text-nav'>
                   <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
+                </li>
+                <li className='text-nav'>
+                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We&apos;re hiring!</a>
                 </li>
               </ul>
             </nav>

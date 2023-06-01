@@ -14,8 +14,6 @@ import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
 import Experiment from '../elements/Experiment';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import Row from '../layout/Row';
-import Col from '../layout/Col';
 import { classNames } from '../../utils/classNames';
 
 /* 
@@ -25,14 +23,8 @@ import { classNames } from '../../utils/classNames';
 
 
 // The first question we ask on the signup page
-const FirstQuestion = 'First Name';
-const FirstPlaceholder = 'Guido';
-
-const SecondQuestion = 'Last Name';
-const SecondPlaceholder = 'Van Rossum';
-
-const ThirdQuestion = 'Your Company/Organization';
-const ThirdPlaceholder = 'AppleSoftBook';
+const FirstQuestion = 'Your Company/Organization';
+const FirstPlaceholder = 'AppleSoftBook';
 
 
 /* Step one requires an email input */
@@ -43,10 +35,6 @@ const StepOne = (
         setEmail: (email: string) => void,
         firstResponse: string,
         setFirstResponse: (firstResponse: string) => void,
-        secondResponse: string;
-        setSecondResponse: (firstResponse: string) => void;
-        thirdResponse: string;
-        setThirdResponse: (firstResponse: string) => void;
         mitoAPI: MitoAPI,
     }): JSX.Element => {
 
@@ -62,39 +50,11 @@ const StepOne = (
                 <h1 className='text-header-1' style={{margin: 0}}>
                     Sign Up for Mito
                 </h1>
-                <p className='signup-modal-text'>
+                <p className='signup-modal-text' style={{marginTop: '10px'}}>
                     We’ll send you periodic product updates and welcome any feedback. And no spam. Duh.
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
-                <Row style={{marginTop: '10px', marginBottom: 0}}>
-                    <Col offsetRight={.5}>
-                        <label>
-                            <p className='text-body-1'>
-                                {FirstQuestion}
-                            </p>
-                        </label>
-                        <Input
-                            value={props.firstResponse}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setFirstResponse(e.target.value)}}
-                            placeholder={FirstPlaceholder}
-                            required
-                        />
-                    </Col>
-                    <Col offset={.5}>
-                        <label>
-                            <p className='text-body-1'>
-                                {SecondQuestion}
-                            </p>
-                        </label>
-                        <Input
-                            value={props.secondResponse}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setSecondResponse(e.target.value)}}
-                            placeholder={SecondPlaceholder}
-                            required
-                        />
-                    </Col>
-                </Row>
                 <p className='text-body-1' style={{marginTop: '10px', marginBottom: 0}}>
                     Email
                 </p>
@@ -109,14 +69,15 @@ const StepOne = (
                 />
                 <label>
                     <p className='text-body-1' style={{marginTop: '10px', marginBottom: 0}}>
-                        {ThirdQuestion}
+                        {FirstQuestion}
                     </p>
                 </label>
                 <Input
-                    value={props.thirdResponse}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setThirdResponse(e.target.value)}}
-                    placeholder={ThirdPlaceholder}
+                    value={props.firstResponse}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {props.setFirstResponse(e.target.value)}}
+                    placeholder={FirstPlaceholder}
                     required
+                    style={{marginBottom: '10px'}}
                 />
                 <div className='mt-10px' style={{marginTop: '10px'}}>
                     <TextButton
@@ -308,8 +269,6 @@ const StepThree = (
         back: () => void;
         next: () => void;
         firstResponse: string;
-        secondResponse: string;
-        thirdResponse: string;
         numUsages: number
         mitoAPI: MitoAPI;
         isPro: boolean;
@@ -318,9 +277,7 @@ const StepThree = (
     const onSubmit = async () => {
 
         // Log the answers to the questions each as their own piece of feedback
-        await props.mitoAPI.updateFeedback(FeedbackID.FIRST_NAME, props.numUsages, [{'question': FirstQuestion, 'answer': props.firstResponse}]);
-        await props.mitoAPI.updateFeedback(FeedbackID.LAST_NAME, props.numUsages, [{'question': SecondQuestion, 'answer': props.secondResponse}]);
-        await props.mitoAPI.updateFeedback(FeedbackID.COMPANY, props.numUsages, [{'question': ThirdQuestion, 'answer': props.thirdResponse}]);
+        await props.mitoAPI.updateFeedback(FeedbackID.COMPANY, props.numUsages, [{'question': FirstQuestion, 'answer': props.firstResponse}]);
         
 
         // Advance to the next step
@@ -380,9 +337,6 @@ const SignupModal = (
 
     // Store the first and second response here, so if they use the back button, their answers are stored
     const [firstResponse, setFirstResponse] = useState('');
-    const [secondResponse, setSecondResponse] = useState('');
-    const [thirdResponse, setThirdResponse] = useState('');
-
 
     const next = () => {
         // Note that if the user is pro, we don't show them the final signup step
@@ -428,7 +382,7 @@ const SignupModal = (
 
     return (
         <div className='overlay'>
-            <div className={classNames('signup-modal-container', {'signup-modal-container-tall': step === 1})}>
+            <div className={classNames('signup-modal-container')}>
                 <div className='signup-modal-left-column-container'>
                     {step === 1 &&
                         <StepOne
@@ -437,10 +391,6 @@ const SignupModal = (
                             setEmail={setEmail}
                             firstResponse={firstResponse}
                             setFirstResponse={setFirstResponse}
-                            secondResponse={secondResponse}
-                            setSecondResponse={setSecondResponse}
-                            thirdResponse={thirdResponse}
-                            setThirdResponse={setThirdResponse}
                             mitoAPI={props.mitoAPI}
                         />
                     }
@@ -458,8 +408,6 @@ const SignupModal = (
                             next={next}
                             back={back}
                             firstResponse={firstResponse}
-                            secondResponse={secondResponse}
-                            thirdResponse={thirdResponse}
                             numUsages={props.numUsages}
                             mitoAPI={props.mitoAPI}
                             isPro={props.isPro}

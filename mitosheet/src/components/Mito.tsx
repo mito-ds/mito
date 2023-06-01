@@ -115,7 +115,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
-        }
+        },
+        dataRecon: undefined
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
@@ -639,6 +640,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
+                    userProfile={userProfile}
                 />
             )
             case TaskpaneType.IMPORT_FIRST: return (
@@ -996,6 +998,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         fastForward={() => {
                             void mitoAPI.updateCheckoutStepByIndex(lastStepSummary.step_idx);
                         }}
+                        deleteStepsAfterIdx={() => {
+                            void mitoAPI.updateUndoToStepIndex(analysisData.currStepIdx)
+                        }}
+                        isPro={userProfile.isPro}
                     />
                 }
             </ErrorBoundary>

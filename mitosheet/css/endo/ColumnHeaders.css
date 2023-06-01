@@ -46,12 +46,12 @@
 }
 
 /* Don't highlight if we're resizing */
-.endo-column-headers-no-operation .endo-column-header-container:hover {
+.endo-column-headers-no-operation .endo-column-header-container:hover:not(.recon) {
     background-color: var(--mito-light-purple) !important;
     color: var(--mito-gray) !important;
 }
 
-.endo-column-header-container-selected {
+.endo-column-header-container-selected:not(.recon) {
     background-color: var(--mito-light-purple) !important;
     color: var(--mito-gray) !important;
 }
