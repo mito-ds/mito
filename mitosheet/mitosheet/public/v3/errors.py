@@ -48,12 +48,15 @@ def make_invalid_arg_error(sheet_function_name: str, arg_name: str, arg_index: i
         type_name_str = 'a range reference'
     else:
         type_name_str = f'a {type_name}.'
-    
+
+    arg_name_str = ''
+    if arg_name != 'argv':
+        arg_name_str = f' ({arg_name})'
 
     return MitoError(
         'invalid_arg_error',
         f'{sheet_function_name}: {arg_name} is Invalid',
-        f'Error in {sheet_function_name}. The {arg_index_str} argument ({arg_name}) is invalid. It cannot be {type_name_str}.',
+        f'Error in {sheet_function_name}. The {arg_index_str} argument{arg_name_str} is invalid. It cannot be {type_name_str}.',
         error_modal=False
     )
 
