@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-  
+    
     padding: 2rem 4rem;
     background-color: rgba(45, 45, 45, .98);
   
@@ -96,7 +96,7 @@
     }
 
     .desktop_left_nav_bar * + * {
-        margin-left: 1.5rem;
+        margin-left: 2.5rem;
     }
 
     .desktop_menu_items {
