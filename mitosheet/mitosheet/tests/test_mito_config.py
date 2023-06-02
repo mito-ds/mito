@@ -207,3 +207,20 @@ def test_mito_config_dont_display_ai_transform():
 
     delete_all_mito_config_environment_variables()
 
+def test_mit_config_disable_telemetry():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_FEATURE_TELEMETRY] = "False"
+
+    from mitosheet.telemetry.telemetry_utils import telemetry_turned_on
+    assert not telemetry_turned_on()
+
+
+def test_mit_config_enable_pro_telemetry():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_PRO] = "True"
+
+    from mitosheet.user import is_pro
+    assert is_pro()
+
