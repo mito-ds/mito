@@ -29,7 +29,6 @@ from mitosheet.user.utils import is_local_deployment, is_pro
 
 import analytics
 
-from mitosheet.mitosheet.enterprise.mito_config import is_env_variable_set_to_true
 
 # Write key taken from segement.com
 analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
@@ -63,7 +62,8 @@ def telemetry_turned_on() -> bool:
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY') is not None:
-        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY'))
+        from mitosheet.enterprise.mito_config import is_env_variable_set_to_true
+        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY', ''))
 
     # If Mito Pro is on, then don't log anything
     if is_pro():

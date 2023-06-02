@@ -15,12 +15,11 @@ import sys
 from typing import Optional
 
 import pandas as pd
-from mitosheet._version import __version__, package_name
+from mitosheet._version import __version__
 from mitosheet.user.db import get_user_field
-from mitosheet.user.schemas import (UJ_MITOSHEET_ENTERPRISE, UJ_MITOSHEET_LAST_UPGRADED_DATE,
+from mitosheet.user.schemas import (UJ_MITOSHEET_ENTERPRISE,
                                     UJ_MITOSHEET_PRO)
 
-from mitosheet.mitosheet.enterprise.mito_config import is_env_variable_set_to_true
 
 try:
     import mitosheet_helper_pro
@@ -79,7 +78,8 @@ def is_pro() -> bool:
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_PRO') is not None:
-        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_PRO'))
+        from mitosheet.enterprise.mito_config import is_env_variable_set_to_true
+        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_PRO', ''))
 
     # If you're on Mito Enterprise, then you get all Mito Pro features
     if is_enterprise():
