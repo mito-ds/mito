@@ -170,6 +170,9 @@ def upgrade_user_json_version_6_to_7(user_json_version_6: Dict[str, Any]) -> Dic
     does not happen through the installer, and so this experiment id will be set, but we do not
     want these users to go through the checklist. This is a temporary fix, and we need a much better
     long-term solution going forward.
+
+    NOTE: We no longer have the onboarding checklist, but we don't edit this function as there
+    is no need to.
     """
     # First, bump the version number
     user_json_version_6[UJ_USER_JSON_VERSION] = 7

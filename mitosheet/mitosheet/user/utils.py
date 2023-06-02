@@ -20,6 +20,8 @@ from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import (UJ_MITOSHEET_ENTERPRISE, UJ_MITOSHEET_LAST_UPGRADED_DATE,
                                     UJ_MITOSHEET_PRO)
 
+from mitosheet.mitosheet.enterprise.mito_config import is_env_variable_set_to_true
+
 try:
     import mitosheet_helper_pro
     MITOSHEET_HELPER_PRO = True
@@ -75,9 +77,9 @@ def is_pro() -> bool:
     if MITOSHEET_HELPER_PRO:
         return MITOSHEET_HELPER_PRO
 
-    # If the current package is mitosheet-private, we activate Pro
-    if package_name == 'mitosheet-private':
-        return True
+    # Check if the config is set
+    if os.environ.get('MITO_CONFIG_PRO') is not None:
+        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_PRO'))
 
     # If you're on Mito Enterprise, then you get all Mito Pro features
     if is_enterprise():
@@ -110,24 +112,11 @@ def should_upgrade_mitosheet() -> bool:
     NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
     date to this date, so that the user doesn't get a bunch of annoying popups. This just
     pushes back when they are annoyed to upgrade!
+
+    NOTE: THIS FUNCTION IS NOT IN USE ANY MORE. WE NO LONGER TELL USERS TO UPGRADE
+    AS THERE IS NO REAL REASON FOR THEM TO DO SO, AND IT IS ANNOYING.
     """
-    if not is_local_deployment():
-        return False
-    
-    from mitosheet.telemetry.telemetry_utils import MITOSHEET_HELPER_PRIVATE
-    if MITOSHEET_HELPER_PRO or MITOSHEET_HELPER_PRIVATE:
-        return False
-
-    # If it's mitosheet-private, then we don't give them the upgrade prompts
-    if package_name == 'mitosheet-private':
-        return False
-    
-    last_upgraded_date_stored = get_user_field(UJ_MITOSHEET_LAST_UPGRADED_DATE)
-    if last_upgraded_date_stored is None:
-        return False
-
-    mitosheet_last_upgraded_date = datetime.strptime(last_upgraded_date_stored, '%Y-%m-%d')
-    return (datetime.now() - mitosheet_last_upgraded_date).days > 21
+    return False
 
 def get_pandas_version() -> str:
     """
