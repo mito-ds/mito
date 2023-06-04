@@ -92,13 +92,13 @@ setup_args = dict(
     To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
     Before installing Mito \n\n
     1. Check that you have Python 3.6 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
-    2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aarondr77 (@) gmail.com with any questions.\n\n
+    2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aaron [@] sagacollab [dot] com with any questions.\n\n
     Installation Instructions \n\n
     For more detailed installation instructions, see our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
     1. pip install mitosheet\n\n
     2. Launch JupyterLab 3.0 and open a new notebook\n\n
     3. In the notebook, run the following code:\n\n
-    from mitosheet import sheet\n\n
+    import mitosheet\n\n
     mitosheet.sheet()\n\n
     """,
     long_description_content_type = "text/markdown",
