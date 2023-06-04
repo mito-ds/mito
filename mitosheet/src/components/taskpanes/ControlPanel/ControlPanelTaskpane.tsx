@@ -51,6 +51,7 @@ type ControlPanelTaskpaneProps = {
     lastStepIndex: number,
     lastStepType: StepType,
     analysisData: AnalysisData;
+    closeOpenEditingPopups: () => void;
 }
 
 
@@ -170,6 +171,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
                                 gridState={props.gridState}
                                 columnDtype={columnDtype}
                                 sheetData={props.sheetData}
+                                closeOpenEditingPopups={props.closeOpenEditingPopups}
                             />
                             <SortCard
                                 selectedSheetIndex={props.selectedSheetIndex}
