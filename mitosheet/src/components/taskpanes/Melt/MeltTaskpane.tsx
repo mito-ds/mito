@@ -97,6 +97,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                 <MultiToggleColumns
                     sheetData={sheetData}
                     selectedColumnIDs={params.id_var_column_ids}
+                    mitoAPI={props.mitoAPI}
                     onChange={(newSelectedColumnIDs: ColumnID[]) => {
                         setParams(oldDropDuplicateParams => {
                             return {
@@ -116,6 +117,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
                     sheetData={sheetData}
                     selectedColumnIDs={params.value_var_column_ids.filter(cid => !params.id_var_column_ids.includes(cid))}
                     disabledColumnIDs={params.id_var_column_ids}
+                    mitoAPI={props.mitoAPI}
                     onChange={(newSelectedColumnIDs: ColumnID[]) => {
                         setParams(oldDropDuplicateParams => {
                             return {

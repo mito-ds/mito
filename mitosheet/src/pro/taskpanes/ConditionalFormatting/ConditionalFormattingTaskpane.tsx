@@ -178,6 +178,7 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                             sheetData={sheetData}
                             openFormattingCardIndex={openFormattingCardIndex}
                             setOpenFormattingCardIndex={setOpenFormattingCardIndex}
+                            mitoAPI={props.mitoAPI}
                         />
                     )
                 })}

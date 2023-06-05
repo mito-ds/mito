@@ -11,7 +11,7 @@ import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { Filter } from '../ControlPanel/FilterAndSortTab/filter/Filter';
-import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
+import PivotInvalidSelectedColumnsError from './InvalidSelectedColumnsError';
 import LabelAndTooltip from '../../elements/LabelAndTooltip';
 
 const FILTERS_TOOLTIP = 'Filters are used to only include a subset of the source data in the pivot table.'
@@ -79,7 +79,7 @@ const PivotTableFilterSection = (props: {
             }
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={columnIDsMap}
-                pivotSection={'values'}
+                location={'pivot_filter'}
                 selectedColumnIDs={props.params.pivotFilters.map(({column_id}) => column_id)}
                 mitoAPI={props.mitoAPI}
             />

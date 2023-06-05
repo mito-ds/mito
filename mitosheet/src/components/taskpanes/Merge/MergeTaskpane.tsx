@@ -74,6 +74,7 @@ export const getDefaultMergeParams = (
     existingMergeParams?: MergeParams // If we are editing a merge, this is the configuration to start with
 ): MergeParams | undefined => {
     if (existingMergeParams) {
+        console.log(existingMergeParams)
         return existingMergeParams;
     }
 
@@ -104,12 +105,14 @@ export const getDefaultMergeParams = (
     if (previousParams && previousParams.sheet_index_one == sheetIndexOne) {
         selectedColumnIDsOne = previousParams.selected_column_ids_one;
     } else {
-        selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetIndexOne]?.columnIDsMap || {})]
+        const mergeKeyColumnIDsOne = suggestedMergeKeys ? suggestedMergeKeys[0] : undefined
+        selectedColumnIDsOne = [...Object.keys(sheetDataArray[sheetIndexOne]?.columnIDsMap || {}).filter(columnID => !mergeKeyColumnIDsOne?.includes(columnID))]
     }
     if (previousParams && previousParams.sheet_index_two == sheetIndexTwo) {
         selectedColumnIDsTwo = previousParams.selected_column_ids_two;
     } else {
-        selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetIndexTwo]?.columnIDsMap || {})]
+        const mergeKeyColumnIDsTwo = suggestedMergeKeys ? suggestedMergeKeys[1] : undefined
+        selectedColumnIDsTwo = [...Object.keys(sheetDataArray[sheetIndexTwo]?.columnIDsMap || {}).filter(columnID => !mergeKeyColumnIDsTwo?.includes(columnID))]
     }
     
     return {
@@ -171,7 +174,6 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             onChange={(mergeType: string) => {
                                 const newMergeTypeEnum = mergeType as MergeType
                                 setParams(prevParams => {
-                                    console.log('c')
                                     return {
                                         ...prevParams,
                                         how: newMergeTypeEnum
@@ -223,32 +225,36 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                     error={error}
+                    mitoAPI={props.mitoAPI}
                 />
                 <Spacer px={20}/>
-                <p className='text-header-3'>
-                    Columns to Keep from First Dataframe
-                </p>
-                {params.how !== MergeType.UNIQUE_IN_RIGHT &&
-                    <MultiToggleColumns
-                        sheetData={sheetDataOne}
-                        selectedColumnIDs={params.selected_column_ids_one.concat(mergeKeyColumnIDsOne)}
-                        disabledColumnIDs={mergeKeyColumnIDsOne}
-                        onChange={(newSelectedColumnIDs: ColumnID[]) => {
-                            setParams(oldDropDuplicateParams => {
-                                console.log('a')
-                                return {
-                                    ...oldDropDuplicateParams,
-                                    selected_column_ids_one: newSelectedColumnIDs
-                                }
-                            })
-                        }}
-                    />
-                }
-                {params.how === MergeType.UNIQUE_IN_RIGHT &&
-                    <p>
-                        Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
+                <div>
+                    <p className='text-header-3'>
+                        Columns to Keep from First Dataframe
                     </p>
-                }
+                    {params.how !== MergeType.UNIQUE_IN_RIGHT &&
+                        <MultiToggleColumns
+                            sheetData={sheetDataOne}
+                            selectedColumnIDs={params.selected_column_ids_one.concat(mergeKeyColumnIDsOne)}
+                            disabledColumnIDs={mergeKeyColumnIDsOne}
+                            mitoAPI={props.mitoAPI}
+                            onChange={(newSelectedColumnIDs: ColumnID[]) => {
+                                const newSelectedColumnIDsFiltered = newSelectedColumnIDs.filter(columnID => !mergeKeyColumnIDsOne.includes(columnID))
+                                setParams(oldDropDuplicateParams => {
+                                    return {
+                                        ...oldDropDuplicateParams,
+                                        selected_column_ids_one: newSelectedColumnIDsFiltered
+                                    }
+                                })
+                            }}
+                        />
+                    }
+                    {params.how === MergeType.UNIQUE_IN_RIGHT &&
+                        <p>
+                            Finding the unique values in the second sheet doesn&apos;t keep any columns from the first sheet.
+                        </p>
+                    }
+                </div>                
                 <Spacer px={20}/>
                 <div>
                     <p className='text-header-3'>
@@ -259,12 +265,14 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             sheetData={sheetDataTwo}
                             selectedColumnIDs={params.selected_column_ids_two.concat(mergeKeyColumnIDsTwo)}
                             disabledColumnIDs={mergeKeyColumnIDsTwo}
+                            mitoAPI={props.mitoAPI}
                             onChange={(newSelectedColumnIDs: ColumnID[]) => {
+                                const newSelectedColumnIDsFiltered = newSelectedColumnIDs.filter(columnID => !mergeKeyColumnIDsTwo.includes(columnID))
+                                console.log("updated selected column ids: ", newSelectedColumnIDsFiltered)
                                 setParams(oldDropDuplicateParams => {
-                                    console.log('b')
                                     return {
                                         ...oldDropDuplicateParams,
-                                        selected_column_ids_two: newSelectedColumnIDs
+                                        selected_column_ids_two: newSelectedColumnIDsFiltered
                                     }
                                 })
                             }}

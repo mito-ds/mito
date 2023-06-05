@@ -36,3 +36,7 @@
 .multi-toggle-box-row-disabled {
     color: var(--mito-medium-gray) !important;
 }
+
+.multi-toggle-box-row-invalid {
+    color: var(--mito-red) !important;
+}

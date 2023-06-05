@@ -26,7 +26,7 @@ const MultiToggleItem = (props: {
     /** 
         * @param index - The index of the item in the state that stores the toggles
     */
-    index: number,
+    index?: number,
     /** 
         * @param [rightText] - Text to display on the right side of the element - useful for metadata
     */
@@ -35,6 +35,10 @@ const MultiToggleItem = (props: {
         * @param [disabled] - Optionally set this to true to disable toggling this element
     */
     disabled?: boolean,
+    /**
+        * @param [invalid] - Optionally set this to true to highlight it in red 
+    */
+    invalid?: boolean
 }): JSX.Element => {
     return (
         <div 
@@ -43,7 +47,8 @@ const MultiToggleItem = (props: {
                     'multi-toggle-box-row', 'text-overflow-hide', 
                     {
                         'multi-toggle-box-row-selected': props.toggled,
-                        'multi-toggle-box-row-disabled': props.disabled
+                        'multi-toggle-box-row-disabled': props.disabled,
+                        'multi-toggle-box-row-invalid': props.invalid,
                     }
                 )
             }

@@ -9,7 +9,7 @@ import DropdownItem from '../../elements/DropdownItem';
 import LabelAndTooltip from '../../elements/LabelAndTooltip';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
+import PivotInvalidSelectedColumnsError from './InvalidSelectedColumnsError';
 import PivotTableValueAggregationCard from './PivotTableValueAggregationCard';
 import { getPivotAggregationDisabledMessage } from './pivotUtils';
 
@@ -67,7 +67,7 @@ const PivotTableValueSelection = (props: {
             </Row>
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={columnIDsMap}
-                pivotSection={'values'}
+                location={'pivot_values'}
                 selectedColumnIDs={props.params.pivotValuesColumnIDsArray.map(([columnID, ]) => columnID)}
                 mitoAPI={props.mitoAPI}
             />

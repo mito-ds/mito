@@ -1,4 +1,5 @@
 import React from "react"
+import MitoAPI from "../../../jupyter/api";
 import { ColumnID, SheetData } from "../../../types";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import DropdownItem from "../../elements/DropdownItem";
@@ -8,6 +9,7 @@ import XIcon from "../../icons/XIcon";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
+import InvalidSelectedColumnsError from "../PivotTable/InvalidSelectedColumnsError";
 import { MergeParams } from "./MergeTaskpane";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
 
@@ -18,6 +20,7 @@ const MergeKeysSelectionSection = (props: {
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
+    mitoAPI: MitoAPI
 }): JSX.Element => {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
@@ -42,11 +45,9 @@ const MergeKeysSelectionSection = (props: {
                                 value={mergeKeyColumnIDOne}
                                 onChange={(columnID: ColumnID) => {
                                     props.setParams(prevParams => {
-                                        console.log(4)
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys[index][0] = columnID
 
-                                        console.log(newMergeKeys)
                                         return {
                                             ...prevParams,
                                             merge_key_column_ids: newMergeKeys
@@ -74,7 +75,6 @@ const MergeKeysSelectionSection = (props: {
                             <Select
                                 value={mergeKeyColumnIDTwo}
                                 onChange={(columnID: ColumnID) => {
-                                    console.log(3)
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys[index][1] = columnID
@@ -101,7 +101,6 @@ const MergeKeysSelectionSection = (props: {
                         <Col>
                             <XIcon
                                 onClick={() => {
-                                    console.log(2)
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                                         newMergeKeys.splice(index, 1)
@@ -116,6 +115,18 @@ const MergeKeysSelectionSection = (props: {
                     </Row>
                 )
             })}
+            <InvalidSelectedColumnsError 
+                columnIDsMap={props.sheetDataArray[props.params.sheet_index_one].columnIDsMap}    
+                location={'pivot_columns_to_keep'} 
+                selectedColumnIDs={props.params.merge_key_column_ids.map(([sheetOneColumnID, sheetTwoColumnID]) => sheetOneColumnID)} 
+                mitoAPI={props.mitoAPI}
+            />
+            <InvalidSelectedColumnsError 
+                columnIDsMap={props.sheetDataArray[props.params.sheet_index_two].columnIDsMap}    
+                location={'pivot_columns_to_keep'} 
+                selectedColumnIDs={props.params.merge_key_column_ids.map(([sheetOneColumnID, sheetTwoColumnID]) => sheetTwoColumnID)} 
+                mitoAPI={props.mitoAPI}
+            />
             {props.error !== undefined && 
                 <p className='text-color-error'>
                     {props.error}
@@ -126,7 +137,6 @@ const MergeKeysSelectionSection = (props: {
                 width="medium"
                 variant="dark"
                 onClick={() => {
-                    console.log("1")
                     props.setParams(prevParams => {
                         const newMergeKeys = [...prevParams.merge_key_column_ids];
                         const newSuggestedMergeKeys = getFirstSuggestedMergeKeys(props.sheetDataArray, props.params.sheet_index_one, props.params.sheet_index_two, props.params.merge_key_column_ids);

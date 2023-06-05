@@ -190,6 +190,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                 <MultiToggleColumns
                     sheetData={sheetData}
                     selectedColumnIDs={params.column_ids}
+                    mitoAPI={props.mitoAPI}
                     getIsDisabledColumnID={(columnID, columnHeader, columnDtype) => {
                         const disabled = (params.fill_method.type === 'mean' || params.fill_method.type === 'median') && 
                             !(isNumberDtype(columnDtype) || isTimedeltaDtype(columnDtype) || isDatetimeDtype(columnDtype));

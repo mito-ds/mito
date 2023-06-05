@@ -158,6 +158,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 <MultiToggleColumns
                     sheetData={props.sheetDataArray[params.sheet_index]}
                     selectedColumnIDs={params.column_ids}
+                    mitoAPI={props.mitoAPI}
                     onChange={(newSelectedColumnIDs: ColumnID[]) => {
                         setParams(oldDropDuplicateParams => {
                             return {

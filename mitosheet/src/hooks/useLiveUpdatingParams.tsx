@@ -101,11 +101,13 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
             return;
         }
 
+        console.log('unedited: ', params)
         // Convert the frontend params to the backend params
         const finalParams = converters.getBackendFromFrontend(params, sheetDataArray);
 
         setLoading(true);
         const stepIDToSend = stepID || getRandomId();
+        console.log('final params: ', finalParams)
         const possibleError = await mitoAPI._edit<BackendParamType>(editEvent, finalParams, stepIDToSend);
         setLoading(false);
 

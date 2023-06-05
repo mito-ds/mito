@@ -13,7 +13,7 @@ import Select from '../../elements/Select';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import PivotInvalidSelectedColumnsError from './PivotInvalidSelectedColumnsError';
+import PivotInvalidSelectedColumnsError from './InvalidSelectedColumnsError';
 
 const PIVOT_COLUMN_TRANSFORM_TITLES: Record<PivotColumnTransformation, string> = {
     'no-op': 'exact time',
@@ -183,7 +183,7 @@ const PivotTableKeySelection = (props: {
             <PivotInvalidSelectedColumnsError
                 columnIDsMap={columnIDsMap}
                 selectedColumnIDs={columnIdsWithTransforms.map(({column_id}) => column_id)}
-                pivotSection={props.rowOrColumn === 'pivotRowColumnIDsWithTransforms' ? 'row' : 'column'}
+                location={props.rowOrColumn === 'pivotRowColumnIDsWithTransforms' ? 'pivot_row' : 'pivot_column'}
                 mitoAPI={props.mitoAPI}
             />
             {pivotTableKeyCards}

@@ -7,6 +7,7 @@ import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIc
 import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
 import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
 import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
+import MitoAPI from '../../../jupyter/api';
 import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
 import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { capitalizeFirstLetter } from '../../../utils/strings';
@@ -21,6 +22,7 @@ interface ConditionalFormattingProps {
     sheetData: SheetData;
     openFormattingCardIndex: number
     setOpenFormattingCardIndex: React.Dispatch<React.SetStateAction<number>>
+    mitoAPI: MitoAPI
 }
 
 // Gets the message displayed on the closed conditional formatting card about which columns this is applied to.
@@ -129,6 +131,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
         >
             <MultiToggleColumns
                 sheetData={props.sheetData}
+                mitoAPI={props.mitoAPI}
                 selectedColumnIDs={props.conditionalFormat.columnIDs}
                 onChange={(newSelectedColumnIDs: ColumnID[]) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
