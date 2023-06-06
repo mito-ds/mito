@@ -75,7 +75,7 @@ export type CommContainer = {
 // Max delay is the longest we'll wait for the API to return a value
 // There is no real reason for these to expire, so we set it very high
 // at 5 minutes
-const MAX_DELAY = 5 * 60_100;
+const MAX_DELAY = 5 * 60_000;
 // How often we poll to see if we have a response yet
 const RETRY_DELAY = 25;
 const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
