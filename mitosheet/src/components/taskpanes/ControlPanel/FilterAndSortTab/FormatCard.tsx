@@ -21,7 +21,8 @@ function FormatCard(props: {
     gridState: GridState,
     mitoAPI: MitoAPI,
     columnDtype: string
-    sheetData: SheetData | undefined 
+    sheetData: SheetData | undefined,
+    closeOpenEditingPopups: () => void
 }): JSX.Element {
     const formatTypeTitle = getFormatTitle(props.sheetData?.dfFormat.columns[props.columnID])
 
@@ -43,7 +44,7 @@ function FormatCard(props: {
                         <Select
                             value={formatTypeTitle}
                         >
-                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, [props.columnID], props.mitoAPI)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, [props.columnID], props.mitoAPI, props.closeOpenEditingPopups)}
                         </Select>
                     }
                     {!isNumberDtype(props.columnDtype) &&

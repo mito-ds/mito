@@ -47,6 +47,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                 }}
                 userProfile={props.userProfile}
             >
+                
                 <Row justify='space-between' align='center'>
                     <Col>
                         <LabelAndTooltip tooltip="A Python function is a reusable block of code that performs a specific task. It takes input, processes it, and returns output, making your code more organized and able to be easily rerun on new datasets.">

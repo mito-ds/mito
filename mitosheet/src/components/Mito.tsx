@@ -532,6 +532,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         lastStepIndex={lastStepSummary.step_idx}
                         lastStepType={lastStepSummary.step_type}
                         analysisData={analysisData}
+                        closeOpenEditingPopups={closeOpenEditingPopups}
                     />
                 )
             case TaskpaneType.UPGRADE_TO_PRO: return (
@@ -937,6 +938,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setEditorState={setEditorState}
                     analysisData={analysisData}
                     sheetIndex={uiState.selectedSheetIndex}
+                    closeOpenEditingPopups={closeOpenEditingPopups}
                 />
                 <div className="mito-center-content-container" id="mito-center-content-container"> 
                     <div className={formulaBarAndSheetClassNames}>

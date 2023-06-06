@@ -126,12 +126,16 @@ export const getColumnFormatDropdownItems = (
     sheetData: SheetData | undefined,
     columnIDs: ColumnID[], 
     mitoAPI: MitoAPI, 
+    closeOpenEditingPopups: () => void
 ): JSX.Element[] => {
 
     const numberColumnColumnIDs = getNumberColumnIDs(sheetData, columnIDs);
     const appliedFormatting = sheetData?.dfFormat.columns[numberColumnColumnIDs[0]];
 
     const onClick = (columnFormat: ColumnFormatType | undefined): void => {
+        // Close any open editing taskpanes
+        closeOpenEditingPopups()
+
         void changeFormatOfColumns(
             sheetIndex, 
             sheetData,
