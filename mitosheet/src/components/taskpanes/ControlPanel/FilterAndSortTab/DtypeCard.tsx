@@ -106,7 +106,7 @@ export function getDtypeSelectOptions(onChange?: (newDtype: string) => void): JS
     A card that allows a user to change the dtype of a column.
 */
 function DtypeCard(props: DtypeCardProps): JSX.Element {
-    const [stepID] = useState<string | undefined>(() => getRandomId());
+    const [stepID] = useState<string>(() => getRandomId());
 
     async function changeColumnDtype(newDtype: string) {
         await props.mitoAPI.editChangeColumnDtype(

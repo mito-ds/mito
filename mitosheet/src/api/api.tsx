@@ -916,7 +916,7 @@ export default class MitoAPI {
         sheetIndex: number,
         columnIDs: ColumnID[],
         newDtype: string,
-        stepID?: string
+        stepID: string
     ): Promise<MitoAPIResult<never>> {
         return await this.send({
             'event': 'edit_event',
