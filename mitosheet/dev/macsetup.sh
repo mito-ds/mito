@@ -17,9 +17,6 @@ rm -rf venv/
 python3 -m venv venv
 source venv/bin/activate
 
-# Switch to the mitosheet package, which we develop on by default
-python switch.py mitosheet
-
 # Install Python dependencies
 pip install -e ".[test, deploy]"
 
