@@ -96,6 +96,9 @@
 .text-color-mito-purple {
     color: var(--mito-purple) !important;
 }
+.text-color-mito-light-purple {
+    color: var(--mito-light-purple)
+}
 .text-color-white-important {
     color: white !important;
 }
@@ -108,6 +111,13 @@
 .text-color-medium-gray-important {
     color: var(--mito-medium-gray) !important;
 }
+.text-color-recon-created {
+    color: var(--mito-recon-created-text-color) !important;
+}
+.text-color-recon-modified {
+    color: var(--mito-recon-modified-text-color) !important;
+}
+
 
 /*
     Set the text to an error color. In the future, we
@@ -185,5 +195,4 @@
 
 .text-color-gray-disabled {
     color: var(--mito-gray-disabled);
-   
 }

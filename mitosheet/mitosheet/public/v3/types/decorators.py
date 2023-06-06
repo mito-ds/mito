@@ -6,7 +6,7 @@
 
 import inspect
 from functools import wraps
-from typing import Callable
+from typing import Callable, List
 
 from mitosheet.public.v3.types.utils import get_arg_cast_to_type
 from mitosheet.types import PrimitiveTypeName
@@ -14,6 +14,7 @@ from mitosheet.types import PrimitiveTypeName
 
 def cast_values_in_all_args_to_type(
     target_primitive_type_name: PrimitiveTypeName,
+    primitive_types_to_ignore: List[PrimitiveTypeName] = []
 ) -> Callable:
 
     def wrap(sheet_function):
@@ -22,7 +23,7 @@ def cast_values_in_all_args_to_type(
 
             # For every arguement, go through and cast them to the correct type
             final_args = [
-                get_arg_cast_to_type(target_primitive_type_name, arg)
+                get_arg_cast_to_type(target_primitive_type_name, arg, primitive_types_to_ignore=primitive_types_to_ignore)
                 for arg in args
             ]
 

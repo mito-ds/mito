@@ -10,7 +10,7 @@ from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_l
 from io import StringIO
 from contextlib import redirect_stdout
 
-from mitosheet.errors import make_exec_error
+from mitosheet.errors import MitoError, make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.column_steps.delete_column import \
     delete_column_ids
@@ -134,6 +134,16 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
 
     old_columns = old_df.columns.to_list()
     new_columns = new_df.columns.to_list()
+
+    # If there are duplicated columns in the new dataframe, we throw an error
+    # as we don't support this elsewhere in the codebase
+    if len(new_columns) != len(set(new_columns)):
+        raise MitoError(
+            'duplicated_column_headers_error', 
+            'Duplicated Column Headers', 
+            'There are duplicated columns in the new dataframe',
+            error_modal=False
+        )
 
     old_df_head = old_df.head(5)
     new_df_head = new_df.head(5)

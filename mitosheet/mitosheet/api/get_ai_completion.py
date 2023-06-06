@@ -22,6 +22,8 @@ from mitosheet.user.utils import is_pro # type: ignore
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
 
+OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 100
+
 def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
         return {
                 "model": "gpt-3.5-turbo",
@@ -53,15 +55,16 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
 
         pro = is_pro()
 
-        if not pro and num_usages >= 20:
+        if not pro and num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 return json.dumps({
-                        'error': f'You have used Mito AI 20 times.'
+                        'error': f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times.'
                 })
                 
 
         data = {
                 'email': user_email,
                 'user_id': user_id,
+                'user_input': user_input,
                 'data': _get_ai_completion_data(prompt)
         }
 
@@ -86,7 +89,6 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> str:
                         'prompt': prompt,
                         'completion': res.json()['completion'],
                 })
-                return 
         
         return json.dumps({
                 'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'

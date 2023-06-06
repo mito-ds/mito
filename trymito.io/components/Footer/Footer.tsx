@@ -3,7 +3,7 @@ import Image from "next/image"
 import footerStyle from './Footer.module.css'
 import pageStyle from '../../styles/Page.module.css'
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
-import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
+import { JOBS_BOARD_LINK, MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 
 const Footer = (): JSX.Element => {
 
@@ -45,6 +45,9 @@ const Footer = (): JSX.Element => {
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
+                        <Link href='/teams'>Teams</Link>
+                    </li>
+                    <li className='text-nav'>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
@@ -76,7 +79,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://blog.trymito.io'>Blog</a>
                     </li>
                     <li className='text-nav'>
-                        <a href='https://www.ycombinator.com/companies/mito/jobs' target="_blank" rel="noreferrer">Jobs</a>
+                        <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
                     </li>
                     <li className='text-nav'>
                         <a href='https://twitter.com/tryMito' target="_blank" rel="noreferrer">Twitter</a>

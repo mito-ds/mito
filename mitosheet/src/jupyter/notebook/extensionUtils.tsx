@@ -1,5 +1,5 @@
 import MitoAPI from "../api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode } from "../../utils/code";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../../utils/code";
 import { PublicInterfaceVersion } from "../../types";
 
 type CellType = any;
@@ -144,14 +144,16 @@ export function tryOverwriteAnalysisToReplayParameter(cell: CellType | undefined
  * a analysis_to_replay parameter, this will return false.
  */
 export function tryWriteAnalysisToReplayParameter(cell: CellType | undefined, analysisName: string): boolean {
-    if (isMitosheetCallCode(getCellText(cell)) && !containsMitosheetCallWithAnyAnalysisToReplay(getCellText(cell))) {
-        const currentCode = getCellText(cell);
+    const currentCode = getCellText(cell);
+    if (isMitosheetCallCode(currentCode) && !containsMitosheetCallWithAnyAnalysisToReplay(currentCode)) {
+
+        const currentCodeCleaned = removeWhitespaceInPythonCode(currentCode)
 
         // We know the mitosheet.sheet() call is the last thing in the cell, so we 
         // just replace the last closing paren
         const lastIndex = currentCode.lastIndexOf(')');
         let replacement = ``;
-        if (currentCode.includes('sheet()')) {
+        if (currentCodeCleaned.includes('sheet()')) {
             replacement = `analysis_to_replay="${analysisName}")`;
         } else {
             replacement = `, analysis_to_replay="${analysisName}")`;

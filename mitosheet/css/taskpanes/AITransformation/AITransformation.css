@@ -44,8 +44,9 @@
     border-radius: 3px;
     border: 1px solid var(--mito-light-gray);
 
-    word-break: break-all; /* Wrap long text */
-    white-space: pre-line; /* Preserve line breaks */
+    word-break: break-word; 
+    white-space: pre-line; 
+    overflow-wrap: break-word; 
 
 }
 .ai-transformation-message-user {

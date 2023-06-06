@@ -24,15 +24,15 @@
     justify-content: center;
 }
 
-.mito-grid-cell:hover {
+.mito-grid-cell:hover:not(.recon) {
     background-color: var(--mito-very-light-purple);
 }
 
 /* We make selected cells look different on even and odd rows */
-.mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color) {
+.mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
     background-color: rgba(153, 102, 255, .15);
 }
-.mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color) {
+.mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
     background-color: rgba(153, 102, 255, 0.10);
 }
 
@@ -43,4 +43,20 @@
 .right-align-number-series {
     /* Right align number series */
     text-align: right;
+}
+
+.created-recon-background-color {
+    background-color: var(--mito-recon-created-background-color);
+}
+
+.created-recon-background-color-dark {
+    background-color: var(--mito-recon-created-background-color-dark);
+}
+
+.modified-recon-background-color {
+    background-color: var(--mito-recon-modified-background-color);
+}
+
+.modified-recon-background-color-dark {
+    background-color: var(--mito-recon-modified-background-color-dark);
 }

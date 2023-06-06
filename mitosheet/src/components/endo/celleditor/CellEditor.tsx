@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
 import MitoAPI from '../../../jupyter/api';
-import { EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import { AnalysisData, EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
@@ -53,6 +53,7 @@ const CellEditor = (props: {
     mitoAPI: MitoAPI,
     currentSheetView: SheetView
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    analysisData: AnalysisData
 }): JSX.Element => {
 
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
@@ -153,6 +154,7 @@ const CellEditor = (props: {
         cellEditorInputRef.current?.selectionStart,
         cellEditorError,
         loading,
+        props.analysisData
     )
 
     // A helper function to close the cell editor, selecting the cell that was

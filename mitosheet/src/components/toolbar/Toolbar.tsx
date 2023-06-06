@@ -43,7 +43,8 @@ const Toolbar = (
         userProfile: UserProfile;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
-        sheetIndex: number
+        sheetIndex: number,
+        closeOpenEditingPopups: () => void
     }): JSX.Element => {  
 
 
@@ -72,6 +73,15 @@ const Toolbar = (
             })}}/>
         )
     }
+
+    importDropdownItems.push(
+        <DropdownItem title='Custom Imports' key='Custom Imports' onClick={() => {props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.USERDEFINEDIMPORT}
+            }
+        })}}/>
+    )
 
     return (
         <div className='mito-toolbar-container'>
@@ -343,7 +353,7 @@ const Toolbar = (
                                 })
                             }
                         >
-                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI)}
+                            {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI, props.closeOpenEditingPopups)}
                         </Dropdown>
                     </ToolbarButton>
 
