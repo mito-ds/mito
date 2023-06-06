@@ -74,7 +74,6 @@ export const getDefaultMergeParams = (
     existingMergeParams?: MergeParams // If we are editing a merge, this is the configuration to start with
 ): MergeParams | undefined => {
     if (existingMergeParams) {
-        console.log(existingMergeParams)
         return existingMergeParams;
     }
 
@@ -145,7 +144,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
     /*
         If the merge params are undefined, then display this error message.
     */
-    if (params === undefined) {
+    if (params === undefined || props.sheetDataArray.length < 2) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
@@ -268,7 +267,6 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                             mitoAPI={props.mitoAPI}
                             onChange={(newSelectedColumnIDs: ColumnID[]) => {
                                 const newSelectedColumnIDsFiltered = newSelectedColumnIDs.filter(columnID => !mergeKeyColumnIDsTwo.includes(columnID))
-                                console.log("updated selected column ids: ", newSelectedColumnIDsFiltered)
                                 setParams(oldDropDuplicateParams => {
                                     return {
                                         ...oldDropDuplicateParams,

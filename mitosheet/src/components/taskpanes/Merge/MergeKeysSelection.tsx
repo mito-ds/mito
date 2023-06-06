@@ -27,7 +27,6 @@ const MergeKeysSelectionSection = (props: {
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
 
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
-
     return (
         <div className="light-gray-container">
             <Row suppressTopBottomMargin>
