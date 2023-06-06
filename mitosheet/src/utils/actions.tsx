@@ -785,6 +785,8 @@ export const createActions = (
             shortTitle: 'Less',
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
+                closeOpenEditingPopups();
+
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
@@ -810,6 +812,8 @@ export const createActions = (
             shortTitle: 'More',
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
+                closeOpenEditingPopups();
+
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
                 selectedNumberSeriesColumnIDs.forEach((columnID) => {
