@@ -58,11 +58,21 @@ function activateMitosheetExtension(
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
 
-            // First, get the kernel with the correct kernel id
-            const currentNotebook = tracker.find((nb) => {
-                return nb.sessionContext.session?.kernel?.id === kernelID
-            });
-            const currentKernel = currentNotebook?.sessionContext?.session?.kernel;
+
+            let currentKernel = undefined;
+            if (kernelID === 'kernel-00000000-0000-0000-0000-000000000000') {
+                // If we get a dummy kernel ID, we are in a jupyterlite instance, so we 
+                // just get the current kernel
+                currentKernel = tracker.currentWidget?.context.sessionContext.session?.kernel;
+            } else {
+                // If we have a kernel ID, get the kernel with the correct kernel id
+                const currentNotebook = tracker.find((nb) => {
+                    return nb.sessionContext.session?.kernel?.id === kernelID
+                });
+                currentKernel = currentNotebook?.sessionContext?.session?.kernel;
+            }
+
+            
 
             // If there is no kernel with this ID, then we know the kernel has been restarted, and so 
             // we tell the user this

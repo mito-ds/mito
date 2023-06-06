@@ -10,6 +10,7 @@ to interact with telemetry. See the README.md file in this folder for
 more details.
 """
 
+import datetime
 import os
 import platform
 import sys
@@ -23,15 +24,37 @@ from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
-from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.location import get_location, is_docker, is_jupyterlite
+from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
+WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+
 import analytics
+analytics.write_key = WRITE_KEY
 
+if is_jupyterlite():
+    # If we are in JupyterLite, we need to use pyodide fetch to 
+    # send the data to segment manually. We do this by changing
+    # the requests.post function to use pyodide fetch instead
+    from unittest.mock import patch
+    from js import fetch
 
-# Write key taken from segement.com
-analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+    @patch('urllib3.connectionpool.HTTPConnectionPool.urlopen')
+    def fetch_post(url, data, **kwargs):
+        fetch(url, {
+            'method': 'POST',
+            'body': data,
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        })
+
+    # We don't want to start a thread
+    analytics.sync_mode = True
+    
+
+        
 
 
 from mitosheet._version import __version__, package_name
@@ -71,20 +94,6 @@ def telemetry_turned_on() -> bool:
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
-
-__online = None
-
-def is_online() -> bool:
-    global __online
-    if __online is None:
-        try:
-            import requests
-            requests.get('https://google.com')
-            __online = True
-        except:
-            __online = False
-
-    return __online
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
@@ -337,8 +346,7 @@ def identify() -> None:
     local = is_local_deployment()
     operating_system = platform.system()
 
-    
-    if not is_running_test() and is_online():
+    if not is_running_test():
         # NOTE: we do not log anything when tests are running
         analytics.identify(static_user_id, {
             'version_python': sys.version_info,
@@ -395,8 +403,8 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     final_params = {**final_params, **_get_experiment_params()}
 
     # Finially, do the acutal logging. We do not log anything when tests are
-    # running, or if telemetry is turned off, or if we're offline
-    if not is_running_test() and telemetry_turned_on() and is_online():
+    # running, or if telemetry is turned off
+    if not is_running_test() and telemetry_turned_on():
         analytics.track(
             get_user_field(UJ_STATIC_USER_ID), 
             log_event, 

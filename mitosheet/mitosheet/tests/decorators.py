@@ -70,8 +70,3 @@ requires_open_ai_credentials = pytest.mark.skipif(
     not is_open_ai_credentials_available(),
     reason='Requires a set OPENAI_API_KEY'
 )
-
-skip_if_offline = pytest.mark.skipif(
-    not is_online(),
-    reason='This test only runs if it is offline.'
-)
