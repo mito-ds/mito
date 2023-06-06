@@ -107,18 +107,3 @@ jobs:
           cd mitoinstaller
           source venv/bin/activate
           python setup.py sdist upload
-  run-if-failed:
-    runs-on: ubuntu-latest
-    needs: [deploy-mitosheet2, deploy-mitosheet, deploy-mitosheet3, deploy-mitoinstaller]
-    if: always() && (needs.deploy-mitosheet2.result == 'failure' || needs.deploy-mitosheet.result == 'failure' || needs.deploy-mitosheet3.result == 'failure' || needs.deploy-mitoinstaller.result == 'failure')
-    steps:
-      - name: Send a zulip message on failure
-        uses: zulip/github-actions-zulip/send-message@v1
-        with:
-          api-key: ${{ secrets.ZULIP_API_KEY }}
-          email: 'naterush1997@gmail.com'
-          organization-url: 'https://mito.zulipchat.com'
-          to: 'technical'
-          type: 'stream'
-          topic: 'releases'
-          content: 'A release has failed. Please check the Github Action.'

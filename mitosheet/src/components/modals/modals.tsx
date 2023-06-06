@@ -28,7 +28,11 @@ export enum ModalEnum {
 interface NoneModalInfo {type: ModalEnum.None}
 interface ErrorModalInfo {
     type: ModalEnum.Error;
-    error: MitoError
+    error: {
+        error: string,
+        errorShort: string,
+        traceback?: string
+    }
 }
 
 interface SignUpModalInfo {

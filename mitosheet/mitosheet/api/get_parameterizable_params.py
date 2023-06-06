@@ -11,7 +11,7 @@ from mitosheet.types import StepsManagerType
 from mitosheet.updates.args_update import is_string_arg_to_mitosheet_call
 
 
-def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Tuple[str, str]]:
 
 
         all_parameterizable_params: List[Tuple[str, str]] = []
@@ -28,4 +28,4 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
                 parameterizable_params = code_chunk.get_parameterizable_params()
                 all_parameterizable_params.extend(parameterizable_params)
 
-        return json.dumps(all_parameterizable_params)
+        return all_parameterizable_params

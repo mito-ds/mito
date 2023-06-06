@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { intersection } from '../../../utils/arrays';
 import { getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';

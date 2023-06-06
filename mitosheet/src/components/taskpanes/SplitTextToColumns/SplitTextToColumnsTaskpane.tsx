@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, ColumnID, SheetData, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -101,9 +101,10 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
     async function loadSplitTextToColumnsPreview() {
 
         if (params !== undefined && params.column_id !== undefined && params.delimiters.length > 0) {
-            const _splitTextToColumnsPreviewArray = await props.mitoAPI.getSplitTextToColumnsPreview(params)
+            const response = await props.mitoAPI.getSplitTextToColumnsPreview(params);
+            const _splitTextToColumnsPreviewArray = 'error' in response ? undefined : response.result;
             if (_splitTextToColumnsPreviewArray !== undefined) {
-                setPreview(_splitTextToColumnsPreviewArray)
+                setPreview(_splitTextToColumnsPreviewArray.dfPreviewRowDataArray)
             } else {
                 setPreview([])
             }

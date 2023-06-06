@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../css/endo/CellEditor.css';
-import MitoAPI from '../../../jupyter/api';
-import { AnalysisData, EditorState, FormulaLocation, GridState, MitoError, SheetData, SheetView, UIState } from '../../../types';
+import MitoAPI, { MitoAPIResult } from '../../../api/api';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
+import { AnalysisData, EditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../types';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import { isMitoError } from '../../../utils/errors';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
 import { submitRenameColumnHeader } from '../columnHeaderUtils';
@@ -13,7 +13,6 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
 import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
 import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
-import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
@@ -493,7 +492,7 @@ const CellEditor = (props: {
         // Mark this as loading
         setLoading(true);
         
-        let errorMessage: MitoError | undefined = undefined;
+        let errorMessage: MitoAPIResult<never> | undefined = undefined;
 
         // Make sure to send the write type of message, depending on the editor
         if (props.editorState.rowIndex == -1) {
@@ -521,8 +520,8 @@ const CellEditor = (props: {
 
         // Don't let the user close the editor if this is an invalid formula
         // TODO: do we want a loading message?
-        if (isMitoError(errorMessage)) {
-            setCellEditorError(errorMessage.to_fix);
+        if (errorMessage !== undefined && 'error' in errorMessage) {
+            setCellEditorError(errorMessage.error);
         } else {
             closeCellEditor();
             props.closeOpenEditingPopups();

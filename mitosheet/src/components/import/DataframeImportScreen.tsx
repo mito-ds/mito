@@ -1,5 +1,5 @@
 import React from "react";
-import MitoAPI from "../../jupyter/api";
+import MitoAPI from "../../api/api";
 import { AnalysisData, UIState } from "../../types";
 
 import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
@@ -48,7 +48,10 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
 
     const [dfNamesInNotebook] = useStateFromAPIAsync(
         [],
-        () => {return props.mitoAPI.getDefinedDfNames()},
+        async () => {
+            const response = await props.mitoAPI.getDefinedDfNames()
+            return 'error' in response ? undefined : response.result;
+        },
         undefined,
         []
     )

@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import TextButton from '../../elements/TextButton';
 import ConfigureIcon from '../../icons/ConfigureIcon';
@@ -109,7 +109,8 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 loadingFolder: true
             }
         })
-        const _pathContents = await props.mitoAPI.getPathContents(currPathParts);
+        const response = await props.mitoAPI.getPathContents(currPathParts);
+        const _pathContents = 'error' in response ? undefined : response.result;
         if (_pathContents) {
             setFileBrowserState(prevImportState => {
                 return {

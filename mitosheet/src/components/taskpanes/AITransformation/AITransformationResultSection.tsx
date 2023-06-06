@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AITransformationResult, SheetData, UIState } from "../../../types";
 
 import '../../../../css/taskpanes/AITransformation/AITransformation.css';
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { classNames } from "../../../utils/classNames";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import Col from "../../layout/Col";

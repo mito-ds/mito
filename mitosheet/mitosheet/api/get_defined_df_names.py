@@ -5,14 +5,14 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List
 import pandas as pd
 from mitosheet.types import StepsManagerType
 
 
 NO_DEFINED_DF_MESSAGE = 'No variables match your requested type.'
 
-def get_df_names() -> Dict[str, pd.DataFrame]:
+def get_df_names() -> List[str]:
     from IPython import get_ipython
     from io import StringIO 
     import sys
@@ -41,5 +41,5 @@ def get_df_names() -> Dict[str, pd.DataFrame]:
     return output
 
 
-def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
-    return json.dumps(get_df_names())
+def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[str]:
+    return get_df_names()

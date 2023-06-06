@@ -4,7 +4,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import json
 from typing import Any, Dict
 
 from mitosheet.errors import MitoError
@@ -31,7 +30,7 @@ def get_import_error_for_step_type(step_type: str) -> str:
     return DATAFRAME_IMPORT_ERROR
 
 
-def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[int, str]:
     """
     Allows you to test the specific import steps, either by passing import steps
     or by passing an analysis name to check. 
@@ -53,4 +52,4 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
             invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
             
 
-    return json.dumps(invalid_import_indexes)
+    return invalid_import_indexes

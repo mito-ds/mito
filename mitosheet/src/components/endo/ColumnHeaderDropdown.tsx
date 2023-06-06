@@ -1,7 +1,7 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';

@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { updateObjectWithPartialObject } from '../../../utils/objects';

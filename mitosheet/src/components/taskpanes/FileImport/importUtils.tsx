@@ -1,4 +1,4 @@
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { UserProfile } from "../../../types";
 import { isAtLeastBenchmarkVersion, isExcelImportEnabled } from "../../../utils/packageVersion";
 import { fuzzyMatch } from "../../../utils/strings";
@@ -172,5 +172,6 @@ export const getFilePath = async (mitoAPI: MitoAPI, pathParts: string[], file: F
     }
     fullPath.push(file?.name)
 
-    return await mitoAPI.getPathJoined(fullPath);
+    const response = await mitoAPI.getPathJoined(fullPath);
+    return 'error' in response ? undefined : response.result;
 }

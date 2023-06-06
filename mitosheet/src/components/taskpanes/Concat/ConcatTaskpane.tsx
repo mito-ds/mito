@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useLiveUpdatingParams from "../../../hooks/useLiveUpdatingParams";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, ColumnHeader, ConcatParams, SheetData, StepType, UIState } from "../../../types";
 import { getFirstCharactersOfColumnHeaders } from "../../../utils/columnHeaders";
 import DropdownButton from "../../elements/DropdownButton";

@@ -4,7 +4,7 @@ import '../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';

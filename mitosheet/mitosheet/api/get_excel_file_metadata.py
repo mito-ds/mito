@@ -11,7 +11,7 @@ import pandas as pd
 from mitosheet.types import StepsManagerType
 
 
-def get_excel_file_metadata(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_excel_file_metadata(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Given a 'file_name' that should be an XLSX file, 
     will get the metadata for that XLSX file. 
@@ -25,9 +25,9 @@ def get_excel_file_metadata(params: Dict[str, Any], steps_manager: StepsManagerT
     file = pd.ExcelFile(file_path, engine='openpyxl')
     sheet_names = file.sheet_names
 
-    return json.dumps({
+    return {
         'sheet_names': sheet_names,
         'size': os.path.getsize(file_path)
-    })
+    }
 
 

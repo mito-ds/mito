@@ -1,10 +1,8 @@
 import React, { useCallback, useState } from "react";
-import MitoAPI, { getRandomId } from "../jupyter/api";
-import { AnalysisData } from "../types";
-import { isMitoError } from "../utils/errors";
+import MitoAPI, { getRandomId } from "../api/api";
+import { AnalysisData, SheetData } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
-import { SheetData } from '../types' 
 
 /* 
     This is the first really cool custom hook. Generally, it allows you 
@@ -110,8 +108,8 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         setLoading(false);
 
         // Handle if we return an error
-        if (isMitoError(possibleError)) {
-            setError(possibleError.to_fix);
+        if ('error' in possibleError) {
+            setError(possibleError.error);
             // Note: we do not clear the stepID in this case, it is still applied
             // and valid
         } else {
@@ -126,7 +124,9 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
             return;
         }
 
-        const newBackendParams = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
+        const newBackendParams = 'error' in response ? undefined : response.result;
+
         if (newBackendParams !== undefined) {
             _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
         } else {

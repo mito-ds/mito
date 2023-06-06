@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI, { getRandomId } from '../../../api/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
@@ -59,7 +59,7 @@ const GraphSidebar = (props: {
     const graphID = props.graphID
 
     // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
-    const [stepID, setStepID] = useState<string|undefined>(undefined);
+    const [stepID, setStepID] = useState<string>(() => getRandomId());
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
@@ -113,7 +113,7 @@ const GraphSidebar = (props: {
         3. update the graphUpdateNumber so the graph refreshes
     */
     useEffect(() => {
-        setStepID(undefined)
+        setStepID(getRandomId())
         setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
         setGraphUpdatedNumber(old => old + 1)
     }, [props.graphID])
@@ -155,14 +155,13 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = document.getElementById('mito-center-content-container')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
-            const _stepID = await props.mitoAPI.editGraph(
+            await props.mitoAPI.editGraph(
                 graphID,
                 graphParams,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
                 `${boundingRect?.width - 20 - 300}px`, // NOTE: 300 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
                 stepID
             );
-            setStepID(_stepID)
         }
 
         // Turn off the loading icon once the user get their graph back

@@ -25,10 +25,10 @@ TEST_CODE_SNIPPETS = [
 def test_get_code_snippet():
     mito = create_mito_wrapper()
 
-    assert get_code_snippets({}, mito.mito_backend.steps_manager) == json.dumps({
+    assert get_code_snippets({}, mito.mito_backend.steps_manager) == {
         'status': 'success',
         'code_snippets': DEFAULT_CODE_SNIPPETS
-    })
+    }
 
 def test_get_code_snippets_incorrectly_formatted_url():
     os.environ[MITO_CONFIG_VERSION] = "2"
@@ -37,7 +37,7 @@ def test_get_code_snippets_incorrectly_formatted_url():
 
     mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
-    assert json.loads(code_snippet_response)['status'] == 'error'
+    assert code_snippet_response['status'] == 'error'
 
     delete_all_mito_config_environment_variables()
 
@@ -48,7 +48,7 @@ def test_get_code_snippets_incorrectly_formatted_code_snippets():
 
     mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
-    assert json.loads(code_snippet_response)['status'] == 'error'
+    assert code_snippet_response['status'] == 'error'
 
     delete_all_mito_config_environment_variables()
     
@@ -69,8 +69,8 @@ def test_get_code_snippets_from_url_success(httpserver: HTTPServer) -> None:
     mito = create_mito_wrapper()
     code_snippet_response = get_code_snippets({}, mito.mito_backend.steps_manager)
 
-    assert json.loads(code_snippet_response)['status'] == 'success'
-    assert json.loads(code_snippet_response)['code_snippets'] == TEST_CODE_SNIPPETS
+    assert code_snippet_response['status'] == 'success'
+    assert code_snippet_response['code_snippets'] == TEST_CODE_SNIPPETS
 
     delete_all_mito_config_environment_variables()
 

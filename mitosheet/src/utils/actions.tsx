@@ -8,30 +8,30 @@ import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPan
 import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
-import MitoAPI, { getRandomId } from "../jupyter/api";
-import { CommCreationStatus } from "../jupyter/comm";
+import MitoAPI, { getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { Action, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
+import { SendFunctionStatus } from "../api/send";
 
 
 export const getDefaultActionsDisabledMessage = (
     uiState: UIState,
-    commCreationStatus: CommCreationStatus
+    sendFunctionStatus: SendFunctionStatus
 ): string | undefined => {
     let defaultActionDisabledMessage: string | undefined = undefined;
     const disabledDueToReplayAnalysis = uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && uiState.currOpenTaskpane.failedReplayData !== undefined;
     if (disabledDueToReplayAnalysis) {
         defaultActionDisabledMessage = 'Please resolve issues with the failed replay analysis before making further edits.';
-    } else if (commCreationStatus === 'loading') {
+    } else if (sendFunctionStatus === 'loading') {
         defaultActionDisabledMessage = 'Mito is still trying to connect to the backend. Please wait a moment.';
-    } else if (commCreationStatus === 'non_working_extension_error') {
+    } else if (sendFunctionStatus === 'non_working_extension_error') {
         defaultActionDisabledMessage = 'Mito is installed incorrectly. Please fix your installation and try again.';
-    } else if (commCreationStatus === 'non_valid_location_error') {
+    } else if (sendFunctionStatus === 'non_valid_location_error') {
         defaultActionDisabledMessage = 'Mito does not currently support this location. Please use Mito in JupyerLab or Jupter Notebooks.';
-    } else if (commCreationStatus === 'no_backend_comm_registered_error') {
+    } else if (sendFunctionStatus === 'no_backend_comm_registered_error') {
         defaultActionDisabledMessage = 'Kernel has been restarted. Please rerun the cell that created this mitosheet.';
     }
     return defaultActionDisabledMessage;
@@ -50,7 +50,7 @@ export const createActions = (
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     analysisData: AnalysisData,
     userProfile: UserProfile,
-    commCreationStatus: CommCreationStatus,
+    sendFunctionStatus: SendFunctionStatus,
 ): Record<ActionEnum, Action> => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
@@ -65,7 +65,7 @@ export const createActions = (
 
     // If the replay analysis taskpane is open due to a failed replay analysis, we pretty much disable all actions
     // as the user needs to resolve these errors or start a new analysis
-    const defaultActionDisabledMessage: string | undefined = getDefaultActionsDisabledMessage(uiState, commCreationStatus);
+    const defaultActionDisabledMessage: string | undefined = getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
 
     /*
         All of the actions that can be taken from the Action Search Bar. 
@@ -599,7 +599,7 @@ export const createActions = (
                     graphParams,
                     '100%',
                     '100%',
-                    undefined, 
+                    getRandomId(), 
                 );
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
@@ -729,7 +729,8 @@ export const createActions = (
                 // create a new pivot table. That is: if a user is on a pivot table, then
                 // we let them edit that pivot table
                 if (dfSources[sheetIndex] === DFSource.Pivoted) {
-                    const existingPivotParams = await mitoAPI.getPivotParams(sheetIndex);
+                    const response = await mitoAPI.getPivotParams(sheetIndex);
+                    const existingPivotParams = 'error' in response ? undefined : response.result;
                     if (existingPivotParams !== undefined) {
                         setUIState(prevUIState => {
                             return {
@@ -1281,7 +1282,7 @@ export const createActions = (
                     }
                 })
             },
-            isDisabled: () => {return commCreationStatus !== 'finished' ? defaultActionDisabledMessage : undefined},
+            isDisabled: () => {return sendFunctionStatus !== 'finished' ? defaultActionDisabledMessage : undefined},
             searchTerms: ['update', 'imports', 'replay', 'refresh', 'change'],
             tooltip: "Change imported data to rerun the same edits on new data."
         },

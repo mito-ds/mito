@@ -29,22 +29,22 @@ def get_snowflake_connection_or_exception(username: str, password: str, account:
         except Exception as e:
                 return e
 
-def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
 
         if not SNOWFLAKE_CONNECTOR_IMPORTED: 
-                return json.dumps({
+                return {
                         'type': 'error',    
                         'error_message': 'The package snowflake-connector-python is required to use this feature, but it is not accessible. Ensure it is installed.'
-                })
+                }
 
         credentials = get_cached_snowflake_credentials()
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouseOptional = params['table_loc_and_warehouse']
 
         if credentials is None:
-                return json.dumps({
+                return {
                         'type': 'error',    
                         'error_message': 'Invalid authentication information. Please try again.'
-                })
+                }
                 
         username = credentials['username']
         password = credentials['password']
@@ -54,10 +54,10 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
 
         if isinstance(con_or_exception, Exception):
                 exception = con_or_exception
-                return json.dumps({
+                return {
                         'type': 'error',    
                         'error_message': f'{exception}'
-                }) 
+                }
 
         con = con_or_exception
 
@@ -83,7 +83,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         columns = get_columns(con, database, schema, table_or_view)
 
 
-        return json.dumps({
+        return {
                 'type': 'success',    
                 'config_options': {
                         'warehouses': warehouses,    
@@ -98,7 +98,7 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                         'schema': schema,
                         'table_or_view': table_or_view,
                 },
-        })
+        }
                 
 
 def get_warehouses(con: MitoSafeSnowflakeConnection) -> List[str]:

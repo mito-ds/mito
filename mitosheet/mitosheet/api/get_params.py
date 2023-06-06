@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from mitosheet.types import StepsManagerType
 
 
-def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optional[Dict[str, Any]]:
     """
     Loops back over the steps, looking for a matching step. Specifically, it tries
     to find the most recent step with the given params passed.
@@ -40,7 +40,7 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
 
 
         if found_params is not None:
-            return json.dumps(found_params)
+            return found_params
     
     # Return nothing, if there is no pivot that meets this criteria
-    return ''
+    return None

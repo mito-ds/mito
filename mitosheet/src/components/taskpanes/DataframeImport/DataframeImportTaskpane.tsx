@@ -1,6 +1,6 @@
 import React from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import DataframeImportScreen from "../../import/DataframeImportScreen";
 

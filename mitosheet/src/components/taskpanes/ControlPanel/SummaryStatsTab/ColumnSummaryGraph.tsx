@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useState, useEffect } from 'react';
-import MitoAPI from '../../../../jupyter/api';
+import MitoAPI from '../../../../api/api';
 import { ColumnID } from '../../../../types';
 
 type ColumnSummaryGraphProps = {
@@ -25,12 +25,13 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
     const [graphObj, setGraphObj] = useState<GraphObject | undefined>(undefined);
 
     async function loadBase64PNGImage() {
-        const _graphHTMLAndScript = await props.mitoAPI.getColumnSummaryGraph(
+        const response = await props.mitoAPI.getColumnSummaryGraph(
             props.selectedSheetIndex,
             props.columnID,
             '350px',
             '100%',
         );
+        const _graphHTMLAndScript = 'error' in response ? undefined : response.result
         setGraphObj(_graphHTMLAndScript);
     }
 

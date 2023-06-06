@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, UIState, UserProfile } from "../../../types";
 
+import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
+import Input from "../../elements/Input";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import Toggle from "../../elements/Toggle";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
-import LabelAndTooltip from "../../elements/LabelAndTooltip";
-import Input from "../../elements/Input";
-import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import CodeOptionsParameters from "./CodeOptionsParameters";
 
 

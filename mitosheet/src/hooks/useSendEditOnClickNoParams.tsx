@@ -1,6 +1,5 @@
-import MitoAPI, { getRandomId } from "../jupyter/api";
+import MitoAPI, { getRandomId } from "../api/api";
 import { AnalysisData, StepType } from "../types";
-import { isMitoError } from "../utils/errors";
 
 /* 
     This custom hook is built for taskpanes that have params that do not need to be stored
@@ -31,8 +30,8 @@ function useSendEditOnClickNoParams<ParamType, ResultType>(
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, params, newStepID);
 
         // Handle if we return an error
-        if (isMitoError(possibleError)) {
-            return possibleError.to_fix;
+        if ('error' in possibleError) {
+            return possibleError.error;
         } 
     }
 

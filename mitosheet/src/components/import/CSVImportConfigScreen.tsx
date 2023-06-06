@@ -4,7 +4,7 @@ import React from 'react';
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
 
 // Import 
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { AnalysisData, UIState } from '../../types';
 import DropdownItem from '../elements/DropdownItem';
 import Input from '../elements/Input';
@@ -203,7 +203,10 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     // Get the metadata of the CSV file
     const [fileMetadata] = useStateFromAPIAsync<CSVFileMetadata | undefined, undefined>(
         undefined,
-        () => {return props.mitoAPI.getCSVFilesMetadata(props.params?.file_names || [])},
+        async () => {
+            const response = await props.mitoAPI.getCSVFilesMetadata(props.params?.file_names || [])
+            return 'error' in response ? undefined : response.result;
+        },
         (loadedData) => {
             props.setParams(prevParams => {
                 return {

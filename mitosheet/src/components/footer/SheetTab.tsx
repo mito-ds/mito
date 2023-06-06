@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useRef, useState } from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
 import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';

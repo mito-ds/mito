@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React, { useState } from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import { updateObjectWithPartialObject } from '../../utils/objects';
 import '../../../css/layout/CollapsibleSection.css'
@@ -39,7 +39,8 @@ const AuthenticateToSnowflakeCard = (props: {
 
     const validateSnowflakeCredentials = async (credentials: SnowflakeCredentials) => {
         setLoading(true)
-        const credentialsValidityCheckResult = await props.mitoAPI.validateSnowflakeCredentials(credentials);
+        const response = await props.mitoAPI.validateSnowflakeCredentials(credentials);
+        const credentialsValidityCheckResult = 'error' in response ? undefined : response.result;
         setSnowflakeCredentialsValidityCheckResult(credentialsValidityCheckResult)
         if (credentialsValidityCheckResult?.type === 'success') {
             props.onValidCredentials()

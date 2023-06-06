@@ -5,7 +5,7 @@ import React from 'react';
 // Import css
 import "../../../css/FormulaBar.css";
 import "../../../css/mito.css";
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { AnalysisData, EditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import Col from '../layout/Col';

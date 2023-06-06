@@ -72,6 +72,19 @@ def telemetry_turned_on() -> bool:
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
 
+__online = None
+
+def is_online() -> bool:
+    global __online
+    if __online is None:
+        try:
+            import requests
+            requests.get('https://google.com')
+            __online = True
+        except:
+            __online = False
+
+    return __online
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
@@ -206,16 +219,16 @@ except:
     ipywidgets_version = 'no pandas'
 
 
-location = None
+__location = None
 
 def _get_environment_params() -> Dict[str, Any]:
     """
     Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
     """
-    global location
-    if location is None:
-        location = get_location()
+    global __location
+    if __location is None:
+        __location = get_location()
     
     # Add the python properties to every log event we can
     environment_params = {
@@ -226,7 +239,7 @@ def _get_environment_params() -> Dict[str, Any]:
         'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location,
+        'location': __location,
         'is_docker': is_docker()
     }
 
@@ -325,7 +338,7 @@ def identify() -> None:
     operating_system = platform.system()
 
     
-    if not is_running_test():
+    if not is_running_test() and is_online():
         # NOTE: we do not log anything when tests are running
         analytics.identify(static_user_id, {
             'version_python': sys.version_info,
@@ -382,8 +395,8 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     final_params = {**final_params, **_get_experiment_params()}
 
     # Finially, do the acutal logging. We do not log anything when tests are
-    # running, or if telemetry is turned off
-    if not is_running_test() and telemetry_turned_on():
+    # running, or if telemetry is turned off, or if we're offline
+    if not is_running_test() and telemetry_turned_on() and is_online():
         analytics.track(
             get_user_field(UJ_STATIC_USER_ID), 
             log_event, 
