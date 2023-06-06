@@ -31,6 +31,9 @@ const style = document.createElement('style');
 style.appendChild(document.createTextNode(css));
 document.head.append(style)
 
+// Print the first 100 characters of the css, so we can see it in the console
+console.log("CSS substring", css.substring(0, 100));
+
 // Then, render the mitosheet to the div id
 const div = document.getElementById(divID);
 console.log("Rendering to div", div);

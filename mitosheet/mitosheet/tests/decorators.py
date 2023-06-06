@@ -69,7 +69,3 @@ requires_open_ai_credentials = pytest.mark.skipif(
     not is_open_ai_credentials_available(),
     reason='Requires a set OPENAI_API_KEY'
 )
-
-
-
-

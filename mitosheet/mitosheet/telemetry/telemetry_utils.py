@@ -22,15 +22,35 @@ from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
-from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.location import get_location, is_docker, is_jupyterlite
+from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
+WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+
 import analytics
+analytics.write_key = WRITE_KEY
 
-# Write key taken from segement.com
-analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+if is_jupyterlite():
+    # If we are in JupyterLite, we need to use pyodide fetch to 
+    # send the data to segment manually. We do this by changing
+    # the requests.post function to use pyodide fetch instead
+    from unittest.mock import patch
+    from js import fetch
 
+    @patch('urllib3.connectionpool.HTTPConnectionPool.urlopen')
+    def fetch_post(url, data, **kwargs):
+        fetch(url, {
+            'method': 'POST',
+            'body': data,
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        })
+
+    # We don't want to start a thread
+    analytics.sync_mode = True
+    
 
 from mitosheet._version import __version__, package_name
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
@@ -69,7 +89,6 @@ def telemetry_turned_on() -> bool:
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
-
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
