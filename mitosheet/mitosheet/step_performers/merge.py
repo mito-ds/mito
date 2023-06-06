@@ -43,8 +43,6 @@ class MergeStepPerformer(StepPerformer):
         selected_column_ids_two: List[ColumnID] = get_param(params, 'selected_column_ids_two')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
 
-        print(how, sheet_index_one, sheet_index_two, merge_key_column_ids, selected_column_ids_one, selected_column_ids_two, destination_sheet_index)
-
         merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
         merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
 
