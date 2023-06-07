@@ -20,6 +20,7 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from unittest.mock import patch
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
@@ -37,24 +38,15 @@ if is_jupyterlite():
     # If we are in JupyterLite, we need to use pyodide fetch to 
     # send the data to segment manually. We do this by changing
     # the requests.post function to use pyodide fetch instead
-    from unittest.mock import patch
-    from js import fetch
+    import pyodide_http
+    pyodide_http.patch_all()
 
-    @patch('urllib3.connectionpool.HTTPConnectionPool.urlopen')
-    def fetch_post(url, data, **kwargs):
-        fetch(url, {
-            'method': 'POST',
-            'body': data,
-            'headers': {
-                'Content-Type': 'application/json'
-            }
-        })
+    # Wrapper
+    def post(*args, **kwargs):
+        return requests.post(args[1], **kwargs)
 
     # We don't want to start a thread
     analytics.sync_mode = True
-    
-
-        
 
 
 from mitosheet._version import __version__, package_name
@@ -346,24 +338,34 @@ def identify() -> None:
     local = is_local_deployment()
     operating_system = platform.system()
 
+    params = {
+        'version_python': sys.version_info,
+        'version_pandas': pandas_version,
+        'version_ipywidgets': ipywidgets_version,
+        'version_sys': sys.version,
+        'version_mito': __version__,
+        'package_name': package_name, 
+        'version_jupyterlab': jupyterlab_version,
+        'version_notebook': notebook_version,
+        'operating_system': operating_system,
+        'email': user_email,
+        'local': local,
+        UJ_INTENDED_BEHAVIOR: intended_behavior,
+        UJ_FEEDBACKS: feedbacks,
+        UJ_FEEDBACKS_V2: feedbacks_v2
+    }
+
+
     if not is_running_test():
-        # NOTE: we do not log anything when tests are running
-        analytics.identify(static_user_id, {
-            'version_python': sys.version_info,
-            'version_pandas': pandas_version,
-            'version_ipywidgets': ipywidgets_version,
-            'version_sys': sys.version,
-            'version_mito': __version__,
-            'package_name': package_name, 
-            'version_jupyterlab': jupyterlab_version,
-            'version_notebook': notebook_version,
-            'operating_system': operating_system,
-            'email': user_email,
-            'local': local,
-            UJ_INTENDED_BEHAVIOR: intended_behavior,
-            UJ_FEEDBACKS: feedbacks,
-            UJ_FEEDBACKS_V2: feedbacks_v2
-        })
+
+        if is_jupyterlite():
+            # We patch the post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.identify(static_user_id, params)
+
+        else:        
+            analytics.identify(static_user_id, params)
 
 
 def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
@@ -405,11 +407,23 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on():
-        analytics.track(
-            get_user_field(UJ_STATIC_USER_ID), 
-            log_event, 
-            final_params
-        )
+
+        if is_jupyterlite():
+            # We patch post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.track(
+                    get_user_field(UJ_STATIC_USER_ID), 
+                    log_event, 
+                    final_params
+                )
+        else:
+            analytics.track(
+                get_user_field(UJ_STATIC_USER_ID), 
+                log_event, 
+                final_params
+            )
+        
 
     # If we want to print the logs for debugging reasons, then we print them as well
     if PRINT_LOGS:
