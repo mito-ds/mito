@@ -8,7 +8,6 @@ Useful decorators for tests. Specifically, we often only want
 to run specific tests on specific versions of pandas or Python
 """
 
-from mitosheet.telemetry.telemetry_utils import is_online
 import pytest
 import pandas as pd
 import sys
