@@ -62,7 +62,8 @@ function activateMitosheetExtension(
             let currentKernel = undefined;
             if (kernelID === 'kernel-00000000-0000-0000-0000-000000000000') {
                 // If we get a dummy kernel ID, we are in a jupyterlite instance, so we 
-                // just get the current kernel
+                // just get the current kernel as this is our best guess as to what the
+                // kernel is
                 currentKernel = tracker.currentWidget?.context.sessionContext.session?.kernel;
             } else {
                 // If we have a kernel ID, get the kernel with the correct kernel id

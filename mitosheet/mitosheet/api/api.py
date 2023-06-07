@@ -50,7 +50,8 @@ MAX_QUEUED_API_CALLS = 3
 # View > Show Log Console > in the console set Log Level to Debug
 THREADED = True
 
-# If we are running in JupyterLite we cannot do threading. So we just set THREADED to False
+# JupyterLite does not support multiple threads, so we have to set it equal
+# to False in this case
 if is_jupyterlite():
     THREADED = False
 
@@ -75,18 +76,16 @@ class API:
         self.steps_manager = steps_manager
         self.mito_backend = mito_backend
 
-        if THREADED:
+        # Note that we make the thread a daemon thread, which practically means that when
+        # The process that starts this thread terminate, our API will terminate as well.
+        self.thread = Thread(
+            target=handle_api_event_thread,
+            args=(self.api_queue, steps_manager, mito_backend),
+            daemon=True,
+        )
 
-            # Note that we make the thread a daemon thread, which practically means that when
-            # The process that starts this thread terminate, our API will terminate as well.
-            self.thread = Thread(
-                target=handle_api_event_thread,
-                args=(self.api_queue, steps_manager, mito_backend),
-                daemon=True,
-            )
+        if THREADED:
             self.thread.start()
-        else:
-            self.thread = None
 
 
     def process_new_api_call(self, event: Dict[str, Any]) -> None:
