@@ -98,7 +98,7 @@ def is_docker() -> bool:
 
 
 
-def is_jupyterlite():
+def is_jupyterlite() -> bool:
     try:
         import pyodide
         return True
