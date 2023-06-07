@@ -10,6 +10,7 @@ to interact with telemetry. See the README.md file in this folder for
 more details.
 """
 
+import datetime
 import os
 import platform
 import sys
@@ -19,6 +20,7 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from unittest.mock import patch
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
@@ -34,16 +36,22 @@ analytics.write_key = WRITE_KEY
 
 if is_jupyterlite():
     # If we are in JupyterLite, we have to do a few things to get telemetry working:
-    # 1. We have to patch the requests library to use pyodide's fetch instead of requests, which
+    # 1. We have to set the sync_mode to True, so that we don't start a thread
+    # 2. We have to patch the requests library to use pyodide's fetch instead of requests, which
     #    does not work in JupyterLite. We do this with the pyodide_http library
-    # 2. We have to set the sync_mode to True, so that we don't start a thread
+    # 3. When we call the identify, we actuall have to mock the Session.post function, 
+    #    as pyodide_http doesn't do this (it just fixes requests.post). We do this at the
+    #    call site with unittest.mock.patch
+
+    analytics.sync_mode = True
 
     import pyodide_http
     pyodide_http.patch_all()
 
-    # We don't want to start a thread
-    analytics.sync_mode = True
-    
+    # Wrapper
+    def post(*args, **kwargs):
+        return requests.post(args[1], **kwargs)
+
 
 from mitosheet._version import __version__, package_name
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
@@ -353,7 +361,15 @@ def identify() -> None:
 
 
     if not is_running_test():
-        analytics.identify(static_user_id, params)
+
+        if is_jupyterlite():
+            # We patch the post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.identify(static_user_id, params)
+
+        else:        
+            analytics.identify(static_user_id, params)
 
 
 def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
@@ -395,11 +411,22 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on():
-        analytics.track(
-            get_user_field(UJ_STATIC_USER_ID), 
-            log_event, 
-            final_params
-        )
+
+        if is_jupyterlite():
+            # We patch post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.track(
+                    get_user_field(UJ_STATIC_USER_ID), 
+                    log_event, 
+                    final_params
+                )
+        else:
+            analytics.track(
+                get_user_field(UJ_STATIC_USER_ID), 
+                log_event, 
+                final_params
+            )
         
 
     # If we want to print the logs for debugging reasons, then we print them as well
