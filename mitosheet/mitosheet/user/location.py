@@ -72,6 +72,8 @@ def get_location() -> str:
         return 'location_google_colab'
     elif is_in_vs_code():
         return 'location_vs_code'
+    elif is_jupyterlite():
+        return 'location_jupyterlite'
     elif notebook and (lab_running and not notebook_running):
         return 'location_jupyter_lab'
     elif notebook and (not lab_running and notebook_running):
@@ -95,3 +97,25 @@ def _is_docker() -> bool:
 IS_DOCKER = _is_docker()
 def is_docker() -> bool:
     return IS_DOCKER
+
+
+
+def is_jupyterlite() -> bool:
+    """
+    We do our best to guess if you are in jupyterlite, if:
+    1. You have pyodide installed
+    2. You cannot start a thread
+    """
+    try:
+        import pyodide
+        
+        try:
+            import threading
+            threading.Thread(target=lambda x: x).start()
+        except RuntimeError:
+            return True
+
+    except ImportError:
+        pass
+
+    return False
