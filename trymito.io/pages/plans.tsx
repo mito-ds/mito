@@ -14,11 +14,11 @@ import TranslucentButton from '../components/TranslucentButton/TranslucentButton
 import DropdownItem from '../components/DropdownItem/DropdownItem';
 import Dropdown from '../components/Dropdown/Dropdown';
 import FAQCard from '../components/FAQCard/FAQCard'
-import DownloadCTACard from '../components/CTACards/DownloadCTACard'
 import TextButton from '../components/TextButton/TextButton'
 import FeatureSection from '../components/FeatureSection/FeatureSection'
 import GithubButton from '../components/GithubButton/GithubButton'
 import FlagIcon from '../public/icon-squares/FlagIcon.svg'
+import ContactCTACard from '../components/CTACards/ContactCTACard'
 
 
 /* 
@@ -767,7 +767,7 @@ const Plans: NextPage = () => {
             </section>
 
             <section className={pageStyles.background_card}>
-              <DownloadCTACard />
+              <ContactCTACard />
             </section>              
             
         </main>

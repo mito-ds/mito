@@ -3,7 +3,9 @@ import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import TextButton from '../TextButton/TextButton';
 import styles from './CTAButtons.module.css'
 
-const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
+const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
+
+const CTAButtons = (props: {variant: 'download' | 'contact' | 'try jupyterlite'}): JSX.Element => {
 
     return (
         <div className={styles.cta_buttons_container}> 
@@ -11,6 +13,12 @@ const CTAButtons = (props: {variant: 'download' | 'contact'}): JSX.Element => {
                 <TextButton 
                     text='Install Mito'
                     href={MITO_INSTALLATION_DOCS_LINK}
+                />
+            }
+            {props.variant === 'try jupyterlite' && 
+                <TextButton 
+                    text='Try Mito'
+                    href={JUPYTERLITE_MITO_LINK}
                 />
             }
             {props.variant === 'contact' && 

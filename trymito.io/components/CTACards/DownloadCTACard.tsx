@@ -1,5 +1,4 @@
-import titleStyles from '../../styles/Title.module.css'
-import ctaCardStyles from './CTACard.module.css'
+import titleStyles from '../../styles/Title.module.css';
 import CTAButtons from '../CTAButtons/CTAButtons';
 
 const DownloadCTACard = (): JSX.Element => {
@@ -7,7 +6,7 @@ const DownloadCTACard = (): JSX.Element => {
     return (
         <div> 
             <h1 className={titleStyles.title}>
-                Want to save time on your Python data analysis?
+                Want to install Mito locally?
             </h1>
             <div className='center'>
                 <CTAButtons variant='download' />
