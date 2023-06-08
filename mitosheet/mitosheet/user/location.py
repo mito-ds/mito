@@ -99,8 +99,21 @@ def is_docker() -> bool:
 
 
 def is_jupyterlite() -> bool:
+    """
+    We do our best to guess if you are in jupyterlite, if:
+    1. You have pyodide installed
+    2. You cannot start a thread
+    """
     try:
         import pyodide
-        return True
+        
+        try:
+            import threading
+            threading.Thread(target=lambda x: x).start()
+        except RuntimeError:
+            return True
+
     except ImportError:
-        return False
+        pass
+
+    return False
