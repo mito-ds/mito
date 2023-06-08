@@ -340,6 +340,7 @@ def identify() -> None:
     feedbacks = get_user_field(UJ_FEEDBACKS)
     feedbacks_v2 = get_user_field(UJ_FEEDBACKS_V2)
     local = is_local_deployment()
+    jupyterlite = is_jupyterlite()
     operating_system = platform.system()
 
     params = {
@@ -354,6 +355,7 @@ def identify() -> None:
         'operating_system': operating_system,
         'email': user_email,
         'local': local,
+        'jupyterlite': jupyterlite,
         UJ_INTENDED_BEHAVIOR: intended_behavior,
         UJ_FEEDBACKS: feedbacks,
         UJ_FEEDBACKS_V2: feedbacks_v2
