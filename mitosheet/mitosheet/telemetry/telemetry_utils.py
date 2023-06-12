@@ -24,7 +24,7 @@ from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
 import analytics
@@ -393,6 +393,9 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
 
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
+
+    # Then, make sure to add the user email
+    final_params['email'] = get_user_field(UJ_USER_EMAIL)
 
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off, or if we're offline
