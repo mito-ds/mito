@@ -25,8 +25,9 @@ const Teams: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Mito | Teams </title>
+        <title>Mito for Teams | Teams </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Mito empowers teams to easily upskill from Excel to Python, with automation, code-gen and AI-assist features, all in a familiar spreadsheet GUI." />
       </Head>
       
       <Header/>
@@ -66,18 +67,18 @@ const Teams: NextPage = () => {
             </section>
             <section>
                 <div className={pageStyles.subsection + ' center'}>
-                    <h1>
+                    <h2>
                         Deploy Mito in Jupyter in minutes
-                    </h1>
+                    </h2>
                 </div>
                 <div className={pageStyles.subsection}>
                     <div className={iconAndTextCardStyles.icon_and_text_card}>
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={JupyterIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                             Jupyter <br/> Compatible
-                        </h1>
+                        </h2>
                         <p>
                             Mito is compatible with JupyterHub, JupyterLab, and Jupyter Notebooks, so you don’t need to manage any new infrastructure.  
                         </p>
@@ -86,9 +87,9 @@ const Teams: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={PrivateIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                             Completely <br/> Private
-                        </h1>
+                        </h2>
                         <p>
                             The Mito Pro and Enterprise plans are totally local. No data leaves your computer, ever. Mito is designed for your security first. 
                         </p>
@@ -99,9 +100,9 @@ const Teams: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={DocsIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                             Practical <br/> Documentation
-                        </h1>
+                        </h2>
                         <p>
                             Our documentation is best-in-class, so you can get started without complex trainings.
                         </p>
@@ -110,9 +111,9 @@ const Teams: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={SupportIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                             Personal <br/> Support
-                        </h1>
+                        </h2>
                         <p>
                             The Mito team is around to help train, debug, or ideate on new features. 
                         </p>
@@ -122,9 +123,9 @@ const Teams: NextPage = () => {
 
             <section>
                 <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
-                    <h1>
+                    <h2>
                         Make your team Python self-sufficient
-                    </h1>
+                    </h2>
                     <p className='display-desktop-only-inline-block'>
                         Leverage your team&apos;s Excel expertise to make them Python self-sufficient. <br /> 
                         Don&apos;t throw away years of Excel skill building.
@@ -165,9 +166,9 @@ const Teams: NextPage = () => {
 
             <section>
                 <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
-                    <h1>
+                    <h2>
                         Use Mito to clean, analyze, and graph data
-                    </h1>
+                    </h2>
                     <p className='display-desktop-only-inline-block'>
                         Join other Fortune 500 companies that are writing production-ready Python code with Mito.
                     </p>
@@ -178,7 +179,7 @@ const Teams: NextPage = () => {
                             <Image src={'/cleanCode.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                         </div>
                         <div className='margin-top-3rem'>
-                            <h1>Write cleaner code <br /> <span className='text-highlight'> faster </span></h1>
+                            <h2>Write cleaner code <br /> <span className='text-highlight'> faster </span></h2>
                         </div>
                         <p>
                             Mito generates clean, auto-documented Python code for each edit. No more untangling Excel sheets or wading through spaghetti code.
@@ -189,7 +190,7 @@ const Teams: NextPage = () => {
                             <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                         </div>
                         <div className='margin-top-3rem'>
-                            <h1>Create <span className='text-highlight'>presentation ready</span> graphs</h1>
+                            <h2>Create <span className='text-highlight'>presentation ready</span> graphs</h2>
                         </div>
                         <p>
                             Mito creates beautiful, interactive Plotly charts that are ready to be shared with colleagues and clients.

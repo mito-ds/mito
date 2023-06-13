@@ -23,8 +23,9 @@ const Security: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Mito | Security </title>
+        <title>Security with Mito | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Mito provides secure, AI-assisted Python spreadsheet automation with private, on-premise deployment. Learn more about security with Mito. " />
       </Head>
       
       <Header/>
@@ -47,9 +48,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={ComputerIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   All on your computer, never ours
-                </h1>
+                </h2>
                 <p>
                   Mito runs on your computer, not the cloud. None of your data ever touches our servers, so you don’t have to worry about us loosing it. 
                 </p>
@@ -58,9 +59,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={OpenSourceIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   Open source and auditable
-                </h1>
+                </h2>
                 <p>
                   If you want to see the code that&apos;s running on your computer, you can. Mito is dedicated to building in public. 
                 </p>
@@ -74,9 +75,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image  src={TelemetryIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   Private telemetry you can turn off
-                </h1>
+                </h2>
                 <p>
                   We don’t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
                 </p>
@@ -90,9 +91,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={CCPAIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   CCPA compliance keeps you in control
-                </h1>
+                </h2>
                 <p>
                   We don&apos;t want any data you don&apos;t want us to have. CCPA compliance means you stay in control of everything. 
                 </p>
@@ -106,9 +107,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={UpgradesIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   Opt-in upgrades and changes
-                </h1>
+                </h2>
                 <p>
                   Once you have Mito installed, you&apos;re in total control of which version you run. Upgrade when you want to.
                 </p>
@@ -120,9 +121,9 @@ const Security: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={SecurityIcon} alt='icon'></Image>
                 </div>
-                <h1>
+                <h2>
                   Top-of-the-line operational security
-                </h1>
+                </h2>
                 <p>
                   Mulitple rounds of code-review and automatic and manual tests make sure that insecure code doesn’t make it deployment.
                 </p>

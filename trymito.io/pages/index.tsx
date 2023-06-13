@@ -27,7 +27,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Mito | Home </title>
+        <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
@@ -42,7 +42,7 @@ const Home: NextPage = () => {
               </h1>
 
               <h2 className={titleStyles.description}>
-                Join thousands of analysts at the world&apos;s largest banks
+                Analysts at the world&apos;s largest banks use 
                 saving themselves from hours of repetitive work.
               </h2>
               
@@ -191,7 +191,7 @@ const Home: NextPage = () => {
               <h2>
                 Mito is the go-to Python tool at the largest banks in the world
               </h2>
-              <h3 className='display-desktop-only-inline-block'>
+              <h3 className={titleStyles.description + ' display-desktop-only-inline-block'}>
                 See why Mito is ranked as one of the top Python libraries of 2022
               </h3>
               <GithubButton 

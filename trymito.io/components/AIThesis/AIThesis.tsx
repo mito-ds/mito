@@ -11,9 +11,9 @@ const AIThesis = (): JSX.Element => {
     return (
 
         <div className={pageStyles.background_card + ' ' + aiThesisStyles.ai_thesis_container}>
-            <h1 className='margin-left-2rem'>
+            <h2 className='margin-left-2rem'>
                 Built for AI automation
-            </h1>
+            </h2>
             <div className={pageStyles.subsection + ' ' + pageStyles.subsection_narrow_space_betweeen}>
                 <div>
                     <ExpandableCard 
