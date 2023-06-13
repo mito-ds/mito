@@ -29,18 +29,28 @@ class ExportToFileCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
         if self.export_type == 'csv':
             return [
-                f'{self.post_state.df_names[sheet_index]}.to_csv("{export_location}", index=False)'
+                f"{self.post_state.df_names[sheet_index]}.to_csv(r'{export_location}', index=False)"
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
             # If there is only one sheet being exported, we can avoid creating the pd.ExcelWriter
             if len(self.sheet_index_to_export_location) == 1:
                 for sheet_index, export_location in self.sheet_index_to_export_location.items():
-                    return [f'{self.post_state.df_names[sheet_index]}.to_excel("{self.file_name}", sheet_name="{export_location}", index={False})'], []
+                    return [f"{self.post_state.df_names[sheet_index]}.to_excel(r'{self.file_name}', sheet_name='{export_location}', index={False})"], []
 
-            return [f'with pd.ExcelWriter("{self.file_name}") as writer:'] + [
+            return [f"with pd.ExcelWriter(r'{self.file_name}') as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], ['import pandas as pd']
+        else:
+            raise ValueError(f'Not a valid file type: {self.export_type}')
+        
+    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+        if self.export_type == 'csv':
+            return [
+                (f"r'{export_location}'", 'file_name') for export_location in self.sheet_index_to_export_location.values()
+            ]
+        elif self.export_type == 'excel':
+            return [(f"r'{self.file_name}'", 'file_name')]
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')

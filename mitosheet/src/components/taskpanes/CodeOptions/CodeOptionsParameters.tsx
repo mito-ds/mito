@@ -28,8 +28,14 @@ const getParamDisplayString = (paramValue: string, paramType: ParamType): string
 
 const getFileNameFromParamValue = (paramValue: string): string => {
     // eslint-disable-next-line no-useless-escape
-    const fileName = paramValue.replace(/^.*[\\\/]/, ''); // Get the final path
-    return fileName.substring(0, fileName.length - 1); // Remove the final quote
+    let fileName = paramValue.replace(/^.*[\\\/]/, ''); // Get the final path
+    fileName = fileName.substring(0, fileName.length - 1); // Remove the final quote
+    if (fileName.startsWith('r"') || fileName.startsWith("r'")) {
+        fileName = fileName.substring(2); // Remove the r"
+    } else if (fileName.startsWith("'") || fileName.startsWith('"')) {
+        fileName = fileName.substring(1); // Remove the first quote
+    }
+    return fileName;
 }
 
 const getDefaultParamName = (paramValue: string, paramType: ParamType): string => {
@@ -131,7 +137,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") ? 'file_name' : 'df_name')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'file_name' : 'df_name')}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>
