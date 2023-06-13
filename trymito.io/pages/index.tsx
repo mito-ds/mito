@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import Image from 'next/image'
 import Head from 'next/head'
 import Footer from '../components/Footer/Footer';
-import Header from '../components/Header/Header';
+import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import Tweets from '../components/Tweets/Tweets';
 import homeStyles from '../styles/Home.module.css'
 import pageStyles from '../styles/Page.module.css'
@@ -13,6 +13,7 @@ import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
 import { useEffect, useState } from 'react';
+import FAQCard from '../components/FAQCard/FAQCard';
 
 const Home: NextPage = () => {
 
@@ -40,10 +41,10 @@ const Home: NextPage = () => {
                 Spreadsheets, meet <span className='text-color-purple'>AI Automation</span>
               </h1>
 
-              <p className={titleStyles.description}>
+              <h2 className={titleStyles.description}>
                 Join thousands of analysts at the world&apos;s largest banks
-                saving themselves from hours of repetitive work. 
-              </p>
+                saving themselves from hours of repetitive work.
+              </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
                 <CTAButtons variant='download'/>
@@ -59,10 +60,10 @@ const Home: NextPage = () => {
           <section>
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
-                <h1>
+                <h2>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
-                </h1>
+                </h2>
                 <p className='display-mobile-only'> 
                   Every edit you make to the Mito spreadsheet automatically generates Python code.
                   Stop sitting through Python trainings or waiting for IT support. 
@@ -89,9 +90,9 @@ const Home: NextPage = () => {
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={homeStyles.functionality_text}>
-                <h1>
+                <h2>
                   <span className='text-highlight'>Transform</span> your data with AI
-                </h1>
+                </h2>
                 <p className='display-mobile-only'>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
@@ -109,9 +110,9 @@ const Home: NextPage = () => {
 
             <div className={pageStyles.subsection}>
               <div className={homeStyles.functionality_text}>
-                <h1>
+                <h2>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>
-                </h1>
+                </h2>
                 <p className='display-mobile-only'> 
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
@@ -145,25 +146,25 @@ const Home: NextPage = () => {
 
           <section className={homeStyles.metrics_container + ' margin-top-8rem'}>
             <div className={homeStyles.metric_container}>
-              <h1 className={homeStyles.gradient_text}>
+              <p className={homeStyles.metric_number_text}>
                 50,000+
-              </h1>
+              </p>
               <p className={homeStyles.metrics_label}>
                 Mito users
               </p>
             </div>
             <div className={homeStyles.metric_container}>
-              <h1 className={homeStyles.gradient_text}>
+              <p className={homeStyles.metric_number_text}>
                 10,000+
-              </h1>
+              </p>
               <p className={homeStyles.metrics_label}>
                 Hours saved through automation
               </p>
             </div>
             <div className={homeStyles.metric_container}>
-              <h1 className={homeStyles.gradient_text}>
+              <p className={homeStyles.metric_number_text}>
                 250,000+
-              </h1>
+              </p>
               <p className={homeStyles.metrics_label}>
                 Mito Sheets Created
               </p>
@@ -187,12 +188,12 @@ const Home: NextPage = () => {
 
           <section className={homeStyles.tweet_section}>
             <div className={homeStyles.tweet_section_header + ' center'}>
-              <h1>
+              <h2>
                 Mito is the go-to Python tool at the largest banks in the world
-              </h1>
-              <p className='display-desktop-only-inline-block'>
+              </h2>
+              <h3 className='display-desktop-only-inline-block'>
                 See why Mito is ranked as one of the top Python libraries of 2022
-              </p>
+              </h3>
               <GithubButton 
                 variant='Issue'
                 text='Join the discussion on Github'
@@ -203,9 +204,9 @@ const Home: NextPage = () => {
 
           <section className={homeStyles.open_source_section}>
               <div className={homeStyles.open_source_section_header + ' center'}>
-                <h1>
+                <h2>
                   We&apos;re proud to support important open source projects
-                </h1>
+                </h2>
               </div>
               <div className={pageStyles.subsection + ' ' + homeStyles.open_source_section_logos}>
                 <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
@@ -219,6 +220,69 @@ const Home: NextPage = () => {
 
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
+          </section>
+
+          <section style={{marginBottom: '60px'}}>
+            <h2 className='center'>
+              Frequently Asked Questions
+            </h2>
+            <FAQCard title='Is Mito open source?'>
+              <div>
+                <p>
+                  Mito is an open source project, and the codebase is available on <a style={{textDecoration: 'underline'}} href='https://github.com/mito-ds/monorepo' target="_blank" rel="noreferrer">Github</a>.
+                </p>
+                <p>
+                  Outside contributions are welcome and encouraged! 
+                </p>
+              </div>
+            </FAQCard>
+            <FAQCard title='Is Mito free?'>
+              <div>
+                <p>
+                  Mito Open Source is free for usage. You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                </p>
+                <p>
+                  For indiviguals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling off all telemetry, and additional formatting and transformation options.
+                </p>
+                <p>
+                  For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
+                </p>
+                <p>
+                  See more at our <a style={{textDecoration: 'underline'}} href='/plans' target="_blank" rel="noreferrer">plans page</a>.
+                </p>
+              </div>
+            </FAQCard>
+            <FAQCard title='How do I install Mito?'>
+              <div>
+                <p>
+                  Mito is an easily installable extension to JupyterLab.
+                </p>
+                <p>
+                  You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                </p>
+              </div>
+            </FAQCard>
+            <FAQCard title='Can I used Mito to automate my spreadsheet tasks?'>
+              <div>
+                <p>
+                  Yes! Mito is designed to help you automate your spreadsheet tasks.
+                </p>
+                <p>
+                  By completing your spreadsheet workflow a single time in Mito, you will get a Python script that you can rerun on new data.
+                </p>
+              </div>
+            </FAQCard>
+            <FAQCard title='Can I used Python to view a spreadsheet?'>
+              <div>
+                <p>
+                  Mito provided a spreadsheet interface from within your Python enviornment. 
+                </p>
+                <p>
+                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert
+                </p>
+              </div>
+            </FAQCard>
+            
           </section>
         </main>
         <Footer />
