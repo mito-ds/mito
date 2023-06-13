@@ -14,6 +14,7 @@ import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
 import { useEffect, useState } from 'react';
 import FAQCard from '../components/FAQCard/FAQCard';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
 
@@ -248,7 +249,7 @@ const Home: NextPage = () => {
                   For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
                 </p>
                 <p>
-                  See more at our <a style={{textDecoration: 'underline'}} href='/plans' target="_blank" rel="noreferrer">plans page</a>.
+                  See more at our <Link href='/plans'><a style={{textDecoration: 'underline'}}>plans page.</a></Link>
                 </p>
               </div>
             </FAQCard>
