@@ -41,7 +41,7 @@ EXPORT_TO_FILE_TESTS_CSV = [
         "csv", 
         [0, 1], 
         "out.txt",
-        ['out_df1.txt', 'out_df2.txt']
+        ['out_0.txt', 'out_1.txt']
     ),
     (
         [
