@@ -33480,13 +33480,6 @@ ${finalCode}`;
       return paramValue;
     }
   };
-  var getParamTypeDisplayString = (paramType) => {
-    if (paramType === "file_name") {
-      return "File Path";
-    } else {
-      return "Dataframe";
-    }
-  };
   var CodeOptionsParameters = (props) => {
     const [parameterizableParams] = useStateFromAPIAsync(
       [],
@@ -33497,6 +33490,7 @@ ${finalCode}`;
       void 0,
       []
     );
+    console.log(parameterizableParams);
     const unparametizedParams = parameterizableParams.filter(([paramName]) => {
       return !Object.values(props.codeOptions.function_params).includes(paramName);
     });
@@ -33510,13 +33504,13 @@ ${finalCode}`;
         disabled,
         title: !props.codeOptions.as_function ? "Toggle Generate Function before adding parameters." : parameterizableParams.length === 0 ? "There are no available options to parameterize. Import data first." : void 0
       },
-      unparametizedParams.map(([paramValue, paramType], index) => {
+      unparametizedParams.map(([paramValue, paramType, paramDescription], index) => {
         return /* @__PURE__ */ import_react118.default.createElement(
           DropdownItem_default,
           {
             key: index,
             title: getParamDisplayString(paramValue, paramType),
-            subtext: getParamTypeDisplayString(paramType),
+            subtext: paramDescription,
             onClick: () => {
               props.setCodeOptions((prevCodeOptions) => {
                 const newCodeOptions = __spreadValues({}, prevCodeOptions);

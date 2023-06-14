@@ -209,6 +209,6 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
-        return [(f'r{column_header_to_transpiled_code(self.file_path)}', 'file_name')]
+    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+        return [(f'r{column_header_to_transpiled_code(self.file_path)}', 'file_name', 'Excel import file path')]
     

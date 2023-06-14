@@ -49,15 +49,6 @@ const getDefaultParamName = (paramValue: string, paramType: ParamType): string =
     }
 }
 
-const getParamTypeDisplayString = (paramType: ParamType): string => {
-    if (paramType === 'file_name') {
-        return 'File Path'
-    } else {
-        return 'Dataframe'
-    }
-
-}
-
 /* 
     This is the CodeOptions taskpane, allows you to configure how the code is generated
 */
@@ -72,6 +63,8 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
         undefined,
         []
     );
+
+    console.log(parameterizableParams)
 
     const unparametizedParams = parameterizableParams.filter(([paramName,]) => {
         return !Object.values(props.codeOptions.function_params).includes(paramName);
@@ -95,12 +88,12 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                         disabled={disabled}
                         title={!props.codeOptions.as_function ? 'Toggle Generate Function before adding parameters.' : (parameterizableParams.length === 0 ? 'There are no available options to parameterize. Import data first.' : undefined)}
                     >   
-                        {unparametizedParams.map(([paramValue, paramType], index) => {
+                        {unparametizedParams.map(([paramValue, paramType, paramDescription], index) => {
                             return (
                                 <DropdownItem
                                     key={index}
                                     title={getParamDisplayString(paramValue, paramType)}
-                                    subtext={getParamTypeDisplayString(paramType)}
+                                    subtext={paramDescription}
                                     onClick={() => {                                        
                                         props.setCodeOptions((prevCodeOptions) => {
                                             const newCodeOptions = {...prevCodeOptions};
