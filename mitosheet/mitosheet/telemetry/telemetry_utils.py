@@ -410,6 +410,9 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
 
+    # Then, make sure to add the user email
+    final_params['email'] = get_user_field(UJ_USER_EMAIL)
+
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on():
