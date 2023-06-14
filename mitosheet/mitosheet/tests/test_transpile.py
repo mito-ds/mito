@@ -584,11 +584,11 @@ df = function()"""
 def test_transpiled_with_export_to_csv_singular():
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
-    mito.export_to_file('csv', [0], 'test.csv')
+    mito.export_to_file('csv', [0], 'te"st.csv')
 
-    assert [('df', 'df_name'), ("r'test.csv'", 'file_name')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df', 'df_name'), ("r'te" + '"' + "st.csv'", 'file_name')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
-    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': "r'test.csv'"}})
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': "r'te" + '"' + "st.csv'"}})
 
     assert "\n".join(mito.transpiled_code) == """
 def function(df, path):
@@ -596,7 +596,7 @@ def function(df, path):
     
     return df
 
-path = r'test.csv'
+path = r'te"st.csv'
 
 df = function(df, path)"""
 
@@ -624,11 +624,11 @@ df1, df2 = function(df1, df2, path_0, path_1)"""
 def test_transpiled_with_export_to_xlsx_single():
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
-    mito.export_to_file('excel', [0], 'test.xlsx')
+    mito.export_to_file('excel', [0], "te'st.xlsx")
 
-    assert [('df', 'df_name'), ("r'test.xlsx'", 'file_name')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df', 'df_name'), ('r"te' + "'" + 'st.xlsx"', 'file_name')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
-    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': "r'test.xlsx'"}})
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': 'r"te' + "'" + 'st.xlsx"'}})
 
     assert "\n".join(mito.transpiled_code) == """
 def function(df, path):
@@ -636,7 +636,7 @@ def function(df, path):
     
     return df
 
-path = r'test.xlsx'
+path = r"te'st.xlsx"
 
 df = function(df, path)"""
 
