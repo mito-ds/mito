@@ -3,6 +3,20 @@
     padding-bottom: 0rem;
     text-align: center;
 }
+
+.multiple_button_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.product_hunt_button {
+    margin-left: 1rem;
+    margin-top: .5rem;
+}
     
 .cta_subbutton {
     color: var(--color-purple);

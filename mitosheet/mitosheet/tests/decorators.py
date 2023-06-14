@@ -8,7 +8,6 @@ Useful decorators for tests. Specifically, we often only want
 to run specific tests on specific versions of pandas or Python
 """
 
-from mitosheet.telemetry.telemetry_utils import is_online
 import pytest
 import pandas as pd
 import sys
@@ -69,9 +68,4 @@ requires_snowflake_dependencies_and_credentials = pytest.mark.skipif(
 requires_open_ai_credentials = pytest.mark.skipif(
     not is_open_ai_credentials_available(),
     reason='Requires a set OPENAI_API_KEY'
-)
-
-skip_if_offline = pytest.mark.skipif(
-    not is_online(),
-    reason='This test only runs if it is offline.'
 )

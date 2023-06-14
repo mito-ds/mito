@@ -9,12 +9,10 @@ from mitosheet.tests.decorators import requires_open_ai_credentials
 from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import UJ_AI_MITO_API_NUM_USAGES
 from mitosheet.user.utils import is_pro
-from mitosheet.tests.decorators import skip_if_offline
 
 from mitosheet.api.get_ai_completion import OPEN_SOURCE_AI_COMPLETIONS_LIMIT
 
 @requires_open_ai_credentials
-@skip_if_offline
 def test_get_ai_completion():
     mito = create_mito_wrapper()
 
@@ -34,7 +32,6 @@ def test_get_ai_completion():
         # We add this since this test is flakey
         assert len(completion['error']) > 0
 
-@skip_if_offline
 def test_get_ai_completion_with_no_api_key_works():
     mito = create_mito_wrapper()
 
@@ -63,7 +60,6 @@ def test_get_ai_completion_with_no_api_key_works():
         os.environ['OPENAI_API_KEY'] = key
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages)
 
-@skip_if_offline
 def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
     mito = create_mito_wrapper()

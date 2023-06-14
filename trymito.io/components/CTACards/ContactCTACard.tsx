@@ -2,7 +2,7 @@ import titleStyles from '../../styles/Title.module.css'
 import ctaCardStyles from './CTACard.module.css'
 import CTAButtons from '../CTAButtons/CTAButtons';
 
-const DownloadCTACard = (): JSX.Element => {
+const ContactCTACard = (): JSX.Element => {
 
     return (
         <div> 
@@ -16,4 +16,4 @@ const DownloadCTACard = (): JSX.Element => {
     )
 }
 
-export default DownloadCTACard; 
+export default ContactCTACard; 

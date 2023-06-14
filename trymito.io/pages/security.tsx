@@ -1,22 +1,22 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
-import securityStyles from '../styles/Security.module.css'
-import pageStyles from '../styles/Page.module.css'
-import titleStyles from '../styles/Title.module.css'
+import pageStyles from '../styles/Page.module.css';
+import securityStyles from '../styles/Security.module.css';
+import titleStyles from '../styles/Title.module.css';
 
 // Import Icons & Background Grid
-import ComputerIcon from '../public/icon-squares/ComputerIcon.svg'
-import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg'
-import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg'
-import CCPAIcon from '../public/icon-squares/CCPAIcon.svg'
-import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg'
-import SecurityIcon from '../public/icon-squares/SecurityIcon.svg'
-import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
+import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import CCPAIcon from '../public/icon-squares/CCPAIcon.svg';
+import ComputerIcon from '../public/icon-squares/ComputerIcon.svg';
+import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg';
+import SecurityIcon from '../public/icon-squares/SecurityIcon.svg';
+import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg';
+import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg';
 
 const Security: NextPage = () => {
 
