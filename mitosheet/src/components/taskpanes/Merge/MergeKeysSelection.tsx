@@ -117,14 +117,14 @@ const MergeKeysSelectionSection = (props: {
             <InvalidSelectedColumnsError 
                 columnIDsMap={props.sheetDataArray[props.params.sheet_index_one].columnIDsMap}    
                 location={'merge_sheet_one_merge_keys'} 
-                selectedColumnIDs={props.params.merge_key_column_ids.map(([sheetOneColumnID, sheetTwoColumnID]) => sheetOneColumnID)} 
+                selectedColumnIDs={props.params.merge_key_column_ids.map(([sheetOneColumnID, ]) => sheetOneColumnID)} 
                 sheetName={props.sheetDataArray[props.params.sheet_index_one].dfName}
                 mitoAPI={props.mitoAPI}
             />
             <InvalidSelectedColumnsError 
                 columnIDsMap={props.sheetDataArray[props.params.sheet_index_two].columnIDsMap}    
                 location={'merge_sheet_two_merge_keys'} 
-                selectedColumnIDs={props.params.merge_key_column_ids.map(([sheetOneColumnID, sheetTwoColumnID]) => sheetTwoColumnID)} 
+                selectedColumnIDs={props.params.merge_key_column_ids.map(([, sheetTwoColumnID]) => sheetTwoColumnID)} 
                 sheetName={props.sheetDataArray[props.params.sheet_index_two].dfName}
                 mitoAPI={props.mitoAPI}
             />

@@ -155,11 +155,11 @@ export default function SheetTabActions(props: {
         }}/> : undefined,
         mergeSource ? <DropdownItem key='Update Merge' title='Update Merge' onClick={() => {
             props.closeOpenEditingPopups();
-            openExistingMergeTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
+            void openExistingMergeTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
         }}/> : undefined,
         pivotSource ? <DropdownItem key='Update Pivot Table' title='Update Pivot Table' onClick={() => {
             props.closeOpenEditingPopups();
-            openExistingPivotTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
+            void openExistingPivotTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
         }}/> : undefined,
         <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
         <DropdownItem 
