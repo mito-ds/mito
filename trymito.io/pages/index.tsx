@@ -240,7 +240,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito free?'>
               <div>
                 <p>
-                  Mito Open Source is free for usage. You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  Mito Open Source is free. You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
                 <p>
                   For indiviguals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling off all telemetry, and additional formatting and transformation options.
