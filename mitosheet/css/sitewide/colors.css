@@ -31,6 +31,9 @@
     /* Color for success message */
     --mito-green: #10710D;
 
+    /* Color for warnings */
+    --mito-yellow: #ECBB4A;
+
     /* Colors used in recon */
     --mito-recon-created-background-color: #E4EFDC;
     --mito-recon-created-background-color-dark: #CBDFB8;

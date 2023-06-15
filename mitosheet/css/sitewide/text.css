@@ -135,6 +135,10 @@
     color: var(--mito-green);
 }
 
+.text-color-warning {
+    color: var(--mito-yellow);
+}
+
 /* 
     This makes the text unselectable - e.g. you cannot double click on it
     to highlight it.

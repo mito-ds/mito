@@ -17,6 +17,7 @@ import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import MergeKeysSelectionSection from './MergeKeysSelection';
 import MergeSheetSection from './MergeSheetSelection';
 import { getFirstSuggestedMergeKeys } from './mergeUtils';
+import { shallowEqual } from '../../../utils/objects';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -157,6 +158,11 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
+                {props.existingMergeParams && shallowEqual(props.existingMergeParams, params) &&
+                    <Row>
+                        Warning: Updating the merge configuration will replace the existing merged dataframe.
+                    </Row>
+                }
                 <Row justify='space-between' align='center' suppressTopBottomMargin>
                     <Col offsetRight={1}>
                         <p className='text-header-3'>
