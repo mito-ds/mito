@@ -6,56 +6,6 @@ on:
       - main
 
 jobs:
-  deploy-mitosheet2:
-    name: Deploy mitosheet2
-    runs-on: ubuntu-latest
-    if: false
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.extract_branch.outputs.branch }}
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Setup Auth for PyPi
-        run: |
-          echo -e "[distutils]" >> ~/.pypirc
-          echo -e "index-servers =" >> ~/.pypirc
-          echo -e "    pypi" >> ~/.pypirc
-          echo -e "    testpypi" >> ~/.pypirc
-          echo -e "[pypi]" >> ~/.pypirc
-          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
-          echo -e "username = __token__" >> ~/.pypirc
-          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
-          echo -e "" >> ~/.pypirc
-          echo -e "[testpypi]" >> ~/.pypirc
-          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
-          echo -e "username = __token__" >> ~/.pypirc
-          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
-      - name: Setup mitosheet2
-        run: |
-          cd mitosheet
-          python3 -m venv venv
-          source venv/bin/activate
-          python switch.py mitosheet2
-          python ../deployment/bump_version.py mitosheet2 ${{ steps.extract_branch.outputs.branch }}
-          python -m pip install -e ".[test, deploy]"
-      - name: Deploy mitosheet2
-        run: |
-          cd mitosheet
-          source venv/bin/activate
-          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
   deploy-mitosheet:
     name: Deploy mitosheet
     runs-on: ubuntu-20.04
@@ -98,60 +48,9 @@ jobs:
           rm -rf venv
           python3 -m venv venv
           source venv/bin/activate
-          python switch.py mitosheet
           python ../deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[test, deploy]"          
       - name: Deploy mitosheet
-        run: |
-          cd mitosheet
-          source venv/bin/activate
-          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
-  deploy-mitosheet3:
-    name: Deploy mitosheet3
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.extract_branch.outputs.branch }}
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Setup Auth for PyPi
-        run: |
-          echo -e "[distutils]" >> ~/.pypirc
-          echo -e "index-servers =" >> ~/.pypirc
-          echo -e "    pypi" >> ~/.pypirc
-          echo -e "    testpypi" >> ~/.pypirc
-          echo -e "[pypi]" >> ~/.pypirc
-          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
-          echo -e "username = __token__" >> ~/.pypirc
-          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
-          echo -e "" >> ~/.pypirc
-          echo -e "[testpypi]" >> ~/.pypirc
-          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
-          echo -e "username = __token__" >> ~/.pypirc
-          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
-      - name: Setup mitosheet3
-        run: |
-          cd mitosheet
-          rm -rf venv
-          python3 -m venv venv
-          source venv/bin/activate
-          python switch.py mitosheet3
-          python ../deployment/bump_version.py mitosheet3 ${{ steps.extract_branch.outputs.branch }}
-          python -m pip install -e ".[test, deploy]"          
-      - name: Deploy mitosheet3
         run: |
           cd mitosheet
           source venv/bin/activate
@@ -208,18 +107,3 @@ jobs:
           cd mitoinstaller
           source venv/bin/activate
           python setup.py sdist upload
-  run-if-failed:
-    runs-on: ubuntu-latest
-    needs: [deploy-mitosheet2, deploy-mitosheet, deploy-mitosheet3, deploy-mitoinstaller]
-    if: always() && (needs.deploy-mitosheet2.result == 'failure' || needs.deploy-mitosheet.result == 'failure' || needs.deploy-mitosheet3.result == 'failure' || needs.deploy-mitoinstaller.result == 'failure')
-    steps:
-      - name: Send a zulip message on failure
-        uses: zulip/github-actions-zulip/send-message@v1
-        with:
-          api-key: ${{ secrets.ZULIP_API_KEY }}
-          email: 'naterush1997@gmail.com'
-          organization-url: 'https://mito.zulipchat.com'
-          to: 'technical'
-          type: 'stream'
-          topic: 'releases'
-          content: 'A release has failed. Please check the Github Action.'

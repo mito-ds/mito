@@ -4,8 +4,8 @@ import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
-import MitoAPI from '../../jupyter/api';
-import { MitoError, UIState, UserProfile } from '../../types';
+import MitoAPI from '../../api/api';
+import { UIState, UserProfile } from '../../types';
 import GetSupportButton from '../elements/GetSupportButton';
 
 /*
@@ -14,7 +14,7 @@ import GetSupportButton from '../elements/GetSupportButton';
 */
 const ErrorModal = (
     props: {
-        error: MitoError | undefined, 
+        error: {error: string, errorShort: string, traceback?: string} | undefined, 
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI;
         userProfile: UserProfile
@@ -27,14 +27,14 @@ const ErrorModal = (
 
     return (
         <DefaultModal
-            header={props.error.header}
+            header={props.error.errorShort}
             modalType={ModalEnum.Error}
             wide
             viewComponent={
                 <Fragment>
-                    {props.error.to_fix &&
+                    {props.error.error &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
-                            {props.error.to_fix} {' '}
+                            {props.error.error} {' '}
                             {props.error.traceback && 
                                 <span className='text-body-1-link'>
                                     Click to view full traceback.

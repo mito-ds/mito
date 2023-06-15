@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
-import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -113,7 +112,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             if (props.updatedStepImportData === undefined) {
                                 return
                             }
-                            const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                            const response = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                            const _invalidImportIndexes = 'error' in response ? undefined : response.result;
                             if (_invalidImportIndexes === undefined) {
                                 return;
                             }
@@ -130,8 +130,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                             // post replay, we are updating the existing imports
                             if (Object.keys(_invalidImportIndexes).length === 0) {
                                 const possibleMitoError = await props.mitoAPI.updateExistingImports(props.updatedStepImportData);
-                                if (isMitoError(possibleMitoError)) {
-                                    props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.to_fix))
+                                if ('error' in possibleMitoError) {
+                                    props.setInvalidReplayError(getErrorTextFromToFix(possibleMitoError.error))
                                 } else {
                                     props.setUIState((prevUIState) => {
                                         return {

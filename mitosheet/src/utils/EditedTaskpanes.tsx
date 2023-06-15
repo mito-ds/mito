@@ -1,6 +1,6 @@
+import MitoAPI from "../api/api";
 import { ModalEnum } from "../components/modals/modals";
 import { TaskpaneType } from "../components/taskpanes/taskpanes";
-import MitoAPI from "../jupyter/api";
 import { UIState } from "../types";
 
 export const openExistingMergeTaskpane = async (
@@ -8,7 +8,8 @@ export const openExistingMergeTaskpane = async (
     selectedSheetIndex: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
 ): Promise<void> => {
-    const existingMergeParams = await mitoAPI.getMergeParams(selectedSheetIndex);
+    const response = await mitoAPI.getMergeParams(selectedSheetIndex);
+    const existingMergeParams = 'error' in response ? undefined : response.result;
 
     if (existingMergeParams !== undefined) {
         setUIState(prevUIState => {
@@ -31,7 +32,9 @@ export const openExistingPivotTaskpane = async (
     selectedSheetIndex: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
 ): Promise<void> => {
-    const existingPivotParams = await mitoAPI.getPivotParams(selectedSheetIndex);
+    const response = await mitoAPI.getPivotParams(selectedSheetIndex);
+    const existingPivotParams = 'error' in response ? undefined : response.result;
+
     if (existingPivotParams !== undefined) {
         setUIState(prevUIState => {
             return {

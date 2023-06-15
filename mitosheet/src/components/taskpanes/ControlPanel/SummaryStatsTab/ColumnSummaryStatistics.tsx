@@ -1,8 +1,9 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css";
-import MitoAPI from '../../../../jupyter/api';
+import MitoAPI from '../../../../api/api';
+import { useStateFromAPIAsync } from '../../../../hooks/useStateFromAPIAsync';
 import { ColumnFormatType, ColumnID, UIState } from '../../../../types';
 import { formatCellData } from '../../../../utils/format';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
@@ -36,21 +37,19 @@ const KEY_TO_FORMAT_WITH_COLUMN_FORMAT = [
     See examples here: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.describe.html
 */
 function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
-    const [describe, setDescribe] = useState<Record<string, string>>({});
-    const [loading, setLoading] = useState(true)
 
-    async function loadDescribe() {
-        const loadedDescribe = await props.mitoAPI.getColumnDescribe(
-            props.selectedSheetIndex, 
-            props.columnID
-        );
-        setDescribe(loadedDescribe);
-        setLoading(false);
-    }
-
-    useEffect(() => {
-        void loadDescribe();
-    }, [])
+    const [describe, loading] = useStateFromAPIAsync<Record<string, string>, undefined>(
+        {},
+        async () => {
+            const response = await props.mitoAPI.getColumnDescribe(
+                props.selectedSheetIndex, 
+                props.columnID
+            );
+            return 'error' in response ? undefined : response.result;
+        },
+        undefined,
+        []
+    )
 
     return (
         <React.Fragment>

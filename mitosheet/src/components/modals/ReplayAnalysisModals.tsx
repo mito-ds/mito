@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useState } from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { overwriteAnalysisToReplayToMitosheetCall } from '../../jupyter/jupyterUtils';
 import { MitoError, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';

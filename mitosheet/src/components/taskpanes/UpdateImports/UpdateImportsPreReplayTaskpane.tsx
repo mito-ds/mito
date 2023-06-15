@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { overwriteAnalysisToReplayToMitosheetCall } from "../../../jupyter/jupyterUtils";
 import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../types";
-import { isMitoError } from "../../../utils/errors";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
@@ -145,7 +144,8 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                                     if (props.updatedStepImportData === undefined) {
                                         return
                                     }
-                                    const _invalidImportIndexes = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                                    const response = await props.mitoAPI.getTestImports(props.updatedStepImportData);
+                                    const _invalidImportIndexes = 'error' in response ? undefined : response.result;
                                     if (_invalidImportIndexes === undefined) {
                                         return;
                                     }
@@ -165,8 +165,8 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
 
                                         const replayAnalysisError = await props.mitoAPI.updateReplayAnalysis(props.failedReplayData.analysisName, props.failedReplayData.args, props.updatedStepImportData);
                                         // If there is an error replaying the analysis, we know it is not with 
-                                        if (isMitoError(replayAnalysisError)) {
-                                            props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.to_fix))
+                                        if ('error' in replayAnalysisError) {
+                                            props.setInvalidReplayError(getErrorTextFromToFix(replayAnalysisError.error))
                                         } else {
                                             props.setUIState((prevUIState) => {
                                                 return {

@@ -1,21 +1,32 @@
-import { useEffect, useState } from "react"
-import MitoAPI from "../jupyter/api"
-import { CommCreationStatus, getCommContainer } from "../jupyter/comm"
+import { useState } from "react"
+import MitoAPI from "../api/api"
 import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
+import { SendFunction, SendFunctionError, SendFunctionStatus } from "../api/send"
 
 
 export const useMitoAPI = (
-    kernelID: string,
-    commTargetID: string,
+    getSendFunction: () => Promise<SendFunction | SendFunctionError>,
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
-): {mitoAPI: MitoAPI, commCreationStatus: CommCreationStatus} => {
+): {mitoAPI: MitoAPI, sendFunctionStatus: SendFunctionStatus} => {
+
+    const [sendFunctionStatus, setCommCreationStatus] = useState<SendFunctionStatus>('loading');
 
     const [mitoAPI] = useState<MitoAPI>(
         () => {
             return new MitoAPI(
+                async () => {
+                    const fetchFunction = await getSendFunction();
+                    if (typeof fetchFunction === 'string') { // Check if it's an error
+                        setCommCreationStatus(fetchFunction);
+                        return undefined;
+                    } else {
+                        setCommCreationStatus('finished');
+                        return fetchFunction
+                    }
+                },
                 setSheetDataArray,
                 setAnalysisData,
                 setUserProfile,
@@ -24,39 +35,8 @@ export const useMitoAPI = (
         }
     )
 
-    const [commCreationStatus, setCommCreationStatus] = useState<CommCreationStatus>('loading');
-
-    
-    useEffect(() => {
-        /**
-         * Although we can run async code before creating the Mito react component, we
-         * choose to create the comm channel here. 
-         * 
-         * This is because JupyterLab loads the output cell JS before loading the commands,
-         * and so we cannot create a comm before creating the mitosheet unless we wait a while.
-         * 
-         * To avoid these ordering constraints, we just create the comm after creating Mito, 
-         * and indeed try a few times to create a comm before fully giving up (see getCommContainer)
-         * 
-         * This leads to some grossness, where the API we might not have a ._send function that
-         * is defined. But we just wait to send messages until it is, or give up after a reasonable 
-         * timeout.
-         */
-        const init = async () => {
-            const commContainerOrError = await getCommContainer(kernelID, commTargetID)
-            if (typeof commContainerOrError === 'string') { // Check if it it's an error
-                setCommCreationStatus(commContainerOrError);
-            } else {
-                void mitoAPI.init(commContainerOrError);
-                setCommCreationStatus('finished');
-            }
-        }
-
-        void init()
-    }, [])
-
     return {
         mitoAPI: mitoAPI,
-        commCreationStatus: commCreationStatus,
+        sendFunctionStatus: sendFunctionStatus,
     }
 }

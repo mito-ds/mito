@@ -4,7 +4,7 @@ import { Action, ActionEnum, AnalysisData, SheetData, UIState, UserProfile } fro
 
 import LoadingIndicator from '../LoadingIndicator';
 import '../../../css/elements/BottomLeftPopup.css';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {

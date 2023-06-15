@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import MitoAPI, { getRandomId } from "../jupyter/api";
+import MitoAPI, { getRandomId } from "../api/api";
 import { AnalysisData } from "../types";
-import { isMitoError } from "../utils/errors";
 import { useEffectOnRedo } from "./useEffectOnRedo";
 import { useEffectOnUndo } from "./useEffectOnUndo";
 
@@ -116,8 +115,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         setLoading(false);
 
         // Handle if we return an error
-        if (isMitoError(possibleError)) {
-            setError(possibleError.to_fix);
+        if ('error' in possibleError) {
+            setError(possibleError.error);
         } else {
             // Update our step id tracking
             setStepIDData(prevStepIDData => {
@@ -155,7 +154,8 @@ function useSendEditOnClick<ParamType, ResultType>(
         })
 
 
-        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const newParams = 'error' in response ? undefined : response.result;
         if (newParams !== undefined) {
             if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
                 _setParams(newParams);
@@ -194,7 +194,8 @@ function useSendEditOnClick<ParamType, ResultType>(
             return newStepIDData;
         })
 
-        const newParams = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const response = await mitoAPI.getParams<ParamType>(stepType, stepID, {});
+        const newParams = 'error' in response ? undefined : response.result;
         if (newParams !== undefined) {
             if (options?.doNotRefreshParamsOnUndoAndRedo !== true) {
                 _setParams(newParams);

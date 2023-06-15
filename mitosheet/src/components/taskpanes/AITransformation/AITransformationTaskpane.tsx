@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AITransformationResult, AnalysisData, ColumnHeader, GridState, IndexLabel, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
@@ -221,18 +221,25 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completionOrError?.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
                 return;
             } else {
-                setTaskpaneState({type: 'executing code', completion: completionOrError, userInput: userInput})
+                // TODO: this sucks. There are two types of errors. That's not good
+                const completion = completionOrError.result;
+                if ('error' in completion) {
+                    setTaskpaneState({type: 'error loading completion', userInput: userInput, error: completion.error || 'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'})
+                    return;
+                }
+
+                setTaskpaneState({type: 'executing code', completion: completion, userInput: userInput})
                 const possibleError = await edit({
                     user_input: userInput,
-                    prompt_version: completionOrError.prompt_version,
-                    prompt: completionOrError.prompt,
-                    completion: completionOrError.completion,
-                    edited_completion: completionOrError.completion 
+                    prompt_version: completion.prompt_version,
+                    prompt: completion.prompt,
+                    completion: completion.completion,
+                    edited_completion: completion.completion 
                 })
                 
                 if (possibleError !== undefined) {
                     setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
-                    previousFailedCompletions.push([completionOrError.completion, possibleError])
+                    previousFailedCompletions.push([completion.completion, possibleError])
                 } else {
                     console.log("Setting success to true")
                     setTaskpaneState({type: 'default'});

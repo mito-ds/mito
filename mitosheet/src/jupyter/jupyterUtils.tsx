@@ -18,7 +18,7 @@
 
 import { convertBackendtoFrontendGraphParams } from "../components/taskpanes/Graph/graphUtils"
 import { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile } from "../types"
-import MitoAPI from "./api"
+import MitoAPI from "../api/api"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
 

@@ -334,7 +334,7 @@ def test_test_import_returns_good_data():
 
     mito = create_mito_wrapper()
 
-    result = json.loads(get_test_imports({
+    result = get_test_imports({
         'updated_step_import_data_list': [
         {
             'step_id': 'fake_id',
@@ -398,11 +398,11 @@ def test_test_import_returns_good_data():
                 }
             }]
         }
-    ]}, mito.mito_backend.steps_manager))
+    ]}, mito.mito_backend.steps_manager)
 
-    assert result["1"] == 'no such file does not exist.'
-    assert result["3"] == 'fake_file does not exist.'
-    assert result["5"] == DATAFRAME_IMPORT_ERROR
+    assert result[1] == 'no such file does not exist.'
+    assert result[3] == 'fake_file does not exist.'
+    assert result[5] == DATAFRAME_IMPORT_ERROR
     assert len(result) == 3
 
     # Remove the test files
@@ -424,7 +424,7 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
 
     mito = create_mito_wrapper()
 
-    result = json.loads(get_test_imports({
+    result = get_test_imports({
         'updated_step_import_data_list': [
         {
             'step_id': 'fake_id',
@@ -455,10 +455,10 @@ def test_test_import_correct_index_for_multiple_items_in_one_step():
                 }
             ]
         },
-    ]}, mito.mito_backend.steps_manager))
+    ]}, mito.mito_backend.steps_manager)
 
-    assert result["1"] == 'no such file does not exist.'
-    assert result["3"] == 'no such file does not exist.'
+    assert result[1] == 'no such file does not exist.'
+    assert result[3] == 'no such file does not exist.'
     assert len(result) == 2
 
     # Remove the test files
@@ -489,19 +489,18 @@ def test_update_imports_replays_unchanged_files_correctly_from_steps():
     from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_imported_files_and_dataframes_from_current_steps
     import_data = get_imported_files_and_dataframes_from_current_steps({}, mito.mito_backend.steps_manager)
     
-    import_data_json = json.loads(import_data)
-    assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
-    assert import_data_json[0]['imports'][0]['params']['delimeters'] == [',']
-    assert import_data_json[0]['imports'][0]['params']['encodings'] == [encoding]
-    assert import_data_json[0]['imports'][0]['params']['decimals'] == [","]
-    assert import_data_json[0]['imports'][0]['params']['skiprows'] == [0]
-    assert import_data_json[0]['imports'][0]['params']['error_bad_lines'] == [False]
+    assert import_data[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
+    assert import_data[0]['imports'][0]['params']['delimeters'] == [',']
+    assert import_data[0]['imports'][0]['params']['encodings'] == [encoding]
+    assert import_data[0]['imports'][0]['params']['decimals'] == [","]
+    assert import_data[0]['imports'][0]['params']['skiprows'] == [0]
+    assert import_data[0]['imports'][0]['params']['error_bad_lines'] == [False]
 
-    assert import_data_json[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
-    assert import_data_json[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
-    assert import_data_json[1]['imports'][0]['params']['has_headers'] == True
-    assert import_data_json[1]['imports'][0]['params']['skiprows'] == 0
-    assert import_data_json[1]['imports'][0]['params']['decimal'] == ','
+    assert import_data[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
+    assert import_data[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
+    assert import_data[1]['imports'][0]['params']['has_headers'] == True
+    assert import_data[1]['imports'][0]['params']['skiprows'] == 0
+    assert import_data[1]['imports'][0]['params']['decimal'] == ','
 
     mito.update_existing_imports(import_data)
 
@@ -537,19 +536,18 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
     from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import get_imported_files_and_dataframes_from_analysis_name
     import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_backend.analysis_name, 'args': []}, mito.mito_backend.steps_manager)
 
-    import_data_json = json.loads(import_data)
-    assert import_data_json[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
-    assert import_data_json[0]['imports'][0]['params']['delimeters'] == [',']
-    assert import_data_json[0]['imports'][0]['params']['encodings'] == [encoding]
-    assert import_data_json[0]['imports'][0]['params']['decimals'] == [","]
-    assert import_data_json[0]['imports'][0]['params']['skiprows'] == [0]
-    assert import_data_json[0]['imports'][0]['params']['error_bad_lines'] == [False]
+    assert import_data[0]['imports'][0]['params']['file_names'] == [TEST_CSV_FILE]
+    assert import_data[0]['imports'][0]['params']['delimeters'] == [',']
+    assert import_data[0]['imports'][0]['params']['encodings'] == [encoding]
+    assert import_data[0]['imports'][0]['params']['decimals'] == [","]
+    assert import_data[0]['imports'][0]['params']['skiprows'] == [0]
+    assert import_data[0]['imports'][0]['params']['error_bad_lines'] == [False]
 
-    assert import_data_json[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
-    assert import_data_json[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
-    assert import_data_json[1]['imports'][0]['params']['has_headers'] == True
-    assert import_data_json[1]['imports'][0]['params']['skiprows'] == 0
-    assert import_data_json[1]['imports'][0]['params']['decimal'] == ','
+    assert import_data[1]['imports'][0]['params']['file_name'] == TEST_EXCEL_FILE
+    assert import_data[1]['imports'][0]['params']['sheet_names'] == ['Sheet1']
+    assert import_data[1]['imports'][0]['params']['has_headers'] == True
+    assert import_data[1]['imports'][0]['params']['skiprows'] == 0
+    assert import_data[1]['imports'][0]['params']['decimal'] == ','
 
     mito.update_existing_imports(import_data)
     

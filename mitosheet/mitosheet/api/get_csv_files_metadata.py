@@ -13,7 +13,7 @@ from mitosheet.step_performers.import_steps.simple_import import read_csv_get_de
 from mitosheet.types import StepsManagerType
 
 
-def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Given a list of 'file_names' that should be CSV files,
     this returns our guesses for delimeters and encodings
@@ -40,11 +40,11 @@ def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerTy
         decimals.append(DEFAULT_DECIMAL)
         skiprows.append(DEFAULT_SKIPROWS)
 
-    return json.dumps({
+    return {
         'delimeters': delimeters,
         'encodings': encodings,
         'decimals': decimals,
         'skiprows': skiprows 
-    })
+    }
 
 

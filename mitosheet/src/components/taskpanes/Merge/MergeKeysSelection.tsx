@@ -1,5 +1,5 @@
 import React from "react"
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { ColumnID, SheetData } from "../../../types";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import DropdownItem from "../../elements/DropdownItem";

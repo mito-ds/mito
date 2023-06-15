@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css';
+import MitoAPI from '../../../api/api';
 import ExpandableContentCard from '../../../components/elements/ExpandableContentCard';
 import MultiToggleColumns from '../../../components/elements/MultiToggleColumns';
 import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
@@ -7,7 +8,6 @@ import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIc
 import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
 import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
 import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
-import MitoAPI from '../../../jupyter/api';
 import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
 import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { capitalizeFirstLetter } from '../../../utils/strings';

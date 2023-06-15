@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import '../../../css/endo/EndoGrid.css';
 import '../../../css/sitewide/colors.css';
-import MitoAPI from "../../jupyter/api";
+import MitoAPI from "../../api/api";
 import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
@@ -17,7 +17,7 @@ import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
-import { CommCreationStatus } from "../../jupyter/comm";
+import { SendFunctionStatus } from "../../api/send";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -88,7 +88,7 @@ function EndoGrid(props: {
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
-    commCreationStatus: CommCreationStatus;
+    sendFunctionStatus: SendFunctionStatus;
     analysisData: AnalysisData
 }): JSX.Element {
 
@@ -691,7 +691,7 @@ function EndoGrid(props: {
                         sheetData={sheetData}
                         mitoAPI={mitoAPI}
                         uiState={props.uiState}
-                        commCreationStatus={props.commCreationStatus}
+                        sendFunctionStatus={props.sendFunctionStatus}
                     />
                     {/* 
                         This is the div we actually scroll inside. We make it so it's styled

@@ -16,11 +16,10 @@ from typing import Any, Dict, List, Optional, Union, Callable
 
 import numpy as np
 import pandas as pd
-from ipykernel import get_connection_file
-from ipykernel.comm import Comm
 from IPython import get_ipython
 from IPython.display import HTML, display
 
+from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.enterprise.mito_config import MitoConfig
@@ -247,41 +246,29 @@ class MitoBackend():
             # Log processing this event failed
             log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
 
-            # If the error says to ignore the error modal, then we
-            # send some data with the response so that the frontend
-            # knows to ignore the error moda 
-            response = {
-                'event': 'edit_error',
-                'id': event['id'],
-                'type': e.type_,
-                'header': e.header,
-                'to_fix': e.to_fix,
-                'traceback': e.traceback,
-            }
-            if not e.error_modal:
-                response['data'] = {
-                    'event': 'edit_error',
-                    'type': e.type_,
-                    'header': e.header,
-                    'to_fix': e.to_fix,
-                    'traceback': e.traceback,
-                }
-
             # Report it to the user, and then return
-            self.mito_send(response)
+            self.mito_send({
+                'event': 'error',
+                'id': event['id'],
+                'error': e.to_fix,
+                'errorShort': e.header,
+                'traceback': e.traceback,
+                'showErrorModal': e.error_modal
+            })
         except:
             if is_running_test():
                 print(get_recent_traceback())
+            
             # We log that processing failed, but have no edit error
             log_event_processed(event, self.steps_manager, failed=True, start_time=start_time)
             # Report it to the user, and then return
             self.mito_send({
-                'event': 'edit_error',
+                'event': 'error',
                 'id': event['id'],
-                'type': 'execution_error',
-                'header': 'Execution Error',
-                'to_fix': 'Sorry, there was an error during executing this code.',
-                'traceback': get_recent_traceback()
+                'error': 'Sorry, there was an error during executing this code.',
+                'errorShort': 'Execution Error',
+                'traceback': get_recent_traceback(),
+                'showErrorModal': True
             })
 
         return False
@@ -324,18 +311,6 @@ def get_mito_backend(
 
     return mito_backend
 
-def get_current_kernel_id() -> str:
-    """
-    Return the url of the current jupyter notebook server.
-    
-    Adapted from: https://github.com/jupyter/notebook/issues/3156
-    """
-    # path/to/file/kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
-    connection_file = get_connection_file() # type: ignore
-    # kernel-c13462b6-c6a2-4e17-b891-7f7847204df9.json
-    file_name: str = os.path.basename(connection_file) 
-    return file_name[len('kernel-'):-len('.json')] 
-
 
 def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mito_backend: MitoBackend) -> str:
 
@@ -345,6 +320,7 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     # NOTE: because the CSS has strings inside of it, we need to replace the " quotes (which get created during code minifying)
     # with ` quotes, which properly contain the CSS string
     js_code = js_code.replace('"REPLACE_THIS_WITH_CSS"', "`" + css_code_from_file + "`")
+    js_code = js_code.replace('`REPLACE_THIS_WITH_CSS`', "`" + css_code_from_file + "`")
     # NOTE: we encode these as utf8 encoded byte arrays, so that we can avoid having to do complicated things with 
     # replacing \t, etc, which is required because JSON.parse limits what characters are valid in strings (bah humbug)
     def to_uint8_arr(string: str) -> List[int]:

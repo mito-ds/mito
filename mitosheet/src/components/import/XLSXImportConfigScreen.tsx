@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { useStateFromAPIAsync } from '../../hooks/useStateFromAPIAsync';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { isAtLeastBenchmarkVersion } from '../../utils/packageVersion';
@@ -98,13 +98,15 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
     // Load the metadata about the Excel file from the API
     const [fileMetadata, loading] = useStateFromAPIAsync<ExcelFileMetadata, string>(
         {sheet_names: [], size: 0},
-        (filePath: string) => {return props.mitoAPI.getExcelFileMetadata(filePath)},
+        async (filePath: string) => {
+            const response = await props.mitoAPI.getExcelFileMetadata(filePath);
+            return 'error' in response ? undefined : response.result;
+        },
         (loadedData) => {
             if (loadedData !== undefined) {
                 props.setParams(prevParams => {
                     // If it's an update to an existing import, we just select the first sheet, as we only ever want one sheet selected
                     // but if it's a normal import, we select all the files
-
                     return {
                         ...prevParams,
                         sheet_names: !props.isUpdate ? loadedData.sheet_names : loadedData.sheet_names.slice(0, 1)

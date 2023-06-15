@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { CommCreationErrorStatus } from "../../jupyter/comm";
+import { SendFunctionError } from "../../api/send";
 import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 import { MergeParams } from "./Merge/MergeTaskpane";
@@ -108,7 +108,7 @@ export type TaskpaneInfo =
     }
     | {
         type: TaskpaneType.CANNOTCREATECOMM,
-        commCreationErrorStatus: CommCreationErrorStatus
+        commCreationErrorStatus: SendFunctionError
     }
     | {type: TaskpaneType.CODESNIPPETS}
     | {type: TaskpaneType.SNOWFLAKEIMPORT}

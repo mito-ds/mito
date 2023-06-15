@@ -1,6 +1,6 @@
 import React from 'react'
 import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { UIState, UserProfile } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { ModalEnum } from '../modals/modals';

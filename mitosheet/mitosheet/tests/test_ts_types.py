@@ -230,7 +230,7 @@ def test_df_sources_match():
 
 
 def test_user_json_fields_match():
-    user_json_fields = get_enum_from_ts_file("./src/jupyter/api.tsx", "UserJsonFields")
+    user_json_fields = get_enum_from_ts_file("./src/api/api.tsx", "UserJsonFields")
     assert set(user_json_fields.values()) == set(USER_JSON_DEFAULT.keys())
 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { toggleInArray } from "../../../utils/arrays";
 import { classNames } from "../../../utils/classNames";
@@ -149,7 +149,8 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
 
     const loadAndSetOptionsAndDefaults = async (newParams: SnowflakeImportParams) => {
         setLoadingAvailableOptionsAndDefaults(true)
-        const availableSnowflakeOptionsAndDefaults = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
+        const response = await props.mitoAPI.getAvailableSnowflakeOptionsAndDefaults(newParams.table_loc_and_warehouse);
+        const availableSnowflakeOptionsAndDefaults = 'error' in response ? undefined : response.result;
         setAvailableSnowflakeOptionsAndDefaults(availableSnowflakeOptionsAndDefaults);
 
         if (availableSnowflakeOptionsAndDefaults?.type === 'success') {

@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
-import MitoAPI from '../../jupyter/api';
+import MitoAPI from '../../api/api';
 import { ColumnHeader, ColumnID, SheetData } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';

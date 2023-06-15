@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../jupyter/api";
+import MitoAPI from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';

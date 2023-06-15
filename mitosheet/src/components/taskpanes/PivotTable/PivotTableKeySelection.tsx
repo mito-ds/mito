@@ -2,7 +2,7 @@
 
 import React from 'react';
 import '../../../../css/layout/CollapsibleSection.css';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { ColumnID, ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../types';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isDatetimeDtype } from '../../../utils/dtypes';

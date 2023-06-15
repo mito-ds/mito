@@ -1,7 +1,7 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import MitoAPI, { getRandomId } from '../../jupyter/api';
+import MitoAPI, { getRandomId } from '../../api/api';
 import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { openExistingMergeTaskpane, openExistingPivotTaskpane } from '../../utils/EditedTaskpanes';
 import Dropdown from '../elements/Dropdown';
@@ -110,7 +110,7 @@ export default function SheetTabActions(props: {
             graphParams,
             '100%',
             '100%',
-            undefined, 
+            getRandomId(), 
         );
     }
 

@@ -16,7 +16,7 @@ from mitosheet.utils import get_row_data_array
 # See comments in function description below.
 MAX_UNIQUE_VALUES = 1_000
 
-def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Sends back a string that can be parsed to a JSON object that
     contains the first 3 rows of the new columns created by splittin the 
@@ -43,7 +43,7 @@ def get_split_text_to_columns_preview(params: Dict[str, Any], steps_manager: Ste
     else:
         df_preview = df_head[column_header].astype('str').str.split(delimiter_string, **split_param_dict)
 
-    return json.dumps({
+    return {
         'dfPreviewRowDataArray': get_row_data_array(df_preview),
-    })
+    }
 

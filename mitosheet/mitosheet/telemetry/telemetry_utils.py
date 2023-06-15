@@ -10,6 +10,8 @@ to interact with telemetry. See the README.md file in this folder for
 more details.
 """
 
+import datetime
+import os
 import platform
 import sys
 import time
@@ -18,18 +20,37 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from unittest.mock import patch
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
-from mitosheet.user.location import get_location, is_docker
-from mitosheet.user.schemas import UJ_EXPERIMENT, UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
+from mitosheet.user.location import get_location, is_docker, is_jupyterlite
+from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
-import analytics
+WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-# Write key taken from segement.com
-analytics.write_key = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
+import analytics
+analytics.write_key = WRITE_KEY
+
+if is_jupyterlite():
+    # If we are in JupyterLite, we have to do a few things to get telemetry working:
+    # 1. We have to set the sync_mode to True, so that we don't start a thread
+    # 2. We have to patch the requests library to use pyodide's fetch instead of requests, which
+    #    does not work in JupyterLite. We do this with the pyodide_http library
+    # 3. When we call the identify, we actuall have to mock the Session.post function, 
+    #    as pyodide_http doesn't do this (it just fixes requests.post). We do this at the
+    #    call site with unittest.mock.patch
+
+    analytics.sync_mode = True
+
+    import pyodide_http
+    pyodide_http.patch_all()
+
+    # Wrapper
+    def post(*args, **kwargs):
+        return requests.post(args[1], **kwargs)
 
 
 from mitosheet._version import __version__, package_name
@@ -58,10 +79,10 @@ def telemetry_turned_on() -> bool:
     if MITOSHEET_HELPER_PRIVATE:
         return False
 
-    # If the current package is mitosheet-private, then we don't log anything,
-     # ever, under any circumstances - this is a custom distribution for a client
-    if package_name == 'mitosheet-private':
-        return False
+    # Check if the config is set
+    if os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY') is not None:
+        from mitosheet.enterprise.mito_config import is_env_variable_set_to_true
+        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY', ''))
 
     # If Mito Pro is on, then don't log anything
     if is_pro():
@@ -69,7 +90,6 @@ def telemetry_turned_on() -> bool:
 
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
     return telemetry if telemetry is not None else False
-
 
 def _get_anonymized_log_params(params: Dict[str, Any], steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
@@ -204,16 +224,16 @@ except:
     ipywidgets_version = 'no pandas'
 
 
-location = None
+__location = None
 
 def _get_environment_params() -> Dict[str, Any]:
     """
     Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
     """
-    global location
-    if location is None:
-        location = get_location()
+    global __location
+    if __location is None:
+        __location = get_location()
     
     # Add the python properties to every log event we can
     environment_params = {
@@ -224,7 +244,7 @@ def _get_environment_params() -> Dict[str, Any]:
         'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location,
+        'location': __location,
         'is_docker': is_docker()
     }
 
@@ -320,27 +340,38 @@ def identify() -> None:
     feedbacks = get_user_field(UJ_FEEDBACKS)
     feedbacks_v2 = get_user_field(UJ_FEEDBACKS_V2)
     local = is_local_deployment()
+    jupyterlite = is_jupyterlite()
     operating_system = platform.system()
 
-    
+    params = {
+        'version_python': sys.version_info,
+        'version_pandas': pandas_version,
+        'version_ipywidgets': ipywidgets_version,
+        'version_sys': sys.version,
+        'version_mito': __version__,
+        'package_name': package_name, 
+        'version_jupyterlab': jupyterlab_version,
+        'version_notebook': notebook_version,
+        'operating_system': operating_system,
+        'email': user_email,
+        'local': local,
+        'jupyterlite': jupyterlite,
+        UJ_INTENDED_BEHAVIOR: intended_behavior,
+        UJ_FEEDBACKS: feedbacks,
+        UJ_FEEDBACKS_V2: feedbacks_v2
+    }
+
+
     if not is_running_test():
-        # NOTE: we do not log anything when tests are running
-        analytics.identify(static_user_id, {
-            'version_python': sys.version_info,
-            'version_pandas': pandas_version,
-            'version_ipywidgets': ipywidgets_version,
-            'version_sys': sys.version,
-            'version_mito': __version__,
-            'package_name': package_name, 
-            'version_jupyterlab': jupyterlab_version,
-            'version_notebook': notebook_version,
-            'operating_system': operating_system,
-            'email': user_email,
-            'local': local,
-            UJ_INTENDED_BEHAVIOR: intended_behavior,
-            UJ_FEEDBACKS: feedbacks,
-            UJ_FEEDBACKS_V2: feedbacks_v2
-        })
+
+        if is_jupyterlite():
+            # We patch the post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.identify(static_user_id, params)
+
+        else:        
+            analytics.identify(static_user_id, params)
 
 
 def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
@@ -379,14 +410,29 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
 
+    # Then, make sure to add the user email
+    final_params['email'] = get_user_field(UJ_USER_EMAIL)
+
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on():
-        analytics.track(
-            get_user_field(UJ_STATIC_USER_ID), 
-            log_event, 
-            final_params
-        )
+
+        if is_jupyterlite():
+            # We patch post function to use pyodide fetch
+            # instead of requests
+            with patch('requests.sessions.Session.post', post):
+                analytics.track(
+                    get_user_field(UJ_STATIC_USER_ID), 
+                    log_event, 
+                    final_params
+                )
+        else:
+            analytics.track(
+                get_user_field(UJ_STATIC_USER_ID), 
+                log_event, 
+                final_params
+            )
+        
 
     # If we want to print the logs for debugging reasons, then we print them as well
     if PRINT_LOGS:

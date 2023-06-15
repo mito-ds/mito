@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import '../../../../css/elements/Input.css';
 import '../../../../css/taskpanes/Import/FileBrowser.css';
-import MitoAPI from '../../../jupyter/api';
+import MitoAPI from '../../../api/api';
 import { UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { isExcelImportEnabled } from '../../../utils/packageVersion';
