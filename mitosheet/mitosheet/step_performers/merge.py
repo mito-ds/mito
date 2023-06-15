@@ -77,6 +77,8 @@ class MergeStepPerformer(StepPerformer):
         return post_state, {
             # Add the destination_sheet_index to the execution data so we can identify 
             # which sheet to get the params of when updating the merge configuration
+            # Notably, this is not the destination sheet index that is passed to the 
+            # code chunk - it is just for searching for previous params from the frontend.
             'destination_sheet_index': destination_sheet_index,
             'pandas_processing_time': pandas_processing_time
         }

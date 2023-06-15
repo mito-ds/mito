@@ -20,6 +20,7 @@ const InvalidSelectedColumnsError = (props: {
     columnIDsMap: ColumnIDsMap;
     location: string
     selectedColumnIDs: ColumnID[];
+    sheetName?: string
     mitoAPI: MitoAPI;
 }): JSX.Element => {
 
@@ -37,13 +38,14 @@ const InvalidSelectedColumnsError = (props: {
         }
     }, [])
 
+    const oneColumn = invalidSelectedColumnIDs.length === 1
     return (
         <>
             {invalidSelectedColumnIDs.length > 0 && 
                 // Note: we hide X overflow so that really long column headers don't make the pivot
                 // scrollable
                 <div className='text-color-error' style={{overflowX: 'hidden'}}>
-                    The {invalidSelectedColumnIDs.length === 1 ? 'column' : 'columns'} {invalidSelectedColumnIDs.length === 1 ? invalidSelectedColumnIDs[0] : invalidSelectedColumnIDs.join(', ')} {invalidSelectedColumnIDs.length === 1 ? 'does' : 'do'} not exist in this sheet anymore. Delete {invalidSelectedColumnIDs.length === 1 ? 'it' : 'them'} to create a valid configuration.
+                    The {oneColumn ? 'column' : 'columns'} {oneColumn ? invalidSelectedColumnIDs[0] : invalidSelectedColumnIDs.join(', ')} {props.sheetName !== undefined ? `in ${props.sheetName} ` : ''} {oneColumn ? 'does' : 'do'} not exist in this sheet anymore. Delete {oneColumn ? 'it' : 'them'} to create a valid configuration.
                 </div>
             }
         </>

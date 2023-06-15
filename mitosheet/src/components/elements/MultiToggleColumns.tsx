@@ -33,20 +33,22 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
     
     const invalidSelectedColumns = props.selectedColumnIDs.filter(columnID => !Object.keys(props.sheetData?.columnDtypeMap || {}).includes(columnID))
     const invalidSelectedMultiToggleItems = invalidSelectedColumns.map((columnID, index) => {
-
-        return (<MultiToggleItem
-            key={'invalid: ' + index}
-            index={index}
-            title={columnID} // Since the column is deleted, we can't get the column header
-            rightText={undefined}
-            toggled={true}
-            onToggle={() => {
-                const newSelectedColumnIds = [...props.selectedColumnIDs];
-                toggleInArray(newSelectedColumnIds, columnID);
-                props.onChange(newSelectedColumnIds);
-            }}
-            invalid
-        />)
+        return (
+            <MultiToggleItem
+                key={'invalid: ' + index} // Add 'invalid' so that the index does not overlap with the valid MultiToggleItems
+                index={index}
+                title={columnID} // Since the column is deleted, we can't get the column header
+                rightText={undefined}
+                toggled={true}
+                onToggle={() => {
+                    const newSelectedColumnIds = [...props.selectedColumnIDs];
+                    toggleInArray(newSelectedColumnIds, columnID);
+                    props.onChange(newSelectedColumnIds);
+                }}
+                invalid={!props.disabledColumnIDs?.includes(columnID)}
+                disabled={props.disabledColumnIDs?.includes(columnID)}
+            />
+        )
     })
 
     const validMultiToggleItems = columnIDsAndDtype.map(([columnID, columnDtype], index) => {
@@ -62,7 +64,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
         return (
             <MultiToggleItem
-                key={'valid: ' + index}
+                key={'valid: ' + index} // Add 'valid' so that the index does not overlap with the invalid MultiToggleItems
                 title={displayColumnHeader}
                 rightText={getDtypeValue(columnDtype)}
                 toggled={toggle}
@@ -83,7 +85,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
             <InvalidSelectedColumnsError 
                 columnIDsMap={columnIDsMap} 
                 location={'multi toggle columns'} 
-                selectedColumnIDs={props.selectedColumnIDs} 
+                selectedColumnIDs={props.selectedColumnIDs.filter(columnID => !props.disabledColumnIDs?.includes(columnID))} 
                 mitoAPI={props.mitoAPI}            
             />
             <MultiToggleBox

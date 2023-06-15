@@ -71,11 +71,7 @@ export const getDefaultMergeParams = (
     _sheetIndexOne: number, 
     _sheetIndexTwo?: number, 
     previousParams?: MergeParams, // When we change the merge params, we use the previous params to handle cases like switching input sheets
-    existingMergeParams?: MergeParams // If we are editing a merge, this is the configuration to start with
 ): MergeParams | undefined => {
-    if (existingMergeParams) {
-        return existingMergeParams;
-    }
 
     if (sheetDataArray.length < 2) {
         return undefined;
@@ -129,7 +125,7 @@ export const getDefaultMergeParams = (
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.existingMergeParams),
+        () => props.existingMergeParams !== undefined ? props.existingMergeParams : getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,

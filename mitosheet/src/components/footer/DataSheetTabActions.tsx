@@ -153,11 +153,11 @@ export default function SheetTabActions(props: {
                 }
             })
         }}/> : undefined,
-        mergeSource ? <DropdownItem key='Edit Merge Configuration' title='Edit Merge Configuration' onClick={() => {
+        mergeSource ? <DropdownItem key='Update Merge' title='Update Merge' onClick={() => {
             props.closeOpenEditingPopups();
             openExistingMergeTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
         }}/> : undefined,
-        pivotSource ? <DropdownItem key='Edit Pivot Configuration' title='Edit Pivot Configuration' onClick={() => {
+        pivotSource ? <DropdownItem key='Update Pivot Table' title='Update Pivot Table' onClick={() => {
             props.closeOpenEditingPopups();
             openExistingPivotTaskpane(props.mitoAPI, props.sheetIndex, props.setUIState)
         }}/> : undefined,

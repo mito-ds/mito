@@ -639,3 +639,22 @@ def test_merge_edit_update_merge_overwrites_edits():
 
     assert len(mito.dfs) == 3
     assert mito.dfs[2].equals(pd.DataFrame({'A': [1], 'B_df1': [2], 'B_df2': [3]}))
+
+
+def test_merge_then_edit_merge_then_delete_sheet():
+
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'],
+    )
+
+    mito.merge_sheets(
+        'lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2
+    )
+
+    mito.delete_dataframe(2)
+
+    assert len(mito.dfs) == 2
+    

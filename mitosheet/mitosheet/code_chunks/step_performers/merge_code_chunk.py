@@ -48,9 +48,9 @@ class MergeCodeChunk(CodeChunk):
         if self.destination_sheet_index is None:
             self.df_new_name = self.post_state.df_names[-1]
         else:
-            # If we're repivoting an existing pivot table, we have
-            # to make sure to overwrite the correct pivot table 
-            # by using the right name
+            # If we're updaing an existing merge table, we have
+            # to make sure to overwrite the sheet that was the result 
+            # of the merge by using the right name
             self.df_new_name = self.post_state.df_names[self.destination_sheet_index]
 
     def get_display_name(self) -> str:
@@ -72,9 +72,9 @@ class MergeCodeChunk(CodeChunk):
         if self.destination_sheet_index is None:
             self.new_df_name = self.post_state.df_names[-1]
         else:
-            # If we're repivoting an existing pivot table, we have
-            # to make sure to overwrite the correct pivot table 
-            # by using the right name
+            # If we're updaing an existing merge, we have
+            # to make sure to overwrite the sheet that was the result
+            # of the merge by using the right name
             self.new_df_name = self.post_state.df_names[self.destination_sheet_index]
 
         # Now, we build the merge code 
