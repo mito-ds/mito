@@ -43,8 +43,6 @@ class MergeStepPerformer(StepPerformer):
         selected_column_ids_two: List[ColumnID] = get_param(params, 'selected_column_ids_two')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
 
-        print('received: ', destination_sheet_index)
-
         merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
         merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
 
@@ -75,8 +73,6 @@ class MergeStepPerformer(StepPerformer):
             sheet_index=destination_sheet_index,
             df_name=None if destination_sheet_index is None else post_state.df_names[destination_sheet_index], 
         )
-
-        print(destination_sheet_index)
 
         return post_state, {
             # Add the destination_sheet_index to the execution data so we can identify 
