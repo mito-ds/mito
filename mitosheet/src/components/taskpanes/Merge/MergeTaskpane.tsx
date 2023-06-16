@@ -147,7 +147,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
-    // If while updating a merge, you undo the original creation of the merge, close the taskpane.
+    // If while updating a merge, you undo/delete the original merge sheet, close the taskpane.
     if (props.destinationSheetIndex !== undefined && props.sheetDataArray.length - 1 < props.destinationSheetIndex) {
         props.setUIState((prevUIState) => {
             return {
