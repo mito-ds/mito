@@ -11,11 +11,19 @@ import '../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 const MergeSheetSection = (props: {
     params: MergeParams,
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
-    sheetDataArray: SheetData[]
+    sheetDataArray: SheetData[],
+    sheetNameToIgnore?: string // If updating an existing merge, don't let you select the result sheet as an input 
+    destinationSheetIndex?: number
 }): JSX.Element => {
 
     // We save the df names, so that the new sheet created through the merge cannot be selected
-    const [dfNames] = useState(props.sheetDataArray.map(sheetData => sheetData.dfName))
+    const [dfNames] = useState(props.sheetDataArray.map(sheetData => sheetData.dfName).filter(dfName => {
+        if (props.sheetNameToIgnore === undefined) {
+            return true 
+        } else {
+            return dfName !== props.sheetNameToIgnore
+        }
+    }))
 
     return (
         <div>
@@ -29,7 +37,7 @@ const MergeSheetSection = (props: {
                         onChange={(dfName: string) => {
                             const newSheetIndex = dfNames.indexOf(dfName)
                             props.setParams(prevParams => {
-                                const newParams = getDefaultMergeParams(props.sheetDataArray, newSheetIndex, prevParams.sheet_index_two, prevParams);
+                                const newParams = getDefaultMergeParams(props.sheetDataArray, newSheetIndex, prevParams.sheet_index_two, prevParams, props.destinationSheetIndex);
                                 return newParams ? newParams : prevParams;
                             })
                         }}
@@ -54,7 +62,7 @@ const MergeSheetSection = (props: {
                         onChange={(dfName: string) => {
                             const newSheetIndex = dfNames.indexOf(dfName)
                             props.setParams(prevParams => {
-                                const newParams = getDefaultMergeParams(props.sheetDataArray, prevParams.sheet_index_one, newSheetIndex, prevParams);
+                                const newParams = getDefaultMergeParams(props.sheetDataArray, prevParams.sheet_index_one, newSheetIndex, prevParams, props.destinationSheetIndex);
                                 return newParams ? newParams : prevParams;
                             })
                         }}

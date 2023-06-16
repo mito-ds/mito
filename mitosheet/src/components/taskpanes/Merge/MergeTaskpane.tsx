@@ -72,6 +72,7 @@ export const getDefaultMergeParams = (
     _sheetIndexOne: number, 
     _sheetIndexTwo?: number, 
     previousParams?: MergeParams, // When we change the merge params, we use the previous params to handle cases like switching input sheets
+    destination_sheet_index?: number
 ): MergeParams | undefined => {
 
     if (sheetDataArray.length < 2) {
@@ -118,7 +119,7 @@ export const getDefaultMergeParams = (
         merge_key_column_ids: suggestedMergeKeys ? [suggestedMergeKeys] : [],
         selected_column_ids_one: selectedColumnIDsOne,
         selected_column_ids_two: selectedColumnIDsTwo,
-        destination_sheet_index: undefined
+        destination_sheet_index: destination_sheet_index
     }
 }
 
@@ -150,6 +151,8 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const mergeKeyColumnIDsOne = params.merge_key_column_ids.map(([one, ]) => {return one});
     const mergeKeyColumnIDsTwo = params.merge_key_column_ids.map(([, two]) => {return two});
+
+    console.log(params)
 
     return (
         <DefaultTaskpane>
@@ -219,6 +222,8 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     params={params}
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
+                    sheetNameToIgnore={props.existingMergeParams?.destination_sheet_index !== undefined ? props.sheetDataArray[props.existingMergeParams.destination_sheet_index]?.dfName : undefined}
+                    destinationSheetIndex={props.destinationSheetIndex}
                 />
                 <Spacer px={20}/>
                 <MergeKeysSelectionSection
