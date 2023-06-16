@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import MitoAPI, { getRandomId } from '../../api/api';
 import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
-import { openExistingMergeTaskpane, openExistingPivotTaskpane } from '../../utils/EditedTaskpanes';
+import { openExistingMergeTaskpane, openExistingPivotTaskpane } from '../../utils/updateTaskpanes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';

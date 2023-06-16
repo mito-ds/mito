@@ -80,7 +80,7 @@ import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
 import { useMitoAPI } from '../hooks/useMitoAPI';
-import { openExistingPivotTaskpane } from '../utils/EditedTaskpanes';
+import { openExistingPivotTaskpane } from '../utils/updateTaskpanes';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
