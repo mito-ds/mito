@@ -133,5 +133,11 @@ class SimpleImportCodeChunk(CodeChunk):
 
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
-        return list(zip(map(lambda x: f"r{column_header_to_transpiled_code(x)}", self.file_names), ['file_name'] * len(self.file_names)))
+    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+        return list(
+            zip(
+                map(lambda x: f"r{column_header_to_transpiled_code(x)}", self.file_names), 
+                ['file_name'] * len(self.file_names),
+                ['CSV import file path'] * len(self.file_names),
+            )
+        )

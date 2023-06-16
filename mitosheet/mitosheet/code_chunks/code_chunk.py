@@ -123,7 +123,7 @@ class CodeChunk:
         """
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
         """
         Returns a list of parameters that can be parameterized. This is used
         for the parameterization UI.

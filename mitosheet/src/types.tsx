@@ -75,7 +75,8 @@ export enum UpdateType {
 export type ParamName = string;
 export type ParamValue = string;
 export type ParamType = 'file_name' | 'df_name'
-export type ParameterizableParams = [ParamValue, ParamType][];
+export type ParamDescription = string;
+export type ParameterizableParams = [ParamValue, ParamType, ParamDescription][];
 
 export type CodeOptions = {
     as_function: boolean,
