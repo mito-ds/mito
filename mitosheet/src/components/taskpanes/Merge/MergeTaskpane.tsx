@@ -18,6 +18,7 @@ import MergeKeysSelectionSection from './MergeKeysSelection';
 import MergeSheetSection from './MergeSheetSelection';
 import { getFirstSuggestedMergeKeys } from './mergeUtils';
 import { shallowEqual } from '../../../utils/objects';
+import { TaskpaneType } from '../taskpanes';
 
 
 // Enum to allow you to refer to the first or second sheet by name, for clarity
@@ -146,13 +147,21 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
+    // If while updating a merge, you undo the original creation of the merge, close the taskpane.
+    if (props.destinationSheetIndex !== undefined && props.sheetDataArray.length - 1 < props.destinationSheetIndex) {
+        props.setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {type: TaskpaneType.NONE}
+            }
+        })
+    }
+
     const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
     const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
 
     const mergeKeyColumnIDsOne = params.merge_key_column_ids.map(([one, ]) => {return one});
     const mergeKeyColumnIDsTwo = params.merge_key_column_ids.map(([, two]) => {return two});
-
-    console.log(params)
 
     return (
         <DefaultTaskpane>
