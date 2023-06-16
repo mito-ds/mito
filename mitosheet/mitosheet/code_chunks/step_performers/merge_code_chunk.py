@@ -152,3 +152,72 @@ class MergeCodeChunk(CodeChunk):
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
         return None
+
+    def _combine_right_with_merge_code_chunk(self, merge_code_chunk: "MergeCodeChunk") -> Optional["CodeChunk"]:
+        """
+        We can combine a merge code chunk with the one before it if the destination
+        sheet index of the is the created code index of this step.
+        """
+        destination_sheet_index = self.destination_sheet_index
+        other_destination_sheet_index = merge_code_chunk.destination_sheet_index
+
+        # If both of the merges are overwriting the same destination sheet index, and they are both defined
+        if destination_sheet_index is not None and destination_sheet_index == other_destination_sheet_index:
+            return MergeCodeChunk(
+                self.prev_state,
+                merge_code_chunk.post_state,
+                merge_code_chunk.how,
+                merge_code_chunk.sheet_index_one,
+                merge_code_chunk.sheet_index_two,
+                merge_code_chunk.merge_key_column_ids,
+                merge_code_chunk.selected_column_ids_one,
+                merge_code_chunk.selected_column_ids_two,
+                merge_code_chunk.destination_sheet_index
+            )
+
+        # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
+        # this as well
+        created_sheet_index = self.get_created_sheet_indexes()
+        if created_sheet_index is not None and created_sheet_index[0] == other_destination_sheet_index:
+            return MergeCodeChunk(
+                self.prev_state,
+                merge_code_chunk.post_state,
+                merge_code_chunk.how,
+                merge_code_chunk.sheet_index_one,
+                merge_code_chunk.sheet_index_two,
+                merge_code_chunk.merge_key_column_ids,
+                merge_code_chunk.selected_column_ids_one,
+                merge_code_chunk.selected_column_ids_two,
+                merge_code_chunk.destination_sheet_index
+            )
+
+        return None
+
+    def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        if isinstance(other_code_chunk, MergeCodeChunk):
+            return self._combine_right_with_merge_code_chunk(other_code_chunk)
+        return None
+
+    def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
+        # Because overwriting a merge overwrites all the edits on that merge
+        # we can optimize out any edits that are before the merge 
+        # NOTE: if we start carrying edits on merges forward, we should remove this 
+        # optimization
+
+        destination_sheet_index = self.destination_sheet_index
+        edited_sheet_indexes = other_code_chunk.get_edited_sheet_indexes()
+
+        if edited_sheet_indexes is not None and len(edited_sheet_indexes) == 1 and edited_sheet_indexes[0] == destination_sheet_index:
+            return MergeCodeChunk(
+                other_code_chunk.prev_state,
+                self.post_state,
+                self.how,
+                self.sheet_index_one,
+                self.sheet_index_two,
+                self.merge_key_column_ids,
+                self.selected_column_ids_one,
+                self.selected_column_ids_two,
+                self.destination_sheet_index
+            )
+
+        return None

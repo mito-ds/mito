@@ -603,6 +603,8 @@ def test_merge_with_two_destination_sheet_indexes_not_the_same():
 
     # There should be only be four dataframes
     assert len(mito.dfs) == 4
+    assert len(mito.optimized_code_chunks) == 2
+
 
 def test_update_merge_then_undo():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
@@ -658,3 +660,36 @@ def test_merge_then_edit_merge_then_delete_sheet():
 
     assert len(mito.dfs) == 2
     
+
+def test_merge_optimizes_with_two_destination_sheet_indexes_the_same():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    # There should be one
+    assert len(mito.optimized_code_chunks) == 1
+
+def test_merge_not_optimizes_with_two_destination_sheet_indexes_the_same():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    # There should be one
+    assert len(mito.optimized_code_chunks) == 1
+
+def test_merge_not_optimizes_with_pivot_with_no_destination_sheet():
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1], 'B': [3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.merge_sheets('lookup', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'])
+
+    # There should be one
+    assert len(mito.optimized_code_chunks) == 2
