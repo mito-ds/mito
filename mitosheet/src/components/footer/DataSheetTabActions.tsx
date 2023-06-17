@@ -57,7 +57,7 @@ export default function SheetTabActions(props: {
 
     const onDelete = async (): Promise<void> => {
         const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataDict)
-        
+        window.sessionStorage.removeItem(props.sheetIndex.toString())
         if (dependantGraphTabNamesAndIDs.length > 0) {
             props.setUIState(prevUIState => {
                 return {

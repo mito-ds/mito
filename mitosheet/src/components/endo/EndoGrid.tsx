@@ -183,6 +183,16 @@ function EndoGrid(props: {
         return () => {resizeObserver.disconnect();}
     }, [])
 
+    useEffect(()=>{
+        const item=window.sessionStorage.getItem(props.gridState.sheetIndex.toString())
+        if(scrollAndRenderedContainerRef.current){
+            const saveScrollPosion = item ? JSON.parse(item) : {scrollTop:0, scrollLeft:0};
+            scrollAndRenderedContainerRef.current.scrollTop=saveScrollPosion.scrollTop;
+            scrollAndRenderedContainerRef.current.scrollLeft=saveScrollPosion.scrollLeft;
+        }
+   
+    },[props.gridState.sheetIndex])
+
     // Handles a scroll inside the grid 
     const onGridScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
         const newScrollPosition = calculateNewScrollPosition(
@@ -193,6 +203,7 @@ function EndoGrid(props: {
         )
 
         if (newScrollPosition !== undefined) {
+            window.sessionStorage.setItem(gridState.sheetIndex.toString(),JSON.stringify(newScrollPosition))
             setGridState((gridState) => {
                 return {
                     ...gridState,
