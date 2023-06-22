@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { MitoError } from "../../../types";
+import { MitoError } from "../../types";
 
 
 export enum ModalEnum {

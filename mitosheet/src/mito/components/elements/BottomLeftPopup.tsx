@@ -1,10 +1,10 @@
 // Copyright (c) Mito
 import React, { useEffect, useState } from 'react';
-import { Action, ActionEnum, AnalysisData, SheetData, UIState, UserProfile } from '../../../types';
+import { Action, ActionEnum, AnalysisData, SheetData, UIState, UserProfile } from '../../types';
 
 import LoadingIndicator from '../LoadingIndicator';
 import '../../../../css/elements/BottomLeftPopup.css';
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import { ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {

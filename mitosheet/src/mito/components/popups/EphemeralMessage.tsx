@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 
 // import css
 import "../../../../css/popups/ephemeral-message.css";
-import { PopupLocation, PopupType, UIState } from '../../../types';
+import { PopupLocation, PopupType, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import DefaultPopup from '../elements/DefaultPopup';
 import XIcon from '../icons/XIcon';

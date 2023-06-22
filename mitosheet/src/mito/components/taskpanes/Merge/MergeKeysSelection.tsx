@@ -1,5 +1,5 @@
 import React from "react"
-import { ColumnID, SheetData } from "../../../../types";
+import { ColumnID, SheetData } from "../../../types";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";

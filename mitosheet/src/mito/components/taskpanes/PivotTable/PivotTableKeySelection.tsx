@@ -2,8 +2,8 @@
 
 import React from 'react';
 import '../../../../../css/layout/CollapsibleSection.css';
-import MitoAPI from '../../../api/api';
-import { ColumnID, ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { ColumnID, ColumnIDWithPivotTransform, FrontendPivotParams, PivotColumnTransformation, SheetData } from '../../../types';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { isDatetimeDtype } from '../../../utils/dtypes';
 import DropdownButton from '../../elements/DropdownButton';

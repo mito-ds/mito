@@ -1,4 +1,4 @@
-import { UserProfile } from "../../types"
+import { UserProfile } from "../types"
 
 /*
     Returns True if the passed version is a previous version compared

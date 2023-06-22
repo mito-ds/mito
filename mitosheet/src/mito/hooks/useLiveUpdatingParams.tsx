@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
-import MitoAPI, { getRandomId } from "../api/api";
-import { AnalysisData, SheetData } from "../../types";
+import { MitoAPI,  getRandomId } from "../api/api";
+import { AnalysisData, SheetData } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
 

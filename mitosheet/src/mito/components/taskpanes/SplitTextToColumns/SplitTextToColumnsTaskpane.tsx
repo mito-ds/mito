@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../api/api";
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from "../../../../types"
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from "../../../types"
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";

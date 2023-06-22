@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../../../../css/endo/CellEditor.css';
 import { FunctionDocumentationObject } from '../../../data/function_documentation';
-import { AnalysisData, EditorState, SheetData } from '../../../../types';
+import { AnalysisData, EditorState, SheetData } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';

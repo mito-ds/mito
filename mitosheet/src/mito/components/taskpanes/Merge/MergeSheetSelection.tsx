@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SheetData } from "../../../../types";
+import { SheetData } from "../../../types";
 import DropdownItem from "../../elements/DropdownItem";
 import Select from "../../elements/Select";
 import Col from "../../layout/Col";

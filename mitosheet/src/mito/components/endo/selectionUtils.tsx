@@ -1,4 +1,4 @@
-import { BorderStyle, ColumnHeader, ColumnID, IndexLabel, MitoSelection, SheetData } from '../../../types';
+import { BorderStyle, ColumnHeader, ColumnID, IndexLabel, MitoSelection, SheetData } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import { MAX_ROWS } from './EndoGrid';
 

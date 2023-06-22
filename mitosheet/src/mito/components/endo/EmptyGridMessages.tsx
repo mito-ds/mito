@@ -1,6 +1,6 @@
 import React from 'react';
-import MitoAPI from '../../api/api';
-import { SheetData, UIState } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { SendFunctionStatus } from '../../api/send';

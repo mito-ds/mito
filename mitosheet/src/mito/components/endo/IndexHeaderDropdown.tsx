@@ -1,8 +1,8 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import MitoAPI from '../../api/api';
-import { MitoSelection, SheetData } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { MitoSelection, SheetData } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';

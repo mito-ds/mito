@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React, { useState } from 'react';
-import MitoAPI, { getRandomId } from '../../../../api/api';
-import { ColumnID, StepType } from '../../../../../types';
+import { MitoAPI,  getRandomId } from '../../../../api/api';
+import { ColumnID, StepType } from '../../../../types';
 import DropdownItem from '../../../elements/DropdownItem';
 import Select from '../../../elements/Select';
 import Col from '../../../layout/Col';

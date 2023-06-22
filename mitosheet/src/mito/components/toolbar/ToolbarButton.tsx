@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, EditorState } from '../../../types';
+import { Action, EditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getToolbarItemIcon, ToolbarButtonType } from './utils';
 

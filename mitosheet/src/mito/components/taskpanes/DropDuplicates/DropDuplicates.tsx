@@ -3,8 +3,8 @@
 
 import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from '../../../api/api';
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DataframeSelect from '../../elements/DataframeSelect';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleColumns from '../../elements/MultiToggleColumns';

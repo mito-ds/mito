@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { AnalysisData } from "../../types";
+import { AnalysisData } from "../types";
 
 /* 
     This schedules an effect to run whenever there is a 

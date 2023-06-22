@@ -2,8 +2,8 @@
 
 import React from 'react';
 import '../../../../../css/layout/CollapsibleSection.css';
-import MitoAPI from '../../../api/api';
-import { ColumnID, FilterType, FrontendPivotParams, SheetData } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { ColumnID, FilterType, FrontendPivotParams, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownButton from '../../elements/DropdownButton';
 import DropdownItem from '../../elements/DropdownItem';

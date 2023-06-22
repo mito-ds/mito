@@ -1,7 +1,7 @@
 import React from "react";
-import MitoAPI from "../../../api/api";
+import { MitoAPI } from "../../../api/api";
 import ExcelFormatSection from "../../../pro/download/ExcelFormatSection";
-import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../../types";
+import { ExcelExportState, SheetData, UIState, UserProfile } from "../../../types";
 import MultiToggleDataframes from "../../elements/MultiToggleDataframes";
 import Row from "../../layout/Row";
 

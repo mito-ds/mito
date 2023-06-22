@@ -1,7 +1,7 @@
 import React from "react";
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import MitoAPI from "../../../api/api";
-import { AnalysisData, ColumnID, SheetData, StepType, UIState, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, ColumnID, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import DataframeSelect from "../../elements/DataframeSelect";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import MultiToggleColumns from "../../elements/MultiToggleColumns";

@@ -1,9 +1,8 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useState } from 'react';
-import MitoAPI from '../../api/api';
-import { overwriteAnalysisToReplayToMitosheetCall } from '../../../jupyter/jupyterUtils';
-import { MitoError, UIState, UserProfile } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { MitoError, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
@@ -28,6 +27,8 @@ const ErrorReplayedAnalysisModal = (
 
         oldAnalysisName: string;
         newAnalysisName: string;
+
+        overwriteAnalysisToReplayToMitosheetCall?: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
     }): JSX.Element => {
 
     const [viewTraceback, setViewTraceback] = useState(false);
@@ -65,11 +66,13 @@ const ErrorReplayedAnalysisModal = (
                         variant='dark'
                         width='medium'
                         onClick={() => {    
-                            overwriteAnalysisToReplayToMitosheetCall(
-                                props.oldAnalysisName,
-                                props.newAnalysisName,
-                                props.mitoAPI
-                            )
+                            if (props.overwriteAnalysisToReplayToMitosheetCall) {
+                                props.overwriteAnalysisToReplayToMitosheetCall(
+                                    props.oldAnalysisName,
+                                    props.newAnalysisName,
+                                    props.mitoAPI
+                                )
+                            }
                             
                             props.setUIState((prevUIState) => {
                                 return {

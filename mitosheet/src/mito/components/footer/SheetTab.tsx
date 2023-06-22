@@ -1,10 +1,10 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useRef, useState } from 'react';
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
+import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons

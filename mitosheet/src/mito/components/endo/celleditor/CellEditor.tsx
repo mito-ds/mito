@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../../css/endo/CellEditor.css';
-import MitoAPI, { MitoAPIResult } from '../../../api/api';
+import { MitoAPI,  MitoAPIResult } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
-import { AnalysisData, EditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../../types';
+import { AnalysisData, EditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../types';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';

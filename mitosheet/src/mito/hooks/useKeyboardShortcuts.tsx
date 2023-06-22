@@ -1,6 +1,6 @@
 import React from "react";
-import { isInJupyterLab } from "../../jupyter/jupyterUtils";
-import { Action, ActionEnum, GridState } from "../../types";
+import { isInJupyterLab } from "../utils/location";
+import { Action, ActionEnum, GridState } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 
 

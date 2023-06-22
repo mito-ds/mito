@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../api/api";
+import { MitoAPI } from "../../../api/api";
 import { SendFunctionErrorReturnType } from "../../../api/send";
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import { AnalysisData, SheetData, UIState, UserProfile } from "../../../../types";
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
 import CSVImportConfigScreen, { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import FileBrowser from "../../import/FileBrowser/FileBrowser";
@@ -30,6 +30,8 @@ interface UpdateImportsTaskpaneProps {
     setCurrPathParts: (newCurrPathParts: string[]) => void;
 
     failedReplayData: FailedReplayData | undefined;
+
+    overwriteAnalysisToReplayToMitosheetCall?: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
 }
 
 export type DataframeCreationData = {
@@ -184,6 +186,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
 
                     invalidReplayError={invalidReplayError}
                     setInvalidReplayError={setInvalidReplayError}
+
+                    overwriteAnalysisToReplayToMitosheetCall={props.overwriteAnalysisToReplayToMitosheetCall}
                 />
             )
         } else {

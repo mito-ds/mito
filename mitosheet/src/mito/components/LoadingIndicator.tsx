@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 // import css
 import "../../../css/loading-indicator.css";
-import { StepType, UpdateType } from '../../types';
+import { StepType, UpdateType } from '../types';
 import { classNames } from '../utils/classNames';
 import LoadingCircle from './icons/LoadingCircle';
 import NonLoadingCircle from './icons/NonLoadingCircle';

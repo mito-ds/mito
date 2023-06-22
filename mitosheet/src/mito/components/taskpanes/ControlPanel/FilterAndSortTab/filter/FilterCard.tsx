@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../../../api/api';
+import { MitoAPI } from '../../../../../api/api';
 import { isFilterGroup } from './filterTypes';
 import { Filter } from './Filter';
 import FilterGroup from './FilterGroup';
@@ -10,7 +10,7 @@ import Select from '../../../../elements/Select';
 import Row from '../../../../layout/Row';
 import Col from '../../../../layout/Col';
 import '../../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
-import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../../types';
+import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { getEmptyFilterData } from './filterUtils';
 

@@ -2,8 +2,8 @@
 
 import React, { useCallback, useState } from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
-import MitoAPI, { getRandomId } from '../../../api/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../../types';
+import { MitoAPI,  getRandomId } from '../../../api/api';
+import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';

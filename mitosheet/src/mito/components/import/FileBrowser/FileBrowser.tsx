@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../api/api';
-import { AnalysisData, UIState, UserProfile } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { AnalysisData, UIState, UserProfile } from '../../../types';
 import TextButton from '../../elements/TextButton';
 import ConfigureIcon from '../../icons/ConfigureIcon';
 import Col from '../../layout/Col';

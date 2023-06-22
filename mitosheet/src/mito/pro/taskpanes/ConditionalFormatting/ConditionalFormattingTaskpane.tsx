@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import MitoAPI, { getRandomId } from "../../../api/api";
-import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../../types";
+import { MitoAPI,  getRandomId } from "../../../api/api";
+import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import DataframeSelect from '../../../components/elements/DataframeSelect';
 
 import { updateObjectWithPartialObject } from "../../../utils/objects";

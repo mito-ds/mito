@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { FilterGroupType, FilterType } from "../../../../../../types";
+import { FilterGroupType, FilterType } from "../../../../../types";
 
 
 // See: https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards

@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData } from "../../../../types"
+import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"

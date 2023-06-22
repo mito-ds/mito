@@ -14,8 +14,8 @@ import DefaultTaskpane from "../../../components/taskpanes/DefaultTaskpane/Defau
 import DefaultTaskpaneBody from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../../../components/taskpanes/DefaultTaskpane/DefaultTaskpaneHeader";
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import MitoAPI from "../../../api/api";
-import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { updateObjectWithPartialObject } from "../../../utils/objects";
 import LabelAndColor from "../../graph/LabelAndColor";
 import SuggestedStyles from "./SuggestedStyles";

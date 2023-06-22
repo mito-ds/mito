@@ -2,7 +2,7 @@ import React from 'react';
 import '../../../../css/endo/GridData.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../../types';
+import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
 import { formatCellData } from '../../utils/format';

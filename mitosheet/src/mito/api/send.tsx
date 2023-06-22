@@ -11,7 +11,7 @@ export const MAX_WAIT_FOR_SEND_CREATION = 10_000;
 export type SendFunctionError = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
 export type SendFunctionStatus = 'loading' | 'finished' | SendFunctionError;
 
-import { AnalysisData, SheetData, UserProfile } from "../../types";
+import { AnalysisData, SheetData, UserProfile } from "../types";
 
 export type SendFunctionSuccessReturnType<ResultType> = {
     sheetDataArray: SheetData[] | undefined,

@@ -25,10 +25,9 @@ import '../../../css/sitewide/scroll.css';
 import '../../../css/sitewide/text.css';
 import '../../../css/sitewide/widths.css';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { getArgs, writeAnalysisToReplayToMitosheetCall, writeGeneratedCodeToCell } from '../../jupyter/jupyterUtils';
 import ConditionalFormattingTaskpane from '../pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from '../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from '../../types';
+import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from '../types';
 import { createActions } from '../utils/actions';
 import { classNames } from '../utils/classNames';
 import loadPlotly from '../utils/plotly';
@@ -80,12 +79,20 @@ import { EDITING_TASKPANES, TaskpaneType } from './taskpanes/taskpanes';
 import Toolbar from './toolbar/Toolbar';
 import Tour from './tour/Tour';
 import { TourName } from './tour/Tours';
+import { MitoAPI, PublicInterfaceVersion } from '..';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
     userProfile: UserProfile,
+    jupyterUtils?: {
+        getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
+        writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
+        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion) => void
+        writeCodeSnippetCell: (analysisName: string, code: string) => void
+        overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
+    }
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -168,7 +175,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         const updateMitosheetCallCellOnFirstRender = async () => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
-            const args = await getArgs(analysisData.analysisToReplay?.analysisName);
+            const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName) ?? [];
 
             // Then, after we have the args, we replay an analysis if there is an analysis to replay
             // Note that this has to happen after so that we have the the argument names loaded in at
@@ -229,7 +236,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                  * If there is no analysis_to_replay, then we need to write the analysis_to_replay to the 
                  * mitosheet.sheet call, and update the args.
                  */
-                writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, mitoAPI);
+                props.jupyterUtils?.writeAnalysisToReplayToMitosheetCall(analysisData.analysisName, mitoAPI);
 
                 await mitoAPI.updateArgs(args);
             }
@@ -262,7 +269,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
-            writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion);
+            props.jupyterUtils?.writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion);
         }
         // TODO: we should store some data with analysis data to not make
         // this run too often?
@@ -497,6 +504,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     newAnalysisName={uiState.currOpenModal.newAnalysisName}
                     oldAnalysisName={uiState.currOpenModal.oldAnalysisName}
                     userProfile={userProfile}
+                    overwriteAnalysisToReplayToMitosheetCall={props.jupyterUtils?.overwriteAnalysisToReplayToMitosheetCall}
                 />
             )
             case ModalEnum.DeleteGraphs: return (
@@ -713,6 +721,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setCurrPathParts={setCurrPathParts}
     
                     failedReplayData={uiState.currOpenTaskpane.failedReplayData}
+
+                    overwriteAnalysisToReplayToMitosheetCall={props.jupyterUtils?.overwriteAnalysisToReplayToMitosheetCall}
                 />
             )
             case TaskpaneType.CANNOTCREATECOMM: return (
@@ -730,6 +740,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    writeCodeSnippetCell={props.jupyterUtils?.writeCodeSnippetCell}
                 />
             )
             case TaskpaneType.SNOWFLAKEIMPORT: return (

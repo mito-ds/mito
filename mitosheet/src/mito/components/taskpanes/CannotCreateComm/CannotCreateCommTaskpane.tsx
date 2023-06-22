@@ -1,6 +1,6 @@
 import React from "react";
 import { DOCUMENTATION_LINK_INSTALL } from "../../../data/documentationLinks";
-import { UIState, UserProfile } from "../../../../types"
+import { UIState, UserProfile } from "../../../types"
 import GetSupportButton from "../../elements/GetSupportButton";
 import Spacer from "../../layout/Spacer";
 

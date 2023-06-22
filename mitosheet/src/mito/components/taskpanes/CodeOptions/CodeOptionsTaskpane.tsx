@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../api/api";
-import { AnalysisData, UIState, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, UIState, UserProfile } from "../../../types";
 
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import Input from "../../elements/Input";

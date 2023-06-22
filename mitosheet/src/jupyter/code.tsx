@@ -1,6 +1,6 @@
 // Utilities for working with the generated code
 
-import { PublicInterfaceVersion } from "../../types";
+import { PublicInterfaceVersion } from "../mito";
 
 
 const IMPORT_STATEMENTS: Record<PublicInterfaceVersion, string> = {

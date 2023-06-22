@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { classNames } from '../../../utils/classNames';
-import { GraphSidebarTab } from '../../../../types';
-import MitoAPI from '../../../api/api';
+import { GraphSidebarTab } from '../../../types';
+import { MitoAPI } from '../../../api/api';
 
 /* 
     The tabs at the bottom of the graph sidebar that let you switch between

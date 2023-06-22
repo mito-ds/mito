@@ -1,7 +1,7 @@
 import React from 'react'
 import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
-import MitoAPI from '../../api/api';
-import { UIState, UserProfile } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { UIState, UserProfile } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { ModalEnum } from '../modals/modals';
 import { Width } from './sizes.d';

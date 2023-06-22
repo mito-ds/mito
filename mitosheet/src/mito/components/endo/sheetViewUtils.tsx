@@ -1,6 +1,6 @@
 import { isAnyElementWithSelectorEntirelyVisible } from "./domUtils";
 import { DEFAULT_HEIGHT } from "./EndoGrid";
-import { Dimension, GridState, RendererTranslate, ScrollPosition, SheetView } from "../../../types";
+import { Dimension, GridState, RendererTranslate, ScrollPosition, SheetView } from "../../types";
 
 
 /* 

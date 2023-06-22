@@ -2,7 +2,7 @@
 
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
-import { GraphParamsFrontend, RecursivePartial, UserProfile } from '../../../../types';
+import { GraphParamsFrontend, RecursivePartial, UserProfile } from '../../../types';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';

@@ -1,6 +1,6 @@
 import { useState } from "react"
-import MitoAPI from "../api/api"
-import { AnalysisData, SheetData, UIState, UserProfile } from "../../types"
+import { MitoAPI } from "../api/api"
+import { AnalysisData, SheetData, UIState, UserProfile } from "../types"
 import { SendFunction, SendFunctionError, SendFunctionStatus } from "../api/send"
 
 

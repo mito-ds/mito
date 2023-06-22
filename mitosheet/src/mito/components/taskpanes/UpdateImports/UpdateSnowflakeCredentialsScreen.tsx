@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../../api/api";
-import { UIState } from "../../../../types"
+import { MitoAPI } from "../../../api/api";
+import { UIState } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";

@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import MitoAPI from '../../../api/api';
-import { ColumnID, ColumnIDsMap } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 
 /* 
     A component that takes the selected columns in a section, as well

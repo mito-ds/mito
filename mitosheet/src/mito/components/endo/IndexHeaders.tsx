@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import '../../../../css/endo/IndexHeaders.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { GridState, SheetData } from '../../../types';
+import { GridState, SheetData } from '../../types';
 import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderDropdown';
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /* 

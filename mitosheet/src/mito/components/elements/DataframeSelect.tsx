@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React, { useState } from 'react';
 
-import { SheetData } from '../../../types';
+import { SheetData } from '../../types';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
 import DropdownItem from './DropdownItem';

@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import "../../../../css/tour.css"
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import XIcon from '../icons/XIcon';
 import TextButton from '../elements/TextButton';
 import { TourName, TourPopupLocation, tours, TourStep } from './Tours';
 import { classNames } from '../../utils/classNames';
 import Row from '../layout/Row';
 import Col from '../layout/Col';
-import { SheetData } from '../../../types';
+import { SheetData } from '../../types';
 
 
 const locationToClassNamesMapping: Record<TourPopupLocation, string> = {

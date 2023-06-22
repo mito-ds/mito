@@ -1,13 +1,13 @@
 // Copyright (c) Mito
 
-import MitoAPI from '../../../../api/api';
+import { MitoAPI } from '../../../../api/api';
 import React from 'react';
 import { classNames } from '../../../../utils/classNames';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
 
 import '../../../../../../css/taskpanes/ControlPanel/SortCard.css';
-import { AnalysisData, ColumnID } from '../../../../../types';
+import { AnalysisData, ColumnID } from '../../../../types';
 import useLiveUpdatingParams from '../../../../hooks/useLiveUpdatingParams';
 
 export enum SortDirection {

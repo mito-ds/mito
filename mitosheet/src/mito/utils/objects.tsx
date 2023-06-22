@@ -1,4 +1,4 @@
-import { RecursivePartial } from "../../types";
+import { RecursivePartial } from "../types";
 
 /* 
     Returns a key that maps to a value in a given

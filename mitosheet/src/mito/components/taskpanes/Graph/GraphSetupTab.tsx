@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React, { Fragment } from 'react';
-import MitoAPI from '../../../api/api';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DataframeSelect from '../../elements/DataframeSelect';

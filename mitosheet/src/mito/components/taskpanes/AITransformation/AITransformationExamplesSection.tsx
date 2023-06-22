@@ -1,5 +1,5 @@
 import React from "react";
-import { AITransformationResult, ColumnHeader, SheetData } from "../../../../types";
+import { AITransformationResult, ColumnHeader, SheetData } from "../../../types";
 
 import '../../../../../css/taskpanes/AITransformation/AITransformation.css';
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";

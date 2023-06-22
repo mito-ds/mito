@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { UIState } from '../../types';
+import { UIState } from '../types';
 import { classNames } from '../utils/classNames';
 import XIcon from './icons/XIcon';
 import { ModalEnum } from './modals/modals';

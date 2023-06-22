@@ -1,7 +1,7 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
-import MitoAPI from '../../../api/api'
-import { AnalysisData, EditorState, GridState, SheetData, UIState } from '../../../../types';
+import { MitoAPI } from '../../../api/api'
+import { AnalysisData, EditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
 import CellEditor from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';

@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../api/api";
-import { AnalysisData, UIState } from "../../../types";
+import { MitoAPI } from "../../api/api";
+import { AnalysisData, UIState } from "../../types";
 
 import { useStateFromAPIAsync } from "../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../elements/DropdownButton";

@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../../api/api";
-import { SheetData, UIState } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { SheetData, UIState } from "../../../types";
 import DataframeSelect from "../../elements/DataframeSelect";
 import Row from "../../layout/Row";
 

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../api/api";
-import { overwriteAnalysisToReplayToMitosheetCall } from "../../../../jupyter/jupyterUtils";
-import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../types";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
@@ -39,6 +38,8 @@ interface UpdateImportPreReplayTaskpaneProps {
 
     invalidReplayError: string | undefined;
     setInvalidReplayError: React.Dispatch<React.SetStateAction<string | undefined>>;
+
+    overwriteAnalysisToReplayToMitosheetCall?: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
 }
     
 
@@ -115,11 +116,13 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                             variant='light'
                             width='medium'
                             onClick={() => {    
-                                overwriteAnalysisToReplayToMitosheetCall(
-                                    props.failedReplayData.analysisName,
-                                    props.analysisData.analysisName,
-                                    props.mitoAPI
-                                ) 
+                                if (props.overwriteAnalysisToReplayToMitosheetCall) {
+                                    props.overwriteAnalysisToReplayToMitosheetCall(
+                                        props.failedReplayData.analysisName,
+                                        props.analysisData.analysisName,
+                                        props.mitoAPI
+                                    ) 
+                                }
 
                                 void props.mitoAPI.log('clicked_start_new_analysis_from_pre_replay_update_imports') 
                                 

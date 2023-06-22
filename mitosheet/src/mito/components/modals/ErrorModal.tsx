@@ -4,8 +4,8 @@ import React, {Fragment, useState} from 'react';
 import DefaultModal from '../DefaultModal'; 
 import { ModalEnum } from './modals';
 import TextButton from '../elements/TextButton';
-import MitoAPI from '../../api/api';
-import { UIState, UserProfile } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { UIState, UserProfile } from '../../types';
 import GetSupportButton from '../elements/GetSupportButton';
 
 /*

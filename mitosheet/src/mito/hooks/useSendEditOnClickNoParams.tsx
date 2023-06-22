@@ -1,5 +1,5 @@
-import MitoAPI, { getRandomId } from "../api/api";
-import { AnalysisData, StepType } from "../../types";
+import { MitoAPI,  getRandomId } from "../api/api";
+import { AnalysisData, StepType } from "../types";
 
 /* 
     This custom hook is built for taskpanes that have params that do not need to be stored

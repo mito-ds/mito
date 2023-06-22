@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { AnalysisData, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../../types";
+import { AnalysisData, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";

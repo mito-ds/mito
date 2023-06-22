@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../api/api";
-import { PopupLocation, PopupType, SheetData, UIState } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";

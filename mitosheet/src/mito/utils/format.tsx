@@ -1,8 +1,8 @@
 import React from "react"
-import MitoAPI from "../api/api"
+import { MitoAPI } from "../api/api"
 import DropdownItem from "../components/elements/DropdownItem"
 import { getNumberColumnIDs } from "../components/endo/selectionUtils"
-import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, SheetData } from "../../types"
+import { ColumnFormatType, ColumnID, NumberColumnFormatEnum, SheetData } from "../types"
 import DropdownCheckmark from '../components/icons/DropdownCheckmark'
 import { isFloatDtype, isIntDtype } from "./dtypes"
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane"

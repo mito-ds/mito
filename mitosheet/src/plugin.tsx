@@ -8,14 +8,13 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { mitoJLabIcon } from './mito/components/icons/JLabIcon/MitoIcon';
-import MitoAPI from './mito/api/api';
+import { mitoJLabIcon } from './jupyter/MitoIcon';
+import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
-import { PublicInterfaceVersion } from './types';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './mito/utils/code';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 

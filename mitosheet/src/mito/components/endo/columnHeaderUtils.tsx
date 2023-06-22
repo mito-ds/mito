@@ -1,5 +1,5 @@
-import MitoAPI from "../../api/api";
-import { ColumnHeader, ColumnID, EditorState, UIState } from "../../../types";
+import { MitoAPI } from "../../api/api";
+import { ColumnHeader, ColumnID, EditorState, UIState } from "../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../utils/columnHeaders";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 

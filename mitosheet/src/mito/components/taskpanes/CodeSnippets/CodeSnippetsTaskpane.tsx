@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import MitoAPI from "../../../api/api";
-import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../../types"
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -15,7 +15,6 @@ import Dropdown, { DROPDOWN_IGNORE_CLICK_CLASS } from "../../elements/Dropdown";
 import DropdownItem from "../../elements/DropdownItem";
 import { writeTextToClipboard } from "../../../utils/copy";
 import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
-import { writeCodeSnippetCell } from "../../../../jupyter/jupyterUtils";
 import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
 import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -30,6 +29,7 @@ interface CodeSnippetsTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    writeCodeSnippetCell?: (analysisName: string, code: string) => void
 }
 
 const CONFIRMATION_TEXT_COPIED = 'Copied code snippet to clipboard. Paste it in a code cell below.'
@@ -102,7 +102,9 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     }
                     const writeToCell = () => {
                         setConfirmationText(CONFIRMATION_TEXT_CODE_WRITTEN)
-                        writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join('\n'));
+                        if (props.writeCodeSnippetCell) {
+                            props.writeCodeSnippetCell(props.analysisData.analysisName, codeSnippet.Code.join('\n'));
+                        }
                         void props.mitoAPI.log('code_snippet_written_to_cell', {'code_snippet_name': codeSnippet.Name});
                     }
 

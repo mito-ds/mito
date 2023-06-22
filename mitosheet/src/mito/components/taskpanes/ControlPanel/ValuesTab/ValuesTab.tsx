@@ -1,10 +1,10 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useRef, useState } from 'react';
-import MitoAPI from '../../../../api/api';
+import { MitoAPI } from '../../../../api/api';
 import MultiToggleBox from '../../../elements/MultiToggleBox';
 import Select from '../../../elements/Select';
-import { FilterType, FilterGroupType, ColumnID, UIState, ColumnFormatType } from '../../../../../types';
+import { FilterType, FilterGroupType, ColumnID, UIState, ColumnFormatType } from '../../../../types';
 import Col from '../../../layout/Col';
 import Row from '../../../layout/Row';
 import { areFiltersEqual, getAllDoesNotContainsFilterValues, getExclusiveFilterData, getFilterDisabledMessage } from '../FilterAndSortTab/filter/filterUtils';

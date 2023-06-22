@@ -2,7 +2,7 @@ import React from 'react';
 import { Filter } from './Filter';
 
 import TextButton from '../../../../elements/TextButton';
-import { FilterType, Operator } from '../../../../../../types';
+import { FilterType, Operator } from '../../../../../types';
 
 /* 
     Component that contains a group of filters

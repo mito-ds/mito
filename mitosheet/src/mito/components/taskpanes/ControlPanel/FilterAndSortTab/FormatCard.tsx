@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../../api/api';
-import { ColumnID, GridState, SheetData } from '../../../../../types';
+import { MitoAPI } from '../../../../api/api';
+import { ColumnID, GridState, SheetData } from '../../../../types';
 import { isNumberDtype } from '../../../../utils/dtypes';
 import { getColumnFormatDropdownItems, getFormatTitle } from '../../../../utils/format';
 import Select from '../../../elements/Select';

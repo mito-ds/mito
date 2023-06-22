@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from "../../../api/api";
-import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 
 
 import DropdownItem from "../../elements/DropdownItem";

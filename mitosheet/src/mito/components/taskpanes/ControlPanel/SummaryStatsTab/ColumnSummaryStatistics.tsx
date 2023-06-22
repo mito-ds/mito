@@ -2,9 +2,9 @@
 
 import React from 'react';
 import "../../../../../../css/taskpanes/ControlPanel/ColumnSummaryStatistics.css";
-import MitoAPI from '../../../../api/api';
+import { MitoAPI } from '../../../../api/api';
 import { useStateFromAPIAsync } from '../../../../hooks/useStateFromAPIAsync';
-import { ColumnFormatType, ColumnID, UIState } from '../../../../../types';
+import { ColumnFormatType, ColumnID, UIState } from '../../../../types';
 import { formatCellData } from '../../../../utils/format';
 import OpenFillNaN from '../../FillNa/OpenFillNaN';
 

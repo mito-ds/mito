@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import { SendFunctionError } from "../../api/send";
-import { ColumnID, GraphID, GraphSidebarTab } from "../../../types"
-import { BackendPivotParams } from "../../../types"
+import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
+import { BackendPivotParams } from "../../types"
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
 
 /* 

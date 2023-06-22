@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
-import { ColumnHeader, ColumnID, SheetData } from '../../../types';
+import { ColumnHeader, ColumnID, SheetData } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import { getDtypeValue } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';

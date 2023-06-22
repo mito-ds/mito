@@ -1,6 +1,6 @@
 import React from 'react'
-import MitoAPI from '../../api/api';
-import { UIState, UserProfile } from '../../../types';
+import { MitoAPI } from '../../api/api';
+import { UIState, UserProfile } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 

@@ -1,4 +1,4 @@
-import { GridState, SheetView } from "../../../types";
+import { GridState, SheetView } from "../../types";
 import { DEFAULT_HEIGHT } from "./EndoGrid";
 import { columnIsVisible, rowIsVisible } from "./sheetViewUtils";
 import { isNumberInRangeInclusive } from "./utils";

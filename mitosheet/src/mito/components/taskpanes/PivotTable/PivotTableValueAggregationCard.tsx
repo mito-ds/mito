@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { AggregationType, ColumnID, ColumnIDsMap } from '../../../../types';
+import { AggregationType, ColumnID, ColumnIDsMap } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownItem from '../../elements/DropdownItem';
 import Select from '../../elements/Select';

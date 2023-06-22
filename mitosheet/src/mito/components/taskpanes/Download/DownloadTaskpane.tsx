@@ -3,11 +3,11 @@
 
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import MitoAPI from '../../../api/api';
+import { MitoAPI } from '../../../api/api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { ColumnID, SheetData, UIState, UserProfile } from '../../../../types';
+import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../layout/Row';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';

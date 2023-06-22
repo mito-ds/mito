@@ -6,7 +6,7 @@ import Row from '../../../../layout/Row';
 import Col from '../../../../layout/Col';
 import Select from '../../../../elements/Select';
 import XIcon from '../../../../icons/XIcon';
-import {  DatetimeFilterCondition, FilterType, Operator} from '../../../../../../types';
+import {  DatetimeFilterCondition, FilterType, Operator} from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { isDatetimeDtype } from '../../../../../utils/dtypes';
 import { getFilterOptions } from './filterUtils';

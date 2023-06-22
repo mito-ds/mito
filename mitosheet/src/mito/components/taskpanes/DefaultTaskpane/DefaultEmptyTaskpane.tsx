@@ -2,7 +2,7 @@
 
 import React from 'react';
 import "../../../../../css/taskpanes/DefaultTaskpane.css";
-import { UIState } from '../../../../types';
+import { UIState } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { TaskpaneType } from '../taskpanes';
 import DefaultTaskpane from './DefaultTaskpane';

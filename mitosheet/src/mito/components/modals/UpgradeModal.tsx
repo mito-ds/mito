@@ -3,9 +3,9 @@
 import React, { useEffect } from 'react';
 import { ModalEnum } from './modals';
 import "../../../../css/upgrade-modal.css"
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import TextButton from '../elements/TextButton';
-import { UIState } from '../../../types';
+import { UIState } from '../../types';
 
 /*
     A modal that appears and tells the user to upgrade to the 

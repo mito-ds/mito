@@ -1,13 +1,13 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../api/api';
+import { MitoAPI } from '../../../api/api';
 import DropdownButton from '../../elements/DropdownButton';
 import Row from '../../layout/Row';
 import Col from '../../layout/Col';
 
 import '../../../../../css/taskpanes/Graph/AxisSection.css'
-import { ColumnID, ColumnIDsMap } from '../../../../types';
+import { ColumnID, ColumnIDsMap } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';

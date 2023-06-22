@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { BooleanFilterCondition, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../../types"
+import { BooleanFilterCondition, DatetimeFilterCondition, NumberFilterCondition, StringFilterCondition } from "../../../../../types"
 
 
 export const BOOLEAN_SELECT_OPTIONS: Record<BooleanFilterCondition, {'long_name': string, 'short_name': string}> = {

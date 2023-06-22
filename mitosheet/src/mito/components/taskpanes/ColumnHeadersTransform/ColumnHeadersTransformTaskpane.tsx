@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../../api/api";
-import { AnalysisData, SheetData, UIState, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types";
 
 import TextButton from "../../elements/TextButton";
 import Row from "../../layout/Row";

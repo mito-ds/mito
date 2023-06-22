@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import React from 'react';
-import { SheetData, UIState } from '../../../types';
+import { SheetData, UIState } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';

@@ -2,7 +2,7 @@
 
 import React, { FormEvent, useState } from 'react';
 import { ModalEnum } from './modals';
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
 import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
@@ -10,7 +10,7 @@ import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
 import '../../../../css/signup-modal.css';
 import TextButton from '../elements/TextButton';
 import Input from '../elements/Input';
-import { AnalysisData, FeedbackID, SheetData, UIState } from '../../../types';
+import { AnalysisData, FeedbackID, SheetData, UIState } from '../../types';
 import { checkProAccessCode } from '../../utils/pro';
 import Experiment from '../elements/Experiment';
 import { TaskpaneType } from '../taskpanes/taskpanes';

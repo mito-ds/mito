@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import MitoAPI from '../../../api/api';
-import { AggregationType, ColumnID, FrontendPivotParams, SheetData } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { AggregationType, ColumnID, FrontendPivotParams, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import DropdownButton from '../../elements/DropdownButton';
 import DropdownItem from '../../elements/DropdownItem';

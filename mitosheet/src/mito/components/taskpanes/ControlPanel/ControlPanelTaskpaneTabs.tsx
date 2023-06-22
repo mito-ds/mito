@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { classNames } from '../../../utils/classNames';
-import { UIState } from '../../../../types';
+import { UIState } from '../../../types';
 
 import { ControlPanelTab } from './ControlPanelTaskpane';
-import MitoAPI from '../../../api/api';
+import { MitoAPI } from '../../../api/api';
 
 /* 
     The tabs at the bottom of the column control panel that allows users to switch

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import "../../../../../css/taskpanes/DefaultTaskpane.css"
-import { UIState } from '../../../../types';
+import { UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import { TaskpaneType } from '../taskpanes';
 import BackArrowIcon from '../../icons/BackArrowIcon';

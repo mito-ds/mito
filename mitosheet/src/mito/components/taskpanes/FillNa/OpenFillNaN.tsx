@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColumnID, UIState } from '../../../../types';
+import { ColumnID, UIState } from '../../../types';
 import { TaskpaneType } from '../taskpanes';
 
 

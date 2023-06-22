@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../../api/api";
-import { CodeOptions, ParamType, ParameterizableParams } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { CodeOptions, ParamType, ParameterizableParams } from "../../../types";
 
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../../elements/DropdownButton";

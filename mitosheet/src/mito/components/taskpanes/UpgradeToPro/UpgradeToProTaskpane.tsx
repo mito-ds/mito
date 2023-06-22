@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import MitoAPI from "../../../api/api";
+import { MitoAPI } from "../../../api/api";
 import { useInputValue } from "../../../hooks/useInputValue";
-import { UIState, UserProfile } from "../../../../types"
+import { UIState, UserProfile } from "../../../types"
 import { classNames } from "../../../utils/classNames";
 import { checkProAccessCode } from "../../../utils/pro";
 import Input from "../../elements/Input";

@@ -2,8 +2,8 @@
 
 import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from '../../../api/api';
-import { AnalysisData, StepType, UIState } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { AnalysisData, StepType, UIState } from '../../../types';
 import CSVImportConfigScreen, { CSVImportParams, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES } from '../../import/CSVImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 

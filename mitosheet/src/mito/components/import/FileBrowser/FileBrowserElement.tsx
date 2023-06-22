@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
-import MitoAPI from '../../../api/api';
-import { UserProfile } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { UserProfile } from '../../../types';
 import { getLastModifiedString } from '../../../utils/time';
 import { ensureInView } from '../../elements/Dropdown';
 import BackArrowIcon from '../../icons/BackArrowIcon';

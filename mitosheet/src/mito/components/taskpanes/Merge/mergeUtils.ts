@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import { ColumnID, SheetData } from '../../../../types';
+import { ColumnID, SheetData } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 
 

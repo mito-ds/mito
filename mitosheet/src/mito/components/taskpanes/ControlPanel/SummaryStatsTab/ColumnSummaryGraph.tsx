@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React, { useState, useEffect } from 'react';
-import MitoAPI from '../../../../api/api';
-import { ColumnID } from '../../../../../types';
+import { MitoAPI } from '../../../../api/api';
+import { ColumnID } from '../../../../types';
 
 type ColumnSummaryGraphProps = {
     selectedSheetIndex: number;

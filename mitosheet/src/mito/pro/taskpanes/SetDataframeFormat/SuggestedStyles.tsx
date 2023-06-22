@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataframeFormat, RecursivePartial } from '../../../../types';
+import { DataframeFormat, RecursivePartial } from '../../../types';
 import { HEADER_TEXT_COLOR_DEFAULT } from '../../../components/endo/ColumnHeader';
 import { EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
 import SuggestedStyle1Icon from '../../../components/icons/SuggestedStyle1Icon';

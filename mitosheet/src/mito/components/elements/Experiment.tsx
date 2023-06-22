@@ -1,5 +1,5 @@
 import React from "react";
-import { AnalysisData, ExperimentID } from "../../../types";
+import { AnalysisData, ExperimentID } from "../../types";
 import { isExperimentActive, isVariantA } from "../../utils/experiments";
 
 

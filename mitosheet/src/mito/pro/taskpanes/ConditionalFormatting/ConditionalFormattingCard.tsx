@@ -7,7 +7,7 @@ import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIc
 import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
 import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
 import { ALL_SELECT_OPTIONS, NUMBER_SELECT_OPTIONS } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterConditions';
-import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../../types';
+import { ColumnID, ConditionalFormat, DataframeFormat, FilterType, RecursivePartial, SheetData } from '../../../types';
 import { getDisplayColumnHeader, getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
 import { capitalizeFirstLetter } from '../../../utils/strings';
 import LabelAndColor from '../../graph/LabelAndColor';

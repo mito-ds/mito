@@ -1,4 +1,4 @@
-import { AIRecon, ColumnHeader, GridState, SheetData, UIState } from "../../../../types";
+import { AIRecon, ColumnHeader, GridState, SheetData, UIState } from "../../../types";
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders";
 import { getColumnHeadersInSelections, getIndexLabelsInSelections } from "../../endo/selectionUtils";
 import { AICompletionSelection } from "./AITransformationTaskpane";

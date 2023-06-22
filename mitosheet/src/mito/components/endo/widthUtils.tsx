@@ -1,5 +1,5 @@
 import { DEFAULT_WIDTH } from "./EndoGrid";
-import { ColumnID, GridState, SheetData, WidthData } from "../../../types";
+import { ColumnID, GridState, SheetData, WidthData } from "../../types";
 import { getCellDataFromCellIndexes } from "./utils";
 import { getDisplayColumnHeader } from "../../utils/columnHeaders";
 

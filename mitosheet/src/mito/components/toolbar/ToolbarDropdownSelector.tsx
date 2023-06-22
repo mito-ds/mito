@@ -1,5 +1,5 @@
 import React from 'react'
-import { ToolbarDropdowns, UIState } from '../../../types';
+import { ToolbarDropdowns, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 
 

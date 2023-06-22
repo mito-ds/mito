@@ -1,8 +1,8 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { StepSummary, StepType, UpdateType } from '../../../../types';
-import MitoAPI from '../../../api/api';
+import { StepSummary, StepType, UpdateType } from '../../../types';
+import { MitoAPI } from '../../../api/api';
 
 // Icons
 import ImportIcon from '../../icons/ImportIcon';

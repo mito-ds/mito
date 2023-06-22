@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import MitoAPI, { getRandomId } from "../api/api";
-import { AnalysisData } from "../../types";
+import { MitoAPI,  getRandomId } from "../api/api";
+import { AnalysisData } from "../types";
 import { useEffectOnRedo } from "./useEffectOnRedo";
 import { useEffectOnUndo } from "./useEffectOnUndo";
 

@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import { StepSummary, UserProfile } from '../../../../types';
-import MitoAPI from '../../../api/api';
+import { StepSummary, UserProfile } from '../../../types';
+import { MitoAPI } from '../../../api/api';
 import '../../../../../css/taskpanes/Steps/StepTaskpane.css'
 import StepDataElement from './StepDataElement';
-import { UIState } from '../../../../types';
+import { UIState } from '../../../types';
 import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 

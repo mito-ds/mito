@@ -16,7 +16,7 @@ import ClearIcon from '../icons/ClearIcon';
 import FormatIcon from '../icons/FormatIcon';
 import DtypeIcon from '../icons/DtypeIcon';
 import DropdownItem from '../elements/DropdownItem';
-import { Action, UserProfile } from '../../../types';
+import { Action, UserProfile } from '../../types';
 import MoreIcon from '../icons/MoreIcon';
 import LessIcon from '../icons/LessIcon';
 import AIIcon from '../icons/AIIcon';

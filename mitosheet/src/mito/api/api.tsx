@@ -14,7 +14,7 @@ import { convertFrontendtoBackendGraphParams } from "../../mito/components/taskp
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../../mito/components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../../mito/components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../../mito/components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../../types";
+import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 
@@ -92,7 +92,7 @@ declare global {
     1. Updating the set state updaters to update the Mito component
     2. Setting the error modal if there is an error
 */
-export default class MitoAPI {    
+export class MitoAPI {    
     _send: SendFunction | undefined;
     getSendFunction: () => Promise<SendFunction | undefined>
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import MitoAPI from '../../api/api';
+import { MitoAPI } from '../../api/api';
 import Row from '../layout/Row';
 import TextButton from './TextButton';
 

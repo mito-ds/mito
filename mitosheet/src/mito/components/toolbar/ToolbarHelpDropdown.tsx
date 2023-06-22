@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../../types';
+import { Action, ActionEnum, UIState, UserProfile } from '../../types';
 import { getSortedActions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';

@@ -1,8 +1,8 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import MitoAPI, { getRandomId } from '../../api/api';
-import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../../types';
+import { MitoAPI,  getRandomId } from '../../api/api';
+import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';

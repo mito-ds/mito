@@ -1,4 +1,4 @@
-import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../../types";
+import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../types";
 import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filterUtils";
 

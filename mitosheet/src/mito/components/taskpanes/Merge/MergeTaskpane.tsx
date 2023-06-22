@@ -2,8 +2,8 @@
 
 import React from 'react';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import MitoAPI from '../../../api/api';
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../../types';
+import { MitoAPI } from '../../../api/api';
+import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';

@@ -1,6 +1,6 @@
 import React from "react";
-import MitoAPI from "../../api/api";
-import { ExcelExportState, SheetData } from "../../../types";
+import { MitoAPI } from "../../api/api";
+import { ExcelExportState, SheetData } from "../../types";
 
 const ExcelFormatSection = (props: {
     dfNames: string[]

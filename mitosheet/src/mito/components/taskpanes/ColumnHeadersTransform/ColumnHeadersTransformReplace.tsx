@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
-import MitoAPI from "../../../api/api";
-import { AnalysisData, StepType, UserProfile } from "../../../../types";
+import { MitoAPI } from "../../../api/api";
+import { AnalysisData, StepType, UserProfile } from "../../../types";
 
 import Input from "../../elements/Input";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";

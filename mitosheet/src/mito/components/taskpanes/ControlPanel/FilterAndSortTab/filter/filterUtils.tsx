@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { FilterType, FilterGroupType, StringValueFilterType } from '../../../../../../types';
+import { FilterType, FilterGroupType, StringValueFilterType } from '../../../../../types';
 import { isBoolDtype, isDatetimeDtype, isNumberDtype, isStringDtype, isTimedeltaDtype } from '../../../../../utils/dtypes';
 import DropdownItem from '../../../../elements/DropdownItem';
 import DropdownSectionSeperator from '../../../../elements/DropdownSectionSeperator';

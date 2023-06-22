@@ -1,4 +1,4 @@
-import { AnalysisData, ExperimentID } from "../../types";
+import { AnalysisData, ExperimentID } from "../types";
 
 export const isExperimentActive = (analysisData: AnalysisData, experimentID: ExperimentID) => {
     return analysisData.experiment?.experiment_id === experimentID;
