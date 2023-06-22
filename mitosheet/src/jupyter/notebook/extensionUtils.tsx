@@ -1,5 +1,5 @@
-import MitoAPI from "../../api/api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../../utils/code";
+import MitoAPI from "../../mito/api/api";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../../mito/utils/code";
 import { PublicInterfaceVersion } from "../../types";
 
 type CellType = any;

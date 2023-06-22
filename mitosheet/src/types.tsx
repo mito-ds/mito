@@ -1,9 +1,9 @@
 import React from "react";
-import { ModalInfo } from "./components/modals/modals";
-import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
-import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
-import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
+import { ModalInfo } from "./mito/components/modals/modals";
+import { ControlPanelTab } from "./mito/components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { GraphType } from "./mito/components/taskpanes/Graph/GraphSetupTab";
+import { SnowflakeCredentials } from "./mito/components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
+import { TaskpaneInfo } from "./mito/components/taskpanes/taskpanes";
 
 
 /**

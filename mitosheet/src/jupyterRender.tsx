@@ -1,6 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
-import Mito from './components/Mito';
+import Mito from './mito/components/Mito';
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from './jupyter/jupyterUtils';
 import { getCommSend } from './jupyter/comm';
 

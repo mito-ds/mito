@@ -36,9 +36,9 @@
  * we return an error to the user.
  */
 
-import { MitoResponse } from "../api/api";
-import { MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType } from "../api/send";
-import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
+import { MitoResponse } from "../mito/api/api";
+import { MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType } from "../mito/api/send";
+import { waitUntilConditionReturnsTrueOrTimeout } from "../mito/utils/time";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString, isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
 
 /**
