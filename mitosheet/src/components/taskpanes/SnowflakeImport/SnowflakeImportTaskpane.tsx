@@ -39,6 +39,7 @@ const LIMIT_TOOLTIP = 'Used to specify the number of rows to return. When workin
 export type SnowflakeCredentials = {type: 'username/password', username: string, password: string, account: string};
 
 export type SnowflakeTableLocationAndWarehouse = {
+    role: string | undefined | null,
     warehouse: string | undefined | null, 
     database: string | undefined | null, 
     schema: string | undefined | null,
@@ -51,6 +52,7 @@ export type SnowflakeQueryParams = {
 }
 
 export type SnowflakeConfigOptions = {
+    roles: string[]
     warehouses: string[],
     databases: string[],
     schemas: string[],
@@ -65,7 +67,7 @@ export interface SnowflakeImportParams {
 
 const getDefaultParams = (): SnowflakeImportParams => {
     return {
-        table_loc_and_warehouse: {warehouse: undefined, database: undefined, schema: undefined, table_or_view: undefined},
+        table_loc_and_warehouse: {role: undefined, warehouse: undefined, database: undefined, schema: undefined, table_or_view: undefined},
         query_params: {columns: [], limit: undefined},
     }
 }
@@ -80,12 +82,19 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 }
 
 
-const getNewParams = (prevParams: SnowflakeImportParams, database?: string | null, schema?: string | null, tableOrView?: string | null) => {
+const getNewParams = (
+    prevParams: SnowflakeImportParams, 
+    role?: string | null, 
+    database?: string | null, 
+    schema?: string | null, 
+    tableOrView?: string | null
+) => {
     const paramsCopy: SnowflakeImportParams = window.structuredClone(prevParams);
     const newParams = {
         ...paramsCopy, 
         'table_loc_and_warehouse': {
             ...paramsCopy.table_loc_and_warehouse,
+            'role': role,
             'database': database,
             'schema': schema,
             'table_or_view': tableOrView,
@@ -205,6 +214,30 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     <Row justify="space-between">
                         <Col>
                             <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                                Role
+                            </p>
+                        </Col>
+                        <Col>
+                            <Select
+                                width="medium"
+                                value={params.table_loc_and_warehouse.role || 'None available'}
+                                disabled={loadingAvailableOptionsAndDefaults}
+                                onChange={(newRole) => {
+                                    const newParams = getNewParams(params, newRole)
+                                    setParamsAndRefreshOptionsAndDefaults(newParams)
+                                }}
+                            >
+                                {availableSnowflakeOptionsAndDefaults?.type === 'success' ? availableSnowflakeOptionsAndDefaults.config_options.roles.map((role) => {
+                                    return (
+                                        <DropdownItem key={role} id={role} title={role}/>
+                                    )
+                                }) : []}
+                            </Select>
+                        </Col>
+                    </Row>
+                    <Row justify="space-between">
+                        <Col>
+                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Warehouse
                             </p>
                         </Col>
@@ -239,7 +272,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 value={params.table_loc_and_warehouse.database || 'None available'}
                                 disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newDatabase) => {
-                                    const newParams = getNewParams(params, newDatabase)
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.role, newDatabase)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
@@ -263,7 +296,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 value={params.table_loc_and_warehouse.schema || 'None available'}
                                 disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newSchema) => {
-                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, newSchema);
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.role, params.table_loc_and_warehouse.database, newSchema);
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
@@ -287,7 +320,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 value={params.table_loc_and_warehouse.table_or_view || 'None available'}
                                 disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newTableOrView) => {
-                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTableOrView)
+                                    const newParams = getNewParams(params, params.table_loc_and_warehouse.role, params.table_loc_and_warehouse.database, params.table_loc_and_warehouse.schema, newTableOrView)
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >

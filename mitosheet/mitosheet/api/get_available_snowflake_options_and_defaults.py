@@ -61,10 +61,14 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
 
         con = con_or_exception
 
+        _role = table_loc_and_warehouse.get('role')
         _warehouse = table_loc_and_warehouse.get('warehouse')
         _database = table_loc_and_warehouse.get('database') 
         _schema = table_loc_and_warehouse.get('schema')
         _table_or_view = table_loc_and_warehouse.get('table_or_view')
+
+        roles = get_roles(con)
+        role = _role if _role is not None else get_default_role(roles)
 
         warehouses = get_warehouses(con)
         warehouse = _warehouse if _warehouse is not None else get_default_warehouse(warehouses)
@@ -82,10 +86,10 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
 
         columns = get_columns(con, database, schema, table_or_view)
 
-
         return {
                 'type': 'success',    
                 'config_options': {
+                        'roles': roles,
                         'warehouses': warehouses,    
                         'databases': databases,    
                         'schemas': schemas,    
@@ -93,13 +97,27 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
                         'columns': columns
                 },
                 'default_values': {
+                        'role': role,
                         'warehouse': warehouse,
                         'database': database,
                         'schema': schema,
                         'table_or_view': table_or_view,
                 },
         }
-                
+
+def get_roles(con: MitoSafeSnowflakeConnection) -> List[str]:
+        if con is None:
+                return []
+
+        # We use SHOW GRANTS to show all of the roles granted to the user. 
+        # Instead of SHOW ROLES which shows all of the roles in the account.
+        cur = con.cursor().execute('SHOW GRANTS')   
+
+        if cur is None:
+                return []
+        
+        roles = cur.fetchall() # type: ignore
+        return [role[1] for role in roles] # type: ignore
 
 def get_warehouses(con: MitoSafeSnowflakeConnection) -> List[str]:
         if con is None: 
@@ -178,6 +196,9 @@ def get_columns(con: MitoSafeSnowflakeConnection, database: Optional[str], schem
 
         columns = cur.fetchall() # type: ignore
         return [column[2] for column in columns] # type: ignore
+
+def get_default_role(roles: List[str]) -> Optional[str]:
+        return roles[0] if len(roles) > 0 else None
 
 def get_default_warehouse(warehouses: List[str]) -> Optional[str]:
         return warehouses[0] if len(warehouses) > 0 else None 
