@@ -13,6 +13,43 @@
     display: block;
 }
 
+.youtube_video_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    height: max-content;
+}
+
+.youtube_video {
+   display: block;
+   flex-grow: 1;
+}
+
+.videoWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+  
+.videoContainer {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio (change this value if needed) */
+    width: 100%;
+    border-radius: 10px; /* Adjust the radius value as per your preference */
+    overflow: hidden; /* Clip the rounded corners */
+}
+
+.videoContainer .video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
 @media only screen and (min-width: 50em) {
     .flex_col_mobile_row_desktop {
         display: flex;
@@ -22,5 +59,4 @@
     .title_text_container {
         text-align: start;
     }
-
 }

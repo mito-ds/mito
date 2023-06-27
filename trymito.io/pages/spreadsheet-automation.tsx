@@ -35,7 +35,7 @@ const SpreadhseetAutomation: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={classNames(titleStyles.title_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
+          <section className={classNames(titleStyles.title_card, pageStyles.background_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
             <div className={spreadsheetAutomationStyles.title_text_container}>
               <h1>
                 No-Code Spreadsheet Automation 
@@ -46,6 +46,76 @@ const SpreadhseetAutomation: NextPage = () => {
               <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250}/>
             </div>
           </section>
+
+          <section>
+            <div className={classNames(pageStyles.subsection, 'center')}>
+              <h2>
+                The Benefits of Automating Excel and Google Spreadsheets
+              </h2>
+            </div>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
+              <h3>
+                Handle large datasets faster
+              </h3>
+              <p>
+                Excel and Google sheets aren't designed for modern data. Put 1 million rows of data into Excel and you'll wait 10 minutes every time you update your analysis.
+              </p>
+              <p>
+                Python is designed for large data. Analyze millions of rows of data in just a couple of seconds. 
+              </p>
+            </div>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
+              <h3>
+                More customization means more power
+              </h3>
+              <p>
+                Excel used to be the data collection, analysis, and report presentation tool. Today, modern data teams use Excel primarily as the output of analyses. 
+              </p>
+              <p>
+                Automating reports in Python lets you use AI and ML to extract insights, connect directly to all of your data sources, and utilize template analyses built by your organization.
+              </p>
+            </div>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
+              <h3>
+                Catch bugs and reduce key person risk
+              </h3>
+              <p>
+                Excel's ability to hide the logic of the analysis and let you focus on the data is both its greatest strength and weakness. 
+              </p>
+              <p>
+                Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for an Excel file to someone else on your team. 
+              </p>
+            </div>
+          </section>
+
+          <section className={pageStyles.background_card}>
+            <div className='center'>
+              <h2>
+                Mito Makes it Easy to Automate with Python and Pandas
+              </h2>
+            </div>
+            <p>
+              Excel's ability to hide the logic of the analysis and let you focus on the data is both its greatest strength and weakness. 
+            </p>
+            <p>
+              Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for an Excel file to someone else on your team. 
+            </p>
+
+            <div className={classNames(spreadsheetAutomationStyles.videoWrapper, 'margin-top-4rem')}>
+              <div className={spreadsheetAutomationStyles.videoContainer}>
+                <iframe 
+                  className={spreadsheetAutomationStyles.video}
+                  src="https://www.youtube.com/embed/ZX2AtIvYdRE" 
+                  title="YouTube video player" 
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                />  
+              </div>
+            </div>
+          </section>
+
+
           <section className={securityStyles.gradient_card}>
             <div className={pageStyles.subsection}>
               <div className={securityStyles.security_bullet_container}>

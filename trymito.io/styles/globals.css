@@ -136,6 +136,13 @@ h2 {
   font-style: semibold;
 }
 
+h3 {
+  color: var(--color-text-primary);
+  font-size: 2.5rem;
+  font-family: Graphik;
+  font-style: semibold;
+}
+
 p, a {
   font-size: 2rem;
   line-height: 1.5;
@@ -187,6 +194,10 @@ a {
 
   h2 {
     font-size: 2.5rem;
+  }
+
+  h3 {
+    font-size: 2rem;
   }
 
   p, a {
