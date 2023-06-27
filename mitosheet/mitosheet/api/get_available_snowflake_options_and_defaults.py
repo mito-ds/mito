@@ -70,6 +70,10 @@ def get_available_snowflake_options_and_defaults(params: Dict[str, Any], steps_m
         roles = get_roles(con)
         role = _role if _role is not None else get_default_role(roles)
 
+        # After getting the role, use it so that we get the correct list of 
+        # databases, schemas, tables, etc.
+        con.cursor().execute(f'USE ROLE {role}')
+
         warehouses = get_warehouses(con)
         warehouse = _warehouse if _warehouse is not None else get_default_warehouse(warehouses)
 
