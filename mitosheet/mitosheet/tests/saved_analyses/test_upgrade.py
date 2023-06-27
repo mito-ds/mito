@@ -592,13 +592,24 @@ UPGRADE_TESTS = [
         },
         {
             "version":  __version__, 
-            "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2,
+            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"role": None, "warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2,
             "args": [],
             "code_options": {
                 'as_function': False,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
+        }
+    ),
+    # Upgrade the Snowflake import step from 2 -> 3, adding the role param
+    (
+        {
+            "version": "0.3.131", 
+            "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES"}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "function_name": "function_rgge", "function_params": {}}
+        },
+        {
+            "version": __version__, 
+            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES", "role": None}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "function_name": "function_rgge", "function_params": {}}
         }
     )
 ]
