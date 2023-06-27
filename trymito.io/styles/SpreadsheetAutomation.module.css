@@ -4,7 +4,7 @@
 }
 
 .title_text_container {
-    max-width: 45rem;
+    max-width: 30rem;
     text-align: center;
 }
 
@@ -54,6 +54,8 @@
     .flex_col_mobile_row_desktop {
         display: flex;
         flex-direction: row;
+        padding-top: 8rem;
+        padding-bottom: 8rem;
     } 
 
     .title_text_container {

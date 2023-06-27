@@ -11,7 +11,6 @@ import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 import CCPAIcon from '../public/icon-squares/CCPAIcon.svg';
 import ComputerIcon from '../public/icon-squares/ComputerIcon.svg';
 import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg';
@@ -43,7 +42,7 @@ const SpreadhseetAutomation: NextPage = () => {
               <CTAButtons variant={'download'} align='left'/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only')}>
-              <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={500} height={250}/>
+              <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={1000} height={500}/>
             </div>
           </section>
 
@@ -116,32 +115,46 @@ const SpreadhseetAutomation: NextPage = () => {
           </section>
 
 
-          <section className={securityStyles.gradient_card}>
+          <section className={pageStyles.gradient_card}>
+            <div className={classNames(pageStyles.subsection, 'center')}>
+              <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem')}>
+                Spreadsheet Automation Use Cases
+              </h2>
+            </div>
             <div className={pageStyles.subsection}>
               <div className={securityStyles.security_bullet_container}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={ComputerIcon} alt='icon'></Image>
                 </div>
-                <h1>
-                  All on your computer, never ours
-                </h1>
+                <h3>
+                  Reconciliation
+                </h3>
                 <p>
-                  Mito runs on your computer, not the cloud. None of your data ever touches our servers, so you don’t have to worry about us loosing it. 
+                  Performing end of quarter data reconciliation processes in Excel pushes back quarter close by up to 15 days.
+                </p>
+                <p>
+                  Mito uses Python to connect directly to your data sources and to build the recon, so you can refresh your recon in seconds not hours. 
+                </p>
+                <p>
+                  Not having to wait hours to check the status of the recon means you can close the loop with your reconciliation partners faster, so you can close your books and get a head start on the next quarter.
                 </p>
               </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+              <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={OpenSourceIcon} alt='icon'></Image>
                 </div>
-                <h1>
-                  Open source and auditable
-                </h1>
+                <h3>
+                  Reporting
+                </h3>
                 <p>
-                  If you want to see the code that&apos;s running on your computer, you can. Mito is dedicated to building in public. 
+                  Building reports for management is never one and done. They're always going to want you pull the most recent data and update the formatting of tables. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noreferrer" target='_blank'>
-                  See our Github →
-                </a>
+                <p>
+                  Updating your report in Mito is as easy as clicking “Run All”. It will pull the most up to date data, refresh your analysis, and spit out the updated Excel file. 
+                </p>
+                <p>
+                  Refreshing a report that quickly means you can build a report 10 minutes before a meeting instead of building it the night before. 
+                </p>
               </div>
             </div>
             <div className={pageStyles.subsection}>
@@ -149,62 +162,39 @@ const SpreadhseetAutomation: NextPage = () => {
                 <div className={securityStyles.icon}>
                   <Image  src={TelemetryIcon} alt='icon'></Image>
                 </div>
-                <h1>
-                  Private telemetry you can turn off
-                </h1>
+                <h3>
+                  Large Data Analysis
+                </h3>
                 <p>
-                  We don’t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
+                  When you get a dump of 5 million rows of data, instead of waiting for a supporting data scientist to aggregate the data for you, use Mito to analyze the data yourself. 
                 </p>
-                <Link href='/plans#private-telemetry-faq'>
-                  <a className={pageStyles.link_with_p_tag_margins}>
-                    Learn about our private telemetry → 
-                  </a>
-                </Link>
+                <p>
+                  Mito let's you leverage your Excel and data expertise even when working with millions of rows of data. 
+                </p>
+                <p>
+                  Getting access to large datasets should increase the quality of your analysis, not decrease it. That requires the subject matter expert to analyze the data.
+                </p>
               </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+              <div className={pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={CCPAIcon} alt='icon'></Image>
                 </div>
-                <h1>
-                  CCPA compliance keeps you in control
-                </h1>
+                <h3>
+                  Future-proofing Excel Files 
+                </h3>
                 <p>
-                  We don&apos;t want any data you don&apos;t want us to have. CCPA compliance means you stay in control of everything. 
+                  Teams have gotten away with treating Excel files as databases for the last 10 years. 
+                  But now these files contain so much data that they are on the brink of failure. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noreferrer" target='_blank'>
-                  See our Privacy Policy → 
-                </a>
-              </div>
-            </div>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={UpgradesIcon} alt='icon'></Image>
-                </div>
-                <h1>
-                  Opt-in upgrades and changes
-                </h1>
                 <p>
-                  Once you have Mito installed, you&apos;re in total control of which version you run. Upgrade when you want to.
+                  Mito lets your team prep the data using the same Excel process they've used for the past 10 years, and push the data directly into a database. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noreferrer" target='_blank'>
-                  See our recent updates → 
-                </a>
-              </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={SecurityIcon} alt='icon'></Image>
-                </div>
-                <h1>
-                  Top-of-the-line operational security
-                </h1>
                 <p>
-                  Mulitple rounds of code-review and automatic and manual tests make sure that insecure code doesn’t make it deployment.
+                  Not relying on Excel files that need end of life care means your team can focus on decision making.
                 </p>
               </div>
             </div>
           </section>
-
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
           </section>

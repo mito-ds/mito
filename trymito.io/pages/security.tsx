@@ -41,9 +41,9 @@ const Security: NextPage = () => {
               You don&apos;t have to worry about our data storage practices, because we never see anything private.
             </p>
           </section>
-          <section className={securityStyles.gradient_card}>
+          <section className={pageStyles.gradient_card}>
             <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
+              <div>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={ComputerIcon} alt='icon'></Image>
                 </div>
@@ -54,7 +54,7 @@ const Security: NextPage = () => {
                   Mito runs on your computer, not the cloud. None of your data ever touches our servers, so you don’t have to worry about us loosing it. 
                 </p>
               </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+              <div className={pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={OpenSourceIcon} alt='icon'></Image>
                 </div>
@@ -70,7 +70,7 @@ const Security: NextPage = () => {
               </div>
             </div>
             <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
+              <div>
                 <div className={securityStyles.icon}>
                   <Image  src={TelemetryIcon} alt='icon'></Image>
                 </div>
@@ -78,7 +78,7 @@ const Security: NextPage = () => {
                   Private telemetry you can turn off
                 </h1>
                 <p>
-                  We don’t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
+                  We don't see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
                 </p>
                 <Link href='/plans#private-telemetry-faq'>
                   <a className={pageStyles.link_with_p_tag_margins}>
@@ -86,7 +86,7 @@ const Security: NextPage = () => {
                   </a>
                 </Link>
               </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+              <div className={pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={CCPAIcon} alt='icon'></Image>
                 </div>
@@ -102,7 +102,7 @@ const Security: NextPage = () => {
               </div>
             </div>
             <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
+              <div>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={UpgradesIcon} alt='icon'></Image>
                 </div>
@@ -116,7 +116,7 @@ const Security: NextPage = () => {
                   See our recent updates → 
                 </a>
               </div>
-              <div className={securityStyles.security_bullet_container + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
+              <div className={pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>
                   <Image className={securityStyles.icon} src={SecurityIcon} alt='icon'></Image>
                 </div>
