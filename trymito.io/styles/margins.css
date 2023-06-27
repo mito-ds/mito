@@ -1,0 +1,93 @@
+.margin-top-2rem {
+    margin-top: 2rem;
+}
+
+.margin-top-3rem {
+    margin-top: 3rem;
+}
+
+.margin-top-4rem {
+    margin-top: 4rem;
+}
+
+.margin-top-8rem {
+    margin-top: 8rem;
+}
+
+.margin-bottom-2rem {
+    margin-bottom: 2rem;
+}
+
+.margin-bottom-3rem {
+    margin-bottom: 3rem;
+}
+
+.margin-top-3rem-mobile-only {
+    margin-top: 3rem;
+}
+
+.margin-left-2rem {
+    margin-left: 2rem;
+}
+
+.margin-left-3rem {
+    margin-left: 3rem;
+}
+
+.margin-top-2rem-mobile-only {
+    margin-top: 2rem;
+}
+
+.margin-top-3rem-mobile-only {
+    margin-top: 3rem;
+}
+
+.margin-top-4rem-mobile-only {
+    margin-top: 4rem;
+}
+
+.margin-top-8rem-mobile-only {
+    margin-top: 8rem;
+}
+
+.margin-bottom-2rem-mobile-only {
+    margin-bottom: 2rem;
+}
+
+.margin-bottom-3rem-mobile-only {
+    margin-bottom: 3rem;
+}
+
+.margin-top-3rem-mobile-only {
+    margin-top: 3rem;
+}
+
+.margin-left-2rem-mobile-only {
+    margin-left: 2rem;
+}
+
+.margin-left-3rem-mobile-only {
+    margin-left: 3rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+
+    .margin-top-2rem-mobile-only,
+    .margin-top-3rem-mobile-only,
+    .margin-top-4rem-mobile-only,
+    .margin-top-8rem-mobile-only {
+        margin-top: 0rem;
+    }
+    
+    .margin-bottom-2rem-mobile-only,
+    .margin-bottom-3rem-mobile-only,
+    .margin-top-3rem-mobile-only {
+        margin-bottom: 0rem;
+    }
+    
+    .margin-left-2rem-mobile-only,
+    .margin-left-3rem-mobile-only  {
+        margin-left: 0rem;
+    }
+}

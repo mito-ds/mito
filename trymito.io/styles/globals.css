@@ -285,47 +285,6 @@ a {
   color: var(--jupyter-orange);
 }
 
-/* 
-  Margins
-*/
-
-.margin-top-2rem {
-  margin-top: 2rem;
-}
-
-.margin-top-3rem {
-  margin-top: 3rem;
-}
-
-.margin-top-4rem {
-  margin-top: 4rem;
-}
-
-.margin-top-8rem {
-  margin-top: 8rem;
-}
-
-.margin-bottom-2rem {
-  margin-bottom: 2rem;
-}
-
-.margin-bottom-3rem {
-  margin-bottom: 3rem;
-}
-
-.margin-top-3rem-mobile-only {
-  margin-top: 3rem;
-}
-
-.margin-left-2rem {
-  margin-left: 2rem;
-}
-
-.margin-left-3rem {
-  margin-left: 3rem;
-}
-
-
 .code-background {
   font-family: monospace;
   background-color: #D0D0D0;

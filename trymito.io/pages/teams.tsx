@@ -43,7 +43,7 @@ const Teams: NextPage = () => {
                     Onboard in minutes, save your team days per month
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' />
+                    <CTAButtons variant='contact' align='center'/>
                 </div>
             </section>
             <section style={{marginTop: '4rem'}}>
