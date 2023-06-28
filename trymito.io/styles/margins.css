@@ -1,3 +1,7 @@
+.margin-top-1rem {
+    margin-top: 1rem;
+}
+
 .margin-top-2rem {
     margin-top: 2rem;
 }
@@ -101,5 +105,9 @@
 
     .margin-left-4rem-desktop-only {
         margin-left: 4rem;
+    }
+
+    .margin-left-8rem-desktop-only {
+        margin-left: 8rem;
     }
 }

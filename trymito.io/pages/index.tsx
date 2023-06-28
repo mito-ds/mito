@@ -7,12 +7,14 @@ import Tweets from '../components/Tweets/Tweets';
 import homeStyles from '../styles/Home.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
+import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
 import { useEffect, useState } from 'react';
+import { classNames } from '../utils/classNames';
 
 const Home: NextPage = () => {
 
@@ -58,7 +60,7 @@ const Home: NextPage = () => {
 
           <section>
             <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_text}>
+              <div className={textImageSplitStyles.functionality_text}>
                 <h1>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
@@ -79,36 +81,33 @@ const Home: NextPage = () => {
                   View all 100+ transformations →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
           
             <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
-              <div className={homeStyles.functionality_text}>
+              <div className={textImageSplitStyles.functionality_text}>
                 <h1>
                   <span className='text-highlight'>Transform</span> your data with AI
                 </h1>
-                <p className='display-mobile-only'>
-                  Describe your edits in plain english. The Mito AI assistant will write the code.
-                </p>
-                <p className='display-desktop-only-inline-block'>
+                <p>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
                 <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                   Learn more about Mito AI →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
             <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_text}>
+              <div className={textImageSplitStyles.functionality_text}>
                 <h1>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>
                 </h1>
@@ -134,7 +133,7 @@ const Home: NextPage = () => {
                   Download Mito for Jupyter →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -170,7 +169,7 @@ const Home: NextPage = () => {
             </div>
           </section>
 
-          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
+          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section)}>
             <div>
               <h2 className={homeStyles.case_study_text}>
                 Enigma’s Director of Finance saves 16 hours per month with Mito

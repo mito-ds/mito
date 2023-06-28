@@ -26,9 +26,19 @@
     font-size: 2rem;
 }
 
-.faq_card_container p:first-of-type {
+.faq_card_container li {
+    font-size: 2rem;
+    line-height: 1.5;
+    margin-top: 3rem;
+    margin-left: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.faq_card_container p:first-of-type,
+.faq_card_container li:first-of-type {
     margin-top: 0;
 }
+
 
 @media only screen and (min-width: 50em) { 
     .faq_card_container {
@@ -37,5 +47,12 @@
 
     .header {
         height: 70px;
+    }
+
+    .faq_card_container li {
+        font-size: 1.375rem;
+        line-height: 1.25;
+        margin-top: 2rem;
+        margin-left: 2rem;
     }
 }
