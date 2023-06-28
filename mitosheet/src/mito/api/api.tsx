@@ -1,19 +1,19 @@
 // Copyright (c) Mito
 
-import { SnowflakeCredentialsValidityCheckResult } from "../../mito/components/elements/AuthenticateToSnowflakeCard";
-import { CSVFileMetadata } from "../../mito/components/import/CSVImportConfigScreen";
-import { ExcelFileMetadata } from "../../mito/components/import/XLSXImportConfigScreen";
-import { ModalEnum } from "../../mito/components/modals/modals";
-import { AICompletionSelection } from "../../mito/components/taskpanes/AITransformation/AITransformationTaskpane";
-import { ColumnHeadersTransformLowerCaseParams, ColumnHeadersTransformUpperCaseParams } from "../../mito/components/taskpanes/ColumnHeadersTransform/ColumnHeadersTransformTaskpane";
-import { ControlPanelTab } from "../../mito/components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { GraphObject } from "../../mito/components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
-import { UniqueValueSortType } from "../../mito/components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
-import { FileElement } from "../../mito/components/taskpanes/FileImport/FileImportTaskpane";
-import { convertFrontendtoBackendGraphParams } from "../../mito/components/taskpanes/Graph/graphUtils";
-import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../../mito/components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
-import { SplitTextToColumnsParams } from "../../mito/components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
-import { StepImportData } from "../../mito/components/taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/AuthenticateToSnowflakeCard";
+import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
+import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
+import { ModalEnum } from "../components/modals/modals";
+import { AICompletionSelection } from "../components/taskpanes/AITransformation/AITransformationTaskpane";
+import { ColumnHeadersTransformLowerCaseParams, ColumnHeadersTransformUpperCaseParams } from "../components/taskpanes/ColumnHeadersTransform/ColumnHeadersTransformTaskpane";
+import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
+import { GraphObject } from "../components/taskpanes/ControlPanel/SummaryStatsTab/ColumnSummaryGraph";
+import { UniqueValueSortType } from "../components/taskpanes/ControlPanel/ValuesTab/ValuesTab";
+import { FileElement } from "../components/taskpanes/FileImport/FileImportTaskpane";
+import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Graph/graphUtils";
+import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
+import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
+import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
