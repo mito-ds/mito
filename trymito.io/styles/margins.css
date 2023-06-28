@@ -94,4 +94,12 @@
     .margin-left-3rem-mobile-only  {
         margin-left: 0rem;
     }
+
+    .margin-left-2rem-desktop-only {
+        margin-left: 2rem;
+    }
+
+    .margin-left-4rem-desktop-only {
+        margin-left: 4rem;
+    }
 }

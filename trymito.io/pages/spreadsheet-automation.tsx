@@ -39,9 +39,12 @@ const SpreadhseetAutomation: NextPage = () => {
               <h1>
                 No-Code Spreadsheet Automation 
               </h1>
+              <p>
+                Automate your spreadsheets in hours, not months.
+              </p>
               <CTAButtons variant={'download'} align='left'/>
             </div>
-            <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only')}>
+            <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only', 'margin-left-4rem-desktop-only')}>
               <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={1000} height={500}/>
             </div>
           </section>
@@ -57,10 +60,10 @@ const SpreadhseetAutomation: NextPage = () => {
                 Handle large datasets faster
               </h3>
               <p>
-                Excel and Google sheets aren't designed for modern data. Put 1 million rows of data into Excel and you'll wait 10 minutes every time you update your analysis.
+                Excel and Google Sheets aren't designed for modern data. Insert 1 million rows of data into Excel and you'll wait 10 minutes every time you update your analysis.
               </p>
               <p>
-                Python is designed for large data. Analyze millions of rows of data in just a couple of seconds. 
+                Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. 
               </p>
             </div>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
@@ -79,10 +82,10 @@ const SpreadhseetAutomation: NextPage = () => {
                 Catch bugs and reduce key person risk
               </h3>
               <p>
-                Excel's ability to hide the logic of the analysis and let you focus on the data is both its greatest strength and weakness. 
+                Excel's greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
               </p>
               <p>
-                Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for an Excel file to someone else on your team. 
+                Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
               </p>
             </div>
           </section>
@@ -94,10 +97,8 @@ const SpreadhseetAutomation: NextPage = () => {
               </h2>
             </div>
             <p>
-              Excel's ability to hide the logic of the analysis and let you focus on the data is both its greatest strength and weakness. 
-            </p>
-            <p>
-              Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for an Excel file to someone else on your team. 
+              Mito generates the equivalent Python code for every edit you make in the spreadsheet. 
+              So you can create your analysis like you usually do in Excel, and use the Mito generated Python code to automate your analysis going forward. 
             </p>
 
             <div className={classNames(spreadsheetAutomationStyles.videoWrapper, 'margin-top-4rem')}>
@@ -133,10 +134,10 @@ const SpreadhseetAutomation: NextPage = () => {
                   Performing end of quarter data reconciliation processes in Excel pushes back quarter close by up to 15 days.
                 </p>
                 <p>
-                  Mito uses Python to connect directly to your data sources and to build the recon, so you can refresh your recon in seconds not hours. 
+                  Mito uses Python to connect directly to your data sources and perform the recon, so you can refresh your recon in seconds not hours. 
                 </p>
                 <p>
-                  Not having to wait hours to check the status of the recon means you can close the loop with your reconciliation partners faster, so you can close your books and get a head start on the next quarter.
+                  Not having to wait hours to check the status of the recon means you can close the loop with your reconciliation partners faster. Close your books and get a head start on the next quarter.
                 </p>
               </div>
               <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
@@ -153,7 +154,7 @@ const SpreadhseetAutomation: NextPage = () => {
                   Updating your report in Mito is as easy as clicking “Run All”. It will pull the most up to date data, refresh your analysis, and spit out the updated Excel file. 
                 </p>
                 <p>
-                  Refreshing a report that quickly means you can build a report 10 minutes before a meeting instead of building it the night before. 
+                  Refreshing a report that quickly means you can build a report 10 minutes before a meeting with the most up to date data instead of building it the night before. 
                 </p>
               </div>
             </div>
@@ -166,10 +167,10 @@ const SpreadhseetAutomation: NextPage = () => {
                   Large Data Analysis
                 </h3>
                 <p>
-                  When you get a dump of 5 million rows of data, instead of waiting for a supporting data scientist to aggregate the data for you, use Mito to analyze the data yourself. 
+                  When you get a dump of 5 million rows of data, use Mito to analyze the data yourself instead of waiting for a supporting data scientist to aggregate the data for you.
                 </p>
                 <p>
-                  Mito let's you leverage your Excel and data expertise even when working with millions of rows of data. 
+                  Even in the highest functioning orgs, waiting for a supporting data scientst adds a full day of overhead to your analysis. 
                 </p>
                 <p>
                   Getting access to large datasets should increase the quality of your analysis, not decrease it. That requires the subject matter expert to analyze the data.
@@ -184,7 +185,7 @@ const SpreadhseetAutomation: NextPage = () => {
                 </h3>
                 <p>
                   Teams have gotten away with treating Excel files as databases for the last 10 years. 
-                  But now these files contain so much data that they are on the brink of failure. 
+                  Now these files are on the brink of failure because they hold too much data.
                 </p>
                 <p>
                   Mito lets your team prep the data using the same Excel process they've used for the past 10 years, and push the data directly into a database. 
