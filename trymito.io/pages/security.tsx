@@ -78,7 +78,7 @@ const Security: NextPage = () => {
                   Private telemetry you can turn off
                 </h1>
                 <p>
-                  We don't see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
+                  We don&apos;t see any of your data or metadata. Mito collects basic telemetry to improve our functionality.
                 </p>
                 <Link href='/plans#private-telemetry-faq'>
                   <a className={pageStyles.link_with_p_tag_margins}>

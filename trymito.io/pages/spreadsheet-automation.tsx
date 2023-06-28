@@ -60,7 +60,7 @@ const SpreadhseetAutomation: NextPage = () => {
                 Handle large datasets faster
               </h3>
               <p>
-                Excel and Google Sheets aren't designed for modern data. Insert 1 million rows of data into Excel and you'll wait 10 minutes every time you update your analysis.
+                Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.
               </p>
               <p>
                 Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. 
@@ -82,7 +82,7 @@ const SpreadhseetAutomation: NextPage = () => {
                 Catch bugs and reduce key person risk
               </h3>
               <p>
-                Excel's greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
+                Excel&apos;s greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
               </p>
               <p>
                 Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
@@ -148,7 +148,7 @@ const SpreadhseetAutomation: NextPage = () => {
                   Reporting
                 </h3>
                 <p>
-                  Building reports for management is never one and done. They're always going to want you pull the most recent data and update the formatting of tables. 
+                  Building reports for management is never one and done. They&apos;re always going to want you pull the most recent data and update the formatting of tables. 
                 </p>
                 <p>
                   Updating your report in Mito is as easy as clicking “Run All”. It will pull the most up to date data, refresh your analysis, and spit out the updated Excel file. 
@@ -188,7 +188,7 @@ const SpreadhseetAutomation: NextPage = () => {
                   Now these files are on the brink of failure because they hold too much data.
                 </p>
                 <p>
-                  Mito lets your team prep the data using the same Excel process they've used for the past 10 years, and push the data directly into a database. 
+                  Mito lets your team prep the data using the same Excel process they&apos;ve used for the past 10 years, and push the data directly into a database. 
                 </p>
                 <p>
                   Not relying on Excel files that need end of life care means your team can focus on decision making.
