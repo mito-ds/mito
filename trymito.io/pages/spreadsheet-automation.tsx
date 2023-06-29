@@ -7,6 +7,7 @@ import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
 import securityStyles from '../styles/Security.module.css';
 import titleStyles from '../styles/Title.module.css';
+import trifoldStyles from '../styles/Trifold.module.css';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
 // Import Icons & Background Grid
@@ -37,7 +38,7 @@ const SpreadhseetAutomation: NextPage = () => {
           <section className={classNames(titleStyles.title_card, pageStyles.background_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
             <div className={spreadsheetAutomationStyles.title_text_container}>
               <h1>
-                No-Code Spreadsheet Automation 
+                The No-Code tool approach to Spreadsheet Automation 
               </h1>
               <p>
                 Automate your spreadsheets in hours, not months.
@@ -55,39 +56,51 @@ const SpreadhseetAutomation: NextPage = () => {
                 The Benefits of Automating Excel and Google Spreadsheets
               </h2>
             </div>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
-              <h3>
-                Handle large datasets faster
-              </h3>
-              <p>
-                Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.
-              </p>
-              <p>
-                Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. 
-              </p>
+            <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
+              <div className={classNames(pageStyles.subsection_column)}>
+                <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
+                  <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
+                </div>
+                <h3>
+                  Handle large datasets faster
+                </h3>
+                <p>
+                  Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.
+                </p>
+                <p>
+                  Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. 
+                </p>
+              </div>
+              <div className={classNames(pageStyles.subsection_column)}>
+                <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
+                  <Image src={'/custom_imports.png'} alt='Custom Import' width={1000} height={500}/>
+                </div>
+                <h3>
+                  Use the full power of Python
+                </h3>
+                <p>
+                  Excel used to be the data collection, analysis, and report presentation tool. Today, modern data teams use Excel primarily as the output of analyses. 
+                </p>
+                <p>
+                  Automating reports in Python lets you use AI and ML to extract insights, connect directly to all of your data sources, and utilize template analyses built by your organization.
+                </p>
+              </div>
+              <div className={classNames(pageStyles.subsection_column)}>
+                <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
+                  <Image src={'/code.png'} alt='Mito Generated Code' width={1000} height={500}/>
+                </div>
+                <h3>
+                  Reduce bugs and key person risk
+                </h3>
+                <p>
+                  Excel&apos;s greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
+                </p>
+                <p>
+                  Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
+                </p>
+              </div>
             </div>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
-              <h3>
-                More customization means more power
-              </h3>
-              <p>
-                Excel used to be the data collection, analysis, and report presentation tool. Today, modern data teams use Excel primarily as the output of analyses. 
-              </p>
-              <p>
-                Automating reports in Python lets you use AI and ML to extract insights, connect directly to all of your data sources, and utilize template analyses built by your organization.
-              </p>
-            </div>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column)}>
-              <h3>
-                Catch bugs and reduce key person risk
-              </h3>
-              <p>
-                Excel&apos;s greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
-              </p>
-              <p>
-                Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
-              </p>
-            </div>
+            
           </section>
 
           <section className={pageStyles.background_card}>
