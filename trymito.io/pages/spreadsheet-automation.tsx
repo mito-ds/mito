@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
@@ -12,12 +11,10 @@ import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import CCPAIcon from '../public/icon-squares/CCPAIcon.svg';
 import ComputerIcon from '../public/icon-squares/ComputerIcon.svg';
-import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg';
-import SecurityIcon from '../public/icon-squares/SecurityIcon.svg';
-import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg';
-import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg';
+import ReconIcon from '../public/icon-squares/ReconIcon.svg';
+import ExcelIcon from '../public/icon-squares/ExcelIcon.svg';
+import ReportIcon from '../public/icon-squares/ReportIcon.svg';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 
@@ -118,12 +115,12 @@ const SpreadhseetAutomation: NextPage = () => {
               <div className={spreadsheetAutomationStyles.videoContainer}>
                 <iframe 
                   className={spreadsheetAutomationStyles.video}
-                  src="https://www.youtube.com/embed/ZX2AtIvYdRE" 
+                  src="https://www.youtube.com/embed/eF2QV4ymapk" 
                   title="YouTube video player" 
-                  frameBorder={0}
+                  frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
-                />  
+                  allowFullScreen>
+                </iframe>
               </div>
             </div>
           </section>
@@ -138,7 +135,7 @@ const SpreadhseetAutomation: NextPage = () => {
             <div className={pageStyles.subsection}>
               <div className={securityStyles.security_bullet_container}>
                 <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={ComputerIcon} alt='icon'></Image>
+                  <Image className={securityStyles.icon} src={ReconIcon} alt='icon'></Image>
                 </div>
                 <h3>
                   Reconciliation
@@ -155,7 +152,7 @@ const SpreadhseetAutomation: NextPage = () => {
               </div>
               <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
                 <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={OpenSourceIcon} alt='icon'></Image>
+                  <Image className={securityStyles.icon} src={ReportIcon} alt='icon'></Image>
                 </div>
                 <h3>
                   Reporting
@@ -174,7 +171,7 @@ const SpreadhseetAutomation: NextPage = () => {
             <div className={pageStyles.subsection}>
               <div className={securityStyles.security_bullet_container}>
                 <div className={securityStyles.icon}>
-                  <Image  src={TelemetryIcon} alt='icon'></Image>
+                  <Image  src={ComputerIcon} alt='icon'></Image>
                 </div>
                 <h3>
                   Large Data Analysis
@@ -191,7 +188,7 @@ const SpreadhseetAutomation: NextPage = () => {
               </div>
               <div className={pageStyles.subsection_second_element_mobile_spacing}>
                 <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={CCPAIcon} alt='icon'></Image>
+                  <Image className={securityStyles.icon} src={ExcelIcon} alt='icon'></Image>
                 </div>
                 <h3>
                   Future-proofing Excel Files 
