@@ -25,7 +25,7 @@ const SpreadhseetAutomation: NextPage = () => {
       <Head>
         <title>No-Code Spreadsheet Automation Software for Python | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Mito is a notebook-native Python library that enables simple, no-code spreadsheet automation with Pandas code generation and AI tools built in." />
+        <meta name="description" content="Mito is a notebook-native Python library that enables simple, no-code spreadsheet automation with Pandas code generation and AI tools built in. | Mito" />
       </Head>
       <Header/>
     

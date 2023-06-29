@@ -23,7 +23,7 @@ const PythonAITools: NextPage = () => {
       <Head>
         <title>AI Tools to Write Python Code | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Mito AI is a notebook-native library with a suite of AI tools for Python and Pandas. Generate, automate, validate, visualize and learn Python with Mito." />
+        <meta name="description" content="Mito AI is a notebook-native library with a suite of AI tools for Python and Pandas. Generate, automate, validate, visualize and learn Python with Mito. | Mito" />
       </Head>
       <Header/>
     
