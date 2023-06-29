@@ -15,7 +15,6 @@ import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import FAQCard from '../components/FAQCard/FAQCard';
-import { PRO_PLAN_ID } from './plans';
 
 const PythonAITools: NextPage = () => {
 
@@ -67,7 +66,7 @@ const PythonAITools: NextPage = () => {
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/mito_ai_prompt.png'} alt='Edit data using Mito AI' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
@@ -84,7 +83,7 @@ const PythonAITools: NextPage = () => {
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/mito_ai_code_generation.png'} alt='Generate code with Mito AI' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
@@ -101,7 +100,7 @@ const PythonAITools: NextPage = () => {
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/mito_ai_recon.png'} alt='Validate edits using Mito AI recon' width={500} height={200} layout='responsive'/>
               </div>
             </div>
 
@@ -118,7 +117,7 @@ const PythonAITools: NextPage = () => {
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/mito_ai_error_correction.png'} alt='Mito AI automatically fixes errors' width={500} height={300} layout='responsive'/>
               </div>
             </div>
         </section>

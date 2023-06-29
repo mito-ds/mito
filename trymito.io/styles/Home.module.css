@@ -67,10 +67,6 @@
   width: 100%;
 }
 
-.open_source_section_logos {
-  margin-top: 8rem !important;
-}
-
 .case_study_section {
   display: flex;
   flex-direction: column-reverse;

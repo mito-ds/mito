@@ -43,7 +43,7 @@ const SpreadhseetAutomation: NextPage = () => {
               <CTAButtons variant={'download'} align='left'/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only', 'margin-left-4rem-desktop-only')}>
-              <Image src={'/presentationReadyGraphs.png'} alt='Explore your data with Mito' width={1000} height={500}/>
+              <Image className={spreadsheetAutomationStyles.hero_image} src={'/pivot_table.png'} alt='Explore your data with Mito' width={1000} height={500}/>
             </div>
           </section>
 
@@ -101,16 +101,18 @@ const SpreadhseetAutomation: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card}>
-            <div className='center'>
+            <div className={classNames('center', spreadsheetAutomationStyles.automate_section_container)}>
               <h2>
-                Mito Makes it Easy to Automate with Python and Pandas
+                Mito is the easiset way to automate with Python and Pandas
               </h2>
+              <p>
+                Edit a spreadsheet. Generate Python.
+              </p>
+              <p>
+                Mito automatically converts each edit you make into Python code.
+                So you can create your analysis like you usually do in Excel, and use the Mito generated Python code to automate your analysis going forward. 
+              </p>
             </div>
-            <p>
-              Mito generates the equivalent Python code for every edit you make in the spreadsheet. 
-              So you can create your analysis like you usually do in Excel, and use the Mito generated Python code to automate your analysis going forward. 
-            </p>
-
             <div className={classNames(spreadsheetAutomationStyles.videoWrapper, 'margin-top-4rem')}>
               <div className={spreadsheetAutomationStyles.videoContainer}>
                 <iframe 

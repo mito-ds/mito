@@ -208,10 +208,7 @@ const Home: NextPage = () => {
               </div>
               <div className={pageStyles.subsection + ' ' + homeStyles.open_source_section_logos}>
                 <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
-                  <Image src={'/jupyter_main_logo.svg'} alt='jupyter logo' width={200} height={200}/>
-                </a>
-                <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-pandas' target='_blank' rel="noreferrer">
-                  <Image src={'/pandas_secondary_white.svg'} alt='pandas logo' width={200} height={200}/>
+                  <Image src={'/mito_and_jupyter.png'} alt='Mito supports Jupyter' width={800} height={600}/>
                 </a>
               </div>
           </section>

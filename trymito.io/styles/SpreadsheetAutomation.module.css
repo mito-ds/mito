@@ -13,6 +13,14 @@
     display: block;
 }
 
+.hero_image {
+    border-radius: 5px;
+}
+
+.automate_section_container {
+    max-width: 60rem;
+}
+
 .videoWrapper {
     display: flex;
     justify-content: center;
