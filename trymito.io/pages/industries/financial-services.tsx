@@ -53,7 +53,7 @@ const Security: NextPage = () => {
                         <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
                             <div className={classNames(pageStyles.subsection_column)}>
                                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                                    <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
+                                    <Image src={'/mito_generated_code.png'} alt='Large Data' width={1000} height={500}/>
                                 </div>
                                 <h3>
                                     A software solution for Adopting Python and Pandas
@@ -70,7 +70,7 @@ const Security: NextPage = () => {
                             </div>
                             <div className={classNames(pageStyles.subsection_column)}>
                                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                                    <Image src={'/custom_imports.png'} alt='Custom Import' width={1000} height={500}/>
+                                    <Image src={'/loans_pivot_table.png'} alt='Custom Import' width={1000} height={500}/>
                                 </div>
                                 <h3>
                                     Save hours a week with No-Code Spreadsheet Automation
@@ -87,7 +87,7 @@ const Security: NextPage = () => {
                             </div>
                             <div className={classNames(pageStyles.subsection_column)}>
                                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                                    <Image src={'/code.png'} alt='Mito Generated Code' width={1000} height={500}/>
+                                    <Image src={'/ides.png'} alt='Mito Generated Code' width={1000} height={500}/>
                                 </div>
                                 <h3>
                                     Add a spreadsheet interface to your existing Python infrastructure

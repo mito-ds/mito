@@ -36,10 +36,10 @@ const Footer = (): JSX.Element => {
                         Product
                     </ol>
                     <li className='text-nav'>
-                        <a href='/spreadsheet-automation' target="_blank" rel="noreferrer">Automation</a>
+                        <Link href='/spreadsheet-automation'>Automation</Link>
                     </li>
                     <li className='text-nav'>
-                        <a href='/python-ai-tools' target="_blank" rel="noreferrer">Mito AI</a>
+                        <Link href='/python-ai-tools'>Mito AI</Link>
                     </li>
                     <li className='text-nav'>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
@@ -52,6 +52,14 @@ const Footer = (): JSX.Element => {
                     </li>
                     <li className='text-nav'>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
+                    </li>
+                </div>
+                <div className='flex-column'>
+                    <ol>
+                        Industries
+                    </ol>
+                    <li className='text-nav'>
+                        <Link href='/industries/financial-services'>Financial Services</Link>
                     </li>
                 </div>
                 <div className='flex-column'>
