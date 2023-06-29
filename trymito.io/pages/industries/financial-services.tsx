@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import Header from '../../components/Header/Header';
 
 import titleStyles from '../../styles/Title.module.css';
@@ -202,7 +201,7 @@ const Security: NextPage = () => {
                                     Mito lets analysts start building Python spreadsheet automations from day one. Its the difference between starting day one of training with “Hello World” and a data reconciliation.
                                 </p>
                                 <p><b><i>
-                                    “We've trained thousands of analysts to use Mito. Mito is now half of our Python bootcamp.”
+                                    “We&apos;ve trained thousands of analysts to use Mito. Mito is now half of our Python bootcamp.”
                                     </i></b>
                                 </p>
                                 <p><b>

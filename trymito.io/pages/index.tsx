@@ -15,6 +15,7 @@ import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
 import { useEffect, useState } from 'react';
 import { classNames } from '../utils/classNames';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
 
@@ -97,9 +98,11 @@ const Home: NextPage = () => {
                 <p>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
-                <a href="/python-ai-tools" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn more about Mito AI →
-                </a>
+                <p className={pageStyles.link}>
+                  <Link href="/python-ai-tools" >
+                    Learn more about Mito AI →
+                  </Link>
+                </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
