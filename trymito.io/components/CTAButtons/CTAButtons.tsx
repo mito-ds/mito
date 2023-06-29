@@ -23,13 +23,10 @@ const CTAButtons = (props: {
                 />
             }
             {props.variant === 'try jupyterlite' && 
-                <div className={ctaButtons.multiple_button_container}>
-                    <TextButton 
-                        text='Try Mito'
-                        href={JUPYTERLITE_MITO_LINK}
-                    />
-                    <a className={ctaButtons.product_hunt_button} href="https://www.producthunt.com/posts/mito-ai?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-mito&#0045;ai" target="_blank" rel="noreferrer"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=398626&theme=light" alt="Mito&#0032;AI - Automate&#0032;Excel&#0032;reports&#0032;with&#0032;AI | Product Hunt" width="250" height="54"/></a>
-                </div>
+                <TextButton 
+                    text='Try Mito'
+                    href={JUPYTERLITE_MITO_LINK}
+                />
             }
             {props.variant === 'contact' && 
                 <TextButton 

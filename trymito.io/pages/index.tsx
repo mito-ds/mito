@@ -97,7 +97,7 @@ const Home: NextPage = () => {
                 <p>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
-                <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href="/python-ai-tools" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                   Learn more about Mito AI →
                 </a>
               </div>

@@ -36,13 +36,16 @@ const Footer = (): JSX.Element => {
                         Product
                     </ol>
                     <li className='text-nav'>
+                        <a href='/spreadsheet-automation' target="_blank" rel="noreferrer">Automation</a>
+                    </li>
+                    <li className='text-nav'>
+                        <a href='/python-ai-tools' target="_blank" rel="noreferrer">Mito AI</a>
+                    </li>
+                    <li className='text-nav'>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
                     <li className='text-nav'>
                         <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
-                    </li>
-                    <li className='text-nav'>
-                        <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
                         <Link href='/teams'>Teams</Link>
@@ -57,6 +60,9 @@ const Footer = (): JSX.Element => {
                     </ol>
                     <li className='text-nav'>
                         <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
+                    </li>
+                    <li className='text-nav'>
+                        <Link href='/security'>Security</Link>
                     </li>
                     <li className='text-nav'>
                         <a href='https://docs.trymito.io/misc/terms-of-service' target="_blank" rel="noreferrer">Terms</a>
