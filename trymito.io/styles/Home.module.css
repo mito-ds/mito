@@ -10,17 +10,6 @@
   border: 5px solid rgba(198, 169, 255, 0.25);
 }
 
-.functionality_media {
-  height: min-content;
-  display: block;
-  margin-top: 3rem;
-  margin-bottom: 10rem;
-}
-
-.functionality_media_supress_bottom_margin {
-  margin-bottom: 0rem;
-}
-
 .metrics_container {
   display: flex;
   flex-direction: column;
@@ -93,15 +82,6 @@
     max-width: 85vw;
     max-height: 40rem;
     padding: .5rem .5rem; 
-  }
-
-  .functionality_text {
-    max-width: 30rem;
-  }
-
-  .functionality_media {
-    margin: 0;
-    max-width: 45rem;
   }
 
   .metrics_container {

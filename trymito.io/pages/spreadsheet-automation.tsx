@@ -4,19 +4,16 @@ import Image from 'next/image';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
-import securityStyles from '../styles/Security.module.css';
+import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import titleStyles from '../styles/Title.module.css';
 import trifoldStyles from '../styles/Trifold.module.css';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import ComputerIcon from '../public/icon-squares/ComputerIcon.svg';
-import ReconIcon from '../public/icon-squares/ReconIcon.svg';
-import ExcelIcon from '../public/icon-squares/ExcelIcon.svg';
-import ReportIcon from '../public/icon-squares/ReportIcon.svg';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
+import Link from 'next/link';
 
 const SpreadhseetAutomation: NextPage = () => {
 
@@ -44,6 +41,44 @@ const SpreadhseetAutomation: NextPage = () => {
             </div>
             <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only', 'margin-left-4rem-desktop-only')}>
               <Image className={spreadsheetAutomationStyles.hero_image} src={'/pivot_table.png'} alt='Explore your data with Mito' width={1000} height={500}/>
+            </div>
+          </section>
+
+          <section>
+            <div className={pageStyles.subsection}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+              </div>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  The easiest way to <span className='text-highlight'>write Python code</span>
+                </h1>
+                <p>
+                  Every edit made in the Mito spreadsheet is automatically converted to Python code. 
+                </p>
+                <p>
+                  Edit your data just like you do in Excel and receive production ready Python code without searching Pandas documentation or Stack Overflow.
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
+            <div className={pageStyles.subsection}>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  <span className='text-highlight'>Explore</span> your data visually
+                </h1>
+                <p> 
+                  There&apos;s no replacement for scrolling through your data. Enter fullscreen mode and build intuition about your analysis.
+                </p>
+                <p>
+                  Use Mito&apos;s Excel-like interface to view CSV/Excel files and dataframes. And further explore your data by graphing, viewing summary stats, and creating pivot tables.
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+              </div>
             </div>
           </section>
 
@@ -127,87 +162,6 @@ const SpreadhseetAutomation: NextPage = () => {
             </div>
           </section>
 
-
-          <section className={pageStyles.gradient_card}>
-            <div className={classNames(pageStyles.subsection, 'center')}>
-              <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem')}>
-                Spreadsheet Automation Use Cases
-              </h2>
-            </div>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={ReconIcon} alt='icon'></Image>
-                </div>
-                <h3>
-                  Reconciliation
-                </h3>
-                <p>
-                  Performing end of quarter data reconciliation processes in Excel pushes back quarter close by up to 15 days.
-                </p>
-                <p>
-                  Mito uses Python to connect directly to your data sources and perform the recon, so you can refresh your recon in seconds not hours. 
-                </p>
-                <p>
-                  Not having to wait hours to check the status of the recon means you can close the loop with your reconciliation partners faster. Close your books and get a head start on the next quarter.
-                </p>
-              </div>
-              <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={ReportIcon} alt='icon'></Image>
-                </div>
-                <h3>
-                  Reporting
-                </h3>
-                <p>
-                  Building reports for management is never one and done. They&apos;re always going to want you pull the most recent data and update the formatting of tables. 
-                </p>
-                <p>
-                  Updating your report in Mito is as easy as clicking “Run All”. It will pull the most up to date data, refresh your analysis, and spit out the updated Excel file. 
-                </p>
-                <p>
-                  Refreshing a report that quickly means you can build a report 10 minutes before a meeting with the most up to date data instead of building it the night before. 
-                </p>
-              </div>
-            </div>
-            <div className={pageStyles.subsection}>
-              <div className={securityStyles.security_bullet_container}>
-                <div className={securityStyles.icon}>
-                  <Image  src={ComputerIcon} alt='icon'></Image>
-                </div>
-                <h3>
-                  Large Data Analysis
-                </h3>
-                <p>
-                  When you get a dump of 5 million rows of data, use Mito to analyze the data yourself instead of waiting for a supporting data scientist to aggregate the data for you.
-                </p>
-                <p>
-                  Even in the highest functioning orgs, waiting for a supporting data scientst adds a full day of overhead to your analysis. 
-                </p>
-                <p>
-                  Getting access to large datasets should increase the quality of your analysis, not decrease it. That requires the subject matter expert to analyze the data.
-                </p>
-              </div>
-              <div className={pageStyles.subsection_second_element_mobile_spacing}>
-                <div className={securityStyles.icon}>
-                  <Image className={securityStyles.icon} src={ExcelIcon} alt='icon'></Image>
-                </div>
-                <h3>
-                  Future-proofing Excel Files 
-                </h3>
-                <p>
-                  Teams have gotten away with treating Excel files as databases for the last 10 years. 
-                  Now these files are on the brink of failure because they hold too much data.
-                </p>
-                <p>
-                  Mito lets your team prep the data using the same Excel process they&apos;ve used for the past 10 years, and push the data directly into a database. 
-                </p>
-                <p>
-                  Not relying on Excel files that need end of life care means your team can focus on decision making.
-                </p>
-              </div>
-            </div>
-          </section>
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
           </section>
