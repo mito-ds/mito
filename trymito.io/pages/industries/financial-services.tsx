@@ -40,7 +40,7 @@ const Security: NextPage = () => {
                         <p className={titleStyles.description}>
                             The world&apos;s largest financial institutions are already using Mito to automate their spreadsheets.
                         </p>
-                        <CTAButtons variant={'download'} align='left'/>
+                        <CTAButtons variant={'download'} align='center'/>
                     </section>
 
                     <section>

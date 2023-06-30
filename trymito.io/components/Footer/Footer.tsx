@@ -4,6 +4,7 @@ import footerStyle from './Footer.module.css'
 import pageStyle from '../../styles/Page.module.css'
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
 import { JOBS_BOARD_LINK, MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
+import { classNames } from '../../utils/classNames';
 
 const Footer = (): JSX.Element => {
 
@@ -31,7 +32,7 @@ const Footer = (): JSX.Element => {
             </div>
             
             <div className={footerStyle.site_map_container}>
-                <div className='flex-column'>
+                <div className={classNames('flex-column')}>
                     <ol>
                         Product
                     </ol>
@@ -54,7 +55,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
-                <div className='flex-column'>
+                <div className={classNames('flex-column', footerStyle.site_map_column_two)}>
                     <ol>
                         Industries
                     </ol>
@@ -62,7 +63,7 @@ const Footer = (): JSX.Element => {
                         <Link href='/industries/financial-services'>Financial Services</Link>
                     </li>
                 </div>
-                <div className='flex-column'>
+                <div className={classNames('flex-column', footerStyle.site_map_column_three)}>
                     <ol>
                         Resources
                     </ol>
@@ -85,7 +86,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
                     </li>
                 </div>
-                <div className='flex-column'>
+                <div className={classNames('flex-column', footerStyle.site_map_column_four)}>
                     <ol>
                         Company
                     </ol>

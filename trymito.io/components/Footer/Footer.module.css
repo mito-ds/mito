@@ -8,6 +8,25 @@
     margin-right: 2rem;
 }
 
+/* 
+    On Mobile the site map is layed out in a 2x2 grid, so we only 
+    apply left margins to the second and fourth columns.
+*/
+.site_map_column_two, 
+.site_map_column_four {
+    margin-left: 8rem;
+}
+
+/* 
+    On Mobile the site map is layed out in a 2x2 grid, so we only 
+    apply top margins to the third and fourth columns.
+*/
+.site_map_column_three,
+.site_map_column_four {
+    margin-top: 8rem;
+}
+
+
 .footer_container p,
 .footer_link a {
     margin-top: 1rem;
@@ -18,10 +37,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     margin-top: 4rem;
-}
-
-.site_map_container > * + * {
-    margin-left: 5rem;
 }
 
 .footer_container ol {
@@ -52,6 +67,17 @@
         flex-direction: row;
         justify-content: space-between;
         margin: 0rem 2rem;
+    }
+
+    /* 
+        On Desktop the site map is layed out in a 4x1 grid, so we apply 
+        left margins to the second, third and fourth columns.
+    */
+    .site_map_column_two, 
+    .site_map_column_three,
+    .site_map_column_four {
+        margin-left: 4rem;
+        margin-top: 0rem;
     }
 
     .footer_container h1 {

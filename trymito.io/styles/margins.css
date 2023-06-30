@@ -46,6 +46,14 @@
     margin-left: 3rem;
 }
 
+.margin-left-4rem {
+    margin-left: 4rem;
+}
+
+.margin-left-5rem {
+    margin-left: 4rem;
+}
+
 .margin-top-2rem-mobile-only {
     margin-top: 2rem;
 }
@@ -82,7 +90,6 @@
     margin-left: 3rem;
 }
 
-
 @media only screen and (min-width: 50em) {
 
     .margin-top-2rem-mobile-only,
@@ -109,6 +116,10 @@
 
     .margin-left-4rem-desktop-only {
         margin-left: 4rem;
+    }
+
+    .margin-left-5rem-desktop-only {
+        margin-left: 5rem;
     }
 
     .margin-left-8rem-desktop-only {
