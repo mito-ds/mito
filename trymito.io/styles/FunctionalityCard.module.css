@@ -1,0 +1,45 @@
+.card_container {
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.selected_card {
+    background-color: var(--color-background);
+}
+
+.title_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.subtext {
+    font-size: 1rem;
+}
+
+.functionality_icon {
+    height: min-content;
+    display: block;
+    margin-right: .5rem;
+}
+
+.image_container {
+    margin: auto;
+}
+
+
+@media only screen and (min-width: 50em) {
+    
+    .subtext { 
+        margin-top: .5rem;
+        font-size: .9rem;
+    }
+
+    .cards_container {
+        max-width: 25rem;
+    }
+}

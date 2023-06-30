@@ -7,15 +7,27 @@ import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import titleStyles from '../styles/Title.module.css';
 import trifoldStyles from '../styles/Trifold.module.css';
+import functionalityCardStyles from '../styles/FunctionalityCard.module.css';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
-// Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
+import PivotTableIcon from '../public/step-icons/PivotTableIcon.svg';
+import GraphIcon from '../public/step-icons/GraphIcon.svg';
+import FunctionIcon from '../public/step-icons/FunctionIcon.svg';
+import SettingsIcon from '../public/step-icons/SettingsIcon.svg';
+import ImportIcon from '../public/step-icons/ImportIcon.svg';
+import FilterIcon from '../public/step-icons/FilterIcon.svg';
+
 import Link from 'next/link';
+import { useState } from 'react';
+
+
 
 const SpreadhseetAutomation: NextPage = () => {
+
+  const [selectedFunctionalityCard, setSelectedFunctinoalityCard] = useState<number>(0);
 
   return (
     <>
@@ -79,6 +91,151 @@ const SpreadhseetAutomation: NextPage = () => {
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
+            </div>
+          </section>
+
+          <section className={pageStyles.background_card}>
+
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
+              <h2>
+                All of the components you need for your analysis, built to generate Python code
+              </h2>
+              <p>
+                We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to. Keep using the tools you&apos;re most comfortable with, and automatically generate reusable Python code.
+              </p>
+            </div>
+            <div className={classNames(pageStyles.subsection)}>
+              <div className={classNames(functionalityCardStyles.cards_container)}>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 0})}
+                  onClick={() => setSelectedFunctinoalityCard(0)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={PivotTableIcon} alt='Pivot Table Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Pivot Tables
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Aggregate your large data to pull out the essential insights. 
+                    </p>
+                  </div>
+                </div>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 1})}
+                  onClick={() => setSelectedFunctinoalityCard(1)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={GraphIcon} alt='Graph Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Graphs & Visualizations
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Build beautiful, interactive graphs and apply conditional formatting to tables.
+                    </p>
+                  </div>
+                </div>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 2})}
+                  onClick={() => setSelectedFunctinoalityCard(2)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={FunctionIcon} alt='Function Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Excel-like formulas
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Use formulas like, <i>IF</i>, <i>SUM</i>, and <i>MID</i> to transform your data.
+                    </p>
+                  </div>
+                </div>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 3})}
+                  onClick={() => setSelectedFunctinoalityCard(3)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={FilterIcon} alt='Filter Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Filter and sort
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Sort and filter data based on simple or complex conditions so you can focus on the data that matters.
+                    </p>
+                  </div>
+                </div>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 4})}
+                  onClick={() => setSelectedFunctinoalityCard(4)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={ImportIcon} alt='Import Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Database Connections
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Use Mito&apos;s Snowflake query builder to generate SQL without writing any code. 
+                    </p>
+                  </div>
+                </div>
+                <div 
+                  className={classNames(functionalityCardStyles.card_container, {[functionalityCardStyles.selected_card] : selectedFunctionalityCard === 5})}
+                  onClick={() => setSelectedFunctinoalityCard(5)}
+                >
+                  <div className={classNames(functionalityCardStyles.title_container)}>
+                    <div className={functionalityCardStyles.functionality_icon}>
+                      <Image src={SettingsIcon} alt='Settings Icon' width={20} height={20}/>
+                    </div>
+                    <h3 className={functionalityCardStyles.title_text}>
+                      Customizable
+                    </h3>
+                  </div>
+                  <div>
+                    <p className={functionalityCardStyles.subtext}>
+                      Make your org&apos;s custom functions, graph templates, and database connections accessible through Mito.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className={functionalityCardStyles.image_container}>
+                {selectedFunctionalityCard === 0 &&
+                  <Image src={'/pivot_table_vertical.png'} alt='Pivot Tables in Mito' width={517} height={560}/>
+                }
+                {selectedFunctionalityCard === 1 &&
+                  <Image src={'/visualizations_vertical.png'} alt='Visualizations in Mito' width={517} height={560}/>
+                }
+                {selectedFunctionalityCard === 2 &&
+                  <Image src={'/formulas_vertical.png'} alt='Formulas in Mito' width={517} height={560}/>
+                }
+                {selectedFunctionalityCard === 3 &&
+                  <Image src={'/filter_vertical.png'} alt='Filter in Mito' width={517} height={560}/>
+                }
+                {selectedFunctionalityCard === 4 &&
+                  <Image src={'/snowflake_vertical.png'} alt='Snowflake in Mito' width={578} height={578}/>
+                }
+                {selectedFunctionalityCard === 5 &&
+                  <Image src={'/customization_vertical.png'} alt='Customization in Mito' width={528} height={640}/>
+                }
+              </div>
+              
             </div>
           </section>
 

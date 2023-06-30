@@ -124,21 +124,21 @@ button {
 
 h1 {
   color: var(--color-text-primary);
-  font-size: 3.75rem;
+  font-size: 3rem;
   font-family: Graphik;
   font-style: semibold;
 }
 
 h2 {
   color: var(--color-text-primary);
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-family: Graphik;
   font-style: semibold;
 }
 
 h3 {
   color: var(--color-text-primary);
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-family: Graphik;
   font-style: semibold;
 }
@@ -189,19 +189,19 @@ a {
   }
 
   h1 {
-    font-size: 3rem;
-  }
-
-  h2 {
     font-size: 2.5rem;
   }
 
-  h3 {
+  h2 {
     font-size: 2rem;
   }
 
+  h3 {
+    font-size: 1.5rem;
+  }
+
   p, a {
-    font-size: 1.375rem;
+    font-size: 1rem;
     line-height: 1.25;
   }
 
