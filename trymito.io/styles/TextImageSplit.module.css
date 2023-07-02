@@ -18,7 +18,7 @@
     }
 
     .functionality_media {
-        margin: auto;
+        margin-top: 0rem;
         max-width: 45rem;
     }
 }

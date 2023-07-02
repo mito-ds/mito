@@ -58,10 +58,10 @@ const SpreadhseetAutomation: NextPage = () => {
             </div>
           </section>
 
-          <section className={spreadsheetAutomationStyles.math_baground}>
+          <section className={textImageSplitStyles.text_image_section_container}>
             <div className={pageStyles.subsection}>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
-                <Image src={'/code_snippet.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/code_snippet.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
                 <h1>
@@ -74,8 +74,8 @@ const SpreadhseetAutomation: NextPage = () => {
                   Edit your data just like you do in Excel and receive production ready Python code without searching Pandas documentation or Stack Overflow.
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only')}>
-                <Image src={'/code_snippet.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+                <Image src={'/code_snippet.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
               </div>
             </div>
             <div className={pageStyles.subsection}>
@@ -100,7 +100,7 @@ const SpreadhseetAutomation: NextPage = () => {
 
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
               <h2>
-                All of the components you need for your analysis, built to generate Python code
+                All of the components you need, built to generate Python code
               </h2>
               <p>
                 We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to. Keep using the tools you&apos;re most comfortable with, and automatically generate reusable Python code.

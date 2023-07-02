@@ -60,7 +60,7 @@ const Home: NextPage = () => {
           </section>
 
           <section>
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h1>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
@@ -87,8 +87,8 @@ const Home: NextPage = () => {
               </div>
             </div>
           
-            <div className={pageStyles.subsection}>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
@@ -109,7 +109,7 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h1>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>
@@ -122,7 +122,7 @@ const Home: NextPage = () => {
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Get started with Mito in seconds. It&apos;s easy as &nbsp;
+                  Get started with Mito in seconds. It&apos;s easy as: <br></br><br></br>
                   <span className='code-background' onClick={async () => {
                     // Copy to clickboard on click
                     await navigator.clipboard.writeText('pip install mitosheet');

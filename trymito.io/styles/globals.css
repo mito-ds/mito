@@ -173,6 +173,10 @@ a {
   display: block !important;
 }
 
+.display-mobile-only-inline-block {
+  display: inline-block !important;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -230,7 +234,8 @@ a {
   }
 
   .display-mobile-only,
-  .display-mobile-only-block {
+  .display-mobile-only-block,
+  .display-mobile-only-inline-block {
     display: none !important;
   }
 

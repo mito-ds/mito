@@ -50,12 +50,15 @@
     flex-grow: 1;
     height: 100%;
     margin-top: 4rem;
+    flex-direction: row;
+    text-align: center;
+    justify-content: center;
 }
 
 .hero_video_container video {
     flex: 1;
-    width: 100%;
-    height: auto;
+    width: auto;
+    max-height: 40rem;
     border-radius: 5px;
 }
 
@@ -74,5 +77,6 @@
 
     .hero_video_container {
         margin-top: 0;
+        margin-left: 4rem;
     }
 }
