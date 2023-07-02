@@ -51,15 +51,17 @@ const SpreadhseetAutomation: NextPage = () => {
               </p>
               <CTAButtons variant={'download'} align='left'/>
             </div>
-            <div className={classNames(spreadsheetAutomationStyles.image_display_block, 'margin-top-8rem-mobile-only', 'margin-left-4rem-desktop-only')}>
-              <Image className={spreadsheetAutomationStyles.hero_image} src={'/pivot_table.png'} alt='Explore your data with Mito' width={1000} height={500}/>
+            <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
+              <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                  <source src="/formula_writing.mp4" />
+              </video>
             </div>
           </section>
 
-          <section>
+          <section className={spreadsheetAutomationStyles.math_baground}>
             <div className={pageStyles.subsection}>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
-                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                <Image src={'/code_snippet.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
                 <h1>
@@ -72,8 +74,8 @@ const SpreadhseetAutomation: NextPage = () => {
                   Edit your data just like you do in Excel and receive production ready Python code without searching Pandas documentation or Stack Overflow.
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only')}>
+                <Image src={'/code_snippet.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
             <div className={pageStyles.subsection}>
@@ -89,7 +91,7 @@ const SpreadhseetAutomation: NextPage = () => {
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
           </section>
@@ -217,7 +219,7 @@ const SpreadhseetAutomation: NextPage = () => {
               </div>
               <div className={functionalityCardStyles.image_container}>
                 {selectedFunctionalityCard === 0 &&
-                  <Image src={'/pivot_table_vertical.png'} alt='Pivot Tables in Mito' width={517} height={560}/>
+                  <Image className={functionalityCardStyles.image} src={'/pivot_table_vertical.png'} alt='Pivot Tables in Mito' width={517} height={560}/>
                 }
                 {selectedFunctionalityCard === 1 &&
                   <Image src={'/visualizations_vertical.png'} alt='Visualizations in Mito' width={517} height={560}/>
@@ -235,7 +237,7 @@ const SpreadhseetAutomation: NextPage = () => {
                   <Image src={'/customization_vertical.png'} alt='Customization in Mito' width={528} height={640}/>
                 }
               </div>
-              
+
             </div>
           </section>
 
@@ -305,8 +307,8 @@ const SpreadhseetAutomation: NextPage = () => {
                 So you can create your analysis like you usually do in Excel, and use the Mito generated Python code to automate your analysis going forward. 
               </p>
             </div>
-            <div className={classNames(spreadsheetAutomationStyles.videoWrapper, 'margin-top-4rem')}>
-              <div className={spreadsheetAutomationStyles.videoContainer}>
+            <div className={classNames(spreadsheetAutomationStyles.video_wrapper, 'margin-top-4rem')}>
+              <div className={spreadsheetAutomationStyles.video_container}>
                 <iframe 
                   className={spreadsheetAutomationStyles.video}
                   src="https://www.youtube.com/embed/eF2QV4ymapk" 
