@@ -130,10 +130,10 @@ const PythonAITools: NextPage = () => {
                 </h2>
                 <p className={classNames('center')}>
                     <i>
-                      "I&apos;ve tried teaching myself Python with online classes before, but the material was so different from how I wanted to use Python at work that I didn&apos;t get much out of it.
+                      &quot;I&apos;ve tried teaching myself Python with online classes before, but the material was so different from how I wanted to use Python at work that I didn&apos;t get much out of it.
                       Mito AI let me learn Python by doing my job. 
                       I was able to automate my work using Mito, and it showed me how to do the same thing in Python. 
-                      I found that pattern matching prompts to generated code is a great way to learn."
+                      I found that pattern matching prompts to generated code is a great way to learn.&quot;
                     </i>
                 </p>
                 <p className={classNames('center')}> 
