@@ -108,6 +108,12 @@ const Header = (): JSX.Element => {
             <nav>
               <ul>
                 <li className='highlight-on-hover'>
+                  <Link href='/spreadsheet-automation'>Mito Spreadsheet</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/python-ai-tools'>Mito AI</Link>
+                </li>
+                <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='highlight-on-hover'>
