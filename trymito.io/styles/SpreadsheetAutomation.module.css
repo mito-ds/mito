@@ -59,6 +59,7 @@
     flex: 1;
     width: auto;
     max-height: 40rem;
+    max-width: 100%;
     border-radius: 5px;
 }
 

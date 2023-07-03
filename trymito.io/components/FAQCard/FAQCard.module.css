@@ -23,11 +23,11 @@
 }
 
 .faq_card_container li {
-    color: var(--color-text-secondary);
+    /* Ensures that the 1. 2. 3. included in the list */
+    list-style-position: inside;
 }
 
-.faq_card_container p:first-of-type,
-.faq_card_container li:first-of-type {
+.faq_card_container *:first-child {
     margin-top: 0;
 }
 
