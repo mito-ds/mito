@@ -22,15 +22,7 @@
     cursor: pointer;
 }
 
-.faq_card_container h1 {
-    font-size: 2rem;
-}
-
 .faq_card_container li {
-    font-size: 2rem;
-    line-height: 1.5;
-    margin-top: 3rem;
-    margin-left: 3rem;
     color: var(--color-text-secondary);
 }
 
@@ -50,7 +42,6 @@
     }
 
     .faq_card_container li {
-        font-size: 1.375rem;
         line-height: 1.25;
         margin-top: 2rem;
         margin-left: 2rem;

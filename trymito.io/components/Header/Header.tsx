@@ -23,10 +23,13 @@ const Header = (): JSX.Element => {
                 <Image src="/Mito.svg" alt="Mito Logo" width={50} height={30}/>
               </a>
             </Link>
-            <nav className={classNames(headerStyles.desktop_menu_items, 'display-desktop-only-inline-block')}>
+            <nav className={classNames(headerStyles.desktop_menu_items, 'display-desktop-only-flex')}>
               <ul className={classNames(headerStyles.nav_item)}>
                 <li className={classNames('highlight-on-hover', headerStyles.dropdown_container)}>
-                  Product 
+                  <span>Product </span>
+                  <div className={headerStyles.dropdown_anchor_container}>
+                    <Image src={'/down-anchor.svg'} alt='Dropdown indicator' width={16} height={6} />
+                  </div>
                   <ul className={headerStyles.dropdown}>
                     <li className={classNames(headerStyles.dropdown_item)}>
                       <div className={classNames('highlight-on-hover', headerStyles.dropdown_item_row)}>
@@ -46,7 +49,7 @@ const Header = (): JSX.Element => {
                       </div>
                       <div className={classNames(headerStyles.dropdown_item_row)}>
                         <p className={headerStyles.dropdown_item_subtext}>
-                          AI tools for report automation
+                          Automate your report with a Python expert.
                         </p>
                       </div>
                     </li>

@@ -44,7 +44,7 @@ const SpreadhseetAutomation: NextPage = () => {
           <section className={classNames(titleStyles.title_card, pageStyles.background_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
             <div className={spreadsheetAutomationStyles.title_text_container}>
               <h1>
-                The No-Code tool approach to Spreadsheet Automation 
+                The No-Code Approach to Spreadsheet Automation 
               </h1>
               <p>
                 Automate your spreadsheets in hours, not months.

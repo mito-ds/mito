@@ -89,8 +89,12 @@
 
     .desktop_left_nav_bar li,
     .desktop_left_nav_bar div {
-        /* Turns the list horizontal instead of vertical default */
-        display: inline;
+        /* 
+            Turns the list horizontal instead of vertical default.
+            Using inline-block instead of just inline makes the nav dropdown
+            hover triggers work properly
+        */
+        display: inline-block;
         line-height: 1.375rem;
         margin-top: 0;
     }
@@ -114,9 +118,9 @@
         flex-direction: column;
         text-align: start;
         position: absolute;
-        z-index: 1000;
+        z-index: 1;
         background-color: var(--color-background);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
         padding: 1rem 1rem;
         border-radius: 5px;
     }
@@ -162,7 +166,6 @@
     .dropdown_container:hover .dropdown, 
     .dropdown:hover {
         display: flex;
-        transition-delay:1s;
     }
 
     .dropdown > * + * {
@@ -173,4 +176,11 @@
         margin-left: 2.5rem;
     }
 
+    .dropdown_anchor_container > span {
+        /* 
+            Since the image tag comes with a default margin, 
+            we need to apply !important to apply our own margins
+        */ 
+        margin-bottom: 2px !important;
+    }
 }

@@ -40,8 +40,8 @@ const PythonAITools: NextPage = () => {
               </p>
               <CTAButtons variant={'download'} align='left'/>
             </div>
-            <div className={classNames(spreadsheetAutomationStyles.videoWrapper, 'margin-top-8rem-mobile-only', 'margin-left-8rem-desktop-only')}>
-                <div className={spreadsheetAutomationStyles.videoContainer}>
+            <div className={classNames(spreadsheetAutomationStyles.video_wrapper, 'margin-top-8rem-mobile-only', 'margin-left-8rem-desktop-only')}>
+                <div className={spreadsheetAutomationStyles.video_container}>
                     <iframe 
                         className={spreadsheetAutomationStyles.video}
                         src="https://www.youtube.com/embed/ZX2AtIvYdRE" 
@@ -55,7 +55,7 @@ const PythonAITools: NextPage = () => {
           </section>
 
           <section>
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                     Python AI Tools for <span className='text-highlight'>Data Science</span>
@@ -70,7 +70,7 @@ const PythonAITools: NextPage = () => {
               </div>
             </div>
 
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                     Code <span className='text-highlight'>Generation</span>
@@ -87,7 +87,7 @@ const PythonAITools: NextPage = () => {
               </div>
             </div>
 
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                     <span className='text-highlight'>Validate AI</span> generated code with your data
@@ -104,7 +104,7 @@ const PythonAITools: NextPage = () => {
               </div>
             </div>
 
-            <div className={pageStyles.subsection}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                     Automatic <span className='text-highlight'> Error Correction </span>
@@ -129,13 +129,15 @@ const PythonAITools: NextPage = () => {
                     Learn Python with AI
                 </h2>
                 <p className={classNames('center')}>
-                    I&apos;ve tried teaching myself Python with online classes before, but the material was so different from how I wanted to use Python at work that I didn&apos;t get much out of it.
-                    Mito AI let me learn Python by doing my job. 
-                    I was able to automate my work using Mito, and it showed me how to do the same thing in Python. 
-                    I found that pattern matching prompts to generated code is a great way to learn. 
+                    <i>
+                      "I&apos;ve tried teaching myself Python with online classes before, but the material was so different from how I wanted to use Python at work that I didn&apos;t get much out of it.
+                      Mito AI let me learn Python by doing my job. 
+                      I was able to automate my work using Mito, and it showed me how to do the same thing in Python. 
+                      I found that pattern matching prompts to generated code is a great way to learn."
+                    </i>
                 </p>
                 <p className={classNames('center')}> 
-                    <i>— Kashvi, Associate @ bank.</i>
+                    — Kashvi, Bank Associate
                 </p>
             </div>
             <div className={pythonAIToolsStyles.case_study_headshot}>
@@ -184,15 +186,15 @@ const PythonAITools: NextPage = () => {
                 <p>
                     The data collected is also used to improve Mito AI. Such uses include: 
                     <ol className='margin-top-2rem'>
-                        <li className='margin-top-1rem'>
-                            Evaluating Mito AI to determine its effectiveness
-                        </li>
-                        <li className='margin-top-1rem'>
-                            Conducting research to improve Mito AI
-                        </li>
-                        <li className='margin-top-1rem'>
-                            Detecting potential abuse of Mito AI
-                        </li>
+                      <li className='margin-top-1rem'>
+                          Evaluating Mito AI to determine its effectiveness
+                      </li>
+                      <li className='margin-top-1rem'>
+                          Conducting research to improve Mito AI
+                      </li>
+                      <li className='margin-top-1rem'>
+                          Detecting potential abuse of Mito AI
+                      </li>
                     </ol>
                 </p>
                 </div>
@@ -201,8 +203,6 @@ const PythonAITools: NextPage = () => {
                 <div>
                 <p>
                     Mito AI uses OpenAI to generate code by default. Doing so requires sending your information to OpenAI. To further protect your data, Mito Enterprise users can connect Mito AI to a self-hosted large language model. As a result, Mito would not need to collect or share any information about your data with OpenAI. Your data will never leave your system. 
-                    
-                    
                 </p>
                 <p>
                     To learn more about this option, reach out to the <a href={"mailto:founders@sagacollab.com?subject=Enterprise AI"} className={pageStyles.link}>Mito Team</a>.

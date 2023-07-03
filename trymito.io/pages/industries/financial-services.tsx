@@ -193,7 +193,7 @@ const Security: NextPage = () => {
                             </h2>
                         </div>
                         <div className={pageStyles.subsection}>
-                            <div className={textImageSplitStyles.functionality_text}>
+                            <div className={classNames(textImageSplitStyles.functionality_text, 'margin-auto')}>
                                 <p> 
                                     The key to teaching analysts to program is having them learn while building Python scripts that are actually going to be valuable to them. 
                                 </p>

@@ -143,12 +143,12 @@ h3 {
   font-style: semibold;
 }
 
-p, a {
+p, a, li {
   font-size: 2rem;
   line-height: 1.5;
 }
 
-p {
+p, li {
   margin-top: 3rem;
   color: var(--color-text-secondary);
 }
@@ -204,7 +204,7 @@ a {
     font-size: 1.5rem;
   }
 
-  p, a {
+  p, a, li {
     font-size: 1rem;
     line-height: 1.25;
   }

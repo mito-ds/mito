@@ -25,9 +25,9 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
                     setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
                 }}
             >
-                <h1>
+                <h3>
                     {props.title}
-                </h1>
+                </h3>
                 <div>
                     <Image
                         src={imageSrc}
