@@ -84,21 +84,17 @@ export type AvailableSnowflakeOptionsAndDefaults = {
 
 const getNewParams = (
     prevParams: SnowflakeImportParams, 
-    role?: string | null, 
-    warehouse?: string | null,
-    database?: string | null, 
-    schema?: string | null, 
-    tableOrView?: string | null
+    newSnowflakeTableLocationAndWarehouse: SnowflakeTableLocationAndWarehouse
 ) => {
     const paramsCopy: SnowflakeImportParams = window.structuredClone(prevParams);
     const newParams = {
         ...paramsCopy, 
         'table_loc_and_warehouse': {
-            'role': role,
-            'warehouse': warehouse,
-            'database': database,
-            'schema': schema,
-            'table_or_view': tableOrView,
+            'role': newSnowflakeTableLocationAndWarehouse.role,
+            'warehouse': newSnowflakeTableLocationAndWarehouse.warehouse,
+            'database': newSnowflakeTableLocationAndWarehouse.database,
+            'schema': newSnowflakeTableLocationAndWarehouse.schema,
+            'table_or_view': newSnowflakeTableLocationAndWarehouse.table_or_view,
         },
         'query_params': {
             'columns': [],
@@ -225,7 +221,16 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newRole) => {
                                     // When the role changes, all other fields are reset to their defaults, including warehouse.
-                                    const newParams = getNewParams(params, newRole)
+                                    const newParams = getNewParams(
+                                        params, 
+                                        {
+                                            role: newRole,
+                                            warehouse: undefined,
+                                            database: undefined,
+                                            schema: undefined,
+                                            table_or_view: undefined
+                                        }
+                                    )
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
                             >
@@ -275,10 +280,14 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 disabled={loadingAvailableOptionsAndDefaults}
                                 onChange={(newDatabase) => {
                                     const newParams = getNewParams(
-                                        params, 
-                                        params.table_loc_and_warehouse.role, 
-                                        params.table_loc_and_warehouse.role, 
-                                        newDatabase
+                                        params,
+                                        {
+                                            role: params.table_loc_and_warehouse.role, 
+                                            warehouse: params.table_loc_and_warehouse.warehouse,
+                                            database: newDatabase,
+                                            schema: undefined,
+                                            table_or_view: undefined
+                                        } 
                                     )
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
@@ -305,10 +314,13 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 onChange={(newSchema) => {
                                     const newParams = getNewParams(
                                         params, 
-                                        params.table_loc_and_warehouse.role, 
-                                        params.table_loc_and_warehouse.warehouse, 
-                                        params.table_loc_and_warehouse.database,
-                                        newSchema
+                                        {
+                                            role: params.table_loc_and_warehouse.role, 
+                                            warehouse: params.table_loc_and_warehouse.warehouse,
+                                            database: params.table_loc_and_warehouse.database,
+                                            schema: newSchema,
+                                            table_or_view: undefined
+                                        } 
                                     );
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
@@ -335,11 +347,13 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                                 onChange={(newTableOrView) => {
                                     const newParams = getNewParams(
                                         params, 
-                                        params.table_loc_and_warehouse.role, 
-                                        params.table_loc_and_warehouse.warehouse,
-                                        params.table_loc_and_warehouse.database, 
-                                        params.table_loc_and_warehouse.schema, 
-                                        newTableOrView
+                                        {
+                                            role: params.table_loc_and_warehouse.role, 
+                                            warehouse: params.table_loc_and_warehouse.warehouse,
+                                            database: params.table_loc_and_warehouse.database,
+                                            schema: params.table_loc_and_warehouse.schema, 
+                                            table_or_view: newTableOrView
+                                        } 
                                     )
                                     setParamsAndRefreshOptionsAndDefaults(newParams)
                                 }}
