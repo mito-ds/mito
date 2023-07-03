@@ -36,22 +36,22 @@ const Footer = (): JSX.Element => {
                     <ol>
                         Product
                     </ol>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/spreadsheet-automation'>Automation</Link>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/python-ai-tools'>Mito AI</Link>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/teams'>Teams</Link>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
@@ -59,7 +59,7 @@ const Footer = (): JSX.Element => {
                     <ol>
                         Industries
                     </ol>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/industries/financial-services'>Financial Services</Link>
                     </li>
                 </div>
@@ -67,22 +67,22 @@ const Footer = (): JSX.Element => {
                     <ol>
                         Resources
                     </ol>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/security'>Security</Link>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://docs.trymito.io/misc/terms-of-service' target="_blank" rel="noreferrer">Terms</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://privacy.trymito.io/privacy-policy' target="_blank" rel="noreferrer">Privacy</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
                     </li>
                 </div>
@@ -90,19 +90,19 @@ const Footer = (): JSX.Element => {
                     <ol>
                         Company
                     </ol>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://blog.trymito.io'>Blog</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://twitter.com/tryMito' target="_blank" rel="noreferrer">Twitter</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://www.youtube.com/channel/UCN9o_0m1fwCjigfIpnKr0oA/videos' target="_blank" rel="noreferrer">YouTube</a>
                     </li>
-                    <li className='text-nav'>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Contact</a>
                     </li>
                 </div>

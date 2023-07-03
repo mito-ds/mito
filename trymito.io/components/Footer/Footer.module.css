@@ -61,6 +61,10 @@
     justify-content: center;
 }
 
+.nav_item:hover {
+    color: var(--color-purple) !important;
+}
+
 @media only screen and (min-width: 50em) {
 
     .footer_container {

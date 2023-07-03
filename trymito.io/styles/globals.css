@@ -263,17 +263,11 @@ a {
   Text styles
 */
 
-.text-nav {
-  color: var(--color-text-primary);
-  font-size: 1.25rem;
-  border-radius: 3px;
-}
-
-.text-nav:hover {
-  color: var(--color-purple);
-}
-
 .text-highlight {
+  color: var(--color-purple)
+}
+
+.highlight-on-hover:hover {
   color: var(--color-purple)
 }
 

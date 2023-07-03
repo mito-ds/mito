@@ -17,7 +17,6 @@
 .header li {
     list-style: none;
     color: var(--color-text-secondary);
-    font-size: 2rem;
     margin-top: 2rem;
 }
 
@@ -88,23 +87,91 @@
         align-items: center;
     }
 
-    .desktop_left_nav_bar li {
+    .desktop_left_nav_bar li,
+    .desktop_left_nav_bar div {
         /* Turns the list horizontal instead of vertical default */
         display: inline;
-        font-size: 1.375rem;
+        line-height: 1.375rem;
         margin-top: 0;
-    }
-
-    .desktop_left_nav_bar * + * {
-        margin-left: 2.5rem;
     }
 
     .desktop_menu_items {
         display: flex;
-        height: 1.75rem;
         flex-direction: row;
         justify-content: space-between;
         overflow-x: hidden;
         overflow-y: hidden;
     }
+
+    .dropdown_container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+    }
+
+    .dropdown {
+        display: none;
+        flex-direction: column;
+        text-align: start;
+        position: absolute;
+        z-index: 1000;
+        background-color: var(--color-background);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        padding: 1rem 1rem;
+        border-radius: 5px;
+    }
+
+    .dropdown_item {
+        display: flex !important;
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .dropdown_item:hover {
+        color: var(--color-purple) !important;
+    }
+
+    .dropdown_item_row {
+        font-size: .8rem;
+        display: flex !important;
+        flex-direction: row;
+        justify-content: flex-start;
+        width: 100%;
+        align-items: center;
+    }
+
+    .dropdown_item_row * + * {
+        margin-left: 1rem;
+    }
+
+    .dropdown_item_subtext {
+        margin-left: 0 !important;
+        margin-top: 0.5rem;
+        font-size: .7rem;
+    }
+
+    .dropdown li {
+        padding: 0;
+    }
+
+    .dropdown li + li {
+        margin-top: 1rem;
+    }
+
+    .dropdown_container:hover .dropdown, 
+    .dropdown:hover {
+        display: flex;
+        transition-delay:1s;
+    }
+
+    .dropdown > * + * {
+        margin-left: 0;
+    }
+
+    .nav_item {
+        margin-left: 2.5rem;
+    }
+
 }
