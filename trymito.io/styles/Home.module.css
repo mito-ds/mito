@@ -33,8 +33,9 @@
   margin: 3rem 0;
 }
 
-.gradient_text {
-  font-size: 10vw;
+.metric_number_text {
+  font-size: 5rem;
+  font-weight: bolder;
   background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
   background-clip: text;
   -webkit-background-clip: text;
@@ -90,7 +91,6 @@
   margin: 20px;
 }
 
-
 @media only screen and (min-width: 50em) {
 
   .video {
@@ -110,6 +110,7 @@
 
   .metrics_container {
     flex-direction: row;
+    flex-wrap: wrap;
   }
   
   .case_study_section {
@@ -119,11 +120,6 @@
   .case_study_text {
     max-width: 700px;
     margin: 20px;
-  }
-
-
-  .gradient_text {
-    font-size: 5vw;
   }
 
   .tweet_section {

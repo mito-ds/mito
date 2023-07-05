@@ -22,8 +22,9 @@
     cursor: pointer;
 }
 
-.faq_card_container h1 {
+.faq_card_header_text {
     font-size: 2rem;
+    color: white;
 }
 
 .faq_card_container p:first-of-type {
