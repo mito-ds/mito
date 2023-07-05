@@ -230,7 +230,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito open source?'>
               <div>
                 <p>
-                  Mito is an open source project, and the codebase is available on <a style={{textDecoration: 'underline'}} href='https://github.com/mito-ds/monorepo' target="_blank" rel="noreferrer">Github</a>.
+                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href='https://github.com/mito-ds/monorepo' target="_blank" rel="noreferrer">Github</a>.
                 </p>
                 <p>
                   Outside contributions are welcome and encouraged! 
@@ -240,7 +240,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito free?'>
               <div>
                 <p>
-                  Mito Open Source is free for usage. You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  Mito Open Source is free for usage. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
                 <p>
                   For indiviguals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling off all telemetry, and additional formatting and transformation options.
@@ -249,7 +249,7 @@ const Home: NextPage = () => {
                   For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
                 </p>
                 <p>
-                  See more at our <Link href='/plans'><a style={{textDecoration: 'underline'}}>plans page.</a></Link>
+                  See more at our <Link href='/plans'><a className={pageStyles.link}>plans page.</a></Link>
                 </p>
               </div>
             </FAQCard>
@@ -259,7 +259,7 @@ const Home: NextPage = () => {
                   Mito is an easily installable extension to JupyterLab.
                 </p>
                 <p>
-                  You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
               </div>
             </FAQCard>
