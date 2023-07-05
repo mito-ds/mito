@@ -246,7 +246,7 @@ const Home: NextPage = () => {
                   For individuals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
                 </p>
                 <p>
-                  For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
+                  For enterprises looking to accelerate Python adoption, Mito Enterprise includes advanced functionality like admin controls, database and LLM integrations, and training programs. 
                 </p>
                 <p>
                   See more at our <Link href='/plans'><a style={{textDecoration: 'underline'}}>plans page.</a></Link>
