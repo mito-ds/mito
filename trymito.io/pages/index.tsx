@@ -276,7 +276,7 @@ const Home: NextPage = () => {
             <FAQCard title='Can I used Python to view a spreadsheet?'>
               <div>
                 <p>
-                  Mito provided a spreadsheet interface from within your Python enviornment. 
+                  Mito provides a spreadsheet interface within your Python enviornment. 
                 </p>
                 <p>
                   You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert
