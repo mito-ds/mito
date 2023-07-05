@@ -256,7 +256,7 @@ const Home: NextPage = () => {
             <FAQCard title='How do I install Mito?'>
               <div>
                 <p>
-                  Mito is an easily installable extension to JupyterLab.
+                  Mito is a Jupyter extension that runs in JupyterLab, Jupyter notebooks, and JupyterHub.
                 </p>
                 <p>
                   You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
