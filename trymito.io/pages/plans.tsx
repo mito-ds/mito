@@ -676,7 +676,7 @@ const Plans: NextPage = () => {
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
                         <h3>
-                          Integrate with your data sources
+                          Integrate with <br/> data sources
                         </h3>
                         <p>
                           Connect to databases so users can import any data set without having to write custom pandas code.
