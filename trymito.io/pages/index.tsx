@@ -273,7 +273,7 @@ const Home: NextPage = () => {
                 </p>
               </div>
             </FAQCard>
-            <FAQCard title='Can I used Python to view a spreadsheet?'>
+            <FAQCard title='Can I use Python to view a spreadsheet?'>
               <div>
                 <p>
                   Mito provides a spreadsheet interface within your Python enviornment. 
