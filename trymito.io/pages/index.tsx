@@ -43,8 +43,8 @@ const Home: NextPage = () => {
               </h1>
 
               <h2 className={titleStyles.description}>
-                Analysts at the world&apos;s largest banks use 
-                saving themselves from hours of repetitive work.
+                Analysts at the world&apos;s largest banks  
+                save themselves from hours of repetitive work.
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
@@ -240,13 +240,13 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito free?'>
               <div>
                 <p>
-                  Mito Open Source is free for usage. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  Mito Open Source is free. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
                 <p>
-                  For indiviguals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling off all telemetry, and additional formatting and transformation options.
+                  For individuals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
                 </p>
                 <p>
-                  For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
+                  For enterprises looking to accelerate Python adoption, Mito Enterprise includes advanced functionality like admin controls, database and LLM integrations, and training programs. 
                 </p>
                 <p>
                   See more at our <Link href='/plans'><a className={pageStyles.link}>plans page.</a></Link>
@@ -256,14 +256,14 @@ const Home: NextPage = () => {
             <FAQCard title='How do I install Mito?'>
               <div>
                 <p>
-                  Mito is an easily installable extension to JupyterLab.
+                  Mito is a Jupyter extension that runs in JupyterLab, Jupyter notebooks, and JupyterHub.
                 </p>
                 <p>
                   You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
               </div>
             </FAQCard>
-            <FAQCard title='Can I used Mito to automate my spreadsheet tasks?'>
+            <FAQCard title='Can I use Mito to automate my spreadsheet tasks?'>
               <div>
                 <p>
                   Yes! Mito is designed to help you automate your spreadsheet tasks.
@@ -273,13 +273,13 @@ const Home: NextPage = () => {
                 </p>
               </div>
             </FAQCard>
-            <FAQCard title='Can I used Python to view a spreadsheet?'>
+            <FAQCard title='Can I use Python to view a spreadsheet?'>
               <div>
                 <p>
-                  Mito provided a spreadsheet interface from within your Python enviornment. 
+                  Mito provides a spreadsheet interface within your Python enviornment. 
                 </p>
                 <p>
-                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert
+                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert.
                 </p>
               </div>
             </FAQCard>
