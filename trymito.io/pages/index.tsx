@@ -279,7 +279,7 @@ const Home: NextPage = () => {
                   Mito provides a spreadsheet interface within your Python enviornment. 
                 </p>
                 <p>
-                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert
+                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert.
                 </p>
               </div>
             </FAQCard>
