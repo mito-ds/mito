@@ -34,7 +34,7 @@
 }
 
 .metric_number_text {
-  font-size: 10rem;
+  font-size: 5rem;
   font-weight: bolder;
   background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
   background-clip: text;
@@ -91,7 +91,6 @@
   margin: 20px;
 }
 
-
 @media only screen and (min-width: 50em) {
 
   .video {
@@ -121,11 +120,6 @@
   .case_study_text {
     max-width: 700px;
     margin: 20px;
-  }
-
-
-  .metric_number_text {
-    font-size: 5rem;
   }
 
   .tweet_section {

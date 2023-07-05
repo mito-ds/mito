@@ -627,9 +627,9 @@ const Plans: NextPage = () => {
                           <div className={iconAndTextCardStyles.icon}>
                               <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                           </div>
-                          <h3>
+                          <h2>
                               Shareable <br/> notebooks
-                          </h3>
+                          </h2>
                           <p>
                             Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
                           </p>
@@ -638,9 +638,9 @@ const Plans: NextPage = () => {
                           <div className={iconAndTextCardStyles.icon}>
                               <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                           </div>
-                          <h3>
+                          <h2>
                             On-prem <br/> AI
-                          </h3>
+                          </h2>
                           <p>
                             Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system.
                           </p>
@@ -651,9 +651,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                           Advanced <br/> formatting
-                        </h3>
+                        </h2>
                         <p>
                           Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
                         </p>
@@ -662,9 +662,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                             Script <br/> scheduling
-                        </h3>
+                        </h2>
                         <p>
                             Schedule scripts to run automatically to fully automate reports (coming soon)
                         </p>
@@ -675,9 +675,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                           Integrate with <br/> data sources
-                        </h3>
+                        </h2>
                         <p>
                           Connect to databases so users can import any data set without having to write custom pandas code.
                         </p>
@@ -686,9 +686,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                           Feature <br/> settings
-                        </h3>
+                        </h2>
                         <p>
                           Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. (coming soon)
                         </p>
@@ -699,9 +699,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                           Custom <br /> transformations
-                        </h3>
+                        </h2>
                         <p>
                           Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet. (coming soon)
                         </p>
@@ -710,9 +710,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h3>
+                        <h2>
                           Advanced <br/> analysis
-                        </h3>
+                        </h2>
                         <p>
                           Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. (coming soon)
                         </p>
