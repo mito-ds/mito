@@ -263,7 +263,7 @@ const Home: NextPage = () => {
                 </p>
               </div>
             </FAQCard>
-            <FAQCard title='Can I used Mito to automate my spreadsheet tasks?'>
+            <FAQCard title='Can I use Mito to automate my spreadsheet tasks?'>
               <div>
                 <p>
                   Yes! Mito is designed to help you automate your spreadsheet tasks.
