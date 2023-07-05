@@ -43,8 +43,8 @@ const Home: NextPage = () => {
               </h1>
 
               <h2 className={titleStyles.description}>
-                Analysts at the world&apos;s largest banks use 
-                saving themselves from hours of repetitive work.
+                Analysts at the world&apos;s largest banks  
+                save themselves from hours of repetitive work.
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
