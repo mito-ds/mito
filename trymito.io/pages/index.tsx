@@ -243,7 +243,7 @@ const Home: NextPage = () => {
                   Mito Open Source is free. You can install Mito by following the install instructions <a style={{textDecoration: 'underline'}} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
                 </p>
                 <p>
-                  For indiviguals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling off all telemetry, and additional formatting and transformation options.
+                  For individuals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
                 </p>
                 <p>
                   For enterprises looking to accelerate Python adoption, Mito Enterprise that includes advanced functionality including admin controls, database and LLM integrations, and training programs. 
