@@ -70,6 +70,11 @@ interface TextButtonProps {
         * @param [disabledTooltip] -- Message to display as tooltip when button is disabled 
     */
     disabledTooltip?: string
+
+    /**
+     * Boolean to indicate whether the button is showing error. Impacts color. 
+     */
+    error?: boolean;
 }
 
 /**
@@ -83,7 +88,7 @@ interface TextButtonProps {
 const TextButton = (props: TextButtonProps): JSX.Element => {
 
     // Create better default values to handle optional params 
-    const disabled = props.disabled === true  
+    const disabled = props.disabled === true || props.error === true
     const width = props.width || 'block'
     const className = props.className || ''
 

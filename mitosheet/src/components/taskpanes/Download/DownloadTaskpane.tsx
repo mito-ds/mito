@@ -102,6 +102,9 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray], 500)
 
     const onDownload = () => {
+        if (invalidFileNameWarning) {
+            return;
+        }
         void props.mitoAPI.log(
             'button_download_log_event',
             {
@@ -256,13 +259,14 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    disabled={exportString === '' }
+                    error={!!invalidFileNameWarning}
+                    disabled={!!invalidFileNameWarning || exportString === '' }
                     href={exportHRef} 
                     download={exportName}
                     onClick={onDownload}  
                 >
                     
-                    {exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                    {invalidFileNameWarning ? <>Invalid input.</> : exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
