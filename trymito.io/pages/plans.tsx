@@ -24,7 +24,7 @@ import ContactCTACard from '../components/CTACards/ContactCTACard'
 /* 
   Labels used to scroll to specific location of the page
 */
-const PRO_PLAN_ID = "pro-plan"
+export const PRO_PLAN_ID = "pro-plan"
 const PRIVATE_TELEMTRY_FAQ_ID = 'private-telemetry-faq'
 
 export type PlanType = 'Open Source' | 'Pro' | 'Enterprise';

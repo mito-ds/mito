@@ -22,7 +22,7 @@
     line-height: 1.5;
     margin: 0;
     line-height: 1.15;
-    font-size: 1.5rem;
+    font-size: 2rem;
     text-align: center;
     margin-top: 2rem;
     color: var(--color-text-secondary);
@@ -46,5 +46,6 @@
 
     .description {
         max-width: 50rem;
+        font-size: 1.5rem;
     }
 }

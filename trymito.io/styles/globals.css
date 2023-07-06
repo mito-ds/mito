@@ -124,31 +124,31 @@ button {
 
 h1 {
   color: var(--color-text-primary);
-  font-size: 3.75rem;
+  font-size: 3rem;
   font-family: Graphik;
   font-style: semibold;
 }
 
 h2 {
   color: var(--color-text-primary);
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-family: Graphik;
   font-style: semibold;
 }
 
 h3 {
   color: var(--color-text-primary);
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-family: Graphik;
   font-style: semibold;
 }
 
-p, a {
+p, a, li {
   font-size: 2rem;
   line-height: 1.5;
 }
 
-p {
+p, li {
   margin-top: 3rem;
   color: var(--color-text-secondary);
 }
@@ -173,6 +173,10 @@ a {
   display: block !important;
 }
 
+.display-mobile-only-inline-block {
+  display: inline-block !important;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -189,15 +193,19 @@ a {
   }
 
   h1 {
-    font-size: 3rem;
-  }
-
-  h2 {
     font-size: 2.5rem;
   }
 
-  p, a {
-    font-size: 1.375rem;
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  p, a, li {
+    font-size: 1rem;
     line-height: 1.25;
   }
 
@@ -226,7 +234,8 @@ a {
   }
 
   .display-mobile-only,
-  .display-mobile-only-block {
+  .display-mobile-only-block,
+  .display-mobile-only-inline-block {
     display: none !important;
   }
 
@@ -254,17 +263,11 @@ a {
   Text styles
 */
 
-.text-nav {
-  color: var(--color-text-primary);
-  font-size: 1.25rem;
-  border-radius: 3px;
-}
-
-.text-nav:hover {
-  color: var(--color-purple);
-}
-
 .text-highlight {
+  color: var(--color-purple)
+}
+
+.highlight-on-hover:hover {
   color: var(--color-purple)
 }
 
@@ -292,47 +295,6 @@ a {
   color: var(--jupyter-orange);
 }
 
-/* 
-  Margins
-*/
-
-.margin-top-2rem {
-  margin-top: 2rem;
-}
-
-.margin-top-3rem {
-  margin-top: 3rem;
-}
-
-.margin-top-4rem {
-  margin-top: 4rem;
-}
-
-.margin-top-8rem {
-  margin-top: 8rem;
-}
-
-.margin-bottom-2rem {
-  margin-bottom: 2rem;
-}
-
-.margin-bottom-3rem {
-  margin-bottom: 3rem;
-}
-
-.margin-top-3rem-mobile-only {
-  margin-top: 3rem;
-}
-
-.margin-left-2rem {
-  margin-left: 2rem;
-}
-
-.margin-left-3rem {
-  margin-left: 3rem;
-}
-
-
 .code-background {
   font-family: monospace;
   background-color: #D0D0D0;
@@ -345,11 +307,4 @@ a {
 
 .code-background:hover {
   background-color: var(--color-light-purple);
-}
-
-.toast-notification {
-  background-color: var(--color-purple);
-  color: var(--color-text-primary);
-  padding: .25rem .5rem;
-  border-radius: 2px;
 }

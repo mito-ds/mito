@@ -7,12 +7,14 @@ import Tweets from '../components/Tweets/Tweets';
 import homeStyles from '../styles/Home.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
+import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
 import { useEffect, useState } from 'react';
+import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
 
@@ -48,7 +50,7 @@ const Home: NextPage = () => {
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='try jupyterlite'/>
+                <CTAButtons variant='try jupyterlite' align='center'/>
               </div>
               
             <div id='video'>
@@ -59,8 +61,8 @@ const Home: NextPage = () => {
           </section>
 
           <section>
-            <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_text}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+              <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
@@ -81,36 +83,35 @@ const Home: NextPage = () => {
                   View all 100+ transformations →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
           
-            <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_media + ' display-desktop-only-inline-block'}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
-              <div className={homeStyles.functionality_text}>
+                <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                   <span className='text-highlight'>Transform</span> your data with AI
                 </h2>
-                <p className='display-mobile-only'>
+                <p>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
-                <p className='display-desktop-only-inline-block'>
-                  Describe your edits in plain english. The Mito AI assistant will write the code.
+                <p className={pageStyles.link}>
+                  <Link href="/python-ai-tools" >
+                    Learn more about Mito AI →
+                  </Link>
                 </p>
-                <a href="https://docs.trymito.io/how-to/ai-transformations" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Learn more about Mito AI →
-                </a>
               </div>
-              <div className={homeStyles.functionality_media + ' display-mobile-only-block'}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
 
-            <div className={pageStyles.subsection}>
-              <div className={homeStyles.functionality_text}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+              <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>
                 </h2>
@@ -122,7 +123,7 @@ const Home: NextPage = () => {
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
                 <p className='display-desktop-only-inline-block'>
-                  Get started with Mito in seconds. It&apos;s easy as &nbsp;
+                  Get started with Mito in seconds. It&apos;s easy as: <br></br><br></br>
                   <span className='code-background' onClick={async () => {
                     // Copy to clickboard on click
                     await navigator.clipboard.writeText('pip install mitosheet');
@@ -136,7 +137,7 @@ const Home: NextPage = () => {
                   Download Mito for Jupyter →
                 </a>
               </div>
-              <div className={homeStyles.functionality_media + ' ' + homeStyles.functionality_media_supress_bottom_margin}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -172,7 +173,7 @@ const Home: NextPage = () => {
             </div>
           </section>
 
-          <section className={pageStyles.background_card + ' ' + homeStyles.case_study_section}>
+          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section)}>
             <div>
               <h2 className={homeStyles.case_study_text}>
                 Enigma’s Director of Finance saves 16 hours per month with Mito
@@ -209,12 +210,9 @@ const Home: NextPage = () => {
                   We&apos;re proud to support important open source projects
                 </h2>
               </div>
-              <div className={pageStyles.subsection + ' ' + homeStyles.open_source_section_logos}>
+              <div className={classNames(pageStyles.subsection, homeStyles.open_source_section_logos)}>
                 <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
-                  <Image src={'/jupyter_main_logo.svg'} alt='jupyter logo' width={200} height={200}/>
-                </a>
-                <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-pandas' target='_blank' rel="noreferrer">
-                  <Image src={'/pandas_secondary_white.svg'} alt='pandas logo' width={200} height={200}/>
+                  <Image src={'/mito_and_jupyter.png'} alt='Mito supports Jupyter' width={800} height={600}/>
                 </a>
               </div>
           </section>

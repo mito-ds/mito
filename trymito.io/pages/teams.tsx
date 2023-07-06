@@ -6,6 +6,7 @@ import Header from '../components/Header/Header';
 import iconAndTextCardStyles from '../styles/IconAndTextCard.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
+import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import homeStyles from '../styles/Home.module.css'
 import teamsStyles from '../styles/Teams.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
@@ -44,12 +45,12 @@ const Teams: NextPage = () => {
                     Onboard in minutes, save your team days per month
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' />
+                    <CTAButtons variant='contact' align='center'/>
                 </div>
             </section>
             <section style={{marginTop: '4rem'}}>
                 <div className={pageStyles.subsection}>
-                    <div className={homeStyles.functionality_text}>
+                    <div className={textImageSplitStyles.functionality_text}>
                         <p>
                             <b className='text-primary'>Spreadsheet-first teams </b> use Mito to write Python code using the spreadsheet interface they know and love.
                         </p>
@@ -60,7 +61,7 @@ const Teams: NextPage = () => {
                             Contact the Mito team →
                         </a>
                     </div>
-                    <div className={homeStyles.functionality_media}>
+                    <div className={textImageSplitStyles.functionality_media}>
                         <Image src={'/explore.png'} alt='Explore your data with Mito' width={500} height={250} layout='responsive'/>
                     </div>
                 </div>

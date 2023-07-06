@@ -22,21 +22,33 @@
     cursor: pointer;
 }
 
+.faq_card_container li {
+    list-style-position: outside;
+    margin-left: 4rem;
+}
+
 .faq_card_header_text {
     font-size: 2rem;
     color: white;
 }
 
-.faq_card_container p:first-of-type {
+.faq_card_container *:first-child {
     margin-top: 0;
 }
+
 
 @media only screen and (min-width: 50em) { 
     .faq_card_container {
         max-width: 70rem;
     }
 
+    .faq_card_container li { 
+        margin-left: 2rem;
+    }
+
     .header {
         height: 70px;
     }
+
+    
 }

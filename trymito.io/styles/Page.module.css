@@ -65,6 +65,10 @@
         width: 90vw;
     }
 
+    .subsection_justify_baseline {
+        align-items: center;
+    }
+
     .subsection_column {
         flex-direction: column;
     }

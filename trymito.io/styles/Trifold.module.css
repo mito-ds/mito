@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.image_container {
+    flex-grow: 1;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+
+
+@media only screen and (min-width: 50em) {
+    .container {
+        flex-direction: row;
+        max-width: 80rem;
+    }
+}
+
