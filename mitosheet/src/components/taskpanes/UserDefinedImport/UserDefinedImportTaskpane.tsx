@@ -54,7 +54,7 @@ const getEmptyDefaultParamsForImporter = (
 
 const getParamTypeDisplay = (
     paramType: UserDefinedImporterParamType
-): string => {
+): string | undefined => {
     if (paramType === 'str') {
         return 'string'
     } else if (paramType == 'float') {
@@ -62,7 +62,7 @@ const getParamTypeDisplay = (
     } else if (paramType == 'int') {
         return 'int'
     } else {
-        return 'unknown'
+        return undefined;
     }
 }
 
@@ -172,11 +172,15 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                 // TODO: in the future, handle other types (e.g. booleans or Unions here)
                             }
 
+                            const typeSpan = getParamTypeDisplay(paramType) !== undefined 
+                                ? <>: <span>{getParamTypeDisplay(paramType)}</span> </> 
+                                : undefined
+
                             return (
                                 <Row justify='space-between' align='center' title='TODO'>
                                     <Col>
                                         <p>
-                                            <span className='text-header-3'>{paramName}</span>: <span>{getParamTypeDisplay(paramType)}</span> 
+                                            <span className='text-header-3'>{paramName}</span> {typeSpan}
                                         </p>
                                     </Col>
                                     <Col>
