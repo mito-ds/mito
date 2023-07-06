@@ -7,8 +7,9 @@ import MitoAPI from '../../../api/api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
+import { ColumnID, ExcelExportState, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../layout/Row';
+import Input from '../../elements/Input';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
@@ -76,7 +77,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
             const csvString = 'error' in response ? '' : response.result;
             setExportString(csvString);
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-            const response = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.sheetIndexes);
+            const response = await props.mitoAPI.getDataframesAsExcel((props.uiState.exportConfiguration as ExcelExportState).sheetIndexes);
             const excelString = 'error' in response ? '' : response.result;
             setExportString(excelString);
         }
@@ -109,7 +110,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
             [ exportString ],
             { type: 'text/csv' }
         ))
-        exportName = 'MitoExport.csv';
+        exportName = `${props.uiState.exportConfiguration.fileName ?? 'MitoExport'}.csv`;
     } else if (props.uiState.exportConfiguration.exportType === 'excel') {
         exportHRef = URL.createObjectURL(new Blob(
             /* 
@@ -119,7 +120,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
             [ Uint8Array.from(window.atob(exportString), c => c.charCodeAt(0)) ],
             { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
         ))
-        exportName = 'MitoExport.xlsx';
+        exportName = `${props.uiState.exportConfiguration.fileName ?? 'MitoExport'}.xlsx`;
     }
 
     return (
@@ -169,13 +170,35 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             />
                         </Select>
                     </Row>
-                    {props.uiState.exportConfiguration.exportType === 'excel' && 
+                    <Row justify='space-between' align='center'>
+                        <p className='text-header-3'>
+                            File Name
+                        </p>
+                        <Input
+                            value={props.uiState.exportConfiguration.fileName ?? ''}
+                            onChange={event => {
+                                console.log(event)
+                                props.setUIState((prevUiState => {
+                                    console.log(prevUiState)
+                                    return {
+                                        ...prevUiState,
+                                        exportConfiguration: {
+                                            ...prevUiState.exportConfiguration,
+                                            fileName: event.target.value
+                                        }
+                                    }
+                                }));
+                            }}
+                            placeholder='MitoExport'
+                        />
+                    </Row>
+                    { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <ExcelDownloadConfigSection 
                             dfNames={props.dfNames}
                             mitoAPI={props.mitoAPI}
                             userProfile={props.userProfile}
                             sheetDataArray={props.sheetDataArray}
-                            exportState={props.uiState.exportConfiguration}
+                            exportState={props.uiState.exportConfiguration as ExcelExportState}
                             setUIState={props.setUIState}
                             newlyFormattedColumns={newlyFormattedColumns}
                             setNewlyFormattedColumns={setNewlyFormattedColumns}

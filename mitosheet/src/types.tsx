@@ -825,8 +825,9 @@ export interface MitoStateUpdaters {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }
 
-export interface CSVExportState { exportType: 'csv' }
-export interface ExcelExportState { exportType: 'excel', sheetIndexes: number[] }
+export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' };
+export interface CSVExportState extends ExportState { exportType: 'csv' }
+export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
 export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'Code' | 'View' | 'Help';
 
@@ -854,7 +855,7 @@ export interface UIState {
     currOpenModal: ModalInfo;
     currOpenTaskpane: TaskpaneInfo;
     selectedColumnControlPanelTab: ControlPanelTab;
-    exportConfiguration: CSVExportState | ExcelExportState;
+    exportConfiguration: ExportState;
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
