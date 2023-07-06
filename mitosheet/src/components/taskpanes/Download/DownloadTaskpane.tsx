@@ -22,6 +22,18 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 
 
+const INVALID_CHARACTERS_IN_FILENAME = [
+    '\\',
+    '/',
+    '<',
+    '>',
+    ':',
+    '"',
+    '|',
+    '?',
+    '*',
+]
+
 interface DownloadTaskpaneProps {
     uiState: UIState
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -105,12 +117,16 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
 
     let exportHRef = '';
     let exportName = '';
+    let fileName = props.uiState.exportConfiguration.fileName;
+    if (!fileName || fileName === '') {
+        fileName = 'MitoExport';
+    }
     if (props.uiState.exportConfiguration.exportType === 'csv') {
         exportHRef = URL.createObjectURL(new Blob(
             [ exportString ],
             { type: 'text/csv' }
         ))
-        exportName = `${props.uiState.exportConfiguration.fileName ?? 'MitoExport'}.csv`;
+        exportName = `${fileName}.csv`;
     } else if (props.uiState.exportConfiguration.exportType === 'excel') {
         exportHRef = URL.createObjectURL(new Blob(
             /* 
@@ -120,8 +136,18 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
             [ Uint8Array.from(window.atob(exportString), c => c.charCodeAt(0)) ],
             { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
         ))
-        exportName = `${props.uiState.exportConfiguration.fileName ?? 'MitoExport'}.xlsx`;
+        exportName = `${fileName}.xlsx`;
     }
+
+
+    // Warn the user if they have some ending that is invalid
+    let invalidFileNameWarning: string | undefined = undefined;
+
+    INVALID_CHARACTERS_IN_FILENAME.forEach((char) => {
+        if (props.uiState.exportConfiguration.fileName?.includes(char)) {
+            invalidFileNameWarning= `The File Name cannot include ${char}`
+        }
+    })
 
     return (
         <DefaultTaskpane>
@@ -175,11 +201,10 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             File Name
                         </p>
                         <Input
+                            width='medium'
                             value={props.uiState.exportConfiguration.fileName ?? ''}
                             onChange={event => {
-                                console.log(event)
                                 props.setUIState((prevUiState => {
-                                    console.log(prevUiState)
                                     return {
                                         ...prevUiState,
                                         exportConfiguration: {
@@ -192,6 +217,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             placeholder='MitoExport'
                         />
                     </Row>
+                    { invalidFileNameWarning !== undefined && <Row justify='end' align='end'> <p className="text-color-error">{invalidFileNameWarning}</p> </Row> }
                     { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <ExcelDownloadConfigSection 
                             dfNames={props.dfNames}
