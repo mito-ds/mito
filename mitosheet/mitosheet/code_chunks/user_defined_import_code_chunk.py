@@ -15,9 +15,11 @@ def get_transpiled_importer_params(importer_params_and_type_and_value: Dict[str,
     for param_name, (param_type, param_value) in importer_params_and_type_and_value.items():
 
         if param_type == 'str':
-            param_strings.append(
-                f'{param_name}={column_header_to_transpiled_code(param_value)}'
-            )
+            param_strings.append(f'{param_name}={column_header_to_transpiled_code(param_value)}')
+        elif param_type == 'int':
+            param_strings.append(f'{param_name}={column_header_to_transpiled_code(int(param_value))}')
+        elif param_type == 'float':
+            param_strings.append(f'{param_name}={column_header_to_transpiled_code(float(param_value))}')
         else:
             param_strings.append(
                 f'{param_name}={param_value}'
