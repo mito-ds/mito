@@ -825,7 +825,7 @@ export interface MitoStateUpdaters {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }
 
-export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' };
+export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
