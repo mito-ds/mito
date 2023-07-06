@@ -24,7 +24,7 @@
 
 .faq_card_container li {
     list-style-position: outside;
-    margin-left: 2rem;
+    margin-left: 4rem;
 }
 
 .faq_card_header_text {
@@ -42,7 +42,13 @@
         max-width: 70rem;
     }
 
+    .faq_card_container li { 
+        margin-left: 2rem;
+    }
+
     .header {
         height: 70px;
     }
+
+    
 }

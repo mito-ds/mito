@@ -210,7 +210,7 @@ const Home: NextPage = () => {
                   We&apos;re proud to support important open source projects
                 </h2>
               </div>
-              <div className={pageStyles.subsection + ' ' + homeStyles.open_source_section_logos}>
+              <div className={classNames(pageStyles.subsection, homeStyles.open_source_section_logos)}>
                 <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
                   <Image src={'/mito_and_jupyter.png'} alt='Mito supports Jupyter' width={800} height={600}/>
                 </a>
