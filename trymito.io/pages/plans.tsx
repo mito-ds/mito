@@ -372,8 +372,9 @@ const Plans: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Mito | Plans </title>
+        <title>Pricing & Plans | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content=" Mito makes Python data science easier, with spreadsheet automation, code generation, and AI assistance. Check out plans and pricing for Mito." />
       </Head>
       
       <Header/>
@@ -391,9 +392,9 @@ const Plans: NextPage = () => {
             </section>
             <section className={plansStyles.plan_cards}>
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1 className={plansStyles.plan_card_header}>
+                <h2 className={plansStyles.plan_card_header}>
                   Open Source
-                </h1>
+                </h2>
                 <p className={plansStyles.price_text}>
                   $0
                 </p>
@@ -431,9 +432,9 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.gradient_card} id={PRO_PLAN_ID}>
-                <h1 className={plansStyles.plan_card_header}>
+                <h2 className={plansStyles.plan_card_header}>
                   Pro
-                </h1>
+                </h2>
                 <p className={plansStyles.price_text}>
                   $149.99 a month
                 </p>
@@ -471,9 +472,9 @@ const Plans: NextPage = () => {
               </div>
 
               <div className={plansStyles.plan_card + ' ' + pageStyles.background_card}>
-                <h1 className={plansStyles.plan_card_header}>
+                <h2 className={plansStyles.plan_card_header}>
                   Enterprise
-                </h1>
+                </h2>
                 <p className={plansStyles.price_text}>
                   Contact Us
                 </p>
@@ -514,9 +515,9 @@ const Plans: NextPage = () => {
 
             <section className={'display-mobile-only'}>
               <div className={pageStyles.subsection + ' flex-row'}>
-                <h1 className={plansStyles.features_in_text}>
+                <h2 className={plansStyles.features_in_text}>
                   Features in 
-                </h1>
+                </h2>
                 <div className='flex-column'>
                   <TranslucentButton
                     onClick={() => setDisplayDropdown(true)}
@@ -616,9 +617,9 @@ const Plans: NextPage = () => {
             </section>
 
             <section id='mito_pro_roadmap'>
-                <h1 className={titleStyles.title}>
+                <h2 className={titleStyles.title}>
                     Mito Pro & Enterprise Features
-                </h1>
+                </h2>
             </section>
             <section>
                   <div className={pageStyles.subsection}>
@@ -626,9 +627,9 @@ const Plans: NextPage = () => {
                           <div className={iconAndTextCardStyles.icon}>
                               <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                           </div>
-                          <h1>
+                          <h2>
                               Shareable <br/> notebooks
-                          </h1>
+                          </h2>
                           <p>
                             Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
                           </p>
@@ -637,9 +638,9 @@ const Plans: NextPage = () => {
                           <div className={iconAndTextCardStyles.icon}>
                               <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                           </div>
-                          <h1>
+                          <h2>
                             On-prem <br/> AI
-                          </h1>
+                          </h2>
                           <p>
                             Use a locally deployed large language model to power Mito AI, so you can be sure no data ever leaves your system.
                           </p>
@@ -650,9 +651,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                           Advanced <br/> formatting
-                        </h1>
+                        </h2>
                         <p>
                           Utilize Excel-like formatting and conditional formatting to make your analysis stand out.
                         </p>
@@ -661,9 +662,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                             Script <br/> scheduling
-                        </h1>
+                        </h2>
                         <p>
                             Schedule scripts to run automatically to fully automate reports (coming soon)
                         </p>
@@ -674,9 +675,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
-                          Integrate with your data sources
-                        </h1>
+                        <h2>
+                          Integrate with <br/> data sources
+                        </h2>
                         <p>
                           Connect to databases so users can import any data set without having to write custom pandas code.
                         </p>
@@ -685,9 +686,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                           Feature <br/> settings
-                        </h1>
+                        </h2>
                         <p>
                           Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. (coming soon)
                         </p>
@@ -698,9 +699,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                           Custom <br /> transformations
-                        </h1>
+                        </h2>
                         <p>
                           Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet. (coming soon)
                         </p>
@@ -709,9 +710,9 @@ const Plans: NextPage = () => {
                         <div className={iconAndTextCardStyles.icon}>
                             <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                         </div>
-                        <h1>
+                        <h2>
                           Advanced <br/> analysis
-                        </h1>
+                        </h2>
                         <p>
                           Go beyond basic data cleaning and analysis features with support for regressions, fuzzy matching and clustering. (coming soon)
                         </p>
@@ -731,9 +732,9 @@ const Plans: NextPage = () => {
             </section>
               
             <section >
-              <h1 className='center'>
+              <h2 className='center'>
                 Frequently Asked Questions
-              </h1>
+              </h2>
               <FAQCard title='What telemetry do we collect?' id={PRIVATE_TELEMTRY_FAQ_ID}>
                 <div>
                   <p>

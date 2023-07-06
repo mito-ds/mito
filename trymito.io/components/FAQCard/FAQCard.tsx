@@ -25,7 +25,7 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
                     setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
                 }}
             >
-                <h3>
+                <h3 className={faqCardStyles.faq_card_header_text}>
                     {props.title}
                 </h3>
                 <div>

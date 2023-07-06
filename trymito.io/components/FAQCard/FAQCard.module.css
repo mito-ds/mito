@@ -27,6 +27,11 @@
     list-style-position: inside;
 }
 
+.faq_card_header_text {
+    font-size: 2rem;
+    color: white;
+}
+
 .faq_card_container *:first-child {
     margin-top: 0;
 }
