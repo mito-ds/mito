@@ -14,10 +14,6 @@
     display: block;
 }
 
-.hero_image {
-    border-radius: 5px;
-}
-
 .automate_section_container {
     max-width: 60rem;
 }
@@ -70,6 +66,7 @@
         flex-direction: row;
         padding-top: 8rem;
         padding-bottom: 8rem;
+        justify-content: space-around;
     } 
 
     .title_text_container {
@@ -79,5 +76,10 @@
     .hero_video_container {
         margin-top: 0;
         margin-left: 4rem;
+        /* 
+            Make the hero_video_container have max-width of the video
+            so that outside margins of text and video is even
+        */
+        max-width: max-content;
     }
 }

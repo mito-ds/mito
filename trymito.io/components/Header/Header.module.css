@@ -132,7 +132,8 @@
         align-items: flex-start;
     }
 
-    .dropdown_item:hover {
+    .dropdown_item:hover div,
+    .dropdown_item:hover p {
         color: var(--color-purple) !important;
     }
 
@@ -150,7 +151,7 @@
     }
 
     .dropdown_item_subtext {
-        margin-left: 0 !important;
+        margin-left: 0;
         margin-top: 0.5rem;
         font-size: .7rem;
     }

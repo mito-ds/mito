@@ -308,10 +308,3 @@ a {
 .code-background:hover {
   background-color: var(--color-light-purple);
 }
-
-.toast-notification {
-  background-color: var(--color-purple);
-  color: var(--color-text-primary);
-  padding: .25rem .5rem;
-  border-radius: 2px;
-}

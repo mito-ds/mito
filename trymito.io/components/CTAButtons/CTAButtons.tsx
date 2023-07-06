@@ -37,7 +37,7 @@ const CTAButtons = (props: {
             
             <h2 className={ctaButtons.cta_subbutton}>
                 <Link href='/plans'>
-                    <a>
+                    <a className={ctaButtons.pro_cta_text}>
                         or see Pro plans →
                     </a>
                 </Link>

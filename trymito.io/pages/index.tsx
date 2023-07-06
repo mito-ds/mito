@@ -96,7 +96,7 @@ const Home: NextPage = () => {
                 <h2>
                   <span className='text-highlight'>Transform</span> your data with AI
                 </h2>
-                <p className='display-mobile-only'>
+                <p>
                   Describe your edits in plain english. The Mito AI assistant will write the code.
                 </p>
                 <p className={pageStyles.link}>

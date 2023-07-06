@@ -25,7 +25,7 @@ import { useState } from 'react';
 
 
 
-const SpreadhseetAutomation: NextPage = () => {
+const SpreadsheetAutomation: NextPage = () => {
 
   const [selectedFunctionalityCard, setSelectedFunctinoalityCard] = useState<number>(0);
 
@@ -46,7 +46,7 @@ const SpreadhseetAutomation: NextPage = () => {
               <h1>
                 The No-Code Approach to Spreadsheet Automation 
               </h1>
-              <p>
+              <p className={titleStyles.subtitle}>
                 Automate your spreadsheets in hours, not months.
               </p>
               <CTAButtons variant={'download'} align='left'/>
@@ -71,7 +71,7 @@ const SpreadhseetAutomation: NextPage = () => {
                   Every edit made in the Mito spreadsheet is automatically converted to Python code. 
                 </p>
                 <p>
-                  Edit your data just like you do in Excel and receive production ready Python code without searching Pandas documentation or Stack Overflow.
+                  Edit your data just like you do in Excel, and receive production ready Python code. No searching Pandas documentation or Stack Overflow.
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
@@ -100,7 +100,7 @@ const SpreadhseetAutomation: NextPage = () => {
 
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
               <h2>
-                All of the components you need, built to generate Python code
+                All of the functionality you expect, built to generate Python code
               </h2>
               <p>
                 We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to. Keep using the tools you&apos;re most comfortable with, and automatically generate reusable Python code.
@@ -217,24 +217,66 @@ const SpreadhseetAutomation: NextPage = () => {
                   </div>
                 </div>
               </div>
-              <div className={functionalityCardStyles.image_container}>
+              <div className={classNames(functionalityCardStyles.image_container, 'margin-top-2rem-mobile-only')}>
                 {selectedFunctionalityCard === 0 &&
-                  <Image className={functionalityCardStyles.image} src={'/pivot_table_vertical.png'} alt='Pivot Tables in Mito' width={517} height={560}/>
+                  <Image
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={517} 
+                    height={560}
+                    src={'/pivot_table_vertical.png'} 
+                    alt='Pivot Tables in Mito' 
+                  />
                 }
                 {selectedFunctionalityCard === 1 &&
-                  <Image src={'/visualizations_vertical.png'} alt='Visualizations in Mito' width={517} height={560}/>
+                  <Image
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={517} 
+                    height={560}
+                    src={'/visualizations_vertical.png'} 
+                    alt='Visualizations in Mito' 
+                  />
                 }
                 {selectedFunctionalityCard === 2 &&
-                  <Image src={'/formulas_vertical.png'} alt='Formulas in Mito' width={517} height={560}/>
+                  <Image 
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={517} 
+                    height={560}
+                    src={'/formulas_vertical.png'} 
+                    alt='Formulas in Mito' 
+                  />
                 }
                 {selectedFunctionalityCard === 3 &&
-                  <Image src={'/filter_vertical.png'} alt='Filter in Mito' width={517} height={560}/>
+                  <Image 
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={517} 
+                    height={560}
+                    src={'/filter_vertical.png'} 
+                    alt='Filter in Mito' 
+                  />
                 }
                 {selectedFunctionalityCard === 4 &&
-                  <Image src={'/snowflake_vertical.png'} alt='Snowflake in Mito' width={578} height={578}/>
+                  <Image 
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={578} 
+                    height={578}
+                    src={'/snowflake_vertical.png'} 
+                    alt='Snowflake in Mito' 
+                  />
                 }
                 {selectedFunctionalityCard === 5 &&
-                  <Image src={'/customization_vertical.png'} alt='Customization in Mito' width={528} height={640}/>
+                  <Image 
+                    objectFit="contain"
+                    objectPosition="center"
+                    width={528} 
+                    height={640}
+                    src={'/customization_vertical.png'} 
+                    alt='Customization in Mito' 
+                  />
                 }
               </div>
 
@@ -253,13 +295,13 @@ const SpreadhseetAutomation: NextPage = () => {
                   <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
                 </div>
                 <h3>
-                  Handle large datasets faster
+                  Lager datasets, faster edits
                 </h3>
                 <p>
                   Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.
                 </p>
                 <p>
-                  Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. 
+                  Modern data teams use Python to analyze millions of rows of data in just a couple of seconds. No more waiting on your Excel files.
                 </p>
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
@@ -284,10 +326,10 @@ const SpreadhseetAutomation: NextPage = () => {
                   Reduce bugs and key person risk
                 </h3>
                 <p>
-                  Excel&apos;s greatest strength and weakness are the same -- it hides the analysis logic and encourages you focus on the data. 
+                  Because Excel reports lack structure, it's easy to introduce bugs into your report. And it's nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
                 </p>
                 <p>
-                  Because Excel reports lack structure, its easy to introduce bugs into your report and its nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
+                  By transitioning to Python, you reduce the chance of off-by-one errors and make it much easier for processes to last as long as you need them.
                 </p>
               </div>
             </div>
@@ -331,4 +373,4 @@ const SpreadhseetAutomation: NextPage = () => {
   )
 }
 
-export default SpreadhseetAutomation
+export default SpreadsheetAutomation

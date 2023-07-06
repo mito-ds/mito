@@ -44,7 +44,7 @@ const Security: NextPage = () => {
                     </section>
 
                     <section>
-                        <div className={classNames(pageStyles.subsection, 'center')}>
+                        <div className={classNames(pageStyles.subsection, 'center', 'display-desktop-only-block')}>
                             <h2>
                                 Mito simplifies Python for Finance
                             </h2>
@@ -55,7 +55,7 @@ const Security: NextPage = () => {
                                     <Image src={'/mito_generated_code.png'} alt='Large Data' width={1000} height={500}/>
                                 </div>
                                 <h3>
-                                    A software solution for Adopting Python and Pandas
+                                    A software solution for adopting Python and Pandas
                                 </h3>
                                 <p>
                                     Writing Python code using Mito is 10x easier than trying to learn Python from scratch.
@@ -72,7 +72,7 @@ const Security: NextPage = () => {
                                     <Image src={'/loans_pivot_table.png'} alt='Custom Import' width={1000} height={500}/>
                                 </div>
                                 <h3>
-                                    Save hours a week with No-Code Spreadsheet Automation
+                                    Save hours a week with no-code spreadsheet automation
                                 </h3>
                                 <p>
                                     Automating spreadsheet processes saves analysts hours a week from mundane, repetitive report generation. 
@@ -138,13 +138,17 @@ const Security: NextPage = () => {
                                     Reporting
                                 </h3>
                                 <p>
-                                    Building reports for management is never one and done. They&apos;re always going to want you pull the most recent data and update the formatting of tables. 
+                                    Ad-hoc Excel reports built for management are never one and done. 
+                                    You&apos;ll continusouly update the report with the most recent data, taking hours or days per month.
                                 </p>
                                 <p>
-                                    Updating your report in Mito is as easy as clicking “Run All”. It will pull the most up to date data, refresh your analysis, and spit out the updated Excel file. 
+                                    Updating your report in Mito is as easy as clicking “Run All”. 
+                                    It will pull the most up to date data, refresh your analysis, and create the updated Excel file. 
                                 </p>
                                 <p>
-                                    Refreshing a report that quickly means you can build a report 10 minutes before a meeting with the most up to date data instead of building it the night before. 
+                                    Refreshing a report that quickly means you never need to deliver out of date data. 
+                                    Mito-generated Python scripts can be used to build a report 10 minutes before a meeting with the most up to date data, 
+                                    instead of staying up late building a report the night before.  
                                 </p>
                             </div>
                         </div>
@@ -163,7 +167,8 @@ const Security: NextPage = () => {
                                     Even in the highest functioning orgs, waiting for a supporting data scientst adds a full day of overhead to your analysis. 
                                 </p>
                                 <p>
-                                    Getting access to large datasets should increase the quality of your analysis, not decrease it. That requires the subject matter expert to analyze the data.
+                                    To get the most out of your large data, the subject matter expert needs to be the one analyzing it. 
+                                    Not a supporting data scientist who isn&apos;t using the data to make business decisions.
                                 </p>
                             </div>
                             <div className={pageStyles.subsection_second_element_mobile_spacing}>
@@ -181,7 +186,8 @@ const Security: NextPage = () => {
                                     Mito lets your team prep the data using the same Excel process they&apos;ve used for the past 10 years, and push the data directly into a database. 
                                 </p>
                                 <p>
-                                    Not relying on Excel files that need end of life care means your team can focus on decision making.
+                                    No more end-of-life care for your Excel files. 
+                                    Let your team focus on decision making.
                                 </p>
                             </div>
                         </div>
@@ -193,24 +199,22 @@ const Security: NextPage = () => {
                             </h2>
                         </div>
                         <div className={pageStyles.subsection}>
-                            <div className={classNames(textImageSplitStyles.functionality_text, 'margin-auto')}>
+                            <div className={classNames(textImageSplitStyles.functionality_text)}>
                                 <p> 
                                     The key to teaching analysts to program is having them learn while building Python scripts that are actually going to be valuable to them. 
                                 </p>
                                 <p>
                                     Mito lets analysts start building Python spreadsheet automations from day one. Its the difference between starting day one of training with “Hello World” and a data reconciliation.
                                 </p>
-                                <p><b><i>
-                                    “We&apos;ve trained thousands of analysts to use Mito. Mito is now half of our Python bootcamp.”
-                                    </i></b>
+                                <p>
+                                    <i>“We&apos;ve trained thousands of analysts to use Mito. Mito is now half of our Python bootcamp.”</i>
                                 </p>
-                                <p><b>
-                                    - Chief Data Architect @ Bank
-                                    </b>
+                                <p className='margin-left-1rem'>
+                                    - Chief Data Architect @ Bulge Bracket Bank
                                 </p>
                             </div>
                             <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                                <Image src={'/mito_training.png'} alt='Edit data using Mito AI' width={665} height={491} layout='responsive'/>
+                                <Image src={'/mito_training.png'} alt='Edit data using Mito AI' width={443} height={327} layout='responsive'/>
                             </div>
                         </div>
                     </section>

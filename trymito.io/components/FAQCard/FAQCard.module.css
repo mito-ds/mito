@@ -23,8 +23,8 @@
 }
 
 .faq_card_container li {
-    /* Ensures that the 1. 2. 3. included in the list */
-    list-style-position: inside;
+    list-style-position: outside;
+    margin-left: 2rem;
 }
 
 .faq_card_header_text {
@@ -44,11 +44,5 @@
 
     .header {
         height: 70px;
-    }
-
-    .faq_card_container li {
-        line-height: 1.25;
-        margin-top: 2rem;
-        margin-left: 2rem;
     }
 }

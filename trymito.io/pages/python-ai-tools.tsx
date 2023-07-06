@@ -35,7 +35,7 @@ const PythonAITools: NextPage = () => {
               <h1>
                 Write Python and Pandas with AI
               </h1>
-              <p>
+              <p className={classNames(titleStyles.subtitle)}>
                 Analyze your data with the confidence of a Python expert by your side
               </p>
               <CTAButtons variant={'download'} align='left'/>
@@ -120,10 +120,10 @@ const PythonAITools: NextPage = () => {
                 <Image src={'/mito_ai_error_correction.png'} alt='Mito AI automatically fixes errors' width={500} height={300} layout='responsive'/>
               </div>
             </div>
-        </section>
+          </section>
 
 
-        <section className={classNames(pageStyles.background_card, pythonAIToolsStyles.case_study_section)}>
+          <section className={classNames(pageStyles.background_card, pythonAIToolsStyles.case_study_section)}>
             <div className={classNames(pythonAIToolsStyles.case_study_text_container)}>
                 <h2 className={classNames(pythonAIToolsStyles.case_study_text, 'center')}>
                     Learn Python with AI
@@ -143,27 +143,27 @@ const PythonAITools: NextPage = () => {
             <div className={pythonAIToolsStyles.case_study_headshot}>
                 <Image src='/KashviHeadshot.png' alt='Explore your data with Mito' width={250} height={250} ></Image>
             </div>
-        </section>
+          </section>
 
-        <section>
+          <section>
             <h1 className='center'>
                 Frequently Asked Questions
             </h1>
             <FAQCard title='How is Mito AI different from other AI copilots?'>
                 <ol>
-                    <li>
+                    <li className='margin-top-p5rem'>
                         AI chatbots are quickly becoming the fastest way to edit your data, but AI-generated code is often incorrect or has unwanted side effects. 
                         For example, we&apos;ve seen users prompt LLMs to calculate a total_revenue column from a price * quantity columns. 
                         The LLM may correctly give you the new column, but it may also delete the price and quantity columns from the dataset. 
                         Since Mito users are often new to programming, they find it almost impossible to verify the code is correct just by reading it. 
                         Instead, they need tooling that to help them check the correctness of their code that is built with their skillset in mind — spreadsheets!                   
                     </li>
-                    <li>
+                    <li className='margin-top-p5rem'>
                         Since Mito is a spreadsheet, it knows the structure of your data, what column is selected, and your recent edits. 
                         That context is required for Mito AI (we use ChatGPT under the hood) to generate useful code. But there&apos;s no reason that the user should be responsible for adding all of that additional information to their prompt. 
                         Instead, Mito fills it all in for you. 
                     </li>
-                    <li>
+                    <li className='margin-top-p5rem'> 
                         Mito AI can be configured to use other LLMs. 
                         This is especially important to security conscious enterprises that don&apos;t want to share any data with OpenAI. 
                         Instead, they hook Mito up to their own On-Prem LLM.
@@ -172,47 +172,47 @@ const PythonAITools: NextPage = () => {
             </FAQCard>
             <FAQCard title='What does Mito AI do with my data?'>
                 <div>
-                <p>
-                    Mito AI uses the instructions you provide (the prompt) and information about your dataframe to generate code that works in the context of your analysis. 
-                    Without this information, the Mito generated code will require additional customization. 
-                </p>
-                <p>
-                    Private data that is contained in the dataframe name, column headers, or first five rows of data might be shared with Mito and OpenAI. 
-                </p>
-                <p>
-                    The data collected by Mito AI is used to construct a prompt for OpenAI. 
-                    Mito supplements the prompt you provide with additional information about your data to give OpenAI the best chance of generating helpful code.
-                </p>
-                <p>
-                    The data collected is also used to improve Mito AI. Such uses include: 
-                    <ol className='margin-top-2rem'>
-                      <li className='margin-top-1rem'>
-                          Evaluating Mito AI to determine its effectiveness
-                      </li>
-                      <li className='margin-top-1rem'>
-                          Conducting research to improve Mito AI
-                      </li>
-                      <li className='margin-top-1rem'>
-                          Detecting potential abuse of Mito AI
-                      </li>
-                    </ol>
-                </p>
+                  <p>
+                      Mito AI uses the instructions you provide (the prompt) and information about your dataframe to generate code that works in the context of your analysis. 
+                      Without this information, the Mito generated code will require additional customization. 
+                  </p>
+                  <p>
+                      Private data that is contained in the dataframe name, column headers, or first five rows of data might be shared with Mito and OpenAI. 
+                  </p>
+                  <p>
+                      The data collected by Mito AI is used to construct a prompt for OpenAI. 
+                      Mito supplements the prompt you provide with additional information about your data to give OpenAI the best chance of generating helpful code.
+                  </p>
+                  <p>
+                      The data collected is also used to improve Mito AI. Such uses include: 
+                  </p>
+                  <ol className={classNames('margin-top-1rem', 'margin-left-1rem')}>
+                    <li className='margin-top-p5rem'>
+                        Evaluating Mito AI to determine its effectiveness
+                    </li>
+                    <li className='margin-top-p5rem'>
+                        Conducting research to improve Mito AI
+                    </li>
+                    <li className='margin-top-p5rem'>
+                        Detecting potential abuse of Mito AI
+                    </li>
+                  </ol>
                 </div>
             </FAQCard>
-            <FAQCard title='How can enterprises us Mito AI?'>
+            <FAQCard title='How can enterprises use Mito AI?'>
                 <div>
-                <p>
-                    Mito AI uses OpenAI to generate code by default. Doing so requires sending your information to OpenAI. To further protect your data, Mito Enterprise users can connect Mito AI to a self-hosted large language model. As a result, Mito would not need to collect or share any information about your data with OpenAI. Your data will never leave your system. 
-                </p>
-                <p>
-                    To learn more about this option, reach out to the <a href={"mailto:founders@sagacollab.com?subject=Enterprise AI"} className={pageStyles.link}>Mito Team</a>.
-                </p>
+                  <p>
+                      Mito AI uses OpenAI to generate code by default. 
+                      Doing so requires sending your information to OpenAI. 
+                      To further protect your data, Mito Enterprise users can connect Mito AI to a self-hosted large language model. 
+                      This ensures no data will ever leave your systems.
+                  </p>
+                  <p>
+                      To learn more about this option, reach out to the <a href={"mailto:founders@sagacollab.com?subject=Enterprise AI"} className={pageStyles.link}>Mito Team</a>.
+                  </p>
                 </div>
             </FAQCard>
-        </section>
-        <section className={pageStyles.background_card}>
-            <DownloadCTACard />
-        </section>
+          </section>
         </main>
         <Footer />
       </div>
