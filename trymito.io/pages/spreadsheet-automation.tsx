@@ -73,6 +73,9 @@ const SpreadsheetAutomation: NextPage = () => {
                 <p>
                   Edit your data just like you do in Excel, and receive production ready Python code. No searching Pandas documentation or Stack Overflow.
                 </p>
+                <p>
+                  See our <a href="https://blog.trymito.io/automating-spreadsheets-with-python-101/" target="_blank" rel="noreferrer" className={pageStyles.link}>guide to automating spreadsheet with Python.</a>
+                </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
                 <Image src={'/code_snippet.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
@@ -105,6 +108,9 @@ const SpreadsheetAutomation: NextPage = () => {
               <p>
                 We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to. Keep using the tools you&apos;re most comfortable with, and automatically generate reusable Python code.
               </p>
+              <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                View all 100+ transformations →
+              </a>
             </div>
             <div className={classNames(pageStyles.subsection)}>
               <div className={classNames(functionalityCardStyles.cards_container)}>
@@ -252,8 +258,8 @@ const SpreadsheetAutomation: NextPage = () => {
                   <Image 
                     objectFit="contain"
                     objectPosition="center"
-                    width={517} 
-                    height={560}
+                    width={576} 
+                    height={623}
                     src={'/filter_vertical.png'} 
                     alt='Filter in Mito' 
                   />
