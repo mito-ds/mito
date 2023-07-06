@@ -61,6 +61,19 @@ USER_DEFINED_IMPORT_TESTS = [
             get_df_with_params(1, 2, 3.0, '4')
         ]
     ),
+    (
+        [],
+        "get_df_with_params",
+        {
+            'n': '{"A": [123]}',
+            'i': '2',
+            'f': '3',
+            's': '4',
+        },
+        [
+            get_df_with_params({"A": [123]}, 2, 3.0, '4')
+        ]
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, importer, importer_params, output_dfs", USER_DEFINED_IMPORT_TESTS)
 def test_userdefinedimport(input_dfs, importer, importer_params, output_dfs):

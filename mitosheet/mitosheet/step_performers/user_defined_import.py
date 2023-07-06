@@ -127,10 +127,10 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 error_modal=True
             )
         
-        final_params = get_user_defined_importer_params_from_frontend_params(importer_function, importer_params)
+        user_defined_importer_params = get_user_defined_importer_params_from_frontend_params(importer_function, importer_params)
     
         try:
-            result = importer_function(**final_params)
+            result = importer_function(**user_defined_importer_params)
         except:
             traceback_final_line = traceback.format_exc().splitlines()[-1]
 
@@ -159,7 +159,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'importer_params_and_type_and_value': get_importer_params_and_type_and_value(importer_function, importer_params),
+            'user_defined_importer_params': user_defined_importer_params,
             'result': {
                 'num_new_dfs': len(new_dfs),
             }
@@ -180,7 +180,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'importer'),
-                get_param(execution_data if execution_data is not None else dict(), 'importer_params_and_type_and_value')
+                get_param(execution_data if execution_data is not None else dict(), 'user_defined_importer_params')
             )
         ]
 
