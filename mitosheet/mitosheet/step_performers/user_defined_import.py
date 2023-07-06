@@ -7,7 +7,7 @@
 
 from time import perf_counter
 import traceback
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 
@@ -18,7 +18,33 @@ from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
+import inspect
 
+from mitosheet.types import UserDefinedImporterParamType
+
+
+def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDefinedImporterParamType:
+
+    parameters = inspect.signature(f).parameters
+    param_type = parameters[param_name].annotation
+
+    if param_type == str:
+        return 'str'
+    elif param_type == int:
+        return 'int'
+    elif param_type == float:
+        return 'float'
+    else:
+        return 'any'
+
+
+def get_param_names_to_types_for_importer(f: Callable) -> Dict[str, UserDefinedImporterParamType]:
+    param_names_to_types = {}
+
+    for name in inspect.signature(f).parameters:
+        param_names_to_types[name] = get_user_defined_importer_param_type(f, name)
+
+    return param_names_to_types
 
 def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]:
     if state is None:
@@ -28,10 +54,44 @@ def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]
         {
             'name': f.__name__,
             'docstring': f.__doc__,
-            'parameters': [],
+            'parameters': get_param_names_to_types_for_importer(f),
         }
         for f in state.user_defined_importers
     ]
+
+def get_importer_params_and_type_and_value(f: Callable, frontend_params: Dict[str, str]) -> Dict[str, Tuple[UserDefinedImporterParamType, str]]:
+    importer_params_and_type_and_value = {}
+
+    for param_name, param_value in frontend_params.items():
+        param_type = get_user_defined_importer_param_type(f, param_name)
+        importer_params_and_type_and_value[param_name] = (param_type, param_value)
+    
+    return importer_params_and_type_and_value
+
+
+def get_user_defined_importer_params_from_frontend_params(f: Callable, frontend_params: Dict[str, str]) -> Dict[str, Any]:
+    user_defined_importer_params = {}
+
+    for param_name, (param_type, param_value) in get_importer_params_and_type_and_value(f, frontend_params).items():
+        try:
+            if param_type == 'str':
+                user_defined_importer_params[param_name] = param_value
+            elif param_type == 'int':
+                user_defined_importer_params[param_name] = int(param_value)
+            elif param_type == 'float':
+                user_defined_importer_params[param_name] = float(param_value)
+            else:
+                user_defined_importer_params[param_name] = param_value
+        except:
+            raise MitoError(
+                'user_defined_importer_error',
+                f"Importer {f.__name__} raised an error.",
+                f"Parameter {param_name} with value {param_value} cannot be cast to type {param_type}. Please insert an appropriate value.",
+                error_modal=False
+            )
+
+    return user_defined_importer_params
+
 
 
 class UserDefinedImportStepPerformer(StepPerformer):
@@ -50,6 +110,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         importer: str = get_param(params, 'importer')
+        importer_params: Dict[str, str] = get_param(params, 'importer_params')
 
         # We make a new state to modify it
         post_state = prev_state.copy()
@@ -66,8 +127,10 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 error_modal=True
             )
         
+        final_params = get_user_defined_importer_params_from_frontend_params(importer_function, importer_params)
+    
         try:
-            result = importer_function()
+            result = importer_function(**final_params)
         except:
             traceback_final_line = traceback.format_exc().splitlines()[-1]
 
@@ -96,6 +159,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
+            'importer_params_and_type_and_value': get_importer_params_and_type_and_value(importer_function, importer_params),
             'result': {
                 'num_new_dfs': len(new_dfs),
             }
@@ -109,11 +173,14 @@ class UserDefinedImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
+        
+
         return [
             UserDefinedImportCodeChunk(
                 prev_state, 
                 post_state, 
                 get_param(params, 'importer'),
+                get_param(execution_data if execution_data is not None else dict(), 'importer_params_and_type_and_value')
             )
         ]
 

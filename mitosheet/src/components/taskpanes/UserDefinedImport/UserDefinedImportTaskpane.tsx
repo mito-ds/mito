@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MitoAPI from "../../../api/api";
-import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
+import { AnalysisData, SheetData, StepType, UIState, UserDefinedImporter, UserDefinedImporterParamType, UserProfile } from "../../../types";
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 
@@ -12,6 +12,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import Input from "../../elements/Input";
 
 
 interface UserDefinedImportTaskpaneProps {
@@ -25,6 +26,7 @@ interface UserDefinedImportTaskpaneProps {
 
 interface UserDefinedImportParams {
     importer: string,
+    importer_params: Record<string, string>
 }
 const getDefaultParams = (
     analysisData: AnalysisData,
@@ -34,10 +36,33 @@ const getDefaultParams = (
         return undefined
     }
 
-
     // Otherwise, return the first importer
+    const userDefinedImporter = analysisData.userDefinedImporters[0];
+    return getEmptyDefaultParamsForImporter(userDefinedImporter)
+}
+
+const getEmptyDefaultParamsForImporter = (
+    userDefinedImporter: UserDefinedImporter
+): UserDefinedImportParams => {
     return {
-        importer: analysisData.userDefinedImporters[0].name
+        importer: userDefinedImporter.name,
+        importer_params: Object.fromEntries(Object.entries(userDefinedImporter.parameters).map(([paramName, paramType]) => {
+            return [paramName, '']})
+        )
+    }
+}
+
+const getParamTypeDisplay = (
+    paramType: UserDefinedImporterParamType
+): string => {
+    if (paramType === 'str') {
+        return 'string'
+    } else if (paramType == 'float') {
+        return 'float'
+    } else if (paramType == 'int') {
+        return 'int'
+    } else {
+        return 'unknown'
     }
 }
 
@@ -56,8 +81,9 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
         props.mitoAPI,
         props.analysisData,
     )
-    
 
+    const userDefinedImporter = params !== undefined ? props.analysisData.userDefinedImporters.find(importer => importer.name === params.importer) : undefined;
+    
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -90,10 +116,11 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                     value={params.importer}
                                     onChange={(newValue) => {                                    
                                         setParams(prevParams => {
-                                            return {
-                                                ...prevParams,
-                                                importer: newValue
+                                            const userDefinedImporter = props.analysisData.userDefinedImporters.find(importer => importer.name === newValue);
+                                            if (userDefinedImporter === undefined) {
+                                                return prevParams
                                             }
+                                            return getEmptyDefaultParamsForImporter(userDefinedImporter);
                                         })
                                     }}
                                 >
@@ -109,6 +136,56 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                 </Select>
                             </Col>
                         </Row>
+                        {userDefinedImporter?.parameters !== undefined && Object.keys(userDefinedImporter?.parameters).length > 0 && 
+                            <Row justify='start' align='center' title='TODO'>
+                                <Col>
+                                    <p className='text-header-3'>
+                                        Params
+                                    </p>
+                                </Col>
+                            </Row>
+                        }
+                        {userDefinedImporter?.parameters !== undefined && Object.entries(userDefinedImporter.parameters).map(([paramName, paramType]) => {
+                            const paramValue = params.importer_params[paramName];
+                            
+                            let inputElement = null;
+                            if (paramType === 'str' || paramType === 'any' || paramType == 'int' || paramType == 'float') {
+                                inputElement = (
+                                    <Input
+                                        width="medium"
+                                        value={paramValue}
+                                        onChange={(e) => {
+                                            const newValue = e.target.value;
+                                            setParams(prevParams => {
+                                                const newParams = window.structuredClone(prevParams);
+                                                if (newParams === undefined) {
+                                                    return newParams
+                                                }
+
+                                                newParams.importer_params[paramName] = newValue;
+                                                return newParams;
+                                            })
+                                        }}
+                                    />
+                                )
+                            } else {
+                                // TODO: in the future, handle other types (e.g. booleans or Unions here)
+                            }
+
+                            return (
+                                <Row justify='space-between' align='center' title='TODO'>
+                                    <Col>
+                                        <p>
+                                            <span className='text-header-3'>{paramName}</span>: <span>{getParamTypeDisplay(paramType)}</span> 
+                                        </p>
+                                    </Col>
+                                    <Col>
+                                        {inputElement}
+                                    </Col>
+                                </Row>
+                            )
+                        })}
+
                         {error !== undefined && 
                             <p className="text-color-error">{error}</p>
                         }
