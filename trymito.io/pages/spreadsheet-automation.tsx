@@ -326,7 +326,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Reduce bugs and key person risk
                 </h3>
                 <p>
-                  Because Excel reports lack structure, it's easy to introduce bugs into your report. And it's nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
+                  Because Excel reports lack structure, it&apos;s easy to introduce bugs into your report. And it&apos;s nearly impossible to transfer responsibility for a large Excel file to someone else on your team. 
                 </p>
                 <p>
                   By transitioning to Python, you reduce the chance of off-by-one errors and make it much easier for processes to last as long as you need them.
