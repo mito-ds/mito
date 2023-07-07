@@ -1,0 +1,20 @@
+{
+    "rewrites": [
+        {
+            "source": "/blog/:path*/",
+            "destination": "https://mito-ds.ghost.io/blog/:path*/"
+        },
+        {
+            "source": "/blog/:path*",
+            "destination": "https://mito-ds.ghost.io/blog/:path*"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/blog/:path*",
+            "headers": [
+            { "key": "x-forwarded-host", "value": "blog.trymito.io.com" }
+            ]
+        }
+    ]
+}
