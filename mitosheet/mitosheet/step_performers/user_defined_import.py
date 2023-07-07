@@ -34,6 +34,8 @@ def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDe
         return 'int'
     elif param_type == float:
         return 'float'
+    elif param_type == bool:
+        return 'bool'
     else:
         return 'any'
 
@@ -80,6 +82,8 @@ def get_user_defined_importer_params_from_frontend_params(f: Callable, frontend_
                 user_defined_importer_params[param_name] = int(param_value)
             elif param_type == 'float':
                 user_defined_importer_params[param_name] = float(param_value)
+            elif param_type == 'bool':
+                user_defined_importer_params[param_name] = 'true' in param_value.lower()
             else:
                 user_defined_importer_params[param_name] = eval(param_value)
         except:
@@ -173,8 +177,6 @@ class UserDefinedImportStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        
-
         return [
             UserDefinedImportCodeChunk(
                 prev_state, 

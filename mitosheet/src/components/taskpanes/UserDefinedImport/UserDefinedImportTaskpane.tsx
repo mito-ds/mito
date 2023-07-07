@@ -13,6 +13,9 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import Input from "../../elements/Input";
+import Toggle from "../../elements/Toggle";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
+import Spacer from "../../layout/Spacer";
 
 
 interface UserDefinedImportTaskpaneProps {
@@ -61,6 +64,8 @@ const getParamTypeDisplay = (
         return 'float'
     } else if (paramType == 'int') {
         return 'int'
+    } else if (paramType == 'bool') {
+        return 'bool'
     } else {
         return undefined;
     }
@@ -98,13 +103,21 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                 userProfile={props.userProfile}
             >
                 {params === undefined &&
-                    <p>
-                        Pass importers to the mitosheet.sheet call with the `importers` parameter. An importer is just a function that returns some number of pandas dataframes.
-                    </p>
+                    <>
+                        <p>
+                            Custom Importers is how you can access your functions that create dataframes from within the Mito Spreadsheet. 
+                        </p>
+                        <Spacer px={10}/>
+                        <p>
+                            To access a custom importer in Mito, pass the function to the mitosheet.sheet() call like this:
+                        </p>
+                        <Spacer px={10}/>
+                        <code>mitosheet.sheet(importers=[function_name])</code>
+                    </>
                 }
                 {params !== undefined &&
                     <>
-                        <Row justify='space-between' align='center' title='TODO'>
+                        <Row justify='space-between' align='center' title='Select the function with which to import data.'>
                             <Col>
                                 <p className='text-header-3'>
                                     Import Method
@@ -137,13 +150,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                             </Col>
                         </Row>
                         {userDefinedImporter?.parameters !== undefined && Object.keys(userDefinedImporter?.parameters).length > 0 && 
-                            <Row justify='start' align='center' title='TODO'>
-                                <Col>
-                                    <p className='text-header-3'>
-                                        Params
-                                    </p>
-                                </Col>
-                            </Row>
+                            <LabelAndTooltip tooltip="">Import Parameters</LabelAndTooltip>
                         }
                         {userDefinedImporter?.parameters !== undefined && Object.entries(userDefinedImporter.parameters).map(([paramName, paramType]) => {
                             const paramValue = params.importer_params[paramName];
@@ -168,8 +175,24 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                         }}
                                     />
                                 )
-                            } else {
-                                // TODO: in the future, handle other types (e.g. booleans or Unions here)
+                            } else if (paramType === 'bool') {
+                                inputElement = (
+                                    <Toggle
+                                        value={paramValue.toLowerCase().includes('true')}
+                                        onChange={() => {
+                                            const newValue = !paramValue.toLowerCase().includes('true');
+                                            setParams(prevParams => {
+                                                const newParams = window.structuredClone(prevParams);
+                                                if (newParams === undefined) {
+                                                    return newParams
+                                                }
+
+                                                newParams.importer_params[paramName] = '' + newValue;
+                                                return newParams;
+                                            })
+                                        }}
+                                    />
+                                )
                             }
 
                             const typeSpan = getParamTypeDisplay(paramType) !== undefined 
@@ -177,7 +200,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                 : undefined
 
                             return (
-                                <Row justify='space-between' align='center' title='TODO'>
+                                <Row justify='space-between' align='center' title={`${paramName}`}>
                                     <Col>
                                         <p>
                                             <span className='text-header-3'>{paramName}</span> {typeSpan}

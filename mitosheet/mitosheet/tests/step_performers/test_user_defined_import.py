@@ -24,10 +24,10 @@ def create_df_diff() -> pd.DataFrame:
     df = pd.DataFrame({'A': [2]})
     return df
 
-def get_df_with_params(n, i: int, f: float, s: str):
+def get_df_with_params(n, i: int, f: float, s: str, b: bool):
     import pandas as pd
     
-    return pd.DataFrame({'A': [n, i, f, s]})
+    return pd.DataFrame({'A': [n, i, f, s, b]})
 
 
 
@@ -56,9 +56,10 @@ USER_DEFINED_IMPORT_TESTS = [
             'i': '2',
             'f': '3',
             's': '4',
+            'b': 'true'
         },
         [
-            get_df_with_params(1, 2, 3.0, '4')
+            get_df_with_params(1, 2, 3.0, '4', True)
         ]
     ),
     (
@@ -69,9 +70,10 @@ USER_DEFINED_IMPORT_TESTS = [
             'i': '2',
             'f': '3',
             's': '4',
+            'b': 'false',
         },
         [
-            get_df_with_params({"A": [123]}, 2, 3.0, '4')
+            get_df_with_params({"A": [123]}, 2, 3.0, '4', False)
         ]
     ),
 ]

@@ -296,7 +296,7 @@ if sys.version_info[:3] > (3, 8, 0):
         function_name: str
         function_params: Dict[ParamName, ParamValue]
 
-    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float']
+    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
 else:
     Filter = Any #type: ignore
