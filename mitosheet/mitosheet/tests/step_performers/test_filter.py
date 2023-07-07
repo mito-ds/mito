@@ -1068,7 +1068,7 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         "Or",
         "ab",
         "bc",
-        "df1 = df1[df1['A'].apply(lambda val: any(s.upper() in str(val).upper() for s in ['ab', 'bc'])",
+        "df1 = df1[df1['A'].apply(lambda val: any(s.upper() in str(val).upper() for s in ['ab', 'bc']))]",
     ),
     (
         pd.DataFrame({"A": ["aBcdef", "ABCdEf", "def"]}),
@@ -1076,7 +1076,7 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         "And",
         "abcd",
         "ef",
-        "df1 = df1[df1['A'].apply(lambda val: all(s.upper() in str(val).upper() for s in ['abcd', 'ef'])",
+        "df1 = df1[df1['A'].apply(lambda val: all(s.upper() in str(val).upper() for s in ['abcd', 'ef']))]",
     ),
     (
         pd.DataFrame(
