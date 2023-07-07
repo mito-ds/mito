@@ -2,19 +2,20 @@
     "rewrites": [
         {
             "source": "/blog/:path*/",
-            "destination": "https://mito-ds.ghost.io/blog/:path*/"
+            "destination": "https://mito-ds.ghost.io/:path*/"
         },
         {
             "source": "/blog/:path*",
-            "destination": "https://mito-ds.ghost.io/blog/:path*"
+            "destination": "https://mito-ds.ghost.io/:path*"
         }
     ],
     "headers": [
         {
             "source": "/blog/:path*",
             "headers": [
-            { "key": "x-forwarded-host", "value": "trymito.io" }
+                { "key": "x-forwarded-host", "value": "trymito.io" }
             ]
         }
-    ]
+    ],
+    "trailingSlash": true
 }
