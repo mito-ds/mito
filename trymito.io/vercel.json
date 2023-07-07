@@ -13,7 +13,7 @@
         {
             "source": "/blog/:path*",
             "headers": [
-            { "key": "x-forwarded-host", "value": "blog.trymito.io.com" }
+                { "key": "x-forwarded-host", "value": "trymito.io" }
             ]
         }
     ]
