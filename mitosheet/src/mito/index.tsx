@@ -1,4 +1,4 @@
-export { Mito } from './components/Mito';
+export { Mito } from './Mito';
 export { AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile } from "./types"
 
 export { MitoAPI, MitoResponse } from './api/api';
