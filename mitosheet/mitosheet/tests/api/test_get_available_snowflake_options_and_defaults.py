@@ -17,6 +17,7 @@ TEST_SNOWFLAKE_CREDENTIALS = {
 }
 
 TEST_DEFAULT_SNOWFLAKE_CONNECTION = {
+    'role': None,
     'warehouse': None, 
     'database': None, 
     'schema': None,
@@ -29,6 +30,7 @@ def test_integration_success():
     mito = create_mito_wrapper()
 
     table_loc_and_warehouse = {
+        'role': 'READONLY',
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -43,16 +45,88 @@ def test_integration_success():
 
     response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
 
-    expected_return = json.dumps({
+    expected_return = {
         'type': 'success',    
         'config_options': {
+                'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
                 'warehouses': ['COMPUTE_WH'],    
                 'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
                 'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
-                'tables_and_views': ["COLUMNHEADER_TEST", "NOROWS", "SIMPLE_PYTEST_TABLE", "TYPETEST", "TYPETEST_SIMPLE", "SIMPLE_PYTEST_TABLE_VIEW"],
+                'tables_and_views': ['COLUMNHEADER_TEST', 'NOROWS', 'SIMPLE_PYTEST_TABLE', 'TYPETEST', 'TYPETEST_SIMPLE', 'YOUR_TABLE_NAME', 'SIMPLE_PYTEST_TABLE_VIEW'],
                 'columns': ['COLUMNA', 'COLUMNB']
         },
         'default_values': table_loc_and_warehouse
-    })
+    }
+    
+    assert expected_return == response
 
+
+@requires_snowflake_dependencies_and_credentials
+@python_post_3_6_only
+def test_switch_roles_updates_defaults():
+    mito = create_mito_wrapper()
+
+    table_loc_and_warehouse = {
+        'role': 'READONLY',
+        'warehouse': 'COMPUTE_WH',
+        'database': 'PYTESTDATABASE',
+        'schema': 'PYTESTSCHEMA',
+        'table_or_view': 'SIMPLE_PYTEST_TABLE',
+    }
+
+    params = {
+        'table_loc_and_warehouse': table_loc_and_warehouse
+    }
+
+    get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
+
+    response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
+
+    expected_return = {
+        'type': 'success',    
+        'config_options': {
+                'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
+                'warehouses': ['COMPUTE_WH'],    
+                'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
+                'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
+                'tables_and_views': ['COLUMNHEADER_TEST', 'NOROWS', 'SIMPLE_PYTEST_TABLE', 'TYPETEST', 'TYPETEST_SIMPLE', 'YOUR_TABLE_NAME', 'SIMPLE_PYTEST_TABLE_VIEW'],
+                'columns': ['COLUMNA', 'COLUMNB']
+        },
+        'default_values': table_loc_and_warehouse
+    }
+
+
+    table_loc_and_warehouse = {
+        'role': 'NO_PYTEST_TABLE_ACCESS',  # Switch Roles! 
+        'warehouse': None,
+        'database': None,
+        'schema': None,
+        'table_or_view': None,
+    }
+
+    params = {
+        'table_loc_and_warehouse': table_loc_and_warehouse
+    }
+
+    response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
+
+    expected_return = {
+        'type': 'success',    
+        'config_options': {
+                'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
+                'warehouses': [],    
+                'databases': ['SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
+                'schemas': ['ALERT', 'CORE', 'INFORMATION_SCHEMA', 'ML'],
+                'tables_and_views': [],
+                'columns': []
+        },
+        'default_values': {
+            'role': 'NO_PYTEST_TABLE_ACCESS', 
+            'warehouse': None,
+            'database': 'SNOWFLAKE',
+            'schema': 'ALERT',
+            'table_or_view': None,
+        }
+    }
+    
     assert expected_return == response

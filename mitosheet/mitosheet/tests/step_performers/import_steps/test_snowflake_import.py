@@ -31,6 +31,7 @@ TEST_SNOWFLAKE_CREDENTIALS: SnowflakeCredentials = {
 }
 
 TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE = {
+    'role': 'READONLY',
     'warehouse': 'COMPUTE_WH',
     'database': 'PYTESTDATABASE',
     'schema': 'PYTESTSCHEMA',
@@ -106,6 +107,7 @@ def test_integration_success_empty_table():
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
+        'role': 'READONLY',
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -133,6 +135,7 @@ def test_integration_no_table():
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
+        'role': 'READONLY',
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -191,6 +194,7 @@ def test_snowflake_import_integration_type_test_simple():
 
 
     table_loc_and_warehouse = {
+        'role': 'READONLY',
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -219,6 +223,7 @@ def test_snowflake_import_integration_column_headers():
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
     table_loc_and_warehouse = {
+        'role': 'READONLY',
         'warehouse': 'COMPUTE_WH',
         'database': 'PYTESTDATABASE',
         'schema': 'PYTESTSCHEMA',
@@ -231,8 +236,7 @@ def test_snowflake_import_integration_column_headers():
 
     # Get the column options from Snowflake
     response = get_available_snowflake_options_and_defaults(params, mito.mito_backend.steps_manager)
-    response_json = json.loads(response)
-    columns = response_json['config_options']['columns']
+    columns = response['config_options']['columns']
 
     # Select all of the columns
     query_params = {
