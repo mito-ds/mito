@@ -5,7 +5,7 @@ import {
     IObservableString,
     IObservableUndoableList
 } from '@jupyterlab/observables';
-import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../../utils/code";
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 
 export function getParentMitoContainer(): Element | null {
