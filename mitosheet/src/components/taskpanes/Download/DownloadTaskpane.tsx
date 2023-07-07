@@ -20,19 +20,7 @@ import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
-
-
-const INVALID_CHARACTERS_IN_FILENAME = [
-    '\\',
-    '/',
-    '<',
-    '>',
-    ':',
-    '"',
-    '|',
-    '?',
-    '*',
-]
+import { getInvalidFileNameError } from '../../../utils/filename';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -143,14 +131,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     }
 
 
-    // Warn the user if they have some ending that is invalid
-    let invalidFileNameWarning: string | undefined = undefined;
-
-    INVALID_CHARACTERS_IN_FILENAME.forEach((char) => {
-        if (props.uiState.exportConfiguration.fileName?.includes(char)) {
-            invalidFileNameWarning= `The File Name cannot include ${char}`
-        }
-    })
+    // Warn the user if they have some character that is invalid
+    const invalidFileNameWarning = getInvalidFileNameError(fileName);
 
     return (
         <DefaultTaskpane>
@@ -259,14 +241,12 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    error={!!invalidFileNameWarning}
                     disabled={!!invalidFileNameWarning || exportString === '' }
                     href={exportHRef} 
                     download={exportName}
-                    onClick={onDownload}  
+                    onClick={onDownload}
                 >
-                    
-                    {invalidFileNameWarning ? <>Invalid input.</> : exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                    {invalidFileNameWarning ? <>{invalidFileNameWarning}</> : exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>
