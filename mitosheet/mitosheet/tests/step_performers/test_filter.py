@@ -1063,6 +1063,22 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         "df1 = df1[df1['A'].apply(lambda val: any(str(val).endswith(s) for s in ['1', '4']))]",
     ),
     (
+        pd.DataFrame({"A": ["aBcdef", "ABCdef", "def"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "Or",
+        "ab",
+        "bc",
+        "df1 = df1[df1['A'].apply(lambda val: any(str(val).upper().contains(s.upper()) for s in ['ab', 'bc']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["aBcdef", "ABCdEf", "def"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "And",
+        "abcd",
+        "ef",
+        "df1 = df1[df1['A'].apply(lambda val: all(str(val).upper().contains(s.upper()) for s in ['ab', 'bc']))]",
+    ),
+    (
         pd.DataFrame(
             {
                 "A": pd.to_datetime(
