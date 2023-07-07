@@ -141,7 +141,6 @@ def test_params_static():
         'sort'
     )
 
-
     check_step(
         ChangeColumnDtypeStepPerformer,
         4,
@@ -300,7 +299,7 @@ def test_params_static():
 
     check_step(
         SnowflakeImportStepPerformer,
-        2,
+        3,
         'snowflake_import'
     )
 
