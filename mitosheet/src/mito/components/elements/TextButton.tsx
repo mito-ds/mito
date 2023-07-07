@@ -83,7 +83,7 @@ interface TextButtonProps {
 const TextButton = (props: TextButtonProps): JSX.Element => {
 
     // Create better default values to handle optional params 
-    const disabled = props.disabled === true  
+    const disabled = props.disabled === true
     const width = props.width || 'block'
     const className = props.className || ''
 

@@ -7,8 +7,9 @@ import { MitoAPI } from '../../../api/api';
 
 // Import 
 import TextButton from '../../elements/TextButton';
-import { ColumnID, SheetData, UIState, UserProfile } from '../../../types';
+import { ColumnID, ExcelExportState, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../layout/Row';
+import Input from '../../elements/Input';
 import Select from '../../elements/Select';
 import DropdownItem from '../../elements/DropdownItem';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
@@ -19,7 +20,7 @@ import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
-
+import { getInvalidFileNameError } from '../../../utils/filename';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -59,9 +60,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     })
     
     // The string that stores the file that actually should be downloaded
-    const [exportString, setExportString] = useState<string>('');
+    const [exportHRef, setExportHref] = useState<string>('');
     
-
     const emptySheet = props.sheetDataArray.length === 0;
     const numRows = props.sheetDataArray[props.selectedSheetIndex]?.numRows;
     
@@ -74,21 +74,34 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         if (props.uiState.exportConfiguration.exportType === 'csv') {
             const response = await props.mitoAPI.getDataframeAsCSV(props.selectedSheetIndex);
             const csvString = 'error' in response ? '' : response.result;
-            setExportString(csvString);
+            setExportHref(URL.createObjectURL(new Blob(
+                [ csvString ],
+                { type: 'text/csv' }
+            )));
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-            const response = await props.mitoAPI.getDataframesAsExcel(props.uiState.exportConfiguration.sheetIndexes);
+            const response = await props.mitoAPI.getDataframesAsExcel((props.uiState.exportConfiguration as ExcelExportState).sheetIndexes);
             const excelString = 'error' in response ? '' : response.result;
-            setExportString(excelString);
+            setExportHref(URL.createObjectURL(new Blob(
+                /* 
+                    First, we convert the export string out of base 64 encoding, 
+                    and the convert it back into bytes
+                */
+                [ Uint8Array.from(window.atob(excelString), c => c.charCodeAt(0)) ],
+                { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
+            )));
         }
     }
 
     // Async load in the data from the mitoAPI
     useDebouncedEffect(() => {
-        setExportString('');
+        setExportHref('');
         void loadExport();
     }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray], 500)
 
     const onDownload = () => {
+        if (invalidFileNameWarning) {
+            return;
+        }
         void props.mitoAPI.log(
             'button_download_log_event',
             {
@@ -102,25 +115,19 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
-    let exportHRef = '';
     let exportName = '';
-    if (props.uiState.exportConfiguration.exportType === 'csv') {
-        exportHRef = URL.createObjectURL(new Blob(
-            [ exportString ],
-            { type: 'text/csv' }
-        ))
-        exportName = 'MitoExport.csv';
-    } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-        exportHRef = URL.createObjectURL(new Blob(
-            /* 
-                First, we convert the export string out of base 64 encoding, 
-                and the convert it back into bytes
-            */
-            [ Uint8Array.from(window.atob(exportString), c => c.charCodeAt(0)) ],
-            { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
-        ))
-        exportName = 'MitoExport.xlsx';
+    let fileName = props.uiState.exportConfiguration.fileName;
+    if (!fileName || fileName === '') {
+        fileName = 'MitoExport';
     }
+    if (props.uiState.exportConfiguration.exportType === 'csv') {
+        exportName = `${fileName}.csv`;
+    } else if (props.uiState.exportConfiguration.exportType === 'excel') {
+        exportName = `${fileName}.xlsx`;
+    }
+
+    // Warn the user if they have some character that is invalid
+    const invalidFileNameWarning = getInvalidFileNameError(fileName);
 
     return (
         <DefaultTaskpane>
@@ -132,13 +139,35 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 <div>
                     <Row justify='space-between' align='center'>
                         <p className='text-header-3'>
-                            Export Type
+                            File Name
+                        </p>
+                        <Input
+                            width='medium'
+                            value={props.uiState.exportConfiguration.fileName ?? ''}
+                            onChange={event => {
+                                props.setUIState((prevUiState => {
+                                    return {
+                                        ...prevUiState,
+                                        exportConfiguration: {
+                                            ...prevUiState.exportConfiguration,
+                                            fileName: event.target.value
+                                        }
+                                    }
+                                }));
+                            }}
+                            placeholder='MitoExport'
+                        />
+                    </Row>
+                    { invalidFileNameWarning !== undefined && <Row justify='end' align='end'> <p className="text-color-error">{invalidFileNameWarning}</p> </Row> }
+                    <Row justify='space-between' align='center'>
+                        <p className='text-header-3'>
+                            File Type
                         </p>
                         <Select
                             width='medium'
                             value={props.uiState.exportConfiguration.exportType}
                             onChange={(newExportType: string) => {
-                                setExportString('');
+                                setExportHref('');
 
                                 props.setUIState(prevUIState => {
                                     if (newExportType === 'csv') {
@@ -169,13 +198,13 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             />
                         </Select>
                     </Row>
-                    {props.uiState.exportConfiguration.exportType === 'excel' && 
+                    { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <ExcelDownloadConfigSection 
                             dfNames={props.dfNames}
                             mitoAPI={props.mitoAPI}
                             userProfile={props.userProfile}
                             sheetDataArray={props.sheetDataArray}
-                            exportState={props.uiState.exportConfiguration}
+                            exportState={props.uiState.exportConfiguration as ExcelExportState}
                             setUIState={props.setUIState}
                             newlyFormattedColumns={newlyFormattedColumns}
                             setNewlyFormattedColumns={setNewlyFormattedColumns}
@@ -207,13 +236,12 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 <TextButton
                     variant='dark'
                     width='block'
-                    disabled={exportString === '' }
-                    href={exportHRef} 
+                    disabled={!!invalidFileNameWarning || exportHRef === '' }
+                    href={exportHRef}
                     download={exportName}
-                    onClick={onDownload}  
+                    onClick={onDownload}
                 >
-                    
-                    {exportString === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                    {exportHRef === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

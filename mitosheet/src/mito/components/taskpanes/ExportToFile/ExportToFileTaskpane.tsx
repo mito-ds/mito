@@ -15,6 +15,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
+import { getInvalidFileNameError } from "../../../utils/filename";
 
 
 interface ExportToFileTaskpaneProps {
@@ -49,19 +50,6 @@ const getDefaultParams = (
     }
 }
 
-const INVALID_CHARACTERS_IN_FILENAME = [
-    '\\',
-    '/',
-    '<',
-    '>',
-    ':',
-    '"',
-    '|',
-    '?',
-    '*',
-]
-
-
 /* 
     This is the Export To File taskpane.
 */
@@ -84,14 +72,9 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
         invalidFileNameWarning = 'The .xlsx file extension does not match the CSV File Type.'
     } else if (params.type === 'excel' && (params.file_name.endsWith('.txt') || params.file_name.endsWith('.csv'))) {
         invalidFileNameWarning = 'The file extension ending does not match the Excel file type.'
-    } 
-
-    INVALID_CHARACTERS_IN_FILENAME.forEach((char) => {
-        if (params.file_name.includes(char)) {
-            invalidFileNameWarning= `The File Name cannot include ${char}`
-        }
-    })
-
+    } else {
+        invalidFileNameWarning = getInvalidFileNameError(params.file_name);
+    }
 
     return (
         <DefaultTaskpane>
