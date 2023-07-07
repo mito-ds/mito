@@ -15,15 +15,18 @@
     margin: 0;
     line-height: 1.15;
     font-size: 4rem;
-}
-
-.title,
-.description {
     text-align: center;
 }
 
 .description {
     line-height: 1.5;
+    margin: 0;
+    line-height: 1.15;
+    font-size: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--color-text-secondary);
+    font-weight: 200;
 }
 
 @media only screen and (min-width: 50em) {
@@ -36,7 +39,13 @@
         max-width: 60vw;
     }
 
+    .subtitle {
+        font-size: 1.5rem;
+        max-width: 60vw;
+    }
+
     .description {
         max-width: 50rem;
+        font-size: 1.5rem;
     }
 }

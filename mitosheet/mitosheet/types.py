@@ -208,12 +208,14 @@ if sys.version_info[:3] > (3, 8, 0):
         account: str
 
     class SnowflakeTableLocationAndWarehouseOptional(TypedDict):
+        role: Optional[str]
         warehouse: Optional[str] 
         database: Optional[str]
         schema: Optional[str]
         table_or_view: Optional[str] 
 
     class SnowflakeTableLocationAndWarehouse(TypedDict):
+        role: str
         warehouse: str
         database: str
         schema: str

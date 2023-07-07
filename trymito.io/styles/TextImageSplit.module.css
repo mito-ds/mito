@@ -1,0 +1,24 @@
+.functionality_media {
+    height: min-content;
+    display: block;
+    flex-grow: 1;
+    margin-top: 3rem;
+    margin-bottom: 10rem;
+}
+  
+.functionality_media_supress_bottom_margin {
+    margin-bottom: 0rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+
+    .functionality_text {
+        max-width: 30rem;
+    }
+
+    .functionality_media {
+        margin-top: 0rem;
+        max-width: 45rem;
+    }
+}

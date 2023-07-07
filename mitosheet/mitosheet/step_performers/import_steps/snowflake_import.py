@@ -34,7 +34,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 2
+        return 3
 
     @classmethod
     def step_type(cls) -> str:
@@ -121,6 +121,7 @@ def get_connection_param_dict (credentials: SnowflakeCredentials, table_loc_and_
         'user': credentials['username'],
         'password': credentials['password'],
         'account': credentials['account'],
+        'role': table_loc_and_warehouse['role'],
         'warehouse': table_loc_and_warehouse['warehouse'],
         'database': table_loc_and_warehouse['database'],
         'schema': table_loc_and_warehouse['schema'],

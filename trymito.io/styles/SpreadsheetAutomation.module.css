@@ -1,0 +1,85 @@
+.flex_col_mobile_row_desktop {
+    display: flex;
+    flex-direction: column;
+}
+
+.title_text_container {
+    max-width: 30rem;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.image_display_block {
+    flex-grow: 1;
+    display: block;
+}
+
+.automate_section_container {
+    max-width: 60rem;
+}
+
+.video_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.video_container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio (change this value if needed) */
+    width: 100%;
+    max-width: 80rem;
+    border-radius: 10px; /* Adjust the radius value as per your preference */
+    overflow: hidden; /* Clip the rounded corners */
+}
+
+.video_container .video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero_video_container {
+    flex-grow: 1;
+    height: 100%;
+    margin-top: 4rem;
+    flex-direction: row;
+    text-align: center;
+    justify-content: center;
+}
+
+.hero_video_container video {
+    flex: 1;
+    width: auto;
+    max-height: 40rem;
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+
+@media only screen and (min-width: 50em) {
+    .flex_col_mobile_row_desktop {
+        display: flex;
+        flex-direction: row;
+        padding-top: 8rem;
+        padding-bottom: 8rem;
+        justify-content: space-around;
+    } 
+
+    .title_text_container {
+        text-align: start;
+    }
+
+    .hero_video_container {
+        margin-top: 0;
+        margin-left: 4rem;
+        /* 
+            Make the hero_video_container have max-width of the video
+            so that outside margins of text and video is even
+        */
+        max-width: max-content;
+    }
+}
