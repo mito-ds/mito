@@ -30,3 +30,10 @@ tsconfig.tsbuildinfo
 
 # Ignore environment variable file
 .env
+
+# Ignore build JS files as they always cause conflicts
+# and when developing you have to rebuild anyways. Note that
+# this makes it so installing from source of the development
+# repo may not work in all cases
+mitosheet/mito_frontend.js
+mitosheet/mito_frontend.css
