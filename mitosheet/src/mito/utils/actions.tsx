@@ -932,7 +932,7 @@ export const createActions = (
             longTitle: 'Rename graph',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
-                const selectedSheetTab = document.querySelector('.tab-selected') as HTMLDivElement | null;
+                const selectedSheetTab = mitoContainerRef.current?.querySelector('.tab-selected') as HTMLDivElement | null;
                 if (selectedSheetTab) {
                     const event = new MouseEvent('dblclick', {
                         'view': window,

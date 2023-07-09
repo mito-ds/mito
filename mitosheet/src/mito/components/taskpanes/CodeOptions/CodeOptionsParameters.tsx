@@ -64,13 +64,16 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
         []
     );
 
-    console.log(parameterizableParams)
-
     const unparametizedParams = parameterizableParams.filter(([paramName,]) => {
         return !Object.values(props.codeOptions.function_params).includes(paramName);
     });
 
     const disabled = parameterizableParams.length === 0 || props.codeOptions.as_function === false;
+
+    const paramNamesAndValues = Object.entries(props.codeOptions.function_params).sort(([pn1, pv1], [pn2, pv2]) => {
+        // Only sort by value, as this is static and doesn't change
+        return pv1.localeCompare(pv2);
+    });
 
     return (
         <>
@@ -125,7 +128,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     </Col>
                 </Row>
             }
-            {Object.entries(props.codeOptions.function_params).map(([paramName, paramValue], index) => {
+            {paramNamesAndValues.map(([paramName, paramValue], index) => {
                 return (
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
