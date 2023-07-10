@@ -33,6 +33,7 @@ FC_STRING_EXACTLY = "string_exactly"
 FC_STRING_NOT_EXACTLY = "string_not_exactly"
 FC_STRING_STARTS_WITH = "string_starts_with"
 FC_STRING_ENDS_WITH = "string_ends_with"
+FC_STRING_CONTAINS_CASE_INSENSITIVE = "string_contains_case_insensitive"
 
 FC_NUMBER_EXACTLY = "number_exactly"
 FC_NUMBER_NOT_EXACTLY = "number_not_exactly"
@@ -203,6 +204,8 @@ def get_applied_filter(
         return df[column_header] == value
     elif condition == FC_STRING_NOT_EXACTLY:
         return df[column_header] != value
+    elif condition == FC_STRING_CONTAINS_CASE_INSENSITIVE:
+        return df[column_header].str.contains(value, na=False, regex=False, case=False)
 
     # Then number
     if condition == FC_NUMBER_EXACTLY:

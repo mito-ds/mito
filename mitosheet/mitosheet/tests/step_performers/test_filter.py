@@ -39,6 +39,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH,
     FC_STRING_ENDS_WITH,
+    FC_STRING_CONTAINS_CASE_INSENSITIVE,
 )
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
@@ -258,6 +259,12 @@ FILTER_TESTS = [
         FC_STRING_ENDS_WITH,
         "2",
         pd.DataFrame(data={"A": ["12", "122222"]}),
+    ),
+    (
+        pd.DataFrame(data={"A": ["abcDEF", "ABCdef", "def", "dEf"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "aBc",
+        pd.DataFrame(data={"A": ["abcDEF", "ABCdef"]}),
     ),
     (
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),

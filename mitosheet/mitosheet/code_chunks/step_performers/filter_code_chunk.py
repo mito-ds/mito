@@ -20,7 +20,7 @@ from mitosheet.step_performers.filter import (
     FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
     FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
     FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
-    FC_STRING_STARTS_WITH)
+    FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
 from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
 from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
@@ -52,6 +52,7 @@ FILTER_FORMAT_STRING_DICT = {
     FC_STRING_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != {value}",
     FC_STRING_STARTS_WITH: "{df_name}[{transpiled_column_header}].str.startswith({value}, na=False)",
     FC_STRING_ENDS_WITH: "{df_name}[{transpiled_column_header}].str.endswith({value}, na=False)",
+    FC_STRING_CONTAINS_CASE_INSENSITIVE: "{df_name}[{transpiled_column_header}].str.contains({value}, na=False, regex=False, case=False)",
     # DATES
     FC_DATETIME_EXACTLY: "{df_name}[{transpiled_column_header}] == pd.to_datetime({value})",
     FC_DATETIME_NOT_EXACTLY: "{df_name}[{transpiled_column_header}] != pd.to_datetime({value})",
@@ -143,6 +144,10 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
     FC_STRING_ENDS_WITH: {
         "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(str(val).endswith(s) for s in {values}))",
         "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(str(val).endswith(s) for s in {values}))",
+    },
+    FC_STRING_CONTAINS_CASE_INSENSITIVE: {
+        "Or": "{df_name}[{transpiled_column_header}].apply(lambda val: any(s.upper() in str(val).upper() for s in {values}))",
+        "And": "{df_name}[{transpiled_column_header}].apply(lambda val: all(s.upper() in str(val).upper() for s in {values}))",
     },
     FC_DATETIME_EXACTLY: {
         "Or": "{df_name}[{transpiled_column_header}].isin({values})",
