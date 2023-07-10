@@ -12,6 +12,5 @@
                 { "key": "x-forwarded-host", "value": "trymito.io" }
             ]
         }
-    ],
-    "trailingSlash": true
+    ]
 }
