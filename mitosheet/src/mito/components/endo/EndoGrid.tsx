@@ -210,10 +210,11 @@ function EndoGrid(props: {
 
             const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
 
-            // If we're editing a column header and we click a different cell, then close
-            // the editor without submitting, as we will submit on the blur of the input
-            // in the ColumnHeader itself
-            if (editorState.rowIndex === -1 && (rowIndex !== editorState.rowIndex || columnIndex !== editorState.columnIndex)) {
+            // If we're editing a column header:
+            // 1. And we click on that header being edited, we don't want to add that as pending
+            // 2. And we click on a different cell, that will just onBlur the column header editor
+            //    and close it, so we don't want to add that selection as pending either
+            if (editorState.rowIndex === -1) {
                 return;
             }
 

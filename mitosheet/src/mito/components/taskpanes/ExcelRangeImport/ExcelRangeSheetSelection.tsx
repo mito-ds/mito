@@ -7,6 +7,7 @@ import Row from "../../layout/Row";
 import { ExcelRangeImportParams } from "./ExcelRangeImportTaskpane";
 import CollapsibleSection from "../../layout/CollapsibleSection";
 import Spacer from "../../layout/Spacer";
+import LabelAndTooltip from "../../elements/LabelAndTooltip";
 
 interface ExcelRangeSheetSelectionProps {
     sheet_name: string | undefined;
@@ -91,11 +92,11 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
                 {params.sheet.type === 'sheet index' &&
                         <>
                             <Row justify="space-between" align="center">
-                                <Col>
-                                    <p className="text-header-3">
-                                        Sheet Index
-                                    </p>
-                                </Col>
+                                <LabelAndTooltip 
+                                    tooltip={"Indexes are 0-based. Use a negative index to count backwards from the end of the sheet list."} 
+                                >
+                                    Sheet Index
+                                </LabelAndTooltip>
                                 <Col>
                                     <Input
                                         width="medium"
