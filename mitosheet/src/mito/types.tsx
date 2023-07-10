@@ -134,6 +134,7 @@ export type StringFilterCondition = 'contains'
 | 'string_not_exactly'
 | 'string_starts_with'
 | 'string_ends_with'
+| 'string_contains_case_insensitive'
 
 export type NumberFilterCondition = 'number_exactly'
 | 'number_not_exactly'
