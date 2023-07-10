@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/blog/:path*",
-            "destination": "https://mito-ds.ghost.io/:path*/"
+            "destination": "https://mito-ds.ghost.io/:path*"
         }
     ],
     "headers": [
