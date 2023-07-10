@@ -70,9 +70,9 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
 
     const disabled = parameterizableParams.length === 0 || props.codeOptions.as_function === false;
 
-    const paramNamesAndValues = Object.entries(props.codeOptions.function_params).sort(([pn1, pv1], [pn2, pv2]) => {
+    const paramNamesAndValues = Object.entries(props.codeOptions.function_params).sort((a, b) => {
         // Only sort by value, as this is static and doesn't change
-        return pv1.localeCompare(pv2);
+        return a[1].localeCompare(b[1]);
     });
 
     return (
