@@ -53,6 +53,7 @@ const CellEditor = (props: {
     currentSheetView: SheetView
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     analysisData: AnalysisData
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
     const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
@@ -141,7 +142,7 @@ const CellEditor = (props: {
         const newHeightString = cellEditorInputRef.current?.style.height;
         const newHeight = parseInt(newHeightString?.substring(0, newHeightString.length - 2) || '18');
         setTextAreaHeight(newHeight)
-    }, [], 'cell-editor-input')
+    }, [], props.mitoContainerRef, '#cell-editor-input')
 
     if (columnID === undefined || columnHeader === undefined) {
         return <></>;

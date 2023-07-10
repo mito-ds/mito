@@ -641,6 +641,7 @@ function EndoGrid(props: {
                 mitoAPI={props.mitoAPI}
                 closeOpenEditingPopups={props.closeOpenEditingPopups}
                 analysisData={props.analysisData}
+                mitoContainerRef={props.mitoContainerRef}
             />
             <div 
                 className='endo-grid-container' 
@@ -739,6 +740,7 @@ function EndoGrid(props: {
                         mitoAPI={mitoAPI}
                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                         analysisData={props.analysisData}
+                        mitoContainerRef={props.mitoContainerRef}
                     />
                 }
             </div>

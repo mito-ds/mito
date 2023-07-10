@@ -11,13 +11,13 @@ import { useEffect } from "react";
     Thus, we use a resize observer to watch for resizes
     See here: https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API
 */
-export const useEffectOnResizeElement = (effect: () => void, deps: unknown[], id: string): void => {
+export const useEffectOnResizeElement = (effect: () => void, deps: unknown[], mitoContainerRef: React.RefObject<HTMLDivElement>, id: string): void => {
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
             effect();
         })
 
-        const element = document.getElementById(id);
+        const element = mitoContainerRef.current?.querySelector(id);
 
         if (element) {
             resizeObserver.observe(element);
