@@ -1,7 +1,8 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
-import Mito from './components/Mito';
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from './jupyter/jupyterUtils';
+import { Mito } from './mito';
+import { getAnalysisDataFromString, getArgs, getSheetDataArrayFromString, getUserProfileFromString, overwriteAnalysisToReplayToMitosheetCall, writeAnalysisToReplayToMitosheetCall, writeCodeSnippetCell, writeGeneratedCodeToCell } from './jupyter/jupyterUtils';
+import { getCommSend } from './jupyter/comm';
 
 // We replace the following byte arrays with the real byte arrays of the utf8 encoded
 // JSON for the sheet data array, etc. We pass this encoded because the JSON parsing
@@ -34,13 +35,29 @@ document.head.append(style)
 // Then, render the mitosheet to the div id
 const div = document.getElementById(divID);
 console.log("Rendering to div", div);
+
+/**
+ * The jupyter send function wraps a comm, and assumes the backend always will respond
+ * with a single message.
+ */
+async function getSendFunction() {
+    const sendFromComm = await getCommSend(kernelID, commTargetID);
+    return sendFromComm;
+
+}
 ReactDOM.render(
     <Mito
-        kernelID={kernelID}
-        commTargetID={commTargetID}
+        getSendFunction={getSendFunction}
         sheetDataArray={sheetDataArray}
         analysisData={analysisData}
         userProfile={userProfile}
+        jupyterUtils={{
+            getArgs: getArgs,
+            writeAnalysisToReplayToMitosheetCall: writeAnalysisToReplayToMitosheetCall,
+            writeGeneratedCodeToCell: writeGeneratedCodeToCell,
+            writeCodeSnippetCell: writeCodeSnippetCell,
+            overwriteAnalysisToReplayToMitosheetCall: overwriteAnalysisToReplayToMitosheetCall,
+        }}
     />,
     div
 )

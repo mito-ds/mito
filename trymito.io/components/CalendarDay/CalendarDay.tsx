@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import TextButton from '../TextButton/TextButton';
 import styles from './CalendarDay.module.css'
 
 const CalendarDay = (props: {children: JSX.Element[]}): JSX.Element => {

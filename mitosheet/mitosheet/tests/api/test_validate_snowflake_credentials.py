@@ -3,6 +3,7 @@ from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowfl
 import os
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
+from mitosheet.types import SnowflakeCredentials
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
 PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
@@ -22,9 +23,9 @@ def test_valid_credentials_integration_test():
 
     response = get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
 
-    expected_return = json.dumps({
+    expected_return = {
         'type': 'success',    
-    })
+    }
 
     assert expected_return == response
 
@@ -42,9 +43,8 @@ def test_invalid_credentials_integration_test():
     }
 
     response = get_validate_snowflake_credentials(credentials, mito.mito_backend.steps_manager)
-    response_obj = json.loads(response)
 
-    assert 'error' == response_obj['type']
+    assert 'error' == response['type']
 
 
 

@@ -17,12 +17,22 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 
-def get_export_to_csv_sheet_index_to_file_name(state: State, file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
+def get_export_to_csv_sheet_index_to_file_name(file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
+    """
+    Note that we add the index to the file name if there are multiple sheets being exported,
+    and we do not add the df name. 
+
+    This is because if you are parameterizing this code chunk, and then you change the imported
+    data, the file name will change, which will break the parameterization.
+
+    So we need to make the file name independent of the df name, so that changing the df name does
+    not result in a broken parameterization.
+    """
     if len(sheet_indexes) == 1:
         return {sheet_indexes[0]: f'{file_name}'}
     else:
         file_name_without_extension, extension = os.path.splitext(file_name)
-        return {sheet_index: f'{file_name_without_extension}_{state.df_names[sheet_index]}{extension}' for sheet_index in sheet_indexes}
+        return {sheet_index: f'{file_name_without_extension}_{index}{extension}' for index, sheet_index in enumerate(sheet_indexes)}
 
 def get_export_to_excel_sheet_index_to_sheet_name(state: State, file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
     return {sheet_index: get_df_name_as_valid_sheet_name(state.df_names[sheet_index]) for sheet_index in sheet_indexes}
@@ -66,7 +76,7 @@ class ExportToFileStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         if _type == 'csv':
-            sheet_index_to_export_location = get_export_to_csv_sheet_index_to_file_name(post_state, file_name, sheet_indexes)
+            sheet_index_to_export_location = get_export_to_csv_sheet_index_to_file_name(file_name, sheet_indexes)
             for sheet_index, file_name in sheet_index_to_export_location.items():
                 post_state.dfs[sheet_index].to_csv(file_name, index=False)
         elif _type == 'excel':

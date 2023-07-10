@@ -1,6 +1,9 @@
 .cta_buttons_container {
     padding-top: 5rem;
     padding-bottom: 0rem;
+}
+
+.center {
     text-align: center;
 }
 
@@ -27,9 +30,17 @@
     color: var(--color-light-purple)
 }
 
+.pro_cta_text {
+    font-size: 2rem;
+}
+
 @media only screen and (min-width: 50em) {
     .cta_buttons_container {
         padding-top: 3rem;
         padding-bottom: 2rem;
+    }
+
+    .pro_cta_text {
+        font-size: 1.25rem;
     }
 }

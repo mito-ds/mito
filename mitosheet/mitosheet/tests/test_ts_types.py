@@ -173,7 +173,7 @@ def get_keys_recursive(dictionary: Dict[str, Any], _keys: List[str]) -> List[str
 
 
 def test_date_type_in_mito_match():
-    data_type_in_mito = get_enum_from_ts_file("./src/types.tsx", "DataTypeInMito")
+    data_type_in_mito = get_enum_from_ts_file("./src/mito/types.tsx", "DataTypeInMito")
     assert len(data_type_in_mito) == 4
 
     assert data_type_in_mito["NONE"] == DataTypeInMito.NONE.value
@@ -184,7 +184,7 @@ def test_date_type_in_mito_match():
 
 def test_sort_direction_match():
     sort_direcion = get_enum_from_ts_file(
-        "./src/components/taskpanes/ControlPanel/FilterAndSortTab/SortCard.tsx",
+        "./src/mito/components/taskpanes/ControlPanel/FilterAndSortTab/SortCard.tsx",
         "SortDirection",
     )
     # NOTE: the extra element here is no sort (on the frontend)
@@ -201,13 +201,13 @@ def test_filter_conditions_match():
 
 def test_pivot_aggregation_functions_match():
     aggregation_types = get_enum_from_ts_file(
-        "./src/types.tsx", "AggregationType"
+        "./src/mito/types.tsx", "AggregationType"
     )
     assert set(aggregation_types.values()) == set(PIVOT_AGGREGATION_TYPES)
 
 
 def test_step_types_match():
-    step_types = get_enum_from_ts_file("./src/types.tsx", "StepType")
+    step_types = get_enum_from_ts_file("./src/mito/types.tsx", "StepType")
     assert set(step_types.values()) == set(
         [step_performers.step_type() for step_performers in STEP_PERFORMERS]
         + ["initialize"]
@@ -215,7 +215,7 @@ def test_step_types_match():
 
 
 def test_df_sources_match():
-    df_sources = get_enum_from_ts_file("./src/types.tsx", "DFSource")
+    df_sources = get_enum_from_ts_file("./src/mito/types.tsx", "DFSource")
     assert set(df_sources.values()) == set(
         [
             DATAFRAME_SOURCE_PASSED,
@@ -230,12 +230,12 @@ def test_df_sources_match():
 
 
 def test_user_json_fields_match():
-    user_json_fields = get_enum_from_ts_file("./src/jupyter/api.tsx", "UserJsonFields")
+    user_json_fields = get_enum_from_ts_file("./src/mito/api/api.tsx", "UserJsonFields")
     assert set(user_json_fields.values()) == set(USER_JSON_DEFAULT.keys())
 
 
 def test_format_types_fields_match():
-    format_types = get_enum_from_ts_file("./src/types.tsx", "NumberColumnFormatEnum")
+    format_types = get_enum_from_ts_file("./src/mito/types.tsx", "NumberColumnFormatEnum")
     format_types_values = format_types.values()
 
     assert set(format_types_values) == set(
@@ -251,14 +251,14 @@ def test_format_types_fields_match():
 
 def test_graph_safety_filter_cutoff_matches():
     graph_safety_filter_cutoff = get_constant_from_ts_file(
-        "./src/components/taskpanes/Graph/GraphSetupTab.tsx",
+        "./src/mito/components/taskpanes/Graph/GraphSetupTab.tsx",
         "GRAPH_SAFETY_FILTER_CUTOFF",
     )
 
     assert int(graph_safety_filter_cutoff) == GRAPH_SAFETY_FILTER_CUTOFF
 
 def test_mito_enterprise_keys_match():
-    mito_enterprise_config_keys = get_enum_from_ts_file("./src/types.tsx", "MitoEnterpriseConfigKey")
+    mito_enterprise_config_keys = get_enum_from_ts_file("./src/mito/types.tsx", "MitoEnterpriseConfigKey")
 
     # Since the MitoConfig is not set, we'll get none of the nested keys in the 
     # CodeSnippets object, so we use the MitoConfig and the MEC_VERSION_KEYS to 
@@ -270,21 +270,21 @@ def test_mito_enterprise_keys_match():
 
 def test_user_profile_defaults_matches():
     user_profile_support_email = get_constant_from_ts_file(
-        "./src/components/elements/GetSupportButton.tsx",
+        "./src/mito/components/elements/GetSupportButton.tsx",
         'DEFAULT_SUPPORT_EMAIL'
     )
 
     assert user_profile_support_email == f"\'{DEFAULT_MITO_CONFIG_SUPPORT_EMAIL}\'"
 
 def test_update_events_enum_defined():
-    update_types = get_enum_from_ts_file("./src/types.tsx", "UpdateType")
+    update_types = get_enum_from_ts_file("./src/mito/types.tsx", "UpdateType")
     from mitosheet.updates import UPDATES
 
     for UPDATE in UPDATES:
         assert UPDATE['event_type'] in update_types.values()
         
 def test_pivot_column_transformation_type_defined():
-    pcts = get_string_list_from_type("./src/types.tsx", "PivotColumnTransformation")
+    pcts = get_string_list_from_type("./src/mito/types.tsx", "PivotColumnTransformation")
     from mitosheet.step_performers.pivot import (
         PCT_NO_OP,
         PCT_DATE_YEAR,
@@ -331,14 +331,14 @@ def test_pivot_column_transformation_type_defined():
 
 
 def test_update_events_default_import_decimal():
-    default_delimiter = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
-    default_encoding = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
-    _default_decimal = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
-    default_skiprows = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
-    default_error_bad_lines = get_constant_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ERROR_BAD_LINES")
+    default_delimiter = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
+    default_encoding = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
+    _default_decimal = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
+    default_skiprows = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
+    default_error_bad_lines = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ERROR_BAD_LINES")
 
     # We must make sure the DEFAULT_DECIMAL reference to the Decimal enum is correct.
-    decimalEnum = get_enum_from_ts_file("./src/components/import/CSVImportConfigScreen.tsx", "Decimal")
+    decimalEnum = get_enum_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "Decimal")
     default_decimal = decimalEnum[_default_decimal.split('.')[1]]
     
     assert default_delimiter == f'"{DEFAULT_DELIMETER}"'

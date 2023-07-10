@@ -23,6 +23,8 @@ MITO_CONFIG_DISABLE_TOURS = 'MITO_CONFIG_DISABLE_TOURS'
 MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
+MITO_CONFIG_FEATURE_TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY'
+MITO_CONFIG_PRO = 'MITO_CONFIG_PRO'
 MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
 
@@ -65,6 +67,9 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: None,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_FEATURE_TELEMETRY: None,
+        MITO_CONFIG_PRO: None,
+
     }
 
 """
@@ -113,7 +118,9 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
         MITO_CONFIG_LLM_URL,
-        MITO_CONFIG_ANALYTICS_URL
+        MITO_CONFIG_ANALYTICS_URL,
+        MITO_CONFIG_FEATURE_TELEMETRY,
+        MITO_CONFIG_PRO
     ]
 }
 
@@ -176,8 +183,7 @@ class MitoConfig:
         """
         We display AI transformation on the frontend if:
         1. The user is not on Mito Enterprise
-        2. The user is not on mitosheet-private
-        3. MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION is not False
+        2. MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION is not False
 
         Note that this means that MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION not being set
         means we get a default value is True.
@@ -191,17 +197,15 @@ class MitoConfig:
                 return display_ai_transform
             
         on_enterprise = is_enterprise()
-        on_mitosheet_private = package_name == 'mitosheet-private'
 
-        if on_enterprise or on_mitosheet_private:
+        if on_enterprise:
             return False
         
         return True
     
     def get_display_snowflake_import(self) -> bool:
         """
-        We display the snowflake import on the frontend if the user is not on mitosheet-private, and 
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT is not set to False.
+        We display the snowflake import on the frontend if MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT is not set to False.
 
         Note: That this just determines if the feature is __visible__ in the frontend, not if its enabled/disabled.
         To set the snowflake import as enabled, use MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT or be on Enterprise.
@@ -211,11 +215,6 @@ class MitoConfig:
             raw_display_snowflake_import = self.mec[MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT]
             display_snowflake_import = is_env_variable_set_to_true(raw_display_snowflake_import)
             return display_snowflake_import if raw_display_snowflake_import is not None else True # default to True
-        else:
-            on_mitosheet_private = package_name == 'mitosheet-private'
-
-            if on_mitosheet_private:
-                return False
         
         return True
         
@@ -271,6 +270,20 @@ class MitoConfig:
         if self.mec is None or self.mec[MITO_CONFIG_ANALYTICS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_ANALYTICS_URL]
+    
+    def get_feature_telemetry(self) -> bool:
+        if self.mec is None or self.mec[MITO_CONFIG_FEATURE_TELEMETRY] is None:
+            return True
+
+        feature_telemetry = is_env_variable_set_to_true(self.mec[MITO_CONFIG_FEATURE_TELEMETRY])
+        return feature_telemetry
+    
+    def get_pro(self) -> bool:
+        if self.mec is None or self.mec[MITO_CONFIG_PRO] is None:
+            return False
+
+        pro = is_env_variable_set_to_true(self.mec[MITO_CONFIG_PRO])
+        return pro
 
     # Add new mito configuration options here ...
 
@@ -284,6 +297,8 @@ class MitoConfig:
             MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.get_display_snowflake_import(),
             MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.get_display_ai_transform(),
             MITO_CONFIG_LLM_URL: self.get_llm_url(),
-            MITO_CONFIG_ANALYTICS_URL: self.get_analytics_url()
+            MITO_CONFIG_ANALYTICS_URL: self.get_analytics_url(),
+            MITO_CONFIG_FEATURE_TELEMETRY: self.get_feature_telemetry(),
+            MITO_CONFIG_PRO: self.get_pro()
         }
 

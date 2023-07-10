@@ -10,7 +10,7 @@ const ContactCTACard = (): JSX.Element => {
                 Ready to make your team Python independent?
             </h1>
             <div className='center'>
-                <CTAButtons variant='contact' />
+                <CTAButtons variant='contact' align='center' />
             </div>  
         </div>
     )

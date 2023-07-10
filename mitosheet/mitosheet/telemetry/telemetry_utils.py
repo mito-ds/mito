@@ -79,10 +79,10 @@ def telemetry_turned_on() -> bool:
     if MITOSHEET_HELPER_PRIVATE:
         return False
 
-    # If the current package is mitosheet-private, then we don't log anything,
-     # ever, under any circumstances - this is a custom distribution for a client
-    if package_name == 'mitosheet-private':
-        return False
+    # Check if the config is set
+    if os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY') is not None:
+        from mitosheet.enterprise.mito_config import is_env_variable_set_to_true
+        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY', ''))
 
     # If Mito Pro is on, then don't log anything
     if is_pro():
@@ -224,16 +224,16 @@ except:
     ipywidgets_version = 'no pandas'
 
 
-location = None
+__location = None
 
 def _get_environment_params() -> Dict[str, Any]:
     """
     Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
     """
-    global location
-    if location is None:
-        location = get_location()
+    global __location
+    if __location is None:
+        __location = get_location()
     
     # Add the python properties to every log event we can
     environment_params = {
@@ -244,7 +244,7 @@ def _get_environment_params() -> Dict[str, Any]:
         'version_notebook': notebook_version,
         'version_mito': __version__,
         'package_name': package_name,
-        'location': location,
+        'location': __location,
         'is_docker': is_docker()
     }
 
@@ -409,6 +409,9 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
 
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
+
+    # Then, make sure to add the user email
+    final_params['email'] = get_user_field(UJ_USER_EMAIL)
 
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off

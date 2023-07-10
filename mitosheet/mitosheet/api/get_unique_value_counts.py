@@ -14,7 +14,7 @@ from mitosheet.utils import get_row_data_array
 # See comments in function description below.
 MAX_UNIQUE_VALUES = 1_000
 
-def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
     """
     Sends back a string that can be parsed to a JSON object that
     contains the normalized value counts for the series at column_id 
@@ -88,8 +88,8 @@ def get_unique_value_counts(params: Dict[str, Any], steps_manager: StepsManagerT
     else:
         is_all_data = True
     
-    return json.dumps({
+    return {
         'uniqueValueRowDataArray': get_row_data_array(unique_value_counts_df),
         'isAllData': is_all_data
-    })
+    }
 

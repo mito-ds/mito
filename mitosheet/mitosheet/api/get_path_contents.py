@@ -82,7 +82,7 @@ def get_path_parts(path: str) -> List[str]:
         return folders + ([file] if file != '' else [])
 
 
-def get_path_contents(params: Dict[str, Any]) -> str:
+def get_path_contents(params: Dict[str, Any]) -> Dict[str, Any]:
     """
     Takes an event with path parts in a list, turns them into
     an actual path, and then sends an API response with those 
@@ -133,7 +133,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
     dirnames = [d for d in dirnames if (not d.startswith('.') and not d.startswith('$'))]
     filenames = [f for f in filenames if (not f.startswith('.') and not f.startswith('$') and not f.startswith('~$'))]
 
-    return json.dumps({
+    return {
         'path': path,
         'path_parts': get_path_parts(path),
         # For each element, record if it's a directory, and the time it was last modified
@@ -142,7 +142,7 @@ def get_path_contents(params: Dict[str, Any]) -> str:
         ] + [
             {'name': d, 'isDirectory': True, 'lastModified': get_path_modified(path, d)} for d in dirnames
         ]
-    })
+    }
     
     
     

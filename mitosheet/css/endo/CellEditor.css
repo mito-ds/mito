@@ -21,6 +21,7 @@
     width: 100%;
     border: none;
     box-sizing: border-box;
+    font-family: Roboto;
     /* Notebooks does some weird things with outlines */
     outline: none;
 }

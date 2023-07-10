@@ -6,6 +6,7 @@ import faqCardStyles from './FAQCard.module.css'
 
 import OpenFaq from '../../public/OpenIconLight.png'
 import CloseFaq from '../../public/CloseIconDark.png'
+import { classNames } from '../../utils/classNames'
 
 const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JSX.Element => {
 
@@ -16,7 +17,7 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
 
     return (
         <div 
-            className={pageStyles.background_card + ' ' + faqCardStyles.faq_card_container}
+            className={classNames(pageStyles.background_card, faqCardStyles.faq_card_container)}
             id={props.id}
         >
             <div 
@@ -25,9 +26,9 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
                     setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
                 }}
             >
-                <h1>
+                <h3 className={faqCardStyles.faq_card_header_text}>
                     {props.title}
-                </h1>
+                </h3>
                 <div>
                     <Image
                         src={imageSrc}

@@ -36,8 +36,13 @@
  * we return an error to the user.
  */
 
-import { waitUntilConditionReturnsTrueOrTimeout } from "../utils/time";
-import { isInJupyterLab, isInJupyterNotebook } from "./jupyterUtils";
+import { 
+    MitoResponse,
+    MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType,
+    waitUntilConditionReturnsTrueOrTimeout,
+    isInJupyterLab, isInJupyterNotebook
+} from "../mito";
+import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 /**
  * Note the difference between the Lab and Notebook comm interfaces. 
@@ -69,10 +74,15 @@ export type CommContainer = {
     'comm': NotebookComm
 }
 
-export const MAX_WAIT_FOR_COMM_CREATION = 10_000;
 
-export type CommCreationErrorStatus = 'non_working_extension_error' | 'no_backend_comm_registered_error' | 'non_valid_location_error';
-export type CommCreationStatus = 'loading' | 'finished' | CommCreationErrorStatus;
+// Max delay is the longest we'll wait for the API to return a value
+// There is no real reason for these to expire, so we set it very high
+// at 5 minutes
+const MAX_DELAY = 5 * 60_000;
+// How often we poll to see if we have a response yet
+const RETRY_DELAY = 25;
+const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+
 
 export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Promise<boolean> => {
 
@@ -88,9 +98,7 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
             })
 
             // Give the onMsg a while to run
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
-
-            // TODO: do we need to on_msg here, I am not sure how
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_SEND_CREATION);
 
             return resolve(echoReceived);
         }
@@ -100,13 +108,13 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 }
 
 
-export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionError> => {
 
     let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
         return potentialComm !== undefined;
-    }, MAX_WAIT_FOR_COMM_CREATION)
+    }, MAX_WAIT_FOR_SEND_CREATION)
 
     if (potentialComm === undefined) {
         return 'non_working_extension_error';
@@ -139,7 +147,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
             }
 
             // Give the onMsg a while to run, quiting early if we get an echo
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_COMM_CREATION);
+            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_SEND_CREATION);
 
             // Reset the onMsg
             comm.onMsg = originalOnMsg;
@@ -152,7 +160,7 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
 }
 
 
-export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
     // Potentially returns undefined if the command is not yet started
     let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
@@ -166,7 +174,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
         }
         // We don't return true until we get a comm
         return potentialComm !== undefined && potentialComm !== 'no_backend_comm_registered_error';
-    }, MAX_WAIT_FOR_COMM_CREATION)
+    }, MAX_WAIT_FOR_SEND_CREATION)
 
 
     if (potentialComm === undefined) {
@@ -194,7 +202,7 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | CommCreationErrorStatus> => {
+export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
     if (isInJupyterNotebook()) {
         return getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {
@@ -202,4 +210,115 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
     }
 
     return 'non_valid_location_error'
+}
+
+
+
+export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionError> {
+    let commContainer: CommContainer | SendFunctionError = 'non_valid_location_error';
+    if (isInJupyterNotebook()) {
+        commContainer = await getNotebookComm(commTargetID);
+    } else if (isInJupyterLab()) {
+        commContainer = await getLabComm(kernelID, commTargetID);
+    }
+
+    // If it's an error, return the error
+    if (typeof commContainer === 'string') {
+        return commContainer;
+    }
+
+    const comm = commContainer.comm;
+    const _send = comm.send;
+
+    if (commContainer.type === 'notebook') {
+        commContainer.comm.on_msg((msg) => receiveResponse(msg));
+    } else {
+        commContainer.comm.onMsg = (msg) => receiveResponse(msg);
+    }
+
+    // We save the unconsumed responses on the getCommSend function
+    const unconsumedResponses = getCommSend.unconsumedResponses || (getCommSend.unconsumedResponses = []);
+
+    function receiveResponse(rawResponse: Record<string, unknown>): void {
+        unconsumedResponses.push((rawResponse as any).content.data as MitoResponse);
+    }
+
+    function getResponseData<ResultType> (id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
+
+        return new Promise((resolve) => {
+            let tries = 0;
+
+            const interval = setInterval(() => {
+                // Only try at most MAX_RETRIES times
+                tries++;
+
+                if (tries > maxRetries) {
+                    console.error(`No response on message: {id: ${id}}`);
+                    clearInterval(interval);
+                    // If we fail, we return an empty response
+                    return resolve({
+                        error: `No response on message: {id: ${id}}`,
+                        errorShort: `No response received`,
+                        showErrorModal: false
+                    })
+                }
+
+                // See if there is an API response to this one specificially
+                const index = unconsumedResponses.findIndex((response) =>  response['id'] === id)
+
+                if (index !== -1) {
+                    // Clear the interval
+                    clearInterval(interval);
+
+                    const response = unconsumedResponses[index];
+                    unconsumedResponses.splice(index, 1);
+
+                    if (response['event'] == 'error') {
+                        return resolve({
+                            error: response.error,
+                            errorShort: response.errorShort,
+                            showErrorModal: response.showErrorModal,
+                            traceback: response.traceback
+                        });
+                    }
+
+                    const sharedVariables = response.shared_variables;
+                    
+                    return resolve({
+                        sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : undefined,
+                        analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : undefined,
+                        userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : undefined,
+                        result: response['data'] as ResultType
+                    });
+                }
+            }, RETRY_DELAY);
+        })
+    }
+
+    
+    async function send<ResultType>(msg: Record<string, unknown>): Promise<SendFunctionReturnType<ResultType>> {
+
+        // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
+        console.log(`Sending: {type: ${msg['type']}, id: ${msg.id}}`)
+
+        // We notably need to .call so that we can actually bind the comm.send function
+        // to the correct `this`. We don't want `this` to be the MitoAPI object running 
+        // this code, so we bind the comm object
+        _send.call(comm, msg);
+
+        // Wait for the response, if we should
+        const response = await getResponseData<ResultType>(msg.id as string, MAX_RETRIES);
+
+        // Return this id
+        return response;
+    }
+    
+    return send;
+}
+
+
+// Save the unconsumed responses
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace getCommSend {
+    export let unconsumedResponses: MitoResponse[];
 }

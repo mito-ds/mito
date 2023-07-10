@@ -29,22 +29,3 @@ def test_should_not_upgrade_on_first_creation():
     initialize_user()
     assert not should_upgrade_mitosheet()
     os.remove(USER_JSON_PATH)
-
-
-def test_should_prompt_upgrade_after_21_days():
-    write_fake_user_json(
-        USER_JSON_VERSION_2,
-        mitosheet_last_upgraded_date=(datetime.today() - timedelta(days=20)).strftime('%Y-%m-%d'),
-    )
-
-    initialize_user()
-    assert not should_upgrade_mitosheet()
-
-    write_fake_user_json(
-        USER_JSON_VERSION_1,
-        mitosheet_last_upgraded_date=(datetime.today() - timedelta(days=22)).strftime('%Y-%m-%d'),
-    )
-
-    initialize_user()
-    assert should_upgrade_mitosheet()
-    os.remove(USER_JSON_PATH)

@@ -9,7 +9,7 @@ const DownloadCTACard = (): JSX.Element => {
                 Want to install Mito locally?
             </h1>
             <div className='center'>
-                <CTAButtons variant='download' />
+                <CTAButtons variant='download' align='center'/>
             </div>  
         </div>
     )

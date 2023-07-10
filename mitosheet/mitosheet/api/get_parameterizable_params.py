@@ -11,15 +11,15 @@ from mitosheet.types import StepsManagerType
 from mitosheet.updates.args_update import is_string_arg_to_mitosheet_call
 
 
-def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Tuple[str, str, str]]:
 
 
-        all_parameterizable_params: List[Tuple[str, str]] = []
+        all_parameterizable_params: List[Tuple[str, str, str]] = []
 
         # First, get the original arguments to the mitosheet - we only let you parameterize df names for now
         for arg in steps_manager.original_args_raw_strings:
                 if not is_string_arg_to_mitosheet_call(arg):
-                        all_parameterizable_params.append((arg, 'df_name'))
+                        all_parameterizable_params.append((arg, 'df_name', "Dataframe"))
     
         # Get optimized code chunk, and get their parameterizable params
         code_chunks = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=True)
@@ -28,4 +28,4 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
                 parameterizable_params = code_chunk.get_parameterizable_params()
                 all_parameterizable_params.extend(parameterizable_params)
 
-        return json.dumps(all_parameterizable_params)
+        return all_parameterizable_params
