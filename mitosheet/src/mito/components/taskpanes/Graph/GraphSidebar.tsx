@@ -99,7 +99,7 @@ const GraphSidebar = (props: {
     // Whenever the graph is resized, we update it (so it resizes as well)
     useEffectOnResizeElement(() => {
         setGraphUpdatedNumber(old => old + 1)
-    }, [], 'mito-center-content-container')
+    }, [], props.mitoContainerRef, '#mito-center-content-container')
 
     // If there has been an undo or redo, then we refresh the params to this graph
     useEffectOnUpdateEvent(() => {
@@ -152,7 +152,7 @@ const GraphSidebar = (props: {
         // The reason that we use the mito-center-content-container instead of the graph-div is because the size of the graph div
         // changes depending on the size of the graph. Specifically, when exiting fullscreen mode, the graph-div is wider
         // than we actually have space for. 
-        const boundingRect: DOMRect | undefined = document.getElementById('mito-center-content-container')?.getBoundingClientRect();
+        const boundingRect: DOMRect | undefined = props.mitoContainerRef.current?.querySelector('#mito-center-content-container')?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
             await props.mitoAPI.editGraph(
