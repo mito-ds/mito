@@ -861,6 +861,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    highlightedColumnIndex?: number;
     toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
