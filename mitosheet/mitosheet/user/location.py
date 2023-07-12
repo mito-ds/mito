@@ -119,3 +119,11 @@ def is_jupyterlite() -> bool:
         pass
 
     return False
+
+def is_streamlit() -> bool:
+    try:
+        # TODO: make this more robust
+        import streamlit
+        return True
+    except ImportError:
+        return False
