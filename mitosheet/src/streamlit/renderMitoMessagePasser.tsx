@@ -1,10 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import MyComponent from "./MitoWrapper"
+import MitoMessagePasser from "./MitoMessagePasser"
 
 ReactDOM.render(
   <React.StrictMode>
-    <MyComponent />
+    <MitoMessagePasser />
   </React.StrictMode>,
   document.getElementById("root")
 )

@@ -1,10 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import MyComponent from "./MitoMessagingComponent"
+import MitoStreamlitWrapper from "./MitoWrapper"
 
 ReactDOM.render(
   <React.StrictMode>
-    <MyComponent />
+    <MitoStreamlitWrapper />
   </React.StrictMode>,
   document.getElementById("root")
 )

@@ -4,22 +4,24 @@ import {
 } from "streamlit-component-lib"
 import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
-import { SendFunction, SendFunctionError, SendFunctionError, SendFunctionReturnType } from "../mito";
+import { MitoResponse, SendFunction, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
 interface State {
-    responses: Record<string, unknown>[]
+    responses: MitoResponse[]
 }
 
 
+// TODO: update these to be correct!
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
 /**
- * This is a React-based component template. The `render()` function is called
- * automatically when your component should be re-rendered.
+ * This wraps the Mito component in a Streamlit component, and 
+ * handles passing data from the Mito iframe to the Streamlit backend, and 
+ * getting responses back.
  */
-class MyComponent extends StreamlitComponentBase<State> {
+class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
     constructor(props: any) {
         super(props);
@@ -33,7 +35,6 @@ class MyComponent extends StreamlitComponentBase<State> {
 
             const interval = setInterval(() => {
                 const unconsumedResponses = [...this.state.responses];
-                console.log("CHECKING FOR ", id, unconsumedResponses)
                 // Only try at most MAX_RETRIES times
                 tries++;
 
@@ -50,7 +51,6 @@ class MyComponent extends StreamlitComponentBase<State> {
 
                 // See if there is an API response to this one specificially
                 const index = unconsumedResponses.findIndex((response) =>  response['id'] === id)
-                console.log("FOUND", index)
 
                 if (index !== -1) {
                     // Clear the interval
@@ -91,14 +91,13 @@ class MyComponent extends StreamlitComponentBase<State> {
         const analysisData = getAnalysisDataFromString(analysisDataJSON);
         const userProfile = getUserProfileFromString(userProfileJSON);
 
+        // If we have new responses, add them to the state
         const responses = JSON.parse(responsesJSON);
-        // Check if the length of responsesJSON has increased
         if (responses.length > this.state.responses.length) {
             const newResponses = responses.slice(this.state.responses.length);
             
             // Add the new responses to the state
             this.setState(prevState => {
-                console.log("UPDATING STATE", newResponses, prevState.responses)
                 return {
                     responses: [...prevState.responses, ...newResponses]
                 }
@@ -106,35 +105,26 @@ class MyComponent extends StreamlitComponentBase<State> {
 
         }
 
-        // <ResultType>(msg: Record<string, unknown>) => Promise<SendFunctionReturnType<ResultType>> for streamlit
         const send = async (msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> => {
-            // Get the parent window object
+            // First, get the iframe of the MitoMessagePasser component
             const parentWindow = window.parent;
-
-            // Get the list of iframes within the parent window
             const iframes = parentWindow.frames;
-
-            // Find the index of the current iframe within the list
             const currentIndex = Array.from(iframes).findIndex(iframe => iframe === window);
-
-            // Get the previous sibling iframe
             const previousSiblingIframe = iframes[currentIndex - 1];
 
-            // Access the contents of the previous sibling iframe
+            // Send it a message that contains the msg
             if (previousSiblingIframe) {
-                console.log("SENDING", msg.id, msg.type)
                 const previousSiblingWindow = previousSiblingIframe.window;
                 previousSiblingWindow.postMessage({'type': 'mito', 'data': msg}, '*');
             }
             
-            // Then we set it again with something silly, to get new responses
             return await this.getResponseData(msg['id'] as string);
         }
 
         return (
             <Mito 
-                getSendFunction={async (): Promise<SendFunction | SendFunctionError> => {
-                    return send as SendFunction;
+                getSendFunction={async (): Promise<SendFunction> => {
+                    return send;
                 }} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
@@ -142,37 +132,9 @@ class MyComponent extends StreamlitComponentBase<State> {
             />  
         )
     }
-
-
-    onMessageFromBackend(msg: Record<string, unknown>): void {
-        console.log(msg);
-    }
-
-    /** Click handler for our "Click Me!" button. 
-    private onClicked = (): void => {
-        // Increment state.numClicks, and pass the new value back to
-        // Streamlit via `Streamlit.setComponentValue`.
-        this.setState(
-        prevState => ({ numClicks: prevState.numClicks + 1 }),
-        () => Streamlit.setComponentValue(this.state.numClicks)
-        )
-    }
-
-    private _onFocus = (): void => {
-        this.setState({ isFocused: true })
-    }
-
-    private _onBlur = (): void => {
-        this.setState({ isFocused: false })
-    }
-
-    */
-
 }
 
 // "withStreamlitConnection" is a wrapper function. It bootstraps the
 // connection between your component and the Streamlit app, and handles
 // passing arguments from Python -> Component.
-//
-// You don't need to edit withStreamlitConnection (but you're welcome to!).
-export default withStreamlitConnection(MyComponent)  
+export default withStreamlitConnection(MitoStreamlitWrapper)  

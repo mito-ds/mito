@@ -122,8 +122,9 @@ def is_jupyterlite() -> bool:
 
 def is_streamlit() -> bool:
     try:
-        # TODO: make this more robust
-        import streamlit
-        return True
-    except ImportError:
+        # TODO: have to handle versions of streamlit that don't have this
+        # or it's in different places: https://discuss.streamlit.io/t/how-to-check-if-code-is-run-inside-streamlit-and-not-e-g-ipython/23439/8
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        return get_script_run_ctx() is not None
+    except ModuleNotFoundError:
         return False
