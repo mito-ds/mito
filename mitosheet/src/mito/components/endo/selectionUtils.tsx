@@ -487,7 +487,7 @@ export const _getBorderStyle = (selection: MitoSelection, rowIndex: number, colu
     // Note: also highlight the bottom in the case that is the last element, and the whole column is selected
     const borderBottom = (higherRowIndex === rowIndex || (higherRowIndex <= -1 && rowIndex === numRows - 1)) ? inSelectionBorderStyle : undefined;
     const borderLeft = lowerColumnIndex === columnIndex ? inSelectionBorderStyle : undefined;
-    const borderRight = higherColumnIndex === columnIndex ? inSelectionBorderStyle : undefined;
+    const borderRight = (higherColumnIndex === columnIndex || highlightedColumnIndex === columnIndex) ? inSelectionBorderStyle : undefined;
 
     if (lowerRowIndex <= -1 && higherRowIndex <= -1) {
         // If only the column header is selected, then we select the entire column
