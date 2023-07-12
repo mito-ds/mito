@@ -91,7 +91,9 @@ const ColumnHeaders = (props: {
 
                         // First we handle highlighting the border
                         const {columnIndex} = getIndexesFromXAndY(e.clientX, e.clientY)
-                        props.setUIState({ ...props.uiState, highlightedColumnIndex: columnIndex });
+                        if (columnIndex !== props.uiState.highlightedColumnIndex) {
+                            props.setUIState({ ...props.uiState, highlightedColumnIndex: columnIndex });
+                        }
 
                         // Handle scrolling
                         const leftInHeader = e.clientX - (columnHeadersContainerRef.current?.getBoundingClientRect().left || 0) 
