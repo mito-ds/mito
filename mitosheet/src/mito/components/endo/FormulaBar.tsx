@@ -29,7 +29,8 @@ const FormulaBar = (props: {
     mitoAPI: MitoAPI,
     selection: MitoSelection,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
-    analysisData: AnalysisData
+    analysisData: AnalysisData,
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
     const rowIndex = props.selection.startingRowIndex
@@ -85,6 +86,7 @@ const FormulaBar = (props: {
                         currentSheetView={currentSheetView}
                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                         analysisData={props.analysisData}
+                        mitoContainerRef={props.mitoContainerRef}
                     />
                 } 
                 {props.editorState?.editorLocation !== 'formula bar' &&

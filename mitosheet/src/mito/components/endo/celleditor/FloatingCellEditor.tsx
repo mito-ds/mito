@@ -32,7 +32,8 @@ const FloatingCellEditor = (props: {
     containerRef: React.RefObject<HTMLDivElement>,
     mitoAPI: MitoAPI,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
-    analysisData: AnalysisData
+    analysisData: AnalysisData,
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
     const [editorStyle, setEditorStyle] = useState<EditorStyle>({
@@ -156,6 +157,7 @@ const FloatingCellEditor = (props: {
                 currentSheetView={currentSheetView}
                 closeOpenEditingPopups={props.closeOpenEditingPopups}
                 analysisData={props.analysisData}
+                mitoContainerRef={props.mitoContainerRef}
             />
         </div>
     )

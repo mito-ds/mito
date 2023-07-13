@@ -146,9 +146,9 @@ const PythonAITools: NextPage = () => {
           </section>
 
           <section>
-            <h1 className='center'>
+            <h2 className='center'>
                 Frequently Asked Questions
-            </h1>
+            </h2>
             <FAQCard title='How is Mito AI different from other AI copilots?'>
                 <ol>
                     <li className='margin-top-p5rem'>

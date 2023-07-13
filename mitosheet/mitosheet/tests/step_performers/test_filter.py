@@ -39,6 +39,7 @@ from mitosheet.step_performers.filter import (
     FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH,
     FC_STRING_ENDS_WITH,
+    FC_STRING_CONTAINS_CASE_INSENSITIVE,
 )
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
@@ -258,6 +259,12 @@ FILTER_TESTS = [
         FC_STRING_ENDS_WITH,
         "2",
         pd.DataFrame(data={"A": ["12", "122222"]}),
+    ),
+    (
+        pd.DataFrame(data={"A": ["abcDEF", "ABCdef", "def", "dEf"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "aBc",
+        pd.DataFrame(data={"A": ["abcDEF", "ABCdef"]}),
     ),
     (
         pd.DataFrame(data={"A": ["1", "12", "3", "4", "5", "6"]}),
@@ -1054,6 +1061,22 @@ FILTER_TESTS_MULTIPLE_VALUES_PER_CONDITION = [
         "1",
         "4",
         "df1 = df1[df1['A'].apply(lambda val: any(str(val).endswith(s) for s in ['1', '4']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["aBcdef", "ABCdef", "def"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "Or",
+        "ab",
+        "bc",
+        "df1 = df1[df1['A'].apply(lambda val: any(s.upper() in str(val).upper() for s in ['ab', 'bc']))]",
+    ),
+    (
+        pd.DataFrame({"A": ["aBcdef", "ABCdEf", "def"]}),
+        FC_STRING_CONTAINS_CASE_INSENSITIVE,
+        "And",
+        "abcd",
+        "ef",
+        "df1 = df1[df1['A'].apply(lambda val: all(s.upper() in str(val).upper() for s in ['abcd', 'ef']))]",
     ),
     (
         pd.DataFrame(
