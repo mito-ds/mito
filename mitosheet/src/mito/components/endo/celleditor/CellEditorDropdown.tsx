@@ -213,7 +213,7 @@ const CellEditorDropdown = (props: {
             }
             {/* Always display a link to the documentation */}
             <a
-                className='text-body-2 text-body-2-link cell-editor-dropdown-link'
+                className={classNames('text-body-2', 'text-body-2-link', 'cell-editor-dropdown-link')}
                 target='_blank'
                 rel='noreferrer'
                 href={FORMULA_DOC_LINK}
