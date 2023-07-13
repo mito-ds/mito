@@ -14,6 +14,4 @@ if file is not None:
 
     # open in Mito
     new_dfs, code = mito_component(file.name, key="bar")
-
-    st.write(new_dfs)
-    st.write(code)
+    st.code("\n".join(code))
