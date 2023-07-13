@@ -158,7 +158,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                         >
                             <DropdownItem
                                 title={MergeType.LOOKUP}
-                                subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are mulitple matches in the second sheet, only takes the first."
+                                subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are multiple matches in the second sheet, only takes the first."
                             />
                             <DropdownItem
                                 title={MergeType.LEFT}
