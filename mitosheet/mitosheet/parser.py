@@ -109,6 +109,25 @@ def safe_contains(
 
     return False
 
+def safe_contains_single_equals(formula, column_headers):
+    """
+        Check if the string contains a single equals sign that is not part of a substring:
+
+        "A = B",                    # True
+        "IF(A=B, 1, 0)",            # True
+        'A==B',                     # False
+        "CONCAT(A, 'ABC=123')",     # False
+    """
+
+    # If the column headers contain an = then, we don't continue the check 
+    # because it is too hard, and rare.
+    for column_header in column_headers:
+        if isinstance(column_header, str) and '=' in column_header:
+            return False
+
+    pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
+    return bool(re.search(pattern, formula))
+
 def safe_contains_function(
         formula: str, 
         function: str,
@@ -181,23 +200,11 @@ def check_common_errors(
         )
 
 
-    def safe_contains_single_equals(input_string):
-        """
-            Check if the string contains a single equals sign that is not part of a substring:
-
-            "A = B",                    # True
-            "IF(A=B, 1, 0)",            # True
-            'A==B',                     # False
-            "CONCAT(A, 'ABC=123')",     # False
-        """
-        pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
-        return bool(re.search(pattern, input_string))
-
     # Remove leading white space from formula so we can easily remove
     # the leading = if it exists
     formula_clean = formula.lstrip()
     formula_without_leading_equals = formula_clean[1:] if formula_clean[0] == '=' else formula_clean
-    if safe_contains_single_equals(formula_without_leading_equals):
+    if safe_contains_single_equals(formula_without_leading_equals, column_headers):
         raise make_invalid_formula_error(
             formula,
             'Use == instead of = to check equality.',

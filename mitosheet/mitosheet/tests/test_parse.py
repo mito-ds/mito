@@ -259,7 +259,27 @@ OPERATOR_TEST_CASES = [
         set(),
         set(['A', 'B'])
     ),
-
+    # Equality Operator with Equals Sign in Column Header
+    (
+        '=A=123 == B',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A=123', 'B', 'C'], 2)),
+        'df[\'C\'] = df[\'A=123\'] == df[\'B\']',
+        set(),
+        set(['A=123', 'B'])
+    ),
+    # If equals sign is in a column header, then we 
+    # don't check for single equals sings because its too hard and rare
+    (
+        '=A=123 = B',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A=123', 'B', 'C'], 2)),
+        'df[\'C\'] = df[\'A=123\'] = df[\'B\']',
+        set(),
+        set(['A=123', 'B'])
+    ),
 ]
 
 # Tests proper function parsing
