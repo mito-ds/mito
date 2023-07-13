@@ -117,6 +117,9 @@ def safe_contains_single_equals(formula, column_headers):
         "IF(A=B, 1, 0)",            # True
         'A==B',                     # False
         "CONCAT(A, 'ABC=123')",     # False
+        'A!=B',                     # False
+        'A>=B',                     # False
+        'A<=B',                     # False
     """
 
     # If the column headers contain an = then, we don't continue the check 
@@ -124,6 +127,16 @@ def safe_contains_single_equals(formula, column_headers):
     for column_header in column_headers:
         if isinstance(column_header, str) and '=' in column_header:
             return False
+
+    strings_to_ignore = [
+        '!=',
+        '>=',
+        '<=',
+    ]
+
+    # Remove all occurences of string_to_ignore from the formula
+    for string_to_ignore in strings_to_ignore:
+        formula = formula.replace(string_to_ignore, '')
 
     pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
     return bool(re.search(pattern, formula))
