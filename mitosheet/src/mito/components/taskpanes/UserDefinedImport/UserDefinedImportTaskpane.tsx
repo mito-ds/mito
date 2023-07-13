@@ -49,7 +49,7 @@ const getEmptyDefaultParamsForImporter = (
 ): UserDefinedImportParams => {
     return {
         importer: userDefinedImporter.name,
-        importer_params: Object.fromEntries(Object.entries(userDefinedImporter.parameters).map(([paramName, paramType]) => {
+        importer_params: Object.fromEntries(Object.keys(userDefinedImporter.parameters).map((paramName) => {
             return [paramName, '']})
         )
     }
@@ -213,7 +213,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                                 : undefined
 
                             return (
-                                <Row justify='space-between' align='center' title={`${paramName}`}>
+                                <Row key={paramName} justify='space-between' align='center' title={`${paramName}`}>
                                     <Col>
                                         <p>
                                             <span className='text-header-3'>{paramName}</span> {typeSpan}

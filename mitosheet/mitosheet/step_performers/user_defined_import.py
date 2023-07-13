@@ -85,7 +85,11 @@ def get_user_defined_importer_params_from_frontend_params(f: Callable, frontend_
             elif param_type == 'bool':
                 user_defined_importer_params[param_name] = 'true' in param_value.lower()
             else:
-                user_defined_importer_params[param_name] = eval(param_value)
+                try:
+                    user_defined_importer_params[param_name] = eval(param_value)
+                except:
+                    # If we cannot eval the result, it's likely a string, so we just pass it through
+                    user_defined_importer_params[param_name] = param_value
         except:
             raise MitoError(
                 'user_defined_importer_error',
