@@ -82,27 +82,22 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
 
     public render = (): ReactNode => {
-        
-        const sheetDataJSON = this.props.args['sheet_data_json'];
-        const analysisDataJSON = this.props.args['analysis_data_json'];
-        const userProfileJSON = this.props.args['user_profile_json'];
-        const responsesJSON = this.props.args['responses_json'];
-        const sheetDataArray = getSheetDataArrayFromString(sheetDataJSON);
-        const analysisData = getAnalysisDataFromString(analysisDataJSON);
-        const userProfile = getUserProfileFromString(userProfileJSON);
 
-        // If we have new responses, add them to the state
-        const responses = JSON.parse(responsesJSON);
+        const sheetDataArray = getSheetDataArrayFromString(this.props.args['sheet_data_json']);
+        const analysisData = getAnalysisDataFromString(this.props.args['analysis_data_json']);
+        const userProfile = getUserProfileFromString(this.props.args['user_profile_json']);
+        const responses = JSON.parse(this.props.args['responses_json']);
+
+        // If we have new responses, add them to the state. Note that this
+        // implies that responses are append-only, and we never delete from
+        // this array. We probably want to do that at some point for performace
+        // reasons, for long analyses.
         if (responses.length > this.state.responses.length) {
             const newResponses = responses.slice(this.state.responses.length);
             
-            // Add the new responses to the state
             this.setState(prevState => {
-                return {
-                    responses: [...prevState.responses, ...newResponses]
-                }
+                return {responses: [...prevState.responses, ...newResponses]}
             });
-
         }
 
         const send = async (msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> => {
@@ -110,12 +105,12 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             const parentWindow = window.parent;
             const iframes = parentWindow.frames;
             const currentIndex = Array.from(iframes).findIndex(iframe => iframe === window);
-            const previousSiblingIframe = iframes[currentIndex - 1];
+            const mitoMessagePasserIframe = iframes[currentIndex - 1];
 
             // Send it a message that contains the msg
-            if (previousSiblingIframe) {
-                const previousSiblingWindow = previousSiblingIframe.window;
-                previousSiblingWindow.postMessage({'type': 'mito', 'data': msg}, '*');
+            if (mitoMessagePasserIframe) {
+                const mitoMessagePasserWindow = mitoMessagePasserIframe.window;
+                mitoMessagePasserWindow.postMessage({'type': 'mito', 'data': msg}, '*');
             }
             
             return await this.getResponseData(msg['id'] as string);

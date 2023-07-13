@@ -134,6 +134,9 @@ setup_args = dict(
             "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
         ],
+        'streamlit': [
+            'streamlit>=1.0',
+        ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
             # snowflake-connect-python requires at least Python 3.7

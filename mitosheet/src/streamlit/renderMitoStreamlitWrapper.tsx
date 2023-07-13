@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import MitoStreamlitWrapper from "./MitoWrapper"
+import MitoStreamlitWrapper from "./MitoStreamlitWrapper"
 
 ReactDOM.render(
   <React.StrictMode>
