@@ -6,9 +6,9 @@ const ContactCTACard = (): JSX.Element => {
 
     return (
         <div> 
-            <h1 className={titleStyles.title}>
+            <h2 className={titleStyles.title}>
                 Ready to make your team Python independent?
-            </h1>
+            </h2>
             <div className='center'>
                 <CTAButtons variant='contact' align='center' />
             </div>  
