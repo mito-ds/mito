@@ -11,10 +11,12 @@ interface State {
     responses: MitoResponse[]
 }
 
-
-// TODO: update these to be correct!
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
+// Max delay is the longest we'll wait for the API to return a value
+// There is no real reason for these to expire, so we set it very high
+// at 5 minutes
+const MAX_DELAY = 5 * 60_000;
+export const RETRY_DELAY = 25;
+export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 /**
  * This wraps the Mito component in a Streamlit component, and 
