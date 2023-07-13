@@ -1,5 +1,6 @@
 import json
 import os
+import pandas as pd
 import streamlit.components.v1 as components
 
 try:
@@ -15,10 +16,9 @@ try:
     message_passer_build_dr = os.path.join(parent_dir, "messagingBuild")
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
 
-
     @st.cache_resource
-    def _get_mito_backend(_args, key): # So it caches on key
-        mito_backend = MitoBackend(*_args)
+    def _get_mito_backend(*args, key=None): # So it caches on key
+        mito_backend = MitoBackend(*args)
 
         # Make a send function that stores the responses in a list
         responses = []
@@ -45,7 +45,7 @@ try:
         TODO: this should change the when the arguments change. The caching
         stuff is weird currently.
         """
-        mito_backend, responses = _get_mito_backend(args, key)
+        mito_backend, responses = _get_mito_backend(*args, key=key)
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
         user_profile_json = mito_backend.get_user_profile_json()
@@ -56,11 +56,18 @@ try:
             
         responses_json = json.dumps(responses)
 
-        _mito_component_func(key=key, sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, responses_json=responses_json)
+        _mito_component_func(
+            key=key, 
+            sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
+            responses_json=responses_json, id=id(mito_backend)
+        )
 
-        # We could modify the value returned from the component if we wanted.
-        # There's no need to do this in our simple example - but it's an option.
-        return mito_backend.steps_manager.curr_step.final_defined_state.dfs
+        # We return a mapping from dataframe names to dataframes
+        final_state = mito_backend.steps_manager.curr_step.final_defined_state
+        return {
+            df_name: df for df_name, df in 
+            zip(final_state.df_names, final_state.dfs)
+        }
     
 except ImportError:
     def mito_component(*args, key=None):

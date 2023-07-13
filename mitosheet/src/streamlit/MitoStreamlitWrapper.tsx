@@ -80,6 +80,24 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         })
     }
 
+    public async send (msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
+        // First, get the iframe of the MitoMessagePasser component
+        const parentWindow = window.parent;
+        const iframes = parentWindow.frames;
+        const currentIndex = Array.from(iframes).findIndex(iframe => iframe === window);
+        const mitoMessagePasserIframe = iframes[currentIndex - 1];
+
+        // Send it a message that contains the msg
+        if (mitoMessagePasserIframe) {
+            const mitoMessagePasserWindow = mitoMessagePasserIframe.window;
+            mitoMessagePasserWindow.postMessage({'type': 'mito', 'data': msg}, '*');
+        }
+        
+        return await this.getResponseData(msg['id'] as string);
+    }
+    
+    
+
 
     public render = (): ReactNode => {
 
@@ -89,9 +107,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         const responses = JSON.parse(this.props.args['responses_json']);
 
         // If we have new responses, add them to the state. Note that this
-        // implies that responses are append-only, and we never delete from
-        // this array. We probably want to do that at some point for performace
-        // reasons, for long analyses.
+        // implies that responses are append-only for a given Mito instance.
         if (responses.length > this.state.responses.length) {
             const newResponses = responses.slice(this.state.responses.length);
             
@@ -99,28 +115,17 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 return {responses: [...prevState.responses, ...newResponses]}
             });
         }
-
-        const send = async (msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> => {
-            // First, get the iframe of the MitoMessagePasser component
-            const parentWindow = window.parent;
-            const iframes = parentWindow.frames;
-            const currentIndex = Array.from(iframes).findIndex(iframe => iframe === window);
-            const mitoMessagePasserIframe = iframes[currentIndex - 1];
-
-            // Send it a message that contains the msg
-            if (mitoMessagePasserIframe) {
-                const mitoMessagePasserWindow = mitoMessagePasserIframe.window;
-                mitoMessagePasserWindow.postMessage({'type': 'mito', 'data': msg}, '*');
-            }
-            
-            return await this.getResponseData(msg['id'] as string);
+        // If we have less responses, this means we have reset the Mito instance,
+        // so we update the responses. TODO: can the Mito widget handle this?
+        if (responses.length < this.state.responses.length) {
+            this.setState({responses: responses});
         }
+
 
         return (
             <Mito 
-                getSendFunction={async (): Promise<SendFunction> => {
-                    return send;
-                }} 
+                key={this.props.args['id'] as string}
+                getSendFunction={async () => this.send.bind(this)} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
