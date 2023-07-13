@@ -182,6 +182,7 @@ const ColumnHeader = (props: {
             }}
             onDragEnd={() => {
                 props.setColumnHeaderOperation(undefined);
+                props.setUIState({...props.uiState, highlightedColumnIndex: undefined})
             }}
             title={getDisplayColumnHeader(columnHeader)}
             // We have to make it not draggable when we're editing the column header,
