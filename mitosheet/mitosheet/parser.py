@@ -109,7 +109,7 @@ def safe_contains(
 
     return False
 
-def safe_contains_single_equals(formula, column_headers):
+def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]) -> bool:
     """
         Check if the string contains a single equals sign that is not part of a substring:
 
