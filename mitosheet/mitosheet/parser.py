@@ -134,10 +134,12 @@ def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]
         '<=',
     ]
 
-    # Remove all occurences of string_to_ignore from the formula
+    # Remove all occurences of string_to_ignore from the formula. Do this outside of the regex
+    # because its easy to do here, and the regex is already complicated enough
     for string_to_ignore in strings_to_ignore:
         formula = formula.replace(string_to_ignore, '')
 
+    # This regex matches any = that is not part of == and is not part of a string.
     pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
     return bool(re.search(pattern, formula))
 
