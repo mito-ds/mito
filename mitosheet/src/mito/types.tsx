@@ -712,12 +712,12 @@ export enum MitoEnterpriseConfigKey {
 export type PublicInterfaceVersion = 1 | 2 | 3;
 
 type UserDefinedImporterParamName = string;
-type UserDefinedImporterParamType = 'str' | 'int' | 'float';
+export type UserDefinedImporterParamType = 'any' | 'str' | 'int' | 'float' | 'bool';
 
 export type UserDefinedImporter = {
     name: string,
     docstring: string,
-    params: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
+    parameters: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
 }
 
 

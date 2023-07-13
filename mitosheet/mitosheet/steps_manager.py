@@ -17,7 +17,7 @@ from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
-from mitosheet.step_performers.user_defined_import import get_user_defined_importers_for_frontend
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer, get_user_defined_importers_for_frontend
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -602,6 +602,7 @@ class StepsManager:
                 or step.step_type == DataframeImportStepPerformer.step_type()
                 or step.step_type == SnowflakeImportStepPerformer.step_type()
                 or step.step_type == ExcelRangeImportStepPerformer.step_type()
+                or step.step_type == UserDefinedImportStepPerformer.step_type()
             )
         ]
 
