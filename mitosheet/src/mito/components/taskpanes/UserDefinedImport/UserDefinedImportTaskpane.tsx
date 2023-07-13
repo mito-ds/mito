@@ -150,7 +150,20 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                             </Col>
                         </Row>
                         {userDefinedImporter?.parameters !== undefined && Object.keys(userDefinedImporter?.parameters).length > 0 && 
-                            <LabelAndTooltip tooltip="">Import Parameters</LabelAndTooltip>
+                            <LabelAndTooltip tooltip="Set parameters to the import method to configure how data is imported.">Import Parameters</LabelAndTooltip>
+                        }
+                        {
+                            /**
+                             * These params end up as Python code - and we want to be able to support whatever parameters
+                             * users functions have. Moreover, we want to do the string -> correct type conversion in one
+                             * place. 
+                             * 
+                             * Thus, we just do all our parsing from string -> correct param type on the backend. On the 
+                             * frontend, we treat everything as a string (which leads to some strangeness with e.g. boolean
+                             * or float inputs) -- but the error messages are still good, and we centralize all our parsing
+                             * and casting in one place on the backend, which is nice.
+                             */
+
                         }
                         {userDefinedImporter?.parameters !== undefined && Object.entries(userDefinedImporter.parameters).map(([paramName, paramType]) => {
                             const paramValue = params.importer_params[paramName];

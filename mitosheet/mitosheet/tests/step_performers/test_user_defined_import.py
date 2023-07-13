@@ -111,7 +111,7 @@ def test_user_defined_import_error_no_error_modal():
     assert not e_info.value.error_modal
 
 
-def test_user_defined_import_optimizes():
+def test_user_defined_import_does_not_clear():
 
 
     def importer():
@@ -125,3 +125,15 @@ def test_user_defined_import_optimizes():
     mito.delete_dataframe(0)
 
     assert len(mito.transpiled_code) == 0
+
+def test_user_defined_import_does_not_clear():
+
+
+    def importer():
+        return pd.DataFrame({'A': [1]})
+    
+    mito = create_mito_wrapper(importers=[importer])
+    mito.user_defined_import('importer', {})
+    mito.clear()
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
