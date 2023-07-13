@@ -180,6 +180,30 @@ def check_common_errors(
             error_modal=False
         )
 
+
+    def safe_contains_single_equals(input_string):
+        """
+            Check if the string contains a single equals sign that is not part of a substring:
+
+            "A = B",                    # True
+            "IF(A=B, 1, 0)",            # True
+            'A==B',                     # False
+            "CONCAT(A, 'ABC=123')",     # False
+        """
+        pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
+        return bool(re.search(pattern, input_string))
+
+    # Remove leading white space from formula so we can easily remove
+    # the leading = if it exists
+    formula_clean = formula.lstrip()
+    formula_without_leading_equals = formula_clean[1:] if formula_clean[0] == '=' else formula_clean
+    if safe_contains_single_equals(formula_without_leading_equals):
+        raise make_invalid_formula_error(
+            formula,
+            'Use == instead of = to check equality.',
+            error_modal=False
+        )     
+
     # If the user used a lookup formula, point them to merge instead!
     LOOKUP_FORMULAS = ['VLOOKUP', 'HLOOKUP', 'XLOOKUP', 'LOOKUP']
     for lookup_formula in LOOKUP_FORMULAS:
@@ -865,6 +889,7 @@ def parse_formula(
 
     else:
         final_code = f'{code_with_functions}'
+
     return final_code, functions, column_header_dependencies, index_label_dependencies
 
 
@@ -885,7 +910,6 @@ def get_frontend_formula_header_reference(
         'type': '{HEADER}',
         'display_column_header': get_column_header_display(column_header),
     }
-
 
 
 def get_frontend_formula(
