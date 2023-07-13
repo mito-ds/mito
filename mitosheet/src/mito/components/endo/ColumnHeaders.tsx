@@ -73,9 +73,10 @@ const ColumnHeaders = (props: {
                     ref={columnHeadersContainerRef}
 
                     /* 
-                        On drag over handles scrolling the grid when the user
+                        On drag over handles two things: scrolling the grid when the user
                         is dragging a column to a new location and they are
-                        at the end of the grid.
+                        at the end of the grid, and highlighting the border between columns
+                        where the column would be inserted.
 
                         Because we cannot access the element that is being dragged
                         in the onDragOver event (or the dataTransfer data), we simply
@@ -88,6 +89,13 @@ const ColumnHeaders = (props: {
                         e.preventDefault()
                         e.persist()
 
+                        // First we handle highlighting the border
+                        const {columnIndex} = getIndexesFromXAndY(e.clientX, e.clientY)
+                        if (columnHeaderOperation === 'reorder' && columnIndex !== props.uiState.highlightedColumnIndex) {
+                            props.setUIState({ ...props.uiState, highlightedColumnIndex: columnIndex });
+                        }
+
+                        // Handle scrolling
                         const leftInHeader = e.clientX - (columnHeadersContainerRef.current?.getBoundingClientRect().left || 0) 
                         if (leftInHeader < 100) {
                             // Scale the offset so we scroll more aggressively as you get closer 
@@ -167,6 +175,7 @@ const ColumnHeaders = (props: {
                             props.setUIState(prevUIState => {
                                 return {
                                     ...prevUIState,
+                                    highlightedColumnIndex: undefined,
                                     currOpenTaskpane: {type: TaskpaneType.NONE}
                                 }
                             })

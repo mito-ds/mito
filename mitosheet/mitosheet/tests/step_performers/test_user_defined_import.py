@@ -24,10 +24,18 @@ def create_df_diff() -> pd.DataFrame:
     df = pd.DataFrame({'A': [2]})
     return df
 
+def get_df_with_params(n, i: int, f: float, s: str, b: bool) -> pd.DataFrame: # type: ignore
+    import pandas as pd
+    
+    return pd.DataFrame({'A': [n, i, f, s, b]})
+
+
+
 USER_DEFINED_IMPORT_TESTS = [
     (
         [],
         "create_df",
+        {},
         [
             create_df()
         ]
@@ -35,15 +43,44 @@ USER_DEFINED_IMPORT_TESTS = [
     (
         [create_df()],
         "create_df_diff",
+        {},
         [
             create_df(), create_df_diff()
         ]
     ),
+    (
+        [],
+        "get_df_with_params",
+        {
+            'n': '1',
+            'i': '2',
+            'f': '3',
+            's': '4',
+            'b': 'true'
+        },
+        [
+            get_df_with_params(1, 2, 3.0, '4', True)
+        ]
+    ),
+    (
+        [],
+        "get_df_with_params",
+        {
+            'n': '{"A": [123]}',
+            'i': '2',
+            'f': '3',
+            's': '4',
+            'b': 'false',
+        },
+        [
+            get_df_with_params({"A": [123]}, 2, 3.0, '4', False)
+        ]
+    ),
 ]
-@pytest.mark.parametrize("input_dfs, importer, output_dfs", USER_DEFINED_IMPORT_TESTS)
-def test_userdefinedimport(input_dfs, importer, output_dfs):
-    mito = create_mito_wrapper(*input_dfs, importers=[create_df, create_df_diff])
-    mito.user_defined_import(importer)
+@pytest.mark.parametrize("input_dfs, importer, importer_params, output_dfs", USER_DEFINED_IMPORT_TESTS)
+def test_userdefinedimport(input_dfs, importer, importer_params, output_dfs):
+    mito = create_mito_wrapper(*input_dfs, importers=[create_df, create_df_diff, get_df_with_params])
+    mito.user_defined_import(importer, importer_params)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
@@ -65,6 +102,7 @@ def test_user_defined_import_error_no_error_modal():
                 'step_id': get_new_id(),
                 'params': {
                     'importer': 'importer',
+                    'importer_params': {}
                 }
             }
         )
@@ -73,17 +111,28 @@ def test_user_defined_import_error_no_error_modal():
     assert not e_info.value.error_modal
 
 
-def test_user_defined_import_optimizes():
+def test_user_defined_importer_optimizes():
 
 
     def importer():
         return pd.DataFrame({'A': [1]})
     
     mito = create_mito_wrapper(importers=[importer])
-    mito.user_defined_import('importer')
+    mito.user_defined_import('importer', {})
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
 
     mito.delete_dataframe(0)
 
     assert len(mito.transpiled_code) == 0
+
+def test_user_defined_import_does_not_clear():
+
+    def importer():
+        return pd.DataFrame({'A': [1]})
+    
+    mito = create_mito_wrapper(importers=[importer])
+    mito.user_defined_import('importer', {})
+    mito.clear()
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))

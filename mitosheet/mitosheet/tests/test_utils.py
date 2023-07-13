@@ -679,6 +679,7 @@ class MitoWidgetTestWrapper:
     def user_defined_import(
             self, 
             importer: str,
+            importer_params: Dict[str, str]
         ) -> bool:
 
 
@@ -690,7 +691,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'importer': importer,
-                    
+                    'importer_params': importer_params
                 }
             }
         )
