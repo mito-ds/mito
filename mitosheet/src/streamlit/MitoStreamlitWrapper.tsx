@@ -4,7 +4,7 @@ import {
 } from "streamlit-component-lib"
 import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
-import { MitoResponse, SendFunction, SendFunctionReturnType } from "../mito";
+import { MitoResponse, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
 interface State {
