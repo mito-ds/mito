@@ -91,7 +91,7 @@ const ColumnHeaders = (props: {
 
                         // First we handle highlighting the border
                         const {columnIndex} = getIndexesFromXAndY(e.clientX, e.clientY)
-                        if (columnIndex !== props.uiState.highlightedColumnIndex) {
+                        if (columnHeaderOperation === 'reorder' && columnIndex !== props.uiState.highlightedColumnIndex) {
                             props.setUIState({ ...props.uiState, highlightedColumnIndex: columnIndex });
                         }
 
