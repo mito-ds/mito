@@ -338,7 +338,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
-                "code": transpile(self, optimize=(is_pro() or is_running_test())),
+                "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
@@ -404,6 +404,9 @@ class StepsManager:
             )
 
         return step_summary_list
+    
+    def code(self):
+        return transpile(self, optimize=(is_pro() or is_running_test()))
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """

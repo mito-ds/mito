@@ -125,13 +125,15 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
 
         return (
-            <Mito 
-                key={this.props.args['id'] as string}
-                getSendFunction={async () => this.send.bind(this)} 
-                sheetDataArray={sheetDataArray} 
-                analysisData={analysisData} 
-                userProfile={userProfile}
-            />  
+            <div className="mito-streamlit-wrapper">
+                <Mito 
+                    key={this.props.args['id'] as string}
+                    getSendFunction={async () => this.send.bind(this)} 
+                    sheetDataArray={sheetDataArray} 
+                    analysisData={analysisData} 
+                    userProfile={userProfile}
+                />  
+            </div>
         )
     }
 }

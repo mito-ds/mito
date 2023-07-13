@@ -64,10 +64,11 @@ try:
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
+        code = mito_backend.steps_manager.code()
         return {
             df_name: df for df_name, df in 
             zip(final_state.df_names, final_state.dfs)
-        }
+        }, code
     
 except ImportError:
     def mito_component(*args, key=None):
