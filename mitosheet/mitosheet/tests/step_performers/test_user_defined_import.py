@@ -24,7 +24,7 @@ def create_df_diff() -> pd.DataFrame:
     df = pd.DataFrame({'A': [2]})
     return df
 
-def get_df_with_params(n, i: int, f: float, s: str, b: bool):
+def get_df_with_params(n, i: int, f: float, s: str, b: bool) -> pd.DataFrame: # type: ignore
     import pandas as pd
     
     return pd.DataFrame({'A': [n, i, f, s, b]})
@@ -111,7 +111,7 @@ def test_user_defined_import_error_no_error_modal():
     assert not e_info.value.error_modal
 
 
-def test_user_defined_import_does_not_clear():
+def test_user_defined_importer_optimizes():
 
 
     def importer():
@@ -127,7 +127,6 @@ def test_user_defined_import_does_not_clear():
     assert len(mito.transpiled_code) == 0
 
 def test_user_defined_import_does_not_clear():
-
 
     def importer():
         return pd.DataFrame({'A': [1]})

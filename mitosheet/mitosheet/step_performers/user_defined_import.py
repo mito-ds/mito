@@ -72,7 +72,7 @@ def get_importer_params_and_type_and_value(f: Callable, frontend_params: Dict[st
 
 
 def get_user_defined_importer_params_from_frontend_params(f: Callable, frontend_params: Dict[str, str]) -> Dict[str, Any]:
-    user_defined_importer_params = {}
+    user_defined_importer_params: Dict[str, Any] = {}
 
     for param_name, (param_type, param_value) in get_importer_params_and_type_and_value(f, frontend_params).items():
         try:
