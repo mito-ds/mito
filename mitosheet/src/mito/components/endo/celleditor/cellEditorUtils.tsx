@@ -272,13 +272,11 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
     // If the formula is empty, suggest some placeholder functions, so that the user knows that 
     // functions exist in the first place
     if (formula.length === 0) {
-        // The order they are in is alphabetical, but we rearrange, so that LEFT is first
-        const placeholders = functionDocumentationObjects.filter(f => f.function === 'LEFT' || f.function === 'DAY' || f.function === 'VALUE');
+        // The order they are in is alphabetical, but we rearrange, so that IF is first
+        const placeholders = functionDocumentationObjects.filter(f => f.function === 'IF' || f.function === 'CONCAT' || f.function === 'DAY');
         // Rearrrange
-        const temp = placeholders[0];
-        placeholders[0] = placeholders[1];
-        placeholders[1] = temp;
-
+        placeholders.unshift(placeholders[2]);
+        delete placeholders[3];
 
         return [0, placeholders.map(f => {
             return [f.function, f.description] 
