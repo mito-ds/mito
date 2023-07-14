@@ -63,6 +63,22 @@ def get_string_matches(
 
     return list(string_matches_double_quotes) + list(string_matches_single_quotes)
 
+def remove_string_literals(formula: str) -> str:
+    """
+    Returns the formula with all of the string literals removed
+    """
+    string_matches = get_string_matches(formula)
+
+    output_string = ""
+    last_end = 0
+
+    for match_start, match_end in string_matches:
+        output_string += formula[last_end:match_start]
+        last_end = match_end
+
+    output_string += formula[last_end:]
+    return output_string
+
 def match_covered_by_matches( # type: ignore
         match_ranges: List[ParserMatchSubstringRange],
         match_range: ParserMatchSubstringRange
@@ -116,6 +132,7 @@ def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]
         "A = B",                    # True
         "IF(A=B, 1, 0)",            # True
         'A==B',                     # False
+        ' = ',                      # False
         "CONCAT(A, 'ABC=123')",     # False
         'A!=B',                     # False
         'A>=B',                     # False
@@ -128,6 +145,9 @@ def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]
         if isinstance(column_header, str) and '=' in column_header:
             return False
 
+    # We don't want to search inside of string literals, so we remove them
+    formula = remove_string_literals(formula)
+
     strings_to_ignore = [
         '!=',
         '>=',
@@ -139,8 +159,8 @@ def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]
     for string_to_ignore in strings_to_ignore:
         formula = formula.replace(string_to_ignore, '')
 
-    # This regex matches any = that is not part of == and is not part of a string.
-    pattern = r"(^|[^'\"=])\=(?![\=])([^'\"=]|$)"
+    # This regex matches any single = that is not directly surrounded by another =
+    pattern = r"(?<!\=)\=(?!\=)"
     return bool(re.search(pattern, formula))
 
 def safe_contains_function(

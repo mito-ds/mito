@@ -174,7 +174,43 @@ CONSTANT_TEST_CASES: Any = [
         'df[\'B\'] = CONCAT(df[\'A\'], "=123")',
         set(['CONCAT']),
         set(['A'])
-    )
+    ),
+    (
+        '=" = "',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = " = "',
+        set([]),
+        set([])
+    ),
+    (
+        '="="',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = "="',
+        set([]),
+        set([])
+    ),
+    (
+        '="=="',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = "=="',
+        set([]),
+        set([])
+    ),
+    (
+        "'=='",
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        "df[\'B\'] = '=='",
+        set([]),
+        set([])
+    ),
 ]
 
 # Tests cases to ensure operators are parsed correctly
@@ -1072,6 +1108,10 @@ PARSE_TEST_ERRORS = [
     ('=A=B', 'B', 'invalid_formula_error', 'equality'),
     ('=IF(A=B, 1, 0)', 'B', 'invalid_formula_error', 'equality'),
     ('IF(A=B, 1, 0)', 'B', 'invalid_formula_error', 'equality'),
+    ("A='='", 'B', 'invalid_formula_error', 'equality'),
+    ("'=' = '='", 'B', 'invalid_formula_error', 'equality'),
+    ("= = =", 'B', 'invalid_formula_error', 'equality'),
+    ("A == A = A", 'B', 'invalid_formula_error', 'equality'),   
 ]
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
