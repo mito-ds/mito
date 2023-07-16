@@ -53,7 +53,7 @@ const Header = (): JSX.Element => {
                       <Link href='/python-ai-tools'>
                         <div className={classNames(headerStyles.dropdown_item)}>
                           <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <Image src={'/step-icons/ai_icon.svg'} alt='Mito spreadsheet' width={20} height={20} />
+                            <Image src={'/step-icons/ai_icon.svg'} alt='Mito AI' width={20} height={20} />
                             <p className='margin-top-0'>
                               Mito AI
                             </p>
@@ -66,6 +66,27 @@ const Header = (): JSX.Element => {
                         </div>
                       </Link>
                     </li>
+
+                    <li>
+                      <Link href='/infrastructure-integration-python-tool'>
+                        <div className={classNames(headerStyles.dropdown_item)}>
+                          <div className={classNames(headerStyles.dropdown_item_row)}>
+                            <Image src={'/step-icons/SettingsIconThin.svg'} alt='Customize Mito' width={20} height={20} />
+                            <p className='margin-top-0'>
+                              Custom Functionality
+                            </p>
+                          </div>
+                          <div className={classNames(headerStyles.dropdown_item_row)}>
+                            <p className={headerStyles.dropdown_item_subtext}>
+                              BYO spreadsheet functions and imports methods.
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
+
+
+
                   </ul>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
@@ -128,6 +149,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/python-ai-tools'>Mito AI</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/infrastructure-integration-python-tool'>Custom Functionality</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>
