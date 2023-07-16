@@ -29,9 +29,9 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-            <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
+            <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Integrate your existing Python infrastructure with Mito's intuitive UI
+                    Integrate your existing Python infrastructure with Mito&apos;s intuitive UI
                 </h1>
 
                 <p className={titleStyles.description}>
@@ -52,7 +52,7 @@ const Home: NextPage = () => {
             <section>
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
                     <h2>
-                        Custom Python functions shouldn't sit unused in a GitHub repo. Make them accessible in the Mito spreadsheet.
+                        Custom Python functions shouldn&apos;t sit unused in a GitHub repo. Make them accessible in the Mito spreadsheet.
                     </h2>
                     <p>
                         Analysts that don&apos;t know how to use Python functions, use spreadsheet functions instead.
