@@ -111,6 +111,7 @@ const ColumnHeaders = (props: {
                     }
                     }
 
+
                     /* 
                         Handles when a user drops something they have been dragging on
                         top of the column headers. This can either be a column header
