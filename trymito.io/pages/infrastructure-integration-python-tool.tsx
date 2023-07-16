@@ -31,7 +31,7 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
             <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Integrate your existing Python infrastructure with Mito&apos;s intuitive UI
+                    Integrate Mito into your Enterprise Python Infrastructure
                 </h1>
 
                 <p className={titleStyles.description}>
@@ -50,7 +50,7 @@ const Home: NextPage = () => {
             </section>
 
             <section>
-                <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
+                <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center', titleStyles.title)}>
                     <h2>
                         Custom Python functions shouldn&apos;t sit unused in a GitHub repo. Make them accessible in the Mito spreadsheet.
                     </h2>
@@ -66,10 +66,9 @@ const Home: NextPage = () => {
                         <p> 
                             Expose configurable database imports through the Mito UI. 
                             Mito automatically detects the parameters and generates an intuitive UI for non-technical users. 
-                            Once the data is in Mito, analysts can use all of Mito&apos;s transformations to complete their analysis. 
                         </p>
                         <p>
-                        Learn more about <a href="https://blog.trymito.io/automating-spreadsheets-with-python-101/" target="_blank" rel="noreferrer" className={pageStyles.link}>custom imports</a>.
+                            Once the data is in Mito, analysts can use all of Mito&apos;s transformations to complete their analysis. 
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
@@ -86,7 +85,11 @@ const Home: NextPage = () => {
                             Custom <span className='text-highlight'>Spreadsheet Formulas</span> 
                         </h2>
                         <p>
-                            Make custom financial calculations and API calls accessible as Mito spreadsheet functions. Analysts don&apos;t need to search GitHub, read documentation, and figure out how to write lambda functions. They already know how to use spreadsheet functions. 
+                            Make custom financial calculations and API calls accessible as Mito spreadsheet functions. 
+                        </p>
+                        <p>
+                            Analysts don&apos;t need to search GitHub, read documentation, and figure out how to write lambda functions. 
+                            They already know how to use spreadsheets. 
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
@@ -129,7 +132,7 @@ const Home: NextPage = () => {
                         </h3>
                         <p>
                             Turn existing dashboards into self-serve data analytics apps.  
-                            Add Mito to your Streamlit dashboard, Django app, or other custom enterprise applications
+                            Add Mito to your Streamlit dashboard, Django app, or other custom enterprise applications.
                         </p> 
                         <p>
                             Let users filter, pivot, and graph data directly in your app.
@@ -146,7 +149,7 @@ const Home: NextPage = () => {
                             Pull data from your enterprise database solutions directly into Mito so that analysts can self-serve the most up to date data.
                         </p>
                         <p>
-                            Forcing users to write SQL queries to access data is a non-starter.
+                            Forcing users to write SQL queries to access their data is one of the biggest blockers to data app adoption.
                         </p>
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
