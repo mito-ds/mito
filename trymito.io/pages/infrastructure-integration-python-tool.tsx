@@ -44,7 +44,7 @@ const Home: NextPage = () => {
                     
                 <div id='video'>
                     <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                    <source src="/demo.mp4" />
+                        <source src="/custom_imports.mp4" />
                     </video>
                 </div>
             </section>
@@ -73,13 +73,13 @@ const Home: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                        <Image src={'/configurable-database-queries.png'} alt='Configurable Database Queries' width={650} height={358} layout='responsive'/>
                     </div>
                 </div>
             
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
-                        <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                        <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
                     </div>
                         <div className={textImageSplitStyles.functionality_text}>
                         <h2>
@@ -90,7 +90,7 @@ const Home: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                        <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                        <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
                     </div>
                 </div>
 
@@ -107,7 +107,7 @@ const Home: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                        <Image src={'/code-snippets-taskpane.png'} alt='Code Snippets' width={502} height={279} layout='responsive'/>
                     </div>
                 </div>
 
@@ -122,7 +122,7 @@ const Home: NextPage = () => {
                 <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                            <Image src={'/mito_generated_code.png'} alt='Large Data' width={1000} height={500}/>
+                            <Image src={'/mito-in-streamlit.png'} alt='Mito in Streamlit' width={1000} height={500}/>
                         </div>
                         <h3>
                             Embed Mito in Enterprise Applications
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                            <Image src={'/loans_pivot_table.png'} alt='Custom Import' width={1000} height={500}/>
+                            <Image src={'/snowflake-query-taskpane.png'} alt='Snowflake Query Taskpane' width={1000} height={500}/>
                         </div>
                         <h3>
                             Connect Mito to your data infrastructure
@@ -151,7 +151,7 @@ const Home: NextPage = () => {
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                            <Image src={'/ides.png'} alt='Mito Generated Code' width={1000} height={500}/>
+                            <Image src={'/byo-llm.png'} alt='BYO LLM' width={1000} height={500}/>
                         </div>
                         <h3>
                             Bring your own LLM, be in control of your data
