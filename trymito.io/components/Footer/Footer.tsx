@@ -37,10 +37,13 @@ const Footer = (): JSX.Element => {
                         Product
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <Link href='/spreadsheet-automation'>Automation</Link>
+                        <Link href='/spreadsheet-automation'>Mito Spreadsheet</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/python-ai-tools'>Mito AI</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/infrastructure-integration-python-tool'>Custom Functionality</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
