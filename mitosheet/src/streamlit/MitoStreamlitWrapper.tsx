@@ -14,8 +14,7 @@ interface State {
 // Max delay is the longest we'll wait for the API to return a value
 // There is no real reason for these to expire, so we set it very high
 // at 5 minutes
-//const MAX_DELAY = 5 * 60_000;
-const MAX_DELAY = 10_000;
+const MAX_DELAY = 5 * 60_000;
 export const RETRY_DELAY = 25;
 export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
@@ -96,10 +95,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             mitoMessagePasserWindow.postMessage({'type': 'mito', 'data': msg}, '*');
         }
         
-        const response = await this.getResponseData(msg['id'] as string);
-        console.log("SENT", msg)
-        console.log("GOT RESPONSE", response)
-        
+        const response = await this.getResponseData(msg['id'] as string);        
         return response;
     }
     

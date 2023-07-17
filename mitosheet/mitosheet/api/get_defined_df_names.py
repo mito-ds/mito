@@ -69,7 +69,6 @@ def get_df_names_streamlit() -> List[str]:
 
 
 def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[str]:
-    print("HERE")
     if is_streamlit():
         return get_df_names_streamlit()
     return get_df_names_ipython()

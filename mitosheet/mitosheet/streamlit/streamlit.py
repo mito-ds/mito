@@ -14,7 +14,7 @@ def importer():
 new_dfs, code = mito_component(
     r'HGI_AmericanGeneral_01202023.csv', 
     importers=[importer], 
-    df_names=['df'],
+    df_names=['df1000'],
     key="mito_component"
 )
 st.code("\n".join(code))

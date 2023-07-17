@@ -6,7 +6,7 @@ import {
 } from "streamlit-component-lib";
 
 
-const DELAY = 25;
+const DELAY_BETWEEN_SET_COMPONENT_VALUES = 25;
 
 /**
  * This component is used to pass messages from the Mito iframe to the running 
@@ -26,39 +26,24 @@ const DELAY = 25;
  *   renders the Mito iframe.
  * 
  * It's a bit of a hack, but it uses no undocumented APIs, and it works!
+ * 
+ * Notably, streamlit does so level of debouncing on setComponentValue updates, so we
+ * have to provide some delay between them. Most of the work in this file is making sure
+ * that we throttle the setComponentValue calls properly, without falling to any
+ * race conditions.
  */
-class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isSending: boolean}> {
-    timer: null | NodeJS.Timeout;
+class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isSendingMessages: boolean}> {
+    processMessageQueueTimer: null | NodeJS.Timeout;
     
     constructor(props: any) {
         super(props);
         this.state = {
           messageQueue: [],
-          isSending: false,
+          isSendingMessages: false,
         };
-        this.timer = null; // Variable to store the timer
+        this.processMessageQueueTimer = null; // Variable to store the timer
     }
-    
-    processQueue = () => {
-        if (this.state.messageQueue.length > 0) {
-            const message = this.state.messageQueue[0];
-            // Code to send the message
-            console.log('Sending message:', message);
-            Streamlit.setComponentValue(message);
 
-            // Remove the processed message from the queue
-            this.setState((prevState) => ({
-                messageQueue: prevState.messageQueue.slice(1),
-                isSending: true,
-            }));
-
-            // Set a timer to process the next message after a delay
-            this.timer = setTimeout(this.processQueue, DELAY);
-        } else {
-            this.setState({ isSending: false });
-        }
-    };
-    
 
     public render = (): ReactNode => {
         return <div/>
@@ -70,12 +55,31 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
 
     componentWillUnmount() {
         window.removeEventListener('message', this.handleMitoEvent);
-        if (this.timer) {
-            clearTimeout(this.timer);
+        if (this.processMessageQueueTimer) {
+            clearTimeout(this.processMessageQueueTimer);
         }
     }
+    
+    processQueue = () => {
+        if (this.state.messageQueue.length > 0) {
+            // Send one message
+            const message = this.state.messageQueue[0];
+            Streamlit.setComponentValue(message);
 
+            // Remove the processed message from the queue
+            this.setState((prevState) => ({
+                messageQueue: prevState.messageQueue.slice(1),
+                isSendingMessages: true,
+            }));
 
+            // Set a timer to process the next message after a delay
+            this.processMessageQueueTimer = setTimeout(this.processQueue, DELAY_BETWEEN_SET_COMPONENT_VALUES);
+        } else {
+            // Otherwise, we have processed the full queue
+            this.setState({ isSendingMessages: false });
+        }
+    };
+    
     handleMitoEvent = (event: MessageEvent) => {
         // TODO: I think we have to check the origin here, but I'm not sure
         // how to do that.
@@ -94,13 +98,14 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
                 messageQueue: [...prevState.messageQueue, message],
             }));
         
-            // Do some work to make sure we avoid race conditions
+            // Do some work to make sure we avoid race conditions. Namely, we only want to
+            // start processing the queue if we are not already processing the queue.
             let processQueue = false;
             this.setState(prevState => {
-                if (!prevState.isSending) {
+                if (!prevState.isSendingMessages) {
                     processQueue = true;
                 }
-                return { isSending: true };
+                return { isSendingMessages: true };
             }, () => {
                 if (processQueue) {
                     this.processQueue();

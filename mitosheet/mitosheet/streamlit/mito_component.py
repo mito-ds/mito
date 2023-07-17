@@ -42,7 +42,7 @@ try:
                     'id': get_new_id(),
                     'type': 'args_update',
                     'params': {
-                        'args': args
+                        'args': df_names
                     },
                 }
             )
