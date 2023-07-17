@@ -41,6 +41,12 @@
     position: absolute;
 }
 
+.jp-RenderedHTMLCommon .mito-container a.cell-editor-dropdown-link {
+    margin: 6px 10px;
+    text-decoration: underline;
+    color: var(--mito-medium-gray);
+}
+
 .cell-editor-suggestion {
     display: flex;
     flex-direction: column;

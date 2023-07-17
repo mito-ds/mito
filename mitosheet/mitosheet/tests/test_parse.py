@@ -165,7 +165,52 @@ CONSTANT_TEST_CASES: Any = [
         'df[\'B\'] = df[\'A\\tA\'] + 100',
         set([]),
         set(['A\tA'])
-    )
+    ),
+    (
+        '=CONCAT(A, "=123")',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B', 'A'], 2)),
+        'df[\'B\'] = CONCAT(df[\'A\'], "=123")',
+        set(['CONCAT']),
+        set(['A'])
+    ),
+    (
+        '=" = "',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = " = "',
+        set([]),
+        set([])
+    ),
+    (
+        '="="',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = "="',
+        set([]),
+        set([])
+    ),
+    (
+        '="=="',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = "=="',
+        set([]),
+        set([])
+    ),
+    (
+        "'=='",
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        "df[\'B\'] = '=='",
+        set([]),
+        set([])
+    ),
 ]
 
 # Tests cases to ensure operators are parsed correctly
@@ -239,7 +284,38 @@ OPERATOR_TEST_CASES = [
         'df[\'D\'] = FUNC(df[\'A\'] + df[\'B\'] / df[\'C\'] + df[\'A\'] * 100)',
         set(['FUNC']),
         set(['A', 'B', 'C'])
-    )
+    ),
+    # Equality Operator
+    (
+        '=A == B',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2)),
+        'df[\'C\'] = df[\'A\'] == df[\'B\']',
+        set(),
+        set(['A', 'B'])
+    ),
+    # Equality Operator with Equals Sign in Column Header
+    (
+        '=A=123 == B',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A=123', 'B', 'C'], 2)),
+        'df[\'C\'] = df[\'A=123\'] == df[\'B\']',
+        set(),
+        set(['A=123', 'B'])
+    ),
+    # If equals sign is in a column header, then we 
+    # don't check for single equals sings because its too hard and rare
+    (
+        '=A=123 = B',
+        'C',
+        0,
+        pd.DataFrame(get_number_data_for_df(['A=123', 'B', 'C'], 2)),
+        'df[\'C\'] = df[\'A=123\'] = df[\'B\']',
+        set(),
+        set(['A=123', 'B'])
+    ),
 ]
 
 # Tests proper function parsing
@@ -1029,6 +1105,13 @@ PARSE_TEST_ERRORS = [
     ('=XLOOKUP(100, A)', 'B', 'invalid_formula_error', 'XLOOKUP'),
     ('=A <> 100', 'B', 'invalid_formula_error', '<>'),
     ('=SUM(A', 'B', 'invalid_formula_error', 'parentheses'),
+    ('=A=B', 'B', 'invalid_formula_error', 'equality'),
+    ('=IF(A=B, 1, 0)', 'B', 'invalid_formula_error', 'equality'),
+    ('IF(A=B, 1, 0)', 'B', 'invalid_formula_error', 'equality'),
+    ("A='='", 'B', 'invalid_formula_error', 'equality'),
+    ("'=' = '='", 'B', 'invalid_formula_error', 'equality'),
+    ("= = =", 'B', 'invalid_formula_error', 'equality'),
+    ("A == A = A", 'B', 'invalid_formula_error', 'equality'),   
 ]
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):

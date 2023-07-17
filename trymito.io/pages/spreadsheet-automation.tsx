@@ -10,7 +10,6 @@ import trifoldStyles from '../styles/Trifold.module.css';
 import functionalityCardStyles from '../styles/FunctionalityCard.module.css';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import PivotTableIcon from '../public/step-icons/PivotTableIcon.svg';
@@ -22,6 +21,7 @@ import FilterIcon from '../public/step-icons/FilterIcon.svg';
 
 import Link from 'next/link';
 import { useState } from 'react';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 
 

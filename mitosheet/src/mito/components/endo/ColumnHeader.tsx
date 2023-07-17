@@ -82,7 +82,7 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows);
+    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
         props.setEditorState({
@@ -182,6 +182,7 @@ const ColumnHeader = (props: {
             }}
             onDragEnd={() => {
                 props.setColumnHeaderOperation(undefined);
+                props.setUIState({...props.uiState, highlightedColumnIndex: undefined})
             }}
             title={getDisplayColumnHeader(columnHeader)}
             // We have to make it not draggable when we're editing the column header,

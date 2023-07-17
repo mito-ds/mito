@@ -298,6 +298,8 @@ if sys.version_info[:3] > (3, 8, 0):
         function_name: str
         function_params: Dict[ParamName, ParamValue]
 
+    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -329,6 +331,7 @@ else:
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
+    UserDefinedImporterParamType = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]

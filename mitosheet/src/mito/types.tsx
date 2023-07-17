@@ -712,12 +712,12 @@ export enum MitoEnterpriseConfigKey {
 export type PublicInterfaceVersion = 1 | 2 | 3;
 
 type UserDefinedImporterParamName = string;
-type UserDefinedImporterParamType = 'str' | 'int' | 'float';
+export type UserDefinedImporterParamType = 'any' | 'str' | 'int' | 'float' | 'bool';
 
 export type UserDefinedImporter = {
     name: string,
     docstring: string,
-    params: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
+    parameters: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
 }
 
 
@@ -861,6 +861,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    highlightedColumnIndex?: number;
     toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
