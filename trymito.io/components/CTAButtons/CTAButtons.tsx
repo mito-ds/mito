@@ -8,9 +8,11 @@ const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.
 
 const CTAButtons = (props: {
     variant: 'download' | 'contact' | 'try jupyterlite',
-    align: 'left' | 'center'
+    align: 'left' | 'center',
+    displayProCTA?: boolean
 }): JSX.Element => {
 
+    const displayProCTA = props.displayProCTA ?? true; 
     return (
         <div className={classNames(
             ctaButtons.cta_buttons_container, 
@@ -35,13 +37,15 @@ const CTAButtons = (props: {
                 />
             }
             
-            <h2 className={ctaButtons.cta_subbutton}>
-                <Link href='/plans'>
-                    <a className={ctaButtons.pro_cta_text}>
-                        or see Pro plans →
-                    </a>
-                </Link>
-            </h2>
+            {displayProCTA && 
+                <h2 className={ctaButtons.cta_subbutton}>
+                    <Link href='/plans'>
+                        <a className={ctaButtons.pro_cta_text}>
+                            or see Pro plans →
+                        </a>
+                    </Link>
+                </h2>
+            }
         </div>
     )
 }
