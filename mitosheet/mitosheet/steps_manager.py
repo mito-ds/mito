@@ -172,7 +172,7 @@ class StepsManager:
 
     def __init__(
             self, 
-            args: Collection[Union[pd.DataFrame, str]], 
+            args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
             analysis_to_replay: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
@@ -405,7 +405,7 @@ class StepsManager:
 
         return step_summary_list
     
-    def code(self):
+    def code(self) -> List[str]:
         return transpile(self, optimize=(is_pro() or is_running_test()))
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:

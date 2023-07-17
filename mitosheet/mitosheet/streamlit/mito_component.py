@@ -1,6 +1,8 @@
 import json
 import os
-from typing import List, Callable, Optional
+from typing import Any, List, Callable, Optional, Tuple, Union
+
+import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.utils import get_new_id
@@ -21,11 +23,11 @@ try:
 
     @st.cache_resource
     def _get_mito_backend(
-            *args, 
+            *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
-            key=None
-        ): # So it caches on key
+            key: Optional[str]=None
+        ) -> Tuple[MitoBackend, List[Any]]: # So it caches on key
         mito_backend = MitoBackend(*args, user_defined_importers=_importers)
 
         # Make a send function that stores the responses in a list
@@ -49,7 +51,7 @@ try:
 
         return mito_backend, responses
 
-    def message_passer_component(key=None):
+    def message_passer_component(key: Optional[str]=None) -> Any:
         """
         This component simply passes messages from the frontend to the backend,
         so that the backend can process them before it is rendered.
@@ -58,8 +60,8 @@ try:
         return component_value
 
 
-    def mito_component(
-            *args, 
+    def mito_component( # type: ignore
+            *args: Union[pd.DataFrame, str, None], 
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             key=None
@@ -98,5 +100,5 @@ try:
         }, code
     
 except ImportError:
-    def mito_component(*args, key=None):
+    def mito_component(*args, key=None): # type: ignore
         raise RuntimeError("Couldn't import streamlit. Install streamlit with `pip install streamlit` to use the mitosheet component.")

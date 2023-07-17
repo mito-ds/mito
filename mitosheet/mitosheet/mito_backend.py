@@ -50,7 +50,7 @@ class MitoBackend():
     
     def __init__(
             self, 
-            *args: List[Union[pd.DataFrame, str]], 
+            *args: Union[pd.DataFrame, str, None], 
             analysis_to_replay: Optional[str]=None, 
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
