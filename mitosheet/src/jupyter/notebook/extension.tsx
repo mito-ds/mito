@@ -1,6 +1,6 @@
 // Copyright (c) Jupyter Development Team.
 
-import { writeEmptyMitosheetCell } from "./extensionUtils"; 
+import { getCellAtIndex, getCellText, writeEmptyMitosheetCell } from "./extensionUtils"; 
 
 // This file contains the javascript that is run when the notebook is loaded.
 // It contains some requirejs configuration and the `load_ipython_extension`
@@ -25,6 +25,50 @@ if (window.require) {
     });
 }
 
+
+function registerBeforeSaveHandler() {
+
+    const notebook = (window as any).Jupyter?.notebook
+  
+    // Add event listener for cell selection changes
+    notebook.events.on('before_save.Notebook', handleBeforeSave);
+}
+
+// Function to handle the before_save.Notebook event
+const handleBeforeSave = () => {
+    console.log("HERE")
+    const cells = (window as any).Jupyter?.notebook?.get_cells();
+    console.log("calling this now")
+
+    if (cells !== undefined) {
+        const numCells = cells?.length ?? 0;
+        var idx = 0
+
+        // Loop through all of the cells
+        for(idx; idx < numCells; idx++) {
+            console.log(idx)
+            const cell = getCellAtIndex(idx);
+            if (cell === undefined) {
+                continue;
+            }
+
+
+            const cellText = getCellText(cell);
+            const metadata = cell.metadata;
+            if (metadata) {
+                if (cellText.indexOf('SAVE_TAG') >= 0) {
+                    metadata['SAVE_TAG'] = 'true'
+                } else {
+                    delete metadata['SAVE_TAG']
+                }
+            }
+        }
+    }
+};
+  
+// Call the function to register the event handler
+registerBeforeSaveHandler();
+  
 // Try to add a button
 (window as any).Jupyter?.toolbar.add_buttons_group([{
     id : 'mito-toolbar-button-id', // Since we're unable to set the className, we use the id for styling
