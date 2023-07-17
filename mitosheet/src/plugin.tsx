@@ -7,7 +7,7 @@
 // jlab2 and jlab3
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { LabComm } from './jupyter/comm';
@@ -48,6 +48,43 @@ function activateMitosheetExtension(
     // Add the Create New Mitosheet button
     registerMitosheetToolbarButtonAdder(tracker);
 
+    // Function to handle the before_save.Notebook event
+    const handleBeforeSave = (notebookPanel: NotebookPanel) => {
+        const notebook = tracker.currentWidget?.content;
+        const cells = notebook?.model?.cells;
+
+        console.log(notebook)
+
+        if (notebook !== undefined && cells !== undefined) {
+            const numCells = cells?.length ?? 0;
+            var idx = 0
+
+            // Loop through all of the cells
+            for(idx; idx < numCells; idx++) {
+                console.log(idx)
+                const cell = getCellAtIndex(cells, idx);
+                if (cell === undefined) {
+                    continue;
+                }
+
+                const cellText = getCellText(cell);
+                if (cellText.indexOf('SAVE_TAG') >= 0) {
+                    cell.metadata.set('SAVE_TAG', 'true')
+                } else {
+                    cell.metadata.delete('SAVE_TAG')
+                }
+            }
+        }
+    };
+
+    // Add event listener for before_save.Notebook event
+    tracker.currentChanged.connect((sender, notebookPanel) => {
+        console.log("registering event listener")
+        if (notebookPanel) {
+            notebookPanel.context.fileChanged.connect(() => handleBeforeSave(notebookPanel));
+        }
+    });
+    
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 
      */
@@ -55,6 +92,7 @@ function activateMitosheetExtension(
         label: 'Create Comm',
         execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
             const kernelID = args.kernelID;
+            console.log('Kernel ID', kernelID)
             const commTargetID = args.commTargetID;
 
 
