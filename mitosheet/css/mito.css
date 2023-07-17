@@ -22,7 +22,7 @@
 }
 /* We overwrite rendering rules that give us problems in HTML output*/
 /* In Lab */
-.jp-RenderedHTMLCommon .mito-container p {
+.mito-container p {
     margin: initial;
     text-align: initial;
 }
