@@ -173,7 +173,7 @@ const Home: NextPage = () => {
                 <h2 className='center'>
                     Frequently Asked Questions
                 </h2>
-                <FAQCard title='How do add custom functionality to Mito?'>
+                <FAQCard title='How do I add custom functionality to Mito?'>
                 <div>
                     <p>
                         Mito Enterprise admins can configure environment variables that make custom spreadsheet functions, database imports, and code snippets available to all users.
