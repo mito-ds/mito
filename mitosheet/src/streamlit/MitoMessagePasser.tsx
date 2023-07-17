@@ -38,8 +38,8 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
     constructor(props: any) {
         super(props);
         this.state = {
-          messageQueue: [],
-          isSendingMessages: false,
+            messageQueue: [],
+            isSendingMessages: false,
         };
         this.processMessageQueueTimer = null; // Variable to store the timer
     }

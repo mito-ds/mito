@@ -3,8 +3,8 @@ import ReactDOM from "react-dom"
 import MitoStreamlitWrapper from "./MitoStreamlitWrapper"
 
 ReactDOM.render(
-  <React.StrictMode>
-    <MitoStreamlitWrapper />
-  </React.StrictMode>,
-  document.getElementById("root")
+    <React.StrictMode>
+        <MitoStreamlitWrapper />
+    </React.StrictMode>,
+    document.getElementById("root")
 )

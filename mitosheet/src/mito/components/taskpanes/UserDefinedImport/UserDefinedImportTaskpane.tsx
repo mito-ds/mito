@@ -16,7 +16,6 @@ import { isInStreamlit } from "../../../utils/location";
 import Input from "../../elements/Input";
 import Toggle from "../../elements/Toggle";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
-import Spacer from "../../layout/Spacer";
 
 
 interface UserDefinedImportTaskpaneProps {
