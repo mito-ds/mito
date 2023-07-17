@@ -35,11 +35,11 @@ const Home: NextPage = () => {
                 </h1>
 
                 <p className={titleStyles.description}>
-                    Let your analysts use custom Python functions and code snippets directly through the Mito spreadsheet
+                    Let analysts use your Python functions inside of a spreadsheet
                 </p>
                     
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center'/>
+                    <CTAButtons variant='contact' align='center' displayProCTA={false}/>
                 </div>
                     
                 <div id='video'>
@@ -52,7 +52,7 @@ const Home: NextPage = () => {
             <section>
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center', titleStyles.title)}>
                     <h2>
-                        Custom Python functions shouldn&apos;t sit unused in a GitHub repo. Make them accessible in the Mito spreadsheet.
+                        Your team&apos;s Python code shouldn&apos;t sit unused in a GitHub repo. Make Python functions accessible in the Mito spreadsheet.
                     </h2>
                     <p>
                         Analysts that don&apos;t know how to use Python functions, use spreadsheet functions instead.
@@ -72,7 +72,7 @@ const Home: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/configurable-database-queries.png'} alt='Configurable Database Queries' width={650} height={358} layout='responsive'/>
+                        <Image src={'/configurable-database-queries.png'} alt='Configurable Database Queries' width={668} height={342} layout='responsive'/>
                     </div>
                 </div>
             
@@ -88,7 +88,7 @@ const Home: NextPage = () => {
                             Make custom financial calculations and API calls accessible as Mito spreadsheet functions. 
                         </p>
                         <p>
-                            Analysts don&apos;t need to search GitHub, read documentation, and figure out how to write lambda functions. 
+                            Analysts don&apos;t need to search GitHub, read documentation, or even know how to code. 
                             They already know how to use spreadsheets. 
                         </p>
                     </div>

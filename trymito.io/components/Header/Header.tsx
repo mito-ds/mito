@@ -71,14 +71,14 @@ const Header = (): JSX.Element => {
                       <Link href='/infrastructure-integration-python-tool'>
                         <div className={classNames(headerStyles.dropdown_item)}>
                           <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <Image src={'/step-icons/SettingsIconThin.svg'} alt='Customize Mito' width={20} height={20} />
+                            <Image src={'/step-icons/SettingsIconThin.svg'} alt='Infrastructure Integration' width={20} height={20} />
                             <p className='margin-top-0'>
-                              Custom Functionality
+                              Infrastructure Integration
                             </p>
                           </div>
                           <div className={classNames(headerStyles.dropdown_item_row)}>
                             <p className={headerStyles.dropdown_item_subtext}>
-                              BYO spreadsheet functions and imports methods.
+                              Bring your own spreadsheet formulas and imports methods.
                             </p>
                           </div>
                         </div>
@@ -151,7 +151,7 @@ const Header = (): JSX.Element => {
                   <Link href='/python-ai-tools'>Mito AI</Link>
                 </li>
                 <li className='highlight-on-hover'>
-                  <Link href='/infrastructure-integration-python-tool'>Custom Functionality</Link>
+                  <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>

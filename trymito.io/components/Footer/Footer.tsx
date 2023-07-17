@@ -43,7 +43,7 @@ const Footer = (): JSX.Element => {
                         <Link href='/python-ai-tools'>Mito AI</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <Link href='/infrastructure-integration-python-tool'>Custom Functionality</Link>
+                        <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
