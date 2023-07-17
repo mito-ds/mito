@@ -6,6 +6,8 @@ import {
 } from "streamlit-component-lib";
 
 
+// TODO: This delay is off. We should ask how long this debounce is, and then
+// set this to be a bit longer than that.
 const DELAY_BETWEEN_SET_COMPONENT_VALUES = 25;
 
 /**
@@ -65,6 +67,7 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
             // Send one message
             const message = this.state.messageQueue[0];
             Streamlit.setComponentValue(message);
+            console.log("JUST SENT", message, Date.now())
 
             // Remove the processed message from the queue
             this.setState((prevState) => ({
