@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, List, Callable, Optional, Tuple, Union
+from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -65,14 +65,33 @@ try:
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             key=None
-        ):
+        ) -> Tuple[Dict[str, pd.DataFrame], List[str]]:
         """
-        Renders a mitosheet with the given arguments.
+        Create a new instance of the Mito spreadsheet in a streamlit app.
 
-        TODO: support passing DF names
+        Parameters
+        ----------
+        args: pd.Dataframe or str or None
+            The arguments to pass to the Mito spreadsheet. If a dataframe is
+            passed, it will be displayed as a sheet tab. If a string is passed,
+            it will be read in with a pd.read_csv call. If None is passed, it 
+            will be skipped.
+        importers: List[Callable]
+            A list of functions that can be used to import dataframes. Each
+            function should return a dataframe. 
+        df_names: List[str]
+            A list of names for the dataframes passed in. If None, the dataframes
+            will be named df0, df1, etc.
+        key: str or None
+            An key that uniquely identifies this component. This must be passed
+            for now, or the component will not work. Not sure why.
 
-        TODO: this should change the when the arguments change. The caching
-        stuff is weird currently.
+        Returns
+        -------
+        Tuple[Dict[str, pd.DataFrame], List[str]]
+            A tuple. The first element is a mapping from dataframe names to the
+            final dataframes. The second element is a list of lines of code
+            that were executed in the Mito spreadsheet.
         """
         mito_backend, responses = _get_mito_backend(*args, _importers=importers, df_names=df_names, key=key)
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
