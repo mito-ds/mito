@@ -32,7 +32,7 @@ const Footer = (): JSX.Element => {
             </div>
             
             <div className={footerStyle.site_map_container}>
-                <div className={classNames('flex-column')}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
                         Product
                     </ol>
@@ -58,7 +58,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
                     </li>
                 </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_two)}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
                         Industries
                     </ol>
@@ -66,7 +66,7 @@ const Footer = (): JSX.Element => {
                         <Link href='/industries/financial-services'>Financial Services</Link>
                     </li>
                 </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_three)}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
                         Resources
                     </ol>
@@ -89,7 +89,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
                     </li>
                 </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_four)}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
                         Company
                     </ol>
