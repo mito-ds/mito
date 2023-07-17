@@ -6,12 +6,15 @@ st.set_page_config(layout="wide")
 
 st.subheader("Dataframe Created from File Upload")
 
-file = st.file_uploader("Upload a file")
-# Write file to a path
-if file is not None:
-    with open(file.name, "wb") as f:
-        f.write(file.getbuffer())
+def importer():
+    import pandas as pd
+    return pd.DataFrame({'A': [1]})
 
-    # open in Mito
-    new_dfs, code = mito_component(file.name, key="bar")
-    st.code("\n".join(code))
+# open in Mito
+new_dfs, code = mito_component(
+    r'HGI_AmericanGeneral_01202023.csv', 
+    importers=[importer], 
+    df_names=['df'],
+    key="mito_component"
+)
+st.code("\n".join(code))

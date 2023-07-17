@@ -317,7 +317,6 @@ def test_transpile_as_function_string_params():
     mito = create_mito_wrapper(str(tmp_file), arg_names=[f"'{tmp_file}'"])
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
-    print(mito.transpiled_code)
     assert mito.transpiled_code == [
         '',
         'def function(txt_path):',

@@ -1,10 +1,12 @@
+import React, { ReactNode } from "react";
 import {
     Streamlit,
     StreamlitComponentBase,
-    withStreamlitConnection,
-} from "streamlit-component-lib"
-import React, { ReactNode } from "react"
+    withStreamlitConnection
+} from "streamlit-component-lib";
 
+
+const DELAY = 25;
 
 /**
  * This component is used to pass messages from the Mito iframe to the running 
@@ -25,7 +27,38 @@ import React, { ReactNode } from "react"
  * 
  * It's a bit of a hack, but it uses no undocumented APIs, and it works!
  */
-class MitoMessagePasser extends StreamlitComponentBase {
+class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isSending: boolean}> {
+    timer: null | NodeJS.Timeout;
+    
+    constructor(props: any) {
+        super(props);
+        this.state = {
+          messageQueue: [],
+          isSending: false,
+        };
+        this.timer = null; // Variable to store the timer
+    }
+    
+    processQueue = () => {
+        if (this.state.messageQueue.length > 0) {
+            const message = this.state.messageQueue[0];
+            // Code to send the message
+            console.log('Sending message:', message);
+            Streamlit.setComponentValue(message);
+
+            // Remove the processed message from the queue
+            this.setState((prevState) => ({
+                messageQueue: prevState.messageQueue.slice(1),
+                isSending: true,
+            }));
+
+            // Set a timer to process the next message after a delay
+            this.timer = setTimeout(this.processQueue, DELAY);
+        } else {
+            this.setState({ isSending: false });
+        }
+    };
+    
 
     public render = (): ReactNode => {
         return <div/>
@@ -37,14 +70,42 @@ class MitoMessagePasser extends StreamlitComponentBase {
 
     componentWillUnmount() {
         window.removeEventListener('message', this.handleMitoEvent);
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
     }
+
 
     handleMitoEvent = (event: MessageEvent) => {
         // TODO: I think we have to check the origin here, but I'm not sure
         // how to do that.
 
         if (event.data.type === 'mito') { 
-            Streamlit.setComponentValue(event.data.data);
+            // We don't send log events, we have a limited messaging budget for performance reasons
+            // and because there is debouncing that cause messages to get lost. 
+            if (event.data.data.event === 'log_event') {
+                return
+            }
+
+            const message = event.data.data;
+        
+            // Add the message to the queue
+            this.setState((prevState) => ({
+                messageQueue: [...prevState.messageQueue, message],
+            }));
+        
+            // Do some work to make sure we avoid race conditions
+            let processQueue = false;
+            this.setState(prevState => {
+                if (!prevState.isSending) {
+                    processQueue = true;
+                }
+                return { isSending: true };
+            }, () => {
+                if (processQueue) {
+                    this.processQueue();
+                }
+            });
         }
     };
 }

@@ -1,12 +1,15 @@
 import json
 import os
-import pandas as pd
-import streamlit.components.v1 as components
+from typing import List, Callable, Optional
+
+from mitosheet.mito_backend import MitoBackend
+from mitosheet.utils import get_new_id
+
 
 try:
+    import streamlit.components.v1 as components
     import streamlit as st
 
-    from mitosheet.mito_backend import MitoBackend
 
     parent_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,8 +20,13 @@ try:
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
 
     @st.cache_resource
-    def _get_mito_backend(*args, key=None): # So it caches on key
-        mito_backend = MitoBackend(*args)
+    def _get_mito_backend(
+            *args, 
+            _importers: Optional[List[Callable]]=None, 
+            df_names: Optional[List[str]]=None,
+            key=None
+        ): # So it caches on key
+        mito_backend = MitoBackend(*args, user_defined_importers=_importers)
 
         # Make a send function that stores the responses in a list
         responses = []
@@ -26,6 +34,18 @@ try:
             responses.append(response)
         
         mito_backend.mito_send = send
+
+        if df_names is not None:
+            mito_backend.receive_message(
+                {
+                    'event': 'update_event',
+                    'id': get_new_id(),
+                    'type': 'args_update',
+                    'params': {
+                        'args': args
+                    },
+                }
+            )
 
         return mito_backend, responses
 
@@ -38,14 +58,21 @@ try:
         return component_value
 
 
-    def mito_component(*args, key=None):
+    def mito_component(
+            *args, 
+            importers: Optional[List[Callable]]=None, 
+            df_names: Optional[List[str]]=None,
+            key=None
+        ):
         """
         Renders a mitosheet with the given arguments.
+
+        TODO: support passing DF names
 
         TODO: this should change the when the arguments change. The caching
         stuff is weird currently.
         """
-        mito_backend, responses = _get_mito_backend(*args, key=key)
+        mito_backend, responses = _get_mito_backend(*args, _importers=importers, df_names=df_names, key=key)
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
         user_profile_json = mito_backend.get_user_profile_json()

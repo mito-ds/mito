@@ -12,6 +12,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { isInStreamlit } from "../../../utils/location";
 
 
 interface UserDefinedImportTaskpaneProps {
@@ -41,7 +42,13 @@ const getDefaultParams = (
     }
 }
 
-const NO_IMPORTERS_MESSAGE = 'You have not defined any importers. To define importers, pass them to the mitosheet.sheet call with the `importers` parameter. An importer is just a function that returns a pandas dataframe.';
+let NO_IMPORTERS_MESSAGE = 'You have not defined any importers. An importer is just a function that returns a pandas dataframe.';
+if (isInStreamlit()) {
+    NO_IMPORTERS_MESSAGE += ' You can define importers in the mito_component call with the `importers` parameter.';
+} else {
+    NO_IMPORTERS_MESSAGE += ' You can define importers in the mitosheet.sheet call with the `importers` parameter.';
+}
+
 
 /* 
     This is the UserDefinedImport taskpane.
@@ -73,7 +80,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
             >
                 {params === undefined &&
                     <p>
-                        Pass importers to the mitosheet.sheet call with the `importers` parameter. An importer is just a function that returns some number of pandas dataframes.
+                        {NO_IMPORTERS_MESSAGE}
                     </p>
                 }
                 {params !== undefined &&

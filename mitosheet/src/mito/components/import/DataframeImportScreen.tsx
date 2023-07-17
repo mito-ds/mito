@@ -50,6 +50,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
         [],
         async () => {
             const response = await props.mitoAPI.getDefinedDfNames()
+            console.log("RESPONSE", response)
             return 'error' in response ? undefined : response.result;
         },
         undefined,

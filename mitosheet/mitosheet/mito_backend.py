@@ -86,7 +86,7 @@ class MitoBackend():
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        self.mito_send: Callable = None # type: ignore
+        self.mito_send: Callable = lambda x: None # type: ignore
 
     @property
     def analysis_name(self):
