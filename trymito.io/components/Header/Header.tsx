@@ -25,6 +25,8 @@ const Header = (): JSX.Element => {
             </Link>
             <nav className={classNames(headerStyles.desktop_menu_items, 'display-desktop-only-flex')}>
               <ul className={classNames(headerStyles.nav_item)}>
+
+                {/* Product Dropdown */}
                 <li className={classNames('highlight-on-hover', headerStyles.dropdown_container)}>
                   <span>Product </span>
                   <div className={headerStyles.dropdown_anchor_container}>
@@ -84,16 +86,46 @@ const Header = (): JSX.Element => {
                         </div>
                       </Link>
                     </li>
+                  </ul>
+                </li>
 
 
+                {/* Industries Dropdown */}
+                <li className={classNames('highlight-on-hover', headerStyles.dropdown_container, headerStyles.nav_item)}>
+                  <span>Industries </span>
+                  <div className={headerStyles.dropdown_anchor_container}>
+                    <Image src={'/down-anchor.svg'} alt='Dropdown indicator' width={16} height={6} />
+                  </div>
+                  <ul className={headerStyles.dropdown}>
+                    <li>
+                      <Link href='/industries/financial-services'>
+                        <div className={classNames(headerStyles.dropdown_item)}>
+                          <div className={classNames(headerStyles.dropdown_item_row)}>
+                            <Image src={'/financial-services.svg'} alt='Financial Services' width={20} height={20} />
+                            <p className='margin-top-0'> 
+                              Financial Services
+                            </p>
+                          </div> 
+                        </div>
+                      </Link>                 
+                    </li>
 
+                    <li>
+                      <Link href='/industries/life-sciences'>
+                        <div className={classNames(headerStyles.dropdown_item)}>
+                          <div className={classNames(headerStyles.dropdown_item_row)}>
+                            <Image src={'/life-sciences.svg'} alt='Mito AI' width={20} height={20} />
+                            <p className='margin-top-0'>
+                              Life Sciences
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
                   </ul>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='/plans'>Plans</Link>
-                </li>
-                <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
-                  <Link href='/security'>Security</Link>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='https://blog.trymito.io'>Blog</Link>
@@ -152,6 +184,12 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/industries/financial-services'>Financial Services</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/industries/life-sciences'>Life Sciences</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>
