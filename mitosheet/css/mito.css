@@ -1,7 +1,3 @@
-:root {
-    --taskpane-width: 430px;
-}
-
 /* 
     The following two css rules are used to style the Create new Mitosheet button in the notebook toolbar. 
     The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
@@ -105,11 +101,6 @@
     flex-direction: column;
 }
 
-
-.mito-sheet-and-formula-bar-container-narrow-taskpane-open {
-    width: calc(100% - var(--taskpane-width));
-}
-
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {
     width: 0%;
     height: 0%;
@@ -122,7 +113,6 @@
 
 .mito-taskpane-container-narrow {
     visibility: visible;
-    width: var(--taskpane-width);
 }
 
 .mito-taskpane-container {
