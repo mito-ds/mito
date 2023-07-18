@@ -34,7 +34,7 @@ const PythonAITools: NextPage = () => {
           <section className={classNames(titleStyles.title_card, pageStyles.background_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
             <div className={spreadsheetAutomationStyles.title_text_container}>
               <h1>
-                Empower Life Scientists with Python Automation
+                Cutting edge life science professionals deserve cutting edge Python tools
               </h1>
               <p className={classNames(titleStyles.subtitle)}>
                 Intuitive Python automation tools that let you focus on the science.
@@ -56,11 +56,6 @@ const PythonAITools: NextPage = () => {
           </section>
 
           <section>
-            <div className={classNames(pageStyles.subsection, 'center')}>
-              <h2>
-                Cutting Edge Science Deserves Cutting Edge Analysis Tools 
-              </h2>
-            </div>
             <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
               <div className={classNames(pageStyles.subsection_column)}>
                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
@@ -82,13 +77,14 @@ const PythonAITools: NextPage = () => {
                   <Image src={'/bio-python-code.png'} alt='Bio Python Code' width={1000} height={500}/>
                 </div>
                 <h3>
-                  Python, Pandas, and SQL are the modern analytics stack
+                  Python, Pandas, and SQL are the modern scientist&apos; stack
                 </h3>
                 <p>
                   Using Python lets you take advantage of powerful libraries designed specifically for life science research. 
+                  Learn cutting edge machine learning, bioinformatics, and data science techniques to accelerate your research and advance your career.
                 </p>
                 <p>
-                  Performing your analysis in code means you can verify the accuracy of your analysis once and be confident it will be accurate for every future analysis. 
+                  Writing code for your analyis, means you can verify its accuracy once and be confident in all of your future results. 
                 </p>
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
@@ -102,7 +98,8 @@ const PythonAITools: NextPage = () => {
                   Your entire lab doesn&apos;t need to adopt Python for it to transform the way you work. 
                 </p>
                 <p>
-                  Create Python-based dashboards for common analyses, and let your entire lab use them without writing any code. 
+                  Become the Python early adopter on your team, and use Mito to create self-serve dashboards for common analyses that everyone in your lab can utilize. 
+                  The rest of your team won&apos;t need to learn Python to benefit from its power.
                 </p>
               </div>
             </div>
@@ -123,7 +120,8 @@ const PythonAITools: NextPage = () => {
                   Use Python libraries specifically designed for bioinformatics research, like <a href="https://biopython.org" target="_blank" rel="noreferrer" className={pageStyles.link}>BioPython</a>, to parse bioinformatics files, perform k Nearest Neighbors classifications, and common operations like translation and transcription. 
                 </p>
                 <p>
-                  Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python. Or add functions from BioPython directly into Mito.
+                  Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python.
+                  And add functions from BioPython and other libraries directly into Mito.
                 </p>
                 <p className={pageStyles.link}>
                   <Link href='/infrastructure-integration-python-tool' >
@@ -145,10 +143,10 @@ const PythonAITools: NextPage = () => {
                   Healthcare and Pharmaceuticals
                 </h2>
                 <p>
-                  Easily build scripts to split datasets by patient or hospital visits, convert dates to the correct format, and filter through complex data to find relevant data.
+                  Easily build scripts to split datasets by patient or hospital visits, convert dates to the correct format, and filter through complex data.
                 </p>
                 <p>
-                  Build the scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking. 
+                  Build scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking. 
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
@@ -181,8 +179,8 @@ const PythonAITools: NextPage = () => {
                 </h2>
                 <p className={classNames('center')}>
                     "Mito combines the familiarity of Excel with the power of Python. 
-                    I am able to quickly clean up, explore, and transform large data sets in a way that wouldn't be possible with Excel, generating code that is flexible, scalable, and repeatable. 
-                    I was lucky enough to stumble upon Mito when it first launched. 
+                    I am able to quickly clean up, explore, and transform large data sets in a way that wouldn't be possible with Excel. 
+                    Mito generates code that is flexible, scalable, and repeatable.  
                     Now, three years later, I can't imagine tackling my day-to-day work without Mito as one of my tools."
                 </p>
                 <p className={classNames('center')}> 
