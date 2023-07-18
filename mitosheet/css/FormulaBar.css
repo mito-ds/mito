@@ -1,8 +1,8 @@
 .formula-bar {
     height: 32px;
-    border-top: 1px solid var(--mito-border);
-    border-bottom: 1px solid var(--mito-border);
-    background: white;
+    border-top: 1px solid var(--mito-light-gray);
+    border-bottom: 1px solid var(--mito-light-gray);
+    background: var(--mito-background);
 }
 
 .formula-bar-column-header {
@@ -15,12 +15,12 @@
 
 .formula-bar-formula {
     /* Make input blend in with formula bar */
-    background-color: var(--mito-white);
+    background-color: var(--mito-background);
     border-radius: 0;
     border-style: none;
     outline: none;
 
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 .formula-bar-vertical-line {

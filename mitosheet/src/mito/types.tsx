@@ -1059,3 +1059,10 @@ export interface AITransformationResult extends AIRecon {
     prints: string[],
 }
 
+
+export interface Theme {
+    primaryColor?: string
+    backgroundColor?: string
+    secondaryBackgroundColor?: string
+    textColor?: string
+}

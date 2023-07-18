@@ -53,7 +53,7 @@ const EphemeralMessage = (props: {
                     className='mt-5px ml-5px'
                     onClick={() => closePopup()}
                 >
-                    <XIcon variant='light' />
+                    <XIcon />
                 </div>
             </Row>
         </DefaultPopup>

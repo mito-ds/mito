@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -79,6 +79,7 @@ import Toolbar from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
+import { getTheme } from './utils/colors';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -421,6 +422,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         prevOpenTaskpaneRef.current = uiState.currOpenTaskpane.type;
 
     }, [uiState]);
+
+    const theme = useMemo(() => {
+        return getTheme(props.theme);
+    }, [props.theme])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
@@ -935,7 +940,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
 
     return (
-        <div className="mito-container" data-jp-suppress-context-menu ref={mitoContainerRef} tabIndex={0}>
+        <div 
+            className="mito-container" 
+            data-jp-suppress-context-menu 
+            ref={mitoContainerRef} 
+            tabIndex={0}
+            style={theme}
+        >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 
                     mitoAPI={mitoAPI}

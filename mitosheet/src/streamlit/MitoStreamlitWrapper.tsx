@@ -124,6 +124,8 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             this.setState({responses: responses});
         }
 
+        const theme = this.props.theme;
+
 
         return (
             <Mito 
@@ -132,6 +134,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
+                theme={theme}
             />  
         )
     }

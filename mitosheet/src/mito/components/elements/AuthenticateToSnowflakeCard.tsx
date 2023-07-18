@@ -62,7 +62,9 @@ const AuthenticateToSnowflakeCard = (props: {
             >
                 <Row justify="space-between">
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p 
+                            className={classNames('text-body-1', {'text-color-gray-disabled': loading})}
+                        >
                             Username
                         </p>
                     </Col>
@@ -80,7 +82,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-gray-disabled': loading})}>
                             Password
                         </p>
                     </Col>
@@ -100,7 +102,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-gray-disabled': loading})}>
                             Account
                         </p>
                     </Col>

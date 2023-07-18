@@ -4,13 +4,13 @@
     button, since we're not able to set the class name of our button in notebooks. 
 */
 :root .toolbar-mito-button-class, #mito-toolbar-button-id {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-highlight-light);
     border-radius: 3px;
     border: .5px solid var(--mito-light-gray);
 }
 
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
-    color: var(--mito-purple);
+    color: var(--mito-highlight);
 }
 
 .jp-RenderedHTMLCommon > .mito-container-container {
@@ -64,7 +64,7 @@
     display: flex;
     flex-direction: column;
 
-    border: 1px solid var(--mito-border);
+    border: 1px solid var(--mito-light-gray);
 
     /* Set the default font to Roboto */
     font-family: Roboto;

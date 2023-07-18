@@ -9,7 +9,7 @@
     border-radius: 3px;
 
     /* Give it a background*/
-    background-color: var(--mito-very-light-gray);
+    background-color: var(--mito-background-off);
 }
 
 .mito-dropdown-button-text {
@@ -43,23 +43,23 @@
     Classes for when the dropdown button is enabled
 */
 .mito-dropdown-button-enabled {
-    border: 1px solid var(--mito-purple);
+    border: 1px solid var(--mito-highlight);
 }
 .mito-dropdown-button-enabled:hover {
-    border: 1px solid var(--mito-medium-purple);
+    border: 1px solid var(--mito-highlight-medium);
 }
 .mito-dropdown-button-enabled > .mito-dropdown-button-text {
-    color: var(--mito-purple) !important;
+    color: var(--mito-highlight) !important;
 }
 .mito-dropdown-button-enabled:hover > .mito-dropdown-button-text {
-    color: var(--mito-medium-purple) !important;
+    color: var(--mito-highlight-medium) !important;
 }
 
 /* 
     Classes for when the dropdown button is disabled
 */
 .mito-dropdown-button-disabled {
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-very-light-gray);
 }
 .mito-dropdown-button-disabled > .mito-dropdown-button-text {
     color: var(--mito-light-gray) !important;

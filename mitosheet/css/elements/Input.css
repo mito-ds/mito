@@ -7,7 +7,8 @@
 .mito-input {
     /* Clear defaults */ 
     border: none;
-    background: var(--mito-very-light-gray);
+    background: var(--mito-background-off);
+    color: var(--mito-text)
     
     /* 
         We make it a border box so that the border doesn't expand the width of the element
@@ -27,11 +28,11 @@
 }
 
 .mito-input::placeholder {
-    color: var(--mito-medium-gray)
+    color: var(--mito-text-medium)
 }
 
 .mito-input:hover {
-    border: 1px solid var(--mito-purple);
+    border: 1px solid var(--mito-highlight);
 }
 
 .mito-input:disabled {

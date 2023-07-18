@@ -8,13 +8,11 @@
     /* Give it absolute positioning so the column selecting popup can appear on top of it */
     position: relative;
 
-    /* Set standard taskpane color */ 
-    color: var(--mito-gray);
-    /* We have to set the background, as the taskpane turns black on fullscreen for some reason */
-    background-color: white;
+    color: var(--mito-text);
+    background-color: var(--mito-background);
 
     /* Stylize border of box, which we only need on the top so we don't double up */ 
-    border-top: 1px solid var(--mito-border);
+    border-top: 1px solid var(--mito-light-gray);
     
     box-sizing: border-box;
 }
@@ -48,7 +46,7 @@
     flex-direction: column;
     justify-content: space-between;
 
-    border-left: 1px solid var(--mito-border);
+    border-left: 1px solid var(--mito-light-gray);
     width: 300px;
     min-width: 300px;
     height: 100%;

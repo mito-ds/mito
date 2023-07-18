@@ -58,7 +58,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </li>
                     <Spacer px={5}/>
                     <p>
-                        Read <a className='text-underline text-color-mito-purple' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">Mito</a> and <a className='text-underline text-color-mito-purple' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">OpenAI’s</a> privacy policy for more information.
+                        Read <a className='text-underline text-color-mito-highlight' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer">Mito</a> and <a className='text-underline text-color-mito-highlight' href='https://openai.com/policies/privacy-policy' target='_blank' rel="noreferrer">OpenAI’s</a> privacy policy for more information.
                     </p>
                 </CollapsibleSection>
                 <Spacer px={10}/>
@@ -68,7 +68,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </p>
                     <Spacer px={5}/>
                     <p>
-                        To learn more about this option, reach out to the <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">Mito team</a>. 
+                        To learn more about this option, reach out to the <a className='text-underline text-color-mito-highlight' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">Mito team</a>. 
                     </p>
                 </CollapsibleSection>
                 <Spacer px={10}/>
@@ -78,7 +78,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                     </p>
                     <Spacer px={5}/>
                     <p>
-                        To use your own OpenAI API key, set the environment variable OPENAI_API_KEY to your OpenAI key. You can get one <a className='text-underline text-color-mito-purple' href='https://platform.openai.com/account/api-keys' target='_blank' rel="noreferrer">here</a>.
+                        To use your own OpenAI API key, set the environment variable OPENAI_API_KEY to your OpenAI key. You can get one <a className='text-underline text-color-mito-highlight' href='https://platform.openai.com/account/api-keys' target='_blank' rel="noreferrer">here</a>.
                     </p>
                 </CollapsibleSection>
                 <Spacer px={5}/>

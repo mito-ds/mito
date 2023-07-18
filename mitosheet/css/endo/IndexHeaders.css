@@ -2,7 +2,7 @@
     overflow: hidden;
     grid-area: index-headers;
     user-select: none;
-    background-color: var(--mito-very-light-gray);
+    background-color: var(--mito-background-off);
     width: 80px; /* Update the cell editor placement if you change this */
 }
 
@@ -17,7 +17,7 @@
 
     text-align: center;
 
-    color: var(--mito-gray);
+    color: var(--mito-text);
     font-weight: bold;
 
     /* Align vertically */
@@ -28,9 +28,9 @@
 
 
 .index-header-container:hover {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-highlight-light);
 }
 
 .index-header-selected {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-highlight-light);
 }

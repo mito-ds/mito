@@ -266,7 +266,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 />
                             )
                         })}
-                        {props.fileBrowserState.loadingFolder && <p>Loading folder contents...</p>}
+                        {props.fileBrowserState.loadingFolder && <p className='text-body-1'>Loading folder contents...</p>}
                     </>
                 }
             </div>

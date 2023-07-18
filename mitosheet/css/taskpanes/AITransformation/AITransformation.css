@@ -23,7 +23,7 @@
     /* Auto layout */
     padding: 5px;
 
-    background-color: var(--mito-very-light-gray);
+    background-color: var(--mito-background-off);
     border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
 
@@ -57,7 +57,7 @@
 }
 
 .ai-transformation-example:hover {
-    border: 1px solid var(--mito-light-purple);
+    border: 1px solid var(--mito-highlight-light);
 }
 
 .ai-transformation-feedback-button {

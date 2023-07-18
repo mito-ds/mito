@@ -4,16 +4,17 @@ import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
+import { getColumnIDsArrayFromSheetDataArray } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
+import { hexToRGBString } from '../../utils/colors';
 
 
-export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
-export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = '#FFFFFF';
-export const EVEN_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
-export const ODD_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
+export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
+export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
+export const EVEN_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
+export const ODD_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 
 const GridData = (props: {
     sheetData: SheetData | undefined,
@@ -62,7 +63,7 @@ const GridData = (props: {
 
 
                             if (cellIsSelected && conditionalFormat?.backgroundColor !== undefined && conditionalFormat?.backgroundColor !== null) {
-                                conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
+                                conditionalFormat.backgroundColor = hexToRGBString(conditionalFormat.backgroundColor, .4)
                             }
 
                             if (cellData === undefined || columnDtype === undefined || columnHeader === undefined) {

@@ -17,9 +17,9 @@ import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 
-export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
+export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
+export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-backround-darker)';
 
-export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
 export const CREATED_RECON_COLOR = '#E4EFDC' // This is var(--mito-recon-created-background-color) - update this if we change this variable
 export const MODIFIED_RECON_COLOR = '#FDF3D0' // This is var(--mito-recon-modified-background-color) - update this if we change this variable
 

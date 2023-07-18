@@ -22,18 +22,20 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    color: var(--mito-text);
 }
 
 .mito-grid-cell:hover:not(.recon) {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-background-off);
 }
 
 /* We make selected cells look different on even and odd rows */
 .mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: rgba(153, 102, 255, .15);
+    background-color: var(--mito-background-off);
 }
 .mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: rgba(153, 102, 255, 0.10);
+    background-color: var(--mito-background);
 }
 
 .mito-grid-cell-hidden {

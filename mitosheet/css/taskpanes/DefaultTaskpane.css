@@ -10,18 +10,16 @@
     padding-top: 5px;
     padding-bottom: 5px;
 
-    /* Set standard taskpane color */ 
-    color: var(--mito-gray);
-    /* We have to set the background, as the taskpane turns black on fullscreen for some reason */
-    background-color: white;
+    color: var(--mito-text);
+    background-color: var(--mito-background);
 
     /* 
         Stylize border of box without creating a double border. 
         The border around the entire Mito container and the footer 
         create the right and bottom borders of the taskpane.
     */ 
-    border-left: 1px solid var(--mito-border);
-    border-top: 1px solid var(--mito-border);
+    border-left: 1px solid var(--mito-light-gray);
+    border-top: 1px solid var(--mito-light-gray);
 
     box-sizing: border-box;
 }

@@ -15,7 +15,7 @@
     border: 0.5px solid var(--mito-gray);
     box-sizing: border-box;
     border-radius: 3px;
-    background-color: #F8F8F8;
+    background-color: var(--mito-background-off);
 }
 
 .multi-toggle-box-row {
@@ -26,11 +26,11 @@
 }
 
 .multi-toggle-box-row:hover {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .multi-toggle-box-row-selected {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .multi-toggle-box-row-disabled {

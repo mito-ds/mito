@@ -376,7 +376,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         {/** Display additional calls to action if they are relevant */}
                                         {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
                                             <>
-                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-highlight' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
                                             </>
                                         }
                                         {taskpaneState.error.includes('You have used Mito AI') && 

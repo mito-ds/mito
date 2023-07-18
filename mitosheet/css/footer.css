@@ -6,7 +6,7 @@
     /* Stops the footer from shrinking vertically. */
     flex-shrink: 0; 
 
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
     overflow-x: auto;
     overflow-y: clip;
 
@@ -14,7 +14,7 @@
     white-space: nowrap;
     box-sizing: border-box;
 
-    border-top: 1px solid var(--mito-border);
+    border-top: 1px solid var(--mito-light-gray);
 
     /* Position the footer so that the add button and the size can stay in place */
     position: relative;
@@ -25,16 +25,16 @@
     flex-direction: column;
     justify-content: space-around;
 
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-highlight-light);
 
     padding-left: 10px;
     padding-right: 10px;
 
-    border-right: 1px solid var(--mito-border);
+    border-right: 1px solid var(--mito-light-gray);
 }
 
 .footer-add-button:hover {
-    background-color: var(--mito-light-purple);
+    background-color: var(--mito-highlight-light);
 }
 
 .footer-tab-bar {
@@ -69,23 +69,23 @@
 
     padding-left: 5px;
     padding-right: 5px;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 
     /* A bit of a hack to make the text centered */
     line-height: 20px;
-    border-left: 1px solid var(--mito-border);
+    border-left: 1px solid var(--mito-light-gray);
 }
 
 .tab {
     /* Set background color and border of sheet tab*/
-    background: var(--mito-light-blue);
+    background: var(--mito-background-highlight);
 
     /* 
         We only set a right border so that we don't have a doubly thick border
         between each tab and the last tab has a border with the same thickness as 
         the other tabs.
     */
-    border-right: 1px solid var(--mito-border);
+    border-right: 1px solid var(--mito-light-gray);
     box-sizing: border-box;
 
     /* Should be the same height as the min-height of the footer-tab-bar */
@@ -99,7 +99,7 @@
 }
 
 .tab-graph {
-    background-color: var(--mito-light-purple)
+    background-color: var(--mito-highlight-light)
 }
 
 /* The recon colors must be defined before the tab-selected class so the order is applied correctly */
@@ -112,7 +112,7 @@
 }
 
 .tab-selected {
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
     /* The selected sheet tab does not need a border */
     border: 0px;  
     color: var(--mito-white);

@@ -27,6 +27,7 @@
 
 .file-browser-path-part {
     padding: 0px 2px;
+    color: var(--mito-text);
 }
 
 .file-browser-element-list {
@@ -43,6 +44,9 @@
     position: relative;
 }
 
+.file-browser-element {
+    color: var(--mito-text);
+}
 .file-browser-element:hover {
     border-radius: 3px;
 }

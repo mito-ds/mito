@@ -1,6 +1,6 @@
 .mito-blue-container {
     padding: 5px;
-    background-color: var(--mito-light-blue);
+    background-color: vvar(--mito-background-highlight);
     border-radius: 5px;
 }
 
@@ -9,7 +9,7 @@
 }
 
 .mito-collapsible-content-card-container {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
     border-radius: 5px;
 }
 

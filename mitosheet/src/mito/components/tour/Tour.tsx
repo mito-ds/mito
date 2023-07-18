@@ -153,7 +153,6 @@ const Tour = (props: {
                 {!hideXIcon && 
                     <Col>
                         <XIcon 
-                            variant='light'
                             onClick={async () => {
                                 if (stepNumber >= steps.length - 1) {
                                     await closeTour();

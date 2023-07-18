@@ -7,7 +7,7 @@
     padding-right: 5px;
     box-sizing: border-box;
     overflow: hidden;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* 
@@ -20,10 +20,10 @@
 }
 
 .mito-dropdown-item-selected {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 .mito-dropdown-item:hover {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .mito-dropdown-item-icon-and-title-container {
@@ -56,7 +56,7 @@
 }
 
 .mito-dropdown-item-subtext-disabled {
-    color: var(--mito-red);
+    color: var(--mito-status-error);
 }
 
 /*  When the DropdownItem is not hovered over, don't show

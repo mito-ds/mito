@@ -27,7 +27,7 @@
     bottom: 0;
     border: 1px solid var(--mito-light-gray);
     border-radius: 3px;
-    background-color: var(--mito-light-gray);
+    background-color: var(--mito-background-off);
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -52,7 +52,7 @@
 }
   
 input:checked + .toggle {
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
 }
   
 input:checked + .toggle:before {
@@ -82,11 +82,11 @@ input:checked + .toggle:after {
 }
 
 .toggle:hover {
-    border-color: var(--mito-light-purple);
+    border-color: var(--mito-highlight-light);
 }
 
 .toggle-disabled {
-    background-color: var(--mito-very-light-gray) !important;
+    background-color: var(--mito-background-off) !important;
     border-color: var(--mito-light-gray) !important;
 }
 
