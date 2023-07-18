@@ -64,7 +64,7 @@ const PythonAITools: NextPage = () => {
             <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
               <div className={classNames(pageStyles.subsection_column)}>
                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                  <Image src={'/mito-in-streamlit.png'} alt='Mito in Streamlit' width={1000} height={500}/>
+                  <Image src={'/bugs.png'} alt='Bugs' width={1000} height={500}/>
                 </div>
                 <h3>
                   Excel is slow, repetitive, and error prone
@@ -79,7 +79,7 @@ const PythonAITools: NextPage = () => {
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                  <Image src={'/snowflake-query-taskpane.png'} alt='Snowflake Query Taskpane' width={1000} height={500}/>
+                  <Image src={'/bio-python-code.png'} alt='Bio Python Code' width={1000} height={500}/>
                 </div>
                 <h3>
                   Python, Pandas, and SQL are the modern analytics stack
@@ -93,7 +93,7 @@ const PythonAITools: NextPage = () => {
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
                 <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                  <Image src={'/byo-llm.png'} alt='BYO LLM' width={1000} height={500}/>
+                  <Image src={'/mito-in-streamlit-pharma.png'} alt='Pharma Dashboard' width={1000} height={500}/>
                 </div>
                 <h3>
                   Create self-serve dashboards for your lab
@@ -123,17 +123,22 @@ const PythonAITools: NextPage = () => {
                   Use Python libraries specifically designed for bioinformatics research, like <a href="https://biopython.org" target="_blank" rel="noreferrer" className={pageStyles.link}>BioPython</a>, to parse bioinformatics files, perform k Nearest Neighbors classifications, and common operations like translation and transcription. 
                 </p>
                 <p>
-                  Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python.
+                  Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python. Or add functions from BioPython directly into Mito.
+                </p>
+                <p className={pageStyles.link}>
+                  <Link href='/infrastructure-integration-python-tool' >
+                    Learn more about adding functionality to Mito
+                  </Link>
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                  <Image src={'/configurable-database-queries.png'} alt='Configurable Database Queries' width={668} height={342} layout='responsive'/>
+                  <Image src={'/bioinformatics.png'} alt='Mito + BioPython' width={712} height={457} layout='responsive'/>
               </div>
             </div>
         
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
-                  <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
+                  <Image src={'/healthcare.png'} alt='Mito for Healthcare' width={627} height={337} layout='responsive'/>
               </div>
                 <div className={textImageSplitStyles.functionality_text}>
                 <h2>
@@ -143,11 +148,11 @@ const PythonAITools: NextPage = () => {
                   Easily build scripts to split datasets by patient or hospital visits, convert dates to the correct format, and filter through complex data to find relevant data.
                 </p>
                 <p>
-                  Build the scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking.
+                  Build the scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking. 
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                  <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
+                  <Image src={'/healthcare.png'} alt='Mito for Healthcare' width={627} height={337} layout='responsive'/>
               </div>
             </div>
 
@@ -157,14 +162,14 @@ const PythonAITools: NextPage = () => {
                   Computational Biotech
                 </h2>
                 <p> 
-                  Some things are always easier to do in spreadsheet. Create pivot tables and graphs in Mito’s point and click UI to verify that your code is correct.
+                  Some things are always easier to do in spreadsheet. Create pivot tables and graphs in Mito&apos;s point and click UI to verify that your code is correct.
                 </p>
                 <p>
                   Use summary statistics to build intuition about your datasets and figure out the next steps in your analysis.
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/code-snippets-taskpane.png'} alt='Code Snippets' width={502} height={279} layout='responsive'/>
+                <Image src={'/computational-biotech.png'} alt='Mito for Computational Biotech' width={707} height={370} layout='responsive'/>
               </div>
             </div>
           </section>
