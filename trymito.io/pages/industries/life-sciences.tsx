@@ -77,7 +77,7 @@ const PythonAITools: NextPage = () => {
                   <Image src={'/bio-python-code.png'} alt='Bio Python Code' width={1000} height={500}/>
                 </div>
                 <h3>
-                  Python, Pandas, and SQL are the modern scientist&apos; stack
+                  Python, Pandas, and SQL are the modern scientist&apos;s stack
                 </h3>
                 <p>
                   Using Python lets you take advantage of powerful libraries designed specifically for life science research. 
