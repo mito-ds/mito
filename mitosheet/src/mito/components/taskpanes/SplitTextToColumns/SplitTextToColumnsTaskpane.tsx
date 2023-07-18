@@ -149,7 +149,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                     </Col>
                     <Col>
                         <Select
-                            width='medium-large'
+                            width='medium'
                             // When undoing right after adding a column, the params.column_id has not yet updated yet, but the sheetData has updated,
                             // so we add a placeholder that is displayed for the fraction of a second before the column_id updates. This avoids a 
                             // sheet crashing bug!
@@ -181,7 +181,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             Delimiters
                         </p>
                     </Col>
-                    <Col className="light-gray-container element-width-medium-large">
+                    <Col className="light-gray-container element-width-medium">
                         {Object.entries(delimiters).map(([delimiter, delimiterTitle]) => {
                             return (
                                 <MultiSelectButtonItem

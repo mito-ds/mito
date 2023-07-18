@@ -121,7 +121,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                     </Col>
                     <Col>
                         <Select
-                            width='medium'
+                            width='small'
                             value={params.keep + ''}
                             onChange={(newKeep: string | boolean) => {
                                 if (newKeep === 'false') {

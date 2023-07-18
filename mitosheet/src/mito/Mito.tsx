@@ -75,7 +75,7 @@ import BottomLeftPopup from './components/elements/BottomLeftPopup';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
-import { DEFAULT_TASKPANE_WIDTH, EDITING_TASKPANES, TaskpaneType } from './components/taskpanes/taskpanes';
+import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
 import Toolbar from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
@@ -126,7 +126,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         dataRecon: undefined
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
-    const [taskpaneWidth] = useState(DEFAULT_TASKPANE_WIDTH); // Default
+    const [taskpaneWidth] = useState(() => getDefaultTaskpaneWidth());
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
     const [highlightAddColButton, setHighlightAddColButton] = useState(false);

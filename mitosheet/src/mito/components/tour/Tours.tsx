@@ -167,7 +167,7 @@ const ExploreDataTourSteps: TourStep[] = [
         stepNumber: 2,
         stepHeader: 'View summary stats',
         stepHeaderBackgroundColor: '#CAD1FF',
-        stepText: <div> <b>Click on the Summary Stats tab </b> at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there’s more specific summary information down below. Check it out!</div>,
+        stepText: <div> <b>Click on the Stats tab </b> at the bottom of the taskpane. The chart at the top shows you the distribution of your column, and there’s more specific summary information down below. Check it out!</div>,
         location: TourPopupLocation.BOTTOM_LEFT,
         advanceButtonText: "Continue",
         displayBackButton: true

@@ -92,7 +92,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
             </div>
             <Row className='border-t-light-gray border-b-light-gray' justify='space-between'>
                 <Col 
-                    span={18} 
+                    span={16} 
                     className='flexbox-row flexbox-space-between border-r-light-gray'
                     onClick={() => {
                         props.setFileBrowserState(prevImportState => {
@@ -113,7 +113,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                     }
                 </Col>
                 <Col 
-                    span={6} 
+                    span={8} 
                     className='flexbox-row flexbox-justify-end text-align-right'
                     onClick={() => {
                         props.setFileBrowserState(prevImportState => {

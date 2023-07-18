@@ -171,3 +171,13 @@ export const ALLOW_UNDO_REDO_EDITING_TASKPANES = [
     
 
 export const DEFAULT_TASKPANE_WIDTH = 430;
+export const TASKPANE_WIDTH_MAX = 500;
+export const TASKPANE_WIDTH_MIN = 300;
+
+export const getDefaultTaskpaneWidth = (): number => {
+    if (window.innerWidth > 1200) {
+        return DEFAULT_TASKPANE_WIDTH;
+    }
+    
+    return TASKPANE_WIDTH_MIN;
+}

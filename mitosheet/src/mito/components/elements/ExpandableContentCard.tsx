@@ -81,7 +81,7 @@ const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element =
         return (
             <div className='expandable-content-card'> 
                 <Row justify='space-between' onClick={() => props.setExpanded(false)}>
-                    <Col span={12}>
+                    <Col span={22}>
                         <p className='text-header-3'>
                             {props.expandedTitle}
                         </p>

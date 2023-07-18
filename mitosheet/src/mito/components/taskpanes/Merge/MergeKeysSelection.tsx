@@ -36,8 +36,8 @@ const MergeKeysSelectionSection = (props: {
             </Row>
             {props.params.merge_key_column_ids.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo], index) => {
                 return (
-                    <Row key={index} justify="space-between" align="center">
-                        <Col>
+                    <Row key={index} justify="start" align="center">
+                        <Col span={10}>
                             <Select
                                 value={mergeKeyColumnIDOne}
                                 onChange={(columnID: ColumnID) => {
@@ -50,7 +50,6 @@ const MergeKeysSelectionSection = (props: {
                                         }
                                     })
                                 }}
-                                width='medium'
                                 searchable
                             >
                                 {Object.entries(sheetDataOne?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
@@ -64,10 +63,10 @@ const MergeKeysSelectionSection = (props: {
                                 })}
                             </Select>
                         </Col>
-                        <Col className="text-header-3">
+                        <Col className="text-header-3" span={.5} offset={.5} offsetRight={.5}>
                             =
                         </Col>
-                        <Col>
+                        <Col span={10}>
                             <Select
                                 value={mergeKeyColumnIDTwo}
                                 onChange={(columnID: ColumnID) => {
@@ -80,7 +79,6 @@ const MergeKeysSelectionSection = (props: {
                                         }
                                     })
                                 }}
-                                width='medium'
                                 searchable
                             >
                                 {Object.entries(sheetDataTwo?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
@@ -94,7 +92,7 @@ const MergeKeysSelectionSection = (props: {
                                 })}
                             </Select>
                         </Col>
-                        <Col>
+                        <Col span={2} offset={.5}>
                             <XIcon
                                 onClick={() => {
                                     props.setParams(prevParams => {

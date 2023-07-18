@@ -210,7 +210,7 @@ export function ValuesTab(
             <Row justify='space-between'>
                 <Col flex='1' offsetRight={1}>
                     <p className='text-header-2'> 
-                        Unique Values
+                        Values
                     </p>
                 </Col>
                 <Col>

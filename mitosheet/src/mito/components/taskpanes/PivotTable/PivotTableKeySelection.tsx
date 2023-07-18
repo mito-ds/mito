@@ -118,7 +118,7 @@ const PivotTableKeySelection = (props: {
                                     })
                                 }}
                                 searchable
-                                width='medium'
+                                width='block'
                             >
                                 {Object.entries(PIVOT_COLUMN_TRANSFORM_TITLES).map(([key, value]) => {
                                     return (

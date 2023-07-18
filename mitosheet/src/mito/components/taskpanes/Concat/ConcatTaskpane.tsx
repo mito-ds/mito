@@ -179,7 +179,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p className='text-header-3'>
-                            Dataframes to Concatenate
+                            Concatenate Dataframes
                         </p>
                     </Col>
                     <Col>
