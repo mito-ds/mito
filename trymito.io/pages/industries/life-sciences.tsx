@@ -178,10 +178,10 @@ const PythonAITools: NextPage = () => {
                   The Best Python Library for Biology and Life Sciences
                 </h2>
                 <p className={classNames('center')}>
-                    "Mito combines the familiarity of Excel with the power of Python. 
-                    I am able to quickly clean up, explore, and transform large data sets in a way that wouldn't be possible with Excel. 
+                  &quot;Mito combines the familiarity of Excel with the power of Python. 
+                    I&apos;m able to quickly clean up, explore, and transform large data sets in a way that wouldn&apos;t be possible with Excel. 
                     Mito generates code that is flexible, scalable, and repeatable.  
-                    Now, three years later, I can't imagine tackling my day-to-day work without Mito as one of my tools."
+                    Now, three years later, I can&apos;t imagine tackling my day-to-day work without Mito as one of my tools.&quot;
                 </p>
                 <p className={classNames('center')}> 
                   — Matthew Blome, Functional Lead @ Cytiva
