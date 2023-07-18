@@ -13,11 +13,11 @@
 }
 
 .sort-button:hover {
-    color: white;
+    color: var(--mito-white);
     background-color: var(--mito-medium-gray);
 }
 
 .sort-button-selected {
-    color: white;
+    color: var(--mito-white);
     background-color: var(--mito-gray) !important;
 }

@@ -2,7 +2,7 @@
     width: 100%;
 
     background: var(--mito-very-light-gray);
-    border: 0.5px solid var(--mito-legacy-gray);
+    border: 0.5px solid var(--mito-gray);
     box-sizing: border-box;
     border-radius: 3px;
 

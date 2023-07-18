@@ -34,7 +34,7 @@
 }
 
 .footer-add-button:hover {
-    background-color: var(--mito-very-light-purple);
+    background-color: var(--mito-light-purple);
 }
 
 .footer-tab-bar {
@@ -99,7 +99,7 @@
 }
 
 .tab-graph {
-    background-color: var(--mito-lightest-purple)
+    background-color: var(--mito-light-purple)
 }
 
 /* The recon colors must be defined before the tab-selected class so the order is applied correctly */

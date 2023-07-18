@@ -1,27 +1,19 @@
 
 /* Note that we use these colors through out the codebase in JS constants. If you change these variables, make sure to update them everywhere. */
 :root {
-    --mito-blue: #0081DE;
-    --mito-legacy-gray: #343434;
-
     --mito-purple: #9D6CFF;
     --mito-medium-purple: #BA9BF8;
     --mito-light-purple: #D0B9FE;
-    --mito-very-light-purple: #E9E0FD;
-    --mito-lightest-purple: #F0E9FF;
-    --mito-disabled-purple: #C1A1FF;
-    
+
     --mito-gray: #494650;
     --mito-medium-gray: #767180;
     --mito-light-gray: #ACACAD;
     --mito-very-light-gray: #F5F5F5;
-    --mito-gray-disabled: #9999A4;
 
     /* Colors used for the sheet */
     --mito-white: #FFFFFF;
     --mito-off-white: #ECDCDC;
     --mito-light-blue: #E8EBF8;
-    --mito-super-light-blue: #F2F4FA;
     --mito-border: #C4C4C4;
     --mito-sheet-text-gray: #404040;
 
@@ -38,4 +30,7 @@
     --mito-recon-modified-background-color: #FDF3D0;
     --mito-recon-modified-background-color-dark: #FBE7A3;
     --mito-recon-modified-text-color: #ECBB4A;
+
+    /* Colors that can be changed by the theme */
+
 }

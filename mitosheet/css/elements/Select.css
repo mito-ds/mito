@@ -48,10 +48,10 @@
     set the backgroud color of the select icon container.
 */
 .select-container:hover:not(.select-disabled) > .select-dropdown-icon-container {
-    background-color: var(--mito-medium-purple);
+    background-color: var(--mito-purple);
 }
 .select-dropdown-active > .select-dropdown-icon-container {
-    background-color: var(--mito-medium-purple);
+    background-color: var(--mito-purple);
 }
 
 /* 
@@ -59,10 +59,10 @@
     set the border color of the select select text.
 */
 .select-container:hover:not(.select-disabled) > .select-text {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-purple);
 }
 .select-dropdown-active > .select-text {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-purple);
 }
 
 .select-dropdown-container {

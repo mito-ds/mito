@@ -29,10 +29,6 @@
     padding: 0px 2px;
 }
 
-.file-browser-path-part:hover {
-    background: var(--mito-lightest-purple)
-}
-
 .file-browser-element-list {
     overflow-y: scroll;
     overflow-x: hidden;
@@ -49,8 +45,4 @@
 
 .file-browser-element:hover {
     border-radius: 3px;
-}
-
-.file-browser-element:hover {
-    background: var(--mito-lightest-purple)
 }

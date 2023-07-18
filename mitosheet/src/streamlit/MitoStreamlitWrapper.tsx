@@ -82,7 +82,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         })
     }
 
-    public async send (msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
+    public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
         // First, get the iframe of the MitoMessagePasser component
         const parentWindow = window.parent;
         const iframes = parentWindow.frames;

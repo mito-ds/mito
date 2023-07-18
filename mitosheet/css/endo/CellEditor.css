@@ -11,7 +11,7 @@
 }
 
 .cell-editor-form {
-    border: 2px solid var(--mito-medium-purple);
+    border: 2px solid var(--mito-purple);
     width: 100%;
     box-sizing: border-box;
 }

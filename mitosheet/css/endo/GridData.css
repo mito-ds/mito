@@ -25,7 +25,7 @@
 }
 
 .mito-grid-cell:hover:not(.recon) {
-    background-color: var(--mito-very-light-purple);
+    background-color: var(--mito-light-purple);
 }
 
 /* We make selected cells look different on even and odd rows */

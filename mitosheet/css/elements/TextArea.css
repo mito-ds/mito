@@ -10,7 +10,7 @@
 }
 
 .text-area:focus {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-purple);
 }
 
 .text-area-dark-border {
@@ -22,5 +22,5 @@
 }
 
 .text-area:hover:not(:disabled) {
-    border-color: var(--mito-medium-purple)
+    border-color: var(--mito-purple)
 }

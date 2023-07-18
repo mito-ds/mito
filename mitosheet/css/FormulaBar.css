@@ -20,7 +20,7 @@
     border-style: none;
     outline: none;
 
-    color: var(--mito-legacy-gray);
+    color: var(--mito-gray);
 }
 
 .formula-bar-vertical-line {

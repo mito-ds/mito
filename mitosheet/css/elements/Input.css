@@ -31,7 +31,7 @@
 }
 
 .mito-input:hover {
-    border: 1px solid var(--mito-medium-purple);
+    border: 1px solid var(--mito-purple);
 }
 
 .mito-input:disabled {

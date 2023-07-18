@@ -9,7 +9,7 @@
     position: relative;
 
     /* Set standard taskpane color */ 
-    color: var(--mito-legacy-gray);
+    color: var(--mito-gray);
     /* We have to set the background, as the taskpane turns black on fullscreen for some reason */
     background-color: white;
 
@@ -97,7 +97,7 @@
 }
 
 .popup-text-div {
-  color: #8d8d8d;
+  color: var(--mito-medium-gray);
 }
 
 .graph-sidebar-tab-container {

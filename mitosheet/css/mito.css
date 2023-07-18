@@ -4,7 +4,7 @@
     button, since we're not able to set the class name of our button in notebooks. 
 */
 :root .toolbar-mito-button-class, #mito-toolbar-button-id {
-    background-color: var(--mito-very-light-purple);
+    background-color: var(--mito-light-purple);
     border-radius: 3px;
     border: .5px solid var(--mito-light-gray);
 }
@@ -125,11 +125,4 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-}    
-
-.light-gray-container {
-    border-radius: 5px;
-    padding: 10px; 
-    background: var(--mito-very-light-gray);
-    box-sizing: border-box;
 }

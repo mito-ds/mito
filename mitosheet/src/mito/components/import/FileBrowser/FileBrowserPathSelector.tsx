@@ -31,7 +31,7 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
             {props.pathParts?.map((pathPart, i) => {
                 return (
                     <React.Fragment key={i}>
-                        <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
+                        <div className='highlight-on-hover file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
                             {i === 0 ? <DriveIcon /> : pathPart}
                         </div>
                         <div className='file-browser-path-seperator'>

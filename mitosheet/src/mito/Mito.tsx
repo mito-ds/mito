@@ -9,7 +9,6 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 */
 import '../../css/sitewide/all-modals.css';
 import '../../css/sitewide/animations.css';
-import '../../css/sitewide/backgrounds.css';
 import '../../css/sitewide/borders.css';
 import '../../css/sitewide/colors.css';
 import '../../css/sitewide/cursor.css';
@@ -92,6 +91,12 @@ export type MitoProps = {
         writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion) => void
         writeCodeSnippetCell: (analysisName: string, code: string) => void
         overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
+    }
+    theme?: {
+        primaryColor?: string
+        backgroundColor?: string
+        secondaryBackgroundColor?: string
+        textColor?: string
     }
 };
 

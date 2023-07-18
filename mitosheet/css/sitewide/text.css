@@ -194,5 +194,5 @@
 }
 
 .text-color-gray-disabled {
-    color: var(--mito-gray-disabled);
+    color: var(--mito-light-gray);
 }

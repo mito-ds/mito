@@ -45,7 +45,7 @@
   border-radius: 3px;
   font-family: Roboto;
   box-sizing: border-box;
-  color: var(--mito-legacy-gray);
+  color: var(--mito-gray);
   cursor: pointer;
 }
 
@@ -110,7 +110,7 @@
   /* Make input blend in with formula bar */
   background-color: var(--mito-light-blue);
 
-  color: var(--mito-legacy-gray);
+  color: var(--mito-gray);
 }
 
 
@@ -166,7 +166,7 @@
 }
 
 .mito-toolbar-button-draw-attention {
-  border: 2px solid var(--mito-blue);
+  border: 2px solid var(--mito-purple);
   border-radius: 5px;
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
 	transform: scale(1);

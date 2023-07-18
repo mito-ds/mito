@@ -26,7 +26,7 @@ const MergeKeysSelectionSection = (props: {
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
 
     return (
-        <div className="light-gray-container">
+        <div className="expandable-content-card">
             <Row suppressTopBottomMargin>
                 <Col>
                     <p className="text-header-3">

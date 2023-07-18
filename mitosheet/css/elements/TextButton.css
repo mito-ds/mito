@@ -63,7 +63,7 @@ a.text-button {
 }
 
 .text-button-variant-light {
-    background-color: var(--mito-very-light-purple);
+    background-color: var(--mito-light-purple);
     color: var(--mito-purple);
 }
 
@@ -86,12 +86,12 @@ a.text-button {
 
 /* Style the LIGHT text button when it is disabled */
 .text-button-variant-light.text-button-disabled {
-    background-color: var(--mito-very-light-purple);
-    color: var(--mito-medium-purple);
+    background-color: var(--mito-light-gray);
+    color: var(--mito-white);
 }
 
 /* Style the DARK text button when it is disabled */
 .text-button-variant-dark.text-button-disabled {
-    background-color: var(--mito-very-light-purple);
-    color: var(--mito-medium-purple);
+    background-color: var(--mito-light-gray);
+    color: var(--mito-white);
 }
