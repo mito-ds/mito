@@ -29,6 +29,8 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
             # First, write the tab in the Excel file
             df = steps_manager.dfs[sheet_index]
             df_name = steps_manager.curr_step.df_names[sheet_index]
+
+            # We reset the default style so that we can apply our own custom style
             pd.io.formats.excel.ExcelFormatter.header_style = None
             df.to_excel(
                 writer, 
