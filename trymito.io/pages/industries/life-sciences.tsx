@@ -41,17 +41,10 @@ const PythonAITools: NextPage = () => {
               </p>
               <CTAButtons variant={'download'} align='left'/>
             </div>
-            <div className={classNames(spreadsheetAutomationStyles.video_wrapper, 'margin-top-8rem-mobile-only', 'margin-left-8rem-desktop-only')}>
-                <div className={spreadsheetAutomationStyles.video_container}>
-                    <iframe 
-                        className={spreadsheetAutomationStyles.video}
-                        src="https://www.youtube.com/embed/ZX2AtIvYdRE" 
-                        title="YouTube video player" 
-                        frameBorder={0}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        allowFullScreen
-                    /> 
-                </div>
+            <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
+              <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                  <source src="/hospital_patient_pivot.mp4" />
+              </video>
             </div>
           </section>
 
