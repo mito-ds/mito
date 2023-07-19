@@ -34,9 +34,9 @@ def add_formatting_to_excel_sheet(
         })
         worksheet.set_row(0, None, headerColor)
 
-    if format.get('headers').get('color') is not None:
+    if format.get('headers').get('backgroundColor') is not None:
         headerBgColor = workbook.add_format({
-            "font_color": format.get('headers').get('backgroundColor'),
+            "bg_color": format.get('headers').get('backgroundColor'),
         })
         worksheet.set_row(0, None, headerBgColor)
 
