@@ -25,19 +25,13 @@ def add_formatting_to_excel_sheet(
     workbook = writer.book
     worksheet = writer.sheets[sheet_name]
 
-    headerBorder = workbook.add_format({ "border": 1, "bold": True })
-    worksheet.set_row(0, None, headerBorder)
-
+    headerFormat = workbook.add_format({ "border": 1, "bold": True })
     if format.get('headers').get('color') is not None:
-        headerColor = workbook.add_format({
-            "font_color": format.get('headers').get('color'),
-        })
-        worksheet.set_row(0, None, headerColor)
+        headerFormat.set_font_color(format.get('headers').get('color'))
 
     if format.get('headers').get('backgroundColor') is not None:
-        headerBgColor = workbook.add_format({
-            "bg_color": format.get('headers').get('backgroundColor'),
-        })
-        worksheet.set_row(0, None, headerBgColor)
+        headerFormat.set_bg_color(format.get('headers').get('backgroundColor'))
+    
+    worksheet.set_row(0, None, headerFormat)
 
             
