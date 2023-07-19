@@ -34,7 +34,7 @@ const PythonAITools: NextPage = () => {
           <section className={classNames(titleStyles.title_card, pageStyles.background_card, spreadsheetAutomationStyles.flex_col_mobile_row_desktop)}>
             <div className={spreadsheetAutomationStyles.title_text_container}>
               <h1>
-                Cutting edge life science professionals deserve cutting edge Python tools
+                Cutting-edge life science professionals deserve cutting-edge Python tools
               </h1>
               <p className={classNames(titleStyles.subtitle)}>
                 Intuitive Python automation tools that let you focus on the science.
@@ -52,6 +52,26 @@ const PythonAITools: NextPage = () => {
                         allowFullScreen
                     /> 
                 </div>
+            </div>
+          </section>
+
+          <section className={classNames(pageStyles.background_card, pythonAIToolsStyles.case_study_section)}>
+            <div className={classNames(pythonAIToolsStyles.case_study_text_container)}>
+                <h2 className={classNames(pythonAIToolsStyles.case_study_text, 'center')}>
+                  The Best Python Library for Biology and Life Sciences
+                </h2>
+                <p className={classNames('center')}>
+                  &quot;Mito combines the familiarity of Excel with the power of Python. 
+                    I&apos;m able to quickly clean up, explore, and transform large data sets in a way that wouldn&apos;t be possible with Excel. 
+                    Mito generates code that is flexible, scalable, and repeatable.  
+                    Now, three years later, I can&apos;t imagine tackling my day-to-day work without Mito as one of my tools.&quot;
+                </p>
+                <p className={classNames('center')}> 
+                  — Matthew Blome, Functional Lead @ Cytiva
+                </p>
+            </div>
+            <div>
+              <Image src='/MatthewBlomeHeadshot.png' alt='Matthew Blome, Functional Lead @ Cytiva' width={250} height={250} ></Image>
             </div>
           </section>
 
@@ -81,10 +101,10 @@ const PythonAITools: NextPage = () => {
                 </h3>
                 <p>
                   Using Python lets you take advantage of powerful libraries designed specifically for life science research. 
-                  Learn cutting edge machine learning, bioinformatics, and data science techniques to accelerate your research and advance your career.
+                  Learn cutting-edge machine learning, bioinformatics, and data science techniques to accelerate your research and advance your career.
                 </p>
                 <p>
-                  Writing code for your analyis, means you can verify its accuracy once and be confident in all of your future results. 
+                  Writing code for your analyis means you can verify its accuracy once and be confident in all of your future results. 
                 </p>
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
@@ -172,25 +192,6 @@ const PythonAITools: NextPage = () => {
             </div>
           </section>
 
-          <section className={classNames(pageStyles.background_card, pythonAIToolsStyles.case_study_section)}>
-            <div className={classNames(pythonAIToolsStyles.case_study_text_container)}>
-                <h2 className={classNames(pythonAIToolsStyles.case_study_text, 'center')}>
-                  The Best Python Library for Biology and Life Sciences
-                </h2>
-                <p className={classNames('center')}>
-                  &quot;Mito combines the familiarity of Excel with the power of Python. 
-                    I&apos;m able to quickly clean up, explore, and transform large data sets in a way that wouldn&apos;t be possible with Excel. 
-                    Mito generates code that is flexible, scalable, and repeatable.  
-                    Now, three years later, I can&apos;t imagine tackling my day-to-day work without Mito as one of my tools.&quot;
-                </p>
-                <p className={classNames('center')}> 
-                  — Matthew Blome, Functional Lead @ Cytiva
-                </p>
-            </div>
-            <div>
-              <Image src='/MatthewBlomeHeadshot.png' alt='Matthew Blome, Functional Lead @ Cytiva' width={250} height={250} ></Image>
-            </div>
-          </section>
           <section className={pageStyles.background_card}>
             <ContactCTACard />
           </section>
