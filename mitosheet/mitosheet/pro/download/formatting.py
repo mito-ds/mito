@@ -25,7 +25,9 @@ def add_formatting_to_excel_sheet(
     workbook = writer.book
     worksheet = writer.sheets[sheet_name]
 
-    print(format)
+    headerBorder = workbook.add_format({ "border": 1, "bold": True })
+    worksheet.set_row(0, None, headerBorder)
+
     if format.get('headers').get('color') is not None:
         headerColor = workbook.add_format({
             "font_color": format.get('headers').get('color'),
