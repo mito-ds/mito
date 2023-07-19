@@ -20,7 +20,7 @@ def add_formatting_to_excel_sheet(
     """
     sheet_name = steps_manager.curr_step.df_names[sheet_index]
     formats = steps_manager.curr_step.df_formats
-    format = formats[1]
+    format = formats[sheet_index]
 
     workbook = writer.book
     worksheet = writer.sheets[sheet_name]
