@@ -125,7 +125,7 @@ const AITransformationResultSection = (props: AITransformationResultSectionProps
                         </p>
                     }
                 </Col>
-                <Col span={1.5} offset={.5}>
+                <Col offset={.5}>
                     {(result.created_dataframe_names.length > 0 || Object.entries(result.modified_dataframes_recons).length > 0 || result.deleted_dataframe_names.length > 0) &&
                         props.isMostRecentResult &&
                         <EyeIcon 

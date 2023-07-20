@@ -8,7 +8,7 @@
     /* Clear defaults */ 
     border: none;
     background: var(--mito-background-off);
-    color: var(--mito-text)
+    color: var(--mito-text);
     
     /* 
         We make it a border box so that the border doesn't expand the width of the element

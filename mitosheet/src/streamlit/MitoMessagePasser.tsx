@@ -67,7 +67,6 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
             // Send one message
             const message = this.state.messageQueue[0];
             Streamlit.setComponentValue(message);
-            console.log("JUST SENT", message, Date.now())
 
             // Remove the processed message from the queue
             this.setState((prevState) => ({

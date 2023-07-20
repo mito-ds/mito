@@ -25,10 +25,11 @@ try:
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
+            _sheet_functions: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             key: Optional[str]=None
         ) -> Tuple[MitoBackend, List[Any]]: # So it caches on key
-        mito_backend = MitoBackend(*args, user_defined_importers=_importers)
+        mito_backend = MitoBackend(*args, user_defined_importers=_importers, user_defined_functions=_sheet_functions)
 
         # Make a send function that stores the responses in a list
         responses = []
@@ -62,6 +63,7 @@ try:
 
     def mito_component( # type: ignore
             *args: Union[pd.DataFrame, str, None], 
+            sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             key=None
@@ -76,6 +78,9 @@ try:
             passed, it will be displayed as a sheet tab. If a string is passed,
             it will be read in with a pd.read_csv call. If None is passed, it 
             will be skipped.
+        sheet_functions: List[Callable]
+            A list of functions that can be used in the spreadsheet. Functions
+            should be capitalized.
         importers: List[Callable]
             A list of functions that can be used to import dataframes. Each
             function should return a dataframe. 
@@ -93,7 +98,13 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
-        mito_backend, responses = _get_mito_backend(*args, _importers=importers, df_names=df_names, key=key)
+        mito_backend, responses = _get_mito_backend(
+            *args, 
+            _sheet_functions=sheet_functions,
+            _importers=importers, 
+            df_names=df_names, 
+            key=key
+        )
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
         user_profile_json = mito_backend.get_user_profile_json()

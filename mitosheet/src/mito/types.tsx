@@ -869,7 +869,8 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
-    dataRecon: AIRecon | undefined
+    dataRecon: AIRecon | undefined,
+    taskpaneWidth: number
 }
 
 /**

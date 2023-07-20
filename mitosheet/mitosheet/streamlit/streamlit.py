@@ -12,7 +12,7 @@ def importer():
 
 # open in Mito
 new_dfs, code = mito_component(
-    r'HGI_AmericanGeneral_01202023.csv', 
+    importer(), 
     importers=[importer], 
     df_names=['df1000'],
     key="mito_component"

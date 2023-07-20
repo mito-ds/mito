@@ -421,7 +421,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 </Row>
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                <p className='text-body-2 text-color-medium-gray-important mb-5px'>
+                <p className='text-body-2 text-color-medium-important mb-5px'>
                     <span className='text-body-2-link' onClick={resetParams}>Reset parameters to automatically detected parameters. </span> 
                 </p>
                 <TextButton

@@ -462,7 +462,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             />
                         </div>
                     </Col>
-                    <Col span={1.5} onClick={() => {
+                    <Col onClick={() => {
                         void submitChatInput(userInput)
                         chatInputRef.current?.focus()
                     }}>

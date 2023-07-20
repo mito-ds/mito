@@ -34,5 +34,5 @@
 }
 
 .multi-toggle-box-row-disabled {
-    color: var(--mito-medium-gray) !important;
+    opacity: 70%;
 }

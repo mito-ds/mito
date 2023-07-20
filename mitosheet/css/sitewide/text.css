@@ -108,7 +108,7 @@
 .text-color-gray-important {
     color: var(--mito-gray) !important;
 }
-.text-color-medium-gray-important {
+.text-color-medium-important {
     color: var(--mito-text-medium) !important;
 }
 .text-color-recon-created {

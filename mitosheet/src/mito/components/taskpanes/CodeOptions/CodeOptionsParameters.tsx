@@ -116,7 +116,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                 <Row justify='space-between' align='center'>
                     <Col span={8} offsetRight={2}>
                         <p>
-                            Current Value
+                            Value
                         </p>
                     </Col>
                     <Col span={10} offsetRight={2}>

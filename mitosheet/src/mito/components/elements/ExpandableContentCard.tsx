@@ -68,9 +68,9 @@ const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element =
                     }
                     <Col>
                         <Row align='top' justify='end' suppressTopBottomMargin>
-                            <div className='mr-5px' title='Expand'>
+                            <Col className='mr-5px'>
                                 <UpArrowIcon/>
-                            </div>
+                            </Col>
                             {XElement}
                         </Row>
                     </Col>
@@ -87,9 +87,9 @@ const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element =
                         </p>
                     </Col>
                     <Row justify='end'>
-                        <div className='mr-5px' title='Minimize'>
+                        <Col className='mr-5px'>
                             <DownArrowIcon/>
-                        </div>
+                        </Col>
                         {XElement}
                     </Row>
                 </Row>

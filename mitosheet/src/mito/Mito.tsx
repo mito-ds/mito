@@ -129,10 +129,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
-        dataRecon: undefined
+        dataRecon: undefined,
+        taskpaneWidth: getDefaultTaskpaneWidth()
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
-    const [taskpaneWidth] = useState(() => getDefaultTaskpaneWidth());
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
     const [highlightAddColButton, setHighlightAddColButton] = useState(false);
@@ -972,7 +972,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         className={formulaBarAndSheetClassNames}
                         style={
                             narrowTaskpaneOpen 
-                            ? {width: `calc(100% - ${taskpaneWidth}px)`}
+                            ? {width: `calc(100% - ${uiState.taskpaneWidth}px)`}
                             : undefined
                         }
                     >
@@ -997,7 +997,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             className={taskpaneClassNames}
                             style={
                                 narrowTaskpaneOpen 
-                                ? {width: `${taskpaneWidth}px`}
+                                ? {width: `${uiState.taskpaneWidth}px`}
                                 : undefined
                             }
                         >

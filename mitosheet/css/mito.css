@@ -32,7 +32,8 @@
     margin: initial;
     text-align: initial;
 }
-.jp-rendered_html .mito-container a:link,a:visited {
+.jp-rendered_html .mito-container a:link,
+.jp-rendered_html .mito-container a:visited {
     color: initial;
     text-decoration: initial;
 }
