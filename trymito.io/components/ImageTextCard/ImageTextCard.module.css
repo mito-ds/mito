@@ -1,0 +1,10 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    padding: 1rem;
+}
+
+.title_text {
+    margin-top: 0;
+    margin-left: 1rem;
+}

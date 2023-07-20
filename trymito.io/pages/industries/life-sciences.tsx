@@ -17,7 +17,7 @@ import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import FAQCard from '../../components/FAQCard/FAQCard';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
 
-const PythonAITools: NextPage = () => {
+const LifeSciences: NextPage = () => {
 
   return (
     <>
@@ -195,4 +195,4 @@ const PythonAITools: NextPage = () => {
   )
 }
 
-export default PythonAITools
+export default LifeSciences
