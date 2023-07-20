@@ -218,7 +218,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   </div>
                   <div>
                     <p className={functionalityCardStyles.subtext}>
-                      Make your org&apos;s custom functions, graph templates, and database connections accessible through Mito.
+                      Make your org&apos;s custom functions, graph templates, and database connections <Link href='/infrastructure-integration-python-tool'><a className={classNames(functionalityCardStyles.subtext, 'text-highlight')}>accessible through Mito</a></Link>.
                     </p>
                   </div>
                 </div>

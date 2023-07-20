@@ -65,6 +65,9 @@ const Footer = (): JSX.Element => {
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/industries/financial-services'>Financial Services</Link>
                     </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/industries/life-sciences'>Life Sciences</Link>
+                    </li>
                 </div>
                 <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
