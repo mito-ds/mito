@@ -124,7 +124,7 @@ const LowCodeSQL: NextPage = () => {
                     </h3>
                     <ImageTextCard title={'Explore, clean, and preprocess data'} imageSrc={ExploreIcon} />
                     <ImageTextCard title={'Transform and analyze data'} imageSrc={EditIcon} />
-                    <ImageTextCard title={'Build reports with filters, pivot tables'} imageSrc={FilterIcon} />
+                    <ImageTextCard title={'Use filters, pivot tables & more'} imageSrc={FilterIcon} />
                     <ImageTextCard title={'Visualize data'} imageSrc={WideGraphIcon} /> 
                     <ImageTextCard title={'Export reports to Excel '} imageSrc={SpreadsheetIcon} /> 
                     <ImageTextCard title={'Send emails'} imageSrc={EmailIcon} /> 
