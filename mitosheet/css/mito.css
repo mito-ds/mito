@@ -10,7 +10,7 @@
 }
 
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
-    color: var(--mito-highlight);
+    color: black;
 }
 
 .jp-RenderedHTMLCommon > .mito-container-container {

@@ -197,7 +197,8 @@ const GraphSidebar = (props: {
                     // NOTE: there's a minor visual bug where this updates quicker than the graph
                     // but we choose to view it as a nice preview rather than something to fix :-)
                     style={{
-                        backgroundColor: graphParams.graphStyling.paper_bgcolor
+                        backgroundColor: graphParams.graphStyling.paper_bgcolor,
+                        color: graphParams.graphStyling.title.title_font_color,
                     }}
                 >
                     {graphOutput === undefined &&
