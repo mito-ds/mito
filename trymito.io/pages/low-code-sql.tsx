@@ -14,7 +14,6 @@ import homeStyles from '../styles/Home.module.css'
 
 
 // Import Icons & Background Grid
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import ImageTextCard from '../components/ImageTextCard/ImageTextCard';
 import AuthenticateIcon from '../public/low-code-sql/AuthenticateIcon.svg';
@@ -50,7 +49,7 @@ const LowCodeSQL: NextPage = () => {
                     Write SQL code directly from the Mito Spreadsheet
                 </h1>
                 <p className={titleStyles.description}>
-                    Connect directly to your data sources, so you&apos;re always working with the most up to date data
+                    Connect to your data sources, so you&apos;re always working with the most up to date data
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
                     <CTAButtons variant='contact' align='center' displayProCTA={false}/>
@@ -75,7 +74,7 @@ const LowCodeSQL: NextPage = () => {
                             Don&apos;t spend any time figuring out the correct database connection to use or trying to learn yet another programming language. 
                         </p>
                         <p>
-                            Let the Mito UI take care of all it for you. 
+                            The Mito UI does it all for you.
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
@@ -95,7 +94,7 @@ const LowCodeSQL: NextPage = () => {
                             Use SQL to import data from the database, and then immediately explore and transform it through the Mito spreadsheet. 
                         </p>
                         <p>
-                            SQL is best used for importing data from databases. Python is best used for data cleaning, analysis, and visualizations. 
+                            SQL is best used for importing data. Python is best used for data cleaning, analysis, and visualizations. 
                         </p>
                         <p className={pageStyles.link}>
                             <Link href="/spreadsheet-automation" >
@@ -127,7 +126,7 @@ const LowCodeSQL: NextPage = () => {
                     <ImageTextCard title={'Transform and analyze data'} imageSrc={EditIcon} />
                     <ImageTextCard title={'Build reports with filters, pivot tables'} imageSrc={FilterIcon} />
                     <ImageTextCard title={'Visualize data'} imageSrc={WideGraphIcon} /> 
-                    <ImageTextCard title={'Export report to Excel '} imageSrc={SpreadsheetIcon} /> 
+                    <ImageTextCard title={'Export reports to Excel '} imageSrc={SpreadsheetIcon} /> 
                     <ImageTextCard title={'Send emails'} imageSrc={EmailIcon} /> 
                     <ImageTextCard title={'Schedule reports to execute '} imageSrc={ScheduleIcon} /> 
                 </div>
@@ -161,7 +160,7 @@ const LowCodeSQL: NextPage = () => {
                             Enterprise data is notoriously complex. Figuring out which of the four date fields to use requires diving into the data. 
                         </p>
                         <p>
-                            Use the Mito SQL Editor to pull in all four date fields, use the spreadsheet to figure out which one you actually need, then update your query all in one place. 
+                            Use the Mito SQL Editor to pull in all four date fields. Then, use the spreadsheet to figure out which one you actually need. Finally, update your query without ever switching tools. 
                         </p>
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
