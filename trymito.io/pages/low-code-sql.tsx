@@ -10,6 +10,7 @@ import titleStyles from '../styles/Title.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import lowCodeSQLStyles from '../styles/LowCodeSQL.module.css';
 import trifoldStyles from '../styles/Trifold.module.css';
+import homeStyles from '../styles/Home.module.css'
 
 
 // Import Icons & Background Grid
@@ -25,6 +26,8 @@ import ScheduleIcon from '../public/low-code-sql/ScheduleIcon.svg';
 import SelectIcon from '../public/low-code-sql/SelectIcon.svg';
 import SpreadsheetIcon from '../public/low-code-sql/SpreadsheetIcon.svg';
 import WideGraphIcon from '../public/low-code-sql/WideGraphIcon.svg';
+import CTAButtons from '../components/CTAButtons/CTAButtons';
+import ContactCTACard from '../components/CTACards/ContactCTACard';
 
 const LowCodeSQL: NextPage = () => {
 
@@ -42,13 +45,21 @@ const LowCodeSQL: NextPage = () => {
 
         <main className={pageStyles.main}>
 
-            <section className={classNames(titleStyles.title_card, titleStyles.grid_card)}>
+            <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
                     Write SQL code directly from the Mito Spreadsheet
                 </h1>
                 <p className={titleStyles.description}>
                     Connect directly to your data sources, so you&apos;re always working with the most up to date data
                 </p>
+                <div className={homeStyles.cta_button_and_video_spacer}>
+                    <CTAButtons variant='contact' align='center' displayProCTA={false}/>
+                </div>
+                <div id='video'>
+                    <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                        <source src="/low-code-sql/SQL-Python.mp4" />
+                    </video>
+                </div>
             </section>
 
             <section>
@@ -68,15 +79,15 @@ const LowCodeSQL: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/automate.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                        <Image src={'/low-code-sql/snowflake-taskpane.png'} alt='Automate analysis with Mito' width={603} height={324} layout='responsive'/>
                     </div>
                 </div>
             
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
-                        <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                        <Image src={'/low-code-sql/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
-                        <div className={textImageSplitStyles.functionality_text}>
+                    <div className={textImageSplitStyles.functionality_text}>
                         <h2>
                             Switch between <span className='text-highlight'>SQL and Python</span> seamlessly
                         </h2>
@@ -87,13 +98,13 @@ const LowCodeSQL: NextPage = () => {
                             SQL is best used for importing data from databases. Python is best used for data cleaning, analysis, and visualizations. 
                         </p>
                         <p className={pageStyles.link}>
-                        <Link href="/spreadsheet-automation" >
-                            Learn more about the Mito Spreadsheet →
-                        </Link>
+                            <Link href="/spreadsheet-automation" >
+                                Learn more about the Mito Spreadsheet →
+                            </Link>
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                        <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
+                        <Image src={'/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
                 </div>
             </section>
@@ -127,7 +138,7 @@ const LowCodeSQL: NextPage = () => {
                 <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
+                            <Image src={'/snowflake-query-taskpane.png'} alt='Large Data' width={1000} height={500}/>
                         </div>
                         <h3>
                             Easier ETL and Data Source Integration
@@ -141,7 +152,7 @@ const LowCodeSQL: NextPage = () => {
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/custom_imports.png'} alt='Custom Import' width={1000} height={500}/>
+                        <Image src={'/low-code-sql/refine-query.png'} alt='Use the Mito Spreadsheet to edit SQL-imported data' width={1000} height={500}/>
                         </div>
                         <h3>
                             Refine your query using a spreadsheet GUI
@@ -155,7 +166,7 @@ const LowCodeSQL: NextPage = () => {
                     </div>
                     <div className={classNames(pageStyles.subsection_column)}>
                         <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/code.png'} alt='Mito Generated Code' width={1000} height={500}/>
+                        <Image src={'/low-code-sql/connect-to-data-source.png'} alt='Connect to any data source' width={1000} height={500}/>
                         </div>
                         <h3>
                             Connect Mito to any data source
@@ -166,13 +177,18 @@ const LowCodeSQL: NextPage = () => {
                         <p>
                             Set a few environment variables and empower all of your analysts to access data without relying on a team of supporting data scientists. 
                         </p>
+                        <p className={pageStyles.link}>
+                            <Link href="/infrastructure-integration-python-tool" >
+                                Learn more about infrastrcucture integration →
+                            </Link>
+                        </p>
                     </div>
                 </div>
 
             </section>
 
             <section className={pageStyles.background_card}>
-                <DownloadCTACard />
+                <ContactCTACard />
             </section>
         </main>
         <Footer />
