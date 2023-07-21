@@ -103,7 +103,7 @@ const LowCodeSQL: NextPage = () => {
                         </p>
                     </div>
                     <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                        <Image src={'/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
+                        <Image src={'/low-code-sql/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
                 </div>
             </section>
