@@ -117,18 +117,21 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                     
 
                     const items = [
-                            <DropdownItem 
+                        <DropdownItem 
+                            key="Copy Code Snippet" 
                             title="Copy Code Snippet" 
                             onClick={copyToClipboard}
                         />,
                         !isInStreamlit() 
                             ? <DropdownItem 
+                                key="Write to Notebook" 
                                 title="Write to Notebook" 
                                 onClick={writeToCell}
                             />
                             : undefined
                         ,
                         <DropdownItem
+                            key='Get Support'
                             title='Get Support'
                             onClick={() => {
                                 window.open(openLocation)

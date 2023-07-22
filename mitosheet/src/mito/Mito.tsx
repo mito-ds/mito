@@ -972,8 +972,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         className={formulaBarAndSheetClassNames}
                         style={
                             narrowTaskpaneOpen 
-                            ? {width: `calc(100% - ${uiState.taskpaneWidth}px)`}
-                            : undefined
+                                ? {width: `calc(100% - ${uiState.taskpaneWidth}px)`}
+                                : undefined
                         }
                     >
                         <EndoGrid
@@ -997,8 +997,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             className={taskpaneClassNames}
                             style={
                                 narrowTaskpaneOpen 
-                                ? {width: `${uiState.taskpaneWidth}px`}
-                                : undefined
+                                    ? {width: `${uiState.taskpaneWidth}px`}
+                                    : undefined
                             }
                         >
                             {getCurrOpenTaskpane()}

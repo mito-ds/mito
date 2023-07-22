@@ -79,7 +79,7 @@ export const getTypeIdentifier = (columnDtype: string, highlightOrNot?: 'highlig
         'text-subtext-1',
         { 'text-color-mito-highlight-important': highlightOrNot === 'highlight' },
         { 'text-color-medium-important': highlightOrNot === 'not' }
-        )}
+    )}
     >
         {typeText}
     </p>
