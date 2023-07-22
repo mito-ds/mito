@@ -14,7 +14,7 @@ import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
 import ContactCTACard from '../components/CTACards/ContactCTACard';
 
-const Home: NextPage = () => {
+const InfrastructureIntegrationPythonTool: NextPage = () => {
 
   return (
     <>
@@ -209,4 +209,4 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export default InfrastructureIntegrationPythonTool
