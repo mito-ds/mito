@@ -59,8 +59,8 @@
     Classes for when the dropdown button is disabled
 */
 .mito-dropdown-button-disabled {
-    border: 1px solid var(--mito-very-light-gray);
+    border: 1px solid var(--mito-text-light);
 }
 .mito-dropdown-button-disabled > .mito-dropdown-button-text {
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-disabled) !important;
 }

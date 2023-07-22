@@ -60,7 +60,7 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 
 
 // Returns an JSX Element with the type identifier for that type of column
-export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
+export const getTypeIdentifier = (columnDtype: string, highlightOrNot?: 'highlight' | 'not'): JSX.Element => {
     // Default to identifying the column as a string if we can't figure out what it is
     let typeText = 'str'
     if (isFloatDtype(columnDtype)) {
@@ -77,8 +77,8 @@ export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' |
 
     return <p className={classNames(
         'text-subtext-1',
-        { 'text-color-mito-highlight-important': purpleOrDark === 'purple' },
-        // { 'text-color-gray-important': purpleOrDark === 'dark' } TODO: fix this?
+        { 'text-color-mito-highlight-important': highlightOrNot === 'highlight' },
+        { 'text-color-medium-important': highlightOrNot === 'not' }
         )}
     >
         {typeText}

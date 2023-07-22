@@ -423,7 +423,7 @@ export const getUpperLeftAndBottomRight = (selection: MitoSelection, sheetData: 
 
 const COPIED_BORDER_STYLE = '1px dashed black';
 const SELECTED_BORDER_STYLE = '1px solid var(--mito-highlight)';
-export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-light-gray)';
+export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-text-light)';
 
 /**
  * Returns the border styling on the selected cells, 

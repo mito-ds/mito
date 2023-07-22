@@ -10,7 +10,7 @@ import { fuzzyMatch } from '../../utils/strings';
 import Row from '../layout/Row';
 import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
-import { Theme } from '../../types';
+import { MitoTheme } from '../../types';
 import { getTheme } from '../../utils/colors';
 
 // NOTE: these must match their definitions in the Dropdown.css
@@ -74,7 +74,7 @@ interface DropdownProps {
      */
     width?: 'small' | 'medium' | 'large';
 
-    theme?: Theme
+    theme?: MitoTheme
 }
 
 // Where to place the dropdown

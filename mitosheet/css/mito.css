@@ -6,7 +6,7 @@
 :root .toolbar-mito-button-class, #mito-toolbar-button-id {
     background-color: var(--mito-highlight-light);
     border-radius: 3px;
-    border: .5px solid var(--mito-light-gray);
+    border: .5px solid var(--mito-text-light);
 }
 
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
@@ -65,7 +65,7 @@
     display: flex;
     flex-direction: column;
 
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
 
     /* Set the default font to Roboto */
     font-family: Roboto;

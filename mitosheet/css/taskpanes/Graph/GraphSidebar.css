@@ -12,7 +12,7 @@
     background-color: var(--mito-background);
 
     /* Stylize border of box, which we only need on the top so we don't double up */ 
-    border-top: 1px solid var(--mito-light-gray);
+    border-top: 1px solid var(--mito-text-light);
     
     box-sizing: border-box;
 }
@@ -31,7 +31,6 @@
     display: flex;
     flex-grow: 1;
 
-    /* Add standard spacing around the entire taskpane */
     padding: 5px 10px;
 }
 
@@ -46,7 +45,7 @@
     flex-direction: column;
     justify-content: space-between;
 
-    border-left: 1px solid var(--mito-light-gray);
+    border-left: 1px solid var(--mito-text-light);
     width: 300px;
     min-width: 300px;
     height: 100%;
@@ -95,7 +94,7 @@
 }
 
 .popup-text-div {
-  color: var(--mito-medium-gray);
+  color: var(--mito-text-medium);
 }
 
 .graph-sidebar-tab-container {

@@ -113,9 +113,9 @@ const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+        return (<p>Filled NaNs in <span className='text-color-medium-important'>{columnHeadersString}</span>.</p>)
     } else {
-        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> other columns.</p>)
+        return (<p>Filled NaNs in <span className='text-color-medium-important'>{columnHeadersString}</span> and <span className='tetext-color-medium-important'>{numOtherColumnHeaders}</span> other columns.</p>)
     }
 }
 

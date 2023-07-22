@@ -12,7 +12,7 @@ def importer():
 
 # open in Mito
 new_dfs, code = mito_component(
-    importer(), 
+    r'/Users/nathanrush/monorepo/mitosheet/datasets/loans_export.csv', 
     importers=[importer], 
     df_names=['df1000'],
     key="mito_component"

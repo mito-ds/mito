@@ -10,7 +10,7 @@
         this height as some browsers put a box around the input, which is fine.
     */
     height: 23px;
-    border: 1px solid var(--mito-light-gray)
+    border: 1px solid var(--mito-text-light)
 }
 
 /* 

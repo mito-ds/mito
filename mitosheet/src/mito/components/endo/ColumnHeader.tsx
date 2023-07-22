@@ -18,7 +18,7 @@ import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
-export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-backround-darker)';
+export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
 
 export const CREATED_RECON_COLOR = '#E4EFDC' // This is var(--mito-recon-created-background-color) - update this if we change this variable
 export const MODIFIED_RECON_COLOR = '#FDF3D0' // This is var(--mito-recon-modified-background-color) - update this if we change this variable
@@ -372,10 +372,10 @@ const ColumnHeader = (props: {
                                 </span>
                                 <div className='icon-color-changer-container'>
                                     <div className='icon-hide-on-hover'>
-                                        {getTypeIdentifier(columnDtype, 'dark')}
+                                        {getTypeIdentifier(columnDtype, 'not')}
                                     </div>
                                     <div className='icon-show-on-hover'>
-                                        {getTypeIdentifier(columnDtype, 'purple')}
+                                        {getTypeIdentifier(columnDtype, 'highlight')}
                                     </div>
                                 </div>
 

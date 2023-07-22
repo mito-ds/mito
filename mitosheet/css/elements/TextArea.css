@@ -18,7 +18,7 @@
 }
 
 .text-area::placeholder {
-    color: var(--mito-medium-gray)
+    color: var(--mito-text-medium)
 }
 
 .text-area:hover:not(:disabled) {

@@ -14,7 +14,7 @@
     white-space: nowrap;
     box-sizing: border-box;
 
-    border-top: 1px solid var(--mito-light-gray);
+    border-top: 1px solid var(--mito-text-light);
 
     /* Position the footer so that the add button and the size can stay in place */
     position: relative;
@@ -30,7 +30,7 @@
     padding-left: 10px;
     padding-right: 10px;
 
-    border-right: 1px solid var(--mito-light-gray);
+    border-right: 1px solid var(--mito-text-light);
 }
 
 .footer-add-button:hover {
@@ -73,7 +73,7 @@
 
     /* A bit of a hack to make the text centered */
     line-height: 20px;
-    border-left: 1px solid var(--mito-light-gray);
+    border-left: 1px solid var(--mito-text-light);
 }
 
 .tab {
@@ -85,7 +85,7 @@
         between each tab and the last tab has a border with the same thickness as 
         the other tabs.
     */
-    border-right: 1px solid var(--mito-light-gray);
+    border-right: 1px solid var(--mito-text-light);
     box-sizing: border-box;
 
     /* Should be the same height as the min-height of the footer-tab-bar */
@@ -115,7 +115,7 @@
     background-color: var(--mito-highlight);
     /* The selected sheet tab does not need a border */
     border: 0px;  
-    color: var(--mito-white);
+    color: var(--mito-text);
     box-sizing: border-box;
 }
 

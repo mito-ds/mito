@@ -36,9 +36,9 @@ const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[]
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(notIncludedColumnsArray[arrIndex], 25)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p>Columns <span className='text-color-gray-important'>{columnHeadersString}</span> are not included.</p>)
+        return (<p>Columns <span className='text-color-medium-important'>{columnHeadersString}</span> are not included.</p>)
     } else {
-        return (<p>Columns <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> others are not included.</p>)
+        return (<p>Columns <span className='text-color-medium-important'>{columnHeadersString}</span> and <span className='text-color-medium-important'>{numOtherColumnHeaders}</span> others are not included.</p>)
     }
 }
 

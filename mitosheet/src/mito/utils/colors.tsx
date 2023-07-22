@@ -1,4 +1,4 @@
-import { Theme } from "../types"
+import { MitoTheme } from "../types"
 
 type HSLColor = {
     h: number;
@@ -26,8 +26,10 @@ const DEFAULT_HIGHLIGHT_VERY_LIGHT = 'var(--mito-very-light-purple)';
 
 const TEXT_VARIABLE_NAME = '--mito-text';
 const TEXT_MEDIUM_VARIABLE_NAME = '--mito-text-medium';
+const TEXT_LIGHT_VARIABLE_NAME = '--mito-text-light';
 const DEFAULT_TEXT = 'var(--mito-gray)';
 const DEFAULT_TEXT_MEDIUM = 'var(--mito-medium-gray)';
+const DEFAULT_TEXT_LIGHT = 'var(--mito-light-gray)';
 
 const BACKGROUND_VARIABLE_NAME = '--mito-background';
 const BACKGROUND_OFF_VARIABLE_NAME = '--mito-background-off';
@@ -60,6 +62,7 @@ const getTextColors = (textColor: string | undefined): React.CSSProperties => {
         return {
             [TEXT_VARIABLE_NAME]: DEFAULT_TEXT,
             [TEXT_MEDIUM_VARIABLE_NAME]: DEFAULT_TEXT_MEDIUM,
+            [TEXT_LIGHT_VARIABLE_NAME]: DEFAULT_TEXT_LIGHT,
         } as React.CSSProperties
     }
 
@@ -67,6 +70,7 @@ const getTextColors = (textColor: string | undefined): React.CSSProperties => {
     return {
         [TEXT_VARIABLE_NAME]: hexToRGBString(textColorHex, 1),
         [TEXT_MEDIUM_VARIABLE_NAME]: hexToRGBString(textColorHex, .8),
+        [TEXT_LIGHT_VARIABLE_NAME]: hexToRGBString(textColorHex, .6),
     } as React.CSSProperties
 }
 
@@ -91,7 +95,7 @@ const getBackgroundColors = (backgroundColor: string | undefined): React.CSSProp
 
 
 
-export const getTheme = (theme?: Theme): React.CSSProperties => {
+export const getTheme = (theme?: MitoTheme): React.CSSProperties => {
 
     const highlightTheme = getHighlightTheme(theme?.primaryColor);
     const textTheme = getTextColors(theme?.textColor);

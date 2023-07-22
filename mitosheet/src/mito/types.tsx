@@ -1061,7 +1061,7 @@ export interface AITransformationResult extends AIRecon {
 }
 
 
-export interface Theme {
+export interface MitoTheme {
     primaryColor?: string
     backgroundColor?: string
     secondaryBackgroundColor?: string

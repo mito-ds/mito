@@ -1,11 +1,13 @@
 import {
     StreamlitComponentBase,
     withStreamlitConnection,
+    Theme
 } from "streamlit-component-lib"
 import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
-import { MitoResponse, SendFunctionReturnType } from "../mito";
+import { MitoResponse, MitoTheme, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
+
 
 interface State {
     responses: MitoResponse[]
@@ -17,6 +19,29 @@ interface State {
 const MAX_DELAY = 5 * 60_000;
 export const RETRY_DELAY = 25;
 export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+
+
+/**
+ * A helper for getting the Mito theme from the Streamlit theme. Notably, 
+ * if streamlit is just in default light mode, then we return undefined 
+ */
+const getMitoThemeFromStreamlitTheme = (streamlitTheme: Theme | undefined): MitoTheme | undefined => {
+    if (
+        streamlitTheme == undefined ||
+        (
+            streamlitTheme.base === 'light'
+            && streamlitTheme.primaryColor === '#ff4b4b'
+            && streamlitTheme.backgroundColor === '#ffffff'
+            && streamlitTheme.secondaryBackgroundColor === '#f0f2f6'
+            && streamlitTheme.textColor === '#31333F'
+        )
+    ) {
+        return undefined;
+    }
+    
+    return streamlitTheme;
+}
+
 
 /**
  * This wraps the Mito component in a Streamlit component, and 
@@ -100,8 +125,6 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
     }
     
     
-
-
     public render = (): ReactNode => {
 
         const sheetDataArray = getSheetDataArrayFromString(this.props.args['sheet_data_json']);
@@ -126,6 +149,11 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
         const theme = this.props.theme;
 
+        // If we are on an unset light theme, we ignore their colors and
+        // just use ours -- which means we don't pass a theme
+
+        console.log("Theme", theme);
+
 
         return (
             <Mito 
@@ -134,7 +162,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
-                theme={theme}
+                theme={getMitoThemeFromStreamlitTheme(this.props.theme)}
             />  
         )
     }

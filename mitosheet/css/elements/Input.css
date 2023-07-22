@@ -15,7 +15,7 @@
         and the padding do not expand the width of the input element
     */
     box-sizing: border-box;
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-radius: 3px;
     outline: unset; /* We clear the outline, which is set on JNotebooks for some reason on focus*/
 
@@ -24,7 +24,7 @@
 }
 
 .mito-input:focus {
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
 }
 
 .mito-input::placeholder {
@@ -36,8 +36,8 @@
 }
 
 .mito-input:disabled {
-    border: 1px solid var(--mito-light-gray);
-    color: var(--mito-light-gray)
+    border: 1px solid var(--mito-text-light);
+    color: var(--mito-text-disabled)
 }
 
 .mito-input-right-text {
@@ -47,5 +47,5 @@
     padding-top: 6px;
     padding-right: 4px;
 
-    color: var(--mito-light-gray);
+    color: var(--mito-text-disabled);
 }

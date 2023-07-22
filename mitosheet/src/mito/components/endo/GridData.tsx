@@ -11,8 +11,8 @@ import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITran
 import { hexToRGBString } from '../../utils/colors';
 
 
-export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
-export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
+export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
+export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
 export const EVEN_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 export const ODD_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 

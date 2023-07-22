@@ -52,7 +52,7 @@
 }
 
 .mito-dropdown-item-title-disabled {
-    color: var(--mito-light-gray);
+    color: var(--mito-text-disabled);
 }
 
 .mito-dropdown-item-subtext-disabled {
@@ -71,7 +71,7 @@
 
 .mito-dropdown-item-right-text {
     padding-right: 5px;
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-light) !important;
 }
 
 

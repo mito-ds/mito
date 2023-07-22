@@ -15,7 +15,7 @@
   -webkit-box-sizing: border-box; /* Older Webkit browsers */
 
   /* We use this for seperating sections in the toolbar*/
-  --toolbar-seperator-color: var(--mito-light-gray);
+  --toolbar-seperator-color: var(--mito-text-light);
 }
 
 .mito-toolbar-top {
@@ -183,6 +183,6 @@
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
-  color: var(--mito-white);
+  color: var(--mito-text);
   height: 18px;
 }

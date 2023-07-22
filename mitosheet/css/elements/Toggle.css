@@ -25,7 +25,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-radius: 3px;
     background-color: var(--mito-background-off);
     -webkit-transition: .4s;
@@ -87,15 +87,15 @@ input:checked + .toggle:after {
 
 .toggle-disabled {
     background-color: var(--mito-background-off) !important;
-    border-color: var(--mito-light-gray) !important;
+    border-color: var(--mito-text-light) !important;
 }
 
 .toggle-disabled:before {
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-disabled) !important;
 }
 
 .toggle-disabled:after {
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-disabled) !important;
 }
 
   

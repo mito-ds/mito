@@ -16,7 +16,7 @@
     flex-grow: 1;
 
     /* Stylize border */
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-right: none;
     border-radius: 3px 0px 0px 3px;
     background: var(--mito-background-off);
@@ -82,8 +82,8 @@
     Classes for when the select is disabled
 */
 .select-disabled > .select-text {
-    color: var(--mito-light-gray) !important;
-    border-color: var(--mito-light-gray) !important;
+    color: var(--mito-text-disabled) !important;
+    border-color: var(--mito-text-light) !important;
 }
 .select-disabled > .select-dropdown-icon-container {
     background-color: var(--mito-background-off) !important;

@@ -54,7 +54,7 @@ const AuthenticateToSnowflakeCard = (props: {
         <div className='mito-collapsible-content-card-container'>
             <CollapsibleSection 
                 title={(
-                    <div className={classNames('text-header-3',{'text-color-gray-disabled': loading})}>
+                    <div className={classNames('text-header-3',{'text-color-disabled': loading})}>
                         Connection
                     </div>
                 )}
@@ -63,7 +63,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 <Row justify="space-between">
                     <Col>
                         <p 
-                            className={classNames('text-body-1', {'text-color-gray-disabled': loading})}
+                            className={classNames('text-body-1', {'text-color-disabled': loading})}
                         >
                             Username
                         </p>
@@ -82,7 +82,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        <p className={classNames('text-body-1', {'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-disabled': loading})}>
                             Password
                         </p>
                     </Col>
@@ -102,7 +102,7 @@ const AuthenticateToSnowflakeCard = (props: {
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        <p className={classNames('text-body-1', {'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-disabled': loading})}>
                             Account
                         </p>
                     </Col>

@@ -105,9 +105,6 @@
 .text-color-mito-highlight-important {
     color: var(--mito-highlight) !important;
 }
-.text-color-gray-important {
-    color: var(--mito-gray) !important;
-}
 .text-color-medium-important {
     color: var(--mito-text-medium) !important;
 }
@@ -193,6 +190,6 @@
     text-decoration: underline;
 }
 
-.text-color-gray-disabled {
-    color: var(--mito-light-gray);
+.text-color-disabled {
+    color: var(--mito-text-light);
 }

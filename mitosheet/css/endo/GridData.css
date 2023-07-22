@@ -27,15 +27,15 @@
 }
 
 .mito-grid-cell:hover:not(.recon) {
-    background-color: var(--mito-background-off);
+    background-color: var(--mito-highlight-medium);
 }
 
 /* We make selected cells look different on even and odd rows */
 .mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: var(--mito-background-off);
+    background-color: var(--mito-highlight-very-light);
 }
 .mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: var(--mito-background);
+    background-color: var(--mito-highlight-light);
 }
 
 .mito-grid-cell-hidden {

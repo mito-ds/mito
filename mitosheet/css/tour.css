@@ -1,5 +1,5 @@
 .tour-container {
-    border: 1px solid var(--mito-white);
+    border: 1px solid var(--mito-text-light);
     border-radius: 5px;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25); /* Add drop shadows */
     

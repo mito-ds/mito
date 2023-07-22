@@ -1,6 +1,6 @@
 .mito-blue-container {
     padding: 5px;
-    background-color: vvar(--mito-background-highlight);
+    background-color: var(--mito-background-highlight);
     border-radius: 5px;
 }
 

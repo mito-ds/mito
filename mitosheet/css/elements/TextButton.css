@@ -69,29 +69,29 @@ a.text-button {
 
 .text-button-variant-dark {
     background-color: var(--mito-highlight);
-    color: var(--mito-white); 
+    color: var(--mito-text); 
 }
 
 /* Style the LIGHT text button when it is hovered and not disabled */
 .text-button-variant-light:hover:not(.text-button-disabled) {
     background-color: var(--mito-highlight-medium);
-    color: var(--mito-white);
+    color: var(--mito-text);
 }
 
 /* Style the DARK text button when it is hovered and not disabled */
 .text-button-variant-dark:hover:not(.text-button-disabled) {
     background-color: var(--mito-highlight-medium);
-    color: var(--mito-white); 
+    color: var(--mito-text); 
 }
 
 /* Style the LIGHT text button when it is disabled */
 .text-button-variant-light.text-button-disabled {
     background-color: var(--mito-background-off);
-    color: var(--mito-white);
+    color: var(--mito-text);
 }
 
 /* Style the DARK text button when it is disabled */
 .text-button-variant-dark.text-button-disabled {
     background-color: var(--mito-background-off);
-    color: var(--mito-white);
+    color: var(--mito-text);
 }

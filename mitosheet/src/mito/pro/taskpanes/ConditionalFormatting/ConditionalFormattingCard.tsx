@@ -33,9 +33,9 @@ const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: Column
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 15)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+        return (<p>Applied to <span className='text-color-medium-important'>{columnHeadersString}</span>.</p>)
     } else {
-        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> others.</p>)
+        return (<p>Applied to <span className='text-color-medium-important'>{columnHeadersString}</span> and <span className='text-color-medium-important'>{numOtherColumnHeaders}</span> others.</p>)
     }
 }
 
