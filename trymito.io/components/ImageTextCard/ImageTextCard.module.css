@@ -1,10 +1,13 @@
 .container {
     display: flex;
     flex-direction: row;
+    align-items: center;
     padding: 1rem;
 }
 
-.title_text {
+.title_text{
     margin-top: 0;
+    margin-bottom: 0;
     margin-left: 1rem;
 }
+

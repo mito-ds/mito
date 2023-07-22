@@ -46,7 +46,7 @@ const LowCodeSQL: NextPage = () => {
 
             <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Write SQL code directly from the Mito Spreadsheet
+                    Write SQL code using the Mito Spreadsheet
                 </h1>
                 <p className={titleStyles.description}>
                     Connect to your data sources, so you&apos;re always working with the most up to date data
@@ -71,7 +71,7 @@ const LowCodeSQL: NextPage = () => {
                             Write all of the database connection and SQL code through the Mito SQL Editor.
                         </p>
                         <p>
-                            Don&apos;t spend any time figuring out the correct database connection to use or trying to learn yet another programming language. 
+                            Don&apos;t spend time figuring out the correct database connection to use or trying to learn yet another programming language. 
                         </p>
                         <p>
                             The Mito UI does it all for you.
@@ -91,7 +91,7 @@ const LowCodeSQL: NextPage = () => {
                             Switch between <span className='text-highlight'>SQL and Python</span> seamlessly
                         </h2>
                         <p>
-                            Use SQL to import data from the database, and then immediately explore and transform it through the Mito spreadsheet. 
+                            Use SQL to import data from your data warehouse, and then immediately explore and transform it through the Mito spreadsheet. 
                         </p>
                         <p>
                             SQL is best used for importing data. Python is best used for data cleaning, analysis, and visualizations. 
@@ -178,7 +178,7 @@ const LowCodeSQL: NextPage = () => {
                         </p>
                         <p className={pageStyles.link}>
                             <Link href="/infrastructure-integration-python-tool" >
-                                Learn more about infrastrcucture integration →
+                                Learn more about infrastructure integration →
                             </Link>
                         </p>
                     </div>
