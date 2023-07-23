@@ -1,6 +1,4 @@
-import React from "react";
 import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
-import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
@@ -60,7 +58,7 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 
 
 // Returns an JSX Element with the type identifier for that type of column
-export const getTypeIdentifier = (columnDtype: string, highlightOrNot?: 'highlight' | 'not'): JSX.Element => {
+export const getTypeIdentifier = (columnDtype: string): string => {
     // Default to identifying the column as a string if we can't figure out what it is
     let typeText = 'str'
     if (isFloatDtype(columnDtype)) {
@@ -75,14 +73,7 @@ export const getTypeIdentifier = (columnDtype: string, highlightOrNot?: 'highlig
         typeText = 'bool'
     }
 
-    return <p className={classNames(
-        'text-subtext-1',
-        { 'text-color-mito-highlight-important': highlightOrNot === 'highlight' },
-        { 'text-color-medium-important': highlightOrNot === 'not' }
-    )}
-    >
-        {typeText}
-    </p>
+    return typeText;
 }
 
 

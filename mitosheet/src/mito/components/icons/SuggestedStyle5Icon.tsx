@@ -5,7 +5,7 @@ import React from 'react';
 
 const SuggestedStyle5Icon = (): JSX.Element => {
     return (
-        <svg width="52" height="46" viewBox="0 0 58 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="52" height="46" viewBox="0 0 58 46" fill="none" xmlns="http://www.w3.org/2000/svg" style={{background: 'white'}}>
             <rect width="56" height="11" transform="translate(1 1)" fill="#BE4D4D"/>
             <rect width="56" height="11" transform="translate(1 12)" fill="#F0DADA"/>
             <rect width="56" height="11" transform="translate(1 23)" fill="white"/>

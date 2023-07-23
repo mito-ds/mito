@@ -63,18 +63,18 @@ a.text-button {
 }
 
 .text-button-variant-light {
-    background-color: var(--mito-highlight-light);
-    color: var(--mito-highlight);
+    background-color: var(--mito-highlight-medium);
+    color: var(--mito-text);
 }
 
 .text-button-variant-dark {
     background-color: var(--mito-highlight);
-    color: var(--mito-text); 
+    color: var(--mito-background); 
 }
 
 /* Style the LIGHT text button when it is hovered and not disabled */
 .text-button-variant-light:hover:not(.text-button-disabled) {
-    background-color: var(--mito-highlight-medium);
+    background-color: var(--mito-highlight);
     color: var(--mito-text);
 }
 
@@ -92,6 +92,6 @@ a.text-button {
 
 /* Style the DARK text button when it is disabled */
 .text-button-variant-dark.text-button-disabled {
-    background-color: var(--mito-background-off);
-    color: var(--mito-text);
+    background-color: var(--mito-highlight-very-light);
+    color: var(--mito-highlight-medium);
 }

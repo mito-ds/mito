@@ -82,7 +82,7 @@
     Classes for when the select is disabled
 */
 .select-disabled > .select-text {
-    color: var(--mito-text-disabled) !important;
+    color: var(--mito-text-light) !important;
     border-color: var(--mito-text-light) !important;
 }
 .select-disabled > .select-dropdown-icon-container {

@@ -70,7 +70,7 @@ input:checked + .toggle:before {
 */
 .toggle:after {
     content:'Off';
-    color: white; 
+    color: var(--mito-text); 
     position: absolute; 
     right: 8px;
 }
@@ -79,6 +79,7 @@ input:checked + .toggle:after {
     content:'On';
     left: 8px;
     right: unset;
+    color: var(--mito-background)
 }
 
 .toggle:hover {
@@ -91,11 +92,11 @@ input:checked + .toggle:after {
 }
 
 .toggle-disabled:before {
-    color: var(--mito-text-disabled) !important;
+    color: var(--mito-text-light) !important;
 }
 
 .toggle-disabled:after {
-    color: var(--mito-text-disabled) !important;
+    color: var(--mito-text-light) !important;
 }
 
   

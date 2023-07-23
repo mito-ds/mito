@@ -12,6 +12,7 @@ import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
 import { MitoTheme } from '../../types';
 import { getTheme } from '../../utils/colors';
+import { isInStreamlit } from '../../utils/location';
 
 // NOTE: these must match their definitions in the Dropdown.css
 const MAX_HEIGHT = 250;
@@ -423,7 +424,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // can see more of it. If it's a search, mark it as such
     const dropdownClassNames = classNames('mito-dropdown', `element-width-${width}`,{
         'mito-dropdown-compressed': React.Children.count(props.children) > 4,
-        'mito-dropdown-search': props.searchable === true
+        'mito-dropdown-search': props.searchable === true,
+        'mito-dropdown-streamlit': isInStreamlit()
     })
 
     

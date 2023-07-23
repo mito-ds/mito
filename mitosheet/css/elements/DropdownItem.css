@@ -49,10 +49,8 @@
 
     /* Must be the same width as the .mito-dropdown-item-icon-container */
     margin-left: 18px; 
-}
-
-.mito-dropdown-item-title-disabled {
-    color: var(--mito-text-disabled);
+    
+    cursor: default;
 }
 
 .mito-dropdown-item-subtext-disabled {

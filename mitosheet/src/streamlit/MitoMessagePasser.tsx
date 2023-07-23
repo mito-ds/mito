@@ -7,7 +7,8 @@ import {
 
 
 // TODO: This delay is off. We should ask how long this debounce is, and then
-// set this to be a bit longer than that.
+// set this to be a bit longer than that. TODO: as part of the beta, we need to figure
+// this out. 
 const DELAY_BETWEEN_SET_COMPONENT_VALUES = 25;
 
 /**
@@ -68,11 +69,18 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
             const message = this.state.messageQueue[0];
             Streamlit.setComponentValue(message);
 
-            // Remove the processed message from the queue
-            this.setState((prevState) => ({
-                messageQueue: prevState.messageQueue.slice(1),
-                isSendingMessages: true,
-            }));
+            // Remove the processed message from the queue - making sure
+            // to avoid merge conflicts by finding by value
+            this.setState((prevState) => {
+                const messageQueue = [...prevState.messageQueue];
+                const index = messageQueue.findIndex((m) => m === message);
+                messageQueue.splice(index, 1);
+
+                return { 
+                    messageQueue,
+                    isSendingMessages: messageQueue.length > 0,
+                };
+            });
 
             // Set a timer to process the next message after a delay
             this.processMessageQueueTimer = setTimeout(this.processQueue, DELAY_BETWEEN_SET_COMPONENT_VALUES);

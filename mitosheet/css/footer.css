@@ -105,10 +105,12 @@
 /* The recon colors must be defined before the tab-selected class so the order is applied correctly */
 .tab-created-recon {
     background-color: var(--mito-recon-created-background-color);
+    color: var(--mito-recon-text-color);
 }
 
 .tab-modified-recon {
     background-color: var(--mito-recon-modified-background-color);
+    color: var(--mito-recon-text-color);
 }
 
 .tab-selected {

@@ -31,4 +31,5 @@
     --mito-recon-modified-background-color: #FDF3D0;
     --mito-recon-modified-background-color-dark: #FBE7A3;
     --mito-recon-modified-text-color: #ECBB4A;
+    --mito-recon-text-color: var(--mito-gray);
 }

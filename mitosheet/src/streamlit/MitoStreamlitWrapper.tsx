@@ -147,14 +147,6 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             this.setState({responses: responses});
         }
 
-        const theme = this.props.theme;
-
-        // If we are on an unset light theme, we ignore their colors and
-        // just use ours -- which means we don't pass a theme
-
-        console.log("Theme", theme);
-
-
         return (
             <Mito 
                 key={this.props.args['id'] as string}

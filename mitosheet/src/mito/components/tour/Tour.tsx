@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import "../../../../css/tour.css"
 import { MitoAPI } from '../../api/api';
-import XIcon from '../icons/XIcon';
 import TextButton from '../elements/TextButton';
 import { TourName, TourPopupLocation, tours, TourStep } from './Tours';
 import { classNames } from '../../utils/classNames';
@@ -139,39 +138,18 @@ const Tour = (props: {
     const stepText = steps[stepNumber].stepText;
     const stepTextFunction = steps[stepNumber].stepTextFunction;
     const finalStepText = stepText || (stepTextFunction && stepTextFunction(props.sheetData?.data[0].columnID || ''));
-    const hideXIcon = steps[stepNumber].hideXIcon === true
 
     // If we're at a valid step number
     return (
         <div className={classNames('tour-container', locationToClassNamesMapping[steps[stepNumber].location])} key={stepNumber}>
-            <Row justify='space-between' align='center'>
-                <Col>
-                    <p className='text-header-2'>
-                        {stepNumber + 1}/{steps.length}
-                    </p>
-                </Col>
-                {!hideXIcon && 
-                    <Col>
-                        <XIcon 
-                            onClick={async () => {
-                                if (stepNumber >= steps.length - 1) {
-                                    await closeTour();
-                                } else {
-                                    await closeTourEarly();
-                                }
-                            }}
-                        />
-                    </Col>
-                }
-            </Row>
             <Row>
                 <Col>
-                    <p className='text-header-2 text-color-white-important'>
-                        {steps[stepNumber].stepHeader}
+                    <p className='text-header-2'>
+                        {steps[stepNumber].stepHeader} ({stepNumber + 1}/{steps.length})
                     </p>
                 </Col>
             </Row>
-            <div className='text-overflow-wrap mb-20px'>
+            <div className='text-overflow-wrap mb-20px text-body-1'>
                 {finalStepText}
             </div>
             <Row justify='space-between'>

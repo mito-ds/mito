@@ -129,7 +129,13 @@ export const hexToRGBString = (hex: string | null, alpha: number | undefined): s
     }
 }
 
-function convertToHex(color: string): string {
+/**
+ * Converts any color to hex format.
+ * @param color - can be white, #fffff or var(--mito-color-variable-name)
+ * @param parentDiv - to resolve variable names, we allow you to pass a parent div to resolve in the context of
+ * @returns 
+ */
+export function convertToHex(color: string, parentDiv?: HTMLDivElement | null): string {
     // If the color is already in hex format, return it as is
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(color)) {
         return color;
@@ -148,9 +154,16 @@ function convertToHex(color: string): string {
     }
     
     // If the color is a named color, create a temporary element to get the computed color
-    const tempElement = document.createElement("div");
+    
+    let tempElement = document.createElement("div");
     tempElement.style.color = color;
-    document.body.appendChild(tempElement);
+
+    if (parentDiv) {
+        parentDiv.appendChild(tempElement);
+    } else {
+        document.body.appendChild(tempElement);
+    }
+
     const computedColor = getComputedStyle(tempElement).color;
     document.body.removeChild(tempElement);
     

@@ -183,6 +183,6 @@
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
-  color: var(--mito-text);
+  color: var(--mito-background);
   height: 18px;
 }

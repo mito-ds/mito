@@ -111,13 +111,13 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                     setUIState={props.setUIState}            
                 />
                 <DefaultTaskpaneBody>
-                    <Row align="center">
-                        <Col span={5}>
+                    <Row align="center" justify="start">
+                        <Col>
                             <p className="text-heading-2">
                                 Access Code: 
                             </p>
                         </Col>
-                        <Col span={2}>
+                        <Col>
                             <Tooltip title="Get an access code by purchasing a Pro license on the previous page."/>
                         </Col>
                     </Row>

@@ -12,9 +12,8 @@ import { hexToRGBString } from '../../utils/colors';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
-export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
-export const EVEN_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
-export const ODD_ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
+export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
+export const ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 
 const GridData = (props: {
     sheetData: SheetData | undefined,
@@ -28,8 +27,8 @@ const GridData = (props: {
 
     const evenRowBackgroundColor = sheetData?.dfFormat?.rows?.even?.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT;
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
-    const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || EVEN_ROW_TEXT_COLOR_DEFAULT;
-    const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ODD_ROW_TEXT_COLOR_DEFAULT;
+    const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
+    const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
 
     return (
         <>  

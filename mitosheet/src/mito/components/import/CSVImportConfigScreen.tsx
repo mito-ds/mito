@@ -336,8 +336,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                     </Col>
                     <Col>
                         <Select 
-                            searchable
-                            width='medium' 
+                            width='small' 
                             value={decimalCharToTitle[currentDecimal]} 
                             onChange={(newDecimalSeparator) => {
                                 props.setParams(prevParams => {
@@ -357,14 +356,14 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
                     <Col>
                         <LabelAndTooltip tooltip={SKIP_ROWS_TOOLTIP}>
-                            Number of Rows to Skip
+                            Rows to Skip
                         </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Input
                             value={"" + currentSkiprows}
                             type='number'
-                            width='medium'
+                            width='small'
                             onChange={(e) => {
                                 const newSkiprows = e.target.value;
                                 // Since we can only skip integer number of rows, we don't let the user add a decimal,

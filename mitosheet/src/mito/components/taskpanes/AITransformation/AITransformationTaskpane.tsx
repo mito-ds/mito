@@ -327,9 +327,11 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             >
                                 <Col>
                                     <p>Generating code...</p>
-                                    <p className="text-body-2">Hint: {taskpaneState.loadingMessage}</p>
+                                    <p className="text-body-2 text-overflow-wrap">Hint: {taskpaneState.loadingMessage}</p>
                                 </Col>
-                                <AILoadingCircle/>
+                                <Col>
+                                    <AILoadingCircle/>
+                                </Col>
                             </Row>
                         </>
                     }
@@ -349,7 +351,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 <Col>
                                     <p>Executing code...</p>
                                 </Col>
-                                <AILoadingCircle/>
+                                <Col>
+                                    <AILoadingCircle/>
+                                </Col>
                             </Row>
                         </>
                     }

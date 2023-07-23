@@ -1,6 +1,5 @@
 .signup-modal-container {
     margin: auto;
-    width: 750px;
     height: 350px;
 
     display: flex;
@@ -65,3 +64,9 @@
 .signup-modal-pro-text:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 800px) {
+    .signup-modal-right-column-container {
+      display: none; /* Hide the divs when the parent width is less than 750px */
+    }
+  }

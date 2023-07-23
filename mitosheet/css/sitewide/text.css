@@ -59,6 +59,11 @@
     text-decoration: underline;
 }
 
+.text-link {
+    color: var(--mito-highlight);
+    text-decoration: underline;
+}
+
 /* 
     Use: 
     - subtext for step history
@@ -93,14 +98,17 @@
     also have white text (e.g. the tour). In this case, we
     can override the color with this text
 */
+.text-color-mito-text {
+    color: var(--mito-text) !important;
+}
 .text-color-mito-highlight {
     color: var(--mito-highlight) !important;
 }
 .text-color-mito-highlight-light {
     color: var(--mito-highlight-light)
 }
-.text-color-white-important {
-    color: white !important;
+.text-color-background-important {
+    color: var(--mito-background) !important;
 }
 .text-color-mito-highlight-important {
     color: var(--mito-highlight) !important;
@@ -189,7 +197,14 @@
 .text-underline-on-hover:hover {
     text-decoration: underline;
 }
+.text-color-highlight-important-on-hover:hover {
+    color: var(--mito-highlight) !important;
+}
 
 .text-color-disabled {
     color: var(--mito-text-light);
+}
+
+.text-cursor-default {
+    cursor: default;
 }

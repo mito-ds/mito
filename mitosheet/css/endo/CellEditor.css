@@ -26,7 +26,7 @@
     outline: none;
 
     color: var(--mito-text);
-    background-color: var(--mito-background-off);
+    background-color: var(--mito-background);
 }
 
 .cell-editor-dropdown-box {
@@ -44,10 +44,10 @@
     position: absolute;
 }
 
-.jp-RenderedHTMLCommon .mito-container a.cell-editor-dropdown-link {
+.cell-editor-dropdown-link {
     margin: 6px 10px;
-    text-decoration: underline;
-    color: var(--mito-text-medium);
+    text-decoration: underline !important;
+    color: var(--mito-text-medium) !important;
 }
 
 .cell-editor-suggestion {

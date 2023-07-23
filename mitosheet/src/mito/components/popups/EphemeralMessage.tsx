@@ -46,7 +46,7 @@ const EphemeralMessage = (props: {
     return (
         <DefaultPopup popupLocation={props.popupLocation} className='ephemeral-message-animation'>
             <Row className={classNames('ephemeral-message-container')} align='center' suppressTopBottomMargin>
-                <p className={classNames('text-body-1', 'text-color-white-important', 'mr-10px')}>
+                <p className={classNames('text-body-1', 'text-color-background-important', 'mr-10px')}>
                     {props.message}
                 </p> 
                 <div

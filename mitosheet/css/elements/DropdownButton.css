@@ -62,5 +62,5 @@
     border: 1px solid var(--mito-text-light);
 }
 .mito-dropdown-button-disabled > .mito-dropdown-button-text {
-    color: var(--mito-text-disabled) !important;
+    color: var(--mito-text-light) !important;
 }

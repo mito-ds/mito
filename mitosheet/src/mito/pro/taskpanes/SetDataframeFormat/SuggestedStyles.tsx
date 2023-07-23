@@ -1,7 +1,7 @@
 import React from 'react';
 import { DataframeFormat, RecursivePartial } from '../../../types';
 import { HEADER_TEXT_COLOR_DEFAULT } from '../../../components/endo/ColumnHeader';
-import { EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
+import { ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
 import SuggestedStyle1Icon from '../../../components/icons/SuggestedStyle1Icon';
 import SuggestedStyle2Icon from '../../../components/icons/SuggestedStyle2Icon';
 import SuggestedStyle3Icon from '../../../components/icons/SuggestedStyle3Icon';
@@ -40,7 +40,7 @@ const SuggestedStyles = (props: {
                             color: HEADER_TEXT_COLOR_DEFAULT,
                             backgroundColor: '#9B9B9D'
                         }, 
-                        rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
+                        rows: {even: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}, odd: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}
                     })
                 }}>
@@ -52,7 +52,7 @@ const SuggestedStyles = (props: {
                             color: '#FFFFFF',
                             backgroundColor: '#549D3A'
                         }, 
-                        rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#D0E3C9'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
+                        rows: {even: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#D0E3C9'}, odd: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}
                     })
                 }}>
@@ -64,7 +64,7 @@ const SuggestedStyles = (props: {
                             color: '#FFFFFF',
                             backgroundColor: '#4D73BE'
                         }, 
-                        rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#DAE1F0'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
+                        rows: {even: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#DAE1F0'}, odd: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}
                     })
                 }}>
@@ -76,7 +76,7 @@ const SuggestedStyles = (props: {
                             color: '#FFFFFF',
                             backgroundColor: '#8F1B15'
                         }, 
-                        rows: {even: {color: EVEN_ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#F0DADA'}, odd: {color: ODD_ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
+                        rows: {even: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: '#F0DADA'}, odd: {color: ROW_TEXT_COLOR_DEFAULT, backgroundColor: undefined}},
                         border: {borderStyle: undefined, borderColor: undefined}
                     })
                 }}>

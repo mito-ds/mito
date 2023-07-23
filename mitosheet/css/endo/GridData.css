@@ -49,16 +49,20 @@
 
 .created-recon-background-color {
     background-color: var(--mito-recon-created-background-color);
+    color: var(--mito-recon-text-color);
 }
 
 .created-recon-background-color-dark {
     background-color: var(--mito-recon-created-background-color-dark);
+    color: var(--mito-recon-text-color);
 }
 
 .modified-recon-background-color {
     background-color: var(--mito-recon-modified-background-color);
+    color: var(--mito-recon-text-color);
 }
 
 .modified-recon-background-color-dark {
     background-color: var(--mito-recon-modified-background-color-dark);
+    color: var(--mito-recon-text-color);
 }

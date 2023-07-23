@@ -37,7 +37,7 @@
 
 .mito-input:disabled {
     border: 1px solid var(--mito-text-light);
-    color: var(--mito-text-disabled)
+    color: var(--mito-text-light)
 }
 
 .mito-input-right-text {
@@ -47,5 +47,5 @@
     padding-top: 6px;
     padding-right: 4px;
 
-    color: var(--mito-text-disabled);
+    color: var(--mito-text-light);
 }
