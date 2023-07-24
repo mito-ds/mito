@@ -6,11 +6,10 @@
 import base64
 import io
 from typing import Any, Dict
-from openpyxl import Workbook
 
 import pandas as pd
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
-from mitosheet.pro.download.formatting import add_formatting_to_excel_sheet
+from mitosheet.public.v3 import add_formatting_to_excel_sheet
 from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
 
@@ -39,7 +38,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
             # Add formatting to the sheet for pro users
             format = steps_manager.curr_step.df_formats[sheet_index]
             if is_pro_user:
-                add_formatting_to_excel_sheet(workbook, sheet_name, format)
+                add_formatting_to_excel_sheet({ workbook, sheet_name, format })
     
     # Go back to the start of the buffer
     buffer.seek(0)

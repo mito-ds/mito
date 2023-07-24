@@ -4,17 +4,16 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
 
-def add_formatting_to_excel_sheet(
-        workbook: Workbook,
-        sheet_name: str,
-        format: dict
-    ) -> None:
+def add_formatting_to_excel_sheet( params: dict[Workbook, str, dict]) -> None:
     """
     Adds formatting to the sheet_name, based on the formatting the user
     currently has applied in the frontend. 
 
     NOTE: this is a Mito Pro feature.
     """
+    workbook = params['workbook']
+    sheet_name = params['sheet_name']
+    format = params['format']
     sheet = workbook.get_sheet_by_name(sheet_name)
     
     # Add formatting to the header row    
@@ -35,4 +34,3 @@ def add_formatting_to_excel_sheet(
         # Write the formatting to the sheet
         for col in range(1, sheet.max_column + 1):
             sheet.cell(row=1, column=col).style = header_name
-        
