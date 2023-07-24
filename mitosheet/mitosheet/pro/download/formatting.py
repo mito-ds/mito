@@ -1,16 +1,13 @@
-import pandas as pd
-from mitosheet.is_type_utils import is_int_dtype, is_number_dtype
-from mitosheet.state import (NUMBER_FORMAT_ACCOUNTING,
-                             NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION)
-from mitosheet.types import StepsManagerType
+from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
-from mitosheet.excel_utils import get_excel_range_from_column_index
-
+from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import NamedStyle
 
 def add_formatting_to_excel_sheet(
-        writer: pd.ExcelWriter, 
-        steps_manager: StepsManagerType, 
-        sheet_index: int,
+        workbook: Workbook,
+        sheet_name: str,
+        format: dict
     ) -> None:
     """
     Adds formatting to the sheet_name, based on the formatting the user
@@ -18,21 +15,24 @@ def add_formatting_to_excel_sheet(
 
     NOTE: this is a Mito Pro feature.
     """
-    sheet_name = steps_manager.curr_step.df_names[sheet_index]
-    formats = steps_manager.curr_step.df_formats
-    format = formats[sheet_index]
-
-    workbook = writer.book
-    worksheet = writer.sheets[sheet_name]
-
-    # Create the formatting object for styling headers
-    headerFormat = workbook.add_format({ "border": 1, "bold": True })
-    if format.get('headers').get('color') is not None:
-        headerFormat.set_font_color(format.get('headers').get('color'))
-    if format.get('headers').get('backgroundColor') is not None:
-        headerFormat.set_bg_color(format.get('headers').get('backgroundColor'))
+    sheet = workbook.get_sheet_by_name(sheet_name)
     
-    # Apply formatting to the headers
-    worksheet.set_row(0, None, headerFormat)
+    # Add formatting to the header row    
+    header_name = f"{sheet_name}_Header"
+    if format.get('headers'):
+        header_format = NamedStyle(name=header_name)
+        # Add font and background colors to the header format
+        if format['headers']['color']:
+            font_color = format['headers']['color'][1:]
+            header_format.font = Font(color=font_color)
+        if format['headers']['backgroundColor']:
+            background_color = format['headers']['backgroundColor'][1:]
+            header_format.fill = PatternFill(start_color=background_color, end_color=background_color, fill_type="solid")
+        
+        # Add named styles for the header rows to improve performance
+        workbook.add_named_style(header_format)
 
-            
+        # Write the formatting to the sheet
+        for col in range(1, sheet.max_column + 1):
+            sheet.cell(row=1, column=col).style = header_name
+        
