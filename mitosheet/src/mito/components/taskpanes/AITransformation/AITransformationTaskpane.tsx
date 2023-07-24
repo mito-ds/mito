@@ -325,7 +325,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="space-between" align="center"
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
-                                <Col>
+                                <Col span={21}>
                                     <p>Generating code...</p>
                                     <p className="text-body-2 text-overflow-wrap">Hint: {taskpaneState.loadingMessage}</p>
                                 </Col>
@@ -405,7 +405,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="space-between" align="center"
                                 className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
-                                <div className="flexbox-column">
+                                <div className="flexbox-column" style={{width: '90%'}}>
                                     <p>
                                         Execution failed. {
                                             taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION

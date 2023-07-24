@@ -6,14 +6,12 @@ st.set_page_config(layout="wide")
 
 st.subheader("Dataframe Created from File Upload")
 
-def importer():
-    import pandas as pd
-    return pd.DataFrame({'A': [1]})
+def get_loan_data(date: str, include_duplicates: bool):
+    pass
 
-# open in Mito
+
 new_dfs, code = mito_component(
-    r'/Users/nathanrush/monorepo/mitosheet/datasets/loans_export.csv', 
-    importers=[importer], 
+    importers=[get_loan_data],
     df_names=['df1000'],
     key="mito_component"
 )

@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -79,7 +79,7 @@ import Toolbar from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
-import { getTheme } from './utils/colors';
+import { getCSSVariablesFromTheme } from './utils/colors';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -423,8 +423,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     }, [uiState]);
 
-    const theme = useMemo(() => {
-        return getTheme(props.theme);
+    /**
+     * If the theme changes, we update the theme on the document. 
+     * Note we don't just do this on the Mito component styles
+     * because we want to be able to use the theme in dropdowns
+     * that are rendered outside of the Mito component.
+     */
+    useEffect(() => {
+        const cssVariables = getCSSVariablesFromTheme(props.theme);
+        // For each key in the theme, set it on the document style
+        Object.keys(cssVariables).forEach((key) => {
+            const value = (cssVariables as Record<string, any>)[key];
+            document.documentElement.style.setProperty(key, value);
+        })
     }, [props.theme])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
@@ -945,7 +956,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
-            style={theme}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 

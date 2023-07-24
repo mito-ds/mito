@@ -1,18 +1,17 @@
 // Copyright (c) Mito
 import fscreen from 'fscreen';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
-import '../../../../css/elements/Dropdown.css'
+import '../../../../css/elements/Dropdown.css';
 import { clickedOnClass, useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
+import { MitoTheme } from '../../types';
 import { classNames } from '../../utils/classNames';
+import { isInStreamlit } from '../../utils/location';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../layout/Row';
 import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
-import { MitoTheme } from '../../types';
-import { getTheme } from '../../utils/colors';
-import { isInStreamlit } from '../../utils/location';
 
 // NOTE: these must match their definitions in the Dropdown.css
 const MAX_HEIGHT = 250;
@@ -207,11 +206,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const [searchString, setSearchString] = useState('');
     // If the selected index is -1, then nothing is selected
     const [selectedIndex, setSelectedIndex] = useState(-1);
-
-    // TODO: figure out how to pass through the theme with contexts?
-    const theme = useMemo(() => {
-        return getTheme(props.theme)
-    }, [props.theme])
     
     /* Close the dropdown anytime anyone clicks anywhere unless they click on:
         1. the dropdown's search field
@@ -478,7 +472,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
                         left: boundingRect.left, 
-                        ...theme
                     }}>
                     {props.searchable && 
                         <div className={classNames('mito-dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>

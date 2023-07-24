@@ -29,6 +29,8 @@ const GridData = (props: {
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
+    console.log(evenRowTextColor, oddRowTextColor)
+
 
     return (
         <>  

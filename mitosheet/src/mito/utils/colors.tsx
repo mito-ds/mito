@@ -95,7 +95,7 @@ const getBackgroundColors = (backgroundColor: string | undefined): React.CSSProp
 
 
 
-export const getTheme = (theme?: MitoTheme): React.CSSProperties => {
+export const getCSSVariablesFromTheme = (theme?: MitoTheme): React.CSSProperties => {
 
     const highlightTheme = getHighlightTheme(theme?.primaryColor);
     const textTheme = getTextColors(theme?.textColor);
