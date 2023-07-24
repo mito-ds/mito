@@ -9,7 +9,7 @@ const SuggestedStyleIcon = (props: {
     oddRowColor: string,
 }): JSX.Element => {
     return (
-        <svg width="64" height="54" viewBox="0 0 64 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="52" height="54" viewBox="0 0 64 54" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="60" height="10" transform="translate(2 2)" fill={props.headerColor}/>
             <rect width="60" height="10" transform="translate(2 12)" fill={props.evenRowColor}/>
             <rect width="60" height="10" transform="translate(2 22)" fill={props.oddRowColor}/>

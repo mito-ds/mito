@@ -62,7 +62,7 @@ const SuggestedStyles = (props: {
             </Row>
             <Row justify='space-between' align='center'>
                 {DEFAULT_SUGGESTED_STYLES.map((suggestedStyle, index) => {
-                    const headerColor = suggestedStyle.headers?.backgroundColor || 'var(--mito-background)';
+                    const headerColor = suggestedStyle.headers?.backgroundColor || 'var(--mito-background-highlight)';
                     const evenRowColor = suggestedStyle.rows?.even?.backgroundColor || 'var(--mito-background)';
                     const oddRowColor = suggestedStyle.rows?.odd?.backgroundColor || 'var(--mito-background-off)';
 

@@ -26,18 +26,50 @@ export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
  * if streamlit is just in default light mode, then we return undefined 
  */
 const getMitoThemeFromStreamlitTheme = (streamlitTheme: Theme | undefined): MitoTheme | undefined => {
-    if (
-        streamlitTheme == undefined ||
-        (
-            streamlitTheme.base === 'light'
-            && streamlitTheme.primaryColor === '#ff4b4b'
-            && streamlitTheme.backgroundColor === '#ffffff'
-            && streamlitTheme.secondaryBackgroundColor === '#f0f2f6'
-            && streamlitTheme.textColor === '#31333F'
-        )
-    ) {
-        return undefined;
+    if (streamlitTheme === undefined) {
+        return undefined
     }
+
+    
+
+    
+
+    if (streamlitTheme.base === 'light') {
+        // If it's the default light theme, we simply include the variables that are
+        // different from the default. This is because we like our light-mode styling, and
+        // want to keep as much of it as we can
+        const mitoTheme: MitoTheme = {
+            primaryColor: undefined,
+            backgroundColor: undefined,
+            secondaryBackgroundColor: undefined,
+            textColor: undefined,
+        }
+
+        let set = false;
+        if (streamlitTheme.primaryColor !== '#ff4b4b') {
+            mitoTheme.primaryColor = streamlitTheme.primaryColor;
+            set = true;
+        }
+        if (streamlitTheme.backgroundColor !== '#ffffff') {
+            mitoTheme.backgroundColor = streamlitTheme.backgroundColor;
+            set = true;
+        }
+        if (streamlitTheme.secondaryBackgroundColor !== '#f0f2f6') {
+            mitoTheme.secondaryBackgroundColor = streamlitTheme.secondaryBackgroundColor;
+            set = true;
+        }
+        if (streamlitTheme.textColor !== '#31333F') {
+            mitoTheme.textColor = streamlitTheme.textColor;
+            set = true;
+        }
+
+        if (set) {
+            return mitoTheme;
+        } else {
+            return undefined;
+        }
+    }
+
     
     return streamlitTheme;
 }
