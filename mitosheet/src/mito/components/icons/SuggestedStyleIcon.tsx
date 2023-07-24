@@ -15,7 +15,7 @@ const SuggestedStyleIcon = (props: {
             <rect width="60" height="10" transform="translate(2 22)" fill={props.oddRowColor}/>
             <rect width="60" height="10" transform="translate(2 32)" fill={props.evenRowColor}/>
             <rect width="60" height="10" transform="translate(2 42)" fill={props.oddRowColor}/>
-            <rect x="1" y="1" width="62" height="52" stroke='var(--mito-highlight)' stroke-width="2"/>
+            <rect x="1" y="1" width="62" height="52" stroke='var(--mito-highlight)' strokeWidth="2"/>
         </svg>
     )
 }

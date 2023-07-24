@@ -155,7 +155,7 @@ export function convertToHex(color: string, parentDiv?: HTMLDivElement | null): 
     
     // If the color is a named color, create a temporary element to get the computed color
     
-    let tempElement = document.createElement("div");
+    const tempElement = document.createElement("div");
     tempElement.style.color = color;
 
     if (parentDiv) {
