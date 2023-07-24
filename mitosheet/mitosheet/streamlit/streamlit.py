@@ -1,6 +1,6 @@
 
 import streamlit as st
-from mitosheet.streamlit.mito_component import mito_component
+from mitosheet.streamlit.v1.mito_component import mito_component
 
 st.set_page_config(layout="wide")
 
