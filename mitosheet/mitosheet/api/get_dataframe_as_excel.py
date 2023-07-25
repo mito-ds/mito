@@ -12,6 +12,7 @@ from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 from mitosheet.public.v3 import add_formatting_to_excel_sheet
 from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
+from mitosheet.user.utils import is_running_test
 
 
 def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
@@ -19,7 +20,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
     Sends a dataframe as a excel string.
     """
     sheet_indexes = params['sheet_indexes']
-    is_pro_user = is_pro()
+    allow_formatting = is_pro() or is_running_test()
 
     # We write to a buffer so that we don't have to save the file
     # to the file system for no reason
@@ -36,7 +37,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
 
             # Add formatting to the sheet for pro users
             format = steps_manager.curr_step.df_formats[sheet_index]
-            if is_pro_user and format['headers']: 
+            if allow_formatting and format['headers']: 
                 add_formatting_to_excel_sheet(writer, sheet_name, format['headers']['backgroundColor'], format['headers']['color'])
     
     # Go back to the start of the buffer
