@@ -104,6 +104,8 @@ setup_args = dict(
     long_description_content_type = "text/markdown",
     cmdclass                 = cmdclass,
     packages                 = setuptools.find_packages(exclude=['deployment']),
+    include_package_data     = True,
+    package_data             = {'': ['*.js', '*.css']},
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
