@@ -41,8 +41,8 @@ def transpile(
     describe functions. 
     """
 
-    imports_code = []
-    code = []
+    imports_code: List[str] = []
+    code: List[str] = []
 
     # First, we transpile all the preprocessing steps
     for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
