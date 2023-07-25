@@ -10,25 +10,23 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
 
-
-    
 def get_format_code(state: State) -> list:
-    code = [f'{TAB}workbook = writer.book']
+    code = []
     formats = state.df_formats
     for sheetIndex in range(len(formats)):
         sheet_name = state.df_names[sheetIndex]
         format = formats[sheetIndex]
-        
-        code.append(f"""
-    worksheet = writer.sheets["{sheet_name}"]
-    # Create the formatting object for styling headers
-    headerFormat = workbook.add_format({{ "border": 1, "bold": True }})
-    {f'headerFormat.set_font_color("{format.get("headers").get("color")}")' if format.get('headers').get('color') is not None else ""}
-    {f'headerFormat.set_bg_color("{format.get("headers").get("backgroundColor")}")' if format.get('headers').get('backgroundColor') is not None else ""}
-    # Apply formatting to the headers
-    worksheet.set_row(0, None, headerFormat)
-        """)
     
+        if format.get('headers') is None:
+            continue
+        
+        header_font_color = None
+        header_background_color = None
+        if (format['headers'].get('color') is not None):
+            header_font_color = format["headers"]["color"]
+        if (format['headers'].get('backgroundColor') is not None):
+            header_background_color = format["headers"]["backgroundColor"]
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", "{header_background_color}", "{header_font_color}")')
     return code
 
 
@@ -54,7 +52,7 @@ class ExportToFileCodeChunk(CodeChunk):
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
-            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}) as writer:\n{TAB}pd.io.formats.excel.ExcelFormatter.header_style = None"] + [
+            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:\n{TAB}pd.io.formats.excel.ExcelFormatter.header_style = None"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ] + get_format_code(self.post_state), ['import pandas as pd']
