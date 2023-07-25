@@ -12,10 +12,10 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
+import { isInStreamlit } from "../../../utils/location";
 import Input from "../../elements/Input";
 import Toggle from "../../elements/Toggle";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
-import Spacer from "../../layout/Spacer";
 
 
 interface UserDefinedImportTaskpaneProps {
@@ -71,7 +71,13 @@ const getParamTypeDisplay = (
     }
 }
 
-const NO_IMPORTERS_MESSAGE = 'You have not defined any importers. To define importers, pass them to the mitosheet.sheet call with the `importers` parameter. An importer is just a function that returns a pandas dataframe.';
+let NO_IMPORTERS_MESSAGE = 'You have not defined any importers. An importer is just a function that returns a pandas dataframe.';
+if (isInStreamlit()) {
+    NO_IMPORTERS_MESSAGE += ' You can define importers in the mito_component call with the `importers` parameter.';
+} else {
+    NO_IMPORTERS_MESSAGE += ' You can define importers in the mitosheet.sheet call with the `importers` parameter.';
+}
+
 
 /* 
     This is the UserDefinedImport taskpane.
@@ -103,17 +109,9 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                 userProfile={props.userProfile}
             >
                 {params === undefined &&
-                    <>
-                        <p>
-                            Custom Importers is how you can access your functions that create dataframes from within the Mito Spreadsheet. 
-                        </p>
-                        <Spacer px={10}/>
-                        <p>
-                            To access a custom importer in Mito, pass the function to the mitosheet.sheet() call like this:
-                        </p>
-                        <Spacer px={10}/>
-                        <code>mitosheet.sheet(importers=[function_name])</code>
-                    </>
+                    <p>
+                        {NO_IMPORTERS_MESSAGE}
+                    </p>
                 }
                 {params !== undefined &&
                     <>

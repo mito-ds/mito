@@ -25,9 +25,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-radius: 3px;
-    background-color: var(--mito-light-gray);
+    background-color: var(--mito-background-off);
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -52,7 +52,7 @@
 }
   
 input:checked + .toggle {
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
 }
   
 input:checked + .toggle:before {
@@ -70,7 +70,7 @@ input:checked + .toggle:before {
 */
 .toggle:after {
     content:'Off';
-    color: white; 
+    color: var(--mito-text); 
     position: absolute; 
     right: 8px;
 }
@@ -79,23 +79,24 @@ input:checked + .toggle:after {
     content:'On';
     left: 8px;
     right: unset;
+    color: var(--mito-background)
 }
 
 .toggle:hover {
-    border-color: var(--mito-light-purple);
+    border-color: var(--mito-highlight-light);
 }
 
 .toggle-disabled {
-    background-color: var(--mito-very-light-gray) !important;
-    border-color: var(--mito-light-gray) !important;
+    background-color: var(--mito-background-off) !important;
+    border-color: var(--mito-text-light) !important;
 }
 
 .toggle-disabled:before {
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-light) !important;
 }
 
 .toggle-disabled:after {
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-light) !important;
 }
 
   

@@ -172,7 +172,7 @@ class StepsManager:
 
     def __init__(
             self, 
-            args: Collection[Union[pd.DataFrame, str]], 
+            args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
             analysis_to_replay: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
@@ -204,15 +204,25 @@ class StepsManager:
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
+        df_names = None
         for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            args, execution_data = preprocess_step_performers.execute(args)
+            args, df_names, execution_data = preprocess_step_performers.execute(args)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers), {})
+            Step(
+                "initialize", "initialize", {}, None, 
+                State(
+                    args, 
+                    df_names=df_names,
+                    user_defined_functions=user_defined_functions, 
+                    user_defined_importers=user_defined_importers
+                ), 
+                {}
+            )
         ]
 
         """
@@ -338,7 +348,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
-                "code": transpile(self, optimize=(is_pro() or is_running_test())),
+                "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
@@ -404,6 +414,9 @@ class StepsManager:
             )
 
         return step_summary_list
+    
+    def code(self) -> List[str]:
+        return transpile(self, optimize=(is_pro() or is_running_test()))
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """

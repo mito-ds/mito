@@ -8,10 +8,14 @@
 
     min-width: 100px;
 
-    /* This must match the definitions in the Dropdown.tsx */
+    /* 
+        This should match the definitions in the Dropdown.tsx,
+        But it doesn't. This bug has been there for a while, so we 
+        don't mess with it because it works.
+     */
     max-height: 350px;
 
-    background: var(--mito-white);
+    background: var(--mito-background);
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
     border-radius: 5px;
 
@@ -19,6 +23,16 @@
 
     padding-top: 8px;
     padding-bottom: 8px;    
+}
+
+/* On streamlit, */
+.mito-dropdown-streamlit {
+    max-height: 250px;
+}
+
+.mito-dropdown p {
+    margin: initial;
+    text-align: initial;
 }
 
 /* 
@@ -39,7 +53,7 @@
     padding: 10px;
     width: 320px;
     padding-bottom: 10px;
-    background-color: white;
+    background-color: var(--mito-background);
     box-sizing: unset; /* Ignore the box sizing in JNotebook*/
 }
 

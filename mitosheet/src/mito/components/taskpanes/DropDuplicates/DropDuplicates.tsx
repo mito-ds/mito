@@ -121,7 +121,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                     </Col>
                     <Col>
                         <Select
-                            width='medium'
+                            width='small'
                             value={params.keep + ''}
                             onChange={(newKeep: string | boolean) => {
                                 if (newKeep === 'false') {
@@ -182,7 +182,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                 {editApplied && !loading &&
                     <Row className='mt-5'>
                         <p className='text-subtext-1'>
-                            Removed <span className='text-color-gray-important'>{!attemptedEditWithTheseParamsMultipleTimes ? result?.num_rows_dropped || 0 : 0}</span> rows.
+                            Removed <span className='text-color-medium-important'>{!attemptedEditWithTheseParamsMultipleTimes ? result?.num_rows_dropped || 0 : 0}</span> rows.
                         </p>
                     </Row>
                 }

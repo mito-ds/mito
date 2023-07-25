@@ -68,7 +68,7 @@ const MultiToggleSelectedMessage = (props: {searchString: string, numToggled: nu
     return (
         <>
             Toggle {props.searchString !== '' ? "Displayed" : "All"}
-            <span className='text-color-medium-gray-important'>&nbsp;({text})</span>
+            <span className='text-color-medium-important'>&nbsp;({text})</span>
         </>
     )
 }

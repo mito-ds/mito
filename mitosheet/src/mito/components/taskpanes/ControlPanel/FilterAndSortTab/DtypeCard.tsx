@@ -121,7 +121,7 @@ function DtypeCard(props: DtypeCardProps): JSX.Element {
         <> 
             <Row justify='space-between' align='center'>
                 {/* NOTE: the spacing in the Dtype card should be the same as the SortCard */}
-                <Col span={4} title={DTYPE_DESCRIPTION}>
+                <Col span={6} title={DTYPE_DESCRIPTION}>
                     <p className='text-header-3'> 
                         Dtype 
                     </p>

@@ -104,6 +104,7 @@ setup_args = dict(
     long_description_content_type = "text/markdown",
     cmdclass                 = cmdclass,
     packages                 = setuptools.find_packages(exclude=['deployment']),
+    package_data             = {'': ['*.js', '*.css', '*.html']},
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
@@ -133,6 +134,9 @@ setup_args = dict(
             'twine',
             "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
+        ],
+        'streamlit': [
+            'streamlit>=1.0',
         ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),

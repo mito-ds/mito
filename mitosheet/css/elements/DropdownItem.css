@@ -7,7 +7,7 @@
     padding-right: 5px;
     box-sizing: border-box;
     overflow: hidden;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* 
@@ -20,10 +20,10 @@
 }
 
 .mito-dropdown-item-selected {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 .mito-dropdown-item:hover {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .mito-dropdown-item-icon-and-title-container {
@@ -49,14 +49,12 @@
 
     /* Must be the same width as the .mito-dropdown-item-icon-container */
     margin-left: 18px; 
-}
-
-.mito-dropdown-item-title-disabled {
-    color: var(--mito-light-gray);
+    
+    cursor: default;
 }
 
 .mito-dropdown-item-subtext-disabled {
-    color: var(--mito-red);
+    color: var(--mito-status-error);
 }
 
 /*  When the DropdownItem is not hovered over, don't show
@@ -71,7 +69,7 @@
 
 .mito-dropdown-item-right-text {
     padding-right: 5px;
-    color: var(--mito-light-gray) !important;
+    color: var(--mito-text-light) !important;
 }
 
 

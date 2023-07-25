@@ -2,7 +2,7 @@
     resize: none;
     margin: 0px;
     padding: 5px;
-    background-color: var(--mito-very-light-gray);
+    background-color: var(--mito-background-off);
     
     border: 1px solid var(--mito-lighter-gray);
     border-radius: 3px;
@@ -10,7 +10,7 @@
 }
 
 .text-area:focus {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-highlight);
 }
 
 .text-area-dark-border {
@@ -18,9 +18,9 @@
 }
 
 .text-area::placeholder {
-    color: var(--mito-medium-gray)
+    color: var(--mito-text-medium)
 }
 
 .text-area:hover:not(:disabled) {
-    border-color: var(--mito-medium-purple)
+    border-color: var(--mito-highlight)
 }

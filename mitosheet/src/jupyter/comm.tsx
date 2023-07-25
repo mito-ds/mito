@@ -80,8 +80,8 @@ export type CommContainer = {
 // at 5 minutes
 const MAX_DELAY = 5 * 60_000;
 // How often we poll to see if we have a response yet
-const RETRY_DELAY = 25;
-const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
+export const RETRY_DELAY = 25;
+export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 
 export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Promise<boolean> => {

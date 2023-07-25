@@ -28,7 +28,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         return 'check_args_type'
 
     @classmethod
-    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         # We first validate all the parameters as either dataframes or strings
         # but we also allow users to pass None values, which we just ignore (this
         # makes variable number of inputs to the sheet possible).
@@ -49,7 +49,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
                     raise make_duplicated_column_headers_error(duplicated_headers)
         
         # We do filter out all the None arguments
-        return [arg for arg in args if arg is not None], None
+        return [arg for arg in args if arg is not None], None, None
 
     @classmethod
     def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:

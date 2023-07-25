@@ -3,21 +3,19 @@
     width: 100%;
 
     font-size: 12px;
-    color: var(--mito-gray);
-    background-color: var(--mito-very-light-gray);
+    color: var(--mito-text);
+    background-color: var(--mito-background-off);
 
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-radius: 3px;
     border-style: solid; /* Get rid of the shadow around button */
     box-sizing: border-box;
 }
 
 .sort-button:hover {
-    color: white;
-    background-color: var(--mito-medium-gray);
+    background-color: var(--mito-highlight-light);
 }
 
 .sort-button-selected {
-    color: white;
-    background-color: var(--mito-gray) !important;
+    background-color: var(--mito-highlight) !important;
 }

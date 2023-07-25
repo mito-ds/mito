@@ -1,6 +1,6 @@
 
 .loading-indicator-header {
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
     padding: 5px 10px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;

@@ -31,7 +31,8 @@
     "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "streamlit-component-lib": "^2.0.0"
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
@@ -40,33 +41,30 @@
     "clean:mito_frontend": "rimraf mitosheet/mito_frontend.js mitosheet/mito_frontend.css",
     "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension && jlpm run clean:mito_frontend",
     "clean": "npm run clean:all",
-
     "build:nbextension:dev": "webpack --mode=development",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:mito_frontend:dev": "node esbuild.js",
-    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev && build:mito_frontend:dev",
+    "build:streamlit:dev": "node esbuild.streamlit.js",
+    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev && build:mito_frontend:dev && build:streamlit:dev",
     "build:dev": "npm run build:all:dev",
-    
     "build:lib": "tsc",
     "build:nbextension": "webpack --mode=production",
     "build:labextension": "jupyter labextension build .",
     "build:mito_frontend": "node esbuild.js",
-    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend",
+    "build:streamlit": "node esbuild.streamlit.js",
+    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend && npm run build:streamlit",
     "build": "npm run build:all",
-
     "watch:lib": "tsc -w",
     "watch:nbextension": "webpack --watch --mode=development",
     "watch:labextension": "jupyter labextension watch .",
     "watch:mito_frontend": "node esbuild.js --watch",
-    "watch:all": "run-p watch:lib watch:labextension watch:nbextension watch:mito_frontend",
+    "watch:streamlit": "node esbuild.streamlit.js --watch",
+    "watch:all": "run-p watch:lib watch:labextension watch:nbextension watch:mito_frontend watch:streamlit",
     "watch": "npm run watch:all",
-    
     "lint:check": "eslint src/ --ext .ts,.tsx",
     "lint": "eslint src/ --ext .ts,.tsx --fix",
-
     "prepare": "jlpm run clean && jlpm run build:all",
     "prepack": "npm run build:all",
-
     "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
     "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
   },

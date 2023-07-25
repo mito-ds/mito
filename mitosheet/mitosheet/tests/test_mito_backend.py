@@ -154,3 +154,10 @@ def test_throws_duplicated_column_error():
         df = pd.DataFrame(columns=['A', 'A'])
         get_mito_backend(df)
     assert 'A' in str(e_info)
+
+def test_create_mito_backend_with_string_names_set_df_names():
+    df = pd.DataFrame({i: [1, 2, 3] for i in range(MAX_COLUMNS + 100)})
+    df.to_csv('test_file.csv', index=False)
+    mito = create_mito_wrapper('test_file.csv')
+    assert mito.mito_backend.steps_manager.curr_step.final_defined_state.df_names == ['test_file']
+    os.remove('test_file.csv')

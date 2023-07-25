@@ -3,9 +3,11 @@ import fscreen from 'fscreen';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
-import '../../../../css/elements/Dropdown.css'
+import '../../../../css/elements/Dropdown.css';
 import { clickedOnClass, useCallOnAnyClick } from '../../hooks/useCallOnAnyClick';
+import { MitoTheme } from '../../types';
 import { classNames } from '../../utils/classNames';
+import { isInStreamlit } from '../../utils/location';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../layout/Row';
 import Input from './Input';
@@ -71,6 +73,8 @@ interface DropdownProps {
         * @param [width] - The width of the dropdown that gets created
      */
     width?: 'small' | 'medium' | 'large';
+
+    theme?: MitoTheme
 }
 
 // Where to place the dropdown
@@ -414,7 +418,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     // can see more of it. If it's a search, mark it as such
     const dropdownClassNames = classNames('mito-dropdown', `element-width-${width}`,{
         'mito-dropdown-compressed': React.Children.count(props.children) > 4,
-        'mito-dropdown-search': props.searchable === true
+        'mito-dropdown-search': props.searchable === true,
+        'mito-dropdown-streamlit': isInStreamlit()
     })
 
     

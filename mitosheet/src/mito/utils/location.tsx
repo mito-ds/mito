@@ -18,3 +18,14 @@ export const isInJupyterNotebook = (): boolean => {
     return window.location.pathname.startsWith('/notebooks') ||
         (window as any).Jupyter !== undefined
 }
+
+export const isInStreamlit = (): boolean => {
+    // Check if we are in an iframe
+    if (window.self !== window.top) {
+        const topDocument = window.top?.document;
+        return (topDocument && topDocument.getElementsByClassName('stApp').length > 0) ||
+            (window.top !== null && (window.top as any).streamlitDebug !== undefined)
+    }
+    return false;
+    // TODO: What else can we check?
+}

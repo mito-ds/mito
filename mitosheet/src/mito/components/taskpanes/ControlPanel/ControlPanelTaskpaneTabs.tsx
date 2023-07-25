@@ -54,7 +54,7 @@ function ControlPanelTaskpaneTabs(
                 onClick={() => changeTab(ControlPanelTab.SummaryStats)}
             >
                 <p>
-                    Summary Stats
+                    Stats
                 </p>
             </div>
         </div> 
