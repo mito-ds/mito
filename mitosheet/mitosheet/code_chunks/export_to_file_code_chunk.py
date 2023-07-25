@@ -10,6 +10,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
 
+# This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State) -> list:
     code = []
     formats = state.df_formats
@@ -17,15 +18,19 @@ def get_format_code(state: State) -> list:
         sheet_name = state.df_names[sheetIndex]
         format = formats[sheetIndex]
     
+        # If there is no formatting, we skip this sheet
         if format.get('headers') is None:
             continue
         
+        # Prepares the header font color and background color to be used in the API call
+        # So either they should be surrounded by quotes, or they should be None
         header_font_color = None
         header_background_color = None
         if (format['headers'].get('color') is not None):
             header_font_color = f'"{format["headers"]["color"]}"'
         if (format['headers'].get('backgroundColor') is not None):
             header_background_color = f'"{format["headers"]["backgroundColor"]}"'
+        
         code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {header_background_color}, {header_font_color})')
     return code
 
