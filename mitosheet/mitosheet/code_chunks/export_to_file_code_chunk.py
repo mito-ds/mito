@@ -59,7 +59,7 @@ class ExportToFileCodeChunk(CodeChunk):
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
-            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:\n{TAB}pd.io.formats.excel.ExcelFormatter.header_style = None"] + [
+            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ] + get_format_code(self.post_state), ['import pandas as pd']

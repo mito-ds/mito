@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
+import pdb
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, TAB
 import pytest
 import pandas as pd
@@ -629,15 +630,37 @@ def test_transpiled_with_export_to_xlsx_single():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': 'r"te' + "'" + 'st.xlsx"'}})
 
-    assert "\n".join(mito.transpiled_code) == """
+    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+
 def function(df, path):
-    df.to_excel(path, sheet_name='df', index=False)
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name="df", index=False)
     
     return df
 
 path = r"te'st.xlsx"
 
 df = function(df, path)"""
+
+def test_transpiled_with_export_to_xlsx_format():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    filename = 'test_format.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    # pdb.set_trace()
+    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+
+with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", "#000000", "#ffffff")
+
+df_styler = df.style\\
+    .set_table_styles([
+        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+])
+"""
+
 
 def test_transpiled_with_export_to_xlsx_multiple():
     df = pd.DataFrame({'A': [1, 2, 3]})
@@ -651,7 +674,7 @@ def test_transpiled_with_export_to_xlsx_multiple():
     assert "\n".join(mito.transpiled_code) == """import pandas as pd
 
 def function(df1, df2, path_0):
-    with pd.ExcelWriter(path_0) as writer:
+    with pd.ExcelWriter(path_0, engine="openpyxl") as writer:
         df1.to_excel(writer, sheet_name="df1", index=False)
         df2.to_excel(writer, sheet_name="df2", index=False)
     
