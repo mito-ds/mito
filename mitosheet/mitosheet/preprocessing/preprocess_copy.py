@@ -40,5 +40,5 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
         return new_args, None, None
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
-        return []
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+        return [], []

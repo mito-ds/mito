@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { MitoAPI, PublicInterfaceVersion } from './mito';
+import { MitoAPI } from './mito';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -135,9 +135,8 @@ function activateMitosheetExtension(
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
-            const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
 
-            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
+            const code = getCodeString(analysisName, codeLines, telemetryEnabled);
             
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately

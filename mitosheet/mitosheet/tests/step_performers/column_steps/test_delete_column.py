@@ -79,6 +79,8 @@ def test_double_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'B'], axis=1, inplace=True)",
         '',
     ]
@@ -91,6 +93,8 @@ def test_multi_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'B', 'C', 'D'], axis=1, inplace=True)",
         '',
     ]
@@ -102,6 +106,8 @@ def test_delete_different_sheets_optimizes():
     mito.delete_columns(1, ['B'])
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1_copy = df1.copy(deep=True)",
         '',
         "df1.drop(['A'], axis=1, inplace=True)",
@@ -121,6 +127,8 @@ def test_double_delete_different_sheets_does_optimize():
     assert mito.dfs[0].empty
     assert mito.dfs[1].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1_copy = df1.copy(deep=True)",
         '',
         "df1.drop(['A', 'B'], axis=1, inplace=True)",
@@ -165,7 +173,7 @@ def test_add_column_then_delete_multiple_optimizes():
     mito.add_column(0, 'A', -1)
     mito.delete_columns(0, ['A', 'B'])
 
-    assert len(mito.transpiled_code) == 2
+    assert len(mito.transpiled_code) == 4
     assert len(mito.optimized_code_chunks) == 1
 
     assert mito.dfs[0].empty
@@ -189,7 +197,7 @@ def test_reorder_column_then_delete_optimizes():
     mito.reorder_column(0, 'A', -1)
     mito.delete_columns(0, ['A'])
 
-    assert len(mito.transpiled_code) == 2
+    assert len(mito.transpiled_code) == 4
     assert len(mito.optimized_code_chunks) == 1
 
     assert mito.dfs[0].equals(pd.DataFrame({'B': [1234]}))
@@ -200,7 +208,7 @@ def test_reorder_column_then_delete_multiple_optimizes():
     mito.delete_columns(0, ['B'])
     mito.delete_columns(0, ['A'])
 
-    assert len(mito.transpiled_code) == 2
+    assert len(mito.transpiled_code) == 4
     assert len(mito.optimized_code_chunks) == 1
 
     assert mito.dfs[0].empty
