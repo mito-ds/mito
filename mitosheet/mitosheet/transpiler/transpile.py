@@ -21,6 +21,13 @@ from mitosheet.types import StepsManagerType
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
 
+
+IMPORT_STATEMENTS = {
+    1: 'from mitosheet.public.v1 import *',
+    2: 'from mitosheet.public.v2 import *',
+    3: 'from mitosheet.public.v3 import *'
+}
+
 def transpile(
         steps_manager: StepsManagerType, 
         add_comments: bool=True,
@@ -77,11 +84,12 @@ def transpile(
     if steps_manager.curr_step_idx != len(steps_manager.steps_including_skipped) - 1:
         code.append(IN_PREVIOUS_STEP_COMMENT)
 
-    # We then deduplicate the imports, keeping the same order as originally. We then 
-    # put them at the start of the code (and add some whitespace)
+    # We then deduplicate the imports, keeping the same order as originally
     final_imports_code = deduplicate_array(imports_code)
-    if len(final_imports_code) > 0:
-        final_imports_code.append('')
+
+    # We then add the import statement for the correct version of mitosheet
+    if len(code) > 0:
+        final_imports_code.insert(0, IMPORT_STATEMENTS[steps_manager.public_interface_version])
 
     # If we should transpile this as a function, we do so
     if steps_manager.code_options['as_function']:
@@ -93,5 +101,9 @@ def transpile(
             steps_manager.code_options['function_params']
         )
         return final_code
+
+    # We add some whitespace if there are imports
+    if len(final_imports_code) > 0:
+        final_imports_code.append('')
 
     return final_imports_code + code

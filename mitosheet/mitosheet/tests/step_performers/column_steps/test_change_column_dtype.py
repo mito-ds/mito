@@ -46,6 +46,8 @@ def test_bool_to_other_types(new_dtype, result, code):
     assert mito.get_column(0, 'A', as_list=True) == result
     if code is not None:
         assert mito.transpiled_code == [
+                'from mitosheet.public.v3 import *', 
+                '',
                 code,
                 '',
         ]

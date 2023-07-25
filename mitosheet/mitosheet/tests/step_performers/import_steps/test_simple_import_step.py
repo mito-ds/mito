@@ -289,6 +289,7 @@ def test_can_import_mulitple_csvs_combined():
     assert mito.dfs[1].equals(df)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         '',
         "test_file = pd.read_csv(r'test_file.csv')",
@@ -329,6 +330,7 @@ def test_multiple_imports_are_not_deleted_by_single_delete():
     assert len(mito.dfs) == 1
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         '',
         "test_file = pd.read_csv(r'test_file.csv')",

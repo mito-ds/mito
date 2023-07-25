@@ -94,6 +94,7 @@ def test_can_call_sheet_with_df_and_filename():
     code_container = transpile(mito.steps_manager)
 
     assert code_container == [
+        'from mitosheet.public.v3 import *',
         'import pandas as pd',
         '',
         '# Read in filepaths as dataframes',
@@ -116,6 +117,7 @@ def test_can_use_utf_16_when_passing_string():
     code_container = transpile(mito.steps_manager)
 
     assert code_container == [
+        'from mitosheet.public.v3 import *',
         'import pandas as pd',
         '',
         '# Read in filepaths as dataframes',

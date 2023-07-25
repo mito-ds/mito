@@ -1,6 +1,5 @@
 import { MitoAPI } from "../../mito/api/api";
 import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
-import { PublicInterfaceVersion } from "../../mito/types";
 
 type CellType = any;
 
@@ -207,8 +206,8 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion): void => {
-    const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean): void => {
+    const code = getCodeString(analysisName, codeLines, telemetryEnabled);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
     // up immediately
