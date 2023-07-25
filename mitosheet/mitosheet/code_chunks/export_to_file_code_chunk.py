@@ -18,7 +18,7 @@ def get_format_code(state: State) -> list:
         sheet_name = state.df_names[sheetIndex]
         format = formats[sheetIndex]
     
-        # If there is no formatting, we skip this sheet
+        # If there is no formatting, we skip trying to access the colors
         if format.get('headers') is None:
             continue
         
@@ -31,6 +31,9 @@ def get_format_code(state: State) -> list:
         if (format['headers'].get('backgroundColor') is not None):
             header_background_color = f'"{format["headers"]["backgroundColor"]}"'
         
+        # If both are None, we skip this sheet
+        if header_font_color is None and header_background_color is None:
+            continue
         code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {header_background_color}, {header_font_color})')
     return code
 
@@ -47,7 +50,6 @@ class ExportToFileCodeChunk(CodeChunk):
         return 'Export To File'
 
     def get_description_comment(self) -> str:
-
         return f"Exports {len(self.sheet_index_to_export_location)} to file {self.file_name}"
 
     def get_code(self) -> Tuple[List[str], List[str]]:
