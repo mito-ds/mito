@@ -204,15 +204,25 @@ class StepsManager:
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
+        df_names = None
         for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            args, execution_data = preprocess_step_performers.execute(args)
+            args, df_names, execution_data = preprocess_step_performers.execute(args)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers), {})
+            Step(
+                "initialize", "initialize", {}, None, 
+                State(
+                    args, 
+                    df_names=df_names,
+                    user_defined_functions=user_defined_functions, 
+                    user_defined_importers=user_defined_importers
+                ), 
+                {}
+            )
         ]
 
         """

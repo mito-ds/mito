@@ -38,7 +38,7 @@ try:
         
         mito_backend.mito_send = send
 
-        if df_names is not None:
+        if df_names is not None and len(df_names) > 0:
             mito_backend.receive_message(
                 {
                     'event': 'update_event',
@@ -67,7 +67,7 @@ try:
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             key=None
-        ) -> Tuple[Dict[str, pd.DataFrame], List[str]]:
+        ) -> Tuple[Dict[str, pd.DataFrame], str]:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -127,7 +127,7 @@ try:
         return {
             df_name: df for df_name, df in 
             zip(final_state.df_names, final_state.dfs)
-        }, code
+        }, "\n".join(code)
     
 except ImportError:
     def mito_component(*args, key=None): # type: ignore
