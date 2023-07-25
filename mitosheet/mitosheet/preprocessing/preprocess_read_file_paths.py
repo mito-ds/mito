@@ -72,7 +72,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         }
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         Transpiles the reading in of passed file paths to dataframe names, 
         with a simple pd.read_csv call.
@@ -111,7 +111,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         if len(code) > 0:
             code.insert(0, '# Read in filepaths as dataframes')
                 
-        return code
+        return code, ['import pandas as pd'] if len(code) > 0 else []
 
 
 def get_string_args(args: Collection[Union[pd.DataFrame, str]]) -> List[str]:

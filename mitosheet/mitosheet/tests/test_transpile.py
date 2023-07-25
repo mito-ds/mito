@@ -318,6 +318,7 @@ def test_transpile_as_function_string_params():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
+        'import pandas as pd',
         '',
         'def function(txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
@@ -339,6 +340,7 @@ def test_transpile_as_function_both_params():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
+        'import pandas as pd',
         '',
         'def function(df1, txt_path):',
         f"{TAB}# Read in filepaths as dataframes",

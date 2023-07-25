@@ -39,13 +39,15 @@ def transpile(
 
     # First, we transpile all the preprocessing steps
     for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
-        preprocess_code = preprocess_step_performer.transpile(
+        preprocess_code, preprocess_imports = preprocess_step_performer.transpile(
             steps_manager,
             steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()],
         )
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
             code.append('')
+
+        imports_code.extend(preprocess_imports)
 
     # We only transpile up to the currently checked out step
     all_code_chunks: List[CodeChunk] = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=optimize)
