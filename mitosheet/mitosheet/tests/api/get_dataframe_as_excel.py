@@ -8,7 +8,6 @@ Contains tests for the add_formatting_to_excel_sheet function.
 """
 
 import pytest
-import pandas as pd
 
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 from mitosheet.api.get_dataframe_as_excel import get_dataframe_as_excel
@@ -22,6 +21,26 @@ def test_add_formatting_to_excel_sheet():
     test_wrapper.add_column(0, 'C')
     test_wrapper.set_dataframe_format(0, {
         "headers": { "color": "#000000", "backgroundColor": "#ffffff" },
+        "columns": {},
+        "rows": {},
+        "border": {},
+        "conditional_formats": []
+    })
+
+    # Get the excel string
+    excel_string = get_dataframe_as_excel({'sheet_indexes': [0] }, test_wrapper.mito_backend.steps_manager)
+    
+    # Check that the excel string is not empty
+    assert excel_string != ''
+
+# This tests exporting as excel without formatting
+def test_export_to_excel_sheet_no_formatting():
+    # Create a mito wrapper with data
+    test_wrapper = create_mito_wrapper_with_data(['abc'])
+    test_wrapper.add_column(0, 'B')
+    test_wrapper.add_column(0, 'C')
+    test_wrapper.set_dataframe_format(0, {
+        "headers": { },
         "columns": {},
         "rows": {},
         "border": {},
