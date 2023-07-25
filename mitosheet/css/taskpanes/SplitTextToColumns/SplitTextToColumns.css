@@ -6,7 +6,7 @@
 }
 
 .preview-table-table-row:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: var(--mito-background-off);
 }
 
 .preview-table-table-data {

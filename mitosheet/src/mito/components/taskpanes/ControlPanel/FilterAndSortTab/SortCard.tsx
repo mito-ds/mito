@@ -58,7 +58,7 @@ const SortCard = (props: SortCardProps): JSX.Element => {
     return (        
         <Row justify='space-between' align='center'>
             {/* NOTE: the spacing in the Dtype card should be the same as the SortCard */}
-            <Col span={4}>
+            <Col span={6}>
                 <p className='text-header-3'> 
                     Sort 
                 </p>

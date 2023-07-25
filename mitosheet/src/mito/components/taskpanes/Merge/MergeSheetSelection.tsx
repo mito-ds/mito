@@ -20,7 +20,7 @@ const MergeSheetSection = (props: {
     return (
         <div>
             <Row justify="space-between">
-                <Col>
+                <Col span={10}>
                     <p className='text-header-3'>
                         First Dataframe
                     </p>
@@ -33,7 +33,6 @@ const MergeSheetSection = (props: {
                                 return newParams ? newParams : prevParams;
                             })
                         }}
-                        className='merge-sheet-selection-first-dataframe-select'
                     >
                         {dfNames.map(dfName => {
                             return (
@@ -45,7 +44,7 @@ const MergeSheetSection = (props: {
                         })}
                     </Select>
                 </Col>
-                <Col offsetRight={2}>
+                <Col offsetRight={2} span={11}>
                     <p className='text-header-3'>
                         Second Dataframe
                     </p>
@@ -58,7 +57,6 @@ const MergeSheetSection = (props: {
                                 return newParams ? newParams : prevParams;
                             })
                         }}
-                        width='medium'
                     >
                         {dfNames.map(dfName => {
                             return (

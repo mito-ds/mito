@@ -44,14 +44,13 @@ from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflak
 
 class MitoBackend():
     """
-        The MitoWidget holds all of the backend state for the Mito extension, and syncs
+        The Mito Backend holds all of the backend state for the Mito extension, and syncs
         the state with the frontend widget. 
     """
-    mito_comm: Optional[Comm] = None
     
     def __init__(
             self, 
-            *args: List[Union[pd.DataFrame, str]], 
+            *args: Union[pd.DataFrame, str, None], 
             analysis_to_replay: Optional[str]=None, 
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
@@ -87,20 +86,11 @@ class MitoBackend():
         self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
+        self.mito_send: Callable = lambda x: None # type: ignore
 
     @property
     def analysis_name(self):
         return self.steps_manager.analysis_name
-
-    @property
-    def mito_send(self):
-        if self.mito_comm:
-            return self.mito_comm.send
-        else:
-            # If we don't have a comm defined, this is because we are running a test, and so 
-            # we simply don't do anything with messages that are tried to send. In the future, 
-            # we can save them somewhere, and then make assertions about them -- cool!
-            return lambda _: _
 
     def get_shared_state_variables(self) -> Dict[str, Any]:
         """
@@ -298,7 +288,7 @@ def get_mito_backend(
             mito_backend.receive_message(msg['content']['data'])
         
         # Save the comm in the mito widget, so we can use this .send function
-        mito_backend.mito_comm = comm
+        mito_backend.mito_send = comm.send
 
         # Send data to the frontend on creation, so the frontend knows that we have
         # actually registered the comm on the backend
@@ -325,7 +315,7 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     # replacing \t, etc, which is required because JSON.parse limits what characters are valid in strings (bah humbug)
     def to_uint8_arr(string: str) -> List[int]:
         return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()
-    
+
     js_code = js_code.replace('["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.sheet_data_json)}')
     js_code = js_code.replace('["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.analysis_data_json)}')
     js_code = js_code.replace('["REPLACE_THIS_WITH_USER_PROFILE_BYTES"]', f'{to_uint8_arr(mito_backend.get_user_profile_json())}')

@@ -166,7 +166,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                         <Col>
                             <TextButton
                                 variant='light'
-                                width='small'
+                                width='hug-contents'
                                 onClick={() => {
                                     const openCSVImport = async () => {
                                         const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);

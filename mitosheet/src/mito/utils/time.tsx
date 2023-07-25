@@ -22,22 +22,22 @@ export const getLastModifiedString = (timestamp: number | null | undefined): str
 
     if (delta < HOUR) {
         const numMinutes = Math.round(delta / MINUTE);
-        return `${numMinutes} minutes ago`
+        return `${numMinutes} mins`
     } else if (delta < DAY) {
         const numHours = Math.round(delta / HOUR);
-        return `${numHours} hours ago`
+        return `${numHours} hours`
     } else if (delta < WEEK) {
         const numDays = Math.round(delta / DAY);
-        return `${numDays} days ago`
+        return `${numDays} days`
     } else if (delta < MONTH) {
         const numWeeks = Math.round(delta / WEEK);
-        return `${numWeeks} weeks ago`
+        return `${numWeeks} weeks`
     } else if (delta < YEAR) {
         const numMonths = Math.round(delta / MONTH);
-        return `${numMonths} months ago`
+        return `${numMonths} months`
     } else {
         const numYears = Math.round(delta / YEAR);
-        return `${numYears} years ago`
+        return `${numYears} years`
     }
 }
 

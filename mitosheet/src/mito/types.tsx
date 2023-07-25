@@ -869,7 +869,8 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
-    dataRecon: AIRecon | undefined
+    dataRecon: AIRecon | undefined,
+    taskpaneWidth: number
 }
 
 /**
@@ -1059,3 +1060,10 @@ export interface AITransformationResult extends AIRecon {
     prints: string[],
 }
 
+
+export interface MitoTheme {
+    primaryColor?: string
+    backgroundColor?: string
+    secondaryBackgroundColor?: string
+    textColor?: string
+}

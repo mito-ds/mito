@@ -210,7 +210,7 @@ export function ValuesTab(
             <Row justify='space-between'>
                 <Col flex='1' offsetRight={1}>
                     <p className='text-header-2'> 
-                        Unique Values
+                        Values
                     </p>
                 </Col>
                 <Col>
@@ -260,6 +260,7 @@ export function ValuesTab(
                                     <span>{valueToDisplay} <OpenFillNaN setUIState={props.setUIState} columnID={props.columnID}/></span>
                                 }
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
+                                rightTextSpan={7}
                                 toggled={uniqueValueCount.isNotFiltered}
                                 index={index}
                                 onToggle={() => {
@@ -283,6 +284,7 @@ export function ValuesTab(
                                 key={index}
                                 title={valueToDisplay}
                                 rightText={uniqueValueCount.countOccurence + ' (' + uniqueValueCount.percentOccurence.toFixed(2).toString() + '%' + ')'}
+                                rightTextSpan={7}
                                 toggled={uniqueValueCount.isNotFiltered}
                                 index={index}
                                 onToggle={() => {

@@ -37,3 +37,7 @@ tsconfig.tsbuildinfo
 # repo may not work in all cases
 mitosheet/mito_frontend.js
 mitosheet/mito_frontend.css
+
+mitosheet/streamlit/mitoBuild/*.js
+mitosheet/streamlit/mitoBuild/*.css
+mitosheet/streamlit/messagingBuild/*.js

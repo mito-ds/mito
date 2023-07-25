@@ -96,13 +96,13 @@ const PivotTableKeySelection = (props: {
             return (
                 <div className='mito-blue-container mt-4px mb-4px' key={keyIndex}>
                     {selectAndXIcon}
-                    <Row justify='space-between' align='center'>
+                    <Row justify='start' align='center'>
                         <Col offset={.25}>
-                            <LabelAndTooltip tooltip={GROUP_DATE_BY_TOOLTIP}>
-                                group date by
+                            <LabelAndTooltip tooltip={GROUP_DATE_BY_TOOLTIP} textBody>
+                                group by
                             </LabelAndTooltip>
                         </Col>
-                        <Col offsetRight={3}>
+                        <Col>
                             <Select
                                 value={transformation}
                                 onChange={(newTransformation: string) => {

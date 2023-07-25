@@ -7,7 +7,7 @@ import { checkProAccessCode } from "../../../utils/pro";
 import Input from "../../elements/Input";
 import TextButton from "../../elements/TextButton";
 import Tooltip from "../../elements/Tooltip";
-import PurpleCheckMark from "../../icons/PurpleCheckMark";
+import HighlightCheckMark from "../../icons/HighlightCheckMark";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
@@ -28,7 +28,7 @@ const ProListElement = (props: {text: string}): JSX.Element => {
     return (
         <Row>
             <Col span={2}>
-                <PurpleCheckMark/>
+                <HighlightCheckMark/>
             </Col>
             <p className="text-body-1">
                 {props.text}
@@ -111,13 +111,13 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                     setUIState={props.setUIState}            
                 />
                 <DefaultTaskpaneBody>
-                    <Row align="center">
-                        <Col span={5}>
+                    <Row align="center" justify="start">
+                        <Col>
                             <p className="text-heading-2">
                                 Access Code: 
                             </p>
                         </Col>
-                        <Col span={2}>
+                        <Col>
                             <Tooltip title="Get an access code by purchasing a Pro license on the previous page."/>
                         </Col>
                     </Row>
@@ -167,7 +167,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
                 <DefaultTaskpaneBody>
                     <p className="text-heading-4 mb-10px">
                         {props.proOrEnterprise === 'Pro' 
-                            ? 'You&apos;ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email.' 
+                            ? 'You\'ve successfully upgraded to Mito Pro. You can cancel any time by sending us an email.' 
                             : 'Mito Enterprise is the fastest way to automate any Python analysis.'
                         }
                     </p>

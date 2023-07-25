@@ -17,9 +17,9 @@ import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 
-export const HEADER_TEXT_COLOR_DEFAULT = '#494650' // This is var(--mito-gray) - update this if we change this variable
+export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
+export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
 
-export const HEADER_BACKGROUND_COLOR_DEFAULT = '#E8EBF8' // This is var(--mito-light-blue) - update this if we change this variable
 export const CREATED_RECON_COLOR = '#E4EFDC' // This is var(--mito-recon-created-background-color) - update this if we change this variable
 export const MODIFIED_RECON_COLOR = '#FDF3D0' // This is var(--mito-recon-modified-background-color) - update this if we change this variable
 
@@ -160,6 +160,7 @@ const ColumnHeader = (props: {
 
     // Give priority to the recon colors, then formatting colors, then default colors
     const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
+    const textColor = isColumnCreated || isColumnRenamed ? 'var(--mito-recon-text-color)' : headerTextColor || HEADER_TEXT_COLOR_DEFAULT;
     
     return (
         <div
@@ -171,7 +172,7 @@ const ColumnHeader = (props: {
                     'recon': isColumnCreated || isColumnRenamed
                 },
             )}
-            style={{color: headerTextColor || HEADER_TEXT_COLOR_DEFAULT, backgroundColor: backgroundColor}}
+            style={{color: textColor, backgroundColor: backgroundColor}}
             key={props.columnIndex}
             mito-col-index={props.columnIndex + ''}
             onDragStart={(e) => {
@@ -370,13 +371,8 @@ const ColumnHeader = (props: {
                                         <FilterIcon nonEmpty />
                                     }
                                 </span>
-                                <div className='icon-color-changer-container'>
-                                    <div className='icon-hide-on-hover'>
-                                        {getTypeIdentifier(columnDtype, 'dark')}
-                                    </div>
-                                    <div className='icon-show-on-hover'>
-                                        {getTypeIdentifier(columnDtype, 'purple')}
-                                    </div>
+                                <div className='text-body-2 text-color-highlight-important-on-hover' style={{color: textColor}}>
+                                    {getTypeIdentifier(columnDtype)}
                                 </div>
 
                             </div>

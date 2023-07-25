@@ -4,7 +4,7 @@
     position: absolute;
 
     width: 250px;
-    background-color: white;
+    background-color: var(--mito-background);
     display: flex;
     flex-direction: column;
     border-radius: 5px;

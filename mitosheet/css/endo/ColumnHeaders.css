@@ -18,6 +18,7 @@
 .endo-column-header-container {
     display: flex;
     flex-direction: column;
+    color: var(--mito-text);
 }
 
 .endo-column-header-resizer {
@@ -47,13 +48,13 @@
 
 /* Don't highlight if we're resizing */
 .endo-column-headers-no-operation .endo-column-header-container:hover:not(.recon) {
-    background-color: var(--mito-light-purple) !important;
-    color: var(--mito-gray) !important;
+    background-color: var(--mito-highlight-light) !important;
+    color: var(--mito-text) !important;
 }
 
 .endo-column-header-container-selected:not(.recon) {
-    background-color: var(--mito-light-purple) !important;
-    color: var(--mito-gray) !important;
+    background-color: var(--mito-highlight-light) !important;
+    color: var(--mito-text) !important;
 }
 
 .endo-column-header-text {

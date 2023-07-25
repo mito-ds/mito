@@ -294,7 +294,7 @@ const StepThree = (
                 <p className='signup-modal-text' style={{marginTop: '10px'}}>
                     {props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`}
                     {!props.isPro && `We make sure none of your private data leaves your computer. Read our CCPA compliant privacy policy`}
-                    {' '} <a href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
+                    {' '} <a className='text-link' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>here</u></a>.
                 </p>
             </div>
             <div className='signup-modal-buttons' style={{marginTop: '10px'}}>

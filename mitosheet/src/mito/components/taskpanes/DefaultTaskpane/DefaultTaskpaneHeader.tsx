@@ -60,7 +60,7 @@ const DefaultTaskpane = (
                         </div>
                     }
                 </Col>
-                <Col span={1}>
+                <Col>
                     {!props.notCloseable &&
                         <div 
                             className='default-taskpane-header-exit-button-div' 

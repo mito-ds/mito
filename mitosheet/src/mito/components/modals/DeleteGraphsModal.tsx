@@ -59,7 +59,7 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
                 <>
                     <p className='body-text-1'>
                         Deleting {props.dfName} will delete the following graphs that rely on it:&nbsp;
-                        <span className='text-color-mito-purple-important'>{graphTabNames.join(', ')}</span>
+                        <span className='text-color-mito-highlight-important'>{graphTabNames.join(', ')}</span>
                     </p>
                 </>
             }

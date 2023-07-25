@@ -3,7 +3,7 @@
 */
 
 export type Height = 'small' | 'medium' | 'large' | 'block';
-export type Width = 'small' | 'medium' | 'medium-large' | 'large' |  'block';
+export type Width = 'small' | 'medium' | 'medium-large' | 'large' |  'block' | 'hug-contents';
 
 
 // Must match CSS pixel values

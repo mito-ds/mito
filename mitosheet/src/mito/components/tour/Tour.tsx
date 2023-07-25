@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import "../../../../css/tour.css"
 import { MitoAPI } from '../../api/api';
-import XIcon from '../icons/XIcon';
 import TextButton from '../elements/TextButton';
 import { TourName, TourPopupLocation, tours, TourStep } from './Tours';
 import { classNames } from '../../utils/classNames';
@@ -28,7 +27,7 @@ const Tour = (props: {
     tourNames: TourName[];
 }): JSX.Element => {
     const [stepNumber, setStepNumber] = useState<number>(0)
-    const [skippedTour, setSkippedTour] = useState<boolean>(false)
+    const [skippedTour] = useState<boolean>(false)
 
     // Construct full list of steps to show by appending the steps of each tour
     // we want to display together. 
@@ -85,31 +84,6 @@ const Tour = (props: {
         }
     }
 
-    // Called if you close the tour before you are on the final step
-    const closeTourEarly = async (): Promise<void> => {
-        void props.mitoAPI.log(
-            'closed_tour_early', 
-            {
-                'tour_names': props.tourNames,
-                'tour_name': steps[stepNumber].tourName,
-                'relative_tour_step_number': steps[stepNumber].stepNumber, // Log the step number within the tourName so we can identify bad steps
-                'absolute_tour_step_number': stepNumber, // Log the total step number so we can see how far users get
-                'total_number_of_tour_steps': steps.length // Log the length of the entire tour if they had taken it all
-            }
-        )
-
-        // Mark that the user skipped the tour so we don't log a finished_tour event
-        setSkippedTour(true)
-
-        if (steps[stepNumber].tourName === TourName.INTRO) {
-            // Display the final tutorial step if this is the intro tour always
-            setStepNumber(steps.length - 1);
-        } else {
-            // Otherwise end the tour
-            void closeTour(true);
-        }
-    }
-
     // Called if you close the tour on the final step
     const closeTour = async (_skippedTour?: boolean): Promise<void> => {
         // Log finishing the tour, if you didn't skip to the final step
@@ -139,40 +113,18 @@ const Tour = (props: {
     const stepText = steps[stepNumber].stepText;
     const stepTextFunction = steps[stepNumber].stepTextFunction;
     const finalStepText = stepText || (stepTextFunction && stepTextFunction(props.sheetData?.data[0].columnID || ''));
-    const hideXIcon = steps[stepNumber].hideXIcon === true
 
     // If we're at a valid step number
     return (
         <div className={classNames('tour-container', locationToClassNamesMapping[steps[stepNumber].location])} key={stepNumber}>
-            <Row justify='space-between' align='center'>
-                <Col>
-                    <p className='text-header-2'>
-                        {stepNumber + 1}/{steps.length}
-                    </p>
-                </Col>
-                {!hideXIcon && 
-                    <Col>
-                        <XIcon 
-                            variant='light'
-                            onClick={async () => {
-                                if (stepNumber >= steps.length - 1) {
-                                    await closeTour();
-                                } else {
-                                    await closeTourEarly();
-                                }
-                            }}
-                        />
-                    </Col>
-                }
-            </Row>
             <Row>
                 <Col>
-                    <p className='text-header-2 text-color-white-important'>
-                        {steps[stepNumber].stepHeader}
+                    <p className='text-header-2'>
+                        {steps[stepNumber].stepHeader} ({stepNumber + 1}/{steps.length})
                     </p>
                 </Col>
             </Row>
-            <div className='text-overflow-wrap mb-20px'>
+            <div className='text-overflow-wrap mb-20px text-body-1'>
                 {finalStepText}
             </div>
             <Row justify='space-between'>
