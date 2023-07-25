@@ -3,7 +3,7 @@ const esbuild = require('esbuild');
 esbuild
     .build({
         entryPoints: ["src/streamlit/renderMitoStreamlitWrapper.tsx"],
-        outfile: 'mitosheet/streamlit/mitoBuild/component.js',
+        outfile: 'mitosheet/streamlit/v1/mitoBuild/component.js',
         bundle: true,
         minify: true,
         plugins: [],
@@ -23,7 +23,7 @@ esbuild
 esbuild
     .build({
         entryPoints: ["src/streamlit/renderMitoMessagePasser.tsx"],
-        outfile: 'mitosheet/streamlit/messagingBuild/component.js',
+        outfile: 'mitosheet/streamlit/v1/messagingBuild/component.js',
         bundle: true,
         minify: true,
         plugins: [],
