@@ -3,6 +3,7 @@ from mitosheet.public.v2 import (
     to_int_series, to_boolean_series, to_float_series, to_timedelta_series, get_datetime_format)
 
 from mitosheet.public.v3.rolling_range import RollingRange
+from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
 from mitosheet.public.v3.sheet_functions import FUNCTIONS
 from mitosheet.public.v3.sheet_functions import *
 
