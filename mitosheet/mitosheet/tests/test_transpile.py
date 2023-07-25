@@ -367,6 +367,29 @@ def test_transpile_as_function_string_params():
 
     os.remove(tmp_file)
 
+def test_transpile_as_function_string_params_no_args_update():
+    tmp_file = 'txt.csv'
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper(str(tmp_file))
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
+        '',
+        'def function(txt_path):',
+        f"{TAB}# Read in filepaths as dataframes",
+        f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
+        f"{TAB}return txt",
+        "",
+        'txt = function("txt.csv")'
+    ]
+
+    os.remove(tmp_file)
+
 def test_transpile_as_function_both_params():
     tmp_file = 'txt.csv'
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
