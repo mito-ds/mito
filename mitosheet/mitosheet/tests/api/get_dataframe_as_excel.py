@@ -39,13 +39,6 @@ def test_export_to_excel_sheet_no_formatting():
     test_wrapper = create_mito_wrapper_with_data(['abc'])
     test_wrapper.add_column(0, 'B')
     test_wrapper.add_column(0, 'C')
-    test_wrapper.set_dataframe_format(0, {
-        "headers": { },
-        "columns": {},
-        "rows": {},
-        "border": {},
-        "conditional_formats": []
-    })
 
     # Get the excel string
     excel_string = get_dataframe_as_excel({'sheet_indexes': [0] }, test_wrapper.mito_backend.steps_manager)
