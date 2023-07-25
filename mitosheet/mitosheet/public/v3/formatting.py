@@ -1,33 +1,36 @@
+from typing import Optional
 from openpyxl import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
+from pandas import ExcelWriter
 
-def add_formatting_to_excel_sheet( params: dict[Workbook, str, dict]) -> None:
-    """
-    Adds formatting to the sheet_name, based on the formatting the user
-    currently has applied in the frontend. 
+def add_formatting_to_excel_sheet(
+        writer: ExcelWriter,
+        sheet_name: str,
+        header_background_color: Optional[str]=None,
+        header_color: Optional[str]=None
+    ) -> None:
+        """
+        Adds formatting to the sheet_name, based on the formatting the user
+        currently has applied in the frontend. 
 
-    NOTE: this is a Mito Pro feature.
-    """
-    workbook = params['workbook']
-    sheet_name = params['sheet_name']
-    format = params['format']
-    sheet = workbook.get_sheet_by_name(sheet_name)
-    
-    # Add formatting to the header row    
-    header_name = f"{sheet_name}_Header"
-    if format.get('headers'):
-        header_format = NamedStyle(name=header_name)
-        # Add font and background colors to the header format
-        if format['headers']['color']:
-            font_color = format['headers']['color'][1:]
-            header_format.font = Font(color=font_color)
-        if format['headers']['backgroundColor']:
-            background_color = format['headers']['backgroundColor'][1:]
-            header_format.fill = PatternFill(start_color=background_color, end_color=background_color, fill_type="solid")
+        NOTE: this is a Mito Pro feature.
+        """
+        workbook = writer.book
+        sheet = workbook.get_sheet_by_name(sheet_name)
         
+        # Add formatting to the header row    
+        header_name = f"{sheet_name}_Header"
+        header_format = NamedStyle(name=header_name)
+        if header_color:
+            print(header_color)
+            header_format.font = Font(color=header_color[1:])
+        if header_background_color:
+            print(header_background_color)
+            header_format.fill = PatternFill(start_color=header_background_color[1:], end_color=header_background_color[1:], fill_type="solid")
+
         # Add named styles for the header rows to improve performance
         workbook.add_named_style(header_format)
 
