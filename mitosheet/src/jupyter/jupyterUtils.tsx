@@ -61,7 +61,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
             publicInterfaceVersion: publicInterfaceVersion
         });
     } else if (isInJupyterNotebook()) {
-        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion);
+        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }

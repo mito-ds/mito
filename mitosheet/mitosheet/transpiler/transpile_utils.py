@@ -214,12 +214,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     # Add the imports
     final_code += imports
-    if len(imports) == 0: # Make sure we have a newline if there are no imports
-        final_code.append("")
+    final_code.append("")
 
     # The param
     param_names = _get_param_names_string(steps_manager, function_params)
-    param_values = _get_param_values_string(steps_manager, function_params)
 
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")

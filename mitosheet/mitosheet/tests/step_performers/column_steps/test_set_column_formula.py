@@ -136,6 +136,8 @@ def test_only_writes_single_code():
     mito.set_formula('=100', 0, 'B', add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', df1['A'])", 
         '',
         "df1.insert(2, 'C', df1['B'])",
@@ -174,6 +176,8 @@ def test_inplace_edit_overwrites_properly():
     mito.undo()
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1['A'] = df1['A'] + 2", 
         '',
     ]
@@ -199,6 +203,8 @@ def test_set_formula_then_rename_no_optimize_yet():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'C': [10]}))
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', 0)", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
@@ -218,6 +224,8 @@ def test_set_formula_then_delete_optimize():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', 0)", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
@@ -238,6 +246,8 @@ def test_set_formula_then_delete_optimizes_multiple():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', 0)", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
@@ -259,6 +269,8 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1]}))
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', 0)", 
         '',
         "df1.insert(2, 'C', 0)", 
@@ -278,6 +290,8 @@ def test_set_column_formula_in_duplicate_does_not_overoptmize():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [0]}))
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'B', 0)", 
         '',
         "df1_copy = df1.copy(deep=True)",

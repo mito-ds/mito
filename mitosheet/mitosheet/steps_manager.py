@@ -195,9 +195,17 @@ class StepsManager:
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
-        self.original_args_raw_strings: List[str] = []
         self.original_args = [
             arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg)
+            for arg in args
+        ]
+
+        # We set the original_args_raw_strings. If we later have an args update, then these
+        # are overwritten by the args update (and are actually correct). But since we don't 
+        # always have an args update, this is the best we can do at this point in time. Notably, 
+        # these are required to be set for transpiling arguments
+        self.original_args_raw_strings: List[str] = [
+            f'"{arg}"' if isinstance(arg, str) else ''
             for arg in args
         ]
 
@@ -209,7 +217,7 @@ class StepsManager:
             args, df_names, execution_data = preprocess_step_performers.execute(args)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
-            ] = execution_data
+            ] = execution_data            
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [

@@ -40,7 +40,7 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         Returns a list of the Python code lines that corresponds to this 
         preprocess step being executed
