@@ -30,10 +30,12 @@ def add_formatting_to_excel_sheet(
         if header_background_color:
             # Remove the # from the color
             header_format.fill = PatternFill(start_color=header_background_color[1:], end_color=header_background_color[1:], fill_type="solid")
+        
+        # Only add format if there is a header color or background color
+        if header_background_color or header_color:
+            # Add named styles for the header rows to improve performance
+            workbook.add_named_style(header_format)
 
-        # Add named styles for the header rows to improve performance
-        workbook.add_named_style(header_format)
-
-        # Write the formatting to the sheet
-        for col in range(1, sheet.max_column + 1):
-            sheet.cell(row=1, column=col).style = header_name
+            # Write the formatting to the sheet
+            for col in range(1, sheet.max_column + 1):
+                sheet.cell(row=1, column=col).style = header_name

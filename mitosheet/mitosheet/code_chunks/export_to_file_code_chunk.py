@@ -23,10 +23,10 @@ def get_format_code(state: State) -> list:
         header_font_color = None
         header_background_color = None
         if (format['headers'].get('color') is not None):
-            header_font_color = format["headers"]["color"]
+            header_font_color = f'"{format["headers"]["color"]}"'
         if (format['headers'].get('backgroundColor') is not None):
-            header_background_color = format["headers"]["backgroundColor"]
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", "{header_background_color}", "{header_font_color}")')
+            header_background_color = f'"{format["headers"]["backgroundColor"]}"'
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {header_background_color}, {header_font_color})')
     return code
 
 
