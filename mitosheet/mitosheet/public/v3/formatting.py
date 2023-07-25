@@ -25,10 +25,10 @@ def add_formatting_to_excel_sheet(
         header_name = f"{sheet_name}_Header"
         header_format = NamedStyle(name=header_name)
         if header_color:
-            print(header_color)
+            # Remove the # from the color
             header_format.font = Font(color=header_color[1:])
         if header_background_color:
-            print(header_background_color)
+            # Remove the # from the color
             header_format.fill = PatternFill(start_color=header_background_color[1:], end_color=header_background_color[1:], fill_type="solid")
 
         # Add named styles for the header rows to improve performance
