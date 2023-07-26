@@ -25,7 +25,7 @@ export function getCodeString(
     
 
     if (telemetryEnabled) {
-        analysisRegisterCode = `$register_analysis("${analysisName}");`
+        analysisRegisterCode = `register_analysis("${analysisName}");`
     } else {
         analysisRegisterCode = `# Analysis Name:${analysisName};`
     }
