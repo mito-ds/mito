@@ -14,6 +14,37 @@ import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 
+DF_FORMAT_HEADER = {
+    'headers': {
+        'color': '#ffffff',
+        'backgroundColor': '#000000'
+    },
+    "columns": {},
+    "rows": {},
+    "border": {},
+    "conditional_formats": []
+}
+
+DF_FORMAT_HEADER_AND_ROWS = {
+    'headers': {
+        'color': '#ffffff',
+        'backgroundColor': '#000000'
+    },
+    "columns": {},
+    "rows": {
+        "even": {
+            "color": "#ffffff",
+            "backgroundColor": "#000000"
+        },
+        "odd": {
+            "color": "#000000",
+            "backgroundColor": "#ffffff"
+        }
+    },
+    "border": {},
+    "conditional_formats": []
+}
+
 EXPORT_TO_FILE_TESTS_CSV = [
     (
         [
@@ -170,7 +201,7 @@ with pd.ExcelWriter(r\'test_no_format.xlsx\', engine="openpyxl") as writer:
 def test_transpiled_with_export_to_xlsx_format():
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
-    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    mito.set_dataframe_format(0, DF_FORMAT_HEADER)
     filename = 'test_format.xlsx'
     mito.export_to_file('excel', [0], filename)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
@@ -178,7 +209,10 @@ import pandas as pd
 
 with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
-    add_formatting_to_excel_sheet(writer, "df", header_background_color='#000000', header_font_color='#ffffff')
+    add_formatting_to_excel_sheet(writer, "df", 
+        header_background_color='#000000', 
+        header_font_color='#ffffff'
+    )
 
 df_styler = df.style\\
     .set_table_styles([
@@ -191,8 +225,8 @@ def test_transpiled_with_export_to_xlsx_format_two_sheets():
     df_1 = pd.DataFrame({'A': [1, 2, 3]})
     df_2 = pd.DataFrame({'B': [4, 5, 6]})
     mito = create_mito_wrapper(df_1, df_2, arg_names=['df_1', 'df_2'])
-    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
-    mito.set_dataframe_format(1, {'headers': { 'color': '#000000', 'backgroundColor': '#ffffff'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    mito.set_dataframe_format(0, DF_FORMAT_HEADER)
+    mito.set_dataframe_format(1, DF_FORMAT_HEADER_AND_ROWS)
     filename = 'test_format_two.xlsx'
     mito.export_to_file('excel', [0, 1], filename)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
@@ -201,8 +235,18 @@ import pandas as pd
 with pd.ExcelWriter(r\'test_format_two.xlsx\', engine="openpyxl") as writer:
     df_1.to_excel(writer, sheet_name="df_1", index=False)
     df_2.to_excel(writer, sheet_name="df_2", index=False)
-    add_formatting_to_excel_sheet(writer, "df_1", header_background_color='#000000', header_font_color='#ffffff')
-    add_formatting_to_excel_sheet(writer, "df_2", header_background_color='#ffffff', header_font_color='#000000')
+    add_formatting_to_excel_sheet(writer, "df_1", 
+        header_background_color='#000000', 
+        header_font_color='#ffffff'
+    )
+    add_formatting_to_excel_sheet(writer, "df_2", 
+        header_background_color='#000000', 
+        header_font_color='#ffffff', 
+        even_background_color='#000000', 
+        even_font_color='#ffffff', 
+        odd_background_color='#ffffff', 
+        odd_font_color='#000000'
+    )
 
 df_1_styler = df_1.style\\
     .set_table_styles([
@@ -210,7 +254,9 @@ df_1_styler = df_1.style\\
 ])
 df_2_styler = df_2.style\\
     .set_table_styles([
-        {'selector': 'thead', 'props': [('color', '#000000'), ('background-color', '#ffffff')]},
+        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]},
 ])
 """
 
@@ -219,7 +265,7 @@ def test_transpiled_with_export_two_sheets_to_xlsx_format_one():
     df_1 = pd.DataFrame({'A': [1, 2, 3]})
     df_2 = pd.DataFrame({'B': [4, 5, 6]})
     mito = create_mito_wrapper(df_1, df_2, arg_names=['df_1', 'df_2'])
-    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    mito.set_dataframe_format(0, DF_FORMAT_HEADER_AND_ROWS)
     filename = 'test_two_format_one.xlsx'
     mito.export_to_file('excel', [0, 1], filename)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
@@ -228,11 +274,20 @@ import pandas as pd
 with pd.ExcelWriter(r\'test_two_format_one.xlsx\', engine="openpyxl") as writer:
     df_1.to_excel(writer, sheet_name="df_1", index=False)
     df_2.to_excel(writer, sheet_name="df_2", index=False)
-    add_formatting_to_excel_sheet(writer, "df_1", header_background_color='#000000', header_font_color='#ffffff')
+    add_formatting_to_excel_sheet(writer, "df_1", 
+        header_background_color='#000000', 
+        header_font_color='#ffffff', 
+        even_background_color='#000000', 
+        even_font_color='#ffffff', 
+        odd_background_color='#ffffff', 
+        odd_font_color='#000000'
+    )
 
 df_1_styler = df_1.style\\
     .set_table_styles([
         {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]},
 ])
 """
 

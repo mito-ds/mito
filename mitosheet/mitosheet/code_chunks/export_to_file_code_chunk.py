@@ -42,7 +42,7 @@ def get_format_code(state: State) -> list:
         # If both are None, we skip this sheet
         if params == {}:
             continue
-        params_code = param_dict_to_code(params, as_single_line=True)
+        params_code = param_dict_to_code(params, tab_level=1)
         code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {params_code})')
     return code
 
