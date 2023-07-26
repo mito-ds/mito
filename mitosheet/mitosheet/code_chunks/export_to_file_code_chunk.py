@@ -18,31 +18,22 @@ def get_format_code(state: State) -> list:
     formats = state.df_formats
     for sheet_name, format in zip(state.df_names, formats):
         # If there is no formatting, we skip trying to access the colors
-        if format.get('headers') is not None:
-            # Prepares the header font color and background color to be used in the API call
-            # So either they should be surrounded by quotes, or they should be None
-            params = {}
-            if (format['headers'].get('backgroundColor') is not None):
-                params['header_background_color'] = format["headers"]["backgroundColor"]
-            if (format['headers'].get('color') is not None):
-                params['header_font_color'] = format["headers"]["color"]
-        row_format = format.get('rows')
-        if row_format is not None:
-            if row_format.get('even') is not None:
-                if (row_format['even'].get('backgroundColor') is not None):
-                    params['even_background_color'] = row_format["even"]["backgroundColor"]
-                if (row_format['even'].get('color') is not None):
-                    params['even_font_color'] = row_format["even"]["color"]
-            if row_format.get('odd') is not None:
-                if (row_format['odd'].get('backgroundColor') is not None):
-                    params['odd_background_color'] = row_format["odd"]["backgroundColor"]
-                if (row_format['odd'].get('color') is not None):
-                    params['odd_font_color'] = row_format["odd"]["color"]
-
-        # If both are None, we skip this sheet
-        if params == {}:
+        params = {
+            'header_background_color': format.get('headers', {}).get('backgroundColor'),
+            'header_font_color': format.get('headers', {}).get('color'),
+            'even_background_color': format.get('rows', {}).get('even', {}).get('backgroundColor'),
+            'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
+            'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
+            'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
+        }
+        param_dict = {
+            key: value for key, value in params.items()
+            if value is not None
+        }
+        if param_dict == {}:
             continue
-        params_code = param_dict_to_code(params, tab_level=1)
+
+        params_code = param_dict_to_code(param_dict, tab_level=1)
         code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {params_code})')
     return code
 
