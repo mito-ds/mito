@@ -14,10 +14,7 @@ from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpile
 def get_format_code(state: State) -> list:
     code = []
     formats = state.df_formats
-    for sheetIndex in range(len(formats)):
-        sheet_name = state.df_names[sheetIndex]
-        format = formats[sheetIndex]
-    
+    for sheet_name, format in zip(state.df_names, formats):
         # If there is no formatting, we skip trying to access the colors
         if format.get('headers') is None:
             continue
@@ -27,9 +24,9 @@ def get_format_code(state: State) -> list:
         header_font_color = None
         header_background_color = None
         if (format['headers'].get('color') is not None):
-            header_font_color = f'"{format["headers"]["color"]}"'
+            header_font_color = column_header_to_transpiled_code(format["headers"]["color"])
         if (format['headers'].get('backgroundColor') is not None):
-            header_background_color = f'"{format["headers"]["backgroundColor"]}"'
+            header_background_color = column_header_to_transpiled_code(format["headers"]["backgroundColor"])
         
         # If both are None, we skip this sheet
         if header_font_color is None and header_background_color is None:
