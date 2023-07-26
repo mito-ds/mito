@@ -25,6 +25,23 @@ DF_FORMAT_HEADER = {
     "conditional_formats": []
 }
 
+DF_FORMAT_ROWS = {
+    'headers': {},
+    "columns": {},
+    "rows": {
+        "even": {
+            "color": "#ffffff",
+            "backgroundColor": "#000000"
+        },
+        "odd": {
+            "color": "#000000",
+            "backgroundColor": "#ffffff"
+        }
+    },
+    "border": {},
+    "conditional_formats": []
+}
+
 DF_FORMAT_HEADER_AND_ROWS = {
     'headers': {
         'color': '#ffffff',
@@ -217,6 +234,33 @@ with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
 df_styler = df.style\\
     .set_table_styles([
         {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+])
+"""
+
+
+# This tests when the user exports a dataframe with row formatting without header formatting.
+def test_transpiled_with_export_to_xlsx_format_rows_no_header():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, DF_FORMAT_ROWS)
+    filename = 'test_format_rows_no_header.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_format_rows_no_header.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", 
+        even_background_color='#000000', 
+        even_font_color='#ffffff', 
+        odd_background_color='#ffffff', 
+        odd_font_color='#000000'
+    )
+
+df_styler = df.style\\
+    .set_table_styles([
+        {'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+        {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]},
 ])
 """
 
