@@ -200,3 +200,25 @@ df_2_styler = df_2.style\\
 ])
 """
 
+# This tests when the user exports two dataframes with one formatted. 
+def test_transpiled_with_export_two_sheets_to_xlsx_format_one():
+    df_1 = pd.DataFrame({'A': [1, 2, 3]})
+    df_2 = pd.DataFrame({'B': [4, 5, 6]})
+    mito = create_mito_wrapper(df_1, df_2, arg_names=['df_1', 'df_2'])
+    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    filename = 'test_two_format_one.xlsx'
+    mito.export_to_file('excel', [0, 1], filename)
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_two_format_one.xlsx\', engine="openpyxl") as writer:
+    df_1.to_excel(writer, sheet_name="df_1", index=False)
+    df_2.to_excel(writer, sheet_name="df_2", index=False)
+    add_formatting_to_excel_sheet(writer, "df_1", header_background_color='#000000', header_font_color='#ffffff')
+
+df_1_styler = df_1.style\\
+    .set_table_styles([
+        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+])
+"""
+
