@@ -135,6 +135,7 @@ def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_nam
         mito.rename_dataframe(sheet_index, df_name)
 
     mito.export_to_file(type, sheet_indexes, file_name)
+
     final_file_name = str(tmp_path / final_file_name)
     assert os.path.exists(final_file_name)
     for sheet_index, sheet_name in zip(sheet_indexes, final_sheet_names):
