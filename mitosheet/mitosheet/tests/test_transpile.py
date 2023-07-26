@@ -702,9 +702,11 @@ def test_transpiled_with_export_to_xlsx_single():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': 'r"te' + "'" + 'st.xlsx"'}})
 
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
 
 def function(df, path):
-    df.to_excel(path, sheet_name='df', index=False)
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name="df", index=False)
     
     return df
 
@@ -725,7 +727,7 @@ def test_transpiled_with_export_to_xlsx_multiple():
 import pandas as pd
 
 def function(df1, df2, path_0):
-    with pd.ExcelWriter(path_0) as writer:
+    with pd.ExcelWriter(path_0, engine="openpyxl") as writer:
         df1.to_excel(writer, sheet_name="df1", index=False)
         df2.to_excel(writer, sheet_name="df2", index=False)
     
