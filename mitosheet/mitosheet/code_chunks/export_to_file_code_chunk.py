@@ -10,6 +10,8 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
 
+from mitosheet.transpiler.transpile_utils import param_dict_to_code
+
 # This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State) -> list:
     code = []
@@ -21,17 +23,17 @@ def get_format_code(state: State) -> list:
         
         # Prepares the header font color and background color to be used in the API call
         # So either they should be surrounded by quotes, or they should be None
-        header_font_color = None
-        header_background_color = None
-        if (format['headers'].get('color') is not None):
-            header_font_color = column_header_to_transpiled_code(format["headers"]["color"])
+        params = {}
         if (format['headers'].get('backgroundColor') is not None):
-            header_background_color = column_header_to_transpiled_code(format["headers"]["backgroundColor"])
-        
+            params['header_background_color'] = format["headers"]["backgroundColor"]
+        if (format['headers'].get('color') is not None):
+            params['header_font_color'] = format["headers"]["color"]
+
         # If both are None, we skip this sheet
-        if header_font_color is None and header_background_color is None:
+        if params == {}:
             continue
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", header_background_color={header_background_color}, header_font_color={header_font_color})')
+        params_code = param_dict_to_code(params, as_single_line=True)
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {params_code})')
     return code
 
 
