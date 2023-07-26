@@ -120,8 +120,6 @@ try:
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
         user_profile_json = mito_backend.get_user_profile_json()
 
-        print("RIGHT HERE", key)
-
         msg = message_passer_component(key=str(key) + 'message_passer')
         if msg is not None:
             mito_backend.receive_message(msg)
