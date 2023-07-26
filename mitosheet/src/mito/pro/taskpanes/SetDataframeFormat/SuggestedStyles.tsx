@@ -26,7 +26,7 @@ const DEFAULT_SUGGESTED_STYLES: RecursivePartial<DataframeFormat>[] = [
             color: '#FFFFFF',
             backgroundColor: '#549D3A'
         }, 
-        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#D0E3C9'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: 'white'}},
+        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#D0E3C9'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: '#FFFFFF'}},
         border: {borderStyle: undefined, borderColor: undefined}
     },
     {
@@ -34,7 +34,7 @@ const DEFAULT_SUGGESTED_STYLES: RecursivePartial<DataframeFormat>[] = [
             color: '#FFFFFF',
             backgroundColor: '#4D73BE'
         }, 
-        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#DAE1F0'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: 'white'}},
+        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#DAE1F0'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: '#FFFFFF'}},
         border: {borderStyle: undefined, borderColor: undefined}
     },
     {
@@ -42,7 +42,7 @@ const DEFAULT_SUGGESTED_STYLES: RecursivePartial<DataframeFormat>[] = [
             color: '#FFFFFF',
             backgroundColor: '#8F1B15'
         }, 
-        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#F0DADA'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: 'white'}},
+        rows: {even: {color: DARK_TEXT_COLOR, backgroundColor: '#F0DADA'}, odd: {color: DARK_TEXT_COLOR, backgroundColor: '#FFFFFF'}},
         border: {borderStyle: undefined, borderColor: undefined}
     }
 ]
