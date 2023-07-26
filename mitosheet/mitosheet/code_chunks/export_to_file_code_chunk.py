@@ -31,7 +31,7 @@ def get_format_code(state: State) -> list:
         # If both are None, we skip this sheet
         if header_font_color is None and header_background_color is None:
             continue
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {header_background_color}, {header_font_color})')
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", header_background_color={header_background_color}, header_font_color={header_font_color})')
     return code
 
 
