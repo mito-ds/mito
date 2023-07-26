@@ -40,7 +40,16 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
             # Add formatting to the sheet for pro users
             format = steps_manager.curr_step.df_formats[sheet_index]
             if allow_formatting and format['headers']: 
-                add_formatting_to_excel_sheet(writer, sheet_name, format['headers']['backgroundColor'], format['headers']['color'])
+                add_formatting_to_excel_sheet(
+                    writer,
+                    sheet_name,
+                    header_background_color=format['headers']['backgroundColor'],
+                    header_font_color=format['headers']['color'],
+                    even_background_color=format['rows']['even']['backgroundColor'],
+                    even_font_color=format['rows']['even']['color'],
+                    odd_background_color=format['rows']['odd']['backgroundColor'],
+                    odd_font_color=format['rows']['odd']['color']
+                )
     
     # Go back to the start of the buffer
     buffer.seek(0)

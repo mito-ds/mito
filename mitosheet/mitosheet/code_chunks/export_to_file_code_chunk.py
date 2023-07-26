@@ -18,16 +18,26 @@ def get_format_code(state: State) -> list:
     formats = state.df_formats
     for sheet_name, format in zip(state.df_names, formats):
         # If there is no formatting, we skip trying to access the colors
-        if format.get('headers') is None:
-            continue
-        
-        # Prepares the header font color and background color to be used in the API call
-        # So either they should be surrounded by quotes, or they should be None
-        params = {}
-        if (format['headers'].get('backgroundColor') is not None):
-            params['header_background_color'] = format["headers"]["backgroundColor"]
-        if (format['headers'].get('color') is not None):
-            params['header_font_color'] = format["headers"]["color"]
+        if format.get('headers') is not None:
+            # Prepares the header font color and background color to be used in the API call
+            # So either they should be surrounded by quotes, or they should be None
+            params = {}
+            if (format['headers'].get('backgroundColor') is not None):
+                params['header_background_color'] = format["headers"]["backgroundColor"]
+            if (format['headers'].get('color') is not None):
+                params['header_font_color'] = format["headers"]["color"]
+        row_format = format.get('rows')
+        if row_format is not None:
+            if row_format.get('even') is not None:
+                if (row_format['even'].get('backgroundColor') is not None):
+                    params['even_background_color'] = row_format["even"]["backgroundColor"]
+                if (row_format['even'].get('color') is not None):
+                    params['even_font_color'] = row_format["even"]["color"]
+            if row_format.get('odd') is not None:
+                if (row_format['odd'].get('backgroundColor') is not None):
+                    params['odd_background_color'] = row_format["odd"]["backgroundColor"]
+                if (row_format['odd'].get('color') is not None):
+                    params['odd_font_color'] = row_format["odd"]["color"]
 
         # If both are None, we skip this sheet
         if params == {}:
