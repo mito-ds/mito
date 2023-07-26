@@ -24,7 +24,6 @@ try:
     @st.cache_resource
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
-            analysis_to_replay: Optional[str]=None,
             _importers: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
@@ -33,7 +32,6 @@ try:
 
         mito_backend = MitoBackend(
             *args, 
-            analysis_to_replay=analysis_to_replay,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions
         )
 
@@ -69,7 +67,6 @@ try:
 
     def spreadsheet( # type: ignore
             *args: Union[pd.DataFrame, str, None], 
-            analysis_to_replay: Optional[str]=None,
             sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
@@ -85,9 +82,6 @@ try:
             passed, it will be displayed as a sheet tab. If a string is passed,
             it will be read in with a pd.read_csv call. If None is passed, it 
             will be skipped.
-        analysis_to_replay: str or None
-            The name of an analysis to replay. If None, no analysis will be
-            replayed.
         sheet_functions: List[Callable]
             A list of functions that can be used in the spreadsheet. Functions
             should be capitalized.
@@ -110,7 +104,6 @@ try:
         """
         mito_backend, responses = _get_mito_backend(
             *args, 
-            analysis_to_replay=analysis_to_replay,
             _sheet_functions=sheet_functions,
             _importers=importers, 
             df_names=df_names, 
@@ -121,11 +114,13 @@ try:
         # the key is None, we generate a new one. Notably, we do this after getting the
         # mito_backend, so that we can cache the mito_backend on the user provided key.
         if key is None:
-            key = get_new_id()
+            key = mito_backend.analysis_name
 
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
         user_profile_json = mito_backend.get_user_profile_json()
+
+        print("RIGHT HERE", key)
 
         msg = message_passer_component(key=str(key) + 'message_passer')
         if msg is not None:
