@@ -4,7 +4,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
-import pdb
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, TAB
 import pytest
 import pandas as pd
@@ -714,27 +713,6 @@ def function(df, path):
 path = r"te'st.xlsx"
 
 df = function(df, path)"""
-
-def test_transpiled_with_export_to_xlsx_format():
-    df = pd.DataFrame({'A': [1, 2, 3]})
-    mito = create_mito_wrapper(df, arg_names=['df'])
-    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
-    filename = 'test_format.xlsx'
-    mito.export_to_file('excel', [0], filename)
-    # pdb.set_trace()
-    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
-import pandas as pd
-
-with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
-    df.to_excel(writer, sheet_name="df", index=False)
-    add_formatting_to_excel_sheet(writer, "df", "#000000", "#ffffff")
-
-df_styler = df.style\\
-    .set_table_styles([
-        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
-])
-"""
-
 
 def test_transpiled_with_export_to_xlsx_multiple():
     df = pd.DataFrame({'A': [1, 2, 3]})

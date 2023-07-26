@@ -153,3 +153,23 @@ def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_nam
     for sheet_index, sheet_name in zip(sheet_indexes, final_sheet_names):
         assert pd.read_excel(final_file_name, sheet_name=sheet_name).equals(input_dfs[sheet_index])
 
+
+def test_transpiled_with_export_to_xlsx_format():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {'headers': { 'color': '#ffffff', 'backgroundColor': '#000000'}, "columns": {}, "rows": {}, "border": {}, "conditional_formats": []})
+    filename = 'test_format.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", "#000000", "#ffffff")
+
+df_styler = df.style\\
+    .set_table_styles([
+        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+])
+"""
+
