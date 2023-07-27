@@ -86,6 +86,16 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
 
     const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
 
+
+    /**
+     * If we are in streamlit and the user hasn't configured the import folder,
+     * we display a message telling them to do so.
+     * 
+     * This is because the security model of streamlit requires us to know the
+     * specific location users can import data from, as we don't just want them
+     * to be able to import from anywhere on the server -- there could be private
+     * data.
+     */
     if (isInStreamlit() && !props.analysisData.importFolderData) {
         return (
             <>
