@@ -16,6 +16,10 @@ def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
     2. The values of the dataframe
     3. The index of the dataframe
     4. The order of all of these
+
+    This is necessary due to the issues described here: https://github.com/streamlit/streamlit/issues/7086
+    where streamlit default hashing is not ideal for pandas dataframes, as it misses some column header and
+    reordering changes. 
     """
     try:
         return hashlib.md5(
