@@ -14,6 +14,8 @@ from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
 from mitosheet.user.utils import is_running_test
 
+from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
+
 
 def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     """
@@ -39,6 +41,12 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
 
             # Add formatting to the sheet for pro users
             format = steps_manager.curr_step.df_formats[sheet_index]
+            conditional_formats = get_conditional_formats_objects_to_export_to_excel(
+                format.get('conditional_formats'),
+                df=steps_manager.curr_step.dfs[sheet_index],
+                column_ids=steps_manager.curr_step.column_ids,
+                sheet_index=sheet_index
+            )
             if allow_formatting: 
                 add_formatting_to_excel_sheet(
                     writer,
@@ -49,7 +57,8 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
                     even_background_color=format.get('rows', {}).get('even', {}).get('backgroundColor'),
                     even_font_color=format.get('rows', {}).get('even', {}).get('color'),
                     odd_background_color=format.get('rows', {}).get('odd', {}).get('backgroundColor'),
-                    odd_font_color=format.get('rows', {}).get('odd', {}).get('color')
+                    odd_font_color=format.get('rows', {}).get('odd', {}).get('color'),
+                    conditional_formats=conditional_formats
                 )
     
     # Go back to the start of the buffer
