@@ -18,7 +18,7 @@ import math
 from typing import Optional, Union
 import sys
 from mitosheet.errors import MitoError
-from mitosheet.is_type_utils import is_datetime_dtype
+from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_int_dtype
 import numpy as np
 
 import pandas as pd
@@ -488,6 +488,7 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     }
     """
 
+    """
     # If no decimals option is passed, round to no decimals
     if decimals is None:
         decimals = 0
@@ -503,6 +504,43 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
         [round(num, dec) for num, dec in zip(arg, decimals)], # type: ignore
         index=arg.index # type: ignore
     )
+    """
+
+    def excel_round(x: Optional[Union[int, float]], decimals: int) -> Optional[Union[int, float]]:
+        if pd.isna(x): 
+            return None 
+
+        factor = 10 ** decimals
+        x *= factor
+
+        decimal_part = x - int(x)
+        
+        round_adjustment = 1 if x > 0 else -1
+        
+        # In order to properly round negative values, we use the absolute value of the decimal_part
+        if abs(decimal_part) >= 0.5:
+            x = int(x) + round_adjustment
+        else:
+            x = int(x)
+            
+        rounded_number = x / factor
+        return rounded_number
+
+    # If no decimals option is passed, round to no decimals
+    if decimals is None:
+        decimals = 0
+
+    if (isinstance(arg, int) or isinstance(arg, float)) and isinstance(decimals, int):
+        return excel_round(arg, decimals) 
+
+    index = get_index_from_series(arg, decimals)
+    arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
+    decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
+
+    # TODO: Should we cast to an int if we are rounding to 0?
+
+    return pd.Series([excel_round(num, decimal) for num, decimal in zip(arg, decimals)])
+    
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors

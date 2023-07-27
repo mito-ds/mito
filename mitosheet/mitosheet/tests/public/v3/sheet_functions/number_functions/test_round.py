@@ -27,16 +27,22 @@ ROUND_VALID_TESTS = [
     ([pd.Series([1000 * 1000 + .1 + .1]), 1], pd.Series([1000 * 1000 + .1 + .1])),
     ([pd.Series([1.1]), 0], pd.Series([1.0])),
     ([pd.Series([1.100001]), 0], pd.Series([1.0])),
-    ([pd.Series([True]), 0], pd.Series([1])),
-    ([pd.Series([False]), 0], pd.Series([0])),
+    ([pd.Series([True]), 0], pd.Series([1.0])),
+    ([pd.Series([False]), 0], pd.Series([0.0])),
+    ([pd.Series([None]), 0], pd.Series([None])),
     ([pd.Series([.1111]), pd.Series([2])], pd.Series([.11])),
     ([pd.Series([.11]), pd.Series([0])], pd.Series([0.0])),
     ([pd.Series([.11, 1.1]), None], pd.Series([0.0, 1.0])),
     ([pd.Series([.11, 1.1, None]), None], pd.Series([0.0, 1.0, None])),
+    ([pd.Series([0, 0.49, 0.5 ,0.51 ,1.5 ,2.5 ,3.5 ,-0.49 ,-0.5 ,-0.51 ,-1.5 ,-2.5 ,-3.5]), 0], pd.Series([0 ,0 ,1 ,1 ,2 ,3 ,4 ,0 ,-1 ,-1 ,-2 ,-3 ,-4])),
+
 ]
 @pytest.mark.parametrize("_argv, expected", ROUND_VALID_TESTS)
 def test_round_valid_input_direct(_argv, expected):
     result = ROUND(*_argv)
+
+    print(result)
+    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
