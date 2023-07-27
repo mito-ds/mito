@@ -772,7 +772,7 @@ export interface AnalysisData {
     importFolderData: {
         path: string,
         pathParts: string[],
-    } | undefined
+    } | null
 }
 
 export interface MitoConfig {

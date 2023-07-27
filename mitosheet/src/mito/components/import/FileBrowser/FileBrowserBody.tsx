@@ -14,6 +14,9 @@ import { getElementsToDisplay, getFilePath, inRootFolder, isExcelFile } from '..
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
+import { isInStreamlit } from '../../../utils/location';
+import DefaultEmptyTaskpane from '../../taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
+import Spacer from '../../layout/Spacer';
 
 
 export interface PathContents {
@@ -82,6 +85,29 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
     }, [props.fileBrowserState.selectedElementIndex, props.fileBrowserState.sort])
 
     const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
+
+    if (isInStreamlit() && !props.analysisData.importFolderData) {
+        return (
+            <>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    To use the file browser, you must first configure the folder you want to allow users to 
+                    import from.
+                </p>
+                <Spacer px={10}/>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    This is configurable with the <code>import_folder</code> parameter in the <code>spreadsheet</code> component 
+                    in your streamlit application.
+                </p>
+            </>
+        )
+
+    }
 
     return (
         <div className='file-browser flexbox-column'>
