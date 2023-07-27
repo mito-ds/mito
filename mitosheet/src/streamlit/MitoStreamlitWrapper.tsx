@@ -139,7 +139,15 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         })
     }
 
-    public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
+    public async send(msg: Record<string, unknown>, analysisName: string): Promise<SendFunctionReturnType<any>> {
+
+        // We inject the analysisName into the message, so that the backend
+        // can make sure it's getting the right message for the right
+        // analysis. This is necessary in streamlit as the message passing
+        // component "sends" messages even when a new backend is created - and 
+        // we don't want to send old messages to the new backend!
+        msg['analysis_name'] = analysisName;
+
         // First, get the iframe of the MitoMessagePasser component
         const parentWindow = window.parent;
         const iframes = parentWindow.frames;
@@ -179,10 +187,14 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             this.setState({responses: responses});
         }
 
+        const send = (msg: Record<string, unknown>) => {
+            return this.send(msg, analysisData.analysisName);
+        }
+
         return (
             <Mito 
                 key={this.props.args['id'] as string}
-                getSendFunction={async () => this.send.bind(this)} 
+                getSendFunction={async () => send} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}

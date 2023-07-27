@@ -149,14 +149,20 @@ try:
         user_profile_json = mito_backend.get_user_profile_json()
 
         msg = message_passer_component(key=str(key) + 'message_passer')
-        # Check if the message has already been received. We'll know if the ID of the message
-        # is in the responses list
-        if msg is not None and msg['id'] not in [response['id'] for response in responses]:
-            print("got message", msg['type'], mito_backend.analysis_name)
-            print(msg['id'], [response['id'] for response in responses])
+        if (
+            msg is not None \
+            and msg['id'] not in [response['id'] for response in responses] \
+            and msg['analysis_name'] == mito_backend.analysis_name
+        ):
+            # We receive a message if:
+            # 1. It is not None
+            # 2. We have not already received it on this backend
+            # 3. It is for this analysis. 
+            # Note that the final two conditions are to prevent messages that have been sent
+            # by the message passer component from being received again. This happens because
+            # when a component value is set, it is always returned by the message_passer_component
+            # until a new component value is set            
             mito_backend.receive_message(msg)
-
-        print("mito_backend", type(args[0]), mito_backend.analysis_name, len(mito_backend.steps_manager.steps_including_skipped))
             
         responses_json = json.dumps(responses)
 
