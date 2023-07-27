@@ -54,12 +54,14 @@ try:
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
+            _import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             key: Optional[str]=None # So it caches on key
         ) -> Tuple[MitoBackend, List[Any]]: 
 
         mito_backend = MitoBackend(
             *args, 
+            import_folder=_import_folder,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions
         )
 
@@ -98,6 +100,7 @@ try:
             sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
+            import_folder: Optional[str]=None,
             key=None
         ) -> Tuple[Dict[str, pd.DataFrame], str]:
         """
@@ -130,10 +133,15 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
+        # Get the absolute path to the import_folder, in case it is relative
+        if import_folder is not None:
+            import_folder = os.path.abspath(import_folder)
+
         mito_backend, responses = _get_mito_backend(
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
+            _import_folder=import_folder,
             df_names=df_names, 
             key=key
         )

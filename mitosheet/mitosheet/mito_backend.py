@@ -52,6 +52,7 @@ class MitoBackend():
             self, 
             *args: Union[pd.DataFrame, str, None], 
             analysis_to_replay: Optional[str]=None, 
+            import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
         ):
@@ -70,6 +71,7 @@ class MitoBackend():
             args, 
             mito_config=self.mito_config, 
             analysis_to_replay=analysis_to_replay, 
+            import_folder=import_folder,
             user_defined_functions=user_defined_functions,
             user_defined_importers=user_defined_importers
         )

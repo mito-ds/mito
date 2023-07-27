@@ -11,6 +11,7 @@ from copy import copy, deepcopy
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
@@ -175,6 +176,7 @@ class StepsManager:
             args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
             analysis_to_replay: Optional[str]=None,
+            import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
         ):
@@ -188,10 +190,16 @@ class StepsManager:
         # We just randomly generate analysis names as a string of 10 letters
         self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
+
         # We also save some data about the analysis the user wants to replay, if there
         # is such an analysis
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
+
+        # The import folder is the folder that users have the right to import files from. 
+        # If this is set, then we should never let users view or access files that are not
+        # inside this folder
+        self.import_folder = import_folder
 
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
@@ -370,6 +378,10 @@ class StepsManager:
                 'codeOptions': self.code_options,
                 'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
                 'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
+                "importFolderData": {
+                    'path': self.import_folder,
+                    'pathParts': get_path_parts(self.import_folder)
+                } if self.import_folder is not None else None,
             },
             cls=NpEncoder
         )

@@ -6,10 +6,5 @@ st.set_page_config(layout="wide")
 
 st.subheader("Dataframe Created from File Upload")
 
-new_dfs, code = spreadsheet(r'test_1.csv')
+new_dfs, code = spreadsheet(import_folder='./datasets')
 st.code(code)
-
-_, code1 = spreadsheet(*new_dfs.values(), key="spreadsheet_2")
-st.code(code1)
-
-print("\n\n")

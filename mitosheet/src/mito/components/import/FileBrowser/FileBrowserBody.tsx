@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import '../../../../../css/elements/Input.css';
 import '../../../../../css/taskpanes/Import/FileBrowser.css';
 import { MitoAPI } from '../../../api/api';
-import { UIState, UserProfile } from '../../../types';
+import { AnalysisData, UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import SortArrowIcon from '../../icons/SortArrowIcon';
@@ -35,6 +35,7 @@ export interface FileBrowserState {
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
+    analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     currPathParts: string[],
@@ -86,6 +87,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
         <div className='file-browser flexbox-column'>
             <div>
                 <FileBrowserPathSelector
+                    importFolderData={props.analysisData.importFolderData}
                     setCurrPathParts={props.setCurrPathParts}
                     pathParts={props.fileBrowserState.pathContents.path_parts}
                 />

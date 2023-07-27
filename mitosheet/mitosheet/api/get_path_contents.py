@@ -89,10 +89,24 @@ def get_path_contents(params: Dict[str, Any]) -> Dict[str, Any]:
     path parts
     """ 
     path_parts = params['path_parts']
+    import_folder = params.get('import_folder')
 
     # Join the path and normalize it (note this should be OS independent)
     path = os.path.join(*path_parts)
     path = os.path.normpath(path)
+    print("GETTING")
+
+    # First, we make sure that the user has not gone above the import folder, if it exists
+    if import_folder is not None:
+        print("HERE123", import_folder, path)
+        # We get the absolute path of the import folder, and the absolute path of the path
+        # the user is trying to access. Then, we check if the import folder is a prefix of
+        # the path the user is trying to access. If it is not, we return the import folder
+        # contents instead.
+        import_folder = os.path.abspath(import_folder)
+        path = os.path.abspath(path)
+        if not path.startswith(import_folder):
+            return get_path_contents(import_folder)
 
     if path == '\\' and platform.system() == 'Windows':
         # If the path only has one part, it means they are accessing the root folder. If the user is on
