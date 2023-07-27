@@ -10,7 +10,8 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 
 
 interface State {
-    responses: MitoResponse[]
+    responses: MitoResponse[],
+    analysisName: string
 }
 
 // Max delay is the longest we'll wait for the API to return a value
@@ -28,11 +29,7 @@ export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 const getMitoThemeFromStreamlitTheme = (streamlitTheme: Theme | undefined): MitoTheme | undefined => {
     if (streamlitTheme === undefined) {
         return undefined
-    }
-
-    
-
-    
+    }    
 
     if (streamlitTheme.base === 'light') {
         // If it's the default light theme, we simply include the variables that are
@@ -84,7 +81,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
     constructor(props: any) {
         super(props);
-        this.state = { responses: [] };
+        this.state = { responses: [], analysisName: '' };
     }
 
     public getResponseData<ResultType>(id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -139,14 +136,14 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         })
     }
 
-    public async send(msg: Record<string, unknown>, analysisName: string): Promise<SendFunctionReturnType<any>> {
+    public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
 
         // We inject the analysisName into the message, so that the backend
         // can make sure it's getting the right message for the right
         // analysis. This is necessary in streamlit as the message passing
         // component "sends" messages even when a new backend is created - and 
         // we don't want to send old messages to the new backend!
-        msg['analysis_name'] = analysisName;
+        msg['analysis_name'] = this.state.analysisName;
 
         // First, get the iframe of the MitoMessagePasser component
         const parentWindow = window.parent;
@@ -178,7 +175,9 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             const newResponses = responses.slice(this.state.responses.length);
             
             this.setState(prevState => {
-                return {responses: [...prevState.responses, ...newResponses]}
+                return {
+                    responses: [...prevState.responses, ...newResponses],
+                }
             });
         }
         // If we have less responses, this means we have reset the Mito instance,
@@ -187,14 +186,12 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
             this.setState({responses: responses});
         }
 
-        const send = (msg: Record<string, unknown>) => {
-            return this.send(msg, analysisData.analysisName);
-        }
+        this.setState({analysisName: analysisData.analysisName});
 
         return (
             <Mito 
                 key={this.props.args['id'] as string}
-                getSendFunction={async () => send} 
+                getSendFunction={async () => this.send.bind(this)} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
