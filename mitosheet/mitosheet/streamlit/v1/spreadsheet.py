@@ -1,5 +1,7 @@
+import hashlib
 import json
 import os
+import pickle
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
@@ -7,6 +9,32 @@ import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.utils import get_new_id
 
+def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
+    """
+    Returns a hash for a pandas dataframe that is consistent across runs, notably including:
+    1. The column names
+    2. The values of the dataframe
+    3. The index of the dataframe
+    4. The order of all of these
+    """
+    try:
+        return hashlib.md5(
+            bytes(str(pd.util.hash_pandas_object(df.columns)), 'utf-8') +
+            bytes(str(pd.util.hash_pandas_object(df)), 'utf-8')
+        ).digest()
+    except TypeError as e:        
+        # Use pickle if pandas cannot hash the object for example if
+        # it contains unhashable objects.
+        return b"%s" % pickle.dumps(df, pickle.HIGHEST_PROTOCOL)
+
+def get_dataframe_hash(df: pd.DataFrame) -> bytes:
+    _PANDAS_ROWS_LARGE = 100000
+    _PANDAS_SAMPLE_SIZE = 10000
+    
+    if len(df) >= _PANDAS_ROWS_LARGE:
+        df = df.sample(n=_PANDAS_SAMPLE_SIZE, random_state=0)
+    
+    return _get_dataframe_hash(df)
 
 try:
     import streamlit.components.v1 as components
@@ -21,7 +49,7 @@ try:
     message_passer_build_dr = os.path.join(parent_dir, "messagingBuild")
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
 
-    @st.cache_resource
+    @st.cache_resource(hash_funcs={pd.DataFrame: get_dataframe_hash})
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
@@ -109,6 +137,8 @@ try:
             df_names=df_names, 
             key=key
         )
+
+        print("mito_backend", args, mito_backend.analysis_name)
 
         # Mito widgets need new ids every time a new one is displayed. As such, if
         # the key is None, we generate a new one. Notably, we do this after getting the
