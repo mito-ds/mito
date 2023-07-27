@@ -148,7 +148,7 @@ def get_conditional_formats_objects_to_export_to_excel(
     column_ids: ColumnIDMap,
     sheet_index: int
 ) -> Any:
-    if conditional_formats is None:
+    if conditional_formats is None or conditional_formats == []:
         return None
 
     export_cond_formats = []

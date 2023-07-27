@@ -35,7 +35,7 @@ def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeade
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
+def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: Optional[int]=0) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.
@@ -49,6 +49,10 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts = [column_header_to_transpiled_code(column_header_part) for column_header_part in column_header]
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
+    if isinstance(column_header, list):
+        column_header_parts = [column_header_to_transpiled_code(column_header_part, tab_level=tab_level+1) for column_header_part in column_header]
+        column_header_parts_joined = f',\n{TAB*(tab_level + 1)}'.join(column_header_parts)
+        return f'[\n{TAB*(tab_level + 1)}{column_header_parts_joined}\n{TAB*tab_level}]'
 
     # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
     if not is_prev_version(pd.__version__, '1.0.0') and column_header is np.nan:
@@ -119,6 +123,8 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
             code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
+        elif isinstance(value, list):
+            code_chunk = f"{key}={column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
             code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
