@@ -12,11 +12,24 @@ from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpile
 
 from mitosheet.transpiler.transpile_utils import param_dict_to_code
 
+from mitosheet.excel_utils import get_column_from_column_index
+
 # This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State) -> list:
     code = []
     formats = state.df_formats
-    for sheet_name, format in zip(state.df_names, formats):
+    for sheet_index, (sheet_name, format) in enumerate(zip(state.df_names, formats)):
+        # We need to convert the column IDs to column letters for conditional formats to export to excel
+        conditional_formats = format.get('conditional_formats')
+        column_ids = state.column_ids.get_column_ids(sheet_index=sheet_index)
+        if conditional_formats is not None:
+            for conditional_format in conditional_formats:
+                # Create new object to store the columns in the excel format
+                conditional_format['columns'] = []
+                for column_id in conditional_format.get('columnIDs'):
+                    column = get_column_from_column_index(column_ids.index(column_id))
+                    conditional_format['columns'].append(column)
+
         # If there is no formatting, we skip trying to access the colors
         params = {
             'header_background_color': format.get('headers', {}).get('backgroundColor'),
@@ -25,6 +38,7 @@ def get_format_code(state: State) -> list:
             'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
             'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
             'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
+            'conditional_formats': conditional_formats
         }
         param_dict = {
             key: value for key, value in params.items()

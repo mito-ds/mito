@@ -2,6 +2,7 @@ from typing import Optional
 
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
+from openpyxl.formatting.rule import CellIsRule
 from pandas import ExcelWriter
 
 def add_formatting_to_excel_sheet(
@@ -12,7 +13,8 @@ def add_formatting_to_excel_sheet(
         even_background_color: Optional[str]=None,
         even_font_color: Optional[str]=None,
         odd_background_color: Optional[str]=None,
-        odd_font_color: Optional[str]=None
+        odd_font_color: Optional[str]=None,
+        conditional_formats: Optional[list]=None
     ) -> None:
         """
         Adds formatting to the sheet_name, based on the formatting the user
@@ -71,3 +73,17 @@ def add_formatting_to_excel_sheet(
                         sheet.cell(row=row, column=col).style = even_name
                     else:
                         sheet.cell(row=row, column=col).style = odd_name
+
+        # Add conditional formatting
+        if conditional_formats is None:
+            return
+        for conditional_format in conditional_formats:
+            for filter in conditional_format.get('filters'):
+                # Start with the greater than condition
+                if filter['condition'] != 'greater':
+                    continue
+                cond_fill = PatternFill(start_color=conditional_format['backgroundColor'][1:], end_color=conditional_format['backgroundColor'][1:], fill_type='solid')
+                cond_font = Font(color=conditional_format['color'][1:])
+                column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
+                for column in conditional_format['columns']:
+                    sheet.conditional_formatting.add(f'{column}1:{column}{sheet.max_row}', column_conditional_rule)
