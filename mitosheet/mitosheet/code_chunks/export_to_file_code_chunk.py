@@ -12,7 +12,7 @@ from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpile
 
 from mitosheet.transpiler.transpile_utils import param_dict_to_code
 
-from mitosheet.utils import add_columns_to_condition_formats
+from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
 
 # This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State) -> list:
@@ -21,7 +21,7 @@ def get_format_code(state: State) -> list:
     for sheet_index, (sheet_name, format) in enumerate(zip(state.df_names, formats)):
         # We need to convert the column IDs to column letters
         # for conditional formats to export to excel
-        conditional_formats = add_columns_to_condition_formats(
+        conditional_formats = get_conditional_formats_objects_to_export_to_excel(
             format.get('conditional_formats'),
             df=state.dfs[sheet_index],
             column_ids=state.column_ids,
@@ -44,7 +44,7 @@ def get_format_code(state: State) -> list:
             continue
 
         params_code = param_dict_to_code(param_dict, tab_level=1)
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {params_code})')
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {state.df_names[sheet_index]}, {params_code})')
     return code
 
 

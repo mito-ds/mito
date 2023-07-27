@@ -43,6 +43,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
                 add_formatting_to_excel_sheet(
                     writer,
                     sheet_name,
+                    df,
                     header_background_color=format.get('headers', {}).get('backgroundColor'),
                     header_font_color=format.get('headers', {}).get('color'),
                     even_background_color=format.get('rows', {}).get('even', {}).get('backgroundColor'),

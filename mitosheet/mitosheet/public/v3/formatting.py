@@ -3,9 +3,11 @@ from typing import Optional
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
 from openpyxl.formatting.rule import CellIsRule
-from pandas import ExcelWriter
+from pandas import DataFrame, ExcelWriter
 
-def add_conditional_formats(conditional_formats, sheet):
+from mitosheet.excel_utils import get_column_from_column_index
+
+def add_conditional_formats(conditional_formats, sheet, df):
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters'):
             # Start with the greater than condition
@@ -14,13 +16,16 @@ def add_conditional_formats(conditional_formats, sheet):
             cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
             cond_font = Font(color=conditional_format['font_color'][1:])
             column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
-            for column in conditional_format['columns']:
+            for column_header in conditional_format['columns']:
+                column_index = df.columns.tolist().index(column_header)
+                column = get_column_from_column_index(column_index)
                 sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
 
 
 def add_formatting_to_excel_sheet(
         writer: ExcelWriter,
         sheet_name: str,
+        df: DataFrame,
         header_background_color: Optional[str]=None,
         header_font_color: Optional[str]=None,
         even_background_color: Optional[str]=None,
@@ -89,4 +94,4 @@ def add_formatting_to_excel_sheet(
 
         # Add conditional formatting
         if conditional_formats is not None:
-            add_conditional_formats(conditional_formats, sheet)
+            add_conditional_formats(conditional_formats, sheet, df)

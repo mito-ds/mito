@@ -20,7 +20,6 @@ from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns
 from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
 
-from mitosheet.excel_utils import get_column_from_column_index
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -143,7 +142,7 @@ def dfs_to_array_for_json(
     return new_array
 
 
-def add_columns_to_condition_formats(
+def get_conditional_formats_objects_to_export_to_excel(
     conditional_formats: Optional[List[Dict[str, Any]]],
     df: any,
     column_ids: ColumnIDMap,
@@ -164,9 +163,7 @@ def add_columns_to_condition_formats(
         export_cond_formats.append(new_format)
         for column_id in conditional_format.get('columnIDs'):
             column_header = column_ids.get_column_header_by_id(sheet_index, column_id)
-            column_index = df.columns.tolist().index(column_header)
-            column = get_column_from_column_index(column_index)
-            new_format['columns'].append(column)
+            new_format['columns'].append(column_header)
     return export_cond_formats
 
 def _get_column_id_from_header_safe(
