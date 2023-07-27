@@ -5,6 +5,19 @@ from openpyxl.styles import NamedStyle
 from openpyxl.formatting.rule import CellIsRule
 from pandas import ExcelWriter
 
+def add_conditional_formats(conditional_formats, sheet):
+    for conditional_format in conditional_formats:
+        for filter in conditional_format.get('filters'):
+            # Start with the greater than condition
+            if filter['condition'] != 'greater':
+                continue
+            cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
+            cond_font = Font(color=conditional_format['font_color'][1:])
+            column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
+            for column in conditional_format['columns']:
+                sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
+
+
 def add_formatting_to_excel_sheet(
         writer: ExcelWriter,
         sheet_name: str,
@@ -75,15 +88,5 @@ def add_formatting_to_excel_sheet(
                         sheet.cell(row=row, column=col).style = odd_name
 
         # Add conditional formatting
-        if conditional_formats is None:
-            return
-        for conditional_format in conditional_formats:
-            for filter in conditional_format.get('filters'):
-                # Start with the greater than condition
-                if filter['condition'] != 'greater':
-                    continue
-                cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
-                cond_font = Font(color=conditional_format['font_color'][1:])
-                column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
-                for column in conditional_format['columns']:
-                    sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
+        if conditional_formats is not None:
+            add_conditional_formats(conditional_formats, sheet)
