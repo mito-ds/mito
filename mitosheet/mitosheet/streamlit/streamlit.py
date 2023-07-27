@@ -11,3 +11,5 @@ st.code(code)
 
 _, code1 = spreadsheet(*new_dfs.values(), key="spreadsheet_2")
 st.code(code1)
+
+print("\n\n")

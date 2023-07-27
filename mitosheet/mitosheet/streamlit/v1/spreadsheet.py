@@ -138,8 +138,6 @@ try:
             key=key
         )
 
-        print("mito_backend", args, mito_backend.analysis_name)
-
         # Mito widgets need new ids every time a new one is displayed. As such, if
         # the key is None, we generate a new one. Notably, we do this after getting the
         # mito_backend, so that we can cache the mito_backend on the user provided key.
@@ -151,8 +149,14 @@ try:
         user_profile_json = mito_backend.get_user_profile_json()
 
         msg = message_passer_component(key=str(key) + 'message_passer')
-        if msg is not None:
+        # Check if the message has already been received. We'll know if the ID of the message
+        # is in the responses list
+        if msg is not None and msg['id'] not in [response['id'] for response in responses]:
+            print("got message", msg['type'], mito_backend.analysis_name)
+            print(msg['id'], [response['id'] for response in responses])
             mito_backend.receive_message(msg)
+
+        print("mito_backend", type(args[0]), mito_backend.analysis_name, len(mito_backend.steps_manager.steps_including_skipped))
             
         responses_json = json.dumps(responses)
 
