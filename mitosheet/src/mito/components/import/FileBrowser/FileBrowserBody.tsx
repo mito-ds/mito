@@ -5,18 +5,17 @@ import '../../../../../css/taskpanes/Import/FileBrowser.css';
 import { MitoAPI } from '../../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
+import { isInStreamlit } from '../../../utils/location';
 import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
+import Spacer from '../../layout/Spacer';
 import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
 import { getElementsToDisplay, getFilePath, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import FileBrowserElement from './FileBrowserElement';
 import FileBrowserPathSelector from './FileBrowserPathSelector';
-import { isInStreamlit } from '../../../utils/location';
-import DefaultEmptyTaskpane from '../../taskpanes/DefaultTaskpane/DefaultEmptyTaskpane';
-import Spacer from '../../layout/Spacer';
 
 
 export interface PathContents {

@@ -6,7 +6,7 @@ interface FileBrowserPathSelectorProps {
     importFolderData: {
         path: string,
         pathParts: string[]
-    } | undefined;
+    } | undefined | null;
     pathParts: string[] | undefined;
     setCurrPathParts: (newPathParts: string[]) => void;
 }
@@ -37,8 +37,8 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         }
     });
 
-    const pathPartsAndIndexesToDisplay = props.importFolderData !== undefined
-        ? pathPartsAndIndexes?.slice(props.importFolderData.pathParts.length - 1)
+    const pathPartsAndIndexesToDisplay = props.importFolderData
+        ? pathPartsAndIndexes?.slice((props.importFolderData?.pathParts.length ?? 1) - 1)
         : pathPartsAndIndexes;
 
     return (
