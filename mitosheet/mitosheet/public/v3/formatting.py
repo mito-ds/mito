@@ -82,8 +82,8 @@ def add_formatting_to_excel_sheet(
                 # Start with the greater than condition
                 if filter['condition'] != 'greater':
                     continue
-                cond_fill = PatternFill(start_color=conditional_format['backgroundColor'][1:], end_color=conditional_format['backgroundColor'][1:], fill_type='solid')
-                cond_font = Font(color=conditional_format['color'][1:])
+                cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['backgroundColor'][1:], fill_type='solid')
+                cond_font = Font(color=conditional_format['font_color'][1:])
                 column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
                 for column in conditional_format['columns']:
                     sheet.conditional_formatting.add(f'{column}1:{column}{sheet.max_row}', column_conditional_rule)

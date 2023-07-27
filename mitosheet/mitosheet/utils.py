@@ -152,15 +152,22 @@ def add_columns_to_condition_formats(
     if conditional_formats is None:
         return None
 
+    export_cond_formats = []
     for conditional_format in conditional_formats:
         # Create new object to store the columns in the excel format
-        conditional_format['columns'] = []
+        new_format = {
+            'columns': [],
+            'filters': conditional_format.get('filters'),
+            'font_color': conditional_format.get('color'),
+            'background_color': conditional_format.get('backgroundColor')
+        }
+        export_cond_formats.append(new_format)
         for column_id in conditional_format.get('columnIDs'):
             column_header = column_ids.get_column_header_by_id(sheet_index, column_id)
             column_index = df.columns.tolist().index(column_header)
             column = get_column_from_column_index(column_index)
-            conditional_format['columns'].append(column)
-    return conditional_formats
+            new_format['columns'].append(column)
+    return export_cond_formats
 
 def _get_column_id_from_header_safe(
     column_header: ColumnHeader,
