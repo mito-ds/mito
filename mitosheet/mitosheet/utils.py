@@ -175,7 +175,7 @@ def get_conditional_formats_objects_to_export_to_excel(
 #    because the file can be sent to the front-end through a buffer
 def write_to_excel(
     path: any,
-    sheet_indexes: list[int],
+    sheet_indexes: list,
     state: any,
     allow_formatting:bool=True
 ):
