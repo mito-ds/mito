@@ -139,7 +139,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // We store the path that the user last uses when they are using the import
     // in Mito so that we can open to the same place next time they use it
-    const [currPathParts, setCurrPathParts] = useState<string[]>(['.']);
+    const [currPathParts, setCurrPathParts] = useState<string[]>(props.analysisData.importFolderData ? props.analysisData.importFolderData.pathParts : ['.']);
 
     // We store all AI Transform params in Mito, so that users can open and close
     // the AI Transform taskpane and still access their old prompts

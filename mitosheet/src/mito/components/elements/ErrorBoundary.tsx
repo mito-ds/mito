@@ -2,6 +2,7 @@ import React, { Component, ReactNode } from "react";
 import { MitoAPI } from "../../api/api";
 import { DISCORD_INVITE_LINK } from "../../data/documentationLinks";
 import { AnalysisData, SheetData, UserProfile } from "../../types";
+import { isInStreamlit } from "../../utils/location";
 
 interface Props {
     children: ReactNode;
@@ -39,10 +40,16 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public render(): ReactNode {
+
+        let fixUpMessage = 'Rerun the Jupyter Cell above';
+        if (isInStreamlit()) {
+            fixUpMessage = 'Refresh the Streamlit app'
+        }
+
         if (this.state.hasError) {
             return (
                 <p className='text-body-1 text-color-red p-10px'>
-                    Looks like Mito had an error! Sorry about that. Rerun the Jupyter Cell above, and join our <a className='text-body-1-link' href={DISCORD_INVITE_LINK} target='_blank' rel="noreferrer">Discord</a> for support if this error occurs again.
+                    Looks like Mito had an error! Sorry about that. {fixUpMessage}, and join our <a className='text-body-1-link' href={DISCORD_INVITE_LINK} target='_blank' rel="noreferrer">Discord</a> for support if this error occurs again.
                 </p>
             )
         }

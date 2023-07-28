@@ -1,5 +1,7 @@
+import hashlib
 import json
 import os
+import pickle
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
@@ -7,6 +9,36 @@ import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.utils import get_new_id
 
+def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
+    """
+    Returns a hash for a pandas dataframe that is consistent across runs, notably including:
+    1. The column names
+    2. The values of the dataframe
+    3. The index of the dataframe
+    4. The order of all of these
+
+    This is necessary due to the issues described here: https://github.com/streamlit/streamlit/issues/7086
+    where streamlit default hashing is not ideal for pandas dataframes, as it misses some column header and
+    reordering changes. 
+    """
+    try:
+        return hashlib.md5(
+            bytes(str(pd.util.hash_pandas_object(df.columns)), 'utf-8') +
+            bytes(str(pd.util.hash_pandas_object(df)), 'utf-8')
+        ).digest()
+    except TypeError as e:        
+        # Use pickle if pandas cannot hash the object for example if
+        # it contains unhashable objects.
+        return b"%s" % pickle.dumps(df, pickle.HIGHEST_PROTOCOL)
+
+def get_dataframe_hash(df: pd.DataFrame) -> bytes:
+    _PANDAS_ROWS_LARGE = 100000
+    _PANDAS_SAMPLE_SIZE = 10000
+    
+    if len(df) >= _PANDAS_ROWS_LARGE:
+        df = df.sample(n=_PANDAS_SAMPLE_SIZE, random_state=0)
+    
+    return _get_dataframe_hash(df)
 
 try:
     import streamlit.components.v1 as components
@@ -21,17 +53,19 @@ try:
     message_passer_build_dr = os.path.join(parent_dir, "messagingBuild")
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
 
-    @st.cache_resource
+    @st.cache_resource(hash_funcs={pd.DataFrame: get_dataframe_hash})
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
+            _import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             key: Optional[str]=None # So it caches on key
         ) -> Tuple[MitoBackend, List[Any]]: 
 
         mito_backend = MitoBackend(
             *args, 
+            import_folder=_import_folder,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions
         )
 
@@ -70,6 +104,7 @@ try:
             sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
+            import_folder: Optional[str]=None,
             key=None
         ) -> Tuple[Dict[str, pd.DataFrame], str]:
         """
@@ -102,10 +137,19 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
+        # Get the absolute path to the import_folder, in case it is relative. Also
+        # check that this folder exists, and throw an error if it does not.
+        if import_folder is not None:
+            import_folder = os.path.abspath(import_folder)
+
+            if not os.path.exists(import_folder):
+                raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
+
         mito_backend, responses = _get_mito_backend(
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
+            _import_folder=import_folder,
             df_names=df_names, 
             key=key
         )
@@ -121,7 +165,19 @@ try:
         user_profile_json = mito_backend.get_user_profile_json()
 
         msg = message_passer_component(key=str(key) + 'message_passer')
-        if msg is not None:
+        if (
+            msg is not None \
+            and msg['id'] not in [response['id'] for response in responses] \
+            and msg['analysis_name'] == mito_backend.analysis_name
+        ):
+            # We receive a message if:
+            # 1. It is not None
+            # 2. We have not already received it on this backend
+            # 3. It is for this analysis. 
+            # Note that the final two conditions are to prevent messages that have been sent
+            # by the message passer component from being received again. This happens because
+            # when a component value is set, it is always returned by the message_passer_component
+            # until a new component value is set            
             mito_backend.receive_message(msg)
             
         responses_json = json.dumps(responses)

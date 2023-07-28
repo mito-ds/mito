@@ -38,6 +38,6 @@ tsconfig.tsbuildinfo
 mitosheet/mito_frontend.js
 mitosheet/mito_frontend.css
 
-mitosheet/streamlit/mitoBuild/*.js
-mitosheet/streamlit/mitoBuild/*.css
-mitosheet/streamlit/messagingBuild/*.js
+mitosheet/streamlit/v1/mitoBuild/*.js
+mitosheet/streamlit/v1/mitoBuild/*.css
+mitosheet/streamlit/v1/messagingBuild/*.js
