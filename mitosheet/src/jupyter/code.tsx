@@ -1,5 +1,7 @@
 // Utilities for working with the generated code
 
+import { PublicInterfaceVersion } from "../mito";
+
 const IMPORT_STATEMENTS = [
     'from mitosheet.public.v1 import *',
     'from mitosheet.public.v2 import *',
@@ -10,6 +12,7 @@ export function getCodeString(
     analysisName: string,
     code: string[],
     telemetryEnabled: boolean,
+    publicInterfaceVersion: PublicInterfaceVersion
 ): string {
 
     if (code.length == 0) {
@@ -19,18 +22,15 @@ export function getCodeString(
     const finalCode = code.join('\n');
 
     // If telemetry not enabled, we want to be clear about this by
-    // simply not calling a func w/ the analysis name. Notably
-
+    // simply not calling a func w/ the analysis name
     let analysisRegisterCode = '';
-    
-
     if (telemetryEnabled) {
         analysisRegisterCode = `register_analysis("${analysisName}");`
     } else {
         analysisRegisterCode = `# Analysis Name:${analysisName};`
     }
 
-    return finalCode.replace('import *', `import *; ${analysisRegisterCode}`);
+    return finalCode.replace(`mitosheet.public.v${publicInterfaceVersion} import *`, `mitosheet.public.v${publicInterfaceVersion} import *; ${analysisRegisterCode}`);
 }
 
 
