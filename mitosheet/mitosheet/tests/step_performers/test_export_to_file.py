@@ -29,7 +29,6 @@ def get_cell_formatting(
     sheet = wb[sheet_name]
     formats = []
     for conditional in sheet.conditional_formatting._cf_rules.items():
-        pdb.set_trace()
         if conditional[0].__contains__(cell_address):
             formats.append((conditional[1][0].dxf.fill.start_color.rgb, conditional[1][0].dxf.font.color.rgb))
     return formats
@@ -354,7 +353,6 @@ df_styler = df.style\\
     .apply(lambda series: np.where(series > 5, 'color: #e72323; background-color: #ffffff', None), subset=['A'])
 """
 
-    exec("\n".join(mito.transpiled_code))
     assert get_cell_formatting('A4', filename, 'df') == [('00ffffff', '00e72323')]
 
 
