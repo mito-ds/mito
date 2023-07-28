@@ -15,14 +15,14 @@ import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import StreamlitAppCard from '../components/StreamlitAppCard/StreamlitAppCard';
 
-const Dashboard: NextPage = () => {
+const DataApp: NextPage = () => {
 
   return (
     <>
       <Head>
-        <title>Python Spreadsheet in Streamlit Dashboard | Mito </title>
+        <title>Python Spreadsheet in Streamlit App | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Mito is a streamlit spreadsheet component that enables no-code spreadsheet automation with Pandas code generation from within a streamlit dashboard. | Mito" />
+        <meta name="description" content="Mito is a streamlit spreadsheet component that enables no-code spreadsheet automation with Pandas code generation from within a streamlit app. | Mito" />
       </Head>
       
       <Header/>
@@ -145,4 +145,4 @@ const Dashboard: NextPage = () => {
   )
 }
 
-export default Dashboard
+export default DataApp
