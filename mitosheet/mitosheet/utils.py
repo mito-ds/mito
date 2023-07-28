@@ -6,12 +6,12 @@
 """
 Contains helpful utility functions
 """
-from io import BytesIO
 import json
 from random import randint
 import re
 import uuid
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from pandas._typing import WriteExcelBuffer, FilePath
 import os
 
 import numpy as np
@@ -175,7 +175,7 @@ def get_conditional_formats_objects_to_export_to_excel(
 # Path argument is either the path to the file or a BytesIO object,
 #    because the file can be sent to the front-end through a buffer
 def write_to_excel(
-    path: BytesIO | str,
+    path: FilePath | WriteExcelBuffer,
     sheet_indexes: list[int],
     state: any,
     allow_formatting:bool=True
