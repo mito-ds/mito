@@ -16,6 +16,7 @@
   --mito-light-blue: #E8EBF8;
   --mito-gray: #494650;
   --jupyter-orange: #F37726;
+  --streamlit-red: #FF4B4B;
 
   /* 
     We can't currently use css variables in media queries unforuntetly! 
