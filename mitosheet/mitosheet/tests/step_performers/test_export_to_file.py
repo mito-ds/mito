@@ -9,10 +9,30 @@ Contains tests for Export To File
 
 import glob
 import os
+import pdb
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
+
+import pandas as pd
+from openpyxl import load_workbook
+
+def get_cell_formatting(
+    cell_address: str,
+    file_path: str,
+    sheet_name: str,
+):
+    # Load the workbook using openpyxl
+    wb = load_workbook(file_path)
+
+    sheet = wb[sheet_name]
+    formats = []
+    for conditional in sheet.conditional_formatting._cf_rules.items():
+        pdb.set_trace()
+        if conditional[0].__contains__(cell_address):
+            formats.append((conditional[1][0].dxf.fill.start_color.rgb, conditional[1][0].dxf.font.color.rgb))
+    return formats
 
 DF_FORMAT_HEADER = {
     'headers': {
@@ -312,7 +332,7 @@ df_styler = df.style\\
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
 def test_transpiled_with_export_to_xlsx_conditional_format():
-    df = pd.DataFrame({'A': [1, 2, 3]})
+    df = pd.DataFrame({'A': [4, 5, 6]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, DF_FORMAT_CONDITIONAL)
     filename = 'test_format_conditional.xlsx'
@@ -333,6 +353,9 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
 df_styler = df.style\\
     .apply(lambda series: np.where(series > 5, 'color: #e72323; background-color: #ffffff', None), subset=['A'])
 """
+
+    exec("\n".join(mito.transpiled_code))
+    assert get_cell_formatting('A4', filename, 'df') == [('00ffffff', '00e72323')]
 
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
