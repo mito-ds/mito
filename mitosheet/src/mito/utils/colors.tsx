@@ -12,8 +12,6 @@ type RGBColor = {
     b: number;
 };
 
-
-
 const HIGHLIGHT_VARIABLE_NAME = '--mito-highlight';
 const HIGHLIGHT_MEDIUM_VARIABLE_NAME = '--mito-highlight-medium';
 const HIGHLIGHT_LIGHT_VARIABLE_NAME = '--mito-highlight-light';
