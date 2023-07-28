@@ -21,7 +21,7 @@ def get_cell_formatting(
     cell_address: str,
     file_path: str,
     sheet_name: str,
-):
+) -> any:
     # Load the workbook using openpyxl
     wb = load_workbook(file_path)
 
