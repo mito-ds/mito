@@ -6,6 +6,7 @@
 """
 Contains helpful utility functions
 """
+from io import BytesIO
 import json
 from random import randint
 import re
@@ -173,7 +174,12 @@ def get_conditional_formats_objects_to_export_to_excel(
 # Writes dataframes to an excel file or a buffer with formatting
 # Path argument is either the path to the file or a BytesIO object,
 #    because the file can be sent to the front-end through a buffer
-def write_to_excel(path, sheet_indexes, state, allow_formatting=True):
+def write_to_excel(
+    path: BytesIO | str,
+    sheet_indexes: list[int],
+    state: any,
+    allow_formatting:bool=True
+):
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
         for sheet_index in sheet_indexes:
             # Get the dataframe and sheet name

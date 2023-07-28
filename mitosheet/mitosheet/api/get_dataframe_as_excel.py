@@ -10,7 +10,6 @@ from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
 from mitosheet.user.utils import is_running_test
-
 from mitosheet.utils import write_to_excel
 
 
@@ -26,7 +25,7 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
     # We write to a buffer so that we don't have to save the file
     # to the file system for no reason
     buffer = io.BytesIO()
-    write_to_excel(buffer, sheet_indexes, steps_manager.post_state, allow_formatting=allow_formatting)    
+    write_to_excel(buffer, sheet_indexes, steps_manager.curr_step.post_state, allow_formatting=allow_formatting)    
     # Go back to the start of the buffer
     buffer.seek(0)
     

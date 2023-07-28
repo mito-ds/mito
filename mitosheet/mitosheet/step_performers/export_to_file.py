@@ -86,7 +86,6 @@ class ExportToFileStepPerformer(StepPerformer):
         elif _type == 'excel':
             # Formatting is a Mito pro feature, but we also allow it for testing
             allow_formatting = is_pro() or is_running_test()
-
             sheet_index_to_export_location = get_export_to_excel_sheet_index_to_sheet_name(post_state, file_name, sheet_indexes)
             write_to_excel(file_name, sheet_indexes, post_state, allow_formatting=allow_formatting)
         else:
