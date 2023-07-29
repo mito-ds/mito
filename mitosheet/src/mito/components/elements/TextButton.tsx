@@ -121,7 +121,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
     } else {
         return (
             <button 
-                className={classNames('text-button', widthClass, variantClass, disabledClass)}
+                className={classNames('text-button', widthClass, variantClass, disabledClass, className)}
                 onClick={props.onClick} 
                 type={props.type}
                 disabled={props.disabled}
