@@ -67,6 +67,7 @@ def get_location() -> str:
     notebook = is_notebook()
     lab_running = is_jupyter_lab_running()
     notebook_running = is_jupyter_notebook_running()
+    streamlit_running = is_streamlit()
 
     if is_in_google_colab():
         return 'location_google_colab'
@@ -78,6 +79,8 @@ def get_location() -> str:
         return 'location_jupyter_lab'
     elif notebook and (not lab_running and notebook_running):
         return 'location_jupyter_notebook'
+    elif streamlit_running:
+        return 'location_streamlit'
     elif notebook:
         # NOTE: in this case, both jlab and jnotebook are running, and
         # we cannot tell where we are. So we just say unknown
