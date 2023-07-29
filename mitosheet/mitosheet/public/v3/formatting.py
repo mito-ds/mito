@@ -3,11 +3,16 @@ from typing import Optional
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
 from openpyxl.formatting.rule import CellIsRule
+from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
 
-def add_conditional_formats(conditional_formats, sheet, df):
+def add_conditional_formats(
+    conditional_formats: list,
+    sheet: Worksheet,
+    df: DataFrame
+) -> None:
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters'):
             # Start with the greater than condition

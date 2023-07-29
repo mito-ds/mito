@@ -35,7 +35,7 @@ def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeade
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: Optional[int]=0) -> str:
+def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: int=0) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.

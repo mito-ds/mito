@@ -147,7 +147,7 @@ def dfs_to_array_for_json(
 
 def get_conditional_formats_objects_to_export_to_excel(
     conditional_formats: Optional[List[Dict[str, Any]]],
-    column_ids: ColumnIDMap,
+    column_id_map: ColumnIDMap,
     sheet_index: int
 ) -> Any:
     if conditional_formats is None or conditional_formats == []:
@@ -156,15 +156,18 @@ def get_conditional_formats_objects_to_export_to_excel(
     export_cond_formats = []
     for conditional_format in conditional_formats:
         # Create new object to store the columns in the excel format
-        new_format = {
+        new_format: Any = {
             'columns': [],
             'filters': conditional_format.get('filters'),
             'font_color': conditional_format.get('color'),
             'background_color': conditional_format.get('backgroundColor')
         }
         export_cond_formats.append(new_format)
-        for column_id in conditional_format.get('columnIDs'):
-            column_header = column_ids.get_column_header_by_id(sheet_index, column_id)
+        column_ids = conditional_format.get('columnIDs')
+        if column_ids is None:
+            continue
+        for column_id in column_ids:
+            column_header = column_id_map.get_column_header_by_id(sheet_index, column_id)
             new_format['columns'].append(column_header)
     return export_cond_formats
 
@@ -177,7 +180,7 @@ def write_to_excel(
     sheet_indexes: list,
     state: Any,
     allow_formatting:bool=True
-):
+) -> None:
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
         for sheet_index in sheet_indexes:
             # Get the dataframe and sheet name
@@ -192,7 +195,7 @@ def write_to_excel(
             format = state.df_formats[sheet_index]
             conditional_formats = get_conditional_formats_objects_to_export_to_excel(
                 format.get('conditional_formats'),
-                column_ids=state.column_ids,
+                column_id_map=state.column_ids,
                 sheet_index=sheet_index
             )
             if allow_formatting: 
