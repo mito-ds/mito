@@ -147,7 +147,6 @@ def dfs_to_array_for_json(
 
 def get_conditional_formats_objects_to_export_to_excel(
     conditional_formats: Optional[List[Dict[str, Any]]],
-    df: any,
     column_ids: ColumnIDMap,
     sheet_index: int
 ) -> Any:
@@ -174,9 +173,9 @@ def get_conditional_formats_objects_to_export_to_excel(
 # Path argument is either the path to the file or a BytesIO object,
 #    because the file can be sent to the front-end through a buffer
 def write_to_excel(
-    path: any,
+    path: Any,
     sheet_indexes: list,
-    state: any,
+    state: Any,
     allow_formatting:bool=True
 ):
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
@@ -193,7 +192,6 @@ def write_to_excel(
             format = state.df_formats[sheet_index]
             conditional_formats = get_conditional_formats_objects_to_export_to_excel(
                 format.get('conditional_formats'),
-                df=state.dfs[sheet_index],
                 column_ids=state.column_ids,
                 sheet_index=sheet_index
             )

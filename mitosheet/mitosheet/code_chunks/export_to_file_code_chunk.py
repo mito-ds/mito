@@ -23,7 +23,6 @@ def get_format_code(state: State) -> list:
         # for conditional formats to export to excel
         conditional_formats = get_conditional_formats_objects_to_export_to_excel(
             format.get('conditional_formats'),
-            df=state.dfs[sheet_index],
             column_ids=state.column_ids,
             sheet_index=sheet_index
         )

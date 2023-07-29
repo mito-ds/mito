@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
+from typing import Any
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -21,7 +22,7 @@ def get_cell_formatting(
     cell_address: str,
     file_path: str,
     sheet_name: str,
-) -> any:
+) -> Any:
     # Load the workbook using openpyxl
     wb = load_workbook(file_path)
 
