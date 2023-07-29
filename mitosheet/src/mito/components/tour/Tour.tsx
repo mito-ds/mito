@@ -131,7 +131,6 @@ const Tour = (props: {
                 {stepNumber - 1 >= 0 &&
                     <Col>
                         <TextButton
-                            className='text-color-background-important'
                             variant='light'
                             width='small'
                             onClick={() => goToStep(stepNumber - 1)}
@@ -148,7 +147,6 @@ const Tour = (props: {
                     <TextButton
                         variant='light'
                         width='small'
-                        className='text-color-background-important'
                         onClick={() => goToStep(stepNumber + 1)}
                     >
                         {steps[stepNumber].advanceButtonText}
