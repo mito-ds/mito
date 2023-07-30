@@ -117,9 +117,11 @@ const CellEditorDropdown = (props: {
                                     return undefined
                                 }
                                 const prevEditingMode = {...prevEditorState}.editingMode
+                                const newEditingMode = prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
+                                localStorage.setItem("editingMode",newEditingMode)
                                 return {
                                     ...prevEditorState,
-                                    editingMode: prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
+                                    editingMode: newEditingMode
                                 }
                             })
                         }}

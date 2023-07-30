@@ -125,6 +125,9 @@ export const getStartingFormula = (
             editingMode: editorState.editingMode
         }
     }
+
+    //  Default value is "entire_column" if previouse editingMode is not stored
+    const storedEditingMode= localStorage.getItem("editingMode") === "specific_index_labels" ? "specific_index_labels" : "entire_column"
   
     const {columnFormula, columnHeader, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
@@ -132,7 +135,7 @@ export const getStartingFormula = (
         return {
             startingColumnFormula: '',
             arrowKeysScrollInFormula: false,
-            editingMode: 'entire_column'
+            editingMode: storedEditingMode
         };
     }
 
@@ -174,14 +177,16 @@ export const getStartingFormula = (
         return {
             startingColumnFormula: '',
             arrowKeysScrollInFormula: false,
-            editingMode: 'entire_column'
+            editingMode: storedEditingMode
         }
     }
+
+    const editingMode= columnFormulaLocation || storedEditingMode
 
     return {
         startingColumnFormula: originalValue,
         arrowKeysScrollInFormula: true,
-        editingMode: columnFormulaLocation || 'entire_column'
+        editingMode
     };
 }
 
