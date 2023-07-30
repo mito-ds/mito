@@ -511,7 +511,7 @@ function EndoGrid(props: {
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
-            editingMode: editingMode
+            editingMode: localStorage.getItem("editingMode") === "specific_index_labels" ? "specific_index_labels" : editingMode
         })
     }
     
