@@ -119,19 +119,19 @@ const Tour = (props: {
         <div className={classNames('tour-container', locationToClassNamesMapping[steps[stepNumber].location])} key={stepNumber}>
             <Row>
                 <Col>
-                    <p className='text-header-2'>
+                    <p className='text-header-2 text-color-background-important'>
                         {steps[stepNumber].stepHeader} ({stepNumber + 1}/{steps.length})
                     </p>
                 </Col>
             </Row>
-            <div className='text-overflow-wrap mb-20px text-body-1'>
+            <div className='text-overflow-wrap mb-20px text-body-1 text-color-background-important'>
                 {finalStepText}
             </div>
             <Row justify='space-between'>
                 {stepNumber - 1 >= 0 &&
                     <Col>
                         <TextButton
-                            variant='dark'
+                            variant='light'
                             width='small'
                             onClick={() => goToStep(stepNumber - 1)}
                         >

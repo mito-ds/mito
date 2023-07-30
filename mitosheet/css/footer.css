@@ -114,11 +114,11 @@
 }
 
 .tab-selected {
-    background-color: var(--mito-highlight);
     /* The selected sheet tab does not need a border */
     border: 0px;  
-    color: var(--mito-text);
     box-sizing: border-box;
+    background-color: var(--mito-highlight);
+    color: var(--mito-background); 
 }
 
 .tab-content {

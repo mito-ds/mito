@@ -7,8 +7,7 @@
     position: absolute;
     width: 300px;
 
-    background-color: var(--mito-background);
-    color: white;
+    background-color: var(--mito-highlight);
 
     padding: 20px;
 }

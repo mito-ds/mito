@@ -54,7 +54,7 @@
     border: 1px solid var(--mito-text-light);
 }
 .ai-transformation-message-ai {
-    background: var(--mito-background-off);
+    background: var(--mito-highlight-very-light);
 }
 
 .ai-transformation-example:hover {

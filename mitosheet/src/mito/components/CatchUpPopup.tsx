@@ -30,7 +30,7 @@ const CatchUpPopup = (props: {
             </Row>
             <Row onClick={props.fastForward} className='text-cursor-default'>
                 <Col>
-                    <CatchUpIcon variant='light'/>
+                    <CatchUpIcon />
                 </Col>
                 <Col offset={1} className='text-color-background-important'>
                     <p>
@@ -40,7 +40,7 @@ const CatchUpPopup = (props: {
             </Row>
             <Row onClick={props.isPro ? props.deleteStepsAfterIdx : undefined} className='text-cursor-default'>
                 <Col>
-                    <CatchUpIcon variant='light'/>
+                    <CatchUpIcon />
                 </Col>
                 <Col offset={1} className='text-color-background-important'>
                     <p className={classNames({'text-color-disabled': !props.isPro})} title={!props.isPro ? 'Bulk step undo requires Mito Pro or Enterprise' : undefined}>

@@ -72,6 +72,8 @@ def get_location() -> str:
         return 'location_google_colab'
     elif is_in_vs_code():
         return 'location_vs_code'
+    elif is_streamlit():
+        return 'location_streamlit'
     elif is_jupyterlite():
         return 'location_jupyterlite'
     elif notebook and (lab_running and not notebook_running):

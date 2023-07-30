@@ -80,6 +80,7 @@ import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
+import { isInStreamlit } from './utils/location';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -440,6 +441,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             const value = (cssVariables as Record<string, any>)[key];
             document.documentElement.style.setProperty(key, value);
         })
+
     }, [props.theme])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
@@ -890,7 +892,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
 
     /* 
-        We currrently send all users through the intro tour.
+        Send all users through the intro tour unless:
+        1. They disabled tours
+        2. They are in streamlit
 
         This returns the tour JSX to display, which might be nothing
         if the user should not go through the tour for some reason.
@@ -904,6 +908,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         // If the user has turned off tours via the enviornment variable, don't display the tour
         if (userProfile.mitoConfig.MITO_CONFIG_DISABLE_TOURS) {
+            return <></>;
+        }
+
+        // If the user is in streamlit, don't display the tour
+        if (isInStreamlit()) {
             return <></>;
         }
 

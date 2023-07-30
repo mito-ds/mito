@@ -77,7 +77,7 @@ const DropdownButton = (props: DropdownButtonProps): JSX.Element => {
                 {props.text}
             </p>
             <div className='mito-dropdown-button-icon-container'>
-                <SelectDropdownIcon disabled={props.disabled}/>
+                <SelectDropdownIcon variant='dropdown button' disabled={props.disabled}/>
             </div>
             <Dropdown
                 display={displayDropdown}
