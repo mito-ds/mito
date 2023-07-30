@@ -441,6 +441,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             const value = (cssVariables as Record<string, any>)[key];
             document.documentElement.style.setProperty(key, value);
         })
+
     }, [props.theme])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
