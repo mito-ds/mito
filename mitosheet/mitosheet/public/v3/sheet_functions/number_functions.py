@@ -488,24 +488,6 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     }
     """
 
-    """
-    # If no decimals option is passed, round to no decimals
-    if decimals is None:
-        decimals = 0
-
-    if (isinstance(arg, int) or isinstance(arg, float)) and isinstance(decimals, int):
-        return round(arg, decimals) 
-
-    index = get_index_from_series(arg, decimals)
-    arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
-    decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
-
-    return pd.Series(
-        [round(num, dec) for num, dec in zip(arg, decimals)], # type: ignore
-        index=arg.index # type: ignore
-    )
-    """
-
     def excel_round(x: Optional[Union[int, float]], decimals: int) -> Optional[Union[int, float]]:
         if pd.isna(x): 
             return None 
