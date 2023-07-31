@@ -289,20 +289,54 @@ CONDITIONAL_FORMATS = [
         ['A'], 
         [{'condition': 'greater', 'value': 5}], 
         '#e72323', 
-        '#ffffff',
-        'A2'
+        '#0c5200',
+        'A2',
+        ">"
     ),
     (
         ['A'],
-        [{'condition': 'greater', 'value': 4}],
-        '#abcdef', 
-        '#000000',
-        'A2'
+        [{'condition': 'less', 'value': 4}],
+        '#8f4608', 
+        '#054384',
+        'A2',
+        "<"
+    ),
+    (
+        ['A'],
+        [{'condition': 'less_than_or_equal', 'value': 4}],
+        '#022c42', 
+        '#18352b',
+        'A2',
+        "<="
+    ),
+    (
+        ['A'],
+        [{'condition': 'greater_than_or_equal', 'value': 4}],
+        '#620a5f', 
+        '#0a2210',
+        'A2',
+        ">="
+    ),
+    (
+        ['A'],
+        [{'condition': 'number_exactly', 'value': 4}],
+        '#032f5c', 
+        '#61030f',
+        'A2',
+        "=="
+    ),
+    (
+        ['A'],
+        [{'condition': 'number_not_exactly', 'value': 4}],
+        '#5a4c08', 
+        '#001a58',
+        'A2',
+        "!="
     )
 ]
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, operator_symbol", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, operator_symbol):
     df = pd.DataFrame({'A': [4, 5, 6]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
@@ -335,14 +369,14 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
     )
 
 df_styler = df.style\\
-    .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
+    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
 """
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
 
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, operator_symbol", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, operator_symbol):
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
@@ -392,7 +426,7 @@ df_styler = df.style\\
         {{'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]}},
         {{'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]}},
 ])\\
-    .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
+    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
 """
 
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
