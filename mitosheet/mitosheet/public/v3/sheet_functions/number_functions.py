@@ -489,23 +489,26 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     """
 
     def excel_round(x: Optional[Union[int, float]], decimals: int) -> Optional[Union[int, float]]:
-        if pd.isna(x): 
+        if x is None or pd.isna(x): 
             return None 
 
-        factor = 10 ** decimals
-        x *= factor
+        # Tell the compiler that x is not None because it won't figure it out on its own
+        x_number: Union[int, float] = x
 
-        decimal_part = x - int(x)
+        factor = 10 ** decimals
+        x_number *= factor
+
+        decimal_part = x_number - int(x_number)
         
-        round_adjustment = 1 if x > 0 else -1
+        round_adjustment = 1 if x_number > 0 else -1
         
         # In order to properly round negative values, we use the absolute value of the decimal_part
         if abs(decimal_part) >= 0.5:
-            x = int(x) + round_adjustment
+            x_number = int(x_number) + round_adjustment
         else:
-            x = int(x)
+            x_number = int(x_number)
             
-        rounded_number = x / factor
+        rounded_number = x_number / factor
         return rounded_number
 
     # If no decimals option is passed, round to no decimals
@@ -519,8 +522,11 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
     decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
 
-    return pd.Series([excel_round(num, decimal) for num, decimal in zip(arg, decimals)])
-    
+    return pd.Series(
+        [excel_round(num, decimal) for num, decimal in zip(arg, decimals)], # type: ignore
+        index=index
+    )
+
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
