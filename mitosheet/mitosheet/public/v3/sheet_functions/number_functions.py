@@ -14,6 +14,7 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 from datetime import datetime
+import decimal
 import math
 from typing import Optional, Union
 import sys
@@ -488,28 +489,15 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     }
     """
 
-    def excel_round(x: Optional[Union[int, float]], decimals: int) -> Optional[Union[int, float]]:
+    def excel_round(x: Optional[Union[int, float]], decimals: int) -> Union[int, float, None]:
         if x is None or pd.isna(x): 
-            return None 
+            return None
 
-        # Tell the compiler that x is not None because it won't figure it out on its own
-        x_number: Union[int, float] = x
-
-        factor = 10 ** decimals
-        x_number *= factor
-
-        decimal_part = x_number - int(x_number)
-        
-        round_adjustment = 1 if x_number > 0 else -1
-        
-        # In order to properly round negative values, we use the absolute value of the decimal_part
-        if abs(decimal_part) >= 0.5:
-            x_number = int(x_number) + round_adjustment
-        else:
-            x_number = int(x_number)
-            
-        rounded_number = x_number / factor
-        return rounded_number
+        context = decimal.getcontext()
+        context.rounding = decimal.ROUND_HALF_UP
+        number = decimal.Decimal(x)
+        rounded_number = round(number, decimals)
+        return type(x)(rounded_number)
 
     # If no decimals option is passed, round to no decimals
     if decimals is None:
