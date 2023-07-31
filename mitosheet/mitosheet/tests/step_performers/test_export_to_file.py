@@ -18,7 +18,7 @@ from typing import Any
 import pandas as pd
 from openpyxl import load_workbook
 
-def get_cell_formatting(
+def get_cell_conditional_formatting(
     cell_address: str,
     file_path: str,
     sheet_name: str,
@@ -30,7 +30,7 @@ def get_cell_formatting(
     formats = []
     for conditional in sheet.conditional_formatting._cf_rules.items():
         if conditional[0].__contains__(cell_address):
-            formats.append((conditional[1][0].dxf.fill.start_color.rgb, conditional[1][0].dxf.font.color.rgb))
+            formats.append((conditional[1][0].dxf.fill.start_color.rgb[2:], conditional[1][0].dxf.font.color.rgb[2:]))
     return formats
 
 DF_FORMAT_HEADER = {
@@ -289,18 +289,20 @@ CONDITIONAL_FORMATS = [
         ['A'], 
         [{'condition': 'greater', 'value': 5}], 
         '#e72323', 
-        '#ffffff'
+        '#ffffff',
+        'A2'
     ),
     (
         ['A'],
         [{'condition': 'greater', 'value': 4}],
         '#abcdef', 
-        '#000000'
+        '#000000',
+        'A2'
     )
 ]
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check):
     df = pd.DataFrame({'A': [4, 5, 6]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
@@ -335,11 +337,12 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
 df_styler = df.style\\
     .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
 """
+    assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
 
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check):
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
@@ -391,6 +394,8 @@ df_styler = df.style\\
 ])\\
     .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
 """
+
+    assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
 
 # This tests when the user exports two dataframes with both formatted.
 def test_transpiled_with_export_to_xlsx_format_two_sheets():
