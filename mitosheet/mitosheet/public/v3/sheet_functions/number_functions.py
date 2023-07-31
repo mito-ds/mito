@@ -537,8 +537,6 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
     decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
 
-    # TODO: Should we cast to an int if we are rounding to 0?
-
     return pd.Series([excel_round(num, decimal) for num, decimal in zip(arg, decimals)])
     
 

@@ -11,7 +11,6 @@ import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.number_functions import ROUND
-from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 
 # Raw function tests
 
@@ -34,15 +33,13 @@ ROUND_VALID_TESTS = [
     ([pd.Series([.11]), pd.Series([0])], pd.Series([0.0])),
     ([pd.Series([.11, 1.1]), None], pd.Series([0.0, 1.0])),
     ([pd.Series([.11, 1.1, None]), None], pd.Series([0.0, 1.0, None])),
-    ([pd.Series([0, 0.49, 0.5 ,0.51 ,1.5 ,2.5 ,3.5 ,-0.49 ,-0.5 ,-0.51 ,-1.5 ,-2.5 ,-3.5]), 0], pd.Series([0 ,0 ,1 ,1 ,2 ,3 ,4 ,0 ,-1 ,-1 ,-2 ,-3 ,-4])),
-
+    ([pd.Series([0, 0.49, 0.5 ,0.51 ,1.5 ,2.5 ,3.5 ,-0.49 ,-0.5 ,-0.51 ,-1.5 ,-2.5 ,-3.5]), 0], pd.Series([0.0, 0.0, 1.0, 1.0, 2.0, 3.0, 4.0, 0.0, -1.0, -1.0, -2.0, -3.0, -4.0])),
 ]
+
 @pytest.mark.parametrize("_argv, expected", ROUND_VALID_TESTS)
 def test_round_valid_input_direct(_argv, expected):
     result = ROUND(*_argv)
 
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         assert result.equals(expected)
     else: 
