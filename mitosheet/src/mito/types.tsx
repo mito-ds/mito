@@ -605,6 +605,7 @@ export interface ScrollPosition {
  * @param editorLocation -- The location of the cell editor, either a cell or formula bar
  */
 export type EditorState = {
+    type?: "open";
     rowIndex: number;
     columnIndex: number;
     formula: string;
