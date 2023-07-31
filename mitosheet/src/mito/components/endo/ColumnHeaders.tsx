@@ -4,7 +4,7 @@ import { getChildrenWithQuery } from './domUtils';
 import { MIN_WIDTH } from './EndoGrid';
 import { getIndexesFromXAndY } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState, ClosedEditorState } from '../../types';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
@@ -20,8 +20,8 @@ const ColumnHeaders = (props: {
     sheetIndex: number,
     sheetData: SheetData,
     gridState: GridState,
-    editorState: EditorState | undefined;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    editorState: EditorState | ClosedEditorState;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
     containerRef: React.RefObject<HTMLDivElement>;
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>; 
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;

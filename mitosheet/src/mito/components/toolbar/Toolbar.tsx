@@ -4,7 +4,7 @@ import fscreen from 'fscreen';
 import React from 'react';
 import "../../../../css/toolbar.css";
 import { MitoAPI,  getRandomId } from '../../api/api';
-import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { Action, ActionEnum, AnalysisData, EditorState, ClosedEditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { getColumnFormatDropdownItems } from '../../utils/format';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
@@ -41,7 +41,7 @@ const Toolbar = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
         analysisData: AnalysisData,
         sheetIndex: number,
         closeOpenEditingPopups: () => void

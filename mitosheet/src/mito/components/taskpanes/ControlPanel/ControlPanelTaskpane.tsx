@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
 import { MitoAPI,  getRandomId } from '../../../api/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
+import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, ClosedEditorState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import { TaskpaneType } from '../taskpanes';
@@ -45,7 +45,7 @@ type ControlPanelTaskpaneProps = {
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     gridState: GridState,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
     mitoAPI: MitoAPI,
     tab: ControlPanelTab,
     lastStepIndex: number,

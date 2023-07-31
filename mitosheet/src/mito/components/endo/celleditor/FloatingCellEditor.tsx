@@ -1,7 +1,7 @@
 import fscreen from 'fscreen';
 import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../../api/api'
-import { AnalysisData, EditorState, GridState, SheetData, UIState } from '../../../types';
+import { AnalysisData, EditorState,ClosedEditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
 import CellEditor from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
@@ -25,7 +25,7 @@ const FloatingCellEditor = (props: {
     sheetIndex: number,
     gridState: GridState,
     editorState: EditorState,
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,

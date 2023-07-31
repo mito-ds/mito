@@ -2,7 +2,7 @@ import React from 'react';
 import '../../../../css/endo/GridData.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState, ClosedEditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray } from './utils';
 import { formatCellData } from '../../utils/format';
@@ -19,7 +19,7 @@ const GridData = (props: {
     sheetData: SheetData | undefined,
     gridState: GridState,
     uiState: UIState
-    editorState: EditorState | undefined;
+    editorState: EditorState | ClosedEditorState;
 }): JSX.Element => {
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -75,7 +75,7 @@ const GridData = (props: {
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
-                                'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
+                                'mito-grid-cell-hidden': props.editorState?.type !== "closed" && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype),
                                 'recon created-recon-background-color': isColumnCreated && rowIndex % 2 !== 0,
                                 'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,

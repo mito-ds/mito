@@ -1,5 +1,5 @@
 import { MitoAPI } from "../../api/api";
-import { ColumnHeader, ColumnID, EditorState, UIState } from "../../types";
+import { ColumnHeader, ColumnID, EditorState, ClosedEditorState, UIState } from "../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../utils/columnHeaders";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 
@@ -8,12 +8,12 @@ export const submitRenameColumnHeader = (
     finalColumnHeader: ColumnHeader, 
     columnID: ColumnID, 
     sheetIndex: number,
-    editorState: EditorState | undefined, 
+    editorState: EditorState | ClosedEditorState, 
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     mitoAPI: MitoAPI
 ): void => {
     // Only submit the formula if it actually has changed
-    const newColumnHeader = editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
+    const newColumnHeader = editorState?.type!=="closed" ? editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
     const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
     if (newColumnHeader !== oldColumnHeader) {
         const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);

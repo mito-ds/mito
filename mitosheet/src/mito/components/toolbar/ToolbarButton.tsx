@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, EditorState } from '../../types';
+import { Action, EditorState, ClosedEditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getToolbarItemIcon, ToolbarButtonType } from './utils';
 
@@ -28,7 +28,7 @@ const ToolbarButton = (
         /** 
         * @param [setEditorState] - pass this if you want to close an open editor
         */
-        setEditorState?: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        setEditorState?: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
         
         /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
@@ -60,7 +60,12 @@ const ToolbarButton = (
                 }
 
                 if (props.setEditorState) {
-                    props.setEditorState(undefined);
+                    props.setEditorState(prevEditorState => (
+                        {
+                            type: "closed",
+                            editingMode:prevEditorState.editingMode
+                        }
+                    ));
                 }
                 props.action.actionFunction();
             }}

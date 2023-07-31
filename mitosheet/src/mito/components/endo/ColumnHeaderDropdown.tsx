@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
+import { ColumnID, EditorState, ClosedEditorState, GridState, SheetData, UIState } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
@@ -20,7 +20,7 @@ export default function ColumnHeaderDropdown(props: {
     setOpenColumnHeaderDropdown: React.Dispatch<React.SetStateAction<boolean>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     openColumnHeaderEditor: () => void;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
     sheetIndex: number;
     columnID: ColumnID;
     sheetData: SheetData
@@ -137,7 +137,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Set Column Formula'
                 onClick={() => {
-                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, undefined, rowIndex, columnIndex);
+                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, {type:"closed", editingMode:"entire_column"}, rowIndex, columnIndex);
 
                     props.setEditorState({
                         rowIndex: 0,

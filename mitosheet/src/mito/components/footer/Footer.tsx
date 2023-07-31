@@ -8,7 +8,7 @@ import "../../../../css/footer.css"
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataDict, ClosedEditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 
 type FooterProps = {
@@ -21,7 +21,7 @@ type FooterProps = {
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>
 };
 
 /*

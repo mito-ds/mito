@@ -1,7 +1,7 @@
 // Utilities for the cell editor
 
 import { FunctionDocumentationObject, functionDocumentationObjects } from "../../../data/function_documentation";
-import { AnalysisData, EditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
+import { AnalysisData, EditorState, ClosedEditorState, FrontendFormulaAndLocation, IndexLabel, MitoSelection, SheetData } from "../../../types";
 import { getDisplayColumnHeader, isPrimitiveColumnHeader, rowIndexToColumnHeaderLevel } from "../../../utils/columnHeaders";
 import { getTextWidth } from "../../../utils/text";
 import { getUpperLeftAndBottomRight } from "../selectionUtils";
@@ -111,23 +111,20 @@ const KEYS_TO_ENTER_CELL_EDITING_WITHOUT_CHANGING_FORMULA = [
  */
 export const getStartingFormula = (
     sheetData: SheetData | undefined, 
-    editorState: EditorState | undefined,
+    editorState: EditorState | ClosedEditorState,
     rowIndex: number, 
     columnIndex: number, 
     e?: KeyboardEvent
 ): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean, editingMode: 'entire_column' | 'specific_index_labels'} => {
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
     // ie: from the floating cell editor to the formula bar.
-    if (editorState !== undefined && editorState.columnIndex === columnIndex) {
+    if (editorState?.type !== "closed" && editorState.columnIndex === columnIndex) {
         return {
             startingColumnFormula: editorState.formula,
             arrowKeysScrollInFormula: true,
             editingMode: editorState.editingMode
         }
     }
-
-    //  Default value is "entire_column" if previouse editingMode is not stored
-    const storedEditingMode= localStorage.getItem("editingMode") === "specific_index_labels" ? "specific_index_labels" : "entire_column"
   
     const {columnFormula, columnHeader, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, columnIndex);
 
@@ -135,7 +132,7 @@ export const getStartingFormula = (
         return {
             startingColumnFormula: '',
             arrowKeysScrollInFormula: false,
-            editingMode: storedEditingMode
+            editingMode: editorState.editingMode
         };
     }
 
@@ -177,11 +174,11 @@ export const getStartingFormula = (
         return {
             startingColumnFormula: '',
             arrowKeysScrollInFormula: false,
-            editingMode: storedEditingMode
+            editingMode: editorState.editingMode
         }
     }
 
-    const editingMode= columnFormulaLocation || storedEditingMode
+    const editingMode= columnFormulaLocation || editorState.editingMode
 
     return {
         startingColumnFormula: originalValue,

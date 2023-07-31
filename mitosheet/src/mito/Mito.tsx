@@ -63,7 +63,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, DataTypeInMito, EditorState, ClosedEditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { createActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -133,7 +133,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
     })
-    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
+
+    const [editorState, setEditorState] = useState<EditorState | ClosedEditorState>({type: "closed", editingMode:"entire_column"});
+
 
     const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
     const [highlightAddColButton, setHighlightAddColButton] = useState(false);
@@ -408,8 +410,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
         // Close the cell editor if it is open
-        if (editorState !== undefined) {
-            setEditorState(undefined)
+        if (editorState?.type !== "closed") {
+            setEditorState(prevEditorState=>(
+                {
+                    type: "closed",
+                    editingMode:prevEditorState.editingMode
+                }
+            ))
         }
 
     }, [uiState.selectedSheetIndex])
@@ -924,7 +931,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
         // If we open the cell editor for the first time, we give the user this tour
-        if (editorState !== undefined && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {
+        if (editorState.type !== "closed"  && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {
             toursToDisplay.push(TourName.COLUMN_FORMULAS)
         }
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState, ClosedEditorState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -52,8 +52,8 @@ const ColumnHeader = (props: {
     gridState: GridState,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>
     sheetData: SheetData,
-    editorState: EditorState | undefined;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    editorState: EditorState | ClosedEditorState;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>;
     columnIndex: number,
     containerRef: React.RefObject<HTMLDivElement>;
     columnHeaderOperation: 'reorder' | 'resize' | undefined;
@@ -75,8 +75,8 @@ const ColumnHeader = (props: {
     }
 
     const hasFilters = columnFilters.filters.length > 0;
-    const editingColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
-    const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingColumnHeader = props.editorState?.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingFinalColumnHeader = props.editorState?.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
 
 
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
@@ -95,7 +95,12 @@ const ColumnHeader = (props: {
     }
 
     const closeColumnHeaderEditor = () => {
-        props.setEditorState(undefined);
+        props.setEditorState(prevEditorState => (
+            {
+                type:"closed",
+                editingMode:prevEditorState.editingMode
+            }
+        ));
         // We then focus on the grid, as we are no longer focused on the editor
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
@@ -199,7 +204,7 @@ const ColumnHeader = (props: {
                 // For each lower-level column header, we display them with a row index
                 // counting up to -1, which is the highest level column header
                 const rowIndex = -1 - (lowerLevelColumnHeaders.length - levelIndex);
-                const editingLowerLevelColumnHeader = props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === props.columnIndex;
+                const editingLowerLevelColumnHeader = props.editorState.type !== "closed" && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === props.columnIndex;
 
                 return (
                     <div
@@ -237,7 +242,7 @@ const ColumnHeader = (props: {
                                 {getDisplayColumnHeader(lowerLevelColumnHeader)}
                             </p>
                         }
-                        {editingLowerLevelColumnHeader &&
+                        {editingLowerLevelColumnHeader  &&
                             <form
                                 style={{
                                     width: `${width - 25}px`,
@@ -245,7 +250,7 @@ const ColumnHeader = (props: {
                                 onSubmit={async (e) => {
                                     e.preventDefault();
 
-                                    const newColumnHeader = props.editorState?.formula || getDisplayColumnHeader(finalColumnHeader);
+                                    const newColumnHeader = props.editorState?.type !== "closed" ? props.editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
                                     const oldColumnHeader = getDisplayColumnHeader(lowerLevelColumnHeader);
                                     if (newColumnHeader !== oldColumnHeader) {
                                         void props.mitoAPI.editRenameColumn(
@@ -272,15 +277,16 @@ const ColumnHeader = (props: {
                                 }}
                             >
                                 <Input
-                                    value={props.editorState?.formula || ''}
+                                    value={props.editorState?.type !== "closed" ? props.editorState?.formula : ''}
                                     onChange={(e) => {
                                         const newHeader = e.target.value;
 
                                         props.setEditorState((prevEditorState => {
-                                            if (prevEditorState === undefined) return undefined;
+                                            if (prevEditorState.type === "closed") return {type: "closed", editingMode:prevEditorState.editingMode};
                                             return {
                                                 ...prevEditorState,
-                                                formula: newHeader
+                                                formula: newHeader,
+                                                type:"open"
                                             }
                                         }));
                                     }}
@@ -389,15 +395,15 @@ const ColumnHeader = (props: {
                         }}
                     >
                         <Input
-                            value={props.editorState?.formula || ''}
+                            value={props.editorState?.type !== "closed" ? props.editorState?.formula : ''}
                             onChange={(e) => {
                                 const newHeader = e.target.value;
 
                                 props.setEditorState((prevEditorState => {
-                                    if (prevEditorState === undefined) return undefined;
+                                    if (prevEditorState?.type === "closed") return {type:"closed", editingMode:prevEditorState.editingMode};
                                     return {
                                         ...prevEditorState,
-                                        formula: newHeader
+                                        formula: newHeader,
                                     }
                                 }));
                             }}

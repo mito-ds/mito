@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import '../../../../css/endo/EndoGrid.css';
 import '../../../../css/sitewide/colors.css';
 import { MitoAPI } from "../../api/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
+import { EditorState, Dimension, GridState,ClosedEditorState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
@@ -84,8 +84,8 @@ function EndoGrid(props: {
         These will be processed different by many of the input handling functions,
         like mouse events, key events, etc.
     */
-    editorState: EditorState | undefined,
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    editorState: EditorState | ClosedEditorState,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     sendFunctionStatus: SendFunctionStatus;
@@ -205,7 +205,7 @@ function EndoGrid(props: {
 
     const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
-        if (editorState !== undefined) {
+        if (editorState?.type !== "closed") {
             // EDITING MODE
 
             const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
@@ -425,7 +425,7 @@ function EndoGrid(props: {
         // follows their cursor, even once they have lifted their mouse up.
 
         // Do nothing, if we're in EDITING mode. Clicks handled by onMouseDown
-        if (editorState !== undefined) {
+        if (editorState?.type !== "closed") {
             return;
         }
 
@@ -504,6 +504,7 @@ function EndoGrid(props: {
         }
 
         const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
+        console.log("double_click",editingMode,rowIndex,columnIndex)
 
         setEditorState({
             rowIndex: rowIndex,
@@ -511,7 +512,7 @@ function EndoGrid(props: {
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
-            editingMode: localStorage.getItem("editingMode") === "specific_index_labels" ? "specific_index_labels" : editingMode
+            editingMode: editingMode
         })
     }
     
@@ -570,7 +571,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, {type:"closed", editingMode:"entire_column"}, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,
@@ -726,7 +727,7 @@ function EndoGrid(props: {
                         />
                     </div>
                 </div>
-                {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
+                {sheetData !== undefined && editorState.type !== "closed" && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <FloatingCellEditor
                         sheetData={sheetData}
                         sheetIndex={sheetIndex}

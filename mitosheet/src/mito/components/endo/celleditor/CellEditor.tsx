@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../../css/endo/CellEditor.css';
 import { MitoAPI,  MitoAPIResult } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
-import { AnalysisData, EditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../types';
+import { AnalysisData, EditorState, ClosedEditorState, FormulaLocation, GridState, SheetData, SheetView, UIState } from '../../../types';
 import { getColumnHeaderParts, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import { KEYS_TO_IGNORE_IF_PRESSED_ALONE } from '../EndoGrid';
@@ -44,7 +44,7 @@ const CellEditor = (props: {
     sheetIndex: number,
     gridState: GridState,
     editorState: EditorState,
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
@@ -126,7 +126,7 @@ const CellEditor = (props: {
 
     useEffect(() => {
         props.setEditorState(prevEditingState => {
-            if (prevEditingState === undefined) {
+            if (prevEditingState?.type === "closed") {
                 return prevEditingState;
             } 
             
@@ -171,7 +171,10 @@ const CellEditor = (props: {
                 }]
             }
         })
-        props.setEditorState(undefined);
+        props.setEditorState(prevEditorState=>(
+            {type:"closed",
+                editingMode:prevEditorState.editingMode}
+        ));
         
         ensureCellVisible(
             props.containerRef.current, props.scrollAndRenderedContainerRef.current,
@@ -281,10 +284,11 @@ const CellEditor = (props: {
                 // As google sheets does, if the user is scrolling in the suggestion box,
                 // then we make their arrow keys scroll in the formula
                 props.setEditorState((prevEditorState) => {
-                    if (prevEditorState === undefined) return undefined;
+                    if (prevEditorState?.type === "closed") return { type: "closed", editingMode:prevEditorState.editingMode};
                     return {
                         ...prevEditorState,
-                        arrowKeysScrollInFormula: true
+                        arrowKeysScrollInFormula: true,
+                        type:"open"
                     }
                 })
 
@@ -351,7 +355,10 @@ const CellEditor = (props: {
                 // because we might want the cell editor to refresh the documentation function, we simply 
                 // refresh the cell editor, which will update the documentation function
                 props.setEditorState((prevEditorState) => {
-                    if (prevEditorState === undefined) return undefined;
+                    if (prevEditorState?.type === "closed") return {
+                        type: "closed",
+                        editingMode:prevEditorState.editingMode
+                    };
                     return {
                         ...prevEditorState,
                     }
@@ -443,7 +450,8 @@ const CellEditor = (props: {
         // selecting columns in the sheet
         props.setEditorState({
             ...props.editorState,
-            arrowKeysScrollInFormula: true
+            arrowKeysScrollInFormula: true,
+            type: "open"
         })
     }
 
@@ -453,12 +461,13 @@ const CellEditor = (props: {
         const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
 
         props.setEditorState(prevEditingState => {
-            if (prevEditingState === undefined) {
-                return undefined
+            if (prevEditingState?.type === "closed") {
+                return { type: "closed", editingMode:prevEditingState.editingMode }
             }
             return {
                 ...prevEditingState,
-                formula: newFormula
+                formula: newFormula,
+                type: "open"
             }
         })
 

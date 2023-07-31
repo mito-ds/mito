@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../../../../css/endo/CellEditor.css';
 import { FunctionDocumentationObject } from '../../../data/function_documentation';
-import { AnalysisData, EditorState, SheetData } from '../../../types';
+import { AnalysisData, EditorState, ClosedEditorState, SheetData } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
@@ -82,7 +82,7 @@ const CellEditorDropdown = (props: {
     sheetData: SheetData,
     sheetIndex: number,
     editorState: EditorState,
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>,
     cellEditorInputRef: React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>
     selectedSuggestionIndex: number;
     setSavedSelectedSuggestionIndex: React.Dispatch<React.SetStateAction<number>>,
@@ -113,15 +113,14 @@ const CellEditorDropdown = (props: {
                         value={props.editorState.editingMode === 'entire_column' ? true : false}
                         onChange={() => {
                             props.setEditorState(prevEditorState => {
-                                if (prevEditorState === undefined) {
-                                    return undefined
+                                if (prevEditorState?.type === "closed") {
+                                    return { type: "closed", editingMode:prevEditorState.editingMode };
                                 }
                                 const prevEditingMode = {...prevEditorState}.editingMode
-                                const newEditingMode = prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column'
-                                localStorage.setItem("editingMode",newEditingMode)
                                 return {
                                     ...prevEditorState,
-                                    editingMode: newEditingMode
+                                    editingMode:  prevEditingMode === 'entire_column' ? 'specific_index_labels' : 'entire_column',
+                                    type:"open"
                                 }
                             })
                         }}

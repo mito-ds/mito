@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { EditorState, ClosedEditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -80,7 +80,7 @@ type SheetTabProps = {
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     graphDataDict: GraphDataDict;
     sheetDataArray: SheetData[]
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>
 };
 
 /*
@@ -145,7 +145,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
                 if (props.tabIDObj.tabType === 'graph') {
                     // If opening a graph tab, close the cell editor 
-                    props.setEditorState(undefined)
+                    props.setEditorState(prevEditorState=>({type:"closed", editingMode:prevEditorState.editingMode}))
                 }
                 
                 props.setUIState(prevUIState => {

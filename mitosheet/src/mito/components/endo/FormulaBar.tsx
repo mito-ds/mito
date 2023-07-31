@@ -6,7 +6,7 @@ import React from 'react';
 import "../../../../css/FormulaBar.css";
 import "../../../../css/mito.css";
 import { MitoAPI } from '../../api/api';
-import { AnalysisData, EditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
+import { AnalysisData, EditorState, ClosedEditorState, GridState, MitoSelection, SheetData, UIState } from '../../types';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import Col from '../layout/Col';
 import Row from '../layout/Row';
@@ -20,8 +20,8 @@ const FormulaBar = (props: {
     sheetData: SheetData,
     sheetIndex: number,
     gridState: GridState,
-    editorState: EditorState | undefined,
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    editorState: EditorState | ClosedEditorState,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | ClosedEditorState>>,
     setGridState: React.Dispatch<React.SetStateAction<GridState>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     scrollAndRenderedContainerRef: React.RefObject<HTMLDivElement>,
@@ -38,11 +38,11 @@ const FormulaBar = (props: {
 
     const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
-    const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
-    const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
+    const cellEditingCellData = props.editorState?.type === "closed" ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const formulaBarColumnHeader = props.editorState?.type === "closed" ? columnHeader : cellEditingCellData?.columnHeader;
 
     let formulaBarValue = ''
-    if (props.editorState === undefined) {
+    if (props.editorState?.type === "closed") {
         // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
         if (rowIndex == -1 && columnHeader !== undefined) {
             formulaBarValue = getDisplayColumnHeader(columnHeader)
@@ -71,7 +71,7 @@ const FormulaBar = (props: {
                 <div className="formula-bar-vertical-line"/>
             </Col>
             <Col flex='1'>
-                {props.editorState?.editorLocation === 'formula bar' &&
+                {props.editorState?.type!=="closed" && props.editorState?.editorLocation === 'formula bar' &&
                     <CellEditor
                         sheetData={props.sheetData}
                         sheetIndex={props.sheetIndex}
@@ -89,7 +89,7 @@ const FormulaBar = (props: {
                         mitoContainerRef={props.mitoContainerRef}
                     />
                 } 
-                {props.editorState?.editorLocation !== 'formula bar' &&
+                {props.editorState?.type!=="closed" && props.editorState?.editorLocation !== 'formula bar' &&
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onClick={() => {
