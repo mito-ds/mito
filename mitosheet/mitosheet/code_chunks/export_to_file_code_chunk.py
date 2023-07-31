@@ -12,12 +12,20 @@ from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpile
 
 from mitosheet.transpiler.transpile_utils import param_dict_to_code
 
+from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
+
 # This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State) -> list:
     code = []
     formats = state.df_formats
-    for sheet_name, format in zip(state.df_names, formats):
-        # If there is no formatting, we skip trying to access the colors
+    for sheet_index, (sheet_name, format) in enumerate(zip(state.df_names, formats)):
+        # We need to convert the column IDs to column letters
+        # for conditional formats to export to excel
+        conditional_formats = get_conditional_formats_objects_to_export_to_excel(
+            format.get('conditional_formats'),
+            column_id_map=state.column_ids,
+            sheet_index=sheet_index
+        )
         params = {
             'header_background_color': format.get('headers', {}).get('backgroundColor'),
             'header_font_color': format.get('headers', {}).get('color'),
@@ -25,6 +33,7 @@ def get_format_code(state: State) -> list:
             'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
             'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
             'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
+            'conditional_formats': conditional_formats
         }
         param_dict = {
             key: value for key, value in params.items()
@@ -34,7 +43,7 @@ def get_format_code(state: State) -> list:
             continue
 
         params_code = param_dict_to_code(param_dict, tab_level=1)
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {params_code})')
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {state.df_names[sheet_index]}, {params_code})')
     return code
 
 

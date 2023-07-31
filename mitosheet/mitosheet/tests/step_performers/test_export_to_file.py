@@ -13,6 +13,25 @@ import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
+from typing import Any
+
+import pandas as pd
+from openpyxl import load_workbook
+
+def get_cell_conditional_formatting(
+    cell_address: str,
+    file_path: str,
+    sheet_name: str,
+) -> Any:
+    # Load the workbook using openpyxl
+    wb = load_workbook(file_path)
+
+    sheet = wb[sheet_name]
+    formats = []
+    for conditional in sheet.conditional_formatting._cf_rules.items():
+        if conditional[0].__contains__(cell_address):
+            formats.append((conditional[1][0].dxf.fill.start_color.rgb[2:], conditional[1][0].dxf.font.color.rgb[2:]))
+    return formats
 
 DF_FORMAT_HEADER = {
     'headers': {
@@ -226,7 +245,7 @@ import pandas as pd
 
 with pd.ExcelWriter(r\'test_format.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
-    add_formatting_to_excel_sheet(writer, "df", 
+    add_formatting_to_excel_sheet(writer, "df", df, 
         header_background_color='#000000', 
         header_font_color='#ffffff'
     )
@@ -250,7 +269,7 @@ import pandas as pd
 
 with pd.ExcelWriter(r\'test_format_rows_no_header.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
-    add_formatting_to_excel_sheet(writer, "df", 
+    add_formatting_to_excel_sheet(writer, "df", df, 
         even_background_color='#000000', 
         even_font_color='#ffffff', 
         odd_background_color='#ffffff', 
@@ -263,6 +282,120 @@ df_styler = df.style\\
         {'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]},
 ])
 """
+
+
+CONDITIONAL_FORMATS = [
+    (
+        ['A'], 
+        [{'condition': 'greater', 'value': 5}], 
+        '#e72323', 
+        '#ffffff',
+        'A2'
+    ),
+    (
+        ['A'],
+        [{'condition': 'greater', 'value': 4}],
+        '#abcdef', 
+        '#000000',
+        'A2'
+    )
+]
+# This tests when the user exports a dataframe with row formatting without header formatting.
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check):
+    df = pd.DataFrame({'A': [4, 5, 6]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": {},
+        "rows": {},
+        "border": {},
+        "conditional_formats": [
+            {
+                'format_uuid': '_hkyc4pcux',
+                'columnIDs': column_ids,
+                'filters': filters,
+                'color': font_color,
+                'backgroundColor': background_color
+            }
+        ]
+    })
+    filename = 'test_format_conditional.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+import numpy as np
+
+with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        conditional_formats=[
+            {{'columns': {column_ids}, 'filters': {filters}, 'font_color': '{font_color}', 'background_color': '{background_color}'}}
+        ]
+    )
+
+df_styler = df.style\\
+    .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
+"""
+    assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
+
+
+# This tests when the user exports a dataframe with row formatting without header formatting.
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check):
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": {},
+        "rows": {
+            "even": {
+                "color": "#ffffff",
+                "backgroundColor": "#000000"
+            },
+            "odd": {
+                "color": "#000000",
+                "backgroundColor": "#ffffff"
+            }
+        },
+        "border": {},
+        "conditional_formats": [
+            {
+                'format_uuid': '_hkyc4pcux',
+                'columnIDs': column_ids,
+                'filters': filters,
+                'color': font_color,
+                'backgroundColor': background_color
+            }
+        ]
+    })
+    filename = 'test_format_conditional_and_rows.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+import numpy as np
+
+with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        even_background_color='#000000', 
+        even_font_color='#ffffff', 
+        odd_background_color='#ffffff', 
+        odd_font_color='#000000', 
+        conditional_formats=[
+            {{'columns': {column_ids}, 'filters': {filters}, 'font_color': '{font_color}', 'background_color': '{background_color}'}}
+        ]
+    )
+
+df_styler = df.style\\
+    .set_table_styles([
+        {{'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]}},
+        {{'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]}},
+])\\
+    .apply(lambda series: np.where(series > {filters[0]['value']}, 'color: {font_color}; background-color: {background_color}', None), subset={column_ids})
+"""
+
+    assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color[1:], font_color[1:])]
 
 # This tests when the user exports two dataframes with both formatted.
 def test_transpiled_with_export_to_xlsx_format_two_sheets():
@@ -279,11 +412,11 @@ import pandas as pd
 with pd.ExcelWriter(r\'test_format_two.xlsx\', engine="openpyxl") as writer:
     df_1.to_excel(writer, sheet_name="df_1", index=False)
     df_2.to_excel(writer, sheet_name="df_2", index=False)
-    add_formatting_to_excel_sheet(writer, "df_1", 
+    add_formatting_to_excel_sheet(writer, "df_1", df_1, 
         header_background_color='#000000', 
         header_font_color='#ffffff'
     )
-    add_formatting_to_excel_sheet(writer, "df_2", 
+    add_formatting_to_excel_sheet(writer, "df_2", df_2, 
         header_background_color='#000000', 
         header_font_color='#ffffff', 
         even_background_color='#000000', 
@@ -318,7 +451,7 @@ import pandas as pd
 with pd.ExcelWriter(r\'test_two_format_one.xlsx\', engine="openpyxl") as writer:
     df_1.to_excel(writer, sheet_name="df_1", index=False)
     df_2.to_excel(writer, sheet_name="df_2", index=False)
-    add_formatting_to_excel_sheet(writer, "df_1", 
+    add_formatting_to_excel_sheet(writer, "df_1", df_1, 
         header_background_color='#000000', 
         header_font_color='#ffffff', 
         even_background_color='#000000', 
