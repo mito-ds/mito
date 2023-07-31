@@ -247,7 +247,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             <Row justify="space-between" align="center">
                                 <Col>
                                     <p className="text-body-1">
-                                        Dataframe Name
+                                        Name
                                     </p>
                                 </Col>
                                 <Col>
@@ -273,7 +273,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             <Row justify="space-between" align="center">
                                 <Col>
                                     <p className="text-body-1">
-                                        Locate Dataframe By
+                                        Locate By
                                     </p>
                                 </Col>
                                 <Col>

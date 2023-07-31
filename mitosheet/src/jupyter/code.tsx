@@ -2,12 +2,11 @@
 
 import { PublicInterfaceVersion } from "../mito";
 
-
-const IMPORT_STATEMENTS: Record<PublicInterfaceVersion, string> = {
-    1: 'from mitosheet.public.v1 import *',
-    2: 'from mitosheet.public.v2 import *',
-    3: 'from mitosheet.public.v3 import *'
-}
+const IMPORT_STATEMENTS = [
+    'from mitosheet.public.v1 import *',
+    'from mitosheet.public.v2 import *',
+    'from mitosheet.public.v3 import *',
+]
 
 export function getCodeString(
     analysisName: string,
@@ -22,17 +21,16 @@ export function getCodeString(
 
     const finalCode = code.join('\n');
 
-    const importStatement = IMPORT_STATEMENTS[publicInterfaceVersion]
-
     // If telemetry not enabled, we want to be clear about this by
     // simply not calling a func w/ the analysis name
+    let analysisRegisterCode = '';
     if (telemetryEnabled) {
-        return `${importStatement}; register_analysis("${analysisName}");
-${finalCode}`
+        analysisRegisterCode = `register_analysis("${analysisName}");`
     } else {
-        return `${importStatement}; # Analysis Name:${analysisName};
-${finalCode}`
+        analysisRegisterCode = `# Analysis Name:${analysisName};`
     }
+
+    return finalCode.replace(`mitosheet.public.v${publicInterfaceVersion} import *`, `mitosheet.public.v${publicInterfaceVersion} import *; ${analysisRegisterCode}`);
 }
 
 
@@ -100,7 +98,7 @@ export function isMitoAnalysisCode(codeText: string): boolean {
 
     // Check if it starts with any import statement from the versioned interface
     let startsWithPublicVersionImport = false;
-    Object.values(IMPORT_STATEMENTS).forEach(importStatement => {
+    IMPORT_STATEMENTS.forEach(importStatement => {
         if (codeText.startsWith(importStatement + '; register_analysis(' ) || codeText.startsWith(importStatement + '; # Analysis Name:' )) {
             startsWithPublicVersionImport = true;
         } 

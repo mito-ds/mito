@@ -165,7 +165,7 @@ const Toolbar = (
                         userProfile={props.userProfile} 
                         setUIState={props.setUIState} 
                         mitoAPI={props.mitoAPI} 
-                        width='small'
+                        width='hug-contents'
                         className='mito-plan-button'
                     />
                     <PlanButton

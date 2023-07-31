@@ -86,8 +86,9 @@ class GraphStepPerformer(StepPerformer):
         graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')
         graph_styling: Dict[str, Any] = get_param(params, 'graph_styling')
         graph_rendering: Dict[str, Any] = get_param(params, 'graph_rendering')
-        include_plotlyjs: bool = get_param(params, 'include_plotlyjs')
 
+        include_plotlyjs: bool = get_param(params, 'include_plotlyjs')
+        
         # We make a new state to modify it
         post_state = prev_state.copy()
 

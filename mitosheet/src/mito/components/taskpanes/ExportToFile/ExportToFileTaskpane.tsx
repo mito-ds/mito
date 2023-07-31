@@ -154,7 +154,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 />
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
-                {editApplied && <p className='text-subtext-1'>Files created in the same folder as this notebook. Export code generated.</p>}
+                {editApplied && <p className='text-subtext-1'>Files created in the current working directory. Export code generated.</p>}
                 <TextButton
                     variant='dark'
                     width='block'

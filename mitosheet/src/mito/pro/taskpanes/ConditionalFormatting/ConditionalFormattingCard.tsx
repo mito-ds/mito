@@ -2,7 +2,7 @@ import React from 'react';
 import '../../../../../css/taskpanes/ConditionalFormatting/ConditionalFormattingCard.css';
 import ExpandableContentCard from '../../../components/elements/ExpandableContentCard';
 import MultiToggleColumns from '../../../components/elements/MultiToggleColumns';
-import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
+import { ODD_ROW_BACKGROUND_COLOR_DEFAULT, ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
 import ConditionalFormatIcon from '../../../components/icons/ConditionalFormatIcon';
 import ConditionalFormatInvalidIcon from '../../../components/icons/ConditionalFormatInvalidIcon';
 import { Filter } from '../../../components/taskpanes/ControlPanel/FilterAndSortTab/filter/Filter';
@@ -33,9 +33,9 @@ const getColumnHeadersIncludedMessage = (sheetData: SheetData, columnIDs: Column
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 15)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+        return (<p>Applied to <span className='text-color-medium-important'>{columnHeadersString}</span>.</p>)
     } else {
-        return (<p>Applied to <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> others.</p>)
+        return (<p>Applied to <span className='text-color-medium-important'>{columnHeadersString}</span> and <span className='text-color-medium-important'>{numOtherColumnHeaders}</span> others.</p>)
     }
 }
 
@@ -84,7 +84,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
 
     const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || 'contains'));
 
-    const color = props.conditionalFormat.color || ODD_ROW_TEXT_COLOR_DEFAULT;
+    const color = props.conditionalFormat.color || ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
 
     return (

@@ -22,16 +22,15 @@
 
 /* When the taskpane tab is selected, turn it purple. */
 .control-panel-taskpane-tab.selected {
-    background: var(--mito-purple);
-    color: var(--mito-white);
+    background-color: var(--mito-highlight);
+    color: var(--mito-background); 
 }
 
 /* When the taskpane tab is not selected, turn it light blue */
 .control-panel-taskpane-tab.unselected {
-    background: var(--mito-light-blue);
+    background: var(--mito-background-highlight);
 }
 
 .control-panel-taskpane-tab:hover {
-    background: var(--mito-medium-purple);
-    color: var(--mito-white);
+    background: var(--mito-highlight-medium);
 }

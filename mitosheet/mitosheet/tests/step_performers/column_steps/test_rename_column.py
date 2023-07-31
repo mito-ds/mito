@@ -87,6 +87,8 @@ def test_double_rename_optimizes():
     mito.rename_column(0, 'B', 'C')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.rename(columns={'A': 'C'}, inplace=True)",
         '',
     ]
@@ -99,6 +101,8 @@ def test_multiple_rename_optimizes():
     mito.rename_column(0, 'D', 'E')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.rename(columns={'A': 'E'}, inplace=True)",
         '',
     ]
@@ -115,6 +119,8 @@ def test_multiple_rename_different_columns_optimizes():
     mito.rename_column(0, 'DD', 'EE')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.rename(columns={'A': 'E', 'AA': 'EE'}, inplace=True)",
         '',
     ]
@@ -139,6 +145,8 @@ def test_multiple_rename_more_than_three_columns():
     mito.rename_column(0, 'DDDD', 'EEEE')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.rename(columns={\n\
     'A': 'E',\n\
     'AA': 'EE',\n\
@@ -157,6 +165,8 @@ def test_multiple_rename_optimizes_then_delete():
     mito.delete_columns(0, ['E'])
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A'], axis=1, inplace=True)",
         '',
     ]
@@ -171,6 +181,8 @@ def test_multiple_rename_optimizes_then_delete_multiple():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'F'], axis=1, inplace=True)",
         '',
     ]
@@ -186,6 +198,8 @@ def test_multiple_renames_optimizes_then_delete_multiple():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'F'], axis=1, inplace=True)",
         '',
     ]
@@ -197,6 +211,8 @@ def test_rename_different_sheets_does_not_optimize():
     mito.rename_column(1, 'A', 'B')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1_copy = df1.copy(deep=True)',
         '',
         "df1.rename(columns={'A': 'B'}, inplace=True)",
@@ -214,6 +230,8 @@ def test_double_rename_different_sheets_does_optimize():
     mito.rename_column(1, 'B', 'C')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1_copy = df1.copy(deep=True)',
         '',
         "df1.rename(columns={'A': 'C'}, inplace=True)",
@@ -229,6 +247,8 @@ def test_rename_then_delete_different_sheet_no_optimize():
     mito.delete_columns(1, 'A')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1_copy = df1.copy(deep=True)',
         '',
         "df1.rename(columns={'A': 'B'}, inplace=True)",
@@ -245,6 +265,8 @@ def test_two_new_columns_two_renames():
     mito.rename_column(0, 'new_two', 'new_two_prime')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.insert(1, 'new_one', 0)",
         '',
         "df1.insert(2, 'new_two', 0)",

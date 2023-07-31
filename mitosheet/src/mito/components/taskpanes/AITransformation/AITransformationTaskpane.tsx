@@ -325,11 +325,13 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="space-between" align="center"
                                 className="ai-transformation-message ai-transformation-message-ai"
                             >
-                                <Col>
+                                <Col span={21}>
                                     <p>Generating code...</p>
-                                    <p className="text-body-2">Hint: {taskpaneState.loadingMessage}</p>
+                                    <p className="text-body-2 text-overflow-wrap">Hint: {taskpaneState.loadingMessage}</p>
                                 </Col>
-                                <AILoadingCircle/>
+                                <Col>
+                                    <AILoadingCircle/>
+                                </Col>
                             </Row>
                         </>
                     }
@@ -349,7 +351,9 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 <Col>
                                     <p>Executing code...</p>
                                 </Col>
-                                <AILoadingCircle/>
+                                <Col>
+                                    <AILoadingCircle/>
+                                </Col>
                             </Row>
                         </>
                     }
@@ -376,7 +380,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                         {/** Display additional calls to action if they are relevant */}
                                         {taskpaneState.error.includes('There was an error accessing the OpenAI API') && 
                                             <>
-                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-purple' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
+                                                &nbsp; To learn about self-hosted LLMs for Mito Enterprise, contact <a className='text-underline text-color-mito-highlight' href="mailto:founders@sagacollab.com?subject=Mito Enterprise AI">the Mito team</a>.
                                             </>
                                         }
                                         {taskpaneState.error.includes('You have used Mito AI') && 
@@ -401,7 +405,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                                 justify="space-between" align="center"
                                 className={classNames('ai-transformation-message', 'ai-transformation-message-ai')}
                             >
-                                <div className="flexbox-column">
+                                <div className="flexbox-column" style={{width: '90%'}}>
                                     <p>
                                         Execution failed. {
                                             taskpaneState.attempt < NUMBER_OF_ATTEMPTS_TO_GET_COMPLETION
@@ -462,7 +466,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                             />
                         </div>
                     </Col>
-                    <Col span={1.5} onClick={() => {
+                    <Col onClick={() => {
                         void submitChatInput(userInput)
                         chatInputRef.current?.focus()
                     }}>

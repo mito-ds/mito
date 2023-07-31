@@ -8,11 +8,12 @@ import json
 from typing import Any, Dict, List
 import pandas as pd
 from mitosheet.types import StepsManagerType
+from mitosheet.user.location import is_streamlit
 
 
 NO_DEFINED_DF_MESSAGE = 'No variables match your requested type.'
 
-def get_df_names() -> List[str]:
+def get_df_names_ipython() -> List[str]:
     from IPython import get_ipython
     from io import StringIO 
     import sys
@@ -40,6 +41,34 @@ def get_df_names() -> List[str]:
 
     return output
 
+def get_df_names_streamlit() -> List[str]:
+    # Get dataframes defined in any calling frames above this one
+    import inspect
+    import streamlit as st
+    import pandas as pd
+
+    # Get the calling frame
+    dfs = []
+    frame = inspect.currentframe()
+    while frame is not None:
+        if frame.f_code.co_name == 'write':
+            break
+        frame = frame.f_back
+
+        # Get the calling frame's locals
+        if frame is None:
+            break
+        frame_locals = frame.f_locals
+        # Get the dataframes defined in the calling frame
+        for name, value in frame_locals.items():
+            if isinstance(value, pd.DataFrame):
+                dfs.append(name)
+
+    return dfs
+
+
 
 def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[str]:
-    return get_df_names()
+    if is_streamlit():
+        return get_df_names_streamlit()
+    return get_df_names_ipython()

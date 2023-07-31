@@ -18,6 +18,8 @@ def test_transpile_single_column():
     mito.set_formula('=A', 0, 'B', add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         "df1.insert(1, 'B', df1[\'A\'])", 
         ''
     ]
@@ -29,6 +31,8 @@ def test_transpile_multiple_columns_no_relationship():
     mito.add_column(0, 'C')
     print(mito.transpiled_code)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', 0)', 
         '',
         'df1.insert(2, \'C\', 0)', 
@@ -41,6 +45,8 @@ def test_transpile_columns_in_each_sheet():
     mito.add_column(1, 'B')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', 0)',
         '',
         'df2.insert(1, \'B\', 0)',
@@ -53,6 +59,8 @@ def test_transpile_multiple_columns_linear():
     mito.set_formula('=B', 0, 'C', add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', df1[\'A\'])',
         '',
         'df1.insert(2, \'C\', df1[\'B\'])',
@@ -76,6 +84,8 @@ def test_transpile_column_headers_non_alphabet(column_header):
     mito.set_formula('=A', 0, column_header, add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
         '',
     ]
@@ -99,6 +109,8 @@ def test_transpile_column_headers_non_alphabet_multi_sheet(column_header):
     mito.set_formula('=A', 1, column_header, add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
         '',
         f'df2.insert(1, \'{column_header}\', df2[\'A\'])', 
@@ -112,6 +124,8 @@ def test_preserves_order_columns():
     mito.add_column(0, 'C')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', 0)',
         '',
         'df1.insert(2, \'C\', 0)',
@@ -124,6 +138,8 @@ def test_transpile_delete_columns():
     mito.delete_columns(0, ['C', 'B'])
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.drop([\'C\', \'B\'], axis=1, inplace=True)',
         '',
     ]
@@ -144,6 +160,8 @@ def test_removes_unedited_formulas_for_unedited_sheets():
     mito.set_formula('=C + 1', 1, 'D', add_column=True)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         "df1.insert(3, 'D', df1[\'C\'])", 
         '',
         "df2.insert(3, 'D', df2[\'C\'])", 
@@ -166,6 +184,8 @@ def test_mulitple_merges_no_formula_steps():
 
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
@@ -188,6 +208,8 @@ def test_optimization_with_other_edits():
     mito.delete_columns(0, ['AAA'])
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         "df1.insert(3, 'D', df1[\'A\'])", 
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
@@ -209,6 +231,8 @@ def test_transpile_reorder_column():
     mito.reorder_column(0, 'A', 1)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
         'df1 = df1[df1_columns]',
@@ -222,6 +246,8 @@ def test_transpile_two_column_reorders():
     mito.reorder_column(0, 'B', 1)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
         'df1 = df1[df1_columns]',
@@ -238,6 +264,8 @@ def test_transpile_reorder_column_invalid():
     mito.reorder_column(0, 'A', 5)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1_columns = [col for col in df1.columns if col != \'A\']',
         'df1_columns.insert(1, \'A\')',
         'df1 = df1[df1_columns]',
@@ -252,6 +280,8 @@ def test_transpile_merge_then_sort():
     mito.sort(2, 'Number', 'ascending')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'temp_df = df2.drop_duplicates(subset=[\'Name\']) # Remove duplicates so lookup merge only returns first match',
         'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
@@ -283,7 +313,10 @@ def test_transpile_as_function_no_params(tmp_path):
     mito.simple_import([tmp_file])
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
+    print(mito.transpiled_code)
+
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         "",
         "def function():",
@@ -299,7 +332,9 @@ def test_transpile_as_function_df_params():
     mito.add_column(0, 'B')
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
+    print(mito.transpiled_code)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         '',
         'def function(df1):',
         f"{TAB}df1.insert(1, 'B', 0)",
@@ -317,8 +352,9 @@ def test_transpile_as_function_string_params():
     mito = create_mito_wrapper(str(tmp_file), arg_names=[f"'{tmp_file}'"])
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
-    print(mito.transpiled_code)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
         '',
         'def function(txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
@@ -327,6 +363,29 @@ def test_transpile_as_function_string_params():
         f"{TAB}return txt",
         "",
         "txt = function('txt.csv')"
+    ]
+
+    os.remove(tmp_file)
+
+def test_transpile_as_function_string_params_no_args_update():
+    tmp_file = 'txt.csv'
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper(str(tmp_file))
+    mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
+        '',
+        'def function(txt_path):',
+        f"{TAB}# Read in filepaths as dataframes",
+        f"{TAB}txt = pd.read_csv(txt_path)",
+        f'{TAB}',
+        f"{TAB}return txt",
+        "",
+        'txt = function("txt.csv")'
     ]
 
     os.remove(tmp_file)
@@ -340,6 +399,8 @@ def test_transpile_as_function_both_params():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
         '',
         'def function(df1, txt_path):',
         f"{TAB}# Read in filepaths as dataframes",
@@ -380,6 +441,7 @@ def test_transpile_as_function_single_param(tmp_path):
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         "",
         "def function(var_name):",
@@ -403,6 +465,7 @@ def test_transpile_as_function_both_params_and_additional():
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         'import pandas as pd',
         '',
         'def function(df1, txt_path, var_name):',
@@ -431,6 +494,7 @@ def test_transpile_as_function_single_param_multiple_times(tmp_path):
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         "",
         "def function(var_name):",
@@ -457,6 +521,7 @@ def test_transpile_as_function_multiple_params(tmp_path):
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name1': f"r'{tmp_file1}'", 'var_name2': f"r'{tmp_file2}'"}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         "",
         "def function(var_name1, var_name2):",
@@ -484,6 +549,7 @@ def test_transpile_parameterize_excel_imports(tmp_path):
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "import pandas as pd",
         "",
         "def function(var_name):",
@@ -510,6 +576,7 @@ def test_transpile_with_function_params_over_mitosheet():
 
     
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
         "",
         "def function(param, df_copy):",
         f"{TAB}param.insert(2, 'C', 0)",
@@ -539,7 +606,8 @@ line in it", '\t', '     ']})
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
-    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
 
 def function():
     df = pd.DataFrame({'A': ["has a new \
@@ -568,7 +636,8 @@ print(df)
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {}})
 
-    assert "\n".join(mito.transpiled_code) == """
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
 def function():
     import pandas as pd
     
@@ -590,7 +659,8 @@ def test_transpiled_with_export_to_csv_singular():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': "r'te" + '"' + "st.csv'"}})
 
-    assert "\n".join(mito.transpiled_code) == """
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
 def function(df, path):
     df.to_csv(path, index=False)
     
@@ -609,7 +679,8 @@ def test_transpiled_with_export_to_csv_multiple():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path_0': "r'test_0.csv'", 'path_1': "r'test_1.csv'"}})
 
-    assert "\n".join(mito.transpiled_code) == """
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
 def function(df1, df2, path_0, path_1):
     df1.to_csv(path_0, index=False)
     df2.to_csv(path_1, index=False)
@@ -630,9 +701,12 @@ def test_transpiled_with_export_to_xlsx_single():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path': 'r"te' + "'" + 'st.xlsx"'}})
 
-    assert "\n".join(mito.transpiled_code) == """
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
 def function(df, path):
-    df.to_excel(path, sheet_name='df', index=False)
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name="df", index=False)
     
     return df
 
@@ -649,10 +723,11 @@ def test_transpiled_with_export_to_xlsx_multiple():
 
     mito.code_options_update({'as_function': True, 'function_name': 'function', 'function_params': {'path_0': "r'test.xlsx'"}})
 
-    assert "\n".join(mito.transpiled_code) == """import pandas as pd
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
 
 def function(df1, df2, path_0):
-    with pd.ExcelWriter(path_0) as writer:
+    with pd.ExcelWriter(path_0, engine="openpyxl") as writer:
         df1.to_excel(writer, sheet_name="df1", index=False)
         df2.to_excel(writer, sheet_name="df2", index=False)
     

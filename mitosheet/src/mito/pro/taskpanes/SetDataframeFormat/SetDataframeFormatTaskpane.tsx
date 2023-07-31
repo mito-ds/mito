@@ -4,7 +4,7 @@ import DropdownItem from '../../../components/elements/DropdownItem';
 import LabelAndTooltip from "../../../components/elements/LabelAndTooltip";
 import Select from '../../../components/elements/Select';
 import { HEADER_BACKGROUND_COLOR_DEFAULT, HEADER_TEXT_COLOR_DEFAULT } from "../../../components/endo/ColumnHeader";
-import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, EVEN_ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT, ODD_ROW_TEXT_COLOR_DEFAULT } from "../../../components/endo/GridData";
+import { EVEN_ROW_BACKGROUND_COLOR_DEFAULT, ROW_TEXT_COLOR_DEFAULT, ODD_ROW_BACKGROUND_COLOR_DEFAULT } from "../../../components/endo/GridData";
 import Col from '../../../components/layout/Col';
 import CollapsibleSection from "../../../components/layout/CollapsibleSection";
 import Row from '../../../components/layout/Row';
@@ -19,6 +19,7 @@ import { AnalysisData, DataframeFormat, RecursivePartial, SheetData, StepType, U
 import { updateObjectWithPartialObject } from "../../../utils/objects";
 import LabelAndColor from "../../graph/LabelAndColor";
 import SuggestedStyles from "./SuggestedStyles";
+import { convertToHex } from "../../../utils/colors";
 
 const BORDER_COLOR_DEFAULT = '#FFFFFF'; 
 
@@ -70,6 +71,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
         props.analysisData,
         50
     )
+    const ref = React.useRef<HTMLDivElement>(null);
 
     const sheetFormat = (props.sheetDataArray[params?.sheet_index || 0] || {}).dfFormat;
 
@@ -84,7 +86,9 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane
+            ref={ref}
+        >
             <DefaultTaskpaneHeader 
                 header="Color Dataframe"
                 setUIState={props.setUIState}           
@@ -129,14 +133,14 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                 <CollapsibleSection title="Column Headers">
                     <LabelAndColor
                         label='Background Color'
-                        color={params.df_format.headers.backgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.headers.backgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({headers: {backgroundColor: newColor}});
                         }}
                     />
                     <LabelAndColor
                         label='Text Color'
-                        color={params.df_format.headers.color || HEADER_TEXT_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.headers.color || HEADER_TEXT_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({headers: {color: newColor}});
                         }}
@@ -146,28 +150,28 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                 <CollapsibleSection title="Rows">
                     <LabelAndColor
                         label='Even Row: Background Color'
-                        color={params.df_format.rows.even.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.rows.even.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({rows: {even: {backgroundColor: newColor}}});
                         }}
                     />
                     <LabelAndColor
                         label='Even Row: Text Color'
-                        color={params.df_format.rows.even.color || EVEN_ROW_TEXT_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.rows.even.color || ROW_TEXT_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({rows: {even: {color: newColor}}});
                         }}
                     />
                     <LabelAndColor
                         label='Odd Row: Background Color'
-                        color={params.df_format.rows.odd.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.rows.odd.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({rows: {odd: {backgroundColor: newColor}}});
                         }}
                     />
                     <LabelAndColor
                         label='Odd Row: Text Color'
-                        color={params.df_format.rows.odd.color || ODD_ROW_TEXT_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.rows.odd.color || ROW_TEXT_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({rows: {odd: {color: newColor}}});
                         }}
@@ -200,7 +204,7 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
                     </Row>
                     <LabelAndColor
                         label='Border Color'
-                        color={params.df_format.border.borderColor || BORDER_COLOR_DEFAULT}
+                        color={convertToHex(params.df_format.border.borderColor || BORDER_COLOR_DEFAULT, ref.current)}
                         onChange={(newColor) => {
                             return updateDataframeFormatParams({border: {borderColor: newColor}});
                         }}

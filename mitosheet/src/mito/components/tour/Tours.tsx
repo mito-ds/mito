@@ -39,7 +39,6 @@ export type TourStep = {
     location: TourPopupLocation,
     advanceButtonText: string,
     displayBackButton: boolean,
-    hideXIcon?: boolean
 }
 
 // Location to display the TourStep popup
@@ -60,7 +59,6 @@ const introTourSteps: TourStep[] = [
         location: TourPopupLocation.BOTTOM_LEFT,
         advanceButtonText: "Continue",
         displayBackButton: false,
-        hideXIcon: true
     },
     {
         tourName: TourName.INTRO,
@@ -71,7 +69,6 @@ const introTourSteps: TourStep[] = [
         location: TourPopupLocation.TOP_LEFT,
         advanceButtonText: "Continue",
         displayBackButton: true,
-        hideXIcon: true
     },
     {
         tourName: TourName.INTRO,
@@ -144,7 +141,7 @@ const ColumnFormulasTourSteps: TourStep[] = [
         stepNumber: 3,
         stepHeader: 'Become a Formula Expert',
         stepHeaderBackgroundColor: '#DDA1A1',
-        stepText: <div> Want to learn more about how Mito&apos;s formulas are different? <a className='text-body-1-link text-color-white-important' href={DOCUMENTATION_LINK_SPREADSHEET_FORMULAS} target="_blank" rel="noreferrer">Check out our detailed formula documentation.</a></div>,
+        stepText: <div> Want to learn more about how Mito&apos;s formulas are different? <a className='text-body-1-link text-color-background-important' href={DOCUMENTATION_LINK_SPREADSHEET_FORMULAS} target="_blank" rel="noreferrer">Check out our detailed formula documentation.</a></div>,
         location: TourPopupLocation.BOTTOM_RIGHT,
         advanceButtonText: "Continue",
         displayBackButton: true
@@ -167,7 +164,7 @@ const ExploreDataTourSteps: TourStep[] = [
         stepNumber: 2,
         stepHeader: 'View summary stats',
         stepHeaderBackgroundColor: '#CAD1FF',
-        stepText: <div> <b>Click on the Summary Stats tab </b> at the bottom of the sidebar. The chart at the top shows you the distribution of your column, and there’s more specific summary information down below. Check it out!</div>,
+        stepText: <div> <b>Click on the Stats tab </b> at the bottom of the taskpane. The chart at the top shows you the distribution of your column, and there’s more specific summary information down below. Check it out!</div>,
         location: TourPopupLocation.BOTTOM_LEFT,
         advanceButtonText: "Continue",
         displayBackButton: true

@@ -19,7 +19,7 @@ interface ExcelRangeDynamicConditionProps<T extends ExcelRangeStartCondition | E
 }
 function ExcelRangeDynamicCondition<T extends ExcelRangeStartCondition | ExcelRangeEndCondition | ExcelRangeColumnEndCondition> (props: ExcelRangeDynamicConditionProps<T>): JSX.Element {
 
-    const currentTitle = props.conditionOptions[props.condition.type].title;
+    //const currentTitle = props.conditionOptions[props.condition.type].title;
     const currentSubtext = props.conditionOptions[props.condition.type].subtext;
     const placeholderValue = props.conditionOptions[props.condition.type].placeholderValue;
 
@@ -27,8 +27,15 @@ function ExcelRangeDynamicCondition<T extends ExcelRangeStartCondition | ExcelRa
         <>
             <Row justify="space-between" align="center">
                 <Col>
-                    <p className="text-body-1">
+                    <p className="text-header-3">
                         {props.title}
+                    </p>
+                </Col>
+            </Row>
+            <Row justify="space-between" align="center">
+                <Col>
+                    <p className="text-body-1">
+                        Find By
                     </p>
                 </Col>
                 <Col>
@@ -70,7 +77,7 @@ function ExcelRangeDynamicCondition<T extends ExcelRangeStartCondition | ExcelRa
                                 textBody
                                 tooltip={currentSubtext}
                             >
-                                {currentTitle}
+                                Value
                             </LabelAndTooltip>
                         </Col>
                         <Col>

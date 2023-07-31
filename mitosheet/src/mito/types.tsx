@@ -741,6 +741,11 @@ export type UserDefinedImporter = {
  * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
  *        step does not return a result
  * @param experiment - The experiment that this user is currently running, which may not be defined
+ * @param codeOptions - The options for how to generate code for this analysis
+ * @param userDefinedFunctions - The user defined functions that have been defined in this analysis, usable 
+ *                               in the sheet. 
+ * @param userDefinedImporters - The user defined importers that have been defined in this analysis. USers
+ *        can access these through custom imports
  */
 export interface AnalysisData {
     analysisName: string,
@@ -763,6 +768,11 @@ export interface AnalysisData {
     codeOptions: CodeOptions;
     userDefinedFunctions: string[];
     userDefinedImporters: UserDefinedImporter[];
+
+    importFolderData: {
+        path: string,
+        pathParts: string[],
+    } | null
 }
 
 export interface MitoConfig {
@@ -869,7 +879,8 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
-    dataRecon: AIRecon | undefined
+    dataRecon: AIRecon | undefined,
+    taskpaneWidth: number
 }
 
 /**
@@ -1059,3 +1070,10 @@ export interface AITransformationResult extends AIRecon {
     prints: string[],
 }
 
+
+export interface MitoTheme {
+    primaryColor?: string
+    backgroundColor?: string
+    secondaryBackgroundColor?: string
+    textColor?: string
+}

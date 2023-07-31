@@ -154,6 +154,8 @@ def test_set_cell_value_change_int_to_int():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, 4)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.at[0, 'A'] = 4",
         '',
     ]
@@ -163,6 +165,8 @@ def test_set_cell_value_convert_int_to_float():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, 4.0)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1['A'] = df1['A'].astype('float')",
         "df1.at[0, 'A'] = 4.0",
         '',
@@ -172,6 +176,8 @@ def test_set_cell_value_convert_int_to_NaN():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, "NaN")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.at[0, 'A'] = None",
         '',
     ]
@@ -180,6 +186,8 @@ def test_set_cell_value_convert_int_to_empty():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': [1, 2, 3]}))
     mito.set_cell_value(0, 'A', 0, "")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.at[0, 'A'] = None",
         '',
     ]
@@ -188,6 +196,8 @@ def test_set_cell_value_convert_string():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "Jon")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1.at[0, \'A\'] = "Jon"',
         '',
     ]
@@ -196,6 +206,8 @@ def test_set_cell_value_convert_string_to_None():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "NaN")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1.at[0, \'A\'] = None',
         '',
     ]
@@ -204,6 +216,8 @@ def test_set_cell_value_convert_string_to_empty():
     mito = create_mito_wrapper(pd.DataFrame(data={'A': ["Aaron", "Jake", "Nate"]}))
     mito.set_cell_value(0, 'A', 0, "")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1.at[0, \'A\'] = None',
         '',
     ]
@@ -218,6 +232,8 @@ def test_set_cell_value_convert_datetime():
     mito.set_cell_value(0, 'A', 0, "12-1-2030")
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1.at[0, \'A\'] = pd.to_datetime("2030-12-01 00:00:00")',
         '',
     ]
@@ -230,6 +246,8 @@ def test_set_cell_value_convert_datetime_to_none():
         ]))}))
     mito.set_cell_value(0, 'A', 0, "NaT")
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         'df1.at[0, \'A\'] = None',
         '',
     ]
@@ -241,6 +259,8 @@ def test_set_cell_value_then_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A'], axis=1, inplace=True)",
         '',
     ]
@@ -254,6 +274,8 @@ def test_multiple_set_cell_value_then_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A'], axis=1, inplace=True)",
         '',
     ]
@@ -267,6 +289,8 @@ def test_multiple_set_cell_value_then_multiple_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'B'], axis=1, inplace=True)",
         '',
     ]
@@ -279,6 +303,8 @@ def test_set_cell_value_then_multiple_delete_optimizes():
 
     assert mito.dfs[0].empty
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.drop(['A', 'B'], axis=1, inplace=True)",
         '',
     ]

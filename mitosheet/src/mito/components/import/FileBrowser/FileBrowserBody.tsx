@@ -3,12 +3,14 @@ import React, { useEffect, useRef } from 'react';
 import '../../../../../css/elements/Input.css';
 import '../../../../../css/taskpanes/Import/FileBrowser.css';
 import { MitoAPI } from '../../../api/api';
-import { UIState, UserProfile } from '../../../types';
+import { AnalysisData, UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
+import { isInStreamlit } from '../../../utils/location';
 import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
+import Spacer from '../../layout/Spacer';
 import { FileElement, ImportState } from '../../taskpanes/FileImport/FileImportTaskpane';
 import { getElementsToDisplay, getFilePath, inRootFolder, isExcelFile } from '../../taskpanes/FileImport/importUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
@@ -35,6 +37,7 @@ export interface FileBrowserState {
 interface FileBrowserProps {
     mitoAPI: MitoAPI;
     userProfile: UserProfile;
+    analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     currPathParts: string[],
@@ -82,17 +85,51 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
 
     const displayUpgradeToPro = inRootFolder(props.fileBrowserState.pathContents.path_parts) && !props.userProfile.isPro;
 
+
+    /**
+     * If we are in streamlit and the user hasn't configured the import folder,
+     * we display a message telling them to do so.
+     * 
+     * This is because the security model of streamlit requires us to know the
+     * specific location users can import data from, as we don't just want them
+     * to be able to import from anywhere on the server -- there could be private
+     * data.
+     */
+    if (isInStreamlit() && !props.analysisData.importFolderData) {
+        return (
+            <>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    To use the file browser, you must first configure the folder you want to allow users to 
+                    import from.
+                </p>
+                <Spacer px={10}/>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    This is configurable with the <code>import_folder</code> parameter in the <code>spreadsheet</code> component 
+                    in your streamlit application.
+                </p>
+            </>
+        )
+
+    }
+
     return (
         <div className='file-browser flexbox-column'>
             <div>
                 <FileBrowserPathSelector
+                    importFolderData={props.analysisData.importFolderData}
                     setCurrPathParts={props.setCurrPathParts}
                     pathParts={props.fileBrowserState.pathContents.path_parts}
                 />
             </div>
             <Row className='border-t-light-gray border-b-light-gray' justify='space-between'>
                 <Col 
-                    span={18} 
+                    span={16} 
                     className='flexbox-row flexbox-space-between border-r-light-gray'
                     onClick={() => {
                         props.setFileBrowserState(prevImportState => {
@@ -113,7 +150,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                     }
                 </Col>
                 <Col 
-                    span={6} 
+                    span={8} 
                     className='flexbox-row flexbox-justify-end text-align-right'
                     onClick={() => {
                         props.setFileBrowserState(prevImportState => {
@@ -266,7 +303,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                                 />
                             )
                         })}
-                        {props.fileBrowserState.loadingFolder && <p>Loading folder contents...</p>}
+                        {props.fileBrowserState.loadingFolder && <p className='text-body-1'>Loading folder contents...</p>}
                     </>
                 }
             </div>

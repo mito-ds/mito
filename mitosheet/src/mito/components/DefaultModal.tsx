@@ -79,7 +79,7 @@ const DefaultModal = (
                             </Col>
                         </Row>
                     }
-                    <div className={classNames('mito-modal-header-text-div', {'mt-25px': props.setUIState === undefined})} style={{color: headerColor}}>
+                    <div className={classNames('mito-modal-header-text-div', 'text-color-mito-text', {'mt-25px': props.setUIState === undefined})} style={{color: headerColor}}>
                         <p className='text-align-center-important'>{props.header}</p>
                     </div>
                     {props.viewComponent &&

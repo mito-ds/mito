@@ -32,10 +32,17 @@ const MultiToggleItem = (props: {
     */
     rightText?: string,
     /** 
+        * @param [rightTextSpan] - Optionally, set the size of the column to display the right text. Defaults to 4
+    */
+    rightTextSpan?: number,
+    /** 
         * @param [disabled] - Optionally set this to true to disable toggling this element
     */
     disabled?: boolean,
 }): JSX.Element => {
+
+    const rightTextSpan = props.rightTextSpan || 4;
+
     return (
         <div 
             className={
@@ -55,25 +62,28 @@ const MultiToggleItem = (props: {
             }}
         >
             <Row 
-                // Space differently depending if we have right text or not
-                justify={props.rightText !== undefined ? 'space-between' : 'start'}
+                justify={'space-between'}
                 align='center'
                 suppressTopBottomMargin
             >
-                <Col offset={1}>
-                    <input
-                        name={'input'}
-                        type="checkbox"
-                        checked={props.toggled}
-                    />
-                </Col>
-                <Col span={14}>
-                    <span title={props.title?.toString()}>
-                        {props.title}
-                    </span>
+                <Col span={props.rightText ? 24 - rightTextSpan : 24}>
+                    <Row align='center' justify='start' suppressTopBottomMargin>
+                        <Col offset={1}>
+                            <input
+                                name={'input'}
+                                type="checkbox"
+                                checked={props.toggled}
+                            />
+                        </Col>
+                        <Col span={14}>
+                            <span title={props.title?.toString()}>
+                                {props.title}
+                            </span>
+                        </Col>
+                    </Row>
                 </Col>
                 {props.rightText && 
-                    <Col span={7} offset={1}>
+                    <Col span={rightTextSpan} offset={1}>
                         {props.rightText}
                     </Col>
                 }

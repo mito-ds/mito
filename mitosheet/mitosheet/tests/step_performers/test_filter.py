@@ -496,6 +496,8 @@ def test_transpile_filter():
     mito.filter(0, "name", "And", FC_STRING_CONTAINS, "Nate")
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[df1['name'].str.contains('Nate', na=False, regex=False)]",
         '',
     ]
@@ -507,6 +509,8 @@ def test_transpile_filter_string_does_not_contain():
     mito.filter(0, "name", "And", FC_STRING_DOES_NOT_CONTAIN, "Nate")
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[~df1['name'].str.contains('Nate', na=False, regex=False)]",
         '',
     ]
@@ -520,6 +524,8 @@ def test_transpile_date_filter():
     mito.filter(0, "A", "And", FC_DATETIME_GREATER, "12-2-2020")
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[df1['A'] > pd.to_datetime('12-2-2020')]",
         '',
     ]
@@ -539,6 +545,8 @@ def test_transpile_double_filter_and():
     )
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) & (df1['name'] == 'Nate')]",
         '',
     ]
@@ -558,6 +566,8 @@ def test_transpile_double_filter_or():
     )
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[(df1['name'].str.contains('e', na=False, regex=False)) | (df1['name'] == 'Nate')]",
         '',
     ]
@@ -578,6 +588,8 @@ def test_transpile_triple_filter():
     )
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[(df1['name'].apply(lambda val: any(s in str(val) for s in ['e', 'a']))) | (df1['name'] == 'Nate')]",
         '',
     ]
@@ -757,6 +769,8 @@ def test_wrap_lines_on_single_filters():
     assert mito.dfs[0].equals(pd.DataFrame({"name": ["Aaron"]}, index=[2]))
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[df1['name'].apply(lambda val: any(s in str(val) for s in ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A']))]",
         '',
     ]
@@ -766,12 +780,16 @@ def test_transpile_boolean_filter():
     mito = create_mito_wrapper_with_data([True, True, False])
     mito.filter(0, "A", "And", FC_BOOLEAN_IS_TRUE, None)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[df1['A'] == True]",
         '',
     ]
     mito = create_mito_wrapper_with_data([True, True, False])
     mito.filter(0, "A", "And", FC_BOOLEAN_IS_FALSE, None)
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[df1['A'] == False]",
         '',
     ]
@@ -847,6 +865,8 @@ def test_not_exactly_collapses_to_one_clause():
     )
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[(~df1['A'].isin([1, 2])) & (df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))) & (~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021'])))]",
         '',
     ]
@@ -880,6 +900,8 @@ def test_boolean_and_empty_collapses_to_one_check():
     )
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1 = df1[(df1['A'] == True) & (df1['B'].isna())]",
         '',
     ]
@@ -1339,7 +1361,11 @@ def test_filter_multiple_values_per_clause(
         ],
     )
 
-    assert mito.transpiled_code == [transpiled_code, '',]
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
+        transpiled_code, '',
+    ]
 
 
 def test_filter_optimizes_out_after_delete():

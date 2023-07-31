@@ -38,7 +38,7 @@ export function Filter(
 
     return (
         <Row justify='space-between' align='center' suppressTopBottomMargin={props.suppressTopBottomMargin}>
-            <Col span={!props.inGroup ? 4 : 5}>
+            <Col span={5}>
                 {setOperator === undefined && 
                     <p className='text-body-1'>
                         Where

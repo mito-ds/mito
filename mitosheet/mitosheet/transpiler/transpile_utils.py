@@ -92,7 +92,7 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
         return result
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -107,7 +107,7 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         NEWLINE_CONSTANT = ''
     else:
         TAB_CONSTANT = TAB
-        NEWLINE_CONSTANT = '\n'
+        NEWLINE_CONSTANT = f'\n{TAB_CONSTANT * tab_level}'
 
     if level == 0:
         code = f"{NEWLINE_CONSTANT}"
@@ -214,12 +214,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     # Add the imports
     final_code += imports
-    if len(imports) == 0: # Make sure we have a newline if there are no imports
-        final_code.append("")
+    final_code.append("")
 
     # The param
     param_names = _get_param_names_string(steps_manager, function_params)
-    param_values = _get_param_values_string(steps_manager, function_params)
 
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")

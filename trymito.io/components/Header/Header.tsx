@@ -79,21 +79,24 @@ const Header = (): JSX.Element => {
                 <HeaderDropdown dropdownButtonTitle="Product">
                   <HeaderDropdownItem 
                     title='Mito Spreadsheet'
-                    subtext='Edit a spreadsheet. Generate Python'
                     href='/spreadsheet-automation'
                     iconSrc='/step-icons/spreadsheet_icon.svg'
                     altText="Mito Spreadsheet"
                   />
                   <HeaderDropdownItem 
                     title='Mito AI'
-                    subtext='Automate your report with a Python expert.'
                     href='/python-ai-tools'
                     iconSrc='/step-icons/ai_icon.svg'
                     altText="Mito AI"
                   />
                   <HeaderDropdownItem 
+                    title='Low-Code SQL'
+                    href='/low-code-sql'
+                    iconSrc='/step-icons/low-code-sql.svg'
+                    altText="Low-Code SQL"
+                  />
+                  <HeaderDropdownItem 
                     title='Infrastructure Integration'
-                    subtext='Bring your own spreadsheet formulas and imports methods.'
                     href='/infrastructure-integration-python-tool'
                     iconSrc='/step-icons/SettingsIconThin.svg'
                     altText="Infrastructure Integration"
@@ -175,6 +178,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/python-ai-tools'>Mito AI</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/low-code-sql'>Low-Code SQL</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>

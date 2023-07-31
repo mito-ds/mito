@@ -128,7 +128,7 @@ const Select = (props: SelectProps): JSX.Element => {
                 {displayValue}
             </p>
             <div className='select-dropdown-icon-container'>
-                <SelectDropdownIcon purpleOrDarkOrWhite='white'/>
+                <SelectDropdownIcon variant='select'/>
             </div>
             <Dropdown
                 display={displayDropdown}
