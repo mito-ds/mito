@@ -20,6 +20,7 @@ CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP = {
     'string_exactly': {'operator': 'equal', 'rule_type': 'cellIs'},
     'string_not_exactly': {'operator': 'notEqual', 'rule_type': 'cellIs'},
     'contains': {'operator': 'containsText', 'rule_type': 'containsText'},
+    'string_contains_case_insensitive': {'operator': 'containsText', 'rule_type': 'containsText'},
     'string_does_not_contain': {'operator': 'notContains', 'rule_type': 'notContainsText'},
     'string_starts_with': {'operator': 'beginsWith', 'rule_type': 'beginsWith'},
     'string_ends_with': {'operator': 'endsWith', 'rule_type': 'endsWith'},
@@ -68,19 +69,21 @@ def add_conditional_formats(
                 column = get_column_from_column_index(column_index)
 
                 # Update the formulas for the string operators
-                if operator == 'containsText':
+                if filter['condition'] == 'contains':
+                    column_conditional_rule.formula = [f'NOT(ISERROR(FIND("{filter_value}",{column}2:{column}{sheet.max_row})))']
+                elif filter['condition'] == 'string_contains_case_insensitive':
                     column_conditional_rule.formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{column}2:{column}{sheet.max_row})))']
-                elif operator == 'notContains':
+                elif filter['condition'] == 'string_does_not_contain':
                     column_conditional_rule.formula = [f'ISERROR(SEARCH("{filter_value}",{column}2:{column}{sheet.max_row}))']
-                elif operator == 'beginsWith':
+                elif filter['condition'] == 'string_starts_with':
                     column_conditional_rule.formula = [f'LEFT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
-                elif operator == 'endsWith':
+                elif filter['condition'] == 'string_ends_with':
                     column_conditional_rule.formula = [f'RIGHT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
                 elif filter['condition'] == 'boolean_is_true':
                     column_conditional_rule.formula = ['TRUE']
                 elif filter['condition'] == 'boolean_is_false':
                     column_conditional_rule.formula = ['FALSE']
-                elif operator in ['equal', 'notEqual']:
+                elif filter['condition'] in ['string_exactly', 'string_not_exactly']:
                     column_conditional_rule.formula = [f'"{filter_value}"']
                 sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
 
