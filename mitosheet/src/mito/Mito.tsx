@@ -81,6 +81,7 @@ import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
 import { isInStreamlit } from './utils/location';
+import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -115,8 +116,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
-            ? {type: ModalEnum.SignUp} 
-            : {type: ModalEnum.None},
+            ? (!isInStreamlit() 
+                ? {type: ModalEnum.SignUp} 
+                : {type: ModalEnum.StreamlitSignUp}   
+            ) : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
@@ -506,6 +509,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case ModalEnum.SignUp: return (
                 <SignUpModal
+                    setUIState={setUIState}
+                    numUsages={userProfile.numUsages}
+                    mitoAPI={mitoAPI}
+                    isPro={userProfile.isPro}
+                    sheetDataArray={sheetDataArray}
+                    analysisData={analysisData}
+                />
+            )
+            case ModalEnum.StreamlitSignUp: return (
+                <StreamlitSignupModal
                     setUIState={setUIState}
                     numUsages={userProfile.numUsages}
                     mitoAPI={mitoAPI}
