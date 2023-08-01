@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
@@ -10,11 +9,11 @@ import titleStyles from '../styles/Title.module.css';
 import homeStyles from '../styles/Home.module.css';
 
 // Import Icons & Background Grid
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 import { classNames } from '../utils/classNames';
 import StreamlitAppGallery, { DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
+import DashboardCTACard from '../components/CTACards/DashboardCTACard';
 
 const DataApp: NextPage = () => {
 
@@ -100,10 +99,29 @@ const DataApp: NextPage = () => {
                 <StreamlitAppGallery />
                 
             </section>
+
+            <section className={textImageSplitStyles.text_image_section_container}>
+                <div className={pageStyles.subsection}>
+                    <div className={textImageSplitStyles.functionality_text}>
+                        <h1>
+                            Build locally, then deploy to your entire team
+                        </h1>
+                        <p>
+                            Analysts build Streamlit apps on their computer, and when the app is useful to their entire team, they can deploy it to a server.
+                        </p>
+                        <p>
+                            Converting a Jupyter Notebook to a Streamlit app is as easy as adding a few lines of code.
+                        </p>
+                    </div>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                        <Image src={'/data-app/data-cleaning-verification-2.png'} alt='Convert Jupyter Notebooks into Streamlit Apps' width={524} height={366} layout='responsive'/>
+                    </div>
+                </div>
+            </section>
           
 
             <section className={pageStyles.background_card}>
-                <DownloadCTACard />
+                <DashboardCTACard />
             </section>
         </main>
         <Footer />
