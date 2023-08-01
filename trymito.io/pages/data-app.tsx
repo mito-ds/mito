@@ -31,7 +31,7 @@ const DataApp: NextPage = () => {
 
         <main className={pageStyles.main}>
 
-            <section className={classNames(titleStyles.title_card, titleStyles.grid_card)}>
+            <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
                     Turn Python scripts into interactive Streamlit Dashboards
                 </h1>
