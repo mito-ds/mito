@@ -33,8 +33,11 @@ const DataApp: NextPage = () => {
 
             <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Turn Python scripts into interactive Streamlit Dashboards
+                    Upgrade Python scripts to interactive Streamlit Apps
                 </h1>
+                <p className={titleStyles.description}>
+                    Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
+                </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
                     <CTAButtons variant='download' align='center' displayProCTA={false}/>
                 </div>
@@ -55,8 +58,8 @@ const DataApp: NextPage = () => {
                             From automation script, to <span className='text-highlight'>automation app</span>
                         </h1>
                         <p>
-                            It only takes one data analyst to build a Python script for an entire team to automate their similar workflows. 
-                            Mito-enabled Streamlit dashboards give end users the ability to customize existing automation solutions to their data.
+                            It only takes one data analyst to build a script for an entire team to automate their similar workflows. 
+                            Mito-enabled Streamlit dashboards let other users customize existing automation solutions to their data.
                         </p>
                         <p>
                             Sharing automation scripts through Streamlit dashboards turns one hour of automation savings into tens of hours.

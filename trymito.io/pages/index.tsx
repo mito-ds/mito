@@ -42,7 +42,7 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
               <h1 className={titleStyles.title}>
-                Spreadsheets, meet <span className='text-color-purple'>AI Automation</span>
+                Automate your spreadsheets. No computer science degree required.
               </h1>
 
               <h2 className={titleStyles.description}>
@@ -145,8 +145,11 @@ const Home: NextPage = () => {
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
                 <h2>
-                  Turn Python scripts into interactive Streamlit Dashboards
+                  Upgrade Python scripts to interactive Streamlit Dashboards
                 </h2>
+                <p>
+                  Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
+                </p>
                 <p className={pageStyles.link}>
                   <Link href="/data-apps" >
                     Learn more about Mito in Streamlit →
