@@ -37,6 +37,7 @@
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
+    margin-bottom: .5rem;
 }
 
 .hashtag {
@@ -47,6 +48,7 @@
 
 .streamlit_app_image {
     border-radius: 5px;
+    cursor: pointer;
 }
 
 @media only screen and (min-width: 50em) {

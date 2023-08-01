@@ -24,6 +24,7 @@ const StreamlitAppCard = (props: {
                 alt={props.title}
                 width={264}
                 height={132}
+                onClick={() => window.open(props.streamlitHref, '_blank')}
             />
             <a href={props.streamlitHref} target="_blank" rel="noreferrer" className={streamlitAppCardStyles.title_text}>
                 {props.title}

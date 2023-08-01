@@ -21,7 +21,7 @@ const StreamlitAppGallery = (): JSX.Element => {
                 />
                 <StreamlitAppCard
                     title={'Data Quality Verification'}
-                    description={'Pass data checks before exporting'}
+                    description={'Pass checks before exporting data'}
                     imageSrc={'/data-app/data-cleaning-verification.png'}
                     streamlitHref={DATA_VERIFICATION_STREAMLIT_APP_LINK}
                     gitHubHref={'https://github.com/mito-ds/data-cleaning-demo'}
