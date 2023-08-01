@@ -17,6 +17,7 @@ import { classNames } from '../../utils/classNames';
 import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
 import Footer from '../../components/Footer/Footer';
+import Link from 'next/link';
 
 const Security: NextPage = () => {
 
@@ -89,10 +90,10 @@ const Security: NextPage = () => {
                                     <Image src={'/ides.png'} alt='Mito Generated Code' width={1000} height={500}/>
                                 </div>
                                 <h3>
-                                    Add a spreadsheet interface to your existing Python infrastructure
+                                    Add a spreadsheet to your existing Python infrastructure
                                 </h3>
                                 <p>
-                                    Mito lives inside Jupyter, infrastructure that your organization already has set up. Adopting Mito doesn&apos;t require months of collaboration with IT or compliance.  
+                                    Mito lives inside Jupyter and Streamlit, the infrastructure that your organization already has set up. Adopting Mito doesn&apos;t require months of collaboration with IT or compliance.  
                                 </p>
                                 <p>
                                     Compliance teams love Mito because the code is fully visible. 
@@ -102,6 +103,11 @@ const Security: NextPage = () => {
                                 </p>
                                 <p>
                                     Managers love Mito because it reduces key person risk.
+                                </p>
+                                <p className={pageStyles.link}>
+                                    <Link href="/data-apps" >
+                                        Learn more about Mito in Streamlit →
+                                    </Link>
                                 </p>
                             </div>
                         </div>
