@@ -698,7 +698,7 @@ const Plans: NextPage = () => {
                           Feature <br/> settings
                         </h2>
                         <p>
-                          Customize Mito by toggling on/off onbaording tours, support locations, seleting between light and dark mode, and more.
+                          Customize Mito by toggling on/off onboarding tours, support locations, seleting between light and dark mode, and more.
                         </p>
                     </div>
                 </div>

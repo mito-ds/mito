@@ -33,10 +33,10 @@ const DataApp: NextPage = () => {
 
             <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Upgrade Python scripts to interactive Streamlit Apps
+                    Turn Python scripts into Data Apps
                 </h1>
                 <p className={titleStyles.description}>
-                    Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
+                    Convert one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
                     <CTAButtons variant='download' align='center' displayProCTA={false}/>
@@ -55,10 +55,10 @@ const DataApp: NextPage = () => {
                 <div className={pageStyles.subsection}>
                     <div className={textImageSplitStyles.functionality_text}>
                         <h1>
-                            From automation script, to <span className='text-highlight'>automation app</span>
+                            From Python script, to <span className='text-highlight'>data app</span>
                         </h1>
                         <p>
-                            It only takes one data analyst to build a script for an entire team to automate their similar workflows. 
+                            It only takes one analyst to build a script for an entire team to automate their similar workflows. 
                             Mito-enabled Streamlit dashboards let other users customize existing automation solutions to their data.
                         </p>
                         <p>
@@ -78,7 +78,7 @@ const DataApp: NextPage = () => {
                             Make your data explorable to non-technical users
                         </h1>
                         <p> 
-                            Setting up database connections is confusing even to engineers. 
+                            Finding the right dataset can be hard even for data scientists. 
                         </p>
                         <p>
                             Connect your Streamlit app to your data and let users self-serve their data exploration without writing any code. 
@@ -96,7 +96,7 @@ const DataApp: NextPage = () => {
                         Mito Streamlit Gallery
                     </h2>
                     <p>
-                        Find one you like, then use it to build your own
+                        Find one you like, then take our code to build your own
                     </p>
                 </div>
                 <StreamlitAppGallery />
