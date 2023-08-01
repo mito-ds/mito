@@ -116,9 +116,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         loading: [],
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
             ? {type: ModalEnum.SignUp} 
-            : (userProfile.shouldUpgradeMitosheet 
-                ? {type: ModalEnum.Upgrade} : {type: ModalEnum.None}
-            ),
+            : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,

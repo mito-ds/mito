@@ -99,25 +99,6 @@ def is_local_deployment() -> bool:
     return not is_on_kuberentes_mito()  
 
 
-def should_upgrade_mitosheet() -> bool:
-    """
-    A helper function that calculates if a user should upgrade, which does so by 
-    checking if the user has upgraded in the past 21 days (3 weeks), since this is
-    about how often we release big features.
-
-    Always returns false if:
-    - it is not a local installation, for obvious reasons.
-    - if it has an admin package installed, as this is managed by an admin
-
-    NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
-    date to this date, so that the user doesn't get a bunch of annoying popups. This just
-    pushes back when they are annoyed to upgrade!
-
-    NOTE: THIS FUNCTION IS NOT IN USE ANY MORE. WE NO LONGER TELL USERS TO UPGRADE
-    AS THERE IS NO REAL REASON FOR THEM TO DO SO, AND IT IS ANNOYING.
-    """
-    return False
-
 def get_pandas_version() -> str:
     """
     Returns the pandas version
