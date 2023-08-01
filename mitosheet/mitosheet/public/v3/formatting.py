@@ -8,19 +8,39 @@ from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
 
+# Object to map the conditional formatting operators to the openpyxl operators
+CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP = {
+    'greater': 'greaterThan',
+    'less': 'lessThan',
+    'number_exactly': 'equal',
+    'number_not_exactly': 'notEqual',
+    'greater_than_or_equal': 'greaterThanOrEqual',
+    'less_than_or_equal': 'lessThanOrEqual',
+}
+
 def add_conditional_formats(
     conditional_formats: list,
     sheet: Worksheet,
     df: DataFrame
 ) -> None:
     for conditional_format in conditional_formats:
-        for filter in conditional_format.get('filters'):
+        for filter in conditional_format.get('filters', []):
             # Start with the greater than condition
-            if filter['condition'] != 'greater':
+            operator = CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP.get(filter['condition'])
+            if operator is None:
                 continue
-            cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
-            cond_font = Font(color=conditional_format['font_color'][1:])
-            column_conditional_rule = CellIsRule(operator="greaterThan", font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
+            cond_fill = None
+            cond_font = None
+            if conditional_format.get('background_color') is not None:
+                cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
+            if conditional_format.get('font_color') is not None:
+                cond_font = Font(color=conditional_format['font_color'][1:])
+            
+            if cond_fill is None and cond_font is None:
+                continue
+            else:
+                column_conditional_rule = CellIsRule(operator=operator, fill=cond_fill, font=cond_font, formula=[f'{filter["value"]}'])
+            
             for column_header in conditional_format['columns']:
                 column_index = df.columns.tolist().index(column_header)
                 column = get_column_from_column_index(column_index)
