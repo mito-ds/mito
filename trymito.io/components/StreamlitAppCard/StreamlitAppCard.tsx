@@ -1,13 +1,15 @@
 import Image from 'next/image'
 
 import streamlitAppCardStyles from './StreamlitAppCard.module.css'
+import pageStyles from '../../styles/Page.module.css'
 import { classNames } from '../../utils/classNames'
 
 const StreamlitAppCard = (props: {
     title: string, 
     description: string
     imageSrc: string
-    href: string
+    streamlitHref: string
+    gitHubHref: string
     tags?: string[]
 }): JSX.Element => {
 
@@ -17,25 +19,27 @@ const StreamlitAppCard = (props: {
     return (
         <div className={classNames(streamlitAppCardStyles.container)}>
             <Image
+                className={streamlitAppCardStyles.streamlit_app_image}
                 src={props.imageSrc}
                 alt={props.title}
                 width={264}
                 height={132}
             />
-            <p className={streamlitAppCardStyles.title_text}>
+            <a href={props.streamlitHref} target="_blank" rel="noreferrer" className={streamlitAppCardStyles.title_text}>
                 {props.title}
-            </p>
+            </a>
             <p className={streamlitAppCardStyles.description}>
                 {props.description}
             </p>
-            {hashtagString !== undefined && 
-                <div className={streamlitAppCardStyles.hashtag_container}>
-                    <p className={streamlitAppCardStyles.hashtag}>
-                        {hashtagString}
-                    </p>
-                </div>
-                
-            }
+            
+            <div className={streamlitAppCardStyles.footer}>
+                <a href={props.gitHubHref} target="_blank" rel="noreferrer" className={streamlitAppCardStyles.view_code}>
+                    View Code →
+                </a>
+                <p className={streamlitAppCardStyles.hashtag}>
+                    {hashtagString}
+                </p>
+            </div>
         </div>
     )
     

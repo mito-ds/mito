@@ -7,13 +7,13 @@ import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import titleStyles from '../styles/Title.module.css';
-import dashboardStyles from '../styles/Dashboard.module.css';
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 import { classNames } from '../utils/classNames';
 import StreamlitAppCard from '../components/StreamlitAppCard/StreamlitAppCard';
+import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
 
 const DataApp: NextPage = () => {
 
@@ -84,54 +84,8 @@ const DataApp: NextPage = () => {
                         Find one you like, then use it to build your own
                     </p>
                 </div>
-                <div className={dashboardStyles.streamlit_gallery_row}>
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Snowflake']}
-                    />
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Finance', 'Recon']}
-                    />
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Snowflake']}
-                    />
-                </div>
-                <div className={dashboardStyles.streamlit_gallery_row}>
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Snowflake']}
-                    />
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Snowflake']}
-                    />
-                    <StreamlitAppCard 
-                        title={'Snowflake Data Explorer'} 
-                        description={'Import and explore data from Snowflake'} 
-                        imageSrc={'/mito-in-streamlit.png'} 
-                        href={''} 
-                        tags={['Snowflake']}
-                    />
-                </div>
+                <StreamlitAppGallery />
                 
-
             </section>
           
 

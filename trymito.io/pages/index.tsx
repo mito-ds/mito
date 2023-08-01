@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
+import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
 
 const Home: NextPage = () => {
 
@@ -143,8 +144,22 @@ const Home: NextPage = () => {
             </div>
 
           </section>
-          
-          <AIThesis/>
+
+
+          <section>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
+                <h2>
+                  Turn Python scripts into interactive Streamlit Dashboards
+                </h2>
+                <p className={pageStyles.link}>
+                  <Link href="/data-apps" >
+                    Learn more about Mito in Streamlit →
+                  </Link>
+                </p>
+            </div>
+            <StreamlitAppGallery />
+                
+          </section>
 
           <section className={homeStyles.metrics_container + ' margin-top-8rem'}>
             <div className={homeStyles.metric_container}>
@@ -173,7 +188,9 @@ const Home: NextPage = () => {
             </div>
           </section>
 
-          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section)}>
+          <AIThesis/>
+
+          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section, 'margin-top-8rem')}>
             <div>
               <h2 className={homeStyles.case_study_text}>
                 Enigma’s Director of Finance saves 16 hours per month with Mito

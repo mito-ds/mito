@@ -46,6 +46,9 @@ const Footer = (): JSX.Element => {
                         <Link href='/low-code-sql'>Low-Code SQL</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/data-app'>Data App</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>

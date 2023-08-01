@@ -1,0 +1,39 @@
+.streamlit_gallery_container {
+    margin-top: 8rem;
+}
+
+.streamlit_gallery_row {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+.streamlit_gallery_row > * {
+    margin-top: 1rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+
+    .streamlit_gallery_container {
+        margin-top: 4rem;
+    }
+
+    .streamlit_gallery_row {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        max-width: 80rem;
+    }
+
+    .streamlit_gallery_row > * {
+        margin-left: .5rem;
+        margin-right: .5rem;
+        margin-top: 0rem;
+    }
+
+    .streamlit_gallery_row + .streamlit_gallery_row {
+        margin-top: 1rem;
+    }
+
+}
