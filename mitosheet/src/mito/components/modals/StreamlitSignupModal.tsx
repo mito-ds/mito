@@ -4,7 +4,6 @@ import React, { FormEvent, useState } from 'react';
 import { MitoAPI } from '../../api/api';
 import BlueMitoFolk from '../icons/mitofolks/BlueMitoFolk';
 import PinkMitoFolk from '../icons/mitofolks/PinkMitoFolk';
-import YellowMitoFolk from '../icons/mitofolks/YellowMitoFolk';
 import { ModalEnum } from './modals';
 
 import '../../../../css/signup-modal.css';
@@ -35,11 +34,11 @@ const StepOne = (
                 <h1 className='text-header-1' style={{margin: 0}}>
                     Sign up for Mito
                 </h1>
-                <p className='text-header-2 text-color-medium-important' style={{marginTop: '10px'}}>
+                <p className='text-header-2 text-color-medium-important text-font-family-normal-important' style={{marginTop: '10px'}}>
                     We’ll send you periodic product updates and welcome any feedback.
                 </p>
-                <p className='text-header-2 text-color-medium-important' style={{marginTop: '10px'}}>
-                    This modal appears the first time you use Mito for Streamlit.
+                <p className='text-header-2 text-color-medium-important text-font-family-normal-important' style={{marginTop: '10px'}}>
+                    This modal appears the first time you use Mito for Streamlit on a computer.
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
@@ -61,7 +60,7 @@ const StepOne = (
                         width='block'
                         type='submit'
                     >
-                        Accept
+                        Next
                     </TextButton>
                 </div>
             </form>
@@ -71,7 +70,6 @@ const StepOne = (
 
 
 
-/* Step three asks the user want they want to use Mito for */
 const StepTwo = (
     props: {
         back: () => void;
@@ -87,13 +85,13 @@ const StepTwo = (
                     {props.isPro && `Mito Pro is Totally Private`}
                     {!props.isPro && `Built for Privacy`}
                 </h1>
-                <p className='text-header-2' style={{marginTop: '10px'}}>
+                <p className='text-header-2 text-font-family-normal-important' style={{marginTop: '10px'}}>
                     {props.isPro && `As a Mito Pro user, no data leaves your computer, ever. Check out our CCPA compliant privacy policy`}
-                    {!props.isPro && `We make sure none of your private data leaves your computer in our basic telemetry. Read our CCPA compliant`}
+                    {!props.isPro && `We take no private data. We collect basic information about usage. Read our CCPA compliant`}
                     {' '} <a className='text-link' href='https://privacy.trymito.io/privacy-policy' target='_blank' rel="noreferrer"><u>privacy policy.</u></a>
                 </p>
                 {!props.isPro &&
-                    <p className='text-header-2' style={{marginTop: '10px'}}>
+                    <p className='text-header-2 text-font-family-normal-important' style={{marginTop: '10px'}}>
                         See <a className='text-link' href='https://trymito.io/plans' target='_blank' rel="noreferrer"><u>Mito Pro or Mito Enterprise</u></a> to remove all telemetry.
                     </p>
                 }
@@ -187,9 +185,6 @@ const StreamlitSignupModal = (
                     }
                     {step === 2 &&
                         <BlueMitoFolk/>
-                    }
-                    {step === 3 &&
-                        <YellowMitoFolk/>
                     }
                 </div>
             </div>
