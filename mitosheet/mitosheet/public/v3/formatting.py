@@ -31,6 +31,35 @@ CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
     'boolean_is_false': ('equal', 'cellIs'),
 }
 
+def get_conditional_format_rule(
+    column,
+    rule_type,
+    operator,
+    filter_condition,
+    dxf,
+    filter_value,
+    max_row
+):
+    # Update the formulas for the string operators
+    formula = [filter_value]
+    if filter_condition == 'contains':
+        formula = [f'NOT(ISERROR(FIND("{filter_value}",{column}2:{column}{max_row})))']
+    elif filter_condition == 'string_contains_case_insensitive':
+        formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{column}2:{column}{max_row})))']
+    elif filter_condition == 'string_does_not_contain':
+        formula = [f'ISERROR(SEARCH("{filter_value}",{column}2:{column}{max_row}))']
+    elif filter_condition == 'string_starts_with':
+        formula = [f'LEFT({column}2:{column}{max_row},LEN("{filter_value}"))="{filter_value}"']
+    elif filter_condition == 'string_ends_with':
+        formula = [f'RIGHT({column}2:{column}{max_row},LEN("{filter_value}"))="{filter_value}"']
+    elif filter_condition == 'boolean_is_true':
+        formula = ['TRUE']
+    elif filter_condition == 'boolean_is_false':
+        formula = ['FALSE']
+    elif filter_condition in ['string_exactly', 'string_not_exactly']:
+        formula = [f'"{filter_value}"']
+    return Rule(type=rule_type, operator=operator, dxf=dxf, formula=formula, text=filter_value)
+
 def add_conditional_formats(
     conditional_formats: list,
     sheet: Worksheet,
@@ -54,40 +83,20 @@ def add_conditional_formats(
                 continue
             dxf = DifferentialStyle(fill=cond_fill, font=cond_font)
 
-            # Create the conditional formatting rule
-            filter_value = f"{filter['value']}"
-            operator = operator_info[0]
-            rule_type = operator_info[1]
-            column_conditional_rule = Rule(
-                type=rule_type,
-                operator=operator,
-                dxf=dxf,
-                formula=[filter_value],
-                text=filter_value
-            )
             
             # Add the conditional formatting rule to the sheet
             for column_header in conditional_format['columns']:
                 column_index = df.columns.tolist().index(column_header)
                 column = get_column_from_column_index(column_index)
-
-                # Update the formulas for the string operators
-                if filter['condition'] == 'contains':
-                    column_conditional_rule.formula = [f'NOT(ISERROR(FIND("{filter_value}",{column}2:{column}{sheet.max_row})))']
-                elif filter['condition'] == 'string_contains_case_insensitive':
-                    column_conditional_rule.formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{column}2:{column}{sheet.max_row})))']
-                elif filter['condition'] == 'string_does_not_contain':
-                    column_conditional_rule.formula = [f'ISERROR(SEARCH("{filter_value}",{column}2:{column}{sheet.max_row}))']
-                elif filter['condition'] == 'string_starts_with':
-                    column_conditional_rule.formula = [f'LEFT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
-                elif filter['condition'] == 'string_ends_with':
-                    column_conditional_rule.formula = [f'RIGHT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
-                elif filter['condition'] == 'boolean_is_true':
-                    column_conditional_rule.formula = ['TRUE']
-                elif filter['condition'] == 'boolean_is_false':
-                    column_conditional_rule.formula = ['FALSE']
-                elif filter['condition'] in ['string_exactly', 'string_not_exactly']:
-                    column_conditional_rule.formula = [f'"{filter_value}"']
+                column_conditional_rule = get_conditional_format_rule(
+                    column=column,
+                    rule_type=operator_info[1],
+                    operator=operator_info[0],
+                    filter_condition=filter['condition'],
+                    dxf=dxf,
+                    filter_value=f"{filter['value']}",
+                    max_row=sheet.max_row
+                )
                 sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
 
 
