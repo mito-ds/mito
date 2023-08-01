@@ -297,7 +297,7 @@ CONDITIONAL_FORMATS = [
         '#0c5200',
         'A2',
         'B2',
-        ">"
+        True
     ),
     (
         ['A'],
@@ -306,7 +306,7 @@ CONDITIONAL_FORMATS = [
         '#054384',
         'A2',
         'B2',
-        "<"
+        True
     ),
     (
         ['A'],
@@ -315,7 +315,7 @@ CONDITIONAL_FORMATS = [
         '#18352b',
         'A2',
         'B2',
-        "<="
+        True
     ),
     (
         ['A'],
@@ -324,7 +324,7 @@ CONDITIONAL_FORMATS = [
         '#0a2210',
         'A2',
         'B2',
-        ">="
+        True
     ),
     (
         ['A'],
@@ -333,7 +333,7 @@ CONDITIONAL_FORMATS = [
         None,
         'A2',
         'B2',
-        "=="
+        True
     ),
     (
         ['A'],
@@ -342,12 +342,66 @@ CONDITIONAL_FORMATS = [
         '#001a58',
         'A2',
         'B2',
-        "!="
+        True
+    ),
+    (
+        ['A'],
+        [{'condition': 'string_exactly', 'value': 4}],
+        '#8890d2', 
+        '#d2e1a9',
+        'A2',
+        'B2',
+        True
+    ),
+    (
+        ['A'],
+        [{'condition': 'string_not_exactly', 'value': 4}],
+        '#b9d7f2',
+        None, 
+        'A2',
+        'B2',
+        True
+    ),
+    (
+        ['A'],
+        [{'condition': 'contains', 'value': 4}],
+        '#a39f91', 
+        '#98c4b1',
+        'A2',
+        'B2',
+        False
+    ),
+    (
+        ['A'],
+        [{'condition': 'string_does_not_contain', 'value': 4}],
+        None, 
+        '#ff8ea8',
+        'A2',
+        'B2',
+        False
+    ),
+    (
+        ['A'],
+        [{'condition': 'string_starts_with', 'value': 4}],
+        '#a6fae8', 
+        '#e0dbe5',
+        'A2',
+        'B2',
+        False
+    ),
+    (
+        ['A'],
+        [{'condition': 'string_ends_with', 'value': 4}],
+        '#d09083', 
+        '#b9abff',
+        'A2',
+        'B2',
+        False
     )
 ]
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
     df = pd.DataFrame({'A': [4, 5, 6], 'B': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     test_conditional_formats = [
@@ -369,14 +423,10 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
         "conditional_formats": test_conditional_formats
     })
     filename = 'test_format_conditional.xlsx'
+    numpy_import = f"{chr(10)}import numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename)
-    background_color_str = f'background-color: {background_color}' if background_color is not None else ''
-    font_color_str = f'color: {font_color}; ' if font_color is not None else ''
-    if background_color is None:
-        font_color_str = font_color_str[:-2]
-    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
-import pandas as pd
-import numpy as np
+    assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+import pandas as pd{numpy_import}
 
 with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
@@ -385,17 +435,14 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
             {{'columns': {column_ids}, 'filters': {filters}, 'font_color': {None if font_color is None else f"'{font_color}'"}, 'background_color': {None if background_color is None else f"'{background_color}'"}}}
         ]
     )
-
-df_styler = df.style\\
-    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, '{font_color_str}{background_color_str}', None), subset={column_ids})
 """
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]
     assert get_cell_conditional_formatting(index_not_formatted, filename, 'df') == []
 
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol):
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
     df = pd.DataFrame({'A': [1, 2, 3]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
@@ -424,13 +471,8 @@ def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters
     })
     filename = 'test_format_conditional_and_rows.xlsx'
     mito.export_to_file('excel', [0], filename)
-    font_color_str = f'color: {font_color}; ' if font_color is not None else ''
-    background_color_str = f'background-color: {background_color}' if background_color is not None else ''
-    if background_color is None:
-        font_color_str = font_color_str[:-2]
-    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
-import pandas as pd
-import numpy as np
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd{f"{chr(10)}import numpy as np" if number_formatting else ''}
 
 with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
@@ -443,13 +485,6 @@ with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl
             {{'columns': {column_ids}, 'filters': {filters}, 'font_color': {None if font_color is None else f"'{font_color}'"}, 'background_color': {None if background_color is None else f"'{background_color}'"}}}
         ]
     )
-
-df_styler = df.style\\
-    .set_table_styles([
-        {{'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]}},
-        {{'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]}},
-])\\
-    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, '{font_color_str}{background_color_str}', None), subset={column_ids})
 """
 
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]
