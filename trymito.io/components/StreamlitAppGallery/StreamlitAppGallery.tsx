@@ -4,6 +4,8 @@ import streamlitAppGalleryStyles from './StreamlitAppGallery.module.css'
 import pageStyles from '../../styles/Page.module.css'
 import { classNames } from "../../utils/classNames";
 
+export const DATA_VERIFICATION_STREAMLIT_APP_LINK = 'https://trymito.io'
+
 const StreamlitAppGallery = (): JSX.Element => {
 
     return (
@@ -21,7 +23,7 @@ const StreamlitAppGallery = (): JSX.Element => {
                     title={'Data Quality Verification'}
                     description={'Pass data checks before exporting'}
                     imageSrc={'/data-app/data-cleaning-verification.png'}
-                    streamlitHref={'https://trymito.io'}
+                    streamlitHref={DATA_VERIFICATION_STREAMLIT_APP_LINK}
                     gitHubHref={'https://github.com/mito-ds/data-cleaning-demo'}
                     tags={['Data Cleaning']} 
                 />

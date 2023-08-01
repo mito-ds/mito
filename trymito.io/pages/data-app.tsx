@@ -7,13 +7,14 @@ import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import titleStyles from '../styles/Title.module.css';
+import homeStyles from '../styles/Home.module.css';
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 import { classNames } from '../utils/classNames';
-import StreamlitAppCard from '../components/StreamlitAppCard/StreamlitAppCard';
-import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import StreamlitAppGallery, { DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import CTAButtons from '../components/CTAButtons/CTAButtons';
 
 const DataApp: NextPage = () => {
 
@@ -35,9 +36,18 @@ const DataApp: NextPage = () => {
                 <h1 className={titleStyles.title}>
                     Turn Python scripts into interactive Streamlit Dashboards
                 </h1>
-                <p className={titleStyles.description}>
-                You don&apos;t have to worry about our data storage practices, because we never see anything private.
-                </p>
+                <div className={homeStyles.cta_button_and_video_spacer}>
+                    <CTAButtons variant='download' align='center' displayProCTA={false}/>
+                </div>
+                    
+                <div id='video'>
+                    <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                        <source src={'/data-app/data-verification-app.mp4'} />
+                    </video>
+                </div>
+                <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                    Try this app now →
+                </a>
             </section>
             <section className={textImageSplitStyles.text_image_section_container}>
                 <div className={pageStyles.subsection}>
@@ -53,11 +63,14 @@ const DataApp: NextPage = () => {
                             Sharing automation scripts through Streamlit dashboards turns one hour of automation savings into tens of hours.
                         </p>
                     </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media)}>
-                        <Image src={'/code_snippet.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                        <Image src={'/data-app/script-to-app.png'} alt='Convert scripts into apps' width={668} height={342} layout='responsive'/>
                     </div>
                 </div>
                 <div className={pageStyles.subsection}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+                        <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
+                    </div>
                     <div className={textImageSplitStyles.functionality_text}>
                         <h1>
                             Make your data explorable to non-technical users
@@ -69,7 +82,7 @@ const DataApp: NextPage = () => {
                             Connect your Streamlit app to your data and let users self-serve their data exploration without writing any code. 
                         </p>
                     </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
                         <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
                     </div>
                 </div>
