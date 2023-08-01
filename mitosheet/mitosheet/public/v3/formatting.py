@@ -29,9 +29,22 @@ def add_conditional_formats(
             operator = operator_map[filter['condition']]
             if operator is None:
                 continue
-            cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
-            cond_font = Font(color=conditional_format['font_color'][1:])
-            column_conditional_rule = CellIsRule(operator=operator, font=cond_font, fill=cond_fill, formula=[f'{filter["value"]}'])
+            cond_fill = None
+            cond_font = None
+            if conditional_format.get('background_color') is not None:
+                cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
+            if conditional_format.get('font_color') is not None:
+                cond_font = Font(color=conditional_format['font_color'][1:])
+            
+            if cond_fill is None and cond_font is None:
+                continue
+            elif cond_fill is None:
+                column_conditional_rule = CellIsRule(operator=operator, font=cond_font, formula=[f'{filter["value"]}'])
+            elif cond_font is None:
+                column_conditional_rule = CellIsRule(operator=operator, fill=cond_fill, formula=[f'{filter["value"]}'])
+            else:
+                column_conditional_rule = CellIsRule(operator=operator, fill=cond_fill, font=cond_font, formula=[f'{filter["value"]}'])
+            
             for column_header in conditional_format['columns']:
                 column_index = df.columns.tolist().index(column_header)
                 column = get_column_from_column_index(column_index)
