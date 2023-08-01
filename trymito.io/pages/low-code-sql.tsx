@@ -168,7 +168,7 @@ const LowCodeSQL: NextPage = () => {
                         <Image src={'/low-code-sql/connect-to-data-source.png'} alt='Connect to any data source' width={1000} height={500}/>
                         </div>
                         <h3>
-                            Connect Mito to any data source
+                            Connect Mito to any data with a Python library for SQL
                         </h3>
                         <p>
                             Every enterprise stores their data differently, so Mito makes it easy to bring your own database connections.
