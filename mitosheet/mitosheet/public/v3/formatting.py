@@ -9,7 +9,7 @@ from pandas import DataFrame, ExcelWriter
 from mitosheet.excel_utils import get_column_from_column_index
 
 # Object to map the conditional formatting operators to the openpyxl operators
-operator_map = {
+CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP = {
     'greater': 'greaterThan',
     'less': 'lessThan',
     'number_exactly': 'equal',
@@ -26,7 +26,7 @@ def add_conditional_formats(
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters'):
             # Start with the greater than condition
-            operator = operator_map[filter['condition']]
+            operator = CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP[filter['condition']]
             if operator is None:
                 continue
             cond_fill = None
