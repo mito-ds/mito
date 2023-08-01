@@ -397,6 +397,24 @@ CONDITIONAL_FORMATS = [
         'A2',
         'B2',
         False
+    ),
+    (
+        ['A'],
+        [{'condition': 'boolean_is_true', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'A2',
+        'B2',
+        True
+    ),
+    (
+        ['A'],
+        [{'condition': 'boolean_is_false', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'A2',
+        'B2',
+        True
     )
 ]
 # This tests when the user exports a dataframe with row formatting without header formatting.

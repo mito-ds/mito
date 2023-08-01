@@ -23,6 +23,8 @@ CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP = {
     'string_does_not_contain': {'operator': 'notContains', 'rule_type': 'notContainsText'},
     'string_starts_with': {'operator': 'beginsWith', 'rule_type': 'beginsWith'},
     'string_ends_with': {'operator': 'endsWith', 'rule_type': 'endsWith'},
+    'boolean_is_true': {'operator': 'equal', 'rule_type': 'cellIs'},
+    'boolean_is_false': {'operator': 'equal', 'rule_type': 'cellIs'},
 }
 
 def add_conditional_formats(
@@ -74,6 +76,10 @@ def add_conditional_formats(
                     column_conditional_rule.formula = [f'LEFT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
                 elif operator == 'endsWith':
                     column_conditional_rule.formula = [f'RIGHT({column}2:{column}{sheet.max_row},LEN("{filter_value}"))="{filter_value}"']
+                elif filter['condition'] == 'boolean_is_true':
+                    column_conditional_rule.formula = ['TRUE']
+                elif filter['condition'] == 'boolean_is_false':
+                    column_conditional_rule.formula = ['FALSE']
                 elif operator in ['equal', 'notEqual']:
                     column_conditional_rule.formula = [f'"{filter_value}"']
                 sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
