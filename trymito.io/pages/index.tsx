@@ -114,10 +114,10 @@ const Home: NextPage = () => {
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span>
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span> and <span className='text-color-streamlit-red'>Streamlit</span>
                 </h2>
                 <p className='display-mobile-only'> 
-                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. 
+                  Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
                 <p className='display-desktop-only-inline-block'>
@@ -133,13 +133,9 @@ const Home: NextPage = () => {
                     pip install mitosheet
                   </span> {copied && "- copied!"}
                 </p>
-
-                <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Download Mito for Jupyter →
-                </a>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/jupyter-and-streamlit.png'} alt='Use Mito in Jupyter or Streamlit' width={678} height={342} layout='responsive'/>
               </div>
             </div>
 

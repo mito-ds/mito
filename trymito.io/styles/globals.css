@@ -296,6 +296,10 @@ a {
   color: var(--jupyter-orange);
 }
 
+.text-color-streamlit-red {
+  color: var(--streamlit-red)
+}
+
 .code-background {
   font-family: monospace;
   background-color: #D0D0D0;
