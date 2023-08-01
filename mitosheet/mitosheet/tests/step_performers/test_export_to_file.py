@@ -292,7 +292,7 @@ df_styler = df.style\\
 CONDITIONAL_FORMATS = [
     (
         ['A'], 
-        [{'condition': 'greater', 'value': 5}], 
+        [{'condition': 'greater', 'value': 2}], 
         '#e72323', 
         '#0c5200',
         'A2',
@@ -301,7 +301,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['A'],
-        [{'condition': 'less', 'value': 4}],
+        [{'condition': 'less', 'value': 2}],
         '#8f4608', 
         '#054384',
         'A2',
@@ -310,7 +310,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['A'],
-        [{'condition': 'less_than_or_equal', 'value': 4}],
+        [{'condition': 'less_than_or_equal', 'value': 2}],
         '#022c42', 
         '#18352b',
         'A2',
@@ -319,7 +319,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['A'],
-        [{'condition': 'greater_than_or_equal', 'value': 4}],
+        [{'condition': 'greater_than_or_equal', 'value': 2}],
         '#620a5f', 
         '#0a2210',
         'A2',
@@ -328,7 +328,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['A'],
-        [{'condition': 'number_exactly', 'value': 4}],
+        [{'condition': 'number_exactly', 'value': 3}],
         '#032f5c', 
         None,
         'A2',
@@ -337,7 +337,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['A'],
-        [{'condition': 'number_not_exactly', 'value': 4}],
+        [{'condition': 'number_not_exactly', 'value': 3}],
         None, 
         '#001a58',
         'A2',
@@ -345,74 +345,83 @@ CONDITIONAL_FORMATS = [
         True
     ),
     (
-        ['A'],
-        [{'condition': 'string_exactly', 'value': 4}],
+        ['B'],
+        [{'condition': 'string_exactly', 'value': 'dEf'}],
         '#8890d2', 
         '#d2e1a9',
+        'B3',
         'A2',
-        'B2',
         True
     ),
     (
-        ['A'],
-        [{'condition': 'string_not_exactly', 'value': 4}],
+        ['B'],
+        [{'condition': 'string_not_exactly', 'value': 'def'}],
         '#b9d7f2',
         None, 
+        'B3',
         'A2',
-        'B2',
         True
     ),
     (
-        ['A'],
-        [{'condition': 'contains', 'value': 4}],
+        ['B'],
+        [{'condition': 'contains', 'value': 'e'}],
         '#a39f91', 
         '#98c4b1',
+        'B3',
         'A2',
-        'B2',
-        False
+        True
     ),
     (
-        ['A'],
-        [{'condition': 'string_does_not_contain', 'value': 4}],
+        ['B'],
+        [{'condition': 'string_contains_case_insensitive', 'value': 'e'}],
+        '#a39f91', 
+        '#98c4b1',
+        'B3',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_does_not_contain', 'value': 'a'}],
         None, 
         '#ff8ea8',
-        'A2',
         'B2',
-        False
+        'A2',
+        True
     ),
     (
-        ['A'],
-        [{'condition': 'string_starts_with', 'value': 4}],
+        ['B'],
+        [{'condition': 'string_starts_with', 'value': 'd'}],
         '#a6fae8', 
         '#e0dbe5',
-        'A2',
         'B2',
-        False
+        'A2',
+        True
     ),
     (
-        ['A'],
+        ['B'],
         [{'condition': 'string_ends_with', 'value': 4}],
         '#d09083', 
         '#b9abff',
-        'A2',
         'B2',
+        'C2',
         False
     ),
     (
-        ['A'],
+        ['C'],
         [{'condition': 'boolean_is_true', 'value': ''}],
         '#d09083', 
         '#b9abff',
-        'A2',
+        'C2',
         'B2',
         True
     ),
     (
-        ['A'],
+        ['C'],
         [{'condition': 'boolean_is_false', 'value': ''}],
         '#d09083', 
         '#b9abff',
-        'A2',
+        'C2',
         'B2',
         True
     )
@@ -420,7 +429,7 @@ CONDITIONAL_FORMATS = [
 # This tests when the user exports a dataframe with row formatting without header formatting.
 @pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
 def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
-    df = pd.DataFrame({'A': [4, 5, 6], 'B': [1, 2, 3]})
+    df = pd.DataFrame({ 'A': [1,2,3], 'B': ['abc', 'dEf', 'HiJ'], 'C': [True, False, True] })
     mito = create_mito_wrapper(df, arg_names=['df'])
     test_conditional_formats = [
         {
@@ -461,7 +470,7 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
 # This tests when the user exports a dataframe with row formatting without header formatting.
 @pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
 def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
-    df = pd.DataFrame({'A': [1, 2, 3]})
+    df = pd.DataFrame({ 'A': [1,2,3], 'B': ['abc', 'dEf', 'HiJ'], 'C': [True, False, True] },)
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
         'headers': {},
