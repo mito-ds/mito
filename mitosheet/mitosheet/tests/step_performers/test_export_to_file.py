@@ -441,7 +441,7 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
         "conditional_formats": test_conditional_formats
     })
     filename = 'test_format_conditional.xlsx'
-    numpy_import = f"{chr(10)}import numpy as np" if number_formatting else ''
+    numpy_import = f"\nimport numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename)
     assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
@@ -489,8 +489,9 @@ def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters
     })
     filename = 'test_format_conditional_and_rows.xlsx'
     mito.export_to_file('excel', [0], filename)
+    numpy_import = f"\nimport numpy as np" if number_formatting else ''
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
-import pandas as pd{f"{chr(10)}import numpy as np" if number_formatting else ''}
+import pandas as pd{numpy_import}
 
 with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
