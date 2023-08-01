@@ -364,7 +364,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['B'],
-        [{'condition': 'contains', 'value': 'e'}],
+        [{'condition': 'contains', 'value': 'E'}],
         '#a39f91', 
         '#98c4b1',
         'B3',
