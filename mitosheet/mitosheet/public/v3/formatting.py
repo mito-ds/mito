@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Tuple
 
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
@@ -9,23 +9,26 @@ from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
 
+RuleOperator = str
+RuleType = str
+
 # Object to map the conditional formatting operators to the openpyxl operators
-CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP = {
-    'greater': {'operator': 'greaterThan', 'rule_type': 'cellIs'},
-    'less': {'operator': 'lessThan', 'rule_type': 'cellIs'},
-    'number_exactly': {'operator': 'equal', 'rule_type': 'cellIs'},
-    'number_not_exactly': {'operator': 'notEqual', 'rule_type': 'cellIs'},
-    'greater_than_or_equal': {'operator': 'greaterThanOrEqual', 'rule_type': 'cellIs'},
-    'less_than_or_equal': {'operator': 'lessThanOrEqual', 'rule_type': 'cellIs'},
-    'string_exactly': {'operator': 'equal', 'rule_type': 'cellIs'},
-    'string_not_exactly': {'operator': 'notEqual', 'rule_type': 'cellIs'},
-    'contains': {'operator': 'containsText', 'rule_type': 'containsText'},
-    'string_contains_case_insensitive': {'operator': 'containsText', 'rule_type': 'containsText'},
-    'string_does_not_contain': {'operator': 'notContains', 'rule_type': 'notContainsText'},
-    'string_starts_with': {'operator': 'beginsWith', 'rule_type': 'beginsWith'},
-    'string_ends_with': {'operator': 'endsWith', 'rule_type': 'endsWith'},
-    'boolean_is_true': {'operator': 'equal', 'rule_type': 'cellIs'},
-    'boolean_is_false': {'operator': 'equal', 'rule_type': 'cellIs'},
+CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
+    'greater': ('greaterThan', 'cellIs'),
+    'less': ('lessThan', 'cellIs'),
+    'number_exactly': ('equal', 'cellIs'),
+    'number_not_exactly': ('notEqual', 'cellIs'),
+    'greater_than_or_equal': ('greaterThanOrEqual', 'cellIs'),
+    'less_than_or_equal': ('lessThanOrEqual', 'cellIs'),
+    'string_exactly': ('equal', 'cellIs'),
+    'string_not_exactly': ('notEqual', 'cellIs'),
+    'contains': ('containsText', 'containsText'),
+    'string_contains_case_insensitive': ('containsText', 'containsText'),
+    'string_does_not_contain': ('notContains', 'notContainsText'),
+    'string_starts_with': ('beginsWith', 'beginsWith'),
+    'string_ends_with': ('endsWith', 'endsWith'),
+    'boolean_is_true': ('equal', 'cellIs'),
+    'boolean_is_false': ('equal', 'cellIs'),
 }
 
 def add_conditional_formats(
@@ -36,7 +39,7 @@ def add_conditional_formats(
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters', []):
             # Start with the greater than condition
-            operator_info = CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP.get(filter['condition'])
+            operator_info = CONDITION_TO_RULE_AND_OPERATOR.get(filter['condition'])
             if operator_info is None:
                 continue
 
@@ -53,8 +56,8 @@ def add_conditional_formats(
 
             # Create the conditional formatting rule
             filter_value = f"{filter['value']}"
-            rule_type = operator_info['rule_type']
-            operator = operator_info['operator']
+            operator = operator_info[0]
+            rule_type = operator_info[1]
             column_conditional_rule = Rule(
                 type=rule_type,
                 operator=operator,
