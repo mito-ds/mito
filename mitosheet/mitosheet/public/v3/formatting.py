@@ -38,10 +38,6 @@ def add_conditional_formats(
             
             if cond_fill is None and cond_font is None:
                 continue
-            elif cond_fill is None:
-                column_conditional_rule = CellIsRule(operator=operator, font=cond_font, formula=[f'{filter["value"]}'])
-            elif cond_font is None:
-                column_conditional_rule = CellIsRule(operator=operator, fill=cond_fill, formula=[f'{filter["value"]}'])
             else:
                 column_conditional_rule = CellIsRule(operator=operator, fill=cond_fill, font=cond_font, formula=[f'{filter["value"]}'])
             
