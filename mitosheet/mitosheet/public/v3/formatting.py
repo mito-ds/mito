@@ -32,14 +32,14 @@ CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
 }
 
 def get_conditional_format_rule(
-    column,
-    rule_type,
-    operator,
-    filter_condition,
-    dxf,
-    filter_value,
-    max_row
-):
+    column: str,
+    rule_type: RuleType,
+    operator: RuleOperator,
+    filter_condition: str,
+    dxf: DifferentialStyle,
+    filter_value: str,
+    max_row: int
+) -> Rule:
     # Update the formulas for the string operators
     formula = [filter_value]
     if filter_condition == 'contains':
