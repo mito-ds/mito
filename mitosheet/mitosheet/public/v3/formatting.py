@@ -24,9 +24,9 @@ def add_conditional_formats(
     df: DataFrame
 ) -> None:
     for conditional_format in conditional_formats:
-        for filter in conditional_format.get('filters'):
+        for filter in conditional_format.get('filters', []):
             # Start with the greater than condition
-            operator = CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP[filter['condition']]
+            operator = CONDITIONAL_TO_OPENPYXL_OPERATOR_MAP.get(filter['condition'])
             if operator is None:
                 continue
             cond_fill = None
