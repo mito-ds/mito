@@ -126,7 +126,7 @@ const CellEditor = (props: {
 
     useEffect(() => {
         props.setEditorState(prevEditingState => {
-            if (prevEditingState?.type === "closed") {
+            if (prevEditingState.type === "closed") {
                 return prevEditingState;
             } 
             
@@ -460,7 +460,7 @@ const CellEditor = (props: {
         const newFormula = fullFormula.substring(0, selectionStart) + char + fullFormula.substring(selectionStart);
 
         props.setEditorState(prevEditingState => {
-            if (prevEditingState?.type === "closed") {
+            if (prevEditingState.type === "closed") {
                 return { type: "closed", editingMode:prevEditingState.editingMode }
             }
             return {
