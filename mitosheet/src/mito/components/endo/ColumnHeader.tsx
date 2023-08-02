@@ -75,8 +75,8 @@ const ColumnHeader = (props: {
     }
 
     const hasFilters = columnFilters.filters.length > 0;
-    const editingColumnHeader = props.editorState?.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
-    const editingFinalColumnHeader = props.editorState?.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingColumnHeader = props.editorState.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingFinalColumnHeader = props.editorState.type !== "closed" && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
 
 
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
@@ -95,12 +95,7 @@ const ColumnHeader = (props: {
     }
 
     const closeColumnHeaderEditor = () => {
-        props.setEditorState(prevEditorState => (
-            {
-                type:"closed",
-                editingMode:prevEditorState.editingMode
-            }
-        ));
+        props.setEditorState(prevEditorState => ({type: "closed", editingMode: prevEditorState.editingMode} ));
         // We then focus on the grid, as we are no longer focused on the editor
         setTimeout(() => focusGrid(props.containerRef.current), 100);
     }
@@ -250,7 +245,7 @@ const ColumnHeader = (props: {
                                 onSubmit={async (e) => {
                                     e.preventDefault();
 
-                                    const newColumnHeader = props.editorState?.type !== "closed" ? props.editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
+                                    const newColumnHeader = props.editorState.type !== "closed" ? props.editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
                                     const oldColumnHeader = getDisplayColumnHeader(lowerLevelColumnHeader);
                                     if (newColumnHeader !== oldColumnHeader) {
                                         void props.mitoAPI.editRenameColumn(
@@ -277,12 +272,14 @@ const ColumnHeader = (props: {
                                 }}
                             >
                                 <Input
-                                    value={props.editorState?.type !== "closed" ? props.editorState?.formula : ''}
+                                    value={props.editorState.type !== "closed" ? props.editorState?.formula : ''}
                                     onChange={(e) => {
                                         const newHeader = e.target.value;
 
                                         props.setEditorState((prevEditorState => {
-                                            if (prevEditorState.type === "closed") return {type: "closed", editingMode:prevEditorState.editingMode};
+                                            if (prevEditorState.type === "closed"){ 
+                                                return { type: "closed", editingMode: prevEditorState.editingMode};
+                                            }
                                             return {
                                                 ...prevEditorState,
                                                 formula: newHeader,
@@ -395,12 +392,14 @@ const ColumnHeader = (props: {
                         }}
                     >
                         <Input
-                            value={props.editorState?.type !== "closed" ? props.editorState?.formula : ''}
+                            value={props.editorState.type !== "closed" ? props.editorState?.formula : ''}
                             onChange={(e) => {
                                 const newHeader = e.target.value;
 
                                 props.setEditorState((prevEditorState => {
-                                    if (prevEditorState?.type === "closed") return {type:"closed", editingMode:prevEditorState.editingMode};
+                                    if (prevEditorState.type === "closed") {
+                                        return { type: "closed", editingMode: prevEditorState.editingMode};
+                                    }
                                     return {
                                         ...prevEditorState,
                                         formula: newHeader,

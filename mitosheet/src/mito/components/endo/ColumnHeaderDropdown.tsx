@@ -137,7 +137,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem 
                 title='Set Column Formula'
                 onClick={() => {
-                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, {type:"closed", editingMode:"entire_column"}, rowIndex, columnIndex);
+                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, {type: "closed", editingMode:"entire_column"}, rowIndex, columnIndex);
 
                     props.setEditorState({
                         rowIndex: 0,

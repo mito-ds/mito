@@ -118,7 +118,7 @@ export const getStartingFormula = (
 ): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean, editingMode: 'entire_column' | 'specific_index_labels'} => {
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
     // ie: from the floating cell editor to the formula bar.
-    if (editorState?.type !== "closed" && editorState.columnIndex === columnIndex) {
+    if (editorState.type !== "closed" && editorState.columnIndex === columnIndex) {
         return {
             startingColumnFormula: editorState.formula,
             arrowKeysScrollInFormula: true,
@@ -178,7 +178,7 @@ export const getStartingFormula = (
         }
     }
 
-    const editingMode= columnFormulaLocation || editorState.editingMode
+    const editingMode = columnFormulaLocation || editorState.editingMode
 
     return {
         startingColumnFormula: originalValue,

@@ -171,9 +171,7 @@ const CellEditor = (props: {
                 }]
             }
         })
-        props.setEditorState(prevEditorState=>(
-            {type:"closed",
-                editingMode:prevEditorState.editingMode}
+        props.setEditorState(prevEditorState=>({ type: "closed", editingMode: prevEditorState.editingMode }
         ));
         
         ensureCellVisible(
@@ -284,7 +282,9 @@ const CellEditor = (props: {
                 // As google sheets does, if the user is scrolling in the suggestion box,
                 // then we make their arrow keys scroll in the formula
                 props.setEditorState((prevEditorState) => {
-                    if (prevEditorState?.type === "closed") return { type: "closed", editingMode:prevEditorState.editingMode};
+                    if (prevEditorState.type === "closed") {
+                        return { type: "closed", editingMode: prevEditorState.editingMode};
+                    }
                     return {
                         ...prevEditorState,
                         arrowKeysScrollInFormula: true,
@@ -355,9 +355,9 @@ const CellEditor = (props: {
                 // because we might want the cell editor to refresh the documentation function, we simply 
                 // refresh the cell editor, which will update the documentation function
                 props.setEditorState((prevEditorState) => {
-                    if (prevEditorState?.type === "closed") return {
+                    if (prevEditorState.type === "closed") return {
                         type: "closed",
-                        editingMode:prevEditorState.editingMode
+                        editingMode: prevEditorState.editingMode
                     };
                     return {
                         ...prevEditorState,

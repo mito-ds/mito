@@ -59,7 +59,7 @@ export const createActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, {type:"closed",editingMode:"entire_column"}, startingRowIndex, startingColumnIndex);
+    const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, {type: "closed",editingMode:"entire_column"}, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -89,8 +89,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -132,8 +132,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -162,8 +162,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -192,8 +192,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -261,8 +261,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -369,8 +369,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -393,8 +393,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -422,8 +422,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -443,8 +443,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
                 
@@ -467,8 +467,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -497,8 +497,8 @@ export const createActions = (
             actionFunction: () => {
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
                 closeOpenEditingPopups();
@@ -524,8 +524,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -556,8 +556,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -584,8 +584,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -647,8 +647,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -689,8 +689,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -714,8 +714,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -741,8 +741,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -770,8 +770,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -797,8 +797,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -824,8 +824,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
                 
@@ -967,8 +967,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
     
@@ -1066,8 +1066,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1153,8 +1153,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1219,8 +1219,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
         
@@ -1245,8 +1245,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1273,8 +1273,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1309,8 +1309,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1348,8 +1348,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1373,8 +1373,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1400,8 +1400,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1429,8 +1429,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1454,8 +1454,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1479,8 +1479,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1504,8 +1504,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1551,8 +1551,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1576,8 +1576,8 @@ export const createActions = (
             actionFunction: () => {
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1601,8 +1601,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 
@@ -1626,8 +1626,8 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(prevEditorState => (
                     {
-                        type:"closed",
-                        editingMode:prevEditorState.editingMode
+                        type: "closed",
+                        editingMode: prevEditorState.editingMode
                     }
                 ));
 

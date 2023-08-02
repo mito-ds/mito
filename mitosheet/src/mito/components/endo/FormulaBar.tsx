@@ -38,11 +38,11 @@ const FormulaBar = (props: {
 
     const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
-    const cellEditingCellData = props.editorState?.type === "closed" ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
-    const formulaBarColumnHeader = props.editorState?.type === "closed" ? columnHeader : cellEditingCellData?.columnHeader;
+    const cellEditingCellData = props.editorState.type === "closed" ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const formulaBarColumnHeader = props.editorState.type === "closed" ? columnHeader : cellEditingCellData?.columnHeader;
 
     let formulaBarValue = ''
-    if (props.editorState?.type === "closed") {
+    if (props.editorState.type === "closed") {
         // If the formula bar is a cell, display the cell value. If it is a column header, display the column header
         if (rowIndex == -1 && columnHeader !== undefined) {
             formulaBarValue = getDisplayColumnHeader(columnHeader)
@@ -71,7 +71,7 @@ const FormulaBar = (props: {
                 <div className="formula-bar-vertical-line"/>
             </Col>
             <Col flex='1'>
-                {props.editorState?.type!=="closed" && props.editorState?.editorLocation === 'formula bar' &&
+                {props.editorState.type!=="closed" && props.editorState?.editorLocation === 'formula bar' &&
                     <CellEditor
                         sheetData={props.sheetData}
                         sheetIndex={props.sheetIndex}
@@ -89,7 +89,7 @@ const FormulaBar = (props: {
                         mitoContainerRef={props.mitoContainerRef}
                     />
                 } 
-                {props.editorState?.type!=="closed" && props.editorState?.editorLocation !== 'formula bar' &&
+                {props.editorState.type!=="closed" && props.editorState?.editorLocation !== 'formula bar' &&
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onClick={() => {

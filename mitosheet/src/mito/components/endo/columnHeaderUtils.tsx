@@ -13,7 +13,7 @@ export const submitRenameColumnHeader = (
     mitoAPI: MitoAPI
 ): void => {
     // Only submit the formula if it actually has changed
-    const newColumnHeader = editorState?.type!=="closed" ? editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
+    const newColumnHeader = editorState.type!=="closed" ? editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
     const oldColumnHeader = getDisplayColumnHeader(finalColumnHeader);
     if (newColumnHeader !== oldColumnHeader) {
         const levelIndex = isPrimitiveColumnHeader(columnHeader) ? undefined : rowIndexToColumnHeaderLevel(columnHeader, -1);

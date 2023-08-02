@@ -145,7 +145,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
                 if (props.tabIDObj.tabType === 'graph') {
                     // If opening a graph tab, close the cell editor 
-                    props.setEditorState(prevEditorState=>({type:"closed", editingMode:prevEditorState.editingMode}))
+                    props.setEditorState(prevEditorState=>({type: "closed", editingMode: prevEditorState.editingMode}
+                    ))
                 }
                 
                 props.setUIState(prevUIState => {

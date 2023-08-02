@@ -205,7 +205,7 @@ function EndoGrid(props: {
 
     const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
-        if (editorState?.type !== "closed") {
+        if (editorState.type !== "closed") {
             // EDITING MODE
 
             const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
@@ -425,7 +425,7 @@ function EndoGrid(props: {
         // follows their cursor, even once they have lifted their mouse up.
 
         // Do nothing, if we're in EDITING mode. Clicks handled by onMouseDown
-        if (editorState?.type !== "closed") {
+        if (editorState.type !== "closed") {
             return;
         }
 
@@ -504,7 +504,6 @@ function EndoGrid(props: {
         }
 
         const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, props.editorState, rowIndex, columnIndex);
-        console.log("double_click",editingMode,rowIndex,columnIndex)
 
         setEditorState({
             rowIndex: rowIndex,
@@ -571,7 +570,7 @@ function EndoGrid(props: {
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
 
-                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, {type:"closed", editingMode:"entire_column"}, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
+                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, {type: "closed", editingMode:"entire_column"}, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, e);
                     
                     setEditorState({
                         rowIndex: lastSelection.startingRowIndex,

@@ -113,8 +113,8 @@ const CellEditorDropdown = (props: {
                         value={props.editorState.editingMode === 'entire_column' ? true : false}
                         onChange={() => {
                             props.setEditorState(prevEditorState => {
-                                if (prevEditorState?.type === "closed") {
-                                    return { type: "closed", editingMode:prevEditorState.editingMode };
+                                if (prevEditorState.type === "closed") {
+                                    return { type: "closed", editingMode: prevEditorState.editingMode };
                                 }
                                 const prevEditingMode = {...prevEditorState}.editingMode
                                 return {

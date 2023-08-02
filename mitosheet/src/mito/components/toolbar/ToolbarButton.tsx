@@ -60,12 +60,7 @@ const ToolbarButton = (
                 }
 
                 if (props.setEditorState) {
-                    props.setEditorState(prevEditorState => (
-                        {
-                            type: "closed",
-                            editingMode:prevEditorState.editingMode
-                        }
-                    ));
+                    props.setEditorState(prevEditorState => ({type: "closed", editingMode: prevEditorState.editingMode }));
                 }
                 props.action.actionFunction();
             }}
