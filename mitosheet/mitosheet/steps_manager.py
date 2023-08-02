@@ -11,13 +11,14 @@ from copy import copy, deepcopy
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
-from mitosheet.step_performers.user_defined_import import get_user_defined_importers_for_frontend
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer, get_user_defined_importers_for_frontend
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -172,9 +173,10 @@ class StepsManager:
 
     def __init__(
             self, 
-            args: Collection[Union[pd.DataFrame, str]], 
+            args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
             analysis_to_replay: Optional[str]=None,
+            import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
         ):
@@ -188,31 +190,55 @@ class StepsManager:
         # We just randomly generate analysis names as a string of 10 letters
         self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
+
         # We also save some data about the analysis the user wants to replay, if there
         # is such an analysis
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
 
+        # The import folder is the folder that users have the right to import files from. 
+        # If this is set, then we should never let users view or access files that are not
+        # inside this folder
+        self.import_folder = import_folder
+
         # The args are a tuple of dataframes or strings, and we start by making them
         # into a list, and making copies of them for safe keeping
-        self.original_args_raw_strings: List[str] = []
         self.original_args = [
             arg.copy(deep=True) if isinstance(arg, pd.DataFrame) else deepcopy(arg)
+            for arg in args
+        ]
+
+        # We set the original_args_raw_strings. If we later have an args update, then these
+        # are overwritten by the args update (and are actually correct). But since we don't 
+        # always have an args update, this is the best we can do at this point in time. Notably, 
+        # these are required to be set for transpiling arguments
+        self.original_args_raw_strings: List[str] = [
+            f'"{arg}"' if isinstance(arg, str) else ''
             for arg in args
         ]
 
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
+        df_names = None
         for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            args, execution_data = preprocess_step_performers.execute(args)
+            args, df_names, execution_data = preprocess_step_performers.execute(args)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
-            ] = execution_data
+            ] = execution_data            
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
-            Step("initialize", "initialize", {}, None, State(args, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers), {})
+            Step(
+                "initialize", "initialize", {}, None, 
+                State(
+                    args, 
+                    df_names=df_names,
+                    user_defined_functions=user_defined_functions, 
+                    user_defined_importers=user_defined_importers
+                ), 
+                {}
+            )
         ]
 
         """
@@ -338,7 +364,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
-                "code": transpile(self, optimize=(is_pro() or is_running_test())),
+                "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "dataTypeInTool": self.data_type_in_mito.value,
@@ -352,6 +378,10 @@ class StepsManager:
                 'codeOptions': self.code_options,
                 'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
                 'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
+                "importFolderData": {
+                    'path': self.import_folder,
+                    'pathParts': get_path_parts(self.import_folder)
+                } if self.import_folder is not None else None,
             },
             cls=NpEncoder
         )
@@ -404,6 +434,9 @@ class StepsManager:
             )
 
         return step_summary_list
+    
+    def code(self) -> List[str]:
+        return transpile(self, optimize=(is_pro() or is_running_test()))
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """
@@ -602,6 +635,7 @@ class StepsManager:
                 or step.step_type == DataframeImportStepPerformer.step_type()
                 or step.step_type == SnowflakeImportStepPerformer.step_type()
                 or step.step_type == ExcelRangeImportStepPerformer.step_type()
+                or step.step_type == UserDefinedImportStepPerformer.step_type()
             )
         ]
 

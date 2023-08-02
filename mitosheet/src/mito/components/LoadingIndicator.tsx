@@ -297,7 +297,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
 
     return (
         <>
-            <p className='loading-indicator-header text-header-3 text-color-white-important'>
+            <p className='loading-indicator-header text-header-3 text-color-background-important'>
                 Processing {messagesToDisplay.length} edit{messagesToDisplay.length <= 1 ? '' : 's'}
             </p>
             <div className='loading-indicator-content'>
@@ -305,7 +305,7 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                     const slowLoadingMessage = getSlowLoadingMessage(currentLoadingMessage, message_id);
 
                     return (messageType !== undefined && 
-                        <div key={index} className={classNames('mb-5px', 'mt-5px', {'text-color-medium-gray-important': index !== 0})}>
+                        <div key={index} className={classNames('mb-5px', 'mt-5px', {'text-color-medium-important': index !== 0})}>
                             <div 
                                 key={index} 
                                 className={classNames('loading-indicator-item')}

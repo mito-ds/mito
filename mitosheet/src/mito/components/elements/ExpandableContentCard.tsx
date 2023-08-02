@@ -68,9 +68,9 @@ const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element =
                     }
                     <Col>
                         <Row align='top' justify='end' suppressTopBottomMargin>
-                            <div className='mr-5px' title='Expand'>
+                            <Col className='mr-5px'>
                                 <UpArrowIcon/>
-                            </div>
+                            </Col>
                             {XElement}
                         </Row>
                     </Col>
@@ -81,15 +81,15 @@ const ExpandableContentCard = (props: ExpandableContentCardProps): JSX.Element =
         return (
             <div className='expandable-content-card'> 
                 <Row justify='space-between' onClick={() => props.setExpanded(false)}>
-                    <Col span={12}>
+                    <Col span={22}>
                         <p className='text-header-3'>
                             {props.expandedTitle}
                         </p>
                     </Col>
                     <Row justify='end'>
-                        <div className='mr-5px' title='Minimize'>
+                        <Col className='mr-5px'>
                             <DownArrowIcon/>
-                        </div>
+                        </Col>
                         {XElement}
                     </Row>
                 </Row>

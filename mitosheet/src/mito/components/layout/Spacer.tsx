@@ -23,7 +23,7 @@ const Spacer = (props: SpacerProps): JSX.Element => {
     const px = props.seperatingLine ? props.px / 2 : props.px;
 
     const marginTop = `${px}px`;
-    const border = props.seperatingLine ? '.5px solid var(--mito-light-gray)' : 'none';
+    const border = props.seperatingLine ? '.5px solid var(--mito-text-light)' : 'none';
     const marginBottom = props.seperatingLine ? `${px}px` : 'none';
 
 

@@ -679,6 +679,7 @@ class MitoWidgetTestWrapper:
     def user_defined_import(
             self, 
             importer: str,
+            importer_params: Dict[str, str]
         ) -> bool:
 
 
@@ -690,7 +691,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'importer': importer,
-                    
+                    'importer_params': importer_params
                 }
             }
         )
@@ -1197,7 +1198,7 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
-                    'args': args if args is not None else self.mito_backend.steps_manager.original_args_raw_strings,
+                    'args': args if args is not None else [],
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
                 },
             }

@@ -1,6 +1,4 @@
-import React from "react";
 import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
-import { classNames } from "../../utils/classNames";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
@@ -60,7 +58,7 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
 
 
 // Returns an JSX Element with the type identifier for that type of column
-export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' | 'dark'): JSX.Element => {
+export const getTypeIdentifier = (columnDtype: string): string => {
     // Default to identifying the column as a string if we can't figure out what it is
     let typeText = 'str'
     if (isFloatDtype(columnDtype)) {
@@ -75,13 +73,7 @@ export const getTypeIdentifier = (columnDtype: string, purpleOrDark?: 'purple' |
         typeText = 'bool'
     }
 
-    return <p className={classNames(
-        'text-subtext-1',
-        { 'text-color-mito-purple-important': purpleOrDark === 'purple' },
-        { 'text-color-gray-important': purpleOrDark === 'dark' })}
-    >
-        {typeText}
-    </p>
+    return typeText;
 }
 
 
@@ -199,24 +191,3 @@ export const getGraphIsSelected = (uiState: UIState): boolean => {
 export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetData[]): boolean => {
     return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
 }
-
-/* 
-    Given a hex color value, returs the same color in rgb format with an optional opacity applied. 
-    Code from: https://stackoverflow.com/questions/21646738/convert-hex-to-rgba
-*/ 
-export const hexToRGB = (hex: string | null, alpha: number | undefined): string | undefined => {
-    if (hex === null) {
-        return undefined
-    }
-    
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-
-    if (alpha) {
-        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-    } else {
-        return "rgb(" + r + ", " + g + ", " + b + ")";
-    }
-}
-

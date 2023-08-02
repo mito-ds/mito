@@ -29,7 +29,7 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
                 <Row justify="space-between" align="center">
                     <Col>
                         <p className="text-header-3">
-                                Select Sheet By
+                                Select By
                         </p>
                     </Col>
                     <Col>

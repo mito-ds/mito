@@ -152,14 +152,16 @@ const GraphSidebar = (props: {
         // The reason that we use the mito-center-content-container instead of the graph-div is because the size of the graph div
         // changes depending on the size of the graph. Specifically, when exiting fullscreen mode, the graph-div is wider
         // than we actually have space for. 
-        const boundingRect: DOMRect | undefined = props.mitoContainerRef.current?.querySelector('#mito-center-content-container')?.getBoundingClientRect();
+        const boundingRect: DOMRect | undefined = props.mitoContainerRef.current
+            ?.querySelector('#graph-div')
+            ?.getBoundingClientRect();
 
         if (boundingRect !== undefined) {
             await props.mitoAPI.editGraph(
                 graphID,
                 graphParams,
                 `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20 - 300}px`, // NOTE: 300 is the width of the graph sidebar. KEEP THIS UP TO DATE WITH THE CSS
+                `${boundingRect?.width - 20}px`,
                 stepID
             );
         }
@@ -197,7 +199,8 @@ const GraphSidebar = (props: {
                     // NOTE: there's a minor visual bug where this updates quicker than the graph
                     // but we choose to view it as a nice preview rather than something to fix :-)
                     style={{
-                        backgroundColor: graphParams.graphStyling.paper_bgcolor
+                        backgroundColor: graphParams.graphStyling.paper_bgcolor,
+                        color: graphParams.graphStyling.title.title_font_color,
                     }}
                 >
                     {graphOutput === undefined &&

@@ -31,16 +31,16 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         """
-        Execute always returns the new list of arguments, as well as execution_data
+        Execute always returns the new list of arguments, as well as the names of these arguements, as well as execution_data
         for this preprocess step.
         """
         pass
 
     @classmethod
     @abstractmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         Returns a list of the Python code lines that corresponds to this 
         preprocess step being executed

@@ -7,11 +7,11 @@
 
 .cell-editor {
     height: min-content;
-    background: white;
+    background: var(--mito-background);
 }
 
 .cell-editor-form {
-    border: 2px solid var(--mito-medium-purple);
+    border: 2px solid var(--mito-highlight);
     width: 100%;
     box-sizing: border-box;
 }
@@ -24,10 +24,13 @@
     font-family: Roboto;
     /* Notebooks does some weird things with outlines */
     outline: none;
+
+    color: var(--mito-text);
+    background-color: var(--mito-background);
 }
 
 .cell-editor-dropdown-box {
-    background: white;
+    background: var(--mito-background);
     box-shadow: 1px 1px 5px grey;
     border-radius: 3px;
     
@@ -41,6 +44,12 @@
     position: absolute;
 }
 
+.cell-editor-dropdown-link {
+    margin: 6px 10px;
+    text-decoration: underline !important;
+    color: var(--mito-text-medium) !important;
+}
+
 .cell-editor-suggestion {
     display: flex;
     flex-direction: column;
@@ -51,11 +60,11 @@
 }
 
 .cell-editor-suggestion-selected {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .cell-editor-function-documentation-header {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .cell-editor-function-documentation-header > * + * {
@@ -63,11 +72,11 @@
 }
 
 .cell-editor-function-documentation-example {
-    color: var(--mito-purple);
+    color: var(--mito-highlight);
 }
 
 .cell-editor-label {
-    background-color: var(--mito-very-light-gray);
+    background-color: var(--mito-background-off);
     padding-top: 5px;
     padding-bottom: 5px;
 }

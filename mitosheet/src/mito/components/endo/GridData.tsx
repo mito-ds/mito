@@ -4,16 +4,16 @@ import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getColumnIDsArrayFromSheetDataArray, hexToRGB } from './utils';
+import { getColumnIDsArrayFromSheetDataArray } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
+import { hexToRGBString } from '../../utils/colors';
 
 
-export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = '#F5F5F5';
-export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = '#FFFFFF';
-export const EVEN_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
-export const ODD_ROW_TEXT_COLOR_DEFAULT = '#494650'; // This is var(--mito-gray), update if we change variable
+export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
+export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
+export const ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 
 const GridData = (props: {
     sheetData: SheetData | undefined,
@@ -27,8 +27,8 @@ const GridData = (props: {
 
     const evenRowBackgroundColor = sheetData?.dfFormat?.rows?.even?.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT;
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
-    const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || EVEN_ROW_TEXT_COLOR_DEFAULT;
-    const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ODD_ROW_TEXT_COLOR_DEFAULT;
+    const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
+    const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
 
     return (
         <>  
@@ -62,7 +62,7 @@ const GridData = (props: {
 
 
                             if (cellIsSelected && conditionalFormat?.backgroundColor !== undefined && conditionalFormat?.backgroundColor !== null) {
-                                conditionalFormat.backgroundColor = hexToRGB(conditionalFormat.backgroundColor, .4)
+                                conditionalFormat.backgroundColor = hexToRGBString(conditionalFormat.backgroundColor, .4)
                             }
 
                             if (cellData === undefined || columnDtype === undefined || columnHeader === undefined) {
@@ -93,7 +93,7 @@ const GridData = (props: {
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows),
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, props.uiState.highlightedColumnIndex),
                                         ...(conditionalFormat || {})
                                     }}
                                     tabIndex={-1}

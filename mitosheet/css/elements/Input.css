@@ -7,14 +7,15 @@
 .mito-input {
     /* Clear defaults */ 
     border: none;
-    background: var(--mito-very-light-gray);
+    background: var(--mito-background-off);
+    color: var(--mito-text);
     
     /* 
         We make it a border box so that the border doesn't expand the width of the element
         and the padding do not expand the width of the input element
     */
     box-sizing: border-box;
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-radius: 3px;
     outline: unset; /* We clear the outline, which is set on JNotebooks for some reason on focus*/
 
@@ -23,20 +24,20 @@
 }
 
 .mito-input:focus {
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
 }
 
 .mito-input::placeholder {
-    color: var(--mito-medium-gray)
+    color: var(--mito-text-medium)
 }
 
 .mito-input:hover {
-    border: 1px solid var(--mito-medium-purple);
+    border: 1px solid var(--mito-highlight);
 }
 
 .mito-input:disabled {
-    border: 1px solid var(--mito-light-gray);
-    color: var(--mito-light-gray)
+    border: 1px solid var(--mito-text-light);
+    color: var(--mito-text-light)
 }
 
 .mito-input-right-text {
@@ -46,5 +47,5 @@
     padding-top: 6px;
     padding-right: 4px;
 
-    color: var(--mito-light-gray);
+    color: var(--mito-text-light);
 }

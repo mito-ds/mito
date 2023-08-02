@@ -7,11 +7,10 @@ import base64
 import io
 from typing import Any, Dict
 
-import pandas as pd
-from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
-from mitosheet.pro.download.formatting import add_formatting_to_excel_sheet
 from mitosheet.types import StepsManagerType
 from mitosheet.user import is_pro
+from mitosheet.user.utils import is_running_test
+from mitosheet.utils import write_to_excel
 
 
 def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
@@ -19,26 +18,14 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
     Sends a dataframe as a excel string.
     """
     sheet_indexes = params['sheet_indexes']
-    is_pro_user = is_pro()
+
+    # Formatting is a Mito pro feature, but we also allow it for testing
+    allow_formatting = is_pro() or is_running_test()
 
     # We write to a buffer so that we don't have to save the file
     # to the file system for no reason
     buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer) as writer:
-        for sheet_index in sheet_indexes:
-            # First, write the tab in the Excel file
-            df = steps_manager.dfs[sheet_index]
-            df_name = steps_manager.curr_step.df_names[sheet_index]
-            df.to_excel(
-                writer, 
-                sheet_name=get_df_name_as_valid_sheet_name(df_name),
-                index=False
-            )
-
-            # Adding formatting is a pro feature
-            if is_pro_user:
-                add_formatting_to_excel_sheet(writer, steps_manager, sheet_index)
-    
+    write_to_excel(buffer, sheet_indexes, steps_manager.curr_step.post_state, allow_formatting=allow_formatting)    
     # Go back to the start of the buffer
     buffer.seek(0)
     

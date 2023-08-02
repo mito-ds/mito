@@ -9,6 +9,7 @@ import Row from '../../layout/Row';
 import { getCellDataFromCellIndexes } from '../utils';
 import { getCellEditorWidth, getDocumentationFunction, getFormulaEndsInReference, getFullFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
 
+const FORMULA_DOC_LINK = 'https://docs.trymito.io/how-to/interacting-with-your-data/mito-spreadsheet-formulas';
 export const MAX_SUGGESTIONS = 4;
 
 type SuggestionDisplayDropdownType = {
@@ -210,6 +211,15 @@ const CellEditorDropdown = (props: {
                     </div>
                 </div>
             }
+            {/* Always display a link to the documentation */}
+            <a
+                className={classNames('text-body-2', 'text-body-2-link', 'cell-editor-dropdown-link')}
+                target='_blank'
+                rel='noreferrer'
+                href={FORMULA_DOC_LINK}
+            >
+                {'See all formulas'}
+            </a>
         </div>
     )
 }

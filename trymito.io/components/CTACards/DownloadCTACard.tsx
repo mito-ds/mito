@@ -5,9 +5,9 @@ const DownloadCTACard = (): JSX.Element => {
 
     return (
         <div> 
-            <h1 className={titleStyles.title}>
+            <h2 className={titleStyles.title}>
                 Want to install Mito locally?
-            </h1>
+            </h2>
             <div className='center'>
                 <CTAButtons variant='download' align='center'/>
             </div>  

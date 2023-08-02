@@ -109,7 +109,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 loadingFolder: true
             }
         })
-        const response = await props.mitoAPI.getPathContents(currPathParts);
+        const response = await props.mitoAPI.getPathContents(currPathParts, props.analysisData.importFolderData?.path);
         const _pathContents = 'error' in response ? undefined : response.result;
         if (_pathContents) {
             setFileBrowserState(prevImportState => {
@@ -148,6 +148,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                 <FileBrowserBody
                     mitoAPI={props.mitoAPI}
                     userProfile={props.userProfile}
+                    analysisData={props.analysisData}
                     setUIState={props.setUIState}
 
                     currPathParts={props.currPathParts}
@@ -166,7 +167,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                         <Col>
                             <TextButton
                                 variant='light'
-                                width='small'
+                                width='hug-contents'
                                 onClick={() => {
                                     const openCSVImport = async () => {
                                         const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);

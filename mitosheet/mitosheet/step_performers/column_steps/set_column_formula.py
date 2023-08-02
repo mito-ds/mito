@@ -290,6 +290,7 @@ def exec_column_formula(
         
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
+
         exec(
             python_code,
             {'df': df, 'pd': pd}, 

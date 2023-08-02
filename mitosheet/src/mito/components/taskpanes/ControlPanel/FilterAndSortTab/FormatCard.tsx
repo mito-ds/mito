@@ -34,7 +34,7 @@ function FormatCard(props: {
         <> 
             <Row justify='space-between' align='center'>
                 {/* NOTE: the spacing in the Format card should be the same as the SortCard & DtypeCard */}
-                <Col span={4} title={FORMAT_DESCRIPTION}>
+                <Col span={6} title={FORMAT_DESCRIPTION}>
                     <p className='text-header-3' title=''> 
                         Num Type 
                     </p>

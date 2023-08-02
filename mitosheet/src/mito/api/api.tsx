@@ -209,12 +209,13 @@ export class MitoAPI {
     /*
         Gets the path data for given path parts
     */
-    async getPathContents(pathParts: string[]): Promise<MitoAPIResult<PathContents>> {
+    async getPathContents(pathParts: string[], importFolderPath: string | undefined): Promise<MitoAPIResult<PathContents>> {
         return await this.send<PathContents>({
             'event': 'api_call',
             'type': 'get_path_contents',
             'params': {
-                'path_parts': pathParts
+                'path_parts': pathParts,
+                'import_folder': importFolderPath
             }
         });
     }

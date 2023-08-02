@@ -63,9 +63,9 @@ function FileBrowserElement(props: FileBrowserElementProps): JSX.Element {
         <div 
             // We make this text unselectable, as we want users to be able to double click
             ref={elementRef}
-            className='file-browser-element p-5px text-unselectable'
-            title={props.element.name} // give it a little something on the hover
-            style={{background: isSelected ? '#D5C0FF' : ''}}
+            className='highlight-on-hover file-browser-element p-5px text-unselectable'
+            title={props.element.name}
+            style={{background: isSelected ? 'var(--mito-highlight-medium)' : ''}}
             onClick={(e) => {
                 // If the user is double clicking, then we don't select or
                 // unselect the element

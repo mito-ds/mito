@@ -9,11 +9,11 @@
 
     margin-top: 60px;
 
-    color: var(--mito-legacy-gray);
+    color: var(--mito-text);
 }
 
 .mito-modal {
-    background-color: white;
+    background-color: var(--mito-background);
 
     /* Place the modal*/
     width: max(40%, 500px);
@@ -28,12 +28,12 @@
 
     /* Style it! */
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border: 1px solid var(--mito-border);
     border-radius: 3px;
 }
 
 .mito-modal-header-text-div {
     text-align: center;
+    color: var(--mito-text);
 
     font-weight: bold;
     font-size: 18px;
@@ -42,7 +42,7 @@
 }
 
 .mito-modal-message {
-    color: rgba(52, 52, 52, 0.56);
+    color: var(--mito-text);
     font-size: 14px;
     width: 80%;
     margin-top: 15px;

@@ -3,6 +3,10 @@ import React from 'react';
 import DriveIcon from '../../icons/DriveIcon'
 
 interface FileBrowserPathSelectorProps {
+    importFolderData: {
+        path: string,
+        pathParts: string[]
+    } | undefined | null;
     pathParts: string[] | undefined;
     setCurrPathParts: (newPathParts: string[]) => void;
 }
@@ -26,15 +30,29 @@ function FileBrowserPathSelector(props: FileBrowserPathSelectorProps): JSX.Eleme
         props.setCurrPathParts(subPathParts);
     }
 
+    const pathPartsAndIndexes = props.pathParts?.map((pathPart, i) => {
+        return {
+            pathPart: pathPart,
+            index: i
+        }
+    });
+
+    const pathPartsAndIndexesToDisplay = props.importFolderData
+        ? pathPartsAndIndexes?.slice((props.importFolderData?.pathParts.length ?? 1) - 1)
+        : pathPartsAndIndexes;
+
     return (
         <div className='file-browser-path-selector'>
-            {props.pathParts?.map((pathPart, i) => {
+            {pathPartsAndIndexesToDisplay?.map((pathPartAndIndex) => {
+                const pathPart = pathPartAndIndex.pathPart;
+                const i = pathPartAndIndex.index;
+
                 return (
                     <React.Fragment key={i}>
-                        <div className='file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
+                        <div className='highlight-on-hover file-browser-path-part' key={i} onClick={() => {updateSelectedPath(i)}}>
                             {i === 0 ? <DriveIcon /> : pathPart}
                         </div>
-                        <div className='file-browser-path-seperator'>
+                        <div className='file-browser-path-seperator text-body-1'>
                             &gt;
                         </div>
                     </React.Fragment>

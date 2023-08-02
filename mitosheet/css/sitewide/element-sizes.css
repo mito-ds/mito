@@ -1,5 +1,9 @@
 /* Note: these should match the sizes in the sizes types file */
 
+.element-width-hug-content {
+    width: min-content;
+}
+
 .element-width-small {
     width: 100px;
 }

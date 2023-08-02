@@ -12,6 +12,7 @@ import ImportCard from "./UpdateImportCard";
 import { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
+import { isInStreamlit } from "../../../utils/location";
 
 
 interface UpdateImportPostReplayTaskpaneProps {
@@ -38,6 +39,11 @@ interface UpdateImportPostReplayTaskpaneProps {
     invalidReplayError: string | undefined;
     setInvalidReplayError: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
+
+let PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mitosheet.sheet call above.'
+if (isInStreamlit()) {
+    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mito_component call.'
+}
     
 
 /* 
@@ -59,7 +65,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
         if ((props.importDataAndErrors?.importData.length || 0) === 0 && props.sheetDataArray.length === 0) {
             return <DefaultEmptyTaskpane setUIState={props.setUIState} message='Before changing imports, you need to import something.'/>
         } else if ((props.importDataAndErrors?.importData.length || 0) === 0) {
-            return <DefaultEmptyTaskpane header='Update passed dataframes' setUIState={props.setUIState} message='You can change imports by changing the data passed to the mitosheet.sheet call above.' suppressImportLink/>
+            return <DefaultEmptyTaskpane header='Update passed dataframes' setUIState={props.setUIState} message={PASSED_DATAFRAMES_CHANGE_MESSAGE} suppressImportLink/>
 
         }
 

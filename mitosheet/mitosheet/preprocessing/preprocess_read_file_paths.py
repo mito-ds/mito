@@ -3,19 +3,22 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import (Any, Collection, Dict, List, Optional,
-                    Tuple, Union)
+
+from os.path import basename, normpath
+from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import pandas as pd
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import generate_read_csv_code
-from mitosheet.errors import get_recent_traceback_as_list
-from mitosheet.telemetry.telemetry_utils import log
+
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import \
+    generate_read_csv_code
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
-from mitosheet.step_performers.import_steps.simple_import import (
-    get_valid_dataframe_names, read_csv_get_delimiter_and_encoding)
+from mitosheet.step_performers.import_steps.simple_import import \
+    read_csv_get_delimiter_and_encoding
+from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import get_str_param_name
-from mitosheet.types import CodeOptions, StepsManagerType
+from mitosheet.types import StepsManagerType
+from mitosheet.utils import get_valid_dataframe_name
 
 
 class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
@@ -34,15 +37,18 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         return 'read_file_paths'
 
     @classmethod
-    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Dict[str, Any]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         df_args: List[pd.DataFrame] = []
         delimeters: List[Optional[str]] = []
         encodings: List[Optional[str]] = []
-        for arg in args:
+        df_names: List[str] = []
+
+        for arg_index, arg in enumerate(args):
             if isinstance(arg, pd.DataFrame):
                 df_args.append(arg)
                 delimeters.append(None)
                 encodings.append(None)
+                df_names.append('df' + str(arg_index + 1))
             elif isinstance(arg, str):
                 # If it is a string, we try and read it in as a dataframe
                 try:
@@ -55,6 +61,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
 
                     delimeters.append(delimeter)
                     encodings.append(encoding)
+                    df_names.append(get_valid_dataframe_name(df_names, basename(normpath(arg))))
                 except:
                     # If this pd.read_csv fails, then we report this error to the user
                     # as a failed mitosheet call
@@ -66,37 +73,27 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
                 
-        return df_args, {
+        return df_args, df_names, {
             'delimeters': delimeters,
             'encodings': encodings,
+            'df_names': df_names
         }
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         Transpiles the reading in of passed file paths to dataframe names, 
         with a simple pd.read_csv call.
         """
         code = []
-
-        # First, we get all the string arguments passed to the sheet call
-        str_args = get_string_args(steps_manager.original_args)
         
-        # Then, we turn these into dataframe names.
-        # NOTE: there is potentially a bug if a user passes in a dataframe
-        # with the same name as the the result of the return of this function,
-        # but we ignore this for now. E.g. mitosheet.sheet('df1.csv', 'df1_csv') 
-        # will cause only variable to exist.
-        df_names = get_valid_dataframe_names([], str_args)
+        delimeters = execution_data['delimeters'] if execution_data is not None else []
+        encodings = execution_data['encodings'] if execution_data is not None else []
+        df_names = execution_data['df_names'] if execution_data is not None else []
 
-        delimeters = execution_data['delimeters'] if execution_data is not None else [None for _ in range(len(df_names))]
-        encodings = execution_data['encodings'] if execution_data is not None else [None for _ in range(len(df_names))]
-
-        num_strs = 0
         for arg_index, arg in enumerate(steps_manager.original_args):
             if isinstance(arg, str):
-                df_name = df_names[num_strs]
-                num_strs += 1
+                df_name = df_names[arg_index]
 
                 # Make sure to compile the path as a variable if the user is creating a function
                 file_name = arg if not steps_manager.code_options['as_function'] else get_str_param_name(steps_manager, arg_index)
@@ -111,8 +108,4 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         if len(code) > 0:
             code.insert(0, '# Read in filepaths as dataframes')
                 
-        return code
-
-
-def get_string_args(args: Collection[Union[pd.DataFrame, str]]) -> List[str]:
-    return [arg for arg in args if isinstance(arg, str)]
+        return code, ['import pandas as pd'] if len(code) > 0 else []

@@ -20,6 +20,7 @@ import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import LoadingDots from "../../elements/LoadingDots";
 import { classNames } from "../../../utils/classNames";
+import { isInStreamlit } from "../../../utils/location";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -114,6 +115,32 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                         openLocation = `mailto:${codeSnippetSupportEmail}?subject=Mito Code Snippet Support. Snippet Name: "${codeSnippet.Name}" Snippet ID: "${codeSnippet.Id}"`
                     }
                     
+
+                    const items = [
+                        <DropdownItem 
+                            key="Copy Code Snippet" 
+                            title="Copy Code Snippet" 
+                            onClick={copyToClipboard}
+                        />,
+                        !isInStreamlit() 
+                            ? <DropdownItem 
+                                key="Write to Notebook" 
+                                title="Write to Notebook" 
+                                onClick={writeToCell}
+                            />
+                            : undefined
+                        ,
+                        <DropdownItem
+                            key='Get Support'
+                            title='Get Support'
+                            onClick={() => {
+                                window.open(openLocation)
+                                void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
+                            }}
+                        />
+                    ].filter(x => x !== undefined) as JSX.Element[];
+                    
+                    
                     return (
                         <Row 
                             key={codeSnippetIndex} 
@@ -147,21 +174,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                                     width='medium'
                                     closeDropdown={() => {setOpenDropdownIndex(undefined)}}
                                 >
-                                    <DropdownItem 
-                                        title="Copy Code Snippet" 
-                                        onClick={copyToClipboard}
-                                    />
-                                    <DropdownItem 
-                                        title="Write to Notebook" 
-                                        onClick={writeToCell}
-                                    />
-                                    <DropdownItem
-                                        title='Get Support'
-                                        onClick={() => {
-                                            window.open(openLocation)
-                                            void props.mitoAPI?.log('clicked_code_snippet_get_support_button')
-                                        }}
-                                    />
+                                    {items}
                                 </Dropdown>
                             </Col>
                         </Row>

@@ -134,6 +134,7 @@ export type StringFilterCondition = 'contains'
 | 'string_not_exactly'
 | 'string_starts_with'
 | 'string_ends_with'
+| 'string_contains_case_insensitive'
 
 export type NumberFilterCondition = 'number_exactly'
 | 'number_not_exactly'
@@ -711,12 +712,12 @@ export enum MitoEnterpriseConfigKey {
 export type PublicInterfaceVersion = 1 | 2 | 3;
 
 type UserDefinedImporterParamName = string;
-type UserDefinedImporterParamType = 'str' | 'int' | 'float';
+export type UserDefinedImporterParamType = 'any' | 'str' | 'int' | 'float' | 'bool';
 
 export type UserDefinedImporter = {
     name: string,
     docstring: string,
-    params: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
+    parameters: Record<UserDefinedImporterParamName, UserDefinedImporterParamType>
 }
 
 
@@ -740,6 +741,11 @@ export type UserDefinedImporter = {
  * @param lastResult - This is the result of the last step that was applied. This might be undefined if the 
  *        step does not return a result
  * @param experiment - The experiment that this user is currently running, which may not be defined
+ * @param codeOptions - The options for how to generate code for this analysis
+ * @param userDefinedFunctions - The user defined functions that have been defined in this analysis, usable 
+ *                               in the sheet. 
+ * @param userDefinedImporters - The user defined importers that have been defined in this analysis. USers
+ *        can access these through custom imports
  */
 export interface AnalysisData {
     analysisName: string,
@@ -762,6 +768,11 @@ export interface AnalysisData {
     codeOptions: CodeOptions;
     userDefinedFunctions: string[];
     userDefinedImporters: UserDefinedImporter[];
+
+    importFolderData: {
+        path: string,
+        pathParts: string[],
+    } | null
 }
 
 export interface MitoConfig {
@@ -860,6 +871,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    highlightedColumnIndex?: number;
     toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
@@ -867,7 +879,8 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
-    dataRecon: AIRecon | undefined
+    dataRecon: AIRecon | undefined,
+    taskpaneWidth: number
 }
 
 /**
@@ -1057,3 +1070,10 @@ export interface AITransformationResult extends AIRecon {
     prints: string[],
 }
 
+
+export interface MitoTheme {
+    primaryColor?: string
+    backgroundColor?: string
+    secondaryBackgroundColor?: string
+    textColor?: string
+}
