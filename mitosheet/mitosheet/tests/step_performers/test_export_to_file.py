@@ -424,12 +424,85 @@ CONDITIONAL_FORMATS = [
         'C2',
         'B2',
         True
-    )
+    ),
+    (
+        ['B'],
+        [{'condition': 'empty', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'B5',
+        'C2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'not_empty', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'B2',
+        'C2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_greater', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D2',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_less', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D3',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_not_exactly', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D3',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_exactly', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_greater_than_or_equal', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_less_than_or_equal', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        True
+    ),
 ]
+SAMPLE_DF = { 'A': [1,2,3,4], 'B': ['abc', 'dEf', 'HiJ', ''], 'C': [True, False, True, False], 'D': ['2/23/2017', '12/1/2014', '12/1/2014', '1/1/2015'] }
 # This tests when the user exports a dataframe with row formatting without header formatting.
 @pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
 def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
-    df = pd.DataFrame({ 'A': [1,2,3], 'B': ['abc', 'dEf', 'HiJ'], 'C': [True, False, True] })
+    df = pd.DataFrame(SAMPLE_DF)
     mito = create_mito_wrapper(df, arg_names=['df'])
     test_conditional_formats = [
         {
@@ -470,7 +543,7 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
 # This tests when the user exports a dataframe with row formatting without header formatting.
 @pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
 def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
-    df = pd.DataFrame({ 'A': [1,2,3], 'B': ['abc', 'dEf', 'HiJ'], 'C': [True, False, True] },)
+    df = pd.DataFrame(SAMPLE_DF)
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
         'headers': {},
