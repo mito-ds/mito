@@ -8,57 +8,58 @@ from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
 
-RuleOperator = str
-RuleType = str
-
-# Object to map the conditional formatting operators to the openpyxl operators
-CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
-    'greater': ('>', 'cellIs'),
-    'less': ('<', 'cellIs'),
-    'number_exactly': ('=', 'cellIs'),
-    'number_not_exactly': ('<>', 'cellIs'),
-    'greater_than_or_equal': ('>=', 'cellIs'),
-    'less_than_or_equal': ('<=', 'cellIs'),
-    'string_exactly': ('=', 'cellIs'),
-    'string_not_exactly': ('<>', 'cellIs'),
-    'contains': ('containsText', 'containsText'),
-    'string_contains_case_insensitive': ('containsText', 'containsText'),
-    'string_does_not_contain': ('notContains', 'notContainsText'),
-    'string_starts_with': ('beginsWith', 'beginsWith'),
-    'string_ends_with': ('endsWith', 'endsWith'),
-    'boolean_is_true': ('equal', 'cellIs'),
-    'boolean_is_false': ('equal', 'cellIs'),
+# Object to map the conditional formatting operators to the excel formulas
+CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
+    'greater': '>',
+    'less': '<',
+    'number_exactly': '=',
+    'number_not_exactly': '<>',
+    'greater_than_or_equal': '>=',
+    'less_than_or_equal': '<='
 }
 
+SPECIAL_FORMULAS = [
+    'string_exactly',
+    'string_not_exactly',
+    'contains',
+    'string_contains_case_insensitive',
+    'string_does_not_contain',
+    'string_starts_with',
+    'string_ends_with',
+    'boolean_is_true',
+    'boolean_is_false',
+]
+
 def get_conditional_format_rule(
-    column: str,
     filter_condition: str,
-    operator: RuleOperator,
     fill: Optional[PatternFill],
     font: Optional[Font],
     filter_value: str,
-    all_rows: str
+    cell_range: str
 ) -> FormulaRule:
     # Update the formulas for the string operators
-    formula = [f'IF({all_rows}{operator}{filter_value}, TRUE, FALSE)']
-    if filter_condition == 'contains':
-        formula = [f'NOT(ISERROR(FIND("{filter_value}",{all_rows})))']
+    comparison = CONDITION_TO_COMPARISON_FORMULA.get(filter_condition)
+    if comparison is not None:
+        formula = [f'{cell_range}{comparison}{filter_value}']
+    elif filter_condition == 'contains':
+        formula = [f'NOT(ISERROR(FIND("{filter_value}",{cell_range})))']
     elif filter_condition == 'string_contains_case_insensitive':
-        formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{all_rows})))']
+        formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{cell_range})))']
     elif filter_condition == 'string_does_not_contain':
-        formula = [f'ISERROR(SEARCH("{filter_value}",{all_rows}))']
+        formula = [f'ISERROR(SEARCH("{filter_value}",{cell_range}))']
     elif filter_condition == 'string_starts_with':
-        formula = [f'LEFT({all_rows},LEN("{filter_value}"))="{filter_value}"']
+        formula = [f'LEFT({cell_range},LEN("{filter_value}"))="{filter_value}"']
     elif filter_condition == 'string_ends_with':
-        formula = [f'RIGHT({all_rows},LEN("{filter_value}"))="{filter_value}"']
+        formula = [f'RIGHT({cell_range},LEN("{filter_value}"))="{filter_value}"']
     elif filter_condition == 'boolean_is_true':
-        formula = [all_rows]
+        formula = [cell_range]
     elif filter_condition == 'boolean_is_false':
-        formula = [f'NOT({all_rows})']
+        formula = [f'NOT({cell_range})']
     elif filter_condition == 'string_exactly':
-        formula = [f'EXACT({all_rows},"{filter_value}")']
+        formula = [f'EXACT({cell_range},"{filter_value}")']
     elif filter_condition == 'string_not_exactly':
-        formula = [f'NOT(EXACT({all_rows},"{filter_value}"))']
+        formula = [f'NOT(EXACT({cell_range},"{filter_value}"))']
+    else: return None
     return FormulaRule(fill=fill, font=font, formula=formula)
 
 def add_conditional_formats(
@@ -69,8 +70,8 @@ def add_conditional_formats(
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters', []):
             # Start with the greater than condition
-            operator_info = CONDITION_TO_RULE_AND_OPERATOR.get(filter['condition'])
-            if operator_info is None:
+            operator_info = CONDITION_TO_COMPARISON_FORMULA.get(filter['condition'])
+            if operator_info is None and filter['condition'] not in SPECIAL_FORMULAS:
                 continue
 
             # Create the conditional formatting color objects
@@ -87,17 +88,15 @@ def add_conditional_formats(
             for column_header in conditional_format['columns']:
                 column_index = df.columns.tolist().index(column_header)
                 column = get_column_from_column_index(column_index)
-                all_rows = f'{column}2:{column}{sheet.max_row}'
+                cell_range = f'{column}2:{column}{sheet.max_row}'
                 column_conditional_rule = get_conditional_format_rule(
-                    column=column,
-                    operator=operator_info[0],
                     filter_condition=filter['condition'],
                     fill=cond_fill,
                     font=cond_font,
                     filter_value=f"{filter['value']}",
-                    all_rows=all_rows
+                    cell_range=cell_range
                 )
-                sheet.conditional_formatting.add(all_rows, column_conditional_rule)
+                sheet.conditional_formatting.add(cell_range, column_conditional_rule)
 
 
 def add_formatting_to_excel_sheet(
