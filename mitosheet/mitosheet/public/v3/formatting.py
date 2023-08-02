@@ -2,8 +2,7 @@ from typing import Optional, Dict, Tuple
 
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
-from openpyxl.styles.differential import DifferentialStyle
-from openpyxl.formatting.rule import Rule
+from openpyxl.formatting.rule import FormulaRule
 from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame, ExcelWriter
 
@@ -14,14 +13,14 @@ RuleType = str
 
 # Object to map the conditional formatting operators to the openpyxl operators
 CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
-    'greater': ('greaterThan', 'cellIs'),
-    'less': ('lessThan', 'cellIs'),
-    'number_exactly': ('equal', 'cellIs'),
-    'number_not_exactly': ('notEqual', 'cellIs'),
-    'greater_than_or_equal': ('greaterThanOrEqual', 'cellIs'),
-    'less_than_or_equal': ('lessThanOrEqual', 'cellIs'),
-    'string_exactly': ('equal', 'cellIs'),
-    'string_not_exactly': ('notEqual', 'cellIs'),
+    'greater': ('>', 'cellIs'),
+    'less': ('<', 'cellIs'),
+    'number_exactly': ('=', 'cellIs'),
+    'number_not_exactly': ('<>', 'cellIs'),
+    'greater_than_or_equal': ('>=', 'cellIs'),
+    'less_than_or_equal': ('<=', 'cellIs'),
+    'string_exactly': ('=', 'cellIs'),
+    'string_not_exactly': ('<>', 'cellIs'),
     'contains': ('containsText', 'containsText'),
     'string_contains_case_insensitive': ('containsText', 'containsText'),
     'string_does_not_contain': ('notContains', 'notContainsText'),
@@ -33,32 +32,34 @@ CONDITION_TO_RULE_AND_OPERATOR: Dict[str, Tuple[RuleOperator, RuleType]] = {
 
 def get_conditional_format_rule(
     column: str,
-    rule_type: RuleType,
-    operator: RuleOperator,
     filter_condition: str,
-    dxf: DifferentialStyle,
+    operator: RuleOperator,
+    fill: Optional[PatternFill],
+    font: Optional[Font],
     filter_value: str,
-    max_row: int
-) -> Rule:
+    all_rows: str
+) -> FormulaRule:
     # Update the formulas for the string operators
-    formula = [filter_value]
+    formula = [f'IF({all_rows}{operator}{filter_value}, TRUE, FALSE)']
     if filter_condition == 'contains':
-        formula = [f'NOT(ISERROR(FIND("{filter_value}",{column}2:{column}{max_row})))']
+        formula = [f'NOT(ISERROR(FIND("{filter_value}",{all_rows})))']
     elif filter_condition == 'string_contains_case_insensitive':
-        formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{column}2:{column}{max_row})))']
+        formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{all_rows})))']
     elif filter_condition == 'string_does_not_contain':
-        formula = [f'ISERROR(SEARCH("{filter_value}",{column}2:{column}{max_row}))']
+        formula = [f'ISERROR(SEARCH("{filter_value}",{all_rows}))']
     elif filter_condition == 'string_starts_with':
-        formula = [f'LEFT({column}2:{column}{max_row},LEN("{filter_value}"))="{filter_value}"']
+        formula = [f'LEFT({all_rows},LEN("{filter_value}"))="{filter_value}"']
     elif filter_condition == 'string_ends_with':
-        formula = [f'RIGHT({column}2:{column}{max_row},LEN("{filter_value}"))="{filter_value}"']
+        formula = [f'RIGHT({all_rows},LEN("{filter_value}"))="{filter_value}"']
     elif filter_condition == 'boolean_is_true':
-        formula = ['TRUE']
+        formula = [all_rows]
     elif filter_condition == 'boolean_is_false':
-        formula = ['FALSE']
-    elif filter_condition in ['string_exactly', 'string_not_exactly']:
-        formula = [f'"{filter_value}"']
-    return Rule(type=rule_type, operator=operator, dxf=dxf, formula=formula, text=filter_value)
+        formula = [f'NOT({all_rows})']
+    elif filter_condition == 'string_exactly':
+        formula = [f'EXACT({all_rows},"{filter_value}")']
+    elif filter_condition == 'string_not_exactly':
+        formula = [f'NOT(EXACT({all_rows},"{filter_value}"))']
+    return FormulaRule(fill=fill, font=font, formula=formula)
 
 def add_conditional_formats(
     conditional_formats: list,
@@ -81,23 +82,22 @@ def add_conditional_formats(
                 cond_font = Font(color=conditional_format['font_color'][1:])
             if cond_fill is None and cond_font is None:
                 continue
-            dxf = DifferentialStyle(fill=cond_fill, font=cond_font)
-
             
             # Add the conditional formatting rule to the sheet
             for column_header in conditional_format['columns']:
                 column_index = df.columns.tolist().index(column_header)
                 column = get_column_from_column_index(column_index)
+                all_rows = f'{column}2:{column}{sheet.max_row}'
                 column_conditional_rule = get_conditional_format_rule(
                     column=column,
-                    rule_type=operator_info[1],
                     operator=operator_info[0],
                     filter_condition=filter['condition'],
-                    dxf=dxf,
+                    fill=cond_fill,
+                    font=cond_font,
                     filter_value=f"{filter['value']}",
-                    max_row=sheet.max_row
+                    all_rows=all_rows
                 )
-                sheet.conditional_formatting.add(f'{column}2:{column}{sheet.max_row}', column_conditional_rule)
+                sheet.conditional_formatting.add(all_rows, column_conditional_rule)
 
 
 def add_formatting_to_excel_sheet(
