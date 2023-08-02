@@ -7,36 +7,32 @@ from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
+from mitosheet.step_performers.filter import (
+    FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
+    FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
+    FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
+    FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+    FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
+    FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+    FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
 
 # Object to map the conditional formatting operators to the excel formulas
 CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
-    'greater': '>',
-    'less': '<',
-    'number_exactly': '=',
-    'number_not_exactly': '<>',
-    'greater_than_or_equal': '>=',
-    'less_than_or_equal': '<=',
-    'datetime_exactly': '=',
-    'datetime_not_exactly': '<>',
-    'datetime_greater': '>',
-    'datetime_greater_than_or_equal': '>=',
-    'datetime_less': '<',
-    'datetime_less_than_or_equal': '<=',
+    FC_NUMBER_GREATER: '>',
+    FC_NUMBER_LESS: '<',
+    FC_NUMBER_EXACTLY: '=',
+    FC_NUMBER_NOT_EXACTLY: '<>',
+    FC_NUMBER_GREATER_THAN_OR_EQUAL: '>=',
+    FC_NUMBER_LESS_THAN_OR_EQUAL: '<=',
+    FC_DATETIME_EXACTLY: '=',
+    FC_DATETIME_NOT_EXACTLY: '<>',
+    FC_DATETIME_GREATER: '>',
+    FC_DATETIME_GREATER_THAN_OR_EQUAL: '>=',
+    FC_DATETIME_LESS: '<',
+    FC_DATETIME_LESS_THAN_OR_EQUAL: '<=',
 }
-
-SPECIAL_FORMULAS = [
-    'string_exactly',
-    'string_not_exactly',
-    'contains',
-    'string_contains_case_insensitive',
-    'string_does_not_contain',
-    'string_starts_with',
-    'string_ends_with',
-    'boolean_is_true',
-    'boolean_is_false',
-    'empty',
-    'not_empty'
-]
 
 def get_conditional_format_rule(
     filter_condition: str,
@@ -52,27 +48,27 @@ def get_conditional_format_rule(
         formula = [f'{cell_range}{comparison}DATEVALUE("{filter_value}")']
     elif comparison is not None:
         formula = [f'{cell_range}{comparison}{filter_value}']
-    elif filter_condition == 'contains':
+    elif filter_condition == FC_STRING_CONTAINS:
         formula = [f'NOT(ISERROR(FIND("{filter_value}",{cell_range})))']
-    elif filter_condition == 'string_contains_case_insensitive':
+    elif filter_condition == FC_STRING_CONTAINS_CASE_INSENSITIVE:
         formula = [f'NOT(ISERROR(SEARCH("{filter_value}",{cell_range})))']
-    elif filter_condition == 'string_does_not_contain':
+    elif filter_condition == FC_STRING_DOES_NOT_CONTAIN:
         formula = [f'ISERROR(SEARCH("{filter_value}",{cell_range}))']
-    elif filter_condition == 'string_starts_with':
+    elif filter_condition == FC_STRING_STARTS_WITH:
         formula = [f'LEFT({cell_range},LEN("{filter_value}"))="{filter_value}"']
-    elif filter_condition == 'string_ends_with':
+    elif filter_condition == FC_STRING_ENDS_WITH:
         formula = [f'RIGHT({cell_range},LEN("{filter_value}"))="{filter_value}"']
-    elif filter_condition == 'boolean_is_true':
+    elif filter_condition == FC_BOOLEAN_IS_TRUE:
         formula = [cell_range]
-    elif filter_condition == 'boolean_is_false':
+    elif filter_condition == FC_BOOLEAN_IS_FALSE:
         formula = [f'NOT({cell_range})']
-    elif filter_condition == 'string_exactly':
+    elif filter_condition == FC_STRING_EXACTLY:
         formula = [f'EXACT({cell_range},"{filter_value}")']
-    elif filter_condition == 'string_not_exactly':
+    elif filter_condition == FC_STRING_NOT_EXACTLY:
         formula = [f'NOT(EXACT({cell_range},"{filter_value}"))']
-    elif filter_condition == 'empty':
+    elif filter_condition == FC_EMPTY:
         formula = [f'ISBLANK({cell_range})']
-    elif filter_condition == 'not_empty':
+    elif filter_condition == FC_NOT_EMPTY:
         formula = [f'NOT(ISBLANK({cell_range}))']
     else: return None
     return FormulaRule(fill=fill, font=font, formula=formula)
@@ -84,11 +80,6 @@ def add_conditional_formats(
 ) -> None:
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters', []):
-            # Start with the greater than condition
-            operator_info = CONDITION_TO_COMPARISON_FORMULA.get(filter['condition'])
-            if operator_info is None and filter['condition'] not in SPECIAL_FORMULAS:
-                continue
-
             # Create the conditional formatting color objects
             cond_fill = None
             cond_font = None
@@ -111,7 +102,8 @@ def add_conditional_formats(
                     filter_value=f"{filter['value']}",
                     cell_range=cell_range
                 )
-                sheet.conditional_formatting.add(cell_range, column_conditional_rule)
+                if column_conditional_rule is not None:
+                    sheet.conditional_formatting.add(cell_range, column_conditional_rule)
 
 
 def add_formatting_to_excel_sheet(
