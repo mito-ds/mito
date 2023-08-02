@@ -56,17 +56,17 @@ try:
     @st.cache_resource(hash_funcs={pd.DataFrame: get_dataframe_hash})
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
-            _importers: Optional[List[Callable]]=None, 
-            _sheet_functions: Optional[List[Callable]]=None, 
-            _import_folder: Optional[str]=None,
+            importers: Optional[List[Callable]]=None, 
+            sheet_functions: Optional[List[Callable]]=None, 
+            import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             key: Optional[str]=None # So it caches on key
         ) -> Tuple[MitoBackend, List[Any]]: 
 
         mito_backend = MitoBackend(
             *args, 
-            import_folder=_import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions
+            import_folder=import_folder,
+            user_defined_importers=importers, user_defined_functions=sheet_functions
         )
 
         # Make a send function that stores the responses in a list
@@ -148,9 +148,9 @@ try:
 
         mito_backend, responses = _get_mito_backend(
             *args, 
-            _sheet_functions=sheet_functions,
-            _importers=importers, 
-            _import_folder=import_folder,
+            sheet_functions=sheet_functions,
+            importers=importers, 
+            import_folder=import_folder,
             df_names=df_names, 
             key=key
         )
