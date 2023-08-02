@@ -450,7 +450,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D2',
         'B2',
-        True
+        False
     ),
     (
         ['D'],
@@ -459,7 +459,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D3',
         'B2',
-        True
+        False
     ),
     (
         ['D'],
@@ -468,7 +468,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D3',
         'B2',
-        True
+        False
     ),
     (
         ['D'],
@@ -477,7 +477,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D5',
         'B2',
-        True
+        False
     ),
     (
         ['D'],
@@ -486,7 +486,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D5',
         'B2',
-        True
+        False
     ),
     (
         ['D'],
@@ -495,7 +495,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D5',
         'B2',
-        True
+        False
     ),
 ]
 SAMPLE_DF = { 'A': [1,2,3,4], 'B': ['abc', 'dEf', 'HiJ', ''], 'C': [True, False, True, False], 'D': ['2/23/2017', '12/1/2014', '12/1/2014', '1/1/2015'] }
