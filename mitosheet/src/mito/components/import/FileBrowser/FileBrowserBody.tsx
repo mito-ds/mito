@@ -102,7 +102,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                     className={classNames('text-body-1', 'text-overflow-wrap')}
                     style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
                 >
-                    To use the file browser, you must first configure the folder you want to allow users to 
+                    To use the file browser, configure the folder you want to allow users to 
                     import from.
                 </p>
                 <Spacer px={10}/>
@@ -112,6 +112,13 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
                 >
                     This is configurable with the <code>import_folder</code> parameter in the <code>spreadsheet</code> component 
                     in your streamlit application.
+                </p>
+                <Spacer px={10}/>
+                <p
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    See our <a className='text-body-link-1' href='https://docs.trymito.io/mito-for-streamlit/api-reference' target='_blank' rel='noreferrer'>docs</a> for more information.
                 </p>
             </>
         )

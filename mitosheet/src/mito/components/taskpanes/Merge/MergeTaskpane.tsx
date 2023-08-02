@@ -137,12 +137,12 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center' suppressTopBottomMargin>
-                    <Col offsetRight={1}>
+                    <Col offsetRight={1} span={7}>
                         <p className='text-header-3'>
                             Merge Type
                         </p>
                     </Col>
-                    <Col offsetRight={2}>
+                    <Col span={14}>
                         <Select 
                             value={params.how}
                             onChange={(mergeType: string) => {
@@ -154,7 +154,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                     }
                                 })
                             }}
-                            width='medium-large'
+                            width='block'
                         >
                             <DropdownItem
                                 title={MergeType.LOOKUP}

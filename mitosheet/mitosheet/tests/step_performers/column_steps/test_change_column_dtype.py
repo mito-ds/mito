@@ -12,6 +12,7 @@ accepts inputs flexibly, even if it does not send them from frontend.
 Kinda inspired by this: https://en.wikipedia.org/wiki/Robustness_principle
 """
 from typing import Optional
+import numpy as np
 
 import pandas as pd
 import pytest

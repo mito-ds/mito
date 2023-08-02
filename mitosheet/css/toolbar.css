@@ -78,10 +78,6 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  /* 
-    The left toolbar gets flex:3 and the right toolbar gets flex:1 
-    because the left has 3x as many buttons
-  */
   flex: 3; 
 }
 
@@ -89,7 +85,7 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  flex: 1;
+  flex: .5;
 }
 
 .mito-toolbar-button-container {
