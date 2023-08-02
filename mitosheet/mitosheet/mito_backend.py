@@ -30,7 +30,7 @@ from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
-from mitosheet.user import is_local_deployment, should_upgrade_mitosheet
+from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_in_google_colab, is_in_vs_code
@@ -85,7 +85,6 @@ class MitoBackend():
         last_50_usages = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
         self.num_usages = len(last_50_usages if last_50_usages is not None else [])
         self.is_local_deployment = is_local_deployment()
-        self.should_upgrade_mitosheet = should_upgrade_mitosheet()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
         self.mito_send: Callable = lambda x: None # type: ignore
@@ -117,7 +116,6 @@ class MitoBackend():
             'pythonVersion': get_python_version(),
             'pandasVersion': get_pandas_version(),
             'isLocalDeployment': self.is_local_deployment,
-            'shouldUpgradeMitosheet': self.should_upgrade_mitosheet,
             'numUsages': self.num_usages,
             'mitoConfig': self.steps_manager.mito_config.get_mito_config(),
             'snowflakeCredentials': get_cached_snowflake_credentials(),

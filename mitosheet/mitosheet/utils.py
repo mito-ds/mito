@@ -19,6 +19,10 @@ import pandas as pd
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns
 from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
+from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
+
+from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
+
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -139,6 +143,75 @@ def dfs_to_array_for_json(
             new_array.append(previous_array[sheet_index])
 
     return new_array
+
+
+def get_conditional_formats_objects_to_export_to_excel(
+    conditional_formats: Optional[List[Dict[str, Any]]],
+    column_id_map: ColumnIDMap,
+    sheet_index: int
+) -> Any:
+    if conditional_formats is None or conditional_formats == []:
+        return None
+
+    export_cond_formats = []
+    for conditional_format in conditional_formats:
+        # Create new object to store the columns in the excel format
+        new_format: Any = {
+            'columns': [],
+            'filters': conditional_format.get('filters'),
+            'font_color': conditional_format.get('color'),
+            'background_color': conditional_format.get('backgroundColor')
+        }
+        export_cond_formats.append(new_format)
+        column_ids = conditional_format.get('columnIDs')
+        if column_ids is None:
+            continue
+        for column_id in column_ids:
+            column_header = column_id_map.get_column_header_by_id(sheet_index, column_id)
+            new_format['columns'].append(column_header)
+    return export_cond_formats
+
+
+# Writes dataframes to an excel file or a buffer with formatting
+# Path argument is either the path to the file or a BytesIO object,
+#    because the file can be sent to the front-end through a buffer
+def write_to_excel(
+    path: Any,
+    sheet_indexes: list,
+    state: Any,
+    allow_formatting:bool=True
+) -> None:
+    with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        for sheet_index in sheet_indexes:
+            # Get the dataframe and sheet name
+            df = state.dfs[sheet_index]
+            df_name = state.df_names[sheet_index]
+            sheet_name = get_df_name_as_valid_sheet_name(df_name)
+
+            # Write the dataframe to the sheet
+            df.to_excel(writer, sheet_name, index=False)
+
+            # Add formatting to the sheet for pro users
+            format = state.df_formats[sheet_index]
+            conditional_formats = get_conditional_formats_objects_to_export_to_excel(
+                format.get('conditional_formats'),
+                column_id_map=state.column_ids,
+                sheet_index=sheet_index
+            )
+            if allow_formatting: 
+                add_formatting_to_excel_sheet(
+                    writer,
+                    sheet_name,
+                    df,
+                    header_background_color=format.get('headers', {}).get('backgroundColor'),
+                    header_font_color=format.get('headers', {}).get('color'),
+                    even_background_color=format.get('rows', {}).get('even', {}).get('backgroundColor'),
+                    even_font_color=format.get('rows', {}).get('even', {}).get('color'),
+                    odd_background_color=format.get('rows', {}).get('odd', {}).get('backgroundColor'),
+                    odd_font_color=format.get('rows', {}).get('odd', {}).get('color'),
+                    conditional_formats=conditional_formats
+                )
+    
 
 
 def _get_column_id_from_header_safe(

@@ -114,6 +114,11 @@ const LifeSciences: NextPage = () => {
                   Become the Python early adopter on your team, and use Mito to create self-serve dashboards for common analyses that everyone in your lab can utilize. 
                   The rest of your team won&apos;t need to learn Python to benefit from its power.
                 </p>
+                <p className={pageStyles.link}>
+                  <Link href="/data-apps" >
+                    Learn more about Mito in Streamlit →
+                  </Link>
+                </p>
               </div>
             </div>
           </section>

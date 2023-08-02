@@ -86,7 +86,7 @@ const Header = (): JSX.Element => {
                   <HeaderDropdownItem 
                     title='Mito AI'
                     href='/python-ai-tools'
-                    iconSrc='/step-icons/ai_icon.svg'
+                    iconSrc='/mito-ai.svg'
                     altText="Mito AI"
                   />
                   <HeaderDropdownItem 
@@ -96,9 +96,15 @@ const Header = (): JSX.Element => {
                     altText="Low-Code SQL"
                   />
                   <HeaderDropdownItem 
+                    title='Data App'
+                    href='/data-app'
+                    iconSrc='/data_app.svg'
+                    altText="Data App"
+                  />
+                  <HeaderDropdownItem 
                     title='Infrastructure Integration'
                     href='/infrastructure-integration-python-tool'
-                    iconSrc='/step-icons/SettingsIconThin.svg'
+                    iconSrc='/settings-hollow.svg'
                     altText="Infrastructure Integration"
                   />
                 </HeaderDropdown>
@@ -181,6 +187,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/low-code-sql'>Low-Code SQL</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/data-app'>Data App</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>

@@ -116,12 +116,16 @@
 .text-color-medium-important {
     color: var(--mito-text-medium) !important;
 }
+.text-font-family-normal-important {
+    font-family: Roboto !important;
+}
 .text-color-recon-created {
     color: var(--mito-recon-created-text-color) !important;
 }
 .text-color-recon-modified {
     color: var(--mito-recon-modified-text-color) !important;
 }
+
 
 
 /*

@@ -17,6 +17,10 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 
+from mitosheet.utils import write_to_excel
+
+from mitosheet.user.utils import is_pro, is_running_test
+
 def get_export_to_csv_sheet_index_to_file_name(file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
     """
     Note that we add the index to the file name if there are multiple sheets being exported,
@@ -80,10 +84,10 @@ class ExportToFileStepPerformer(StepPerformer):
             for sheet_index, file_name in sheet_index_to_export_location.items():
                 post_state.dfs[sheet_index].to_csv(file_name, index=False)
         elif _type == 'excel':
+            # Formatting is a Mito pro feature, but we also allow it for testing
+            allow_formatting = is_pro() or is_running_test()
             sheet_index_to_export_location = get_export_to_excel_sheet_index_to_sheet_name(post_state, file_name, sheet_indexes)
-            with pd.ExcelWriter(file_name) as writer:
-                for sheet_index, sheet_name in sheet_index_to_export_location.items():
-                    post_state.dfs[sheet_index].to_excel(writer, sheet_name=sheet_name, index=False)
+            write_to_excel(file_name, sheet_indexes, post_state, allow_formatting=allow_formatting)
         else:
             raise ValueError(f"Invalid file type: {_type}")
 

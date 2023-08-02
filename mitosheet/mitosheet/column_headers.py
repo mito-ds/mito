@@ -189,6 +189,8 @@ class ColumnIDMap():
         del self.column_id_to_column_header[sheet_index][column_id]
         self.column_header_to_column_id[sheet_index][column_header]
 
+    # Note: The object returned by this function might not reflect the actual order of columns.
+    # To access the list of columns in order, use the dataframe's columns.tolist() method. 
     def get_column_ids(self, sheet_index: int, column_headers: Optional[Collection[ColumnHeader]]=None) -> List[str]:
         if column_headers is None:
             return list(self.column_id_to_column_header[sheet_index].keys())

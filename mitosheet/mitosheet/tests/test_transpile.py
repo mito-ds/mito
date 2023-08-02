@@ -553,7 +553,9 @@ def test_transpile_parameterize_excel_imports(tmp_path):
         "import pandas as pd",
         "",
         "def function(var_name):",
-        f"{TAB}sheet_df_dictonary = pd.read_excel(var_name, engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)",
+        f"{TAB}sheet_df_dictonary = pd.read_excel(var_name, engine='openpyxl', sheet_name=[\n"
+        f"{TAB*2}'Sheet1'\n"
+        f"{TAB}], skiprows=0)",
         f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
         f'{TAB}',
         f"{TAB}dataframe_1 = pd.read_excel(var_name, sheet_name='Sheet1', skiprows=0, nrows=1, usecols='A:B')",
