@@ -20,12 +20,13 @@ export const isInJupyterNotebook = (): boolean => {
 }
 
 export const isInStreamlit = (): boolean => {
-    // Check if we are in an iframe
-    if (window.self !== window.top) {
-        const topDocument = window.top?.document;
-        return (topDocument && topDocument.getElementsByClassName('stApp').length > 0) ||
-            (window.top !== null && (window.top as any).streamlitDebug !== undefined)
+    // Check if we are in an iframe, and if we are, look for an stApp that we are a part of
+    let currentWindow: Window | null = window;
+    if (currentWindow !== window.top) {        
+        if (currentWindow.document?.getElementsByClassName('stApp').length > 0) {
+            return true;
+        }
+        currentWindow = window.parent;
     }
     return false;
-    // TODO: What else can we check?
 }
