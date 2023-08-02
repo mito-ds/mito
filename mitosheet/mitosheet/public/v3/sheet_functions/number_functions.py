@@ -14,11 +14,12 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 from datetime import datetime
+import decimal
 import math
 from typing import Optional, Union
 import sys
 from mitosheet.errors import MitoError
-from mitosheet.is_type_utils import is_datetime_dtype
+from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_int_dtype
 import numpy as np
 
 import pandas as pd
@@ -488,21 +489,32 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
     }
     """
 
+    def excel_round(x: Optional[Union[int, float]], decimals: int) -> Union[int, float, None]:
+        if x is None or pd.isna(x): 
+            return None
+
+        context = decimal.getcontext()
+        context.rounding = decimal.ROUND_HALF_UP
+        number = decimal.Decimal(x)
+        rounded_number = round(number, decimals)
+        return type(x)(rounded_number)
+
     # If no decimals option is passed, round to no decimals
     if decimals is None:
         decimals = 0
 
     if (isinstance(arg, int) or isinstance(arg, float)) and isinstance(decimals, int):
-        return round(arg, decimals) 
+        return excel_round(arg, decimals) 
 
     index = get_index_from_series(arg, decimals)
     arg = get_series_from_primitive_or_series(arg, index).fillna(np.nan)
     decimals = get_series_from_primitive_or_series(decimals, index).fillna(0)
 
     return pd.Series(
-        [round(num, dec) for num, dec in zip(arg, decimals)], # type: ignore
-        index=arg.index # type: ignore
+        [excel_round(num, decimal) for num, decimal in zip(arg, decimals)], # type: ignore
+        index=index
     )
+
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
