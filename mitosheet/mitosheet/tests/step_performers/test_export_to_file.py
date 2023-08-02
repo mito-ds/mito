@@ -405,7 +405,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'B2',
         'C2',
-        False
+        True
     ),
     (
         ['C'],
