@@ -15,7 +15,13 @@ CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
     'number_exactly': '=',
     'number_not_exactly': '<>',
     'greater_than_or_equal': '>=',
-    'less_than_or_equal': '<='
+    'less_than_or_equal': '<=',
+    'datetime_exactly': '=',
+    'datetime_not_exactly': '<>',
+    'datetime_greater': '>',
+    'datetime_greater_than_or_equal': '>=',
+    'datetime_less': '<',
+    'datetime_less_than_or_equal': '<=',
 }
 
 SPECIAL_FORMULAS = [
@@ -27,7 +33,7 @@ SPECIAL_FORMULAS = [
     'string_starts_with',
     'string_ends_with',
     'boolean_is_true',
-    'boolean_is_false',
+    'boolean_is_false'
 ]
 
 def get_conditional_format_rule(
@@ -39,7 +45,10 @@ def get_conditional_format_rule(
 ) -> Optional[FormulaRule]:
     # Update the formulas for the string operators
     comparison = CONDITION_TO_COMPARISON_FORMULA.get(filter_condition)
-    if comparison is not None:
+    # If comparing dates, we need to use the DATEVALUE function
+    if comparison is not None and 'datetime' in filter_condition:
+        formula = [f'{cell_range}{comparison}DATEVALUE("{filter_value}")']
+    elif comparison is not None:
         formula = [f'{cell_range}{comparison}{filter_value}']
     elif filter_condition == 'contains':
         formula = [f'NOT(ISERROR(FIND("{filter_value}",{cell_range})))']
