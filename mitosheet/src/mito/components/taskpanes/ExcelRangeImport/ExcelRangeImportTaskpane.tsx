@@ -183,7 +183,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             Range Imports
                         </p>
                     </Col>
-                    <Col span={4}>
+                    <Col>
                         <TextButton 
                             variant="dark"
                             onClick={() => {
@@ -202,7 +202,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                 })
                                 setExpandedIndex(0); // expand it!
                             }}
-                            width='block'
+                            width='small'
                         >
                             + Add
                         </TextButton>

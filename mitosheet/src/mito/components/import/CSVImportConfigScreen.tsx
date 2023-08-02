@@ -415,7 +415,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                             })
                         }}
                     >
-                    Want to import multiple ranges from this file? <span className='text-underline'>Click here.</span>
+                        <span className='text-underline'>Click here</span> to import multiple ranges.
                     </p>
                 </Row>
             </DefaultTaskpaneBody>

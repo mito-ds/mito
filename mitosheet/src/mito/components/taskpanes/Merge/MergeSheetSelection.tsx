@@ -44,7 +44,7 @@ const MergeSheetSection = (props: {
                         })}
                     </Select>
                 </Col>
-                <Col offsetRight={2} span={11}>
+                <Col span={11}>
                     <p className='text-header-3'>
                         Second Dataframe
                     </p>

@@ -298,7 +298,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 })
                             }}
                         >
-                            Want to import multiple ranges from {params.sheet_names[0]}? <span className='text-underline'>Click here.</span>
+                            <span className='text-underline'>Click here</span> to import multiple ranges.
                         </p>
                     }
                     {/* 

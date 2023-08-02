@@ -32,7 +32,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
 
     useDebouncedEffect(() => {
         void props.mitoAPI.updateCodeOptions(codeOptions);
-    }, [codeOptions], 100);
+    }, [codeOptions], 500);
 
     return (
         <DefaultTaskpane>

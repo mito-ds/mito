@@ -140,6 +140,7 @@ try:
         # Get the absolute path to the import_folder, in case it is relative. Also
         # check that this folder exists, and throw an error if it does not.
         if import_folder is not None:
+            import_folder = os.path.expanduser(import_folder)
             import_folder = os.path.abspath(import_folder)
 
             if not os.path.exists(import_folder):
