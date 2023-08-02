@@ -245,7 +245,7 @@ const ColumnHeader = (props: {
                                 onSubmit={async (e) => {
                                     e.preventDefault();
 
-                                    const newColumnHeader = props.editorState.type !== "closed" ? props.editorState?.formula : getDisplayColumnHeader(finalColumnHeader);
+                                    const newColumnHeader = props.editorState.type !== "closed" ? props.editorState.formula : getDisplayColumnHeader(finalColumnHeader);
                                     const oldColumnHeader = getDisplayColumnHeader(lowerLevelColumnHeader);
                                     if (newColumnHeader !== oldColumnHeader) {
                                         void props.mitoAPI.editRenameColumn(
@@ -272,7 +272,7 @@ const ColumnHeader = (props: {
                                 }}
                             >
                                 <Input
-                                    value={props.editorState.type !== "closed" ? props.editorState?.formula : ''}
+                                    value={props.editorState.type !== "closed" ? props.editorState.formula : ''}
                                     onChange={(e) => {
                                         const newHeader = e.target.value;
 
@@ -283,7 +283,6 @@ const ColumnHeader = (props: {
                                             return {
                                                 ...prevEditorState,
                                                 formula: newHeader,
-                                                type:"open"
                                             }
                                         }));
                                     }}
@@ -392,7 +391,7 @@ const ColumnHeader = (props: {
                         }}
                     >
                         <Input
-                            value={props.editorState.type !== "closed" ? props.editorState?.formula : ''}
+                            value={props.editorState.type !== "closed" ? props.editorState.formula : ''}
                             onChange={(e) => {
                                 const newHeader = e.target.value;
 

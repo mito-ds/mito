@@ -288,7 +288,6 @@ const CellEditor = (props: {
                     return {
                         ...prevEditorState,
                         arrowKeysScrollInFormula: true,
-                        type:"open"
                     }
                 })
 

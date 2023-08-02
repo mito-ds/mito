@@ -411,12 +411,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
         // Close the cell editor if it is open
         if (editorState.type !== "closed") {
-            setEditorState(prevEditorState=>(
-                {
-                    type: "closed",
-                    editingMode: prevEditorState.editingMode
-                }
-            ))
+            setEditorState(prevEditorState=>({ type: "closed", editingMode: prevEditorState.editingMode}))
         }
 
     }, [uiState.selectedSheetIndex])

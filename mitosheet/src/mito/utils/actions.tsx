@@ -87,12 +87,7 @@ export const createActions = (
                 }
 
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -130,12 +125,7 @@ export const createActions = (
             longTitle: 'Change column dtype',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -160,12 +150,7 @@ export const createActions = (
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -190,12 +175,7 @@ export const createActions = (
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -259,12 +239,7 @@ export const createActions = (
             longTitle: 'Delete columns',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -367,12 +342,7 @@ export const createActions = (
             longTitle: 'Documentation',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We log the opening of the documentation taskpane
                 void mitoAPI.log('clicked_documentation');
@@ -391,12 +361,7 @@ export const createActions = (
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We open the merge taskpane
                 setUIState(prevUIState => {
@@ -420,12 +385,7 @@ export const createActions = (
             longTitle: 'Duplicate dataframe',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 await mitoAPI.editDataframeDuplicate(sheetIndex)
             },
@@ -441,12 +401,7 @@ export const createActions = (
             longTitle: 'Duplicate selected graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
                 
                 if (uiState.selectedGraphID) {
                     const newGraphID = getRandomId()
@@ -465,12 +420,7 @@ export const createActions = (
             longTitle: 'Download File Now',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -495,12 +445,7 @@ export const createActions = (
             shortTitle: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
                 closeOpenEditingPopups();
 
                 setUIState(prevUIState => {
@@ -522,12 +467,7 @@ export const createActions = (
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 const selectedColumnIDs = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
                 
@@ -554,12 +494,7 @@ export const createActions = (
             longTitle: 'Filter column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -582,12 +517,7 @@ export const createActions = (
             longTitle: 'Format number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We close editing taskpanes
                 closeOpenEditingPopups()
@@ -645,12 +575,7 @@ export const createActions = (
             longTitle: 'Create new graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // If there is no data, prompt the user to import and nothing else
                 if (sheetDataArray.length === 0) {
@@ -687,12 +612,7 @@ export const createActions = (
             longTitle: 'Help',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // Open Discord
                 if (userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL) {
@@ -712,12 +632,7 @@ export const createActions = (
             longTitle: 'Open import dropdown',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -739,12 +654,7 @@ export const createActions = (
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -768,12 +678,7 @@ export const createActions = (
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We open the merge taskpane
                 setUIState(prevUIState => {
@@ -795,12 +700,7 @@ export const createActions = (
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We open the merge taskpane
                 setUIState(prevUIState => {
@@ -822,12 +722,7 @@ export const createActions = (
             longTitle: 'Pivot table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
                 
                 // We check if the currently opened sheet is a result of a pivot table
                 // and if so then we open the existing pivot table here, rather than
@@ -965,12 +860,7 @@ export const createActions = (
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
     
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
@@ -1064,12 +954,7 @@ export const createActions = (
             longTitle: 'See all functionality',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // We log the opening of the documentation taskpane
                 void mitoAPI.log('clicked_documentation');
@@ -1151,12 +1036,7 @@ export const createActions = (
             longTitle: 'Sort column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1217,12 +1097,7 @@ export const createActions = (
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
         
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
@@ -1243,12 +1118,7 @@ export const createActions = (
             longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1271,12 +1141,7 @@ export const createActions = (
             longTitle: 'Upgrade to Mito Pro',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1307,12 +1172,7 @@ export const createActions = (
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1346,12 +1206,7 @@ export const createActions = (
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1371,12 +1226,7 @@ export const createActions = (
             longTitle: 'Conditional formatting',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1398,12 +1248,7 @@ export const createActions = (
             longTitle: 'Import dataframes',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
@@ -1427,12 +1272,7 @@ export const createActions = (
             longTitle: 'Change imported data',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1452,12 +1292,7 @@ export const createActions = (
             longTitle: 'Code Snippets',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1477,12 +1312,7 @@ export const createActions = (
             longTitle: 'Configure Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1502,12 +1332,7 @@ export const createActions = (
             longTitle: 'Download File when Executing Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1549,12 +1374,7 @@ export const createActions = (
             longTitle: 'Snowflake Import',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1574,12 +1394,7 @@ export const createActions = (
             shortTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1599,12 +1414,7 @@ export const createActions = (
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
@@ -1624,12 +1434,7 @@ export const createActions = (
             longTitle: 'Custom Import',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
-                setEditorState(prevEditorState => (
-                    {
-                        type: "closed",
-                        editingMode: prevEditorState.editingMode
-                    }
-                ));
+                setEditorState(prevEditorState => ({ type: "closed", editingMode: prevEditorState.editingMode }));
 
                 setUIState(prevUIState => {
                     return {
