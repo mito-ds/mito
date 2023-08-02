@@ -33,7 +33,9 @@ SPECIAL_FORMULAS = [
     'string_starts_with',
     'string_ends_with',
     'boolean_is_true',
-    'boolean_is_false'
+    'boolean_is_false',
+    'empty',
+    'not_empty'
 ]
 
 def get_conditional_format_rule(
@@ -68,6 +70,10 @@ def get_conditional_format_rule(
         formula = [f'EXACT({cell_range},"{filter_value}")']
     elif filter_condition == 'string_not_exactly':
         formula = [f'NOT(EXACT({cell_range},"{filter_value}"))']
+    elif filter_condition == 'empty':
+        formula = [f'ISBLANK({cell_range})']
+    elif filter_condition == 'not_empty':
+        formula = [f'NOT(ISBLANK({cell_range}))']
     else: return None
     return FormulaRule(fill=fill, font=font, formula=formula)
 
