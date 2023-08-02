@@ -36,7 +36,7 @@ def get_conditional_format_rule(
     font: Optional[Font],
     filter_value: str,
     cell_range: str
-) -> FormulaRule:
+) -> Optional[FormulaRule]:
     # Update the formulas for the string operators
     comparison = CONDITION_TO_COMPARISON_FORMULA.get(filter_condition)
     if comparison is not None:
