@@ -237,7 +237,7 @@ const ColumnHeader = (props: {
                                 {getDisplayColumnHeader(lowerLevelColumnHeader)}
                             </p>
                         }
-                        {editingLowerLevelColumnHeader  &&
+                        {editingLowerLevelColumnHeader &&
                             <form
                                 style={{
                                     width: `${width - 25}px`,
@@ -282,7 +282,7 @@ const ColumnHeader = (props: {
                                             }
                                             return {
                                                 ...prevEditorState,
-                                                formula: newHeader,
+                                                formula: newHeader
                                             }
                                         }));
                                     }}
@@ -401,7 +401,7 @@ const ColumnHeader = (props: {
                                     }
                                     return {
                                         ...prevEditorState,
-                                        formula: newHeader,
+                                        formula: newHeader
                                     }
                                 }));
                             }}
