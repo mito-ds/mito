@@ -15,10 +15,10 @@ from mitosheet.transpiler.transpile_utils import param_dict_to_code
 from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
 
 # This is a helper function that generates the code for formatting the excel sheet
-def get_format_code(state: State, sheet_indexes: List[int]) -> list:
+def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
     code = []
     formats = state.df_formats
-    for sheet_index in sheet_indexes:
+    for sheet_index in sheet_indexes.keys():
         sheet_name = state.df_names[sheet_index]
         format = formats[sheet_index]
         # We need to convert the column IDs to column letters
@@ -73,7 +73,7 @@ class ExportToFileCodeChunk(CodeChunk):
             return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
-            ] + get_format_code(self.post_state, self.sheet_index_to_export_location.keys()), ['import pandas as pd']
+            ] + get_format_code(self.post_state, self.sheet_index_to_export_location), ['import pandas as pd']
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')
         
