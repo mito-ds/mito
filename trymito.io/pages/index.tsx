@@ -55,10 +55,16 @@ const Home: NextPage = () => {
               </div>
               
               <iframe
+                className='display-desktop-only-inline-block'
                 src="https://mito-for-st-demo.streamlit.app/?embed=true"
                 height="650"
                 style={{width: '80%', border: 'none'}}
               ></iframe>
+              <div id='video' className='display-mobile-only'>
+               <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                 <source src="/demo.mp4" />
+               </video>
+             </div>
           </section>
 
           <section>
