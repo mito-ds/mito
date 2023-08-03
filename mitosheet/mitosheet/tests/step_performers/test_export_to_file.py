@@ -292,63 +292,217 @@ df_styler = df.style\\
 CONDITIONAL_FORMATS = [
     (
         ['A'], 
-        [{'condition': 'greater', 'value': 5}], 
+        [{'condition': 'greater', 'value': 2}], 
         '#e72323', 
         '#0c5200',
         'A2',
         'B2',
-        ">"
+        True
     ),
     (
         ['A'],
-        [{'condition': 'less', 'value': 4}],
+        [{'condition': 'less', 'value': 2}],
         '#8f4608', 
         '#054384',
         'A2',
         'B2',
-        "<"
+        True
     ),
     (
         ['A'],
-        [{'condition': 'less_than_or_equal', 'value': 4}],
+        [{'condition': 'less_than_or_equal', 'value': 2}],
         '#022c42', 
         '#18352b',
         'A2',
         'B2',
-        "<="
+        True
     ),
     (
         ['A'],
-        [{'condition': 'greater_than_or_equal', 'value': 4}],
+        [{'condition': 'greater_than_or_equal', 'value': 2}],
         '#620a5f', 
         '#0a2210',
         'A2',
         'B2',
-        ">="
+        True
     ),
     (
         ['A'],
-        [{'condition': 'number_exactly', 'value': 4}],
+        [{'condition': 'number_exactly', 'value': 3}],
         '#032f5c', 
         None,
         'A2',
         'B2',
-        "=="
+        True
     ),
     (
         ['A'],
-        [{'condition': 'number_not_exactly', 'value': 4}],
+        [{'condition': 'number_not_exactly', 'value': 3}],
         None, 
         '#001a58',
         'A2',
         'B2',
-        "!="
-    )
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_exactly', 'value': 'dEf'}],
+        '#8890d2', 
+        '#d2e1a9',
+        'B3',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_not_exactly', 'value': 'def'}],
+        '#b9d7f2',
+        None, 
+        'B3',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'contains', 'value': 'E'}],
+        '#a39f91', 
+        '#98c4b1',
+        'B3',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_contains_case_insensitive', 'value': 'e'}],
+        '#a39f91', 
+        '#98c4b1',
+        'B3',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_does_not_contain', 'value': 'a'}],
+        None, 
+        '#ff8ea8',
+        'B2',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_starts_with', 'value': 'd'}],
+        '#a6fae8', 
+        '#e0dbe5',
+        'B2',
+        'A2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'string_ends_with', 'value': 4}],
+        '#d09083', 
+        '#b9abff',
+        'B2',
+        'C2',
+        True
+    ),
+    (
+        ['C'],
+        [{'condition': 'boolean_is_true', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'C2',
+        'B2',
+        True
+    ),
+    (
+        ['C'],
+        [{'condition': 'boolean_is_false', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'C2',
+        'B2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'empty', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'B5',
+        'C2',
+        True
+    ),
+    (
+        ['B'],
+        [{'condition': 'not_empty', 'value': ''}],
+        '#d09083', 
+        '#b9abff',
+        'B2',
+        'C2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_greater', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D2',
+        'B2',
+        False
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_less', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D3',
+        'B2',
+        False
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_not_exactly', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D3',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_exactly', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        True
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_greater_than_or_equal', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        False
+    ),
+    (
+        ['D'],
+        [{'condition': 'datetime_less_than_or_equal', 'value': '1/1/2015'}],
+        '#d09083', 
+        '#b9abff',
+        'D5',
+        'B2',
+        False
+    ),
 ]
+SAMPLE_DF = { 'A': [1,2,3,4], 'B': ['abc', 'dEf', 'HiJ', ''], 'C': [True, False, True, False], 'D': ['2/23/2017', '12/1/2014', '12/1/2014', '1/1/2015'] }
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol):
-    df = pd.DataFrame({'A': [4, 5, 6], 'B': [1, 2, 3]})
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
+    df = pd.DataFrame(SAMPLE_DF)
     mito = create_mito_wrapper(df, arg_names=['df'])
     test_conditional_formats = [
         {
@@ -369,14 +523,10 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
         "conditional_formats": test_conditional_formats
     })
     filename = 'test_format_conditional.xlsx'
+    numpy_import = f"\nimport numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename)
-    background_color_str = f'background-color: {background_color}' if background_color is not None else ''
-    font_color_str = f'color: {font_color}; ' if font_color is not None else ''
-    if background_color is None:
-        font_color_str = font_color_str[:-2]
-    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
-import pandas as pd
-import numpy as np
+    assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+import pandas as pd{numpy_import}
 
 with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
@@ -385,18 +535,15 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
             {{'columns': {column_ids}, 'filters': {filters}, 'font_color': {None if font_color is None else f"'{font_color}'"}, 'background_color': {None if background_color is None else f"'{background_color}'"}}}
         ]
     )
-
-df_styler = df.style\\
-    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, '{font_color_str}{background_color_str}', None), subset={column_ids})
 """
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]
     assert get_cell_conditional_formatting(index_not_formatted, filename, 'df') == []
 
 
 # This tests when the user exports a dataframe with row formatting without header formatting.
-@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol", CONDITIONAL_FORMATS)
-def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, operator_symbol):
-    df = pd.DataFrame({'A': [1, 2, 3]})
+@pytest.mark.parametrize("column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting", CONDITIONAL_FORMATS)
+def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters, background_color, font_color, index_to_check, index_not_formatted, number_formatting):
+    df = pd.DataFrame(SAMPLE_DF)
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
         'headers': {},
@@ -424,13 +571,9 @@ def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters
     })
     filename = 'test_format_conditional_and_rows.xlsx'
     mito.export_to_file('excel', [0], filename)
-    font_color_str = f'color: {font_color}; ' if font_color is not None else ''
-    background_color_str = f'background-color: {background_color}' if background_color is not None else ''
-    if background_color is None:
-        font_color_str = font_color_str[:-2]
-    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
-import pandas as pd
-import numpy as np
+    numpy_import = f"\nimport numpy as np" if number_formatting else ''
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd{numpy_import}
 
 with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
@@ -443,13 +586,6 @@ with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl
             {{'columns': {column_ids}, 'filters': {filters}, 'font_color': {None if font_color is None else f"'{font_color}'"}, 'background_color': {None if background_color is None else f"'{background_color}'"}}}
         ]
     )
-
-df_styler = df.style\\
-    .set_table_styles([
-        {{'selector': 'tbody tr:nth-child(odd)', 'props': [('color', '#ffffff'), ('background-color', '#000000')]}},
-        {{'selector': 'tbody tr:nth-child(even)', 'props': [('color', '#000000'), ('background-color', '#ffffff')]}},
-])\\
-    .apply(lambda series: np.where(series {operator_symbol} {filters[0]['value']}, '{font_color_str}{background_color_str}', None), subset={column_ids})
 """
 
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]

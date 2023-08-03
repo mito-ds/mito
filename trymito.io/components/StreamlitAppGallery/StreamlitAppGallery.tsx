@@ -5,6 +5,7 @@ import pageStyles from '../../styles/Page.module.css'
 import { classNames } from "../../utils/classNames";
 
 export const DATA_VERIFICATION_STREAMLIT_APP_LINK = 'https://mito-data-cleaning-demo.streamlit.app'
+export const BASIC_DEMO_APP_LINK = 'https://mito-for-st-demo.streamlit.app'
 
 const StreamlitAppGallery = (): JSX.Element => {
 
@@ -26,6 +27,14 @@ const StreamlitAppGallery = (): JSX.Element => {
                     streamlitHref={DATA_VERIFICATION_STREAMLIT_APP_LINK}
                     gitHubHref={'https://github.com/mito-ds/data-cleaning-demo'}
                     tags={['Data Cleaning']} 
+                />
+                <StreamlitAppCard
+                    title={'Basic Spreadsheet Demo'}
+                    description={'Explore the Mito spreadsheet component'}
+                    imageSrc={'/data-app/mito-for-st-demo.png'}
+                    streamlitHref={BASIC_DEMO_APP_LINK}
+                    gitHubHref={'https://github.com/mito-ds/mito-for-streamlit-demo'}
+                    tags={['Data Exploration', 'Data Cleaning']} 
                 />
             </div>
         </div>
