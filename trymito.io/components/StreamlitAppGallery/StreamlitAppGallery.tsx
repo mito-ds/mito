@@ -4,7 +4,7 @@ import streamlitAppGalleryStyles from './StreamlitAppGallery.module.css'
 import pageStyles from '../../styles/Page.module.css'
 import { classNames } from "../../utils/classNames";
 
-export const DATA_VERIFICATION_STREAMLIT_APP_LINK = 'https://trymito.io'
+export const DATA_VERIFICATION_STREAMLIT_APP_LINK = 'https://mito-data-cleaning-demo.streamlit.app'
 
 const StreamlitAppGallery = (): JSX.Element => {
 
