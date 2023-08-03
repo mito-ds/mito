@@ -15,7 +15,7 @@ const StreamlitAppGallery = (): JSX.Element => {
                     title={'Bank Performance Comparison'}
                     description={'Import and explore data from Snowflake'}
                     imageSrc={'/data-app/bank-performance.png'}
-                    streamlitHref={'https://trymito.io'}
+                    streamlitHref={'https://bank-performance.streamlit.app'}
                     gitHubHref={'https://github.com/mito-ds/snowflake-streamlit-bank-performance-demo'}
                     tags={['Finance', 'Snowflake']} 
                 />
