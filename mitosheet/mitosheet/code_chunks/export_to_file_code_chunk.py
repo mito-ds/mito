@@ -15,7 +15,7 @@ from mitosheet.transpiler.transpile_utils import param_dict_to_code
 from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
 
 # This is a helper function that generates the code for formatting the excel sheet
-def get_format_code(state: State, sheet_indexes: list) -> list:
+def get_format_code(state: State, sheet_indexes: List[int]) -> list:
     code = []
     formats = state.df_formats
     for sheet_index in sheet_indexes:
