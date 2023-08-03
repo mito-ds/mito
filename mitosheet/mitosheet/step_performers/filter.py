@@ -16,40 +16,16 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType
-
-# The constants used in the filter step itself as filter conditions
-# NOTE: these must be unique (e.g. no repeating names for different types)
-FC_EMPTY = "empty"
-FC_NOT_EMPTY = "not_empty"
-FC_LEAST_FREQUENT = "least_frequent"
-FC_MOST_FREQUENT = "most_frequent"
-
-FC_BOOLEAN_IS_TRUE = "boolean_is_true"
-FC_BOOLEAN_IS_FALSE = "boolean_is_false"
-
-FC_STRING_CONTAINS = "contains"
-FC_STRING_DOES_NOT_CONTAIN = "string_does_not_contain"
-FC_STRING_EXACTLY = "string_exactly"
-FC_STRING_NOT_EXACTLY = "string_not_exactly"
-FC_STRING_STARTS_WITH = "string_starts_with"
-FC_STRING_ENDS_WITH = "string_ends_with"
-FC_STRING_CONTAINS_CASE_INSENSITIVE = "string_contains_case_insensitive"
-
-FC_NUMBER_EXACTLY = "number_exactly"
-FC_NUMBER_NOT_EXACTLY = "number_not_exactly"
-FC_NUMBER_GREATER = "greater"
-FC_NUMBER_GREATER_THAN_OR_EQUAL = "greater_than_or_equal"
-FC_NUMBER_LESS = "less"
-FC_NUMBER_LESS_THAN_OR_EQUAL = "less_than_or_equal"
-FC_NUMBER_LOWEST = 'number_lowest'
-FC_NUMBER_HIGHEST = 'number_highest'
-
-FC_DATETIME_EXACTLY = "datetime_exactly"
-FC_DATETIME_NOT_EXACTLY = "datetime_not_exactly"
-FC_DATETIME_GREATER = "datetime_greater"
-FC_DATETIME_GREATER_THAN_OR_EQUAL = "datetime_greater_than_or_equal"
-FC_DATETIME_LESS = "datetime_less"
-FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
+from mitosheet.types import (
+    FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
+    FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
+    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+    FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
+    FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
+    FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+    FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
+    FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+    FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
 
 # If there are multiple conditions, we combine them together, with the
 # given operator in the middle
