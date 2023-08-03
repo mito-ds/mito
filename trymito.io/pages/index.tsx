@@ -51,7 +51,7 @@ const Home: NextPage = () => {
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='try jupyterlite' align='center'/>
+                <CTAButtons variant='download' align='center'/>
               </div>
               
               <iframe
