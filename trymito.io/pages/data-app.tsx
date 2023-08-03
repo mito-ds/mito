@@ -11,7 +11,7 @@ import homeStyles from '../styles/Home.module.css';
 // Import Icons & Background Grid
 
 import { classNames } from '../utils/classNames';
-import StreamlitAppGallery, { BASIC_DEMO_APP_LINK, DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import StreamlitAppGallery, { DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DashboardCTACard from '../components/CTACards/DashboardCTACard';
 
@@ -42,12 +42,12 @@ const DataApp: NextPage = () => {
                     <CTAButtons variant='download' align='center' displayProCTA={false}/>
                 </div>
                     
-                <iframe
-                    src="https://mito-for-st-demo.streamlit.app/?embed=true"
-                    height="650"
-                    style={{width: '80%', border: 'none'}}
-                ></iframe>
-                <a href={BASIC_DEMO_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <div id='video'>
+                    <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                        <source src={'/data-app/data-verification-app.mp4'} />
+                    </video>
+                </div>
+                <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                     Try this app now →
                 </a>
             </section>

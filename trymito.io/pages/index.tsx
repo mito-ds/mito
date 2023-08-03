@@ -54,11 +54,11 @@ const Home: NextPage = () => {
                 <CTAButtons variant='try jupyterlite' align='center'/>
               </div>
               
-            <div id='video'>
-              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                <source src="/demo.mp4" />
-              </video>
-            </div>
+              <iframe
+                src="https://mito-for-st-demo.streamlit.app/?embed=true"
+                height="650"
+                style={{width: '80%', border: 'none'}}
+              ></iframe>
           </section>
 
           <section>
