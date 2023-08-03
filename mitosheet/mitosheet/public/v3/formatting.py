@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Tuple
+from typing import Any, Optional, Dict
 
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import NamedStyle
@@ -17,6 +17,8 @@ from mitosheet.types import (
     FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
     FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
+
+PLACEHOLDER = 'FORMAT_STRING_PLACEHOLDER'
 
 # Object to map the conditional formatting operators to the excel formulas
 CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
@@ -112,6 +114,25 @@ def add_conditional_formats(
                     sheet.conditional_formatting.add(cell_range, column_conditional_rule)
 
 
+def add_number_formatting(
+    number_formats: Optional[Dict[str, Any]],
+    sheet: Worksheet,
+    df: DataFrame
+) -> None:
+    if number_formats is None:
+        return
+    for column_header, number_format in number_formats.items():
+        column_index = df.columns.tolist().index(column_header)
+        column = get_column_from_column_index(column_index)
+        cell_range = f'{column}2:{column}{sheet.max_row}'
+        for cell in sheet[cell_range]:
+            precision = number_format.get('precision', 0)
+            decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
+            format_string = number_format.get('type', PLACEHOLDER)
+            full_format_string = format_string.replace(PLACEHOLDER, decimal_string)
+            cell[0].number_format = full_format_string
+
+
 def add_formatting_to_excel_sheet(
         writer: ExcelWriter,
         sheet_name: str,
@@ -122,7 +143,8 @@ def add_formatting_to_excel_sheet(
         even_font_color: Optional[str]=None,
         odd_background_color: Optional[str]=None,
         odd_font_color: Optional[str]=None,
-        conditional_formats: Optional[list]=None
+        conditional_formats: Optional[list]=None,
+        number_formats: Optional[Dict[str, Any]]=None
     ) -> None:
         """
         Adds formatting to the sheet_name, based on the formatting the user
@@ -185,3 +207,6 @@ def add_formatting_to_excel_sheet(
         # Add conditional formatting
         if conditional_formats is not None:
             add_conditional_formats(conditional_formats, sheet, df)
+
+        if number_formats is not None:
+            add_number_formatting(number_formats, sheet, df)

@@ -33,7 +33,8 @@ def get_format_code(state: State) -> list:
             'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
             'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
             'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
-            'conditional_formats': conditional_formats
+            'conditional_formats': conditional_formats,
+            'number_formats': format.get('columns'),
         }
         param_dict = {
             key: value for key, value in params.items()
