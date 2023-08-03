@@ -6,6 +6,7 @@ import { MitoAPI } from '../../../api/api';
 import TextButton from '../../elements/TextButton';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import Row from '../../layout/Row';
+import { isInStreamlit } from '../../../utils/location';
 
 /* 
     The export tab that lets the user copy the graph code or download as a png
@@ -59,7 +60,7 @@ function GraphExportTab(
                         : "Copied to Clipboard!"
                     }
                 </TextButton>
-                {showGraphCodeCopied ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
+                {(exportHTMLGraphCodeCopied && !isInStreamlit()) ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
             </div>
             <div>
                 <TextButton
@@ -73,7 +74,7 @@ function GraphExportTab(
                         : "Copied to Clipboard!"
                     }
                 </TextButton>
-                {exportHTMLGraphCodeCopied ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
+                {(exportHTMLGraphCodeCopied && !isInStreamlit()) ? (<Row justify='center' className='text-subtext-1'>Paste copied code in code cell below</Row>) : <></>}
             </div>
             <div>
                 <TextButton
