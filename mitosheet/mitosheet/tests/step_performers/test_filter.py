@@ -12,7 +12,7 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 import pytest
-from mitosheet.step_performers.filter import (
+from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE,
     FC_BOOLEAN_IS_TRUE,
     FC_DATETIME_EXACTLY,

@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.is_type_utils import is_datetime_dtype
 from mitosheet.state import State
-from mitosheet.step_performers.filter import (
+from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
     FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,

@@ -7,7 +7,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
-from mitosheet.step_performers.filter import (
+from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
     FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
@@ -39,7 +39,8 @@ def get_conditional_format_rule(
     fill: Optional[PatternFill],
     font: Optional[Font],
     filter_value: str,
-    cell_range: str
+    cell_range: str,
+    column: str
 ) -> Optional[FormulaRule]:
     # Update the formulas for the string operators
     comparison = CONDITION_TO_COMPARISON_FORMULA.get(filter_condition)
@@ -70,6 +71,10 @@ def get_conditional_format_rule(
         formula = [f'ISBLANK({cell_range})']
     elif filter_condition == FC_NOT_EMPTY:
         formula = [f'NOT(ISBLANK({cell_range}))']
+    elif filter_condition == FC_NUMBER_HIGHEST:
+        formula = [f'{column}2>=LARGE({column}:{column},{filter_value})']
+    elif filter_condition == FC_NUMBER_LOWEST:
+        formula = [f'{column}2<=SMALL({column}:{column},{filter_value})']
     else: return None
     return FormulaRule(fill=fill, font=font, formula=formula)
 
@@ -100,7 +105,8 @@ def add_conditional_formats(
                     fill=cond_fill,
                     font=cond_font,
                     filter_value=f"{filter['value']}",
-                    cell_range=cell_range
+                    cell_range=cell_range,
+                    column=column
                 )
                 if column_conditional_rule is not None:
                     sheet.conditional_formatting.add(cell_range, column_conditional_rule)

@@ -8,7 +8,7 @@ Contains tests for applying a function after filtering the same column.
 """
 
 import pytest
-from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_FALSE, FC_EMPTY,
+from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_EMPTY,
                                               FC_NUMBER_GREATER_THAN_OR_EQUAL,
                                               FC_STRING_CONTAINS)
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data
