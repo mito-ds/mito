@@ -42,11 +42,11 @@ const DataApp: NextPage = () => {
                     <CTAButtons variant='download' align='center' displayProCTA={false}/>
                 </div>
                     
-                <div id='video'>
-                    <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                        <source src={'/data-app/data-verification-app.mp4'} />
-                    </video>
-                </div>
+                <iframe
+                    src="https://mito-for-st-demo.streamlit.app/?embed=true"
+                    height="650"
+                    style={{width: '80%', border: 'none'}}
+                ></iframe>
                 <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                     Try this app now →
                 </a>
