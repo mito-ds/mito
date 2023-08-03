@@ -599,17 +599,12 @@ def test_transpiled_with_export_to_xlsx_format_two_sheets():
     mito.set_dataframe_format(0, DF_FORMAT_HEADER)
     mito.set_dataframe_format(1, DF_FORMAT_HEADER_AND_ROWS)
     filename = 'test_format_two.xlsx'
-    mito.export_to_file('excel', [0, 1], filename)
+    mito.export_to_file('excel', [1], filename)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 
 with pd.ExcelWriter(r\'test_format_two.xlsx\', engine="openpyxl") as writer:
-    df_1.to_excel(writer, sheet_name="df_1", index=False)
     df_2.to_excel(writer, sheet_name="df_2", index=False)
-    add_formatting_to_excel_sheet(writer, "df_1", df_1, 
-        header_background_color='#000000', 
-        header_font_color='#ffffff'
-    )
     add_formatting_to_excel_sheet(writer, "df_2", df_2, 
         header_background_color='#000000', 
         header_font_color='#ffffff', 

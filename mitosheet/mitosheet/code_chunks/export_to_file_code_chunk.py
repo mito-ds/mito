@@ -15,36 +15,35 @@ from mitosheet.transpiler.transpile_utils import param_dict_to_code
 from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
 
 # This is a helper function that generates the code for formatting the excel sheet
-def get_format_code(state: State) -> list:
-    code = []
+def get_format_code(state: State, sheet_index: int) -> list:
     formats = state.df_formats
-    for sheet_index, (sheet_name, format) in enumerate(zip(state.df_names, formats)):
-        # We need to convert the column IDs to column letters
-        # for conditional formats to export to excel
-        conditional_formats = get_conditional_formats_objects_to_export_to_excel(
-            format.get('conditional_formats'),
-            column_id_map=state.column_ids,
-            sheet_index=sheet_index
-        )
-        params = {
-            'header_background_color': format.get('headers', {}).get('backgroundColor'),
-            'header_font_color': format.get('headers', {}).get('color'),
-            'even_background_color': format.get('rows', {}).get('even', {}).get('backgroundColor'),
-            'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
-            'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
-            'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
-            'conditional_formats': conditional_formats
-        }
-        param_dict = {
-            key: value for key, value in params.items()
-            if value is not None
-        }
-        if param_dict == {}:
-            continue
+    sheet_name = state.df_names[sheet_index]
+    format = formats[sheet_index]
+    # We need to convert the column IDs to column letters
+    # for conditional formats to export to excel
+    conditional_formats = get_conditional_formats_objects_to_export_to_excel(
+        format.get('conditional_formats'),
+        column_id_map=state.column_ids,
+        sheet_index=sheet_index
+    )
+    params = {
+        'header_background_color': format.get('headers', {}).get('backgroundColor'),
+        'header_font_color': format.get('headers', {}).get('color'),
+        'even_background_color': format.get('rows', {}).get('even', {}).get('backgroundColor'),
+        'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
+        'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
+        'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
+        'conditional_formats': conditional_formats
+    }
+    param_dict = {
+        key: value for key, value in params.items()
+        if value is not None and len(value) > 0
+    }
 
-        params_code = param_dict_to_code(param_dict, tab_level=1)
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {state.df_names[sheet_index]}, {params_code})')
-    return code
+    params_code = param_dict_to_code(param_dict, tab_level=1)
+    if len(param_dict) == 0:
+        return ''
+    return f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {state.df_names[sheet_index]}, {params_code})'
 
 
 class ExportToFileCodeChunk(CodeChunk):
@@ -68,10 +67,15 @@ class ExportToFileCodeChunk(CodeChunk):
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
-            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
+            write_excel = [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
-            ] + get_format_code(self.post_state), ['import pandas as pd']
+            ]
+            format_excel = list(filter(lambda x: x is not '', [
+                get_format_code(self.post_state, sheet_index)
+                for sheet_index, export_location in self.sheet_index_to_export_location.items()
+            ]))
+            return write_excel + format_excel,['import pandas as pd']
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')
         
