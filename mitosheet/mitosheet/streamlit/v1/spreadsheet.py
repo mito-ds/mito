@@ -44,7 +44,6 @@ try:
     import streamlit.components.v1 as components
     import streamlit as st
 
-
     parent_dir = os.path.dirname(os.path.abspath(__file__))
 
     mito_build_dir = os.path.join(parent_dir, "mitoBuild")
@@ -53,6 +52,32 @@ try:
     message_passer_build_dr = os.path.join(parent_dir, "messagingBuild")
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
 
+
+    def get_session_id() -> Optional[str]:
+        """
+        This returns the session id for the current script run. Notably, this is different
+        when the user:
+        1. Refreshes the page
+        2. Closes the page and reopens it
+        3. Is a different user
+        4. Is a different browser
+
+        It allows us to cache the Mito backend on the session id, so that it is not
+        shared across users. Notably, it clearing when refreshed is the same behavior
+        that streamlit caching has by default -- e.g. the button component will reset
+        when the page is refreshed.
+
+        From the streamlit docs:
+        A context object that contains data for a "script run" - that is,
+        data that's scoped to a single ScriptRunner execution (and therefore also
+        scoped to a single connected "session").
+        """
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        ctx = get_script_run_ctx()
+        if ctx is None:
+            return None
+        return ctx.session_id
+
     @st.cache_resource(hash_funcs={pd.DataFrame: get_dataframe_hash})
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
@@ -60,6 +85,7 @@ try:
             _sheet_functions: Optional[List[Callable]]=None, 
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
+            session_id: Optional[str]=None,
             key: Optional[str]=None # So it caches on key
         ) -> Tuple[MitoBackend, List[Any]]: 
 
@@ -146,11 +172,14 @@ try:
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
 
+        session_id = get_session_id()
+
         mito_backend, responses = _get_mito_backend(
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
             import_folder=import_folder,
+            session_id=session_id,
             df_names=df_names, 
             key=key
         )
