@@ -405,7 +405,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'B2',
         'C2',
-        True
+        False
     ),
     (
         ['C'],
@@ -468,7 +468,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D3',
         'B2',
-        False
+        True
     ),
     (
         ['D'],
@@ -477,7 +477,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'D5',
         'B2',
-        False
+        True
     ),
     (
         ['D'],
