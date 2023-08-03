@@ -11,7 +11,7 @@ import homeStyles from '../styles/Home.module.css';
 // Import Icons & Background Grid
 
 import { classNames } from '../utils/classNames';
-import StreamlitAppGallery, { DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import StreamlitAppGallery, { BASIC_DEMO_APP_LINK, DATA_VERIFICATION_STREAMLIT_APP_LINK } from '../components/StreamlitAppGallery/StreamlitAppGallery';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DashboardCTACard from '../components/CTACards/DashboardCTACard';
 
@@ -47,7 +47,7 @@ const DataApp: NextPage = () => {
                     height="650"
                     style={{width: '80%', border: 'none'}}
                 ></iframe>
-                <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href={BASIC_DEMO_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
                     Try this app now →
                 </a>
             </section>
