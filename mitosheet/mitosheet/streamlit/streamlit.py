@@ -14,6 +14,12 @@ if button:
 
 st.subheader("Dataframe Created from File Upload")
 
+def importer():
+    import pandas as pd
+    return pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+
+
+
 from mitosheet.streamlit.v1 import spreadsheet
-new_dfs, code = spreadsheet(import_folder='~/monorepo/mitosheet/datasets')
+new_dfs, code = spreadsheet(import_folder='~/monorepo/mitosheet/datasets', importers=[importer])
 st.code(code)

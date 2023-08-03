@@ -4,6 +4,7 @@ import { SheetData, UIState } from '../../types';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { SendFunctionStatus } from '../../api/send';
+import { isInStreamlit } from '../../utils/location';
 
 
 /**
@@ -57,9 +58,12 @@ const EmptyGridMessages = (props: {
                             Import Files
                         </TextButton>
                     </div>
-                    <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
-                        Or import dfs using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
-                    </p>
+                    {!isInStreamlit() && 
+                        <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
+                            Or import dfs using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
+                        </p>
+                    }
+                    
                 </GridDataEmptyContainer>
             }
             {props.sheetData !== undefined && props.sheetData.numRows === 0 && props.sheetData.numColumns === 0 &&

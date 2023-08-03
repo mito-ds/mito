@@ -52,7 +52,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     })
 
     // We make sure to get the elements that are displayed and use the index on that to get the correct element
-    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState)[fileBrowserState.selectedElementIndex];
+    const selectedFile: FileElement | undefined = getElementsToDisplay(fileBrowserState, props.analysisData)[fileBrowserState.selectedElementIndex];
 
     /* 
         Any time the current path changes, we update

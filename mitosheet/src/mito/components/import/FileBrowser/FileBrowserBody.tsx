@@ -60,7 +60,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Filter to the searched for elements, and then sort properly
-    const elementsToDisplay = getElementsToDisplay(props.fileBrowserState);
+    const elementsToDisplay = getElementsToDisplay(props.fileBrowserState, props.analysisData);
     const selectedFile: FileElement | undefined = elementsToDisplay[props.fileBrowserState.selectedElementIndex];
 
     useEffect(() => {
