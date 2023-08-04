@@ -92,6 +92,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                     <Col>
                         <Toggle 
                             value={props.analysisData.codeOptions.call_function} 
+                            disabled={!codeOptions.as_function}
                             onChange={function (): void {
                                 const newCodeOptions = {...codeOptions};
                                 newCodeOptions.call_function = !newCodeOptions.call_function;
