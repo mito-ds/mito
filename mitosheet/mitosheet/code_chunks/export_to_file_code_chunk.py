@@ -12,7 +12,10 @@ from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpile
 
 from mitosheet.transpiler.transpile_utils import param_dict_to_code
 
-from mitosheet.utils import get_conditional_formats_objects_to_export_to_excel
+from mitosheet.utils import (
+    get_conditional_formats_objects_to_export_to_excel, 
+    get_number_formats_objects_to_export_to_excel
+)
 
 # This is a helper function that generates the code for formatting the excel sheet
 def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
@@ -28,6 +31,7 @@ def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
             column_id_map=state.column_ids,
             sheet_index=sheet_index
         )
+        number_formats = get_number_formats_objects_to_export_to_excel(format.get('columns'))
         params = {
             'header_background_color': format.get('headers', {}).get('backgroundColor'),
             'header_font_color': format.get('headers', {}).get('color'),
@@ -35,7 +39,8 @@ def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
             'even_font_color': format.get('rows', {}).get('even', {}).get('color'),
             'odd_background_color': format.get('rows', {}).get('odd', {}).get('backgroundColor'),
             'odd_font_color': format.get('rows', {}).get('odd', {}).get('color'),
-            'conditional_formats': conditional_formats
+            'conditional_formats': conditional_formats,
+            'number_formats': number_formats,
         }
         param_dict = {
             key: value for key, value in params.items()

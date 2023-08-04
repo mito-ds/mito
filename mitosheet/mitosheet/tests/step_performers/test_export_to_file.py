@@ -14,6 +14,7 @@ import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 from typing import Any
+from mitosheet.utils import PLAIN_TEXT, CURRENCY, PERCENTAGE, SCIENTIFIC_NOTATION, ACCOUNTING
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -85,6 +86,59 @@ DF_FORMAT_HEADER_AND_ROWS = {
     "border": {},
     "conditional_formats": []
 }
+
+DF_NUMBER_FORMATS = [
+    (
+        {
+            "A": {
+                "type": CURRENCY,
+                "precision": 3
+            }
+        },
+        "A",
+        "$0.000"
+    ),
+    (
+        {
+            "B": {
+                "type": SCIENTIFIC_NOTATION,
+                "precision": 1
+            }
+        },
+        "B",
+        "0.0E+0"
+    ),
+    (
+        {
+            "A": {
+                "type": PLAIN_TEXT,
+                "precision": 0
+            }
+        },
+        "A",
+        "0"
+    ),
+    (
+        {
+            "B": {
+                "type": PERCENTAGE,
+                "precision": 2
+            }
+        },
+        "B",
+        "0.00%"
+    ),
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+                "precision": 1
+            }
+        },
+        "A",
+        "($0.0)"
+    )
+]
 
 EXPORT_TO_FILE_TESTS_CSV = [
     (
@@ -657,3 +711,95 @@ df_1_styler = df_1.style\\
 ])
 """
 
+# Test number formatting for excel
+@pytest.mark.parametrize("number_format, expected_column, expected_string", DF_NUMBER_FORMATS)
+def test_transpiled_number_formatting(number_format, expected_column, expected_string):
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": number_format,
+        "rows": {},
+        "border": {},
+        "conditional_formats": []
+    })
+    filename = 'test_number_formatting.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        number_formats={{
+            "{expected_column}": '{expected_string}'
+        }}
+    )
+"""
+
+# Test number formatting for excel with multiple columns
+def test_transpiled_number_formatting_multiple_columns():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": {
+            'A': { 'type': 'currency', 'precision': 2 },
+            'B': { 'type': 'percentage', 'precision': 4 }
+        },
+        "rows": {},
+        "border": {},
+        "conditional_formats": []
+    })
+    filename = 'test_number_formatting_columns.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_number_formatting_columns.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        number_formats={{
+            "A": '$0.00', 
+            "B": '0.0000%'
+        }}
+    )
+"""
+
+# Test number formatting for excel with conditional formatting
+@pytest.mark.parametrize("number_format, expected_column, expected_string", DF_NUMBER_FORMATS)
+def test_transpiled_number_formatting_and_conditional_formatting(number_format, expected_column, expected_string):
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": number_format,
+        "rows": {},
+        "border": {},
+        "conditional_formats": [
+            {
+                'format_uuid': '_hkyc4pcux',
+                'columnIDs': ['B'],
+                'filters': [{'condition': 'greater', 'value': 5}],
+                'color': '#e72323',
+                'backgroundColor': '#0c5200'
+            }
+        ]
+    })
+    filename = 'test_number_formatting_conditional.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+import numpy as np
+
+with pd.ExcelWriter(r\'test_number_formatting_conditional.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        conditional_formats=[
+            {{'columns': ['B'], 'filters': [{{'condition': 'greater', 'value': 5}}], 'font_color': '#e72323', 'background_color': '#0c5200'}}
+        ], 
+        number_formats={{
+            "{expected_column}": '{expected_string}'
+        }}
+    )
+"""
