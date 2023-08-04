@@ -30,7 +30,6 @@ def get_format_code(state: State) -> list:
             sheet_index=sheet_index
         )
         number_formats = get_number_formats_objects_to_export_to_excel(format.get('columns'))
-        print(number_formats)
         params = {
             'header_background_color': format.get('headers', {}).get('backgroundColor'),
             'header_font_color': format.get('headers', {}).get('color'),

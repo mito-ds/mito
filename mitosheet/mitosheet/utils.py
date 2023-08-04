@@ -28,10 +28,10 @@ from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
 # must match this variable defined on the front-end
 MAX_ROWS = 1_500
 MAX_COLUMNS = 1_500
-PLAIN_TEXT = 'plain text',
-CURRENCY = 'currency',
-ACCOUNTING = 'accounting',
-PERCENTAGE = 'percentage',
+PLAIN_TEXT = 'plain text'
+CURRENCY = 'currency'
+ACCOUNTING = 'accounting'
+PERCENTAGE = 'percentage'
 SCIENTIFIC_NOTATION = 'scientific notation'
 
 def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_name: str) -> str:
