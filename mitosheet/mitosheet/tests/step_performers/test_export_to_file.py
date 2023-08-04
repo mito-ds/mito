@@ -743,7 +743,7 @@ with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writ
 """
 
 # Test number formatting for excel with multiple columns
-def test_transpiled_number_formatting():
+def test_transpiled_number_formatting_multiple_columns():
     df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, {
