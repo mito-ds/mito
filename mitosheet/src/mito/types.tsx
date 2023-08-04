@@ -184,11 +184,11 @@ export interface ColumnFilterMap {
 
 
 export enum NumberColumnFormatEnum {
-    PLAIN_TEXT = 'FORMAT_STRING_PLACEHOLDER',
-    CURRENCY = '$FORMAT_STRING_PLACEHOLDER',
-    ACCOUNTING = '($FORMAT_STRING_PLACEHOLDER)',
-    PERCENTAGE = 'FORMAT_STRING_PLACEHOLDER%',
-    SCIENTIFIC_NOTATION = 'FORMAT_STRING_PLACEHOLDERE+0'
+    PLAIN_TEXT = 'plain text',
+    CURRENCY = 'currency',
+    ACCOUNTING = 'accounting',
+    PERCENTAGE = 'percentage',
+    SCIENTIFIC_NOTATION = 'scientific notation'
 }
 
 export type ColumnFormatType = | 

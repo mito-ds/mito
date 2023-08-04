@@ -14,7 +14,7 @@ import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 from typing import Any
-from mitosheet.utils import PLACEHOLDER
+from mitosheet.utils import PLAIN_TEXT, CURRENCY, PERCENTAGE, SCIENTIFIC_NOTATION, ACCOUNTING
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -91,7 +91,7 @@ DF_NUMBER_FORMATS = [
     (
         {
             "A": {
-                "type": f"${PLACEHOLDER}",
+                "type": CURRENCY,
                 "precision": 3
             }
         },
@@ -100,11 +100,38 @@ DF_NUMBER_FORMATS = [
     (
         {
             "A": {
-                "type": f"{PLACEHOLDER}E+0",
+                "type": SCIENTIFIC_NOTATION,
                 "precision": 1
             }
         },
         "0.0E+0"
+    ),
+    (
+        {
+            "A": {
+                "type": PLAIN_TEXT,
+                "precision": 0
+            }
+        },
+        "0"
+    ),
+    (
+        {
+            "A": {
+                "type": PERCENTAGE,
+                "precision": 2
+            }
+        },
+        "0.00%"
+    ),
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+                "precision": 1
+            }
+        },
+        "($0.0)"
     )
 ]
 

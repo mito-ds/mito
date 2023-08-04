@@ -28,7 +28,11 @@ from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
 # must match this variable defined on the front-end
 MAX_ROWS = 1_500
 MAX_COLUMNS = 1_500
-PLACEHOLDER = 'FORMAT_STRING_PLACEHOLDER'
+PLAIN_TEXT = 'plain text',
+CURRENCY = 'currency',
+ACCOUNTING = 'accounting',
+PERCENTAGE = 'percentage',
+SCIENTIFIC_NOTATION = 'scientific notation'
 
 def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_name: str) -> str:
     """
@@ -183,9 +187,20 @@ def get_number_formats_objects_to_export_to_excel(
     for column_header, number_format in number_formats.items():
         precision = number_format.get('precision', 0)
         decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
-        format_string = number_format.get('type', PLACEHOLDER)
-        full_format_string = format_string.replace(PLACEHOLDER, decimal_string)
-        export_number_formats[column_header] = full_format_string
+        format_type = number_format.get('type', PLAIN_TEXT)
+        format_string = decimal_string
+        if format_type == PLAIN_TEXT:
+            format_string = decimal_string
+        elif format_type == CURRENCY:
+            format_string = f'${decimal_string}'
+        elif format_type == ACCOUNTING:
+            format_string = f'(${decimal_string})'
+        elif format_type == PERCENTAGE:
+            format_string = f'{decimal_string}%'
+        elif format_type == SCIENTIFIC_NOTATION:
+            format_string = f'{decimal_string}E+0'
+            
+        export_number_formats[column_header] = format_string
     return export_number_formats
 
 
