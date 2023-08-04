@@ -14,6 +14,7 @@ import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 from typing import Any
+from mitosheet.utils import PLACEHOLDER
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -85,6 +86,27 @@ DF_FORMAT_HEADER_AND_ROWS = {
     "border": {},
     "conditional_formats": []
 }
+
+DF_NUMBER_FORMATS = [
+    (
+        {
+            "A": {
+                "type": f"${PLACEHOLDER}",
+                "precision": 3
+            }
+        },
+        "$0.000"
+    ),
+    (
+        {
+            "A": {
+                "type": f"{PLACEHOLDER}E+0",
+                "precision": 1
+            }
+        },
+        "0.0E+0"
+    )
+]
 
 EXPORT_TO_FILE_TESTS_CSV = [
     (
@@ -662,3 +684,29 @@ df_1_styler = df_1.style\\
 ])
 """
 
+# Test number formatting for excel
+@pytest.mark.parametrize("number_format, expected_string", DF_NUMBER_FORMATS)
+def test_transpiled_number_formatting(number_format, expected_string):
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": number_format,
+        "rows": {},
+        "border": {},
+        "conditional_formats": []
+    })
+    filename = 'test_number_formatting.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+import numpy as np
+
+with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        number_formats={{
+            'A': "{expected_string}"
+        }}
+    )
+"""

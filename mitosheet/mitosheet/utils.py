@@ -28,6 +28,7 @@ from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
 # must match this variable defined on the front-end
 MAX_ROWS = 1_500
 MAX_COLUMNS = 1_500
+PLACEHOLDER = 'FORMAT_STRING_PLACEHOLDER'
 
 def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_name: str) -> str:
     """
@@ -172,6 +173,24 @@ def get_conditional_formats_objects_to_export_to_excel(
     return export_cond_formats
 
 
+def get_number_formats_objects_to_export_to_excel(
+    number_formats: Optional[Dict[str, Any]]
+) -> Any:
+    if number_formats is None or number_formats == {}:
+        return None
+    
+    export_number_formats = {}
+    for column_header, number_format in number_formats.items():
+        print(number_format)
+        precision = number_format.get('precision', 0)
+        decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
+        format_string = number_format.get('type', PLACEHOLDER)
+        full_format_string = format_string.replace(PLACEHOLDER, decimal_string)
+        print(full_format_string)
+        export_number_formats[column_header] = full_format_string
+    return export_number_formats
+
+
 # Writes dataframes to an excel file or a buffer with formatting
 # Path argument is either the path to the file or a BytesIO object,
 #    because the file can be sent to the front-end through a buffer
@@ -210,7 +229,7 @@ def write_to_excel(
                     odd_background_color=format.get('rows', {}).get('odd', {}).get('backgroundColor'),
                     odd_font_color=format.get('rows', {}).get('odd', {}).get('color'),
                     conditional_formats=conditional_formats,
-                    number_formats=format.get('columns')
+                    number_formats=get_number_formats_objects_to_export_to_excel(format.get('columns'))
                 )
     
 

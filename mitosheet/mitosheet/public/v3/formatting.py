@@ -18,7 +18,6 @@ from mitosheet.types import (
     FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
 
-PLACEHOLDER = 'FORMAT_STRING_PLACEHOLDER'
 
 # Object to map the conditional formatting operators to the excel formulas
 CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
@@ -115,7 +114,7 @@ def add_conditional_formats(
 
 
 def add_number_formatting(
-    number_formats: Optional[Dict[str, Any]],
+    number_formats: Optional[Dict[str, str]],
     sheet: Worksheet,
     df: DataFrame
 ) -> None:
@@ -126,11 +125,7 @@ def add_number_formatting(
         column = get_column_from_column_index(column_index)
         cell_range = f'{column}2:{column}{sheet.max_row}'
         for cell in sheet[cell_range]:
-            precision = number_format.get('precision', 0)
-            decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
-            format_string = number_format.get('type', PLACEHOLDER)
-            full_format_string = format_string.replace(PLACEHOLDER, decimal_string)
-            cell[0].number_format = full_format_string
+            cell[0].number_format = number_format
 
 
 def add_formatting_to_excel_sheet(
