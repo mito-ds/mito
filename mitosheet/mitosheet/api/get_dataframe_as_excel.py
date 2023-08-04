@@ -20,7 +20,8 @@ def get_dataframe_as_excel(params: Dict[str, Any], steps_manager: StepsManagerTy
     sheet_indexes = params['sheet_indexes']
 
     # Formatting is a Mito pro feature, but we also allow it for testing
-    allow_formatting = is_pro() or is_running_test()
+    export_formatting = params.get('export_formatting', False)
+    allow_formatting = (is_pro() and export_formatting) or is_running_test()
 
     # We write to a buffer so that we don't have to save the file
     # to the file system for no reason
