@@ -181,12 +181,10 @@ def get_number_formats_objects_to_export_to_excel(
     
     export_number_formats = {}
     for column_header, number_format in number_formats.items():
-        print(number_format)
         precision = number_format.get('precision', 0)
         decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
         format_string = number_format.get('type', PLACEHOLDER)
         full_format_string = format_string.replace(PLACEHOLDER, decimal_string)
-        print(full_format_string)
         export_number_formats[column_header] = full_format_string
     return export_number_formats
 

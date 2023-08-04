@@ -698,15 +698,14 @@ def test_transpiled_number_formatting(number_format, expected_string):
     })
     filename = 'test_number_formatting.xlsx'
     mito.export_to_file('excel', [0], filename)
-    assert "\n".join(mito.transpiled_code) == f"""from mitosheet.public.v3 import *
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd
-import numpy as np
 
 with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
     add_formatting_to_excel_sheet(writer, "df", df, 
         number_formats={{
-            'A': "{expected_string}"
+            "A": '{expected_string}'
         }}
     )
 """

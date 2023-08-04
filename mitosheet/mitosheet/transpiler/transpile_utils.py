@@ -96,7 +96,7 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
         return result
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1, is_dict_entry: bool=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -113,21 +113,20 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         TAB_CONSTANT = TAB
         NEWLINE_CONSTANT = f'\n{TAB_CONSTANT * tab_level}'
 
-    if level == 0:
-        code = f"{NEWLINE_CONSTANT}"
-    else:
-        code = f"dict({NEWLINE_CONSTANT}"
+    code = f"{NEWLINE_CONSTANT}"
 
     value_num = 0
     for key, value in param_dict.items():
+        # If we're defining a dict entry, we need to add quotes around the key and use a colon
+        key_definition = f'"{key}": ' if is_dict_entry else f'{key}='
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
-            code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
+            code_chunk = f"{key_definition}{{{f'{param_dict_to_code(value, level=level + 1, is_dict_entry=True)}{NEWLINE_CONSTANT}{TAB_CONSTANT * (level+1)}'}}}"
         elif isinstance(value, list):
-            code_chunk = f"{key}={column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
-            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
@@ -143,9 +142,6 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
 
     if level == 0:
         code += f"{NEWLINE_CONSTANT}"
-    else:
-        # Make sure to close the dict
-        code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
 
