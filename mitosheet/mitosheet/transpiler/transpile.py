@@ -98,7 +98,8 @@ def transpile(
             final_imports_code,
             code,
             steps_manager.code_options['function_name'],
-            steps_manager.code_options['function_params']
+            steps_manager.code_options['function_params'],
+            steps_manager.code_options['call_function']
         )
         return final_code
 

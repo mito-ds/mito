@@ -137,13 +137,7 @@ class State:
         # This is helpful for undoing, for example. 
         self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
 
-        # User defined functions. Check them for validity, and wrap them in the correct wrappers
-        check_valid_sheet_functions(user_defined_functions)
-
-        from mitosheet.public.v3.errors import handle_sheet_function_errors
-        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
         self.user_defined_functions = user_defined_functions if user_defined_functions is not None else []
-
         self.user_defined_importers = user_defined_importers if user_defined_importers is not None else []
 
     def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":

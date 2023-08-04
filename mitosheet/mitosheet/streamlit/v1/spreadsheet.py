@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.types import CodeOptions
 from mitosheet.utils import get_new_id
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
@@ -83,6 +84,7 @@ try:
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
+            _code_options: Optional[CodeOptions]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -92,7 +94,8 @@ try:
         mito_backend = MitoBackend(
             *args, 
             import_folder=import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions
+            user_defined_importers=_importers, user_defined_functions=_sheet_functions,
+            code_options=_code_options,
         )
 
         # Make a send function that stores the responses in a list

@@ -80,6 +80,7 @@ export type ParameterizableParams = [ParamValue, ParamType, ParamDescription][];
 
 export type CodeOptions = {
     as_function: boolean,
+    call_function: boolean,
     function_name: string
     function_params: Record<ParamName, ParamValue>
 }

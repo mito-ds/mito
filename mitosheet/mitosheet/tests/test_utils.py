@@ -1216,6 +1216,20 @@ class MitoWidgetTestWrapper:
                 },
             }
         )
+    
+    # Some code options allow you to turn off the actually calling of a function, and
+    # in this case, we don't want to check the transpiled code, as it will always fail
+    def code_options_update_no_check_transpiled(self, code_options: CodeOptions) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'code_options_update',
+                'params': {
+                    'code_options': code_options
+                },
+            }
+        )
 
     @check_transpiled_code_after_call
     def checkout_step_by_idx(self, index: int) -> bool:

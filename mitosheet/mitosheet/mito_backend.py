@@ -29,6 +29,7 @@ from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
+from mitosheet.types import CodeOptions
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
@@ -55,6 +56,7 @@ class MitoBackend():
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
+            code_options: Optional[CodeOptions]=None
         ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
@@ -73,7 +75,8 @@ class MitoBackend():
             analysis_to_replay=analysis_to_replay, 
             import_folder=import_folder,
             user_defined_functions=user_defined_functions,
-            user_defined_importers=user_defined_importers
+            user_defined_importers=user_defined_importers,
+            code_options=code_options
         )
 
         # And the api
