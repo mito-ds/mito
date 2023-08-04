@@ -742,6 +742,35 @@ with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writ
     )
 """
 
+# Test number formatting for excel with multiple columns
+def test_transpiled_number_formatting():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": {
+            'A': { 'type': 'currency', 'precision': 2 },
+            'B': { 'type': 'percentage', 'precision': 4 }
+        },
+        "rows": {},
+        "border": {},
+        "conditional_formats": []
+    })
+    filename = 'test_number_formatting_columns.xlsx'
+    mito.export_to_file('excel', [0], filename)
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_number_formatting_columns.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
+    add_formatting_to_excel_sheet(writer, "df", df, 
+        number_formats={{
+            "A": '$0.00', 
+            "B": '0.0000%'
+        }}
+    )
+"""
+
 # Test number formatting for excel with conditional formatting
 @pytest.mark.parametrize("number_format, expected_column, expected_string", DF_NUMBER_FORMATS)
 def test_transpiled_number_formatting_and_conditional_formatting(number_format, expected_column, expected_string):
@@ -762,13 +791,13 @@ def test_transpiled_number_formatting_and_conditional_formatting(number_format, 
             }
         ]
     })
-    filename = 'test_number_formatting.xlsx'
+    filename = 'test_number_formatting_conditional.xlsx'
     mito.export_to_file('excel', [0], filename)
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd
 import numpy as np
 
-with pd.ExcelWriter(r\'test_number_formatting.xlsx\', engine="openpyxl") as writer:
+with pd.ExcelWriter(r\'test_number_formatting_conditional.xlsx\', engine="openpyxl") as writer:
     df.to_excel(writer, sheet_name="df", index=False)
     add_formatting_to_excel_sheet(writer, "df", df, 
         conditional_formats=[
