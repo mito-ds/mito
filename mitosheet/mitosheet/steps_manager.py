@@ -236,7 +236,7 @@ class StepsManager:
         user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
 
         # We also do some checks for the user_defined_importers
-        if not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
+        if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
         # Then we initialize the analysis with just a simple initialize step
@@ -317,7 +317,7 @@ class StepsManager:
         # The options for the transpiled code. The user can optionally pass these 
         # in, but if they don't, we use the default options
         # We also do some checks for the user_defined_importers
-        if not is_enterprise() and code_options is not None and len(code_options) > 0:
+        if not is_running_test() and not is_enterprise() and code_options is not None and len(code_options) > 0:
             raise ValueError("code_options are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
         self.code_options: CodeOptions = get_default_code_options(self.analysis_name) if code_options is None else code_options
