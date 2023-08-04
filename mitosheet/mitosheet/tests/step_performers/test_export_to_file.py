@@ -525,6 +525,7 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
     filename = 'test_format_conditional.xlsx'
     numpy_import = f"\nimport numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename)
+    print("\n".join(mito.transpiled_code[:-2]))
     assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
 
