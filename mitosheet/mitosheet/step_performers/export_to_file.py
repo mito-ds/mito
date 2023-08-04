@@ -114,6 +114,7 @@ class ExportToFileStepPerformer(StepPerformer):
                 get_param(params, 'type'),
                 get_param(execution_data if execution_data is not None else {}, 'file_name'),
                 get_param(execution_data if execution_data is not None else {}, 'sheet_index_to_export_location'),
+                get_param(params, 'export_formatting')
             )
         ]
 

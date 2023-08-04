@@ -16,6 +16,7 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import { getInvalidFileNameError } from "../../../utils/filename";
+import Toggle from "../../elements/Toggle";
 
 
 interface ExportToFileTaskpaneProps {
@@ -31,6 +32,7 @@ interface ExportToFileParams {
     type: 'csv' | 'excel',
     sheet_indexes: number[],
     file_name: string,
+    export_formatting: boolean,
 }
 const getDefaultParams = (
     sheetDataArray: SheetData[], 
@@ -46,7 +48,8 @@ const getDefaultParams = (
     return {
         type: "csv",
         sheet_indexes: [sheetIndex],
-        file_name: `${sheetName}_export`
+        file_name: `${sheetName}_export`,
+        export_formatting: true,
     }
 }
 
@@ -133,6 +136,25 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         </Select>
                     </Col>
                 </Row>
+                {params.type === 'excel' &&
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <p className="text-header-3">Export with formatting</p>
+                    </Col>
+                    <Col>
+                        <Toggle
+                            value={params.export_formatting ?? true}
+                            onChange={() => {
+                                setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        export_formatting: !prevParams.export_formatting
+                                    }
+                                })
+                            }}
+                        />
+                    </Col>
+                </Row>}
                 <Row>
                     <Col>
                         <p className="text-header-3">Dataframes to Export</p>

@@ -56,11 +56,12 @@ def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
 
 class ExportToFileCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str]):
+    def __init__(self, prev_state: State, post_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str], export_formatting: bool=False):
         super().__init__(prev_state, post_state)
         self.export_type = export_type
         self.file_name = file_name
         self.sheet_index_to_export_location = sheet_index_to_export_location
+        self.export_formatting = export_formatting
 
     def get_display_name(self) -> str:
         return 'Export To File'
@@ -75,10 +76,11 @@ class ExportToFileCodeChunk(CodeChunk):
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
+            format_code = get_format_code(self.post_state, self.sheet_index_to_export_location) if self.export_formatting else []
             return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
-            ] + get_format_code(self.post_state, self.sheet_index_to_export_location), ['import pandas as pd']
+            ] + format_code, ['import pandas as pd']
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')
         
