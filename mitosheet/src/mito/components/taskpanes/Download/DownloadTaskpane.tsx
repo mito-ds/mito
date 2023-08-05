@@ -23,6 +23,7 @@ import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import { getInvalidFileNameError } from '../../../utils/filename';
 import Col from '../../layout/Col';
 import Toggle from '../../elements/Toggle';
+import ProIcon from '../../icons/ProIcon';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -64,7 +65,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     // The string that stores the file that actually should be downloaded
     const [exportHRef, setExportHref] = useState<string>('');
     
-    const [exportFormatting, setExportFormatting] = useState<boolean>(true);
+    const [exportFormatting, setExportFormatting] = useState<boolean>(props.userProfile.isPro);
     
     const emptySheet = props.sheetDataArray.length === 0;
     const numRows = props.sheetDataArray[props.selectedSheetIndex]?.numRows;
@@ -205,16 +206,19 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <div>
                             <Row justify='space-between' align='center'>
-                                <Col>
-                                    <p className="text-header-3">Export with formatting</p>
+                                <Col style={{ display: 'flex' }}>
+                                    <p className="text-header-3">Export with formatting</p>&nbsp;
+                                    {!props.userProfile.isPro && <ProIcon/>}
                                 </Col>
                                 <Col>
+                                    {props.userProfile.isPro ? 
                                     <Toggle
                                         value={exportFormatting}
                                         onChange={() => {
                                             setExportFormatting(!exportFormatting)
                                         }}
-                                    />
+                                    /> :
+                                    <p>Upgrade to Pro</p>}
                                 </Col>
                             </Row>
                             <ExcelDownloadConfigSection 
