@@ -356,6 +356,11 @@ def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[st
 
     if code_options is not None:
         saved_analysis['code_options'] = code_options
+
+        # If the call function is not in the code options, we default it to True. 
+        # this param was added later
+        if 'call_function' not in code_options:
+            saved_analysis['code_options']['call_function'] = True
     else:
         # Otherwise, we have to add it to the analysis as default 1
         saved_analysis['code_options'] = get_default_code_options(analysis_name)

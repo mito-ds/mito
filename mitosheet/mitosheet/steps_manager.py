@@ -35,8 +35,8 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
-from mitosheet.user.utils import is_pro, is_running_test
-from mitosheet.utils import (NpEncoder, dfs_to_array_for_json, get_new_id,
+from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
+from mitosheet.utils import (NpEncoder, check_valid_sheet_functions, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
@@ -179,6 +179,7 @@ class StepsManager:
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
+            code_options: Optional[CodeOptions]=None
         ):
         """
         When initalizing the StepsManager, we also do preprocessing
@@ -187,9 +188,9 @@ class StepsManager:
         All preprocessing can be found in mitosheet/preprocessing, and each of
         the transformations are applied before the data is considered imported.
         """
+
         # We just randomly generate analysis names as a string of 10 letters
         self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
-
 
         # We also save some data about the analysis the user wants to replay, if there
         # is such an analysis
@@ -225,7 +226,18 @@ class StepsManager:
             args, df_names, execution_data = preprocess_step_performers.execute(args)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
-            ] = execution_data            
+            ] = execution_data       
+
+
+        # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
+        # before passing them to the step to be used
+        check_valid_sheet_functions(user_defined_functions)
+        from mitosheet.public.v3.errors import handle_sheet_function_errors
+        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
+
+        # We also do some checks for the user_defined_importers
+        if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
+            raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
@@ -302,9 +314,13 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
-        # The options for the transpiled code. For now, we just store if it should
-        # be a function, which we default to False
-        self.code_options: CodeOptions = get_default_code_options(self.analysis_name)
+        # The options for the transpiled code. The user can optionally pass these 
+        # in, but if they don't, we use the default options
+        # We also do some checks for the user_defined_importers
+        if not is_running_test() and not is_enterprise() and code_options is not None and len(code_options) > 0:
+            raise ValueError("code_options are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+
+        self.code_options: CodeOptions = get_default_code_options(self.analysis_name) if code_options is None else code_options
 
     @property
     def curr_step(self) -> Step:

@@ -55,6 +55,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -76,6 +77,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -98,6 +100,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -119,6 +122,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -148,6 +152,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -170,6 +175,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -193,6 +199,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -218,6 +225,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -247,6 +255,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -273,6 +282,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -299,6 +309,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -327,6 +338,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -350,6 +362,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -373,6 +386,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -396,6 +410,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -432,6 +447,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -461,6 +477,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -497,6 +514,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -526,6 +544,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -544,6 +563,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -562,6 +582,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -597,6 +618,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -614,6 +636,7 @@ UPGRADE_TESTS = [
             "args": [],
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
@@ -623,11 +646,11 @@ UPGRADE_TESTS = [
     (
         {
             "version": "0.3.131", 
-            "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES"}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "function_name": "function_rgge", "function_params": {}}
+            "steps_data": [{"step_version": 2, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES"}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "call_function": True, "function_name": "function_rgge", "function_params": {}}
         },
         {
             "version": __version__, 
-            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES", "role": None}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "function_name": "function_rgge", "function_params": {}}
+            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES", "role": None}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "call_function": True, "function_name": "function_rgge", "function_params": {}}
         }
     )
 ]
@@ -662,6 +685,7 @@ def test_doesnt_upgrade_updated_format():
         "args": [],
         "code_options": {
             'as_function': False,
+            "call_function": True,
             'function_name': 'function_ysis',
             'function_params': {}
         }

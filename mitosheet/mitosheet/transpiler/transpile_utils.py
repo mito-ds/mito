@@ -208,7 +208,14 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
     result = re.sub(pattern, replacement, text)
     return result
 
-def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
+def convert_script_to_function(
+        steps_manager: StepsManagerType, 
+        imports: List[str], 
+        code: List[str], 
+        function_name: str, 
+        function_params: Dict[ParamName, ParamValue],
+        call_function: bool
+    ) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
     """
@@ -260,6 +267,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     if len(function_params) > 0:
         final_code.append("")
 
+    # If we are not calling the function, we just return the code without the call at the end
+    if not call_function:
+        return final_code
+
     final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
 
     if len(return_variables_string) > 0:
@@ -274,6 +285,7 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 def get_default_code_options(analysis_name: str) -> CodeOptions:
     return {
         'as_function': False,
+        'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
         'function_params': dict()
     }
