@@ -595,7 +595,8 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'type': type,
                     'sheet_indexes': sheet_indexes,
-                    'file_name': file_name
+                    'file_name': file_name,
+                    'export_formatting': True
                 }
             }
         )
