@@ -53,6 +53,18 @@ def get_final_file_name(file_name: str, _type: str) -> str:
     return file_name
 
 
+def upgrade_export_to_file_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    '''
+    Adds a new param for exporting the formatting to excel which defaults to false. 
+    '''
+    params = step['params']
+    params['export_formatting'] = False
+    return [{
+        "step_version": 2, 
+        "step_type": "change_column_dtype", 
+        "params": params
+    }] + later_steps
+
 class ExportToFileStepPerformer(StepPerformer):
     """
     Allows you to export to file.
@@ -60,7 +72,7 @@ class ExportToFileStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 2
 
     @classmethod
     def step_type(cls) -> str:

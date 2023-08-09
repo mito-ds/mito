@@ -56,6 +56,8 @@ from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.utils import is_prev_version
 
+from mitosheet.step_performers.export_to_file import upgrade_export_to_file_1_to_2
+
 """
 STEP_UPGRADES_FUNCTION_MAPPING mapping contains a mapping of all steps that need to be upgraded. A step
 x at version y needs to be upgraded if STEP_UPGRADES[x][y] is defined, and in fact 
@@ -152,6 +154,9 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
     'snowflake_import': {
         1: upgrade_snowflake_import_1_to_2,
         2: upgrade_snowflake_import_2_to_3
+    },
+    'export_to_file': {
+        1: upgrade_export_to_file_1_to_2
     }
 }
 
