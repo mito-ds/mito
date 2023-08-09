@@ -142,12 +142,12 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 <Row justify='space-between' align='center'>
                     <Col style={{ display: 'flex' }}>
                         <p className="text-header-3">Export with formatting</p>&nbsp;
-                        {!props.userProfile.isPro && <ProIcon/>}
+                        <ProIcon/>
                     </Col>
-                    {props.userProfile.isPro ? 
                     <Col>
                         <Toggle
                             value={params.export_formatting ?? true}
+                            disabled={!props.userProfile.isPro}
                             onChange={() => {
                                 setParams(prevParams => {
                                     return {
@@ -157,11 +157,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                                 })
                             }}
                         />
-                    </Col> :
-                    <Col>
-                        <p> Upgrade to Pro </p>
                     </Col>
-                    }
                 </Row>}
                 <Row>
                     <Col>

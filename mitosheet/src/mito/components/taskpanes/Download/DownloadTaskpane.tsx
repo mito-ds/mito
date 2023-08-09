@@ -208,17 +208,16 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             <Row justify='space-between' align='center'>
                                 <Col style={{ display: 'flex' }}>
                                     <p className="text-header-3">Export with formatting</p>&nbsp;
-                                    {!props.userProfile.isPro && <ProIcon/>}
+                                    <ProIcon/>
                                 </Col>
                                 <Col>
-                                    {props.userProfile.isPro ? 
                                     <Toggle
                                         value={exportFormatting}
+                                        disabled={!props.userProfile.isPro}
                                         onChange={() => {
                                             setExportFormatting(!exportFormatting)
                                         }}
-                                    /> :
-                                    <p>Upgrade to Pro</p>}
+                                    />
                                 </Col>
                             </Row>
                             <ExcelDownloadConfigSection 
