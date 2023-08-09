@@ -20,7 +20,7 @@ const DataApp: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Python Spreadsheet in Streamlit App | Mito </title>
+        <title>Deploy the Mitosheet as a Data App in Streamlit | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Mito is a streamlit spreadsheet component that enables no-code spreadsheet automation with Pandas code generation from within a streamlit app. | Mito" />
       </Head>
