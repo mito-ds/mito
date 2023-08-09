@@ -142,7 +142,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 <Row justify='space-between' align='center'>
                     <Col style={{ display: 'flex' }}>
                         <p className="text-header-3">Export with formatting</p>&nbsp;
-                        <ProIcon/>
+                        {!props.userProfile.isPro && <ProIcon/>}
                     </Col>
                     <Col>
                         <Toggle
