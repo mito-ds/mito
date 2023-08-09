@@ -584,6 +584,7 @@ class MitoWidgetTestWrapper:
             type: str,
             sheet_indexes: List[int],
             file_name: str,
+            export_formatting: bool=False
         ) -> bool:
 
         return self.mito_backend.receive_message(
@@ -596,7 +597,7 @@ class MitoWidgetTestWrapper:
                     'type': type,
                     'sheet_indexes': sheet_indexes,
                     'file_name': file_name,
-                    'export_formatting': True
+                    'export_formatting': export_formatting
                 }
             }
         )

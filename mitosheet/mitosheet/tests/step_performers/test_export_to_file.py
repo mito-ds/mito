@@ -298,7 +298,7 @@ def test_transpiled_with_export_to_xlsx_format():
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, DF_FORMAT_HEADER)
     filename = 'test_format.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -322,7 +322,7 @@ def test_transpiled_with_export_to_xlsx_format_rows_no_header():
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.set_dataframe_format(0, DF_FORMAT_ROWS)
     filename = 'test_format_rows_no_header.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -578,7 +578,7 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
     })
     filename = 'test_format_conditional.xlsx'
     numpy_import = f"\nimport numpy as np" if number_formatting else ''
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
 
@@ -624,7 +624,7 @@ def test_transpiled_with_export_to_xlsx_conditional_and_rows(column_ids, filters
         ]
     })
     filename = 'test_format_conditional_and_rows.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     numpy_import = f"\nimport numpy as np" if number_formatting else ''
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
@@ -653,7 +653,7 @@ def test_transpiled_with_export_to_xlsx_format_two_sheets():
     mito.set_dataframe_format(0, DF_FORMAT_HEADER)
     mito.set_dataframe_format(1, DF_FORMAT_HEADER_AND_ROWS)
     filename = 'test_format_two.xlsx'
-    mito.export_to_file('excel', [1], filename)
+    mito.export_to_file('excel', [1], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -687,7 +687,7 @@ def test_transpiled_with_export_two_sheets_to_xlsx_format_one():
     mito = create_mito_wrapper(df_1, df_2, arg_names=['df_1', 'df_2'])
     mito.set_dataframe_format(0, DF_FORMAT_HEADER_AND_ROWS)
     filename = 'test_two_format_one.xlsx'
-    mito.export_to_file('excel', [0, 1], filename)
+    mito.export_to_file('excel', [0, 1], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -724,7 +724,7 @@ def test_transpiled_number_formatting(number_format, expected_column, expected_s
         "conditional_formats": []
     })
     filename = 'test_number_formatting.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -752,7 +752,7 @@ def test_transpiled_number_formatting_multiple_columns():
         "conditional_formats": []
     })
     filename = 'test_number_formatting_columns.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -787,7 +787,7 @@ def test_transpiled_number_formatting_and_conditional_formatting(number_format, 
         ]
     })
     filename = 'test_number_formatting_conditional.xlsx'
-    mito.export_to_file('excel', [0], filename)
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
     assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
 import pandas as pd
 import numpy as np
@@ -802,4 +802,37 @@ with pd.ExcelWriter(r\'test_number_formatting_conditional.xlsx\', engine="openpy
             "{expected_column}": '{expected_string}'
         }}
     )
+"""
+
+def test_formatting_off():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4.12, 5.123, 6.1234]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.set_dataframe_format(0, {
+        'headers': {},
+        "columns": {
+            "A": {
+                "type": CURRENCY,
+                "precision": 3
+            }
+        },
+        "rows": {},
+        "border": {},
+        "conditional_formats": [
+            {
+                'format_uuid': '_hkyc4pcux',
+                'columnIDs': ['B'],
+                'filters': [{'condition': 'greater', 'value': 5}],
+                'color': '#e72323',
+                'backgroundColor': '#0c5200'
+            }
+        ]
+    })
+    filename = 'test_formatting_off.xlsx'
+    mito.export_to_file('excel', [0], filename, export_formatting=False)
+    assert "\n".join(mito.transpiled_code[:-2]) == f"""from mitosheet.public.v3 import *
+import pandas as pd
+import numpy as np
+
+with pd.ExcelWriter(r\'test_formatting_off.xlsx\', engine="openpyxl") as writer:
+    df.to_excel(writer, sheet_name="df", index=False)
 """

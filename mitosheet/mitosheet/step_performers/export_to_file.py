@@ -71,6 +71,7 @@ class ExportToFileStepPerformer(StepPerformer):
         _type: str = get_param(params, 'type')
         sheet_indexes: List[int] = get_param(params, 'sheet_indexes')
         _file_name: str = get_param(params, 'file_name')
+        _export_formatting: bool = get_param(params, 'export_formatting')
 
         file_name = get_final_file_name(_file_name, _type) # Ensure that the file name has the correct extension
         
@@ -85,7 +86,7 @@ class ExportToFileStepPerformer(StepPerformer):
                 post_state.dfs[sheet_index].to_csv(file_name, index=False)
         elif _type == 'excel':
             # Formatting is a Mito pro feature, but we also allow it for testing
-            allow_formatting = is_pro() or is_running_test()
+            allow_formatting = (is_pro() or is_running_test()) and _export_formatting
             sheet_index_to_export_location = get_export_to_excel_sheet_index_to_sheet_name(post_state, file_name, sheet_indexes)
             write_to_excel(file_name, sheet_indexes, post_state, allow_formatting=allow_formatting)
         else:
