@@ -61,7 +61,7 @@ def upgrade_export_to_file_1_to_2(step: Dict[str, Any], later_steps: List[Dict[s
     params['export_formatting'] = False
     return [{
         "step_version": 2, 
-        "step_type": "change_column_dtype", 
+        "step_type": "export_to_file", 
         "params": params
     }] + later_steps
 
