@@ -40,6 +40,7 @@ a user's saved analysis!
 6.  Write a test for the upgrade function you just wrote. See mitosheet/tests/test_upgrade.py --
     where you can add an entry to the UPGRADE_TESTS. (The "version" field isn't too important, 
     you can use whatever other tests are using)
+7.  Update the version in test_step_format.py in the tests directory to use the new version. 
 
 When adding a test, you can generate a new saved analysis by running the old version of mitosheet,
 and using the old version of the step you are upgrading. Then, open ~/.mito/saved_analyses and find 
