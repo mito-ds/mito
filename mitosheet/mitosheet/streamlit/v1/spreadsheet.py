@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import hashlib
 import json
 import os
@@ -135,7 +136,7 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             key=None
-        ) -> Tuple[Dict[str, pd.DataFrame], str]:
+        ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -224,10 +225,12 @@ try:
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
         code = mito_backend.steps_manager.code()
-        return {
-            df_name: df for df_name, df in 
-            zip(final_state.df_names, final_state.dfs)
-        }, "\n".join(code)
+
+        ordered_dict = OrderedDict()
+        for df_name, df in zip(final_state.df_names, final_state.dfs):
+            ordered_dict[df_name] = df
+
+        return ordered_dict, "\n".join(code)
     
 except ImportError:
     def spreadsheet(*args, key=None): # type: ignore
