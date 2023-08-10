@@ -316,6 +316,30 @@ df_styler = df.style\\
 """
 
 
+# This tests when the user exports a dataframe with formatting.
+def test_transpiled_with_export_to_xlsx_format_long_df_name():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['very_very_long_df_name_that_needs_to_be_truncated'])
+    mito.set_dataframe_format(0, DF_FORMAT_HEADER)
+    filename = 'test_format_long_name.xlsx'
+    mito.export_to_file('excel', [0], filename, export_formatting=True)
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
+with pd.ExcelWriter(r\'test_format_long_name.xlsx\', engine="openpyxl") as writer:
+    very_very_long_df_name_that_needs_to_be_truncated.to_excel(writer, sheet_name="very_very_long_df_name_that_nee", index=False)
+    add_formatting_to_excel_sheet(writer, "very_very_long_df_name_that_nee", very_very_long_df_name_that_needs_to_be_truncated, 
+        header_background_color='#000000', 
+        header_font_color='#ffffff'
+    )
+
+very_very_long_df_name_that_needs_to_be_truncated_styler = very_very_long_df_name_that_needs_to_be_truncated.style\\
+    .set_table_styles([
+        {'selector': 'thead', 'props': [('color', '#ffffff'), ('background-color', '#000000')]},
+])
+"""
+
+
 # This tests when the user exports a dataframe with row formatting without header formatting.
 def test_transpiled_with_export_to_xlsx_format_rows_no_header():
     df = pd.DataFrame({'A': [1, 2, 3]})
