@@ -21,6 +21,9 @@ import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 import { getInvalidFileNameError } from '../../../utils/filename';
+import Col from '../../layout/Col';
+import Toggle from '../../elements/Toggle';
+import ProIcon from '../../icons/ProIcon';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -62,6 +65,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     // The string that stores the file that actually should be downloaded
     const [exportHRef, setExportHref] = useState<string>('');
     
+    const [exportFormatting, setExportFormatting] = useState<boolean>(props.userProfile.isPro);
+    
     const emptySheet = props.sheetDataArray.length === 0;
     const numRows = props.sheetDataArray[props.selectedSheetIndex]?.numRows;
     
@@ -79,7 +84,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                 { type: 'text/csv' }
             )));
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
-            const response = await props.mitoAPI.getDataframesAsExcel((props.uiState.exportConfiguration as ExcelExportState).sheetIndexes);
+            const response = await props.mitoAPI.getDataframesAsExcel((props.uiState.exportConfiguration as ExcelExportState).sheetIndexes, exportFormatting);
             const excelString = 'error' in response ? '' : response.result;
             setExportHref(URL.createObjectURL(new Blob(
                 /* 
@@ -96,7 +101,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     useDebouncedEffect(() => {
         setExportHref('');
         void loadExport();
-    }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray], 500)
+    }, [props.uiState.exportConfiguration, props.selectedSheetIndex, props.sheetDataArray, exportFormatting], 500)
 
     const onDownload = () => {
         if (invalidFileNameWarning) {
@@ -199,16 +204,33 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                         </Select>
                     </Row>
                     { props.uiState.exportConfiguration.exportType === 'excel' && 
-                        <ExcelDownloadConfigSection 
-                            dfNames={props.dfNames}
-                            mitoAPI={props.mitoAPI}
-                            userProfile={props.userProfile}
-                            sheetDataArray={props.sheetDataArray}
-                            exportState={props.uiState.exportConfiguration as ExcelExportState}
-                            setUIState={props.setUIState}
-                            newlyFormattedColumns={newlyFormattedColumns}
-                            setNewlyFormattedColumns={setNewlyFormattedColumns}
-                        />  
+                        <div>
+                            <Row justify='space-between' align='center'>
+                                <Col style={{ display: 'flex' }}>
+                                    <p className="text-header-3">Export with formatting</p>&nbsp;
+                                    {!props.userProfile.isPro && <ProIcon/>}
+                                </Col>
+                                <Col>
+                                    <Toggle
+                                        value={exportFormatting}
+                                        disabled={!props.userProfile.isPro}
+                                        onChange={() => {
+                                            setExportFormatting(!exportFormatting)
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                            <ExcelDownloadConfigSection 
+                                dfNames={props.dfNames}
+                                mitoAPI={props.mitoAPI}
+                                userProfile={props.userProfile}
+                                sheetDataArray={props.sheetDataArray}
+                                exportState={props.uiState.exportConfiguration as ExcelExportState}
+                                setUIState={props.setUIState}
+                                newlyFormattedColumns={newlyFormattedColumns}
+                                setNewlyFormattedColumns={setNewlyFormattedColumns}
+                            /> 
+                        </div> 
                     }
                     {props.uiState.exportConfiguration.exportType === 'csv' && 
                         <CSVDownloadConfigSection 

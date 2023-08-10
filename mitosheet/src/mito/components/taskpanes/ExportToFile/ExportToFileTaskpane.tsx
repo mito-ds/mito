@@ -16,6 +16,8 @@ import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import { getInvalidFileNameError } from "../../../utils/filename";
+import Toggle from "../../elements/Toggle";
+import ProIcon from "../../icons/ProIcon";
 
 
 interface ExportToFileTaskpaneProps {
@@ -31,10 +33,12 @@ interface ExportToFileParams {
     type: 'csv' | 'excel',
     sheet_indexes: number[],
     file_name: string,
+    export_formatting: boolean,
 }
 const getDefaultParams = (
     sheetDataArray: SheetData[], 
     sheetIndex: number,
+    isPro?: boolean,
 ): ExportToFileParams | undefined => {
 
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
@@ -46,7 +50,8 @@ const getDefaultParams = (
     return {
         type: "csv",
         sheet_indexes: [sheetIndex],
-        file_name: `${sheetName}_export`
+        file_name: `${sheetName}_export`,
+        export_formatting: isPro ?? false,
     }
 }
 
@@ -56,7 +61,7 @@ const getDefaultParams = (
 const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => {
 
     const {params, setParams, edit, editApplied, loading} = useSendEditOnClick<ExportToFileParams, undefined>(
-        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
+        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, props.userProfile.isPro),
         StepType.ExportToFile, 
         props.mitoAPI,
         props.analysisData,
@@ -133,6 +138,27 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         </Select>
                     </Col>
                 </Row>
+                {params.type === 'excel' &&
+                <Row justify='space-between' align='center'>
+                    <Col style={{ display: 'flex' }}>
+                        <p className="text-header-3">Export with formatting</p>&nbsp;
+                        {!props.userProfile.isPro && <ProIcon/>}
+                    </Col>
+                    <Col>
+                        <Toggle
+                            value={params.export_formatting ?? true}
+                            disabled={!props.userProfile.isPro}
+                            onChange={() => {
+                                setParams(prevParams => {
+                                    return {
+                                        ...prevParams,
+                                        export_formatting: !prevParams.export_formatting
+                                    }
+                                })
+                            }}
+                        />
+                    </Col>
+                </Row>}
                 <Row>
                     <Col>
                         <p className="text-header-3">Dataframes to Export</p>

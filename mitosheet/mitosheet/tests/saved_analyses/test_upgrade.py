@@ -588,6 +588,25 @@ UPGRADE_TESTS = [
             }
         }
     ),
+    # Upgrades the export to file step performer
+    (
+        {
+            "version": "0.2.4", 
+            "steps_data": [{"step_version": 1, "step_type": "export_to_file", "params": {"type": "excel", "file_name": "Sample.xlsx", "sheet_indexes": [0]}}]
+        },
+        {
+            "version": __version__, 
+            "steps_data": [{"step_version": 2, "step_type": "export_to_file", "params": {"type": "excel", "file_name": "Sample.xlsx", "sheet_indexes": [0], "export_formatting": False}}],
+            "args": [],
+            "public_interface_version": 1,
+            "code_options": {
+                'as_function': False,
+                'call_function': True,
+                'function_name': 'function_ysis',
+                'function_params': {}
+            }
+        }
+    ),
     # Upgrades the Excel range import
     (
         {

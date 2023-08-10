@@ -293,7 +293,7 @@ def test_params_static():
 
     check_step(
         ExportToFileStepPerformer,
-        1,
+        2,
         'export_to_file'
     )
 
