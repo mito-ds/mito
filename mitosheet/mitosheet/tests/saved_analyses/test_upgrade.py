@@ -601,6 +601,7 @@ UPGRADE_TESTS = [
             "public_interface_version": 1,
             "code_options": {
                 'as_function': False,
+                'call_function': True,
                 'function_name': 'function_ysis',
                 'function_params': {}
             }
