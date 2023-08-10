@@ -21,8 +21,7 @@ from mitosheet.utils import (
 def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
     code = []
     formats = state.df_formats
-    for sheet_index in sheet_indexes.keys():
-        sheet_name = state.df_names[sheet_index]
+    for sheet_index, export_location in sheet_indexes.items():
         format = formats[sheet_index]
         # We need to convert the column IDs to column letters
         # for conditional formats to export to excel
@@ -50,7 +49,7 @@ def get_format_code(state: State, sheet_indexes: Dict[int, str]) -> list:
             continue
 
         params_code = param_dict_to_code(param_dict, tab_level=1)
-        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{sheet_name}", {state.df_names[sheet_index]}, {params_code})')
+        code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{export_location}", {state.df_names[sheet_index]}, {params_code})')
     return code
 
 
