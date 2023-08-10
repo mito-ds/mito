@@ -258,12 +258,13 @@ export class MitoAPI {
         must be decoded from base64, and then turned into bytes
         before it can be downloaded
     */
-    async getDataframesAsExcel(sheetIndexes: number[]): Promise<MitoAPIResult<string>> {
+    async getDataframesAsExcel(sheetIndexes: number[], exportFormatting?: boolean): Promise<MitoAPIResult<string>> {
         return await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_excel',
             'params': {
-                'sheet_indexes': sheetIndexes
+                'sheet_indexes': sheetIndexes,
+                'export_formatting': exportFormatting
             },
         });
     }

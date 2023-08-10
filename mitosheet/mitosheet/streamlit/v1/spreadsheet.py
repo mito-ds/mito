@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import hashlib
 import json
 import os
@@ -7,6 +8,7 @@ from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.types import CodeOptions
 from mitosheet.utils import get_new_id
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
@@ -83,6 +85,7 @@ try:
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
+            _code_options: Optional[CodeOptions]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -92,7 +95,8 @@ try:
         mito_backend = MitoBackend(
             *args, 
             import_folder=import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions
+            user_defined_importers=_importers, user_defined_functions=_sheet_functions,
+            code_options=_code_options,
         )
 
         # Make a send function that stores the responses in a list
@@ -132,7 +136,7 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             key=None
-        ) -> Tuple[Dict[str, pd.DataFrame], str]:
+        ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -221,10 +225,12 @@ try:
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
         code = mito_backend.steps_manager.code()
-        return {
-            df_name: df for df_name, df in 
-            zip(final_state.df_names, final_state.dfs)
-        }, "\n".join(code)
+
+        ordered_dict = OrderedDict()
+        for df_name, df in zip(final_state.df_names, final_state.dfs):
+            ordered_dict[df_name] = df
+
+        return ordered_dict, "\n".join(code)
     
 except ImportError:
     def spreadsheet(*args, key=None): # type: ignore

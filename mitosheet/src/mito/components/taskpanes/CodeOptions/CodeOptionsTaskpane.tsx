@@ -83,6 +83,24 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                         ></Input>
                     </Col>
                 </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <LabelAndTooltip tooltip="You can optionally configure the code to not call your generated function. Toggling this to false in a Jupyter notebook may break later cells.">
+                            Call Function
+                        </LabelAndTooltip>
+                    </Col>
+                    <Col>
+                        <Toggle 
+                            value={props.analysisData.codeOptions.call_function} 
+                            disabled={!codeOptions.as_function}
+                            onChange={function (): void {
+                                const newCodeOptions = {...codeOptions};
+                                newCodeOptions.call_function = !newCodeOptions.call_function;
+                                setCodeOptions(newCodeOptions);
+                            }}
+                        />
+                    </Col>
+                </Row>
                 <CodeOptionsParameters
                     mitoAPI={props.mitoAPI}
                     codeOptions={codeOptions}

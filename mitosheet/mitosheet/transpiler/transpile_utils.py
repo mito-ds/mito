@@ -96,7 +96,7 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
         return result
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1, is_dict_entry: bool=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -113,21 +113,20 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         TAB_CONSTANT = TAB
         NEWLINE_CONSTANT = f'\n{TAB_CONSTANT * tab_level}'
 
-    if level == 0:
-        code = f"{NEWLINE_CONSTANT}"
-    else:
-        code = f"dict({NEWLINE_CONSTANT}"
+    code = f"{NEWLINE_CONSTANT}"
 
     value_num = 0
     for key, value in param_dict.items():
+        # If we're defining a dict entry, we need to add quotes around the key and use a colon
+        key_definition = f'"{key}": ' if is_dict_entry else f'{key}='
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
-            code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
+            code_chunk = f"{key_definition}{{{f'{param_dict_to_code(value, level=level + 1, is_dict_entry=True)}{NEWLINE_CONSTANT}{TAB_CONSTANT * (level+1)}'}}}"
         elif isinstance(value, list):
-            code_chunk = f"{key}={column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
-            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
@@ -143,9 +142,6 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
 
     if level == 0:
         code += f"{NEWLINE_CONSTANT}"
-    else:
-        # Make sure to close the dict
-        code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
 
@@ -212,7 +208,14 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
     result = re.sub(pattern, replacement, text)
     return result
 
-def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
+def convert_script_to_function(
+        steps_manager: StepsManagerType, 
+        imports: List[str], 
+        code: List[str], 
+        function_name: str, 
+        function_params: Dict[ParamName, ParamValue],
+        call_function: bool
+    ) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
     """
@@ -264,6 +267,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     if len(function_params) > 0:
         final_code.append("")
 
+    # If we are not calling the function, we just return the code without the call at the end
+    if not call_function:
+        return final_code
+
     final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
 
     if len(return_variables_string) > 0:
@@ -278,6 +285,7 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 def get_default_code_options(analysis_name: str) -> CodeOptions:
     return {
         'as_function': False,
+        'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
         'function_params': dict()
     }

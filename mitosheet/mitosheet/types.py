@@ -328,6 +328,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class CodeOptions(TypedDict):
         as_function: bool
+        call_function: bool
         function_name: str
         function_params: Dict[ParamName, ParamValue]
 

@@ -6,6 +6,7 @@
 import json
 import os
 import pandas as pd
+from mitosheet.transpiler.transpile_utils import get_default_code_options
 import pytest
 import numpy as np
 
@@ -167,3 +168,9 @@ def test_create_mito_backend_with_string_names_set_df_names():
     mito = create_mito_wrapper('test_file.csv')
     assert mito.mito_backend.steps_manager.curr_step.final_defined_state.df_names == ['test_file']
     os.remove('test_file.csv')
+
+def test_create_backend_with_code_options_works():
+    code_options = get_default_code_options('tmp')
+    code_options['call_function'] = False
+    mito_backend = MitoBackend(code_options=code_options)
+    assert mito_backend.steps_manager.code_options == code_options
