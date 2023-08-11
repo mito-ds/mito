@@ -253,6 +253,10 @@ def convert_script_to_function(
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
+    # If we are not calling the function, we just return the code without the call at the end
+    if not call_function:
+        return final_code
+
     # Build the params and variables taking special care to ensure that dataframes and file paths 
     # that are passed as parameters to the function. 
     final_params_to_call_function_with = []
@@ -266,10 +270,6 @@ def convert_script_to_function(
 
     if len(function_params) > 0:
         final_code.append("")
-
-    # If we are not calling the function, we just return the code without the call at the end
-    if not call_function:
-        return final_code
 
     final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
 
