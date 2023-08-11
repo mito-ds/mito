@@ -135,6 +135,7 @@ try:
             importers: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
+            code_options: Optional[CodeOptions]=None,
             key=None
         ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
         """
@@ -182,6 +183,7 @@ try:
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
+            _code_options=code_options,
             import_folder=import_folder,
             session_id=session_id,
             df_names=df_names, 
