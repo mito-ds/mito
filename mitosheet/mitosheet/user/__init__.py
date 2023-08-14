@@ -12,7 +12,7 @@ from mitosheet.user.db import (
 )
 from mitosheet.user.utils import (
     is_running_test, is_on_kuberentes_mito, is_local_deployment,
-    is_pro
+    is_pro, is_enterprise
 )
 from mitosheet.user.schemas import (
     UJ_INTENDED_BEHAVIOR, UJ_CLOSED_FEEDBACK, UJ_MITOSHEET_LAST_FIVE_USAGES,
