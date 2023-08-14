@@ -63,6 +63,13 @@ def is_enterprise() -> bool:
     # This package overides the user.json
     if MITOSHEET_HELPER_ENTERPRISE:
         return MITOSHEET_HELPER_ENTERPRISE
+    
+    # Check if the config is set
+    mito_config_enterprise = os.environ.get('MITO_CONFIG_ENTERPRISE')
+    mito_config_enterprise_temp_license = os.environ.get('MITO_CONFIG_ENTERPRISE_TEMP_LICENSE')
+    from mitosheet.enterprise.mito_config import get_enterprise_from_config
+    if get_enterprise_from_config(mito_config_enterprise, mito_config_enterprise_temp_license):
+        return True
 
     return is_enterprise if is_enterprise is not None else False
 

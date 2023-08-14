@@ -260,13 +260,18 @@ def test_graph_safety_filter_cutoff_matches():
 def test_mito_enterprise_keys_match():
     mito_enterprise_config_keys = get_enum_from_ts_file("./src/mito/types.tsx", "MitoEnterpriseConfigKey")
 
+    print("HERE", mito_enterprise_config_keys)
+
+    # Assert there are three nested support keys, and remove them
+    without_code_snippets = {key: value for key, value in mito_enterprise_config_keys.items() if 'MITO_CONFIG_CODE_SNIPPETS_' not in value}
+    assert len(without_code_snippets) == len(mito_enterprise_config_keys) - 3
+    
     # Since the MitoConfig is not set, we'll get none of the nested keys in the 
     # CodeSnippets object, so we use the MitoConfig and the MEC_VERSION_KEYS to 
     # get everything we need to test! 
     mito_config = MitoConfig().get_mito_config()
     keys = get_keys_recursive(mito_config, [])
-    keys = keys + MEC_VERSION_KEYS['2']
-    assert set(mito_enterprise_config_keys.values()) == set(keys)
+    assert set(without_code_snippets.values()) == set(keys)
 
 def test_user_profile_defaults_matches():
     user_profile_support_email = get_constant_from_ts_file(

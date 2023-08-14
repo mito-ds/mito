@@ -4,8 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
+import datetime
 from typing import Any, Dict, Optional, Union
 import os
+from mitosheet.enterprise.license_key import decode_license_to_date
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
 from mitosheet.user.utils import is_enterprise
@@ -25,6 +27,8 @@ MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOW
 MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 MITO_CONFIG_FEATURE_TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY'
 MITO_CONFIG_PRO = 'MITO_CONFIG_PRO'
+MITO_CONFIG_ENTERPRISE = 'MITO_CONFIG_ENTERPRISE'
+MITO_CONFIG_ENTERPRISE_TEMP_LICENSE = 'MITO_CONFIG_ENTERPRISE_TEMP_LICENSE'
 MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
 
@@ -52,7 +56,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         'MITO_CONFIG_CODE_SNIPPETS_VERSION': None,
         'MITO_CONFIG_CODE_SNIPPETS_URL': None,
         'MITO_CONFIG_DISABLE_TOURS': None,
-        'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT': None
+        'MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT': None,
+        
     }
     """
     return {
@@ -69,7 +74,8 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: None,
         MITO_CONFIG_PRO: None,
-
+        MITO_CONFIG_ENTERPRISE: None,
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE: None
     }
 
 """
@@ -120,7 +126,9 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_LLM_URL,
         MITO_CONFIG_ANALYTICS_URL,
         MITO_CONFIG_FEATURE_TELEMETRY,
-        MITO_CONFIG_PRO
+        MITO_CONFIG_PRO,
+        MITO_CONFIG_ENTERPRISE,
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE
     ]
 }
 
@@ -138,6 +146,27 @@ def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
         mec[key] = os.environ.get(key)
 
     return mec
+
+def get_enterprise_from_config(mito_config_enterprise: Optional[str], mito_config_enterprise_temp_license: Optional[str]) -> bool:
+    
+    if mito_config_enterprise is None and mito_config_enterprise_temp_license is None:
+        return False
+    
+    enterprise = mito_config_enterprise is not None and is_env_variable_set_to_true(mito_config_enterprise)
+    if enterprise:
+        return enterprise
+    
+    if mito_config_enterprise_temp_license is None:
+        return False
+    
+    enterprise_temp_license_string = mito_config_enterprise_temp_license
+    if enterprise_temp_license_string is not None:
+        enterprise_temp_license_date = decode_license_to_date(enterprise_temp_license_string)
+        enterprise_temp_license = enterprise_temp_license_date > datetime.date.today()
+        return enterprise_temp_license
+    
+    return False
+
 
 class MitoConfig:
     """
@@ -284,6 +313,18 @@ class MitoConfig:
 
         pro = is_env_variable_set_to_true(self.mec[MITO_CONFIG_PRO])
         return pro
+    
+    def get_enterprise(self) -> bool:
+        if self.mec is None or (
+            self.mec[MITO_CONFIG_ENTERPRISE] is None
+            and self.mec[MITO_CONFIG_ENTERPRISE_TEMP_LICENSE] is None
+        ):
+            return False
+        
+        return get_enterprise_from_config(
+            self.mec[MITO_CONFIG_ENTERPRISE],
+            self.mec[MITO_CONFIG_ENTERPRISE_TEMP_LICENSE]
+        )
 
     # Add new mito configuration options here ...
 
@@ -299,6 +340,6 @@ class MitoConfig:
             MITO_CONFIG_LLM_URL: self.get_llm_url(),
             MITO_CONFIG_ANALYTICS_URL: self.get_analytics_url(),
             MITO_CONFIG_FEATURE_TELEMETRY: self.get_feature_telemetry(),
-            MITO_CONFIG_PRO: self.get_pro()
+            MITO_CONFIG_PRO: self.get_pro(),
         }
 
