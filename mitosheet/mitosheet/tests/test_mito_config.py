@@ -5,6 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
+from mitosheet.enterprise.license_key import encode_date_to_license
 from mitosheet.enterprise.mito_config import (
     DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, 
     MEC_VERSION_KEYS,
@@ -15,6 +16,8 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_CODE_SNIPPETS_URL, 
     MITO_CONFIG_CODE_SNIPPETS_VERSION,
     MITO_CONFIG_DISABLE_TOURS,
+    MITO_CONFIG_ENTERPRISE,
+    MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
     MITO_CONFIG_LLM_URL, 
     MITO_CONFIG_SUPPORT_EMAIL, 
     MITO_CONFIG_VERSION, 
@@ -215,8 +218,10 @@ def test_mit_config_disable_telemetry():
     from mitosheet.telemetry.telemetry_utils import telemetry_turned_on
     assert not telemetry_turned_on()
 
+    delete_all_mito_config_environment_variables()
 
-def test_mit_config_enable_pro_telemetry():
+
+def test_mito_config_enable_pro_telemetry():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_PRO] = "True"
@@ -224,3 +229,45 @@ def test_mit_config_enable_pro_telemetry():
     from mitosheet.user import is_pro
     assert is_pro()
 
+    delete_all_mito_config_environment_variables()
+
+
+def test_mito_config_enable_enterprise():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_ENTERPRISE] = "True"
+
+    from mitosheet.user import is_enterprise
+    assert is_enterprise()
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_config_enable_enterprise_date():
+    
+
+    # Get tomorrow as a date
+    from datetime import date, timedelta
+    tomorrow = date.today() + timedelta(days=1)
+
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_ENTERPRISE_TEMP_LICENSE] = encode_date_to_license(tomorrow)
+
+    from mitosheet.user import is_enterprise
+    assert is_enterprise()
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_config_disable_enterprise_date():
+    
+
+    # Get tomorrow as a date
+    from datetime import date, timedelta
+    yesterday = date.today() + timedelta(days=-1)
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_ENTERPRISE_TEMP_LICENSE] = encode_date_to_license(yesterday)
+
+    from mitosheet.user import is_enterprise
+    assert not is_enterprise()
+
+    delete_all_mito_config_environment_variables()
