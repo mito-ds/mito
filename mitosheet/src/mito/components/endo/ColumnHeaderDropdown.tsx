@@ -133,6 +133,20 @@ export default function ColumnHeaderDropdown(props: {
                 disabled={!isNumberDtype(props.columnDtype)}
                 tooltip={!isNumberDtype(props.columnDtype) ? "Only number columns can be formatted currently" : undefined}
             />
+            <DropdownItem 
+                title='Conditional Format'
+                onClick={() => {
+                    props.setUIState(prevUIState => {
+                        const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
+                        const columnIDsToFormat = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {type: TaskpaneType.CONDITIONALFORMATTING, startingColumnIDs: columnIDsToFormat},
+                        }
+                    })
+                }}
+            />
             <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem 
                 title='Set Column Formula'
