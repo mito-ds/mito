@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { MitoAPI,  getRandomId } from "../../../api/api";
 import { AnalysisData, ConditionalFormat, DataframeFormat, RecursivePartial, SheetData, StepType, UIState, UserProfile } from "../../../types";
