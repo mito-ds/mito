@@ -83,7 +83,6 @@ class ExportToFileStepPerformer(StepPerformer):
         _type: str = get_param(params, 'type')
         sheet_indexes: List[int] = get_param(params, 'sheet_indexes')
         _file_name: str = get_param(params, 'file_name')
-        _export_formatting: bool = get_param(params, 'export_formatting')
 
         file_name = get_final_file_name(_file_name, _type) # Ensure that the file name has the correct extension
         
