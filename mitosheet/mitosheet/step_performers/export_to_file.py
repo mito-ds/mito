@@ -93,8 +93,6 @@ class ExportToFileStepPerformer(StepPerformer):
 
         if _type == 'csv':
             sheet_index_to_export_location = get_export_to_csv_sheet_index_to_file_name(file_name, sheet_indexes)
-            for sheet_index, file_name in sheet_index_to_export_location.items():
-                post_state.dfs[sheet_index].to_csv(file_name, index=False)
         elif _type == 'excel':
             sheet_index_to_export_location = get_export_to_excel_sheet_index_to_sheet_name(post_state, file_name, sheet_indexes)
         else:

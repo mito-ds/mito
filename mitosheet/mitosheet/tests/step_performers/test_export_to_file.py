@@ -189,10 +189,13 @@ def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name,
     mito = create_mito_wrapper(*input_dfs)
 
     mito.export_to_file(type, sheet_indexes, file_name)
+    assert not os.path.exists(file_name)
 
-    for sheet_index, final_file_name_part in zip(sheet_indexes, final_file_names):
-        final_file_name = str(tmp_path / final_file_name_part)
-        assert pd.read_csv(final_file_name).equals(input_dfs[sheet_index])
+    df_definitions = ''
+    for sheet_index in sheet_indexes:
+        df_definitions += f"df{sheet_index+1} = {get_dataframe_generation_code(mito.dfs[sheet_index])}\n"
+
+    exec(df_definitions + "\n".join(mito.transpiled_code))
 
     # Remove the files, run generated code, and check that things are still equal
     files = glob.glob(str(tmp_path / '*'))
@@ -263,6 +266,7 @@ def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_nam
         df_definitions += f"df{sheet_index+1} = {get_dataframe_generation_code(mito.dfs[sheet_index])}\n"
 
     mito.export_to_file(type, sheet_indexes, file_name)
+    assert not os.path.exists(file_name)
     exec(df_definitions + "\n".join(mito.transpiled_code))
 
     final_file_name = str(tmp_path / final_file_name)
