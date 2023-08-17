@@ -51,14 +51,14 @@ const getDefaultParams = (
         return undefined;
     }
 
-    const new_format = sheetDataArray[sheetIndex].dfFormat || getDefaultDataframeFormat();
+    const newFormat = sheetDataArray[sheetIndex].dfFormat || getDefaultDataframeFormat();
     if (startingColumnIDs !== undefined) {
-        new_format.conditional_formats.push(getDefaultEmptyConditionalFormat(startingColumnIDs));
+        newFormat.conditional_formats.push(getDefaultEmptyConditionalFormat(startingColumnIDs));
     }
 
     return {
         sheet_index: sheetIndex,
-        df_format: new_format,
+        df_format: newFormat,
     }
 }
 
