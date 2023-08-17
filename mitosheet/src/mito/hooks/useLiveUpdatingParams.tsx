@@ -35,6 +35,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     debounceDelay: number,
+    // Functions to update params when passed between frontend and backend. 
     frontendToBackendConverters?: {
         getBackendFromFrontend: (params: FrontendParamType, sheetDataArray?: SheetData[]) => BackendParamType,
         getFrontendFromBackend: (params: BackendParamType, sheetDataArray?: SheetData[]) => FrontendParamType,
