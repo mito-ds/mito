@@ -99,15 +99,6 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                         filters: newFilters
                     };
                 })
-                if (props.startingColumnIDs !== undefined) {
-                    conditionalFormats.push({
-                        format_uuid: getRandomId(),
-                        columnIDs: props.startingColumnIDs,
-                        filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
-                        color: undefined,
-                        backgroundColor: undefined
-                    });
-                }
                 return {
                     ...params,
                     df_format: {
