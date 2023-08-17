@@ -29,7 +29,7 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     backend is different than what is useful on the frontend.
 */
 function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
-    // Params to represent what should be shown when we open the taskpane
+    // Params to represent what should be shown when we open the taskpane and are by default send to the backend
     defaultParams: FrontendParamType | undefined | (() => FrontendParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
