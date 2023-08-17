@@ -93,12 +93,21 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                         newFilter.value = newValue;
                         return newFilter;
                     });
+                    
                     return {
                         ...newConditionalFormat,
                         filters: newFilters
                     };
                 })
-
+                if (props.startingColumnIDs !== undefined) {
+                    conditionalFormats.push({
+                        format_uuid: getRandomId(),
+                        columnIDs: props.startingColumnIDs,
+                        filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
+                        color: undefined,
+                        backgroundColor: undefined
+                    });
+                }
                 return {
                     ...params,
                     df_format: {
@@ -123,20 +132,6 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
     const [openFormattingCardIndex, setOpenFormattingCardIndex] = useState(
         props.startingColumnIDs ? conditionalFormats.length - 1 : conditionalFormats.length > 0 ? 0 : -1
     )
-
-    useEffect(() => {
-        if (props.startingColumnIDs !== undefined) {
-            const newConditionalFormats = [...params.df_format.conditional_formats];
-            newConditionalFormats.push({
-                format_uuid: getRandomId(),
-                columnIDs: props.startingColumnIDs,
-                filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
-                color: undefined,
-                backgroundColor: undefined
-            });
-        }
-    }, [props.startingColumnIDs])
-
 
     const updateDataframeFormatParams = (newParams: RecursivePartial<DataframeFormat>): void => {
         setParams(prevParams => {
