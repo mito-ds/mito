@@ -145,11 +145,7 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
             {invalidColumnIDMessage}
             <Filter
                 filter={props.conditionalFormat.filters[0]}
-                columnDtype={
-                    props.conditionalFormat.columnIDs.length > 0
-                    ? props.sheetData.columnDtypeMap[props.conditionalFormat.columnIDs[0]]
-                    : undefined
-                }
+                columnDtype={undefined}
                 operator={"And"}
                 displayOperator={false}
                 setFilter={(newFilter) => {
