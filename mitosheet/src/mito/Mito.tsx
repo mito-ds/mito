@@ -736,6 +736,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    startingColumnIDs={uiState.currOpenTaskpane.startingColumnIDs}
                 />
             )
             case TaskpaneType.DATAFRAMEIMPORT: return (
