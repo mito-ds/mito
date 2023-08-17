@@ -11,7 +11,7 @@ import glob
 import os
 import pandas as pd
 import pytest
-from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper
+from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper, get_dataframe_generation_code
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
 from typing import Any
 from mitosheet.utils import PLAIN_TEXT, CURRENCY, PERCENTAGE, SCIENTIFIC_NOTATION, ACCOUNTING
@@ -189,10 +189,13 @@ def test_export_to_file_csv(tmp_path, input_dfs, type, sheet_indexes, file_name,
     mito = create_mito_wrapper(*input_dfs)
 
     mito.export_to_file(type, sheet_indexes, file_name)
+    assert not os.path.exists(file_name)
 
-    for sheet_index, final_file_name_part in zip(sheet_indexes, final_file_names):
-        final_file_name = str(tmp_path / final_file_name_part)
-        assert pd.read_csv(final_file_name).equals(input_dfs[sheet_index])
+    df_definitions = ''
+    for sheet_index in sheet_indexes:
+        df_definitions += f"df{sheet_index+1} = {get_dataframe_generation_code(mito.dfs[sheet_index])}\n"
+
+    exec(df_definitions + "\n".join(mito.transpiled_code))
 
     # Remove the files, run generated code, and check that things are still equal
     files = glob.glob(str(tmp_path / '*'))
@@ -257,10 +260,14 @@ def test_export_to_file_excel(tmp_path, input_dfs, type, sheet_indexes, file_nam
     file_name = str(tmp_path / file_name)
 
     mito = create_mito_wrapper(*input_dfs)
+    df_definitions = ''
     for sheet_index, df_name in zip(sheet_indexes, df_names):
         mito.rename_dataframe(sheet_index, df_name)
+        df_definitions += f"df{sheet_index+1} = {get_dataframe_generation_code(mito.dfs[sheet_index])}\n"
 
     mito.export_to_file(type, sheet_indexes, file_name)
+    assert not os.path.exists(file_name)
+    exec(df_definitions + "\n".join(mito.transpiled_code))
 
     final_file_name = str(tmp_path / final_file_name)
     assert os.path.exists(final_file_name)
@@ -614,6 +621,8 @@ with pd.ExcelWriter(r\'test_format_conditional.xlsx\', engine="openpyxl") as wri
         ]
     )
 """
+    df_code = f"df = {get_dataframe_generation_code(df)}\n"
+    exec(df_code+"\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code))
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]
     assert get_cell_conditional_formatting(index_not_formatted, filename, 'df') == []
 
@@ -665,7 +674,8 @@ with pd.ExcelWriter(r\'test_format_conditional_and_rows.xlsx\', engine="openpyxl
         ]
     )
 """
-
+    df_code = f"df = {get_dataframe_generation_code(df)}\n"
+    exec(df_code+"\n".join(mito.transpiled_code[:-2]))
     assert get_cell_conditional_formatting(index_to_check, filename, 'df') == [(background_color, font_color)]
     assert get_cell_conditional_formatting(index_not_formatted, filename, 'df') == []
 
