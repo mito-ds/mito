@@ -20,7 +20,7 @@ import pandas as pd
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType, IfsInputType
 
 
 @cast_values_in_all_args_to_type('bool')
@@ -123,6 +123,52 @@ def IF(condition: pd.Series, true_series: AnyPrimitiveOrSeriesInputType, false_s
     )
 
 
+@cast_values_in_arg_to_type('argv', 'bool')
+@handle_sheet_function_errors
+def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
+    """
+    {
+        "function": "IFS",
+        "description": "Returns one value if the condition is True. Returns the other value if the conditon is False.",
+        "search_terms": ["ifs", "if", "conditional", "and", "or"],
+        "examples": [
+            "IFS(Status == 'success', 1, 0)",
+            "IFS(Nums > 100, 100, Nums)",
+            "IFS(AND(Grade >= .6, Status == 'active'), 'pass', 'fail')"
+        ],
+        "syntax": "IFS(boolean_condition_1, value_if_true, boolean_condition_2, value_if_true)",
+        "syntax_elements": [{
+                "element": "boolean_condition",
+                "description": "An expression or series that returns True or False values. Valid conditions for comparison include ==, !=, >, <, >=, <=."
+            },
+            {
+                "element": "value_if_true",
+                "description": "The value the function returns if condition is True."
+            }
+        ]
+    }
+    """
+    # Go through all of the conditions. The first condition that is true for
+    # *each cell* should be selected. 
+    results = pd.Series()
+    for index, condition in enumerate(argv):
+        # The args are alternating between the conditions and the values corresponding to them.
+        # If this is a series, we assume it is the condition. We skip the values because they're
+        #   only used as a function of the conditions. 
+        if isinstance(condition, pd.Series):
+            # For each cell, check if the value is true.
+            # If it is, use the "true_series" to fill the value in the end series.
+            # If it isn't save this for the next series by using "None"
+            true_series = get_series_from_primitive_or_series(argv[index+1], condition.index)
+            # Add the new data into the series
+            new_series = pd.Series(
+                data=[true_series.loc[i] if c else None for i, c in condition.items()],
+                index=condition.index
+            )
+            # Combine the series to fill in the None values in the final series
+            results = results.combine_first(new_series)
+    return results
+
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
 def OR(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
@@ -164,5 +210,6 @@ CONTROL_FUNCTIONS = {
     'AND': AND,
     'BOOL': BOOL,
     'IF': IF,
+    'IFS': IFS,
     'OR': OR,
 }

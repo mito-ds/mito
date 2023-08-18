@@ -31,6 +31,7 @@ DatetimeInputType = Union[pd.DataFrame, RollingRange, DatetimeRestrictedInputTyp
 AnyPrimitiveInputType = Union[str, int, float, bool, datetime, timedelta]
 AnyPrimitiveOrSeriesInputType = Union[AnyPrimitiveInputType, pd.Series]
 
+IfsInputType = Union[pd.Series, AnyPrimitiveOrSeriesInputType]
 
 # Return types
 StringFunctionReturnType = Union[pd.Series, str]
