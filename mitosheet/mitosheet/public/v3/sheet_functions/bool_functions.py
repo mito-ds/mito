@@ -150,23 +150,23 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     """
     # Go through all of the conditions. The first condition that is true for
     # *each cell* should be selected. 
-    results = pd.Series()
+    results = None
     for index, condition in enumerate(argv):
         # The args are alternating between the conditions and the values corresponding to them.
         # If this is a series, we assume it is the condition. We skip the values because they're
         #   only used as a function of the conditions. 
-        if isinstance(condition, pd.Series):
+        if index % 2 == 0 and isinstance(condition, pd.Series):
             # For each cell, check if the value is true.
             # If it is, use the "true_series" to fill the value in the end series.
             # If it isn't save this for the next series by using "None"
             true_series = get_series_from_primitive_or_series(argv[index+1], condition.index)
             # Add the new data into the series
-            new_series = pd.Series(
-                data=[true_series.loc[i] if c else None for i, c in condition.items()],
-                index=condition.index
-            )
-            # Combine the series to fill in the None values in the final series
-            results = results.combine_first(new_series)
+            new_series = true_series[condition]
+            if results is None:
+                results = new_series
+            else:
+                # Combine the series to fill in the None values in the final series
+                results = results.combine_first(new_series)
     return results
 
 @cast_values_in_all_args_to_type('bool')

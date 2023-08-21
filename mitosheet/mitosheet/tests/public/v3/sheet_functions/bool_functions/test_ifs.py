@@ -38,7 +38,15 @@ IFS_TESTS = [
             pd.Series([True, False, True]), 'option3'
         ],
         pd.Series(['option3', 'option2', 'option2'])
-    )
+    ),
+    (
+        [
+            pd.Series([True, False, False]), 1,
+            pd.Series([True, True, False]), 2,
+            pd.Series([True, False, True]), 3
+        ],
+        pd.Series([1.0, 2.0, 3.0])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", IFS_TESTS)
