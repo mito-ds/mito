@@ -47,6 +47,28 @@ IFS_TESTS = [
         ],
         pd.Series([1.0, 2.0, 3.0])
     ),
+    (
+        [
+            pd.Series([True, False, False]), 1,
+            pd.Series([True, True, False]), 2,
+            pd.Series([True, False, False]), 3
+        ],
+        pd.Series([1.0, 2.0])
+    ),
+    (
+        [
+            pd.Series([True, False]), pd.Timestamp('2017-01-01'),
+            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
+        ],
+        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
+    ),
+    (
+        [
+            pd.Series([True, False]), pd.Timestamp('2017-01-01'),
+            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
+        ],
+        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
+    )
 ]
 
 @pytest.mark.parametrize("_argv, expected", IFS_TESTS)
