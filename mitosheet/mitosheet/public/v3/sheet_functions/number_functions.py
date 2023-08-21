@@ -406,7 +406,7 @@ def MULTIPLY(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
     {
         "function": "MULTIPLY",
         "description": "Returns the product of two numbers.",
-        "search_terms": ["mulitply", "product"],
+        "search_terms": ["multiply", "product"],
         "examples": [
             "MULTIPLY(2,3)",
             "MULTIPLY(A,3)"

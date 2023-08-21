@@ -124,7 +124,6 @@ def IF(condition: pd.Series, true_series: AnyPrimitiveOrSeriesInputType, false_s
     )
 
 
-@cast_values_in_arg_to_type('argv', 'bool')
 @handle_sheet_function_errors
 def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     """
