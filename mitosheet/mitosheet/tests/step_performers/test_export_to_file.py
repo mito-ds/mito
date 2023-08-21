@@ -128,16 +128,49 @@ DF_NUMBER_FORMATS = [
         "B",
         "0.00%"
     ),
+    # Float with set precision 
     (
         {
-            "A": {
+            "B": {
                 "type": ACCOUNTING,
                 "precision": 1
             }
         },
+        "B",
+        '$0.0;($0.0)'
+    ),
+    # Float without set precision
+    (
+        {
+            "B": {
+                "type": ACCOUNTING,
+            }
+        },
+        "B",
+        '$0.00;($0.00)'
+    ),
+    # Int with set precision
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+                "precision": 3
+            }
+        },
         "A",
-        "($0.0)"
-    )
+        '$0.000;($0.000)'
+    ),
+    # Int without set precision
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+            }
+        },
+        "A",
+        '$0;($0)'
+    ),
+    
 ]
 
 EXPORT_TO_FILE_TESTS_CSV = [
@@ -490,7 +523,7 @@ CONDITIONAL_FORMATS = [
         '#b9abff',
         'B2',
         'C2',
-        True
+        False
     ),
     (
         ['C'],
@@ -610,6 +643,7 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
     filename = 'test_format_conditional.xlsx'
     numpy_import = f"\nimport numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename, export_formatting=True)
+
     assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
 
