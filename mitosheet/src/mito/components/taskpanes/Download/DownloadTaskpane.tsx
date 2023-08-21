@@ -24,6 +24,7 @@ import { getInvalidFileNameError } from '../../../utils/filename';
 import Col from '../../layout/Col';
 import Toggle from '../../elements/Toggle';
 import ProIcon from '../../icons/ProIcon';
+import LoadingCounter from '../../elements/LoadingCounter';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -255,6 +256,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
 
                     For more information, see the blog post linked at the top of this file.
                 */}
+                {exportHRef === '' && <>Preparing data for download. This may take several minutes <LoadingCounter/></> }
                 <TextButton
                     variant='dark'
                     width='block'
