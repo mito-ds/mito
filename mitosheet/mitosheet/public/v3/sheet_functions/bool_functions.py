@@ -22,6 +22,7 @@ from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
 from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType, IfsInputType
 
+from mitosheet.errors import MitoError
 
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
@@ -155,7 +156,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
         # The args are alternating between the conditions and the values corresponding to them.
         # If this is a series, we assume it is the condition. We skip the values because they're
         #   only used as a function of the conditions. 
-        if index % 2 == 0 and isinstance(condition, pd.Series):
+        if index % 2 == 0 and isinstance(condition, pd.Series) and condition.dtype == bool:
             # For each cell, check if the value is true.
             # If it is, use the "true_series" to fill the value in the end series.
             # If it isn't save this for the next series by using "None"
@@ -167,6 +168,14 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
             else:
                 # Combine the series to fill in the None values in the final series
                 results = results.combine_first(new_series)
+        elif index % 2 == 0:
+            error = MitoError(
+                'invalid_args_error',
+                'IFS',
+                f"IFS requires a boolean series condition as the first argument, but got {condition} instead.",
+                error_modal=False
+            )
+            raise error
     return results
 
 @cast_values_in_all_args_to_type('bool')

@@ -80,3 +80,10 @@ def test_ifs_direct(_argv, expected):
         assert result == expected
 
 
+IFS_INVALID_TESTS = [
+    (['invalid', 1, 'invalid', 2]),
+]
+@pytest.mark.parametrize("_argv", IFS_INVALID_TESTS)
+def test_invalid_args_error(_argv):
+    with pytest.raises(MitoError) as e_info:
+        IFS(*_argv)
