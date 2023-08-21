@@ -154,12 +154,11 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     results = None
     for index, condition in enumerate(argv):
         # The args are alternating between the conditions and the values corresponding to them.
-        # If this is a series, we assume it is the condition. We skip the values because they're
-        #   only used as a function of the conditions. 
+        # If this is a series of booleans in the even index, we assume it is the condition.
+        # We skip the values in this loop because they're only used as a function of the conditions. 
         if index % 2 == 0 and isinstance(condition, pd.Series) and condition.dtype == bool:
             # For each cell, check if the value is true.
-            # If it is, use the "true_series" to fill the value in the end series.
-            # If it isn't save this for the next series by using "None"
+            # If it is, use the "true_series" to fill the value in the result series.
             true_series = get_series_from_primitive_or_series(argv[index+1], condition.index)
             # Add the new data into the series
             new_series = true_series[condition]
@@ -168,6 +167,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
             else:
                 # Combine the series to fill in the None values in the final series
                 results = results.combine_first(new_series)
+        # If this is an even indexed argument, it should be a boolean series. If it isn't, we throw an error.
         elif index % 2 == 0:
             error = MitoError(
                 'invalid_args_error',
