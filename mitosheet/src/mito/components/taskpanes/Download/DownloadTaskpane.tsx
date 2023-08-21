@@ -207,9 +207,14 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <div>
                             <Row justify='space-between' align='center'>
-                                <Col style={{ display: 'flex' }}>
-                                    <p className="text-header-3">Export with formatting</p>&nbsp;
-                                    {!props.userProfile.isPro && <ProIcon/>}
+                                <Col>
+                                    <Row>
+                                        <p className="text-header-3">Export with formatting</p>&nbsp;
+                                        {!props.userProfile.isPro && <ProIcon/>}
+                                    </Row>
+                                    <Row>
+                                        <p className='text-subtext-1'>Exporting with formatting may take several minutes</p>
+                                    </Row>
                                 </Col>
                                 <Col>
                                     <Toggle
