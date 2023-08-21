@@ -129,7 +129,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     """
     {
         "function": "IFS",
-        "description": "Returns one value if the condition is True. Returns the other value if the conditon is False.",
+        "description": "Returns the value of the first condition that is true. If no conditions are true, returns None.",
         "search_terms": ["ifs", "if", "conditional", "and", "or"],
         "examples": [
             "IFS(height > 100, 'tall', height > 50, 'medium', height > 0, 'short')",
@@ -142,7 +142,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
             {
                 "element": "value_if_true",
                 "description": "The value the function returns if condition is True."
-            }
+            }, ...
         ]
     }
     """
