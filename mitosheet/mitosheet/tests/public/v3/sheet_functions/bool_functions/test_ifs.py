@@ -68,6 +68,13 @@ IFS_TESTS = [
             pd.Series([True, True]), pd.Timestamp('2017-01-04'),
         ],
         pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
+    ),
+    (
+        [
+            pd.Series([True, False]), pd.Series(['option1', 'option2']),
+            pd.Series([False, True]), 'option3',
+        ],
+        pd.Series(['option1', 'option3'])
     )
 ]
 
