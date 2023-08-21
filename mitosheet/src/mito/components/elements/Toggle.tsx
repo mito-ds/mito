@@ -30,6 +30,11 @@ interface ToggleProps {
         * @param [className] - Optionally set an additional class for the toggle
     */
     className?: string
+    
+    /**
+        * @param [title] - Display title when hovering over toggle
+    */
+    title?: string
 
 }
 
@@ -47,9 +52,14 @@ const Toggle = (props: ToggleProps): JSX.Element => {
 
     const disabled = props.disabled === true
     const className = props.className !== undefined ? props.className : ''
+    const title = props.title !== undefined ? props.title : undefined
 
     return (
-        <label className={classNames("toggle-label", className)} style={props.height ? { "--toggle-height": props.height } as React.CSSProperties : {}}>
+        <label 
+            className={classNames("toggle-label", className)} 
+            style={props.height ? { "--toggle-height": props.height } as React.CSSProperties : {}}
+            title={title}
+        >
             {/* 
                 Its important that the onClick event handler be on the input instead of the label because
                 when the label is clicked, it also triggers the input's onClick event. If the onClick was registered

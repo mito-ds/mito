@@ -142,12 +142,17 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                 <Row justify='space-between' align='center'>
                     <Col style={{ display: 'flex' }}>
                         <p className="text-header-3">Export with formatting</p>&nbsp;
-                        {!props.userProfile.isPro && <ProIcon/>}
+                        {!props.userProfile.isPro && 
+                            <div title='Upgrade to Mito Pro or Enterprise to generate formatted Excel files'>
+                                 <ProIcon/>
+                            </div>
+                       }
                     </Col>
                     <Col>
                         <Toggle
                             value={params.export_formatting ?? true}
                             disabled={!props.userProfile.isPro}
+                            title={!props.userProfile.isPro ? 'Upgrade to Mito Pro or Enterprise to generate formatted Excel files' : undefined}
                             onChange={() => {
                                 setParams(prevParams => {
                                     return {
