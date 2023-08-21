@@ -260,8 +260,6 @@ def test_graph_safety_filter_cutoff_matches():
 def test_mito_enterprise_keys_match():
     mito_enterprise_config_keys = get_enum_from_ts_file("./src/mito/types.tsx", "MitoEnterpriseConfigKey")
 
-    print("HERE", mito_enterprise_config_keys)
-
     # Assert there are three nested support keys, and remove them
     without_code_snippets = {key: value for key, value in mito_enterprise_config_keys.items() if 'MITO_CONFIG_CODE_SNIPPETS_' not in value}
     assert len(without_code_snippets) == len(mito_enterprise_config_keys) - 3

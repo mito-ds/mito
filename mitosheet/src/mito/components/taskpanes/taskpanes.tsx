@@ -93,7 +93,10 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: ColumnID | undefined}
     | {type: TaskpaneType.MELT}
     | {type: TaskpaneType.SET_DATAFRAME_FORMAT}
-    | {type: TaskpaneType.CONDITIONALFORMATTING}
+    | {
+        type: TaskpaneType.CONDITIONALFORMATTING,
+        startingColumnIDs?: string[]
+      }
     | {type: TaskpaneType.DATAFRAMEIMPORT}
     | {
         type: TaskpaneType.UPDATEIMPORTS,
