@@ -96,7 +96,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "A",
-        "$0.000"
+        "$#,##0.000"
     ),
     (
         {
@@ -126,7 +126,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "B",
-        "0.00%"
+        "#,##0.00%"
     ),
     # Float with set precision 
     (
@@ -137,7 +137,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "B",
-        '$0.0;($0.0)'
+        '$#,##0.0;($#,##0.0)'
     ),
     # Float without set precision
     (
@@ -147,7 +147,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "B",
-        '$0.00;($0.00)'
+        '$#,##0.00;($#,##0.00)'
     ),
     # Int with set precision
     (
@@ -158,7 +158,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "A",
-        '$0.000;($0.000)'
+        '$#,##0.000;($#,##0.000)'
     ),
     # Int without set precision
     (
@@ -168,7 +168,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "A",
-        '$0;($0)'
+        '$#,##0;($#,##0)'
     ),
     
 ]
@@ -828,8 +828,8 @@ with pd.ExcelWriter(r\'test_number_formatting_columns.xlsx\', engine="openpyxl")
     df.to_excel(writer, sheet_name="df", index=False)
     add_formatting_to_excel_sheet(writer, "df", df, 
         number_formats={{
-            "A": '$0.00', 
-            "B": '0.0000%'
+            "A": '$#,##0.00', 
+            "B": '#,##0.0000%'
         }}
     )
 """

@@ -199,11 +199,17 @@ def get_number_formats_objects_to_export_to_excel(
         if format_type == PLAIN_TEXT:
             format_string = decimal_string
         elif format_type == CURRENCY:
-            format_string = f'${decimal_string}'
+            format_string = f'$#,##{decimal_string}'
         elif format_type == ACCOUNTING:
-            format_string = f'${decimal_string};(${decimal_string})'
+            """
+            $*: This specifies that the currency symbol should be displayed before the number.
+            #: Placeholder for a digit. It's replaced by the actual digit of the number.
+            ,: Thousands separator. It inserts commas to separate groups of thousands.
+            0.00: Decimal portion of the number. It displays two decimal places.
+            """
+            format_string = f'$#,##{decimal_string};($#,##{decimal_string})'
         elif format_type == PERCENTAGE:
-            format_string = f'{decimal_string}%'
+            format_string = f'#,##{decimal_string}%'
         elif format_type == SCIENTIFIC_NOTATION:
             format_string = f'{decimal_string}E+0'
             
