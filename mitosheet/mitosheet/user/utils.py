@@ -32,6 +32,12 @@ try:
 except ImportError:
     MITOSHEET_HELPER_ENTERPRISE = False
 
+try:
+    import mitosheet_private
+    MITOSHEET_PRIVATE = True
+except ImportError:
+    MITOSHEET_PRIVATE = False
+
 
 def is_running_test() -> bool:
     """
@@ -82,6 +88,10 @@ def is_pro() -> bool:
     # This package overides the user.json
     if MITOSHEET_HELPER_PRO:
         return MITOSHEET_HELPER_PRO
+
+    # This package overides the user.json
+    if MITOSHEET_PRIVATE:
+        return MITOSHEET_PRIVATE
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_PRO') is not None:

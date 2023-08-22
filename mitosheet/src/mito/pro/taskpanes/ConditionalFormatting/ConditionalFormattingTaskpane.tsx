@@ -24,6 +24,17 @@ interface ConditionalFormattingTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    startingColumnIDs?: string[];
+}
+
+const getDefaultEmptyConditionalFormat = (columnIDs?: string[]): ConditionalFormat => {
+    return {
+        format_uuid: getRandomId(),
+        columnIDs: columnIDs ?? [],
+        filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
+        color: undefined,
+        backgroundColor: undefined
+    }
 }
 
 interface ConditionalFormattingParams {
@@ -33,28 +44,23 @@ interface ConditionalFormattingParams {
 const getDefaultParams = (
     sheetDataArray: SheetData[], 
     sheetIndex: number,
+    startingColumnIDs?: string[]
 ): ConditionalFormattingParams | undefined => {
 
     if (sheetDataArray.length === 0 || sheetDataArray[sheetIndex] === undefined) {
         return undefined;
     }
 
+    const newFormat = sheetDataArray[sheetIndex].dfFormat || getDefaultDataframeFormat();
+    if (startingColumnIDs !== undefined) {
+        newFormat.conditional_formats.push(getDefaultEmptyConditionalFormat(startingColumnIDs));
+    }
+
     return {
         sheet_index: sheetIndex,
-        df_format: sheetDataArray[sheetIndex].dfFormat || getDefaultDataframeFormat(),
+        df_format: newFormat,
     }
 }
-
-const getDefaultEmptyConditionalFormat = (): ConditionalFormat => {
-    return {
-        format_uuid: getRandomId(),
-        columnIDs: [],
-        filters: [{condition: 'not_empty', value: ''}], // Always default to one filter for now
-        color: undefined,
-        backgroundColor: undefined
-    }
-}
-
 
 /* 
     This is the ConditionalFormatting taskpane.
@@ -62,7 +68,7 @@ const getDefaultEmptyConditionalFormat = (): ConditionalFormat => {
 const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps): JSX.Element => {
 
     const {params, setParams} = useLiveUpdatingParams(
-        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex),
+        () => getDefaultParams(props.sheetDataArray, props.selectedSheetIndex, props.startingColumnIDs),
         StepType.SetDataframeFormat, 
         props.mitoAPI,
         props.analysisData,
@@ -87,12 +93,12 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
                         newFilter.value = newValue;
                         return newFilter;
                     });
+                    
                     return {
                         ...newConditionalFormat,
                         filters: newFilters
                     };
                 })
-
                 return {
                     ...params,
                     df_format: {
@@ -105,14 +111,18 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
         }
     )
 
-    const [openFormattingCardIndex, setOpenFormattingCardIndex] = useState(-1)
-
     if (params === undefined) {
         return <DefaultEmptyTaskpane setUIState={props.setUIState}/>
     }
 
     const sheetData = props.sheetDataArray[params.sheet_index];
     const conditionalFormats = params.df_format.conditional_formats
+    // If the user is opening this with a starting column ID, we want to open to that conditional format
+    // If the user is opening this otherwise, we want to open the first conditional format.
+    // And if there are no conditional formats yet, we want to open to -1, which means no conditional format
+    const [openFormattingCardIndex, setOpenFormattingCardIndex] = useState(
+        props.startingColumnIDs ? conditionalFormats.length - 1 : conditionalFormats.length > 0 ? 0 : -1
+    )
 
     const updateDataframeFormatParams = (newParams: RecursivePartial<DataframeFormat>): void => {
         setParams(prevParams => {

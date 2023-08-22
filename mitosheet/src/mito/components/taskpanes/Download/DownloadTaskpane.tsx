@@ -24,6 +24,7 @@ import { getInvalidFileNameError } from '../../../utils/filename';
 import Col from '../../layout/Col';
 import Toggle from '../../elements/Toggle';
 import ProIcon from '../../icons/ProIcon';
+import LoadingCounter from '../../elements/LoadingCounter';
 
 interface DownloadTaskpaneProps {
     uiState: UIState
@@ -206,9 +207,14 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     { props.uiState.exportConfiguration.exportType === 'excel' && 
                         <div>
                             <Row justify='space-between' align='center'>
-                                <Col style={{ display: 'flex' }}>
-                                    <p className="text-header-3">Export with formatting</p>&nbsp;
-                                    {!props.userProfile.isPro && <ProIcon/>}
+                                <Col>
+                                    <Row>
+                                        <p className="text-header-3">Export with formatting</p>&nbsp;
+                                        {!props.userProfile.isPro && <ProIcon/>}
+                                    </Row>
+                                    <Row>
+                                        <p className='text-subtext-1'>Exporting with formatting may take several minutes</p>
+                                    </Row>
                                 </Col>
                                 <Col>
                                     <Toggle
@@ -255,6 +261,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
 
                     For more information, see the blog post linked at the top of this file.
                 */}
+                {exportHRef === '' && <>Preparing file. This may take several minutes <LoadingCounter/></> }
                 <TextButton
                     variant='dark'
                     width='block'
@@ -263,7 +270,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     download={exportName}
                     onClick={onDownload}
                 >
-                    {exportHRef === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                    {exportHRef === '' ? (<>Preparing file <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

@@ -63,7 +63,7 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
         (Object.keys(NUMBER_SELECT_OPTIONS).includes(filters[0].condition) || (filters[0].condition === 'most_frequent' || filters[0].condition === 'least_frequent')) &&
         filters[0].value === ''
     ) {
-        likelyCauseOfInvalid = 'Please enter a number in the condition input.'
+        likelyCauseOfInvalid = 'Please enter a value to finish configuring the conditional format.'
     }
 
 
