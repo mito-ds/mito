@@ -96,6 +96,7 @@ def test_ifs_direct(_argv, expected):
 
 IFS_INVALID_TESTS = [
     (['invalid', 1, 'invalid', 2]),
+    ([True, 1]),
 ]
 @pytest.mark.parametrize("_argv", IFS_INVALID_TESTS)
 def test_invalid_args_error(_argv):
