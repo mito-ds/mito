@@ -282,8 +282,6 @@ def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_ke
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
 
 
