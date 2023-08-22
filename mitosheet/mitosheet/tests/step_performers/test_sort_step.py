@@ -106,9 +106,9 @@ SORT_TWICE_TESTS = [
         pd.DataFrame(data={'A': [6, 5, 4, 3, 2, 1]}, index=[5, 4, 3, 2, 1, 0]),
     ),
     (
-        pd.DataFrame(data={'A': [6, 5, 3, 4, 5, 10]}),
-        pd.DataFrame(data={'A': [3, 4, 5, 5, 6, 10]}, index=[2, 3, 1, 4, 0, 5]),
-        pd.DataFrame(data={'A': [10, 6, 5, 5, 4, 3]}, index=[5, 0, 1, 4, 3, 2]),
+        pd.DataFrame(data={'A': [6, 5, 3, 4, 5.5, 10]}),
+        pd.DataFrame(data={'A': [3, 4, 5, 5.5, 6, 10]}, index=[2, 3, 1, 4, 0, 5]),
+        pd.DataFrame(data={'A': [10, 6, 5.5, 5, 4, 3]}, index=[5, 0, 4, 1, 3, 2]),
     ),
     (
         pd.DataFrame(data={'A': [6, -5, 3, -4, 5, 10]}),
