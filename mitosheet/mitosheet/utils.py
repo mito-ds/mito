@@ -177,7 +177,7 @@ def get_conditional_formats_objects_to_export_to_excel(
     return export_cond_formats
 
 
-def get_default_precision(column_dtype) -> int:
+def get_default_precision(column_dtype: str) -> int:
     """Return the default precision depending on the dtype of the column"""
     return 0 if is_int_dtype(column_dtype) else 2
    

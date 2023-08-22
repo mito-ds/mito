@@ -261,7 +261,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
 
                     For more information, see the blog post linked at the top of this file.
                 */}
-                {exportHRef === '' && <>Preparing data for download. This may take several minutes <LoadingCounter/></> }
+                {exportHRef === '' && <>Preparing file. This may take several minutes <LoadingCounter/></> }
                 <TextButton
                     variant='dark'
                     width='block'
@@ -270,7 +270,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                     download={exportName}
                     onClick={onDownload}
                 >
-                    {exportHRef === '' ? (<>Preparing data for download <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
+                    {exportHRef === '' ? (<>Preparing file <LoadingDots /></>) : `Download ${props.uiState.exportConfiguration.exportType === 'csv' ? 'CSV file': 'Excel workbook'}`}
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

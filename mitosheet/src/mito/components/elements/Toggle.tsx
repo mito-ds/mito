@@ -52,13 +52,12 @@ const Toggle = (props: ToggleProps): JSX.Element => {
 
     const disabled = props.disabled === true
     const className = props.className !== undefined ? props.className : ''
-    const title = props.title !== undefined ? props.title : undefined
 
     return (
         <label 
             className={classNames("toggle-label", className)} 
             style={props.height ? { "--toggle-height": props.height } as React.CSSProperties : {}}
-            title={title}
+            title={props.title}
         >
             {/* 
                 Its important that the onClick event handler be on the input instead of the label because
