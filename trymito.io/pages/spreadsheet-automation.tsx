@@ -97,6 +97,28 @@ const SpreadsheetAutomation: NextPage = () => {
                 <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
+            <div className={pageStyles.subsection}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
+              </div>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  Compatible with <span className='text-highlight'>Excel</span>
+                </h1>
+                <p>
+                  Easily create Excel files with Mito.
+                </p>
+                <p>
+                  Anything you do in Mito can be exported to Excel. Formats, formulas, graphs, and pivot tables are all supported.
+                </p>
+                <p>
+                  See our <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>documentation on support for Excel</a>
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
           </section>
 
           <section className={pageStyles.background_card}>
