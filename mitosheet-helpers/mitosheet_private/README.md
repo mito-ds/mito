@@ -2,7 +2,7 @@
 
 This is a helper package for mitosheet that requires a `Mito Pro` or `Mito Enterprise` license.
 
-## Instructions
+## Deployment Instructions
 
 ```
 python3 -m venv venv;
