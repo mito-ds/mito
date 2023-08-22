@@ -4,20 +4,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.merge_code_chunk import MergeCodeChunk
-from mitosheet.errors import (get_recent_traceback, make_incompatible_merge_headers_error,
+from mitosheet.errors import (make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
 from mitosheet.types import ColumnHeader, ColumnID
 
 LOOKUP = 'lookup'
@@ -152,15 +149,15 @@ def _execute_merge(
 
     try:
         if how == UNIQUE_IN_LEFT:
-            df_two_cleaned = df_two_cleaned.drop_duplicates(subset=merge_keys_two) # Remove duplicates so lookup merge only returns first match
-            # Create a boolean index array for values only in the left sheet by turning on the indicator=True and then filtering on the result
-            bool_index_array = df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True)['_merge'] == 'left_only'
-            # Get the final result by filtering on the boolean index array and then selecting the columns we want to keep
-            return df_one_cleaned.copy(deep=True)[bool_index_array][selected_columns_one].reset_index(drop=True)
+            result = df_one_cleaned.merge(df_two_cleaned[merge_keys_two], left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True)
+            result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
+            result = result[df_one_cleaned.columns]
+            return result
         if how == UNIQUE_IN_RIGHT:
-            df_one_cleaned = df_one_cleaned.drop_duplicates(subset=merge_keys_one) # Remove duplicates so lookup merge only returns first match
-            bool_index_array = df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how='right', indicator=True)['_merge'] == 'right_only'
-            return df_two_cleaned.copy(deep=True)[bool_index_array][selected_columns_two].reset_index(drop=True)
+            result = df_two_cleaned.merge(df_one_cleaned[merge_keys_one], left_on=merge_keys_two, right_on=merge_keys_one, how='left', indicator=True)
+            result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
+            result = result[df_two_cleaned.columns]
+            return result
         else:
             return df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how=how_to_use, suffixes=[f'_{suffix_one}', f'_{suffix_two}'])
     except ValueError:
