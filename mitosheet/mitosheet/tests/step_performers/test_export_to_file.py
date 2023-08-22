@@ -518,12 +518,12 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['B'],
-        [{'condition': 'string_ends_with', 'value': 4}],
+        [{'condition': 'string_ends_with', 'value': '4'}],
         '#d09083', 
         '#b9abff',
         'B2',
         'C2',
-        False
+        True
     ),
     (
         ['C'],
