@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
-from mitosheet.is_type_utils import get_float_dt_td_columns
+from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
 from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
@@ -177,7 +177,12 @@ def get_conditional_formats_objects_to_export_to_excel(
     return export_cond_formats
 
 
+def get_default_precision(column_dtype: str) -> int:
+    """Return the default precision depending on the dtype of the column"""
+    return 0 if is_int_dtype(column_dtype) else 2
+   
 def get_number_formats_objects_to_export_to_excel(
+    df: pd.DataFrame,
     number_formats: Optional[Dict[str, Any]]
 ) -> Any:
     if number_formats is None or number_formats == {}:
@@ -185,18 +190,26 @@ def get_number_formats_objects_to_export_to_excel(
     
     export_number_formats = {}
     for column_header, number_format in number_formats.items():
-        precision = number_format.get('precision', 0)
+        dtype = str(df[column_header].dtype)
+        precision = number_format.get('precision', get_default_precision(dtype))
         decimal_string = f'0.{precision*"0"}' if precision > 0 else '0'
-        format_type = number_format.get('type', PLAIN_TEXT)
         format_string = decimal_string
+
+        format_type = number_format.get('type', PLAIN_TEXT)
         if format_type == PLAIN_TEXT:
             format_string = decimal_string
         elif format_type == CURRENCY:
-            format_string = f'${decimal_string}'
+            format_string = f'$#,##{decimal_string}'
         elif format_type == ACCOUNTING:
-            format_string = f'(${decimal_string})'
+            """
+            $*: This specifies that the currency symbol should be displayed before the number.
+            #: Placeholder for a digit. It's replaced by the actual digit of the number.
+            ,: Thousands separator. It inserts commas to separate groups of thousands.
+            0.00: Decimal portion of the number. It displays two decimal places.
+            """
+            format_string = f'$#,##{decimal_string};($#,##{decimal_string})'
         elif format_type == PERCENTAGE:
-            format_string = f'{decimal_string}%'
+            format_string = f'#,##{decimal_string}%'
         elif format_type == SCIENTIFIC_NOTATION:
             format_string = f'{decimal_string}E+0'
             
@@ -242,7 +255,7 @@ def write_to_excel(
                     odd_background_color=format.get('rows', {}).get('odd', {}).get('backgroundColor'),
                     odd_font_color=format.get('rows', {}).get('odd', {}).get('color'),
                     conditional_formats=conditional_formats,
-                    number_formats=get_number_formats_objects_to_export_to_excel(format.get('columns'))
+                    number_formats=get_number_formats_objects_to_export_to_excel(df, format.get('columns'))
                 )
     
 

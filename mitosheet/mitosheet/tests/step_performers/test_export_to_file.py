@@ -96,7 +96,7 @@ DF_NUMBER_FORMATS = [
             }
         },
         "A",
-        "$0.000"
+        "$#,##0.000"
     ),
     (
         {
@@ -126,18 +126,51 @@ DF_NUMBER_FORMATS = [
             }
         },
         "B",
-        "0.00%"
+        "#,##0.00%"
     ),
+    # Float with set precision 
     (
         {
-            "A": {
+            "B": {
                 "type": ACCOUNTING,
                 "precision": 1
             }
         },
+        "B",
+        '$#,##0.0;($#,##0.0)'
+    ),
+    # Float without set precision
+    (
+        {
+            "B": {
+                "type": ACCOUNTING,
+            }
+        },
+        "B",
+        '$#,##0.00;($#,##0.00)'
+    ),
+    # Int with set precision
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+                "precision": 3
+            }
+        },
         "A",
-        "($0.0)"
-    )
+        '$#,##0.000;($#,##0.000)'
+    ),
+    # Int without set precision
+    (
+        {
+            "A": {
+                "type": ACCOUNTING,
+            }
+        },
+        "A",
+        '$#,##0;($#,##0)'
+    ),
+    
 ]
 
 EXPORT_TO_FILE_TESTS_CSV = [
@@ -485,7 +518,7 @@ CONDITIONAL_FORMATS = [
     ),
     (
         ['B'],
-        [{'condition': 'string_ends_with', 'value': 4}],
+        [{'condition': 'string_ends_with', 'value': '4'}],
         '#d09083', 
         '#b9abff',
         'B2',
@@ -610,6 +643,7 @@ def test_transpiled_with_export_to_xlsx_conditional_format(column_ids, filters, 
     filename = 'test_format_conditional.xlsx'
     numpy_import = f"\nimport numpy as np" if number_formatting else ''
     mito.export_to_file('excel', [0], filename, export_formatting=True)
+
     assert "\n".join(mito.transpiled_code[:-2] if number_formatting else mito.transpiled_code) == f"""from mitosheet.public.v3 import *
 import pandas as pd{numpy_import}
 
@@ -794,8 +828,8 @@ with pd.ExcelWriter(r\'test_number_formatting_columns.xlsx\', engine="openpyxl")
     df.to_excel(writer, sheet_name="df", index=False)
     add_formatting_to_excel_sheet(writer, "df", df, 
         number_formats={{
-            "A": '$0.00', 
-            "B": '0.0000%'
+            "A": '$#,##0.00', 
+            "B": '#,##0.0000%'
         }}
     )
 """

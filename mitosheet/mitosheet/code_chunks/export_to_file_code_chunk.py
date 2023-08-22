@@ -30,7 +30,8 @@ def get_format_code(state: State, sheet_index_to_export_location: Dict[int, str]
             column_id_map=state.column_ids,
             sheet_index=sheet_index
         )
-        number_formats = get_number_formats_objects_to_export_to_excel(format.get('columns'))
+        df = state.dfs[sheet_index]
+        number_formats = get_number_formats_objects_to_export_to_excel(df, format.get('columns'))
         params = {
             'header_background_color': format.get('headers', {}).get('backgroundColor'),
             'header_font_color': format.get('headers', {}).get('color'),
