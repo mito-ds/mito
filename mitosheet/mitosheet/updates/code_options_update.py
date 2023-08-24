@@ -28,19 +28,20 @@ def execute_args_update(
     final_code_options = deepcopy(code_options)
     final_code_options['function_name'] = valid_function_name
 
-    # Get valid parameter names, and make sure they are unique
+    # Get valid parameter names, and make sure they are unique -- we only do this if it's a dict
     valid_parameter_names: List[str] = []
-    for parameter_name, parameter_value in code_options['function_params'].items():
-        valid_parameter_name = get_valid_python_identifier(parameter_name, 'parameter', 'param_')
-        if valid_parameter_name in valid_parameter_names:
-            i = 1
-            while valid_parameter_name in valid_parameter_names:
-                valid_parameter_name = f"{get_valid_python_identifier(parameter_name, 'parameter', 'param_')}_{i}"
-                i += 1
+    if isinstance(code_options['function_params'], dict):
+        for parameter_name, parameter_value in code_options['function_params'].items():
+            valid_parameter_name = get_valid_python_identifier(parameter_name, 'parameter', 'param_')
+            if valid_parameter_name in valid_parameter_names:
+                i = 1
+                while valid_parameter_name in valid_parameter_names:
+                    valid_parameter_name = f"{get_valid_python_identifier(parameter_name, 'parameter', 'param_')}_{i}"
+                    i += 1
 
-        del final_code_options['function_params'][parameter_name]
-        final_code_options['function_params'][valid_parameter_name] = parameter_value
-        valid_parameter_names.append(valid_parameter_name)
+            del final_code_options['function_params'][parameter_name]
+            final_code_options['function_params'][valid_parameter_name] = parameter_value
+            valid_parameter_names.append(valid_parameter_name)
 
     steps_manager.code_options = final_code_options
 

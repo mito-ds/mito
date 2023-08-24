@@ -125,9 +125,6 @@ FC_DATETIME_GREATER_THAN_OR_EQUAL = "datetime_greater_than_or_equal"
 FC_DATETIME_LESS = "datetime_less"
 FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
 
-ParamName = str
-ParamValue = str
-
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict, Literal
@@ -326,11 +323,29 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
         prints: str
 
+    ParamName = str
+    # NOTE: these cannot be changed, as they are part of the public interface, They are exposed through code-options
+    # function param specification - where you can pass the param subtype, to automatically generate params for all 
+    # of that subtype
+    ParamType = Literal[
+        'file_name'
+    ]
+    ParamSubtype = Literal[
+        'import_dataframe',
+        'file_name_export_excel',
+        'file_name_export_csv',
+        'file_name_import_excel',
+        'file_name_import_csv',
+    ]
+    ParamValue = str
+
+    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype]
+
     class CodeOptions(TypedDict):
         as_function: bool
         call_function: bool
         function_name: str
-        function_params: Dict[ParamName, ParamValue]
+        function_params: CodeOptionsFunctionParams # type: ignore
 
     UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
@@ -366,6 +381,13 @@ else:
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
+
+    ParamName = str # type: ignore
+    ParamType = str # type: ignore
+    ParamSubtype = str # type: ignore
+    ParamValue = str # type: ignore
+
+    CodeOptionsFunctionParams = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]

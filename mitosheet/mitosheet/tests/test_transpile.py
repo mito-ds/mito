@@ -678,7 +678,7 @@ def test_transpiled_with_export_to_csv_singular():
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.export_to_file('csv', [0], 'te"st.csv')
 
-    assert [('df', 'df_name', 'Dataframe'), ("r'te" + '"' + "st.csv'", 'file_name', 'CSV export file path')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df', 'df_name', 'import_dataframe'), ("r'te" + '"' + "st.csv'", 'file_name', 'file_name_export_csv')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
     mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': {'path': "r'te" + '"' + "st.csv'"}})
 
@@ -698,7 +698,7 @@ def test_transpiled_with_export_to_csv_multiple():
     mito = create_mito_wrapper(df, df, arg_names=['df1', 'df2'])
     mito.export_to_file('csv', [0, 1], 'test.csv')
 
-    assert [('df1', 'df_name', 'Dataframe'), ('df2', 'df_name', 'Dataframe'), ("r'test_0.csv'", 'file_name', 'CSV export file path'), ("r'test_1.csv'", 'file_name', 'CSV export file path')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df1', 'df_name', 'import_dataframe'), ('df2', 'df_name', 'import_dataframe'), ("r'test_0.csv'", 'file_name', 'file_name_export_csv'), ("r'test_1.csv'", 'file_name', 'file_name_export_csv')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
     mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': {'path_0': "r'test_0.csv'", 'path_1': "r'test_1.csv'"}})
 
@@ -720,7 +720,7 @@ def test_transpiled_with_export_to_xlsx_single():
     mito = create_mito_wrapper(df, arg_names=['df'])
     mito.export_to_file('excel', [0], "te'st.xlsx")
 
-    assert [('df', 'df_name', 'Dataframe'), ('r"te' + "'" + 'st.xlsx"', 'file_name', 'Excel export file path')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df', 'df_name', 'import_dataframe'), ('r"te' + "'" + 'st.xlsx"', 'file_name', 'file_name_export_excel')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
     mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': {'path': 'r"te' + "'" + 'st.xlsx"'}})
 
@@ -742,7 +742,7 @@ def test_transpiled_with_export_to_xlsx_multiple():
     mito = create_mito_wrapper(df, df, arg_names=['df1', 'df2'])
     mito.export_to_file('excel', [0, 1], 'test.xlsx')
 
-    assert [('df1', 'df_name', 'Dataframe'), ('df2', 'df_name', 'Dataframe'), ("r'test.xlsx'", 'file_name', 'Excel export file path')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
+    assert [('df1', 'df_name', 'import_dataframe'), ('df2', 'df_name', 'import_dataframe'), ("r'test.xlsx'", 'file_name', 'file_name_export_excel')] == get_parameterizable_params({}, mito.mito_backend.steps_manager)
 
     mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': {'path_0': "r'test.xlsx'"}})
 
@@ -760,3 +760,68 @@ path_0 = r'test.xlsx'
 
 df1, df2 = function(df1, df2, path_0)"""
 
+
+def test_code_options_pass_param_subtype():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.export_to_file('csv', [0], 'test.csv')
+
+    mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': 'file_name_export_csv'})
+
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
+def function(df, file_name_export_csv_0):
+    df.to_csv(file_name_export_csv_0, index=False)
+    
+    return df
+
+file_name_export_csv_0 = r'test.csv'
+
+df = function(df, file_name_export_csv_0)"""
+
+def test_code_options_pass_param_subtype_multiple_of_subtype():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.export_to_file('csv', [0], 'test.csv')
+    mito.export_to_file('csv', [0], 'test1.csv')
+
+    mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': 'file_name_export_csv'})
+
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
+def function(df, file_name_export_csv_0, file_name_export_csv_1):
+    df.to_csv(file_name_export_csv_0, index=False)
+    
+    df.to_csv(file_name_export_csv_1, index=False)
+    
+    return df
+
+file_name_export_csv_0 = r'test.csv'
+file_name_export_csv_1 = r'test1.csv'
+
+df = function(df, file_name_export_csv_0, file_name_export_csv_1)"""
+
+def test_code_options_pass_multiple_param_subtype():
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, arg_names=['df'])
+    mito.export_to_file('csv', [0], 'test.csv')
+    mito.export_to_file('excel', [0], 'test.xlsx')
+
+    mito.code_options_update({'as_function': True, 'call_function': True, 'function_name': 'function', 'function_params': ['file_name_export_csv', 'file_name_export_excel']})
+
+    print(mito.transpiled_code)
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+import pandas as pd
+
+def function(df, file_name_export_csv_0, file_name_export_excel_0):
+    df.to_csv(file_name_export_csv_0, index=False)
+    
+    with pd.ExcelWriter(file_name_export_excel_0, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name="df", index=False)
+    
+    return df
+
+file_name_export_csv_0 = r'test.csv'
+file_name_export_excel_0 = r'test.xlsx'
+
+df = function(df, file_name_export_csv_0, file_name_export_excel_0)"""

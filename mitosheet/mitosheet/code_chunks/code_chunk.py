@@ -128,6 +128,6 @@ class CodeChunk:
         Returns a list of parameters that can be parameterized. This is used
         for the parameterization UI.
 
-        The tuple is (param_name, param_type).
+        The tuple is (param_name, param_type, param_subtype).
         """
         return []

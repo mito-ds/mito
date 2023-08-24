@@ -59,7 +59,7 @@ class ExcelImportCodeChunk(CodeChunk):
         return [i for i in range(len(self.post_state.dfs) - len(self.sheet_names), len(self.post_state.dfs))]
     
     def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
-        return [(f'r{column_header_to_transpiled_code(self.file_name)}', 'file_name', 'Excel import file path')]
+        return [(f'r{column_header_to_transpiled_code(self.file_name)}', 'file_name', 'file_name_import_excel')]
 
     
 def build_read_excel_params(
