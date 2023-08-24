@@ -85,6 +85,13 @@ IFS_TESTS = [
     ),
     (
         [
+            pd.Series([True, False]), pd.Series(['option1', 'option2']),
+            False, 'option3',
+        ],
+        pd.Series(['option1', None])
+    ),
+    (
+        [
             True, 'option1',
         ],
         'option1'
