@@ -120,7 +120,7 @@ IFS_TESTS = [
 def test_ifs_direct(_argv, expected):
     result = IFS(*_argv)
     if isinstance(result, pd.Series):
-        assert result.equals(expected)
+        pd.testing.assert_series_equal(result, expected)
     else: 
         assert result == expected
 
