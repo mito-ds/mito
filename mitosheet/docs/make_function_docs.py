@@ -80,7 +80,7 @@ def main():
     function_doc_objects.sort(key=lambda doc: doc['function'])
 
     if command == 'update_frontend':
-        with open('./src/data/function_documentation.tsx', 'w+') as f:
+        with open('./src/mito/data/function_documentation.tsx', 'w+') as f:
         # We write the types for these objects as well!
             f.write("""
 /*

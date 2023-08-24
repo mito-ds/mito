@@ -132,66 +132,50 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
         "description": "Returns the value of the first condition that is true. If no conditions are true, returns None.",
         "search_terms": ["ifs", "if", "conditional", "and", "or"],
         "examples": [
-            "IFS(height > 100, 'tall', height > 50, 'medium', height > 0, 'short')",
+            "IFS(height > 100, 'tall', height > 50, 'medium', height > 0, 'short')"
         ],
-        "syntax": "IFS(boolean_condition_1, value_if_true, boolean_condition_2, value_if_true)",
+        "syntax": "IFS(boolean_condition_1, value_if_true, [boolean_condition_2, value_if_true, ...])",
         "syntax_elements": [{
                 "element": "boolean_condition",
                 "description": "An expression or series that returns True or False values. Valid conditions for comparison include ==, !=, >, <, >=, <=."
             },
             {
-                "element": "value_if_true",
-                "description": "The value the function returns if condition is True."
-            }, ...
+                "element": "value_if_true, ... [OPTIONAL]",
+                "description": "The value the function returns if condition is True, followed by alternating boolean conditions and values."
+            }
         ]
     }
     """
-    # Go through all of the conditions. The first condition that is true for
-    # *each cell* should be selected. 
-    results = None
-    for index, condition in enumerate(argv):
-        # The args are alternating between the conditions and the values corresponding to them.
-        # If this is a series of booleans in the even index, we assume it is the condition.
-        # We skip the values in this loop because they're only used as a function of the conditions. 
-        if index % 2 == 0:
-            if isinstance(condition, pd.Series) and condition.dtype == bool:
-                # For each cell, check if the value is true.
-                # If it is, use the "true_series" to fill the value in the result series.
-                true_series = get_series_from_primitive_or_series(argv[index+1], condition.index)
-                # Add the new data into the series
-                new_series = true_series[condition]
-                if results is None:
-                    results = new_series
-                else:
-                    # Combine the series to fill in the None values in the final series
-                    results = results.combine_first(new_series)
-            # This is the "else" case for the IFS formula.
-            elif condition == True:
-                base_index = next(iter(s.index for s in argv if isinstance(s, pd.Series)), None)
-                if base_index is None:
-                    error = MitoError(
+    base_index = next(iter(s.index for s in argv if isinstance(s, pd.Series)), None)
+    # If index is None, we're dealing with all constants
+    if base_index is None:
+        for index, arg in enumerate(argv):
+            if index % 2 == 0:
+                if arg:
+                    return argv[index+1]
+        return None
+
+    else:
+        # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
+        # This dramatically reduces the amount of casing we have to do
+        argv = tuple([get_series_from_primitive_or_series(arg, base_index) if not isinstance(arg, pd.Series) else arg for arg in argv])
+        results = pd.Series(index=base_index)
+
+        for index, condition in enumerate(argv):
+            if index % 2 == 0:
+                if condition.dtype != bool:
+                    raise MitoError(
                         'invalid_args_error',
                         'IFS',
-                        f"IFS requires at least one boolean series condition.",
+                        f"IFS requires all even indexed arguments to be boolean.",
                         error_modal=False
                     )
-                    raise error
-                # If the condition is just True, we can just use the "true_series" to fill the value in the result series.
-                true_series = get_series_from_primitive_or_series(argv[index+1], base_index)
-                if results is None:
-                    results = true_series
-                else:
-                    # Combine the series to fill in the None values in the final series
-                    results = results.combine_first(true_series)
-            # If this is an even indexed argument, it should be a boolean series or True. If it isn't, we throw an error.
-            else:
-                error = MitoError(
-                    'invalid_args_error',
-                    'IFS',
-                    f"IFS requires a boolean series condition as the first argument, but got {condition} instead.",
-                    error_modal=False
-                )
-                raise error
+                
+                # If it is, use the "true_series" to fill the value in the result series
+                true_series = argv[index+1]
+                new_series = true_series[condition]
+                results = results.combine_first(new_series)
+                
     return results
 
 @cast_values_in_all_args_to_type('bool')
