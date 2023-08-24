@@ -30,8 +30,9 @@ def execute_args_update(
 
     # Get valid parameter names, and make sure they are unique -- we only do this if it's a dict
     valid_parameter_names: List[str] = []
-    if isinstance(code_options['function_params'], dict):
-        for parameter_name, parameter_value in code_options['function_params'].items():
+    function_params = code_options['function_params']
+    if isinstance(function_params, dict):
+        for parameter_name, parameter_value in function_params.items():
             valid_parameter_name = get_valid_python_identifier(parameter_name, 'parameter', 'param_')
             if valid_parameter_name in valid_parameter_names:
                 i = 1
@@ -39,9 +40,11 @@ def execute_args_update(
                     valid_parameter_name = f"{get_valid_python_identifier(parameter_name, 'parameter', 'param_')}_{i}"
                     i += 1
 
-            del final_code_options['function_params'][parameter_name]
-            final_code_options['function_params'][valid_parameter_name] = parameter_value
+            del function_params[parameter_name]
+            function_params[valid_parameter_name] = parameter_value
             valid_parameter_names.append(valid_parameter_name)
+        
+        final_code_options['function_params'] = function_params
 
     steps_manager.code_options = final_code_options
 

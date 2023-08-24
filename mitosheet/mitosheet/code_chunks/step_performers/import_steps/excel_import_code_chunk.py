@@ -11,6 +11,7 @@ from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk
 from mitosheet.state import State
 from mitosheet.step_performers.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ParamSubtype, ParamType, ParamValue
 
 
 class ExcelImportCodeChunk(CodeChunk):
@@ -58,7 +59,7 @@ class ExcelImportCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.post_state.dfs) - len(self.sheet_names), len(self.post_state.dfs))]
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         return [(f'r{column_header_to_transpiled_code(self.file_name)}', 'file_name', 'file_name_import_excel')]
 
     

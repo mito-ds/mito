@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import CodeOptions, CodeOptionsFunctionParams, ColumnHeader, ParamName, ParamValue, StepsManagerType
+from mitosheet.types import CodeOptions, CodeOptionsFunctionParams, ColumnHeader, ParamName, ParamSubtype, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -224,7 +224,8 @@ def get_final_function_params_from_code_options(
 
         from mitosheet.api.get_parameterizable_params import get_parameterizable_params
         parameterizable_params = get_parameterizable_params({}, steps_manager)
-        number_of_params_of_subtype = {}
+        
+        number_of_params_of_subtype: Dict[ParamSubtype, int] = {}
         for param_value, param_type, param_subtype in parameterizable_params:
             param_index = number_of_params_of_subtype.get(param_subtype, 0)
             if isinstance(function_params, str) and function_params == param_subtype:

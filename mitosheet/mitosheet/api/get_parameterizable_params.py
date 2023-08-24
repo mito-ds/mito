@@ -13,12 +13,12 @@ from mitosheet.updates.args_update import is_string_arg_to_mitosheet_call
 
 def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
 
-        all_parameterizable_params: List[Tuple[str, str, str]] = []
+        all_parameterizable_params: List[Tuple[ParamValue, ParamType, ParamSubtype]] = []
 
         # First, get the original arguments to the mitosheet - we only let you parameterize df names for now
         for arg in steps_manager.original_args_raw_strings:
                 if not is_string_arg_to_mitosheet_call(arg):
-                        all_parameterizable_params.append((arg, 'df_name', "import_dataframe"))
+                        all_parameterizable_params.append((arg, 'df_name', "import_dataframe")) # type: ignore
     
         # Get optimized code chunk, and get their parameterizable params
         code_chunks = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=True)

@@ -11,6 +11,7 @@ from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
 
 from mitosheet.transpiler.transpile_utils import param_dict_to_code
+from mitosheet.types import ParamSubtype, ParamType, ParamValue
 
 from mitosheet.utils import (
     get_conditional_formats_objects_to_export_to_excel, 
@@ -84,7 +85,7 @@ class ExportToFileCodeChunk(CodeChunk):
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')
         
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         if self.export_type == 'csv':
             return [
                 (f"r{column_header_to_transpiled_code(export_location)}", 'file_name', 'file_name_export_csv') for export_location in self.sheet_index_to_export_location.values()

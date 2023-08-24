@@ -13,7 +13,7 @@ from mitosheet.excel_utils import (get_column_from_column_index,
 from mitosheet.public.v2.excel_utils import get_read_excel_params_from_range
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, param_dict_to_code
-from mitosheet.types import ExcelRangeImport
+from mitosheet.types import ExcelRangeImport, ParamSubtype, ParamType, ParamValue
 
 
 
@@ -209,6 +209,6 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         return [(f'r{column_header_to_transpiled_code(self.file_path)}', 'file_name', 'file_name_import_excel')]
     
