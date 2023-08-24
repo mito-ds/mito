@@ -110,3 +110,16 @@ def test_ifs_direct(_argv, expected):
         assert result.equals(expected)
     else: 
         assert result == expected
+
+# Error handling tests
+IFS_INVALID_TESTS = [
+    ([['invalid'], 1], 'IFS requires all even indexed arguments to be boolean.'),
+    ([True, 1, 2], 'IFS requires an even number of arguments.'),
+]
+@pytest.mark.parametrize("_argv", IFS_INVALID_TESTS)
+def test_invalid_args_error(_argv):
+    with pytest.raises(MitoError) as e_info:
+        IFS(*_argv)
+        assert e_info.value.error_dict['error_type'] == 'invalid_args_error'
+        assert e_info.value.error_dict['function_name'] == 'IFS'
+        assert e_info.value.error_dict['error_message'] == _argv[1]

@@ -146,6 +146,13 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
         ]
     }
     """
+    if len(argv) % 2 != 0:
+        raise MitoError(
+            'invalid_args_error',
+            'IFS',
+            'IFS requires an even number of arguments.',
+            error_modal=False
+        )
     base_index = next(iter(s.index for s in argv if isinstance(s, pd.Series)), None)
     # If index is None, we're dealing with all constants
     if base_index is None:
