@@ -4,8 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 """
-Contains all functions that are useful for control flow. For now, this
-is just IF statements.
+Contains all functions that are useful for control flow. 
 
 All functions describe their behavior with a function documentation object
 in the function docstring. Function documentation objects are described
@@ -14,6 +13,7 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 
+import pdb
 from typing import Optional
 import pandas as pd
 
@@ -151,14 +151,14 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     if base_index is None:
         for index, arg in enumerate(argv):
             if index % 2 == 0:
-                if arg:
+                if arg == True:
                     return argv[index+1]
         return None
 
     else:
         # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
-        argv = tuple([get_series_from_primitive_or_series(arg, base_index) if not isinstance(arg, pd.Series) else arg for arg in argv])
-        results = pd.Series(index=base_index)
+        argv = tuple([get_series_from_primitive_or_series(arg, base_index) for arg in argv])
+        results = pd.Series(index=base_index, dtype=argv[1].dtype)
 
         for index, condition in enumerate(argv):
             if index % 2 == 0:

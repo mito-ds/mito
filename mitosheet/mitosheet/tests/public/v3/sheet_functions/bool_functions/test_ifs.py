@@ -53,7 +53,7 @@ IFS_TESTS = [
             pd.Series([True, True, False]), 2,
             pd.Series([True, False, False]), 3
         ],
-        pd.Series([1.0, 2.0])
+        pd.Series([1.0, 2.0, None])
     ),
     (
         [
@@ -82,6 +82,24 @@ IFS_TESTS = [
             True, 'option3',
         ],
         pd.Series(['option1', 'option3'])
+    ),
+    (
+        [
+            True, 'option1',
+        ],
+        'option1'
+    ),
+    (
+        [
+            'invalid', 1
+        ],
+        None
+    ),
+    (
+        [
+            False, 'option1'
+        ],
+        None
     )
 ]
 
@@ -92,13 +110,3 @@ def test_ifs_direct(_argv, expected):
         assert result.equals(expected)
     else: 
         assert result == expected
-
-
-IFS_INVALID_TESTS = [
-    (['invalid', 1, 'invalid', 2]),
-    ([True, 1]),
-]
-@pytest.mark.parametrize("_argv", IFS_INVALID_TESTS)
-def test_invalid_args_error(_argv):
-    with pytest.raises(MitoError) as e_info:
-        IFS(*_argv)
