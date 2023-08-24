@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import hashlib
+import inspect
 import json
 import os
 import pickle
@@ -41,6 +42,33 @@ def get_dataframe_hash(df: pd.DataFrame) -> bytes:
         df = df.sample(n=_PANDAS_SAMPLE_SIZE, random_state=0)
     
     return _get_dataframe_hash(df)
+
+
+def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
+    """
+    Given a string of code, returns the first function defined in the code. Notably, to do
+    this, it executes the code, and then returns the first function defined in the code. 
+
+    As it executes the full code string, you should only use this function if you trust the
+    code string -- and in our case, if the function is not called.
+
+    If no functions are defined, returns None
+    """
+    print("CODE:", code)
+    functions_before = [f for f in locals().values() if callable(f)]
+    exec(code)
+    functions = [f for f in locals().values() if callable(f) and f not in functions_before]
+    new_functions = []
+    # We then find the one function that was defined inside of this module -- as the above 
+    # exec likely defines all the other mitosheet functions (none of which we actaully want)
+    for f in functions:
+        if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
+            new_functions.append(f)
+
+    if len(new_functions) == 0:
+        return None
+
+    return new_functions[0]
 
 try:
     import streamlit.components.v1 as components
@@ -136,8 +164,9 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
+            return_type: str='default',
             key=None
-        ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
+        ) -> Any:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -226,13 +255,30 @@ try:
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
-        code = mito_backend.steps_manager.code()
+        code = "\n".join(mito_backend.steps_manager.code())
 
         ordered_dict = OrderedDict()
         for df_name, df in zip(final_state.df_names, final_state.dfs):
             ordered_dict[df_name] = df
 
-        return ordered_dict, "\n".join(code)
+        if return_type == 'default':
+            return ordered_dict, code
+        if return_type == 'default_list':
+            return final_state.dfs, code
+        elif return_type == 'dfs':
+            return ordered_dict
+        elif return_type == 'code':
+            return code
+        elif return_type == 'dfs_list':
+            return final_state.dfs
+        elif return_type == 'function':
+            if code_options is None or not code_options['as_function'] or code_options['call_function']:
+                raise ValueError(f"""You must set code_options with `as_function=True` and `call_function=False` in order to return a function.""")
+            
+            return get_function_from_code_unsafe(code)
+        else:
+            raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
+
     
 except ImportError:
     def spreadsheet(*args, key=None): # type: ignore
