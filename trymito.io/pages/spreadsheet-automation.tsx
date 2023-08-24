@@ -103,16 +103,13 @@ const SpreadsheetAutomation: NextPage = () => {
               </div>
               <div className={textImageSplitStyles.functionality_text}>
                 <h1>
-                  Compatible with <span className='text-highlight'>Excel</span>
+                  Generate <span className='text-highlight'>formatted Excel files</span>
                 </h1>
                 <p>
-                  Easily create Excel files with Mito.
+                  Apply conditional formatting, set table colors, and format numbers using Mito. Don't waste time trying to understand the xlsxwriter API -- it's confusing even to engineers!
                 </p>
                 <p>
-                  Anything you do in Mito can be exported to Excel. Formats, formulas, graphs, and pivot tables are all supported.
-                </p>
-                <p>
-                  See our <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>documentation on support for Excel</a>
+                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
