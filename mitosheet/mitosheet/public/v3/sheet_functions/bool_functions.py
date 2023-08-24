@@ -164,10 +164,10 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
 
     else:
         # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
-        argv = tuple([get_series_from_primitive_or_series(arg, base_index) for arg in argv])
-        results = pd.Series(index=base_index, dtype=argv[1].dtype)
+        argv_series = tuple([get_series_from_primitive_or_series(arg, base_index) for arg in argv])
+        results = pd.Series(index=base_index, dtype=argv_series[1].dtype)
 
-        for index, condition in enumerate(argv):
+        for index, condition in enumerate(argv_series):
             if index % 2 == 0:
                 if condition.dtype != bool:
                     raise MitoError(
@@ -178,7 +178,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
                     )
                 
                 # If it is, use the "true_series" to fill the value in the result series
-                true_series = argv[index+1]
+                true_series = argv_series[index+1]
                 new_series = true_series[condition]
                 results = results.combine_first(new_series)
                 
