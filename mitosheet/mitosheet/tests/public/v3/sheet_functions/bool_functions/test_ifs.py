@@ -37,7 +37,7 @@ IFS_TESTS = [
             pd.Series([False, True, True]), 'option2',
             pd.Series([True, False, True]), 'option3'
         ],
-        pd.Series(['option3', 'option2', 'option2'])
+        pd.Series(['option3', 'option2', 'option2'], dtype='object')
     ),
     (
         [
@@ -45,7 +45,7 @@ IFS_TESTS = [
             pd.Series([True, True, False]), 2,
             pd.Series([True, False, True]), 3
         ],
-        pd.Series([1.0, 2.0, 3.0])
+        pd.Series([1.0, 2.0, 3.0], dtype='object')
     ),
     (
         [
@@ -53,14 +53,14 @@ IFS_TESTS = [
             pd.Series([True, True, False]), 2,
             pd.Series([True, False, False]), 3
         ],
-        pd.Series([1.0, 2.0, None])
+        pd.Series([1.0, 2.0, None], dtype='object')
     ),
     (
         [
             pd.Series([True, False]), pd.Timestamp('2017-01-01'),
             pd.Series([True, True]), pd.Timestamp('2017-01-04'),
         ],
-        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
+        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')], dtype='object')
     ),
     (
         [

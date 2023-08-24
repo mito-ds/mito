@@ -165,7 +165,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
     else:
         # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
         argv_series = tuple([get_series_from_primitive_or_series(arg, base_index) for arg in argv])
-        results = pd.Series(index=base_index, dtype=argv_series[1].dtype)
+        results = pd.Series(index=base_index, dtype='object')
 
         for index, condition in enumerate(argv_series):
             if index % 2 == 0:
