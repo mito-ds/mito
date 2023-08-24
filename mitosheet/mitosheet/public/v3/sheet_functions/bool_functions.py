@@ -157,7 +157,6 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
 
     else:
         # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
-        # This dramatically reduces the amount of casing we have to do
         argv = tuple([get_series_from_primitive_or_series(arg, base_index) if not isinstance(arg, pd.Series) else arg for arg in argv])
         results = pd.Series(index=base_index)
 
