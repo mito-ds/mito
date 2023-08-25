@@ -12,6 +12,7 @@ import pandas as pd
 from mitosheet.errors import MitoError
 
 from mitosheet.public.v3.sheet_functions.bool_functions import IFS
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 # Raw function tests
 
@@ -117,6 +118,7 @@ IFS_TESTS = [
 ]
 
 @pytest.mark.parametrize("_argv, expected", IFS_TESTS)
+@pandas_post_1_2_only
 def test_ifs_direct(_argv, expected):
     result = IFS(*_argv)
     if isinstance(result, pd.Series):
