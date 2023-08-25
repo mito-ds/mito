@@ -106,7 +106,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Generate <span className='text-highlight'>formatted Excel files</span>
                 </h1>
                 <p>
-                  Apply conditional formatting, set table colors, and format numbers using Mito. Don't waste time trying to understand the xlsxwriter API -- it's confusing even to engineers!
+                  Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
                 </p>
                 <p>
                   Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
