@@ -65,13 +65,6 @@ IFS_TESTS = [
     ),
     (
         [
-            pd.Series([True, False]), pd.Series([1,2]),
-            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
-        ],
-        pd.Series([1, pd.Timestamp('2017-01-04')])
-    ),
-    (
-        [
             pd.Series([True, False]), pd.Series(['option1', 'option2']),
             pd.Series([False, True]), 'option3',
         ],
@@ -117,14 +110,29 @@ IFS_TESTS = [
     )
 ]
 
+TEST_IFS_POST_PANDAS_1_2 = [
+    (
+        [
+            pd.Series([True, False]), pd.Series([1,2]),
+            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
+        ],
+        pd.Series([1, pd.Timestamp('2017-01-04')])
+    )
+]
+
 @pytest.mark.parametrize("_argv, expected", IFS_TESTS)
-@pandas_post_1_2_only
 def test_ifs_direct(_argv, expected):
     result = IFS(*_argv)
     if isinstance(result, pd.Series):
         pd.testing.assert_series_equal(result, expected, check_dtype=False)
     else: 
         assert result == expected
+
+
+@pytest.mark.parametrize("_argv, expected", TEST_IFS_POST_PANDAS_1_2)
+@pandas_post_1_2_only
+def test_ifs_post_pandas_1_2(_argv, expected):
+    test_ifs_direct(_argv, expected)
 
 # Error handling tests
 IFS_INVALID_TESTS = [
