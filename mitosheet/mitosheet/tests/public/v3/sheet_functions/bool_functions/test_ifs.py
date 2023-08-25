@@ -58,13 +58,6 @@ IFS_TESTS = [
     ),
     (
         [
-            pd.Series([True, False]), pd.Timestamp('2017-01-01'),
-            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
-        ],
-        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
-    ),
-    (
-        [
             pd.Series([True, False]), pd.Series(['option1', 'option2']),
             pd.Series([False, True]), 'option3',
         ],
@@ -117,6 +110,13 @@ TEST_IFS_POST_PANDAS_1_2 = [
             pd.Series([True, True]), pd.Timestamp('2017-01-04'),
         ],
         pd.Series([1, pd.Timestamp('2017-01-04')])
+    ),
+    (
+        [
+            pd.Series([True, False]), pd.Timestamp('2017-01-01'),
+            pd.Series([True, True]), pd.Timestamp('2017-01-04'),
+        ],
+        pd.Series([pd.Timestamp('2017-01-01'), pd.Timestamp('2017-01-04')])
     )
 ]
 
