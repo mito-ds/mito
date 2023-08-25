@@ -831,8 +831,7 @@ def replace_true_values(
             return 'True'
         else:
             return match.group()
-    ret = re.sub(r'TRUE|true', replace_true_values_internal, formula)
-    return ret
+    return re.sub(r'TRUE|true', replace_true_values_internal, formula)
     
 
 def replace_functions(
