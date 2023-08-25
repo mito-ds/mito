@@ -97,6 +97,25 @@ const SpreadsheetAutomation: NextPage = () => {
                 <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
               </div>
             </div>
+            <div className={pageStyles.subsection}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
+              </div>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  Generate <span className='text-highlight'>formatted Excel files</span>
+                </h1>
+                <p>
+                  Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
+                </p>
+                <p>
+                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
           </section>
 
           <section className={pageStyles.background_card}>
