@@ -77,6 +77,24 @@ CONSTANT_TEST_CASES: Any = [
         set([])
     ),
     (
+        '=TRUE',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = True',
+        set([]),
+        set([])
+    ),
+    (
+        '=true',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = True',
+        set([]),
+        set([])
+    ),
+    (
         '=\'StringSingleQuotes\'',
         'B',
         0,
