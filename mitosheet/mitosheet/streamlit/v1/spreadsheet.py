@@ -87,18 +87,29 @@ def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Un
 
     # Selections have the format: {'startingRowIndex': 0, 'endingRowIndex': 0, 'startingColumnIndex': 5, 'endingColumnIndex': 5}
 
+    smallerRowIndex = min(selection['startingRowIndex'], selection['endingRowIndex'])
+    largerRowIndex = max(selection['startingRowIndex'], selection['endingRowIndex'])
+    smallerColumnIndex = min(selection['startingColumnIndex'], selection['endingColumnIndex'])
+    largerColumnIndex = max(selection['startingColumnIndex'], selection['endingColumnIndex'])
+
     # If the row indexes selected are both -1, we just return the column
-    if selection['startingRowIndex'] == -1 and selection['endingRowIndex'] == -1:
-        return df.iloc[:, selection['startingColumnIndex']:selection['endingColumnIndex'] + 1]
+    if smallerRowIndex == -1 and largerRowIndex == -1:
+        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
     
     # If the column indexes selected are both -1, we just return the row
-    if selection['startingColumnIndex'] == -1 and selection['endingColumnIndex'] == -1:
-        return df.iloc[selection['startingRowIndex']:selection['endingRowIndex'] + 1, :]
+    if smallerColumnIndex == -1 and largerColumnIndex == -1:
+        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
+    
+    # If one row index is -1, then we return the column
+    if smallerRowIndex == -1:
+        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
+    
+    # If one column index is -1, then we return the row
+    if smallerColumnIndex == -1:
+        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
     
     # Otherwise, we return the intersection of the row and column
-    return df.iloc[selection['startingRowIndex']:selection['endingRowIndex'] + 1, selection['startingColumnIndex']:selection['endingColumnIndex'] + 1]
-
-
+    return df.iloc[smallerRowIndex:largerRowIndex + 1, smallerColumnIndex:largerColumnIndex + 1]
     
 
 try:
@@ -278,12 +289,14 @@ try:
             
         responses_json = json.dumps(responses)
 
+        # NOTE: selection is Optional -- as if the user has not set the return type as selected, we don't
+        # waste a component value update setting the value
         selection = _mito_component_func(
             key=key, 
             sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
-            responses_json=responses_json, id=id(mito_backend)
+            responses_json=responses_json, id=id(mito_backend),
+            return_type=return_type
         )
-        print(selection)
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state

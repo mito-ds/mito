@@ -226,6 +226,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
     
     public render = (): ReactNode => {
 
+        const returnType = this.props.args['return_type'] as string;
         const sheetDataArray = getSheetDataArrayFromString(this.props.args['sheet_data_json']);
         const analysisData = getAnalysisDataFromString(this.props.args['analysis_data_json']);
         const userProfile = getUserProfileFromString(this.props.args['user_profile_json']);
@@ -258,16 +259,14 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 analysisData={analysisData} 
                 userProfile={userProfile}
                 theme={getMitoThemeFromStreamlitTheme(this.props.theme)}
-                onSelectionChange={(selectedDataframeIndex, selections) => {
-                    console.log("NEw selection", {
-                        selectedDataframeIndex, 
-                        selections
-                    });
+                // Only define the onSelectionChange callback if we are returning the selection - so we
+                // don't set the component value unnecessarily (trigger reruns)
+                onSelectionChange={returnType === 'selection' ? (selectedDataframeIndex, selections) => {
                     this.setComponentValue({
                         selectedDataframeIndex, 
                         selections
                     });
-                }}
+                }: undefined}
             />  
         )
     }
