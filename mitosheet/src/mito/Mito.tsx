@@ -63,7 +63,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { createActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -71,6 +71,7 @@ import loadPlotly from './utils/plotly';
 import { MitoAPI, PublicInterfaceVersion, isInJupyterLab, isInJupyterNotebook } from '.';
 import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
+import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
@@ -81,7 +82,7 @@ import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
 import { isInStreamlit } from './utils/location';
-import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
+import { shallowEqual, shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -101,6 +102,7 @@ export type MitoProps = {
         secondaryBackgroundColor?: string
         textColor?: string
     }
+    onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -444,6 +446,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
         })
 
     }, [props.theme])
+
+
+    // If the user passes an onSelectionChange, then, we fire off events any time the user selects
+    // a new region. Notably, the 
+    const previousSelections = useRef(gridState.selections);
+    useEffect(() => {
+        if (props.onSelectionChange) {
+            if (!shallowEqualToDepth(previousSelections.current, gridState.selections, 2)) {
+                props.onSelectionChange(
+                    gridState.sheetIndex,
+                    gridState.selections
+                )
+                previousSelections.current = gridState.selections;
+            }
+        }
+
+    }, [props.onSelectionChange, gridState.selections, gridState.sheetIndex])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);

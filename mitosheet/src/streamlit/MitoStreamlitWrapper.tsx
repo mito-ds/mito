@@ -1,17 +1,21 @@
 import {
     StreamlitComponentBase,
     withStreamlitConnection,
-    Theme
+    Theme,
+    Streamlit
 } from "streamlit-component-lib"
 import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
 import { MitoResponse, MitoTheme, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
+import { DELAY_BETWEEN_SET_COMPONENT_VALUES } from "./MitoMessagePasser";
 
 
 interface State {
     responses: MitoResponse[],
-    analysisName: string
+    analysisName: string,
+    setComponentValueQueue: any[], 
+    isSettingComponentValue: boolean
 }
 
 // Max delay is the longest we'll wait for the API to return a value
@@ -78,10 +82,15 @@ const getMitoThemeFromStreamlitTheme = (streamlitTheme: Theme | undefined): Mito
  * getting responses back.
  */
 class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
+    processMessageQueueTimer: null | NodeJS.Timeout;
 
     constructor(props: any) {
         super(props);
-        this.state = { responses: [], analysisName: '' };
+        this.state = { 
+            responses: [], analysisName: '',
+            setComponentValueQueue: [], isSettingComponentValue: false,
+        };
+        this.processMessageQueueTimer = null; // Variable to store the timer
     }
 
     public getResponseData<ResultType>(id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -160,6 +169,59 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         const response = await this.getResponseData(msg['id'] as string);        
         return response;
     }
+
+    componentWillUnmount() {
+        if (this.processMessageQueueTimer) {
+            clearTimeout(this.processMessageQueueTimer);
+        }
+    }
+
+    processSetComponentValueQueue = () => {
+        if (this.state.setComponentValueQueue.length > 0) {
+            // Send one message
+            const value = this.state.setComponentValueQueue[0];
+            Streamlit.setComponentValue(value);
+
+            // Remove the processed message from the queue - making sure
+            // to avoid race conditons by finding by value
+            this.setState((prevState) => {
+                const valueQueue = [...prevState.setComponentValueQueue];
+                const index = valueQueue.findIndex((m) => m === value);
+                valueQueue.splice(index, 1);
+
+                return { 
+                    setComponentValueQueue: valueQueue,
+                    isSettingComponentValue: valueQueue.length > 0,
+                };
+            });
+
+            // Set a timer to process the next message after a delay
+            this.processMessageQueueTimer = setTimeout(this.processSetComponentValueQueue, DELAY_BETWEEN_SET_COMPONENT_VALUES);
+        } else {
+            // Otherwise, we have processed the full queue
+            this.setState({ isSettingComponentValue: false });
+        }
+    };
+
+    setComponentValue = (value: any) => {
+        this.setState((prevState) => ({
+            setComponentValueQueue: [...prevState.setComponentValueQueue, value],
+        }));
+
+        // Do some work to make sure we avoid race conditions. Namely, we only want to
+        // start processing the queue if we are not already processing the queue.
+        let processQueue = false;
+        this.setState(prevState => {
+            if (!prevState.isSettingComponentValue) {
+                processQueue = true;
+            }
+            return { isSettingComponentValue: true };
+        }, () => {
+            if (processQueue) {
+                this.processSetComponentValueQueue();
+            }
+        });
+    };
     
     
     public render = (): ReactNode => {
@@ -196,6 +258,16 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 analysisData={analysisData} 
                 userProfile={userProfile}
                 theme={getMitoThemeFromStreamlitTheme(this.props.theme)}
+                onSelectionChange={(selectedDataframeIndex, selections) => {
+                    console.log("NEw selection", {
+                        selectedDataframeIndex, 
+                        selections
+                    });
+                    this.setComponentValue({
+                        selectedDataframeIndex, 
+                        selections
+                    });
+                }}
             />  
         )
     }

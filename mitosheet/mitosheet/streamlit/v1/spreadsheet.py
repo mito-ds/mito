@@ -54,7 +54,6 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 
     If no functions are defined, returns None
     """
-    print("CODE:", code)
     functions_before = [f for f in locals().values() if callable(f)]
     exec(code)
     functions = [f for f in locals().values() if callable(f) and f not in functions_before]
@@ -69,6 +68,38 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
         return None
 
     return new_functions[0]
+
+
+
+def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
+
+    if indexAndSelections is None:
+        return None
+
+    selected_dataframe_index = indexAndSelections['selectedDataframeIndex']
+    if selected_dataframe_index < 0 or selected_dataframe_index >= len(dfs):
+        return None
+    
+    df = dfs[selected_dataframe_index]
+
+    # If there are multiple selections, for now we only return the first one - for simplicity in return types
+    selection = next(iter(indexAndSelections['selections']))
+
+    # Selections have the format: {'startingRowIndex': 0, 'endingRowIndex': 0, 'startingColumnIndex': 5, 'endingColumnIndex': 5}
+
+    # If the row indexes selected are both -1, we just return the column
+    if selection['startingRowIndex'] == -1 and selection['endingRowIndex'] == -1:
+        return df.iloc[:, selection['startingColumnIndex']:selection['endingColumnIndex'] + 1]
+    
+    # If the column indexes selected are both -1, we just return the row
+    if selection['startingColumnIndex'] == -1 and selection['endingColumnIndex'] == -1:
+        return df.iloc[selection['startingRowIndex']:selection['endingRowIndex'] + 1, :]
+    
+    # Otherwise, we return the intersection of the row and column
+    return df.iloc[selection['startingRowIndex']:selection['endingRowIndex'] + 1, selection['startingColumnIndex']:selection['endingColumnIndex'] + 1]
+
+
+    
 
 try:
     import streamlit.components.v1 as components
@@ -247,11 +278,12 @@ try:
             
         responses_json = json.dumps(responses)
 
-        _mito_component_func(
+        selection = _mito_component_func(
             key=key, 
             sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
             responses_json=responses_json, id=id(mito_backend)
         )
+        print(selection)
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
@@ -263,7 +295,9 @@ try:
 
         if return_type == 'default':
             return ordered_dict, code
-        if return_type == 'default_list':
+        elif return_type == 'selection':
+            return get_selected_element(final_state.dfs, selection)
+        elif return_type == 'default_list':
             return final_state.dfs, code
         elif return_type == 'dfs':
             return ordered_dict
