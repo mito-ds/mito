@@ -82,7 +82,7 @@ import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
 import { isInStreamlit } from './utils/location';
-import { shallowEqual, shallowEqualToDepth } from './utils/objects';
+import { shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>

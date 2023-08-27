@@ -8,7 +8,6 @@ import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
 import { MitoResponse, MitoTheme, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
-import { DELAY_BETWEEN_SET_COMPONENT_VALUES } from "./MitoMessagePasser";
 
 
 interface State {
