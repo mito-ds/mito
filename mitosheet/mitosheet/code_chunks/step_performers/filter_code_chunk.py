@@ -408,9 +408,10 @@ class FilterCodeChunk(CodeChunk):
             return [], []
         else:
             entire_filter_string = combine_filter_strings('And', all_filter_strings, split_lines=True)
+            includes_pandas = 'pd.' in entire_filter_string
             return [
                 f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
-            ], []
+            ], [] if not includes_pandas else ['import pandas as pd']
 
     def _combine_right_with_filter_code_chunk(self, filter_code_chunk: "FilterCodeChunk") -> Optional['CodeChunk']:
         if not self.params_match(filter_code_chunk, ['sheet_index']):

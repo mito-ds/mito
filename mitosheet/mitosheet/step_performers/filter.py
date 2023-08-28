@@ -79,26 +79,7 @@ class FilterStepPerformer(StepPerformer):
         operator: OperatorType = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
-        raise_error_if_column_ids_do_not_exist(
-            'filter',
-            prev_state,
-            sheet_index,
-            column_id
-        )
-
-        # Get the correct column_header
-        column_header = prev_state.column_ids.get_column_header_by_id(
-            sheet_index, column_id
-        )
-
-        # If no errors we create a new step for this filter
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        # Execute the filter
-        final_df, pandas_processing_time = _execute_filter(
-            prev_state.dfs[sheet_index], column_header, operator, filters
-        )
-        post_state.dfs[sheet_index] = final_df
+        post_state, pandas_processing_time = cls.execute_through_transpile(prev_state, params)
 
         # Keep track of which columns are filtered
         post_state.column_filters[sheet_index][column_id]["operator"] = operator

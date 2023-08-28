@@ -4,9 +4,12 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from abc import ABC, abstractmethod
+from time import perf_counter
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+from mitosheet.transpiler.transpile_utils import get_local_variables_for_exec
  
 class StepPerformer(ABC, object):
     """
@@ -80,6 +83,40 @@ class StepPerformer(ABC, object):
         step being executed
         """
         pass
+
+    @classmethod
+    def execute_through_transpile(
+        cls,
+        prev_state: State,
+        params: Dict[str, Any],
+    ) -> Tuple[State, float]:
+        """
+        Some steps can be executed through the transpiled code -- and in these cases, we can call this function
+        so that we don't have to duplicate the work we do
+        """
+        modified_dataframe_indexes = cls.get_modified_dataframe_indexes(params)
+        post_state = prev_state.copy(deep_sheet_indexes=modified_dataframe_indexes)
+
+        code_chunks = cls.transpile(post_state, params, {})
+        code = []
+        for chunk in code_chunks:
+            _code, imports = chunk.get_code()
+            code.extend(imports)
+            code.extend(_code)
+
+        exec_locals = get_local_variables_for_exec(post_state, post_state.public_interface_version)
+        
+        pandas_start_time = perf_counter()
+        exec("\n".join(code), {}, exec_locals)
+        pandas_processing_time = perf_counter() - pandas_start_time
+
+        for modified_dataframe_index in modified_dataframe_indexes:
+            df_name = prev_state.df_names[modified_dataframe_index]
+            new_df = exec_locals[df_name]
+            post_state.dfs[modified_dataframe_index] = new_df
+
+        return post_state, pandas_processing_time
+        
 
     @classmethod
     @abstractmethod

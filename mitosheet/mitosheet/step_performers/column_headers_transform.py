@@ -34,7 +34,6 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         transformation: Any = get_param(params, 'transformation')
 
-
         # We make a new state to modify it
         post_state = prev_state.copy() # TODO: update the deep copies
 
@@ -86,7 +85,6 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'result': {}
         }
 
     @classmethod

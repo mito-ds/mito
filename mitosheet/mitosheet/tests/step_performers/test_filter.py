@@ -525,6 +525,7 @@ def test_transpile_date_filter():
 
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
+        'import pandas as pd',
         '',
         "df1 = df1[df1['A'] > pd.to_datetime('12-2-2020')]",
         '',
@@ -866,6 +867,7 @@ def test_not_exactly_collapses_to_one_clause():
 
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
+        'import pandas as pd',
         '',
         "df1 = df1[(~df1['A'].isin([1, 2])) & (df1['B'].apply(lambda val: all(val != s for s in ['C', 'D']))) & (~df1['C'].isin(pd.to_datetime(['11-13-2021', '11-14-2021'])))]",
         '',
@@ -1363,6 +1365,11 @@ def test_filter_multiple_values_per_clause(
 
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
+        '',
+        transpiled_code, '',
+    ] or [
+        'from mitosheet.public.v3 import *', 
+        'import pandas as pd',
         '',
         transpiled_code, '',
     ]

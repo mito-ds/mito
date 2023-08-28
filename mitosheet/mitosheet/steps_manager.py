@@ -238,6 +238,10 @@ class StepsManager:
         # We also do some checks for the user_defined_importers
         if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+        
+
+        # The version of the public interface used by this analysis
+        self.public_interface_version = 3
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
@@ -245,6 +249,7 @@ class StepsManager:
                 "initialize", "initialize", {}, None, 
                 State(
                     args, 
+                    self.public_interface_version,
                     df_names=df_names,
                     user_defined_functions=user_defined_functions, 
                     user_defined_importers=user_defined_importers
@@ -310,9 +315,6 @@ class StepsManager:
 
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
-
-        # The version of the public interface used by this analysis
-        self.public_interface_version = 3
 
         # The options for the transpiled code. The user can optionally pass these 
         # in, but if they don't, we use the default options

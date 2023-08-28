@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Collection, List, Dict, Optional
+from typing import Any, Callable, Collection, List, Dict, Optional, Set, Union
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
@@ -60,6 +60,7 @@ class State:
     def __init__(
         self,
         dfs: Collection[pd.DataFrame],
+        public_interface_version: int,
         df_names: Optional[List[str]]=None,
         df_sources: Optional[List[str]]=None,
         column_ids: Optional[ColumnIDMap]=None,
@@ -73,6 +74,8 @@ class State:
 
         # The dataframes that are in the state
         self.dfs = list(dfs)
+
+        self.public_interface_version = public_interface_version
 
         # The df_names are composed of two parts:
         # 1. The names of the variables passed into the mitosheet.sheet call (which don't change over time).
@@ -140,7 +143,7 @@ class State:
         self.user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         self.user_defined_importers = user_defined_importers if user_defined_importers is not None else []
 
-    def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":
+    def copy(self, deep_sheet_indexes: Optional[Union[List[int], Set[int], None]]=None) -> "State":
         """
         Returns a copy of the state, while only making deep copies of
         those dataframes in the deep_sheet_indexes. Ideally, we'd copy
@@ -151,6 +154,7 @@ class State:
         
         return State(
             [df.copy(deep=index in deep_sheet_indexes) for index, df in enumerate(self.dfs)],
+            self.public_interface_version,
             df_names=deepcopy(self.df_names),
             df_sources=deepcopy(self.df_sources),
             column_ids=deepcopy(self.column_ids),

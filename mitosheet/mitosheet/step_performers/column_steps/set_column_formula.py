@@ -109,7 +109,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # We check out a new step
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
-        # Update the column formula, and then execute the new formula graph
+        # Update the column formula
         try:
             pandas_start_time = perf_counter()
             exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)

@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
+from mitosheet.state import State
 from mitosheet.types import CodeOptions, ColumnHeader, ParamName, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
@@ -289,3 +290,39 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
         'function_params': dict()
     }
+
+
+def get_local_variables_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
+
+    df_names_to_df = {
+        df_name: df for df, df_name in 
+        zip(
+            state.dfs,
+            state.df_names
+        )
+    }
+
+    if public_interface == 1:
+        import mitosheet.public.v1 as v1
+        local_vars = v1.__dict__
+    elif public_interface == 2:
+        import mitosheet.public.v2 as v2
+        local_vars = v2.__dict__
+    elif public_interface == 3:
+        import mitosheet.public.v3 as v3
+        local_vars = v3.__dict__
+    else:
+        import mitosheet as original
+        local_vars = original.__dict__
+
+    user_defined_functions = state.user_defined_functions
+    user_defined_importers = state.user_defined_importers
+
+    local_vars = {
+        **local_vars,
+        **df_names_to_df,
+        **{f.__name__: f for f in user_defined_functions},
+        **{f.__name__: f for f in user_defined_importers},
+    }
+
+    return local_vars
