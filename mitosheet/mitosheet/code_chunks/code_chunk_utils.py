@@ -39,7 +39,6 @@ def get_code_chunks(all_steps: List[Step], optimize: bool=True) -> List[CodeChun
 
         all_code_chunks.extend(step.step_performer.transpile(
             step.prev_state, # type: ignore
-            step.post_state, # type: ignore
             step.params,
             step.execution_data,
         ))
