@@ -10,7 +10,6 @@ from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
 from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntRestrictedInputType
 
-from mitosheet.public.v3.rolling_range import RollingRange
 
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
@@ -181,7 +180,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     value.name = 'lookup_value'
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
     merged = pd.merge(value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
-    return merged[index]
+    return merged.iloc[:,index]
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {

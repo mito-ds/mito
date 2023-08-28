@@ -246,15 +246,16 @@ def check_common_errors(
             error_modal=False
         )     
 
+    # TODO: update this with vlookup formula in mind
     # If the user used a lookup formula, point them to merge instead!
-    LOOKUP_FORMULAS = ['VLOOKUP', 'HLOOKUP', 'XLOOKUP', 'LOOKUP']
-    for lookup_formula in LOOKUP_FORMULAS:
-        if safe_contains_function(formula.upper(), lookup_formula, column_headers):
-            raise make_invalid_formula_error(
-                formula,
-                f'Instead of {lookup_formula}, try using the merge button in the toolbar!',
-                error_modal=False
-            )
+    # LOOKUP_FORMULAS = ['VLOOKUP', 'HLOOKUP', 'XLOOKUP', 'LOOKUP']
+    # for lookup_formula in LOOKUP_FORMULAS:
+    #     if safe_contains_function(formula.upper(), lookup_formula, column_headers):
+    #         raise make_invalid_formula_error(
+    #             formula,
+    #             f'Instead of {lookup_formula}, try using the merge button in the toolbar!',
+    #             error_modal=False
+    #         )
 
     # If the parens are not matched, and no column header has a paren in it, then
     # we throw an error if we're sure that it's unmatched
