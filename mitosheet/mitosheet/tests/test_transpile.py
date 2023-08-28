@@ -475,6 +475,26 @@ def test_transpile_as_function_single_param(tmp_path):
         f"txt = function(var_name)"
     ]
 
+def test_transpile_as_function_single_param_no_call(tmp_path):
+    tmp_file = str(tmp_path / 'txt.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file])
+    mito.code_options_update_no_check_transpiled({'as_function': True, 'call_function': False, 'function_name': 'function', 'function_params': {'var_name': f"r'{tmp_file}'"}})
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        "import pandas as pd",
+        "",
+        "def function(var_name):",
+        f"{TAB}txt = pd.read_csv(var_name)",
+        f'{TAB}',
+        f"{TAB}return txt",
+        "",
+    ]
+
 
 def test_transpile_as_function_both_params_and_additional():
     tmp_file = 'txt.csv'
