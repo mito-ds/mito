@@ -8,8 +8,9 @@ from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_d
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntRestrictedInputType
 
+from mitosheet.public.v3.rolling_range import RollingRange
 
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
@@ -149,6 +150,38 @@ def GETNEXTVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Se
 
     return GETPREVIOUSVALUE(reversed_series, reversed_condition)[::-1]
 
+def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, index: IntRestrictedInputType, approximate: bool) -> pd.Series:
+    """
+    {
+        "function": "VLOOKUP",
+        "description": "Returns the next value from series that meets the condition.",
+        "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
+        "examples": [
+            "VLOOKUP(Names0, Sample_Names:Sample_Ages, 1, False)",
+        ],
+        "syntax": "VLOOKUP(lookup_value, where, index, approximate)",
+        "syntax_elements": [{
+                "element": "lookup_value",
+                "description": "The value to look up."
+            }, {
+                "element": "where",
+                "description": "The range to look up in."
+            }, {
+                "element": "index",
+                "description": "The column index to return."
+            }, {
+                "element": "approximate",
+                "description": "Whether to do an approximate match."
+            }
+        ]
+    }
+    """
+    # First, we need to get the column we're looking up from in the df.
+    value = get_series_from_primitive_or_series(lookup_value, where.index)
+    value.name = 'lookup_value'
+    # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
+    merged = pd.merge(value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
+    return merged[index]
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
@@ -156,4 +189,5 @@ MISC_FUNCTIONS = {
     'GETPREVIOUSVALUE': GETPREVIOUSVALUE,
     'GETNEXTVALUE': GETNEXTVALUE,
     'TYPE': TYPE,
+    'VLOOKUP': VLOOKUP
 }
