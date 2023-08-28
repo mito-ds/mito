@@ -59,7 +59,6 @@ class TransposeStepPerformer(StepPerformer):
         return [
             TransposeCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(execution_data if execution_data is not None else {}, 'new_df_name')
             )

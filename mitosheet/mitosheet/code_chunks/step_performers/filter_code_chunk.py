@@ -380,8 +380,8 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: OperatorT
 
 class FilterCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids_with_filter_groups: List[ColumnIDWithFilterGroup]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids_with_filter_groups: List[ColumnIDWithFilterGroup]):
+        super().__init__(prev_state)
         self.sheet_index: int = sheet_index
         self.column_ids_with_filter_groups = column_ids_with_filter_groups
 
@@ -421,7 +421,6 @@ class FilterCodeChunk(CodeChunk):
 
         return FilterCodeChunk(
             self.prev_state,
-            filter_code_chunk.post_state,
             self.sheet_index,
             column_ids_with_filter_groups
         )

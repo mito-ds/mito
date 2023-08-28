@@ -13,8 +13,8 @@ from mitosheet.types import ColumnID
 
 class DropDuplicatesCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], keep: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], keep: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.keep = keep

@@ -58,7 +58,6 @@ class SetDataframeFormatStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Set dataframe format',
                 'Set a dataframe format',
                 # We don't optimize right as some steps (e.g. export to file) require the prev state

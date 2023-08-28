@@ -121,7 +121,6 @@ class FilterStepPerformer(StepPerformer):
         return [
             FilterCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 [{
                     'column_id': get_param(params, 'column_id'),

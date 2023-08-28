@@ -56,8 +56,8 @@ def get_format_code(state: State, sheet_index_to_export_location: Dict[int, str]
 
 class ExportToFileCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str], sheet_index_to_df_name: Dict[int, str], export_formatting: bool=False):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str], sheet_index_to_df_name: Dict[int, str], export_formatting: bool=False):
+        super().__init__(prev_state)
         self.export_type = export_type
         self.file_name = file_name
         self.sheet_index_to_export_location = sheet_index_to_export_location

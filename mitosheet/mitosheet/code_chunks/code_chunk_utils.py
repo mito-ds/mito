@@ -97,7 +97,6 @@ def get_right_combine_with_column_delete_code_chunk(
 
         return DeleteColumnsCodeChunk(
             code_chunk.prev_state,
-            delete_columns_code_chunk.post_state,
             delete_columns_code_chunk.sheet_index,
             delete_columns_code_chunk.column_ids
         )

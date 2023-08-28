@@ -12,8 +12,8 @@ from mitosheet.types import ColumnHeader, ColumnID
 
 class OneHotEncodingCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, new_column_headers: List[ColumnHeader]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, new_column_headers: List[ColumnHeader]):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.new_column_headers = new_column_headers

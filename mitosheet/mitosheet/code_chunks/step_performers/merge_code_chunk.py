@@ -21,8 +21,8 @@ UNIQUE_IN_RIGHT = 'unique in right'
 class MergeCodeChunk(CodeChunk):
 
 
-    def __init__(self, prev_state: State, post_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID], new_df_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID], new_df_name: str):
+        super().__init__(prev_state)
         self.how: str = how 
         self.sheet_index_one: int = sheet_index_one 
         self.sheet_index_two: int = sheet_index_two 

@@ -232,7 +232,6 @@ class GraphStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Edited graph',
                 'Edited a graph',
             )

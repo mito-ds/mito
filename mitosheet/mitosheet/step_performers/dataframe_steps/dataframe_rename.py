@@ -71,7 +71,6 @@ class DataframeRenameStepPerformer(StepPerformer):
         return [
             DataframeRenameCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'old_dataframe_name'),
                 get_param(execution_data if execution_data is not None else {}, 'new_dataframe_name')

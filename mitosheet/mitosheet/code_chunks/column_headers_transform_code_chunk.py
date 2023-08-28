@@ -11,8 +11,8 @@ from mitosheet.state import State
 
 class ColumnHeadersTransformCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, transformation: Any):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, transformation: Any):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.transformation = transformation
 

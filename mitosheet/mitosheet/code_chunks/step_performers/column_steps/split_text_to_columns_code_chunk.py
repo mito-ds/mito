@@ -36,8 +36,8 @@ def get_split_param_dict() -> Dict[str, Optional[Union[bool, int]]]:
 
 class SplitTextToColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, delimiters: List[str], new_column_headers: List[ColumnHeader]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, delimiters: List[str], new_column_headers: List[ColumnHeader]):
+        super().__init__(prev_state)
         self.sheet_index: int = sheet_index
         self.column_id: ColumnID = column_id
         self.delimiters: List[str] = delimiters

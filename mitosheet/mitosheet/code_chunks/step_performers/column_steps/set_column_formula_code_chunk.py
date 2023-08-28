@@ -21,8 +21,8 @@ from mitosheet.transpiler.transpile_utils import column_header_list_to_transpile
 
 class SetColumnFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, new_formula: str, public_interface_version: int):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, new_formula: str, public_interface_version: int):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.formula_label = formula_label

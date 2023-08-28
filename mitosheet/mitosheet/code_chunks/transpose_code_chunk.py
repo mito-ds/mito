@@ -11,8 +11,8 @@ from mitosheet.types import ColumnID
 
 class TransposeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, new_df_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, new_df_name: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
 
         self.df_name = self.prev_state.df_names[self.sheet_index]

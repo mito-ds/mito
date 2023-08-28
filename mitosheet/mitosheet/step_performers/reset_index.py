@@ -61,7 +61,6 @@ class ResetIndexStepPerformer(StepPerformer):
         return [
             ResetIndexCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'drop'),
             )

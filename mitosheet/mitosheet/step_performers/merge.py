@@ -89,7 +89,6 @@ class MergeStepPerformer(StepPerformer):
         return [
             MergeCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'how'),
                 get_param(params, 'sheet_index_one'),
                 get_param(params, 'sheet_index_two'),

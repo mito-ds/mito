@@ -66,7 +66,6 @@ class GraphRenameStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Renamed graph',
                 'Renamed a graph',
             )

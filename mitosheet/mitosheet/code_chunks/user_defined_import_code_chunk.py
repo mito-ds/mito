@@ -20,8 +20,8 @@ def get_transpiled_importer_params(user_defined_importer_params: Dict[str, Any])
 
 class UserDefinedImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, importer: str, user_defined_importer_params: Dict[str, Any], new_df_names: List[str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, importer: str, user_defined_importer_params: Dict[str, Any], new_df_names: List[str]):
+        super().__init__(prev_state)
         self.importer = importer
         self.user_defined_importer_params = user_defined_importer_params
 

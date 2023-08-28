@@ -57,7 +57,6 @@ class DataframeDeleteStepPerformer(StepPerformer):
         return [
             DataframeDeleteCodeChunk(
                 prev_state, 
-                post_state, 
                 [params['sheet_index']],
                 [params['old_dataframe_name']]
             )

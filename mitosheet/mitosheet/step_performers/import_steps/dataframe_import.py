@@ -100,7 +100,6 @@ class DataframeImportStepPerformer(StepPerformer):
         return [
             DataframeImportCodeChunk(
                 prev_state, 
-                post_state, 
                 'Imported Dataframes',
                 'Imported dataframes into the mitosheet'
             )

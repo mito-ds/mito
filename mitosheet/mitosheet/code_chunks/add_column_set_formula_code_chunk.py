@@ -20,8 +20,8 @@ from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
 
 class AddColumnSetFormulaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, column_header: ColumnHeader, column_header_index: int, new_formula: str, public_interface_version: int):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, formula_label: Union[str, bool, int, float], index_labels_formula_is_applied_to: FormulaAppliedToType, column_header: ColumnHeader, column_header_index: int, new_formula: str, public_interface_version: int):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.column_header = column_header
@@ -69,17 +69,14 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         deleted_column_ids = other_code_chunk.column_ids
 
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
-            return NoOpCodeChunk(
-                self.prev_state, 
-                other_code_chunk.post_state, 
-            )
+            return NoOpCodeChunk(self.prev_state)
+        
         elif added_column_id in deleted_column_ids:
             new_deleted_column_ids = copy(deleted_column_ids)
             new_deleted_column_ids.remove(added_column_id)
 
             return DeleteColumnsCodeChunk(
                 self.prev_state,
-                other_code_chunk.post_state,
                 self.sheet_index,
                 new_deleted_column_ids
             )
@@ -96,7 +93,6 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         if added_column_id in column_ids_to_new_column_headers and len(column_ids_to_new_column_headers) == 1:
             return AddColumnSetFormulaCodeChunk(
                 self.prev_state,
-                other_code_chunk.post_state,
                 self.sheet_index,
                 self.column_id,
                 self.formula_label,

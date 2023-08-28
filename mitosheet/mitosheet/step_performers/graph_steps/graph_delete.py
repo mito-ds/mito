@@ -54,7 +54,6 @@ class GraphDeleteStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Deleted graph',
                 'Deleted a graph',
             )

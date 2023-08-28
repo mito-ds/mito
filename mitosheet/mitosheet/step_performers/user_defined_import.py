@@ -187,7 +187,6 @@ class UserDefinedImportStepPerformer(StepPerformer):
         return [
             UserDefinedImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'importer'),
                 get_param(execution_data if execution_data is not None else dict(), 'user_defined_importer_params'),
                 get_param(execution_data if execution_data is not None else dict(), 'new_df_names')

@@ -15,8 +15,8 @@ from mitosheet.types import ColumnID
 
 class PromoteRowToHeaderCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, index: Any):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, index: Any):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.index = index
 

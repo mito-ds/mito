@@ -12,8 +12,8 @@ from mitosheet.types import ColumnID
 
 class MeltCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, id_var_column_ids: List[ColumnID], value_var_column_ids: List[ColumnID], include_value_vars: bool, new_df_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, id_var_column_ids: List[ColumnID], value_var_column_ids: List[ColumnID], include_value_vars: bool, new_df_name: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.id_var_column_ids = id_var_column_ids
         self.value_var_column_ids = value_var_column_ids

@@ -79,7 +79,6 @@ class MeltStepPerformer(StepPerformer):
         return [
             MeltCodeChunk(
                 prev_state,
-                post_state,
                 get_param(params, 'sheet_index'),
                 get_param(params, 'id_var_column_ids'),
                 get_param(params, 'value_var_column_ids'),

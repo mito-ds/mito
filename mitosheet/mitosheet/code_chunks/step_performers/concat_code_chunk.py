@@ -12,8 +12,8 @@ from mitosheet.state import State
 
 class ConcatCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, join: str, ignore_index: bool, sheet_indexes: List[int], new_df_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, join: str, ignore_index: bool, sheet_indexes: List[int], new_df_name: str):
+        super().__init__(prev_state)
         self.join = join
         self.ignore_index = ignore_index
         self.sheet_indexes = sheet_indexes

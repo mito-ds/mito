@@ -80,7 +80,6 @@ class ReorderColumnStepPerformer(StepPerformer):
         return [
             ReorderColumnCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_id'),
                 get_param(params, 'new_column_index'),

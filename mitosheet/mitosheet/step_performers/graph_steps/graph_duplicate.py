@@ -61,7 +61,6 @@ class GraphDuplicateStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Duplicated graph',
                 'Duplicated a graph',
             )

@@ -85,7 +85,6 @@ class PivotCodeChunk(CodeChunk):
     def __init__(
         self, 
         prev_state: State, 
-        post_state: State, 
         sheet_index: int,
         destination_sheet_index: Optional[int],
         pivot_rows_column_ids_with_transforms: List[ColumnIDWithPivotTransform],
@@ -97,7 +96,7 @@ class PivotCodeChunk(CodeChunk):
         public_interface_version: int,
         new_df_name: str
     ):
-        super().__init__(prev_state, post_state)
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.destination_sheet_index = destination_sheet_index
         self.pivot_rows_column_ids_with_transforms = pivot_rows_column_ids_with_transforms
@@ -197,7 +196,6 @@ class PivotCodeChunk(CodeChunk):
         if destination_sheet_index is not None and destination_sheet_index == other_destination_sheet_index:
             return PivotCodeChunk(
                 self.prev_state,
-                pivot_code_chunk.post_state,
                 pivot_code_chunk.sheet_index,
                 pivot_code_chunk.destination_sheet_index,
                 pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -216,7 +214,6 @@ class PivotCodeChunk(CodeChunk):
         if created_sheet_index is not None and created_sheet_index[0] == other_destination_sheet_index:
             return PivotCodeChunk(
                 self.prev_state,
-                pivot_code_chunk.post_state,
                 pivot_code_chunk.sheet_index,
                 pivot_code_chunk.destination_sheet_index,
                 pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -248,7 +245,6 @@ class PivotCodeChunk(CodeChunk):
         if edited_sheet_indexes is not None and len(edited_sheet_indexes) == 1 and edited_sheet_indexes[0] == destination_sheet_index:
             return PivotCodeChunk(
                 other_code_chunk.prev_state,
-                self.post_state,
                 self.sheet_index,
                 self.destination_sheet_index,
                 self.pivot_rows_column_ids_with_transforms,

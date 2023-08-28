@@ -106,7 +106,6 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         return [
             ExcelRangeImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'file_path'),
                 get_param(params, 'sheet'),
                 get_param(params, 'range_imports'),

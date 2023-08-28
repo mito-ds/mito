@@ -14,8 +14,8 @@ from mitosheet.types import ColumnID
 
 class FillNaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], fill_method: Dict[str, Any], full_dataframe: bool):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], fill_method: Dict[str, Any], full_dataframe: bool):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.fill_method = fill_method

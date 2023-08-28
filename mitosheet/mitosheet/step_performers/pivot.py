@@ -180,7 +180,6 @@ class PivotStepPerformer(StepPerformer):
         return [
             PivotCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'destination_sheet_index'),
                 get_param(params, 'pivot_rows_column_ids_with_transforms'),

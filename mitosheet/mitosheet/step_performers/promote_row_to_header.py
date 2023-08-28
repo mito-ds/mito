@@ -95,7 +95,6 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
         return [
             PromoteRowToHeaderCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'index'),
             )

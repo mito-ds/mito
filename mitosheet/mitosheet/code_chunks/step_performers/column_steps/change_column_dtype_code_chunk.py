@@ -134,8 +134,8 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
 class ChangeColumnDtypeCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], to_datetime_params_map: Optional[Dict[ColumnID, Dict[str, Any]]], public_interface_version: int):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], old_dtypes: Dict[ColumnID, str], new_dtype: str, changed_column_ids: List[ColumnID], to_datetime_params_map: Optional[Dict[ColumnID, Dict[str, Any]]], public_interface_version: int):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.old_dtypes = old_dtypes

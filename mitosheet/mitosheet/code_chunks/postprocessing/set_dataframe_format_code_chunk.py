@@ -293,6 +293,10 @@ class SetDataframeFormatCodeChunk(CodeChunk):
     and are given access to the final state. They have no parameters otherwise.
     """
 
+    def __init__(self, prev_state: State, post_state: State):
+        self.prev_state = prev_state
+        self.post_state = post_state
+
     def get_display_name(self) -> str:
         return 'Set Dataframe Format'
     

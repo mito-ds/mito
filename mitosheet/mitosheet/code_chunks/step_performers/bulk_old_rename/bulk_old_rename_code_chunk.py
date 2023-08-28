@@ -14,8 +14,8 @@ from mitosheet.types import ColumnHeader
 
 class BulkOldRenameCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, column_header_renames_list: List[Dict[ColumnHeader, ColumnHeader]]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, column_header_renames_list: List[Dict[ColumnHeader, ColumnHeader]]):
+        super().__init__(prev_state)
         self.column_header_renames_list = column_header_renames_list
 
     def get_display_name(self) -> str:

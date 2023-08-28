@@ -25,8 +25,8 @@ from mitosheet.transpiler.transpile_utils import \
 
 class AddColumnCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_header: str, column_header_index: int, new_column_id: ColumnID):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_header: str, column_header_index: int, new_column_id: ColumnID):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_header = column_header
         self.column_header_index = column_header_index
@@ -62,7 +62,6 @@ class AddColumnCodeChunk(CodeChunk):
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
             return NoOpCodeChunk(
                 self.prev_state, 
-                other_code_chunk.post_state
             )
         elif added_column_id in deleted_column_ids:
             new_deleted_column_ids = copy(deleted_column_ids)
@@ -70,7 +69,6 @@ class AddColumnCodeChunk(CodeChunk):
 
             return DeleteColumnsCodeChunk(
                 self.prev_state,
-                other_code_chunk.post_state,
                 sheet_index,
                 new_deleted_column_ids
             )
@@ -83,7 +81,7 @@ class AddColumnCodeChunk(CodeChunk):
             return None
         
         # Check to see if the column ids overlap
-        added_column_id = self.post_state.column_ids.get_column_id_by_header(self.sheet_index, self.column_header)
+        added_column_id = self.new_column_id
         column_ids_to_new_column_headers = other_code_chunk.column_ids_to_new_column_headers
 
         if added_column_id in column_ids_to_new_column_headers and len(column_ids_to_new_column_headers) == 1:
@@ -91,7 +89,6 @@ class AddColumnCodeChunk(CodeChunk):
             new_column_header = column_ids_to_new_column_headers[added_column_id]
             return AddColumnCodeChunk(
                 self.prev_state,
-                other_code_chunk.post_state,
                 self.sheet_index,
                 new_column_header,
                 self.column_header_index,
@@ -112,14 +109,13 @@ class AddColumnCodeChunk(CodeChunk):
 
         sheet_index = self.sheet_index
         added_column_header = self.column_header
-        added_column_id = self.post_state.column_ids.get_column_id_by_header(sheet_index, added_column_header)
+        added_column_id = self.new_column_id
         
         if added_column_id != other_code_chunk.column_id:
             return None
 
         return AddColumnSetFormulaCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             self.sheet_index,
             added_column_id,
             other_code_chunk.formula_label,

@@ -15,8 +15,8 @@ from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_cod
 
 class ExcelImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: str, new_df_names: List[str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: str, new_df_names: List[str]):
+        super().__init__(prev_state)
         self.file_name = file_name
         self.sheet_names = sheet_names
         self.has_headers = has_headers

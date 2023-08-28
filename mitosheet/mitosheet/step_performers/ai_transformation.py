@@ -65,7 +65,6 @@ class AITransformationStepPerformer(StepPerformer):
         return [
             AITransformationCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'user_input'),
                 get_param(execution_data if execution_data is not None else {}, 'final_code')
             )

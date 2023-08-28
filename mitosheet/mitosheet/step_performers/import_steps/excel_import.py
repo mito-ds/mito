@@ -78,7 +78,6 @@ class ExcelImportStepPerformer(StepPerformer):
         return [
             ExcelImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'file_name'),
                 get_param(params, 'sheet_names'),
                 get_param(params, 'has_headers'),

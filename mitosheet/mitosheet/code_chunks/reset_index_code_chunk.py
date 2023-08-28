@@ -10,8 +10,8 @@ from mitosheet.state import State
 
 class ResetIndexCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, drop: bool):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, drop: bool):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.drop = drop
 

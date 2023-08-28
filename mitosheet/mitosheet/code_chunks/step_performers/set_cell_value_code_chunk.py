@@ -21,8 +21,8 @@ from mitosheet.types import ColumnID
 
 class SetCellValueCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, row_index: Any, old_value: Any, new_value: Any, type_corrected_new_value: Optional[Any]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, row_index: Any, old_value: Any, new_value: Any, type_corrected_new_value: Optional[Any]):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_id = column_id
         self.row_index = row_index

@@ -77,7 +77,6 @@ class DropDuplicatesStepPerformer(StepPerformer):
         return [
             DropDuplicatesCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_ids'),
                 get_param(params, 'keep')

@@ -19,8 +19,8 @@ from mitosheet.state import State
 
 class DataframeRenameCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.old_dataframe_name = old_dataframe_name
         self.new_dataframe_name = new_dataframe_name
@@ -46,7 +46,6 @@ class DataframeRenameCodeChunk(CodeChunk):
         
         return DataframeRenameCodeChunk(
             dataframe_rename_code_chunk.prev_state,
-            self.post_state,
             dataframe_rename_code_chunk.sheet_index,
             dataframe_rename_code_chunk.old_dataframe_name,
             self.new_dataframe_name
@@ -62,7 +61,6 @@ class DataframeRenameCodeChunk(CodeChunk):
 
         return PivotCodeChunk(
             pivot_code_chunk.prev_state,
-            self.post_state,
             pivot_code_chunk.sheet_index,
             pivot_code_chunk.destination_sheet_index,
             pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -82,7 +80,6 @@ class DataframeRenameCodeChunk(CodeChunk):
 
         return MergeCodeChunk(
             merge_code_chunk.prev_state,
-            self.post_state,
             merge_code_chunk.how,
             merge_code_chunk.sheet_index_one,
             merge_code_chunk.sheet_index_two,
@@ -101,7 +98,6 @@ class DataframeRenameCodeChunk(CodeChunk):
             return None
 
         new_import_chunk = deepcopy(import_code_chunk)
-        new_import_chunk.post_state = self.post_state
         
         # Update the new_df_names in these code chunks
         index_to_update = self.sheet_index - len(new_import_chunk.prev_state.dfs) 
@@ -119,7 +115,6 @@ class DataframeRenameCodeChunk(CodeChunk):
         
         return DataframeDuplicateCodeChunk(
             dataframe_duplicate_code_chunk.prev_state,
-            self.post_state,
             dataframe_duplicate_code_chunk.sheet_index,
             self.new_dataframe_name
         )

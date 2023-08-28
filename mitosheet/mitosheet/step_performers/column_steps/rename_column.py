@@ -83,13 +83,12 @@ class RenameColumnStepPerformer(StepPerformer):
     ) -> List[CodeChunk]:
         if params['new_column_header'] == '':
             # If the new column header is an empty string, it's a noop
-            return [NoOpCodeChunk(prev_state, post_state)]
+            return [NoOpCodeChunk(prev_state)]
 
 
         return [
             RenameColumnsCodeChunk(
                 prev_state, 
-                post_state, 
                 # We construct a rename for mulitple columns, as this is the most 
                 # convenient way to allow us to combine multiple renames
                 # into one

@@ -67,8 +67,8 @@ def generate_read_csv_code(
 class SimpleImportCodeChunk(CodeChunk):
 
     
-    def __init__(self, prev_state: State, post_state: State, file_names: List[str], file_delimeters: List[str], file_encodings: List[str], file_decimals: List[str], file_skiprows: List[int], file_error_bad_lines: List[bool], new_df_names: List[str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, file_names: List[str], file_delimeters: List[str], file_encodings: List[str], file_decimals: List[str], file_skiprows: List[int], file_error_bad_lines: List[bool], new_df_names: List[str]):
+        super().__init__(prev_state)
         self.file_names = file_names
         self.file_delimeters = file_delimeters
         self.file_encodings = file_encodings
@@ -120,7 +120,6 @@ class SimpleImportCodeChunk(CodeChunk):
 
         return SimpleImportCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             file_names,
             new_file_delimeters,
             new_file_encodings,

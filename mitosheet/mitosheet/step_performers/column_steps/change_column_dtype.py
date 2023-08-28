@@ -250,7 +250,6 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return [
             ChangeColumnDtypeCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_ids'),
                 get_param(params, 'old_dtypes'),

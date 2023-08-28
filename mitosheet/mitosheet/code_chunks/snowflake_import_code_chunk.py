@@ -17,12 +17,11 @@ class SnowflakeImportCodeChunk(CodeChunk):
     def __init__(
         self, 
         prev_state: State, 
-        post_state: State, 
         connection_params_dict: Dict[str, str], 
         sql_queries: List[str],
         new_df_names: List[str]
     ):
-        super().__init__(prev_state, post_state)
+        super().__init__(prev_state)
         self.connection_params_dict = connection_params_dict
         self.sql_queries = sql_queries
 
@@ -73,7 +72,6 @@ class SnowflakeImportCodeChunk(CodeChunk):
         
         return SnowflakeImportCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             self.connection_params_dict,
             all_sql_queries,
             all_df_names

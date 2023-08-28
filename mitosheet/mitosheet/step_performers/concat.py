@@ -68,7 +68,6 @@ class ConcatStepPerformer(StepPerformer):
         return [
             ConcatCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'join'),
                 get_param(params, 'ignore_index'),
                 get_param(params, 'sheet_indexes'),

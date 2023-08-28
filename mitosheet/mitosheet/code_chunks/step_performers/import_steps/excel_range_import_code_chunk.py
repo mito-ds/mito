@@ -116,8 +116,8 @@ def get_table_range_params(sheet: Dict[str, Union[str, int]], start_condition: A
 
 class ExcelRangeImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_path: str, sheet: Dict[str, Union[int, str]], range_imports: List[ExcelRangeImport], convert_csv_to_xlsx: bool, new_df_names: List[str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, file_path: str, sheet: Dict[str, Union[int, str]], range_imports: List[ExcelRangeImport], convert_csv_to_xlsx: bool, new_df_names: List[str]):
+        super().__init__(prev_state)
         self.file_path = file_path
         self.sheet = sheet
         self.range_imports = range_imports
@@ -196,7 +196,6 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
             return ExcelRangeImportCodeChunk(
                 self.prev_state,
-                excel_range_import_code_chunk.post_state,
                 self.file_path,
                 self.sheet,
                 new_range_imports,

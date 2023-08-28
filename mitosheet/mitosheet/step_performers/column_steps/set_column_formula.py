@@ -139,7 +139,6 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return [
             SetColumnFormulaCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_id'),
                 get_param(params, 'formula_label'),

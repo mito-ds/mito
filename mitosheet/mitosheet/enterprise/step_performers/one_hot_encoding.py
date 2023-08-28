@@ -76,7 +76,6 @@ class OneHotEncodingStepPerformer(StepPerformer):
         return [
             OneHotEncodingCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'column_id'), 
                 get_param(execution_data if execution_data is not None else {}, 'new_column_headers')

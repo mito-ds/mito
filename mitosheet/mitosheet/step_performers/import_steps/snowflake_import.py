@@ -106,7 +106,6 @@ class SnowflakeImportStepPerformer(StepPerformer):
         return [
             SnowflakeImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(execution_data if execution_data is not None else {}, 'connection_params_dict'),
                 [get_param(execution_data if execution_data is not None else {}, 'sql_query')],
                 [get_param(execution_data if execution_data is not None else {}, 'new_df_name')],

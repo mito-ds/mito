@@ -93,7 +93,6 @@ class BulkOldRenameStepPerformer(StepPerformer):
         return [
             BulkOldRenameCodeChunk(
                 prev_state, 
-                post_state, 
                 execution_data.get('column_header_renames_list', []) if execution_data is not None else []
             )
         ]

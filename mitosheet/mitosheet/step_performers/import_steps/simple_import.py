@@ -141,7 +141,6 @@ class SimpleImportStepPerformer(StepPerformer):
         return [
             SimpleImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'file_names'), 
                 get_param(execution_data if execution_data is not None else {}, 'file_delimeters'), 
                 get_param(execution_data if execution_data is not None else {}, 'file_encodings'), 
