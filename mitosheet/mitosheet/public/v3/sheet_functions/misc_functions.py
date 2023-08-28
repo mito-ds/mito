@@ -157,7 +157,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         "description": "Returns the next value from series that meets the condition.",
         "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
         "examples": [
-            "VLOOKUP(Names0, Sample_Names:Sample_Ages, 1, False)",
+            "VLOOKUP(Names0, Sample_Names:Sample_Ages, 1, False)"
         ],
         "syntax": "VLOOKUP(lookup_value, where, index, approximate)",
         "syntax_elements": [{
