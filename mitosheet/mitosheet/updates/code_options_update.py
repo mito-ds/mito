@@ -32,6 +32,7 @@ def execute_args_update(
     valid_parameter_names: List[str] = []
     function_params = code_options['function_params']
     if isinstance(function_params, dict):
+        final_function_params = deepcopy(function_params)
         for parameter_name, parameter_value in function_params.items():
             valid_parameter_name = get_valid_python_identifier(parameter_name, 'parameter', 'param_')
             if valid_parameter_name in valid_parameter_names:
@@ -40,8 +41,8 @@ def execute_args_update(
                     valid_parameter_name = f"{get_valid_python_identifier(parameter_name, 'parameter', 'param_')}_{i}"
                     i += 1
 
-            del function_params[parameter_name]
-            function_params[valid_parameter_name] = parameter_value
+            del final_function_params[parameter_name]
+            final_function_params[valid_parameter_name] = parameter_value
             valid_parameter_names.append(valid_parameter_name)
         
         final_code_options['function_params'] = function_params
