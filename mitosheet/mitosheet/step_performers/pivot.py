@@ -160,11 +160,12 @@ class PivotStepPerformer(StepPerformer):
             df_name=df_name,
             use_deprecated_id_algorithm=use_deprecated_id_algorithm
         )
-
+        new_df_name = post_state.df_names[destination_sheet_index]
 
         return post_state, {
             'destination_sheet_index': destination_sheet_index,
             'was_series': was_series,
+            'new_df_name': new_df_name,
             'pandas_processing_time': pandas_processing_time
         }
 
@@ -189,6 +190,7 @@ class PivotStepPerformer(StepPerformer):
                 get_param(params, 'flatten_column_headers'),
                 get_param(execution_data if execution_data is not None else {}, 'was_series'),
                 get_param(params, 'public_interface_version'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
             )
         ]
 

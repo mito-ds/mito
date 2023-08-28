@@ -20,10 +20,14 @@ class SnowflakeImportCodeChunk(CodeChunk):
         post_state: State, 
         connection_params_dict: Dict[str, str], 
         sql_queries: List[str],
+        new_df_names: List[str]
     ):
         super().__init__(prev_state, post_state)
         self.connection_params_dict = connection_params_dict
         self.sql_queries = sql_queries
+
+        self.new_df_names = new_df_names
+
 
     def get_display_name(self) -> str:
         return 'Import from Snowflake'
@@ -41,10 +45,8 @@ class SnowflakeImportCodeChunk(CodeChunk):
             'cur = con.cursor()',
         ]
 
-        df_names = self.post_state.df_names[len(self.prev_state.df_names):]
-
         df_creation_code = ['']
-        for sql_query, df_name in zip(self.sql_queries, df_names):
+        for sql_query, df_name in zip(self.sql_queries, self.new_df_names):
             df_creation_code.append(f'cur.execute(\'{sql_query}\')')
             df_creation_code.append(f'{df_name} = cur.fetch_pandas_all()')
             df_creation_code.append('')
@@ -56,7 +58,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return all_code, ['import snowflake.connector']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [i for i in range(len(self.post_state.dfs) - len(self.sql_queries), len(self.post_state.dfs))]
+        return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
 
     def _combine_right_with_snowflake_import_code_chunk(self, other_code_chunk: "SnowflakeImportCodeChunk") -> Optional["SnowflakeImportCodeChunk"]:
@@ -65,12 +67,16 @@ class SnowflakeImportCodeChunk(CodeChunk):
         
         all_sql_queries = copy(self.sql_queries) # Make sure to copy this so we don't get weird bugs w/ duplication
         all_sql_queries.extend(other_code_chunk.sql_queries)
+
+        all_df_names = copy(self.new_df_names)
+        all_df_names.extend(other_code_chunk.new_df_names)
         
         return SnowflakeImportCodeChunk(
             self.prev_state,
             other_code_chunk.post_state,
             self.connection_params_dict,
             all_sql_queries,
+            all_df_names
         )        
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:

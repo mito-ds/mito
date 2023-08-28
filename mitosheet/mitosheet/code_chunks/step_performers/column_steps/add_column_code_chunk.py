@@ -18,22 +18,20 @@ from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chun
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
     SetColumnFormulaCodeChunk
 from mitosheet.state import State
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnID
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 
 
 class AddColumnCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_header: str, column_header_index: int):
+    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_header: str, column_header_index: int, new_column_id: ColumnID):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
         self.column_header = column_header
         self.column_header_index = column_header_index
-
-        self.column_id = self.post_state.column_ids.get_column_id_by_header(self.sheet_index, self.column_header)
-        self.df_name: str = self.post_state.df_names[self.sheet_index]
-
+        self.new_column_id = new_column_id
+        self.df_name: str = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Added column'
@@ -58,8 +56,7 @@ class AddColumnCodeChunk(CodeChunk):
         
         # Check to see if the column ids overlap
         sheet_index = self.sheet_index
-        added_column_header = self.column_header
-        added_column_id = self.post_state.column_ids.get_column_id_by_header(sheet_index, added_column_header)
+        added_column_id = self.new_column_id
         deleted_column_ids = other_code_chunk.column_ids
 
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:
@@ -97,7 +94,8 @@ class AddColumnCodeChunk(CodeChunk):
                 other_code_chunk.post_state,
                 self.sheet_index,
                 new_column_header,
-                self.column_header_index 
+                self.column_header_index,
+                self.new_column_id
             )
         else:
             # We'd prefer to keep all the renames together in this case, although

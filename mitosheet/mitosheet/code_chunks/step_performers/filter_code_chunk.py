@@ -385,20 +385,21 @@ class FilterCodeChunk(CodeChunk):
         self.sheet_index: int = sheet_index
         self.column_ids_with_filter_groups = column_ids_with_filter_groups
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
+        self.column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
+
 
 
     def get_display_name(self) -> str:
         return 'Filtered'
     
     def get_description_comment(self) -> str:
-        column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
-        column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
-        return f'Filtered {", ".join(map(str, column_headers))}'
+        return f'Filtered {", ".join(map(str, self.column_headers))}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         all_filter_strings_with_none = [
-            get_entire_filter_string(self.post_state, self.sheet_index, f['filter']["operator"], f['filter']["filters"], f['column_id'])
+            get_entire_filter_string(self.prev_state, self.sheet_index, f['filter']["operator"], f['filter']["filters"], f['column_id'])
             for f in self.column_ids_with_filter_groups
         ]
         all_filter_strings = [fs for fs in all_filter_strings_with_none if fs is not None]

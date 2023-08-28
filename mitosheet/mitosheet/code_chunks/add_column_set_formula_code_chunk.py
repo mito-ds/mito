@@ -31,7 +31,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         self.new_formula = new_formula
         self.public_interface_version = public_interface_version
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Added column'
@@ -45,8 +45,8 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             self.column_header,
             self.formula_label,
             self.index_labels_formula_is_applied_to,
-            self.post_state.dfs[self.sheet_index],
-            df_name=self.post_state.df_names[self.sheet_index],
+            self.prev_state.dfs[self.sheet_index],
+            df_name=self.prev_state.df_names[self.sheet_index],
             include_df_set=False,
         )
 
@@ -65,7 +65,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             return None
         
         # Check to see if the column ids overlap
-        added_column_id = self.post_state.column_ids.get_column_id_by_header(self.sheet_index, self.column_header)
+        added_column_id = self.column_id
         deleted_column_ids = other_code_chunk.column_ids
 
         if added_column_id in deleted_column_ids and len(deleted_column_ids) == 1:

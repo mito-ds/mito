@@ -52,15 +52,19 @@ class ExcelImportStepPerformer(StepPerformer):
         df_dictonary = pd.read_excel(file_name, **read_excel_params, engine='openpyxl') 
         pandas_processing_time = perf_counter() - pandas_start_time
 
+        new_df_names = []
         for sheet_name, df in df_dictonary.items():
+            new_df_name = get_valid_dataframe_name(post_state.df_names, sheet_name)
             post_state.add_df_to_state(
                 df, 
                 DATAFRAME_SOURCE_IMPORTED, 
-                df_name=get_valid_dataframe_name(post_state.df_names, sheet_name),
+                df_name=new_df_name,
             )
+            new_df_names.append(new_df_name)
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_df_names': new_df_names
         }
 
     @classmethod
@@ -79,7 +83,8 @@ class ExcelImportStepPerformer(StepPerformer):
                 get_param(params, 'sheet_names'),
                 get_param(params, 'has_headers'),
                 get_param(params, 'skiprows'),
-                get_param(params, 'decimal')
+                get_param(params, 'decimal'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_names')
             )
         ]
 

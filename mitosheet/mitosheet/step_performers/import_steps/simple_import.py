@@ -61,6 +61,7 @@ class SimpleImportStepPerformer(StepPerformer):
         file_decimals = []
         file_skiprows = []
         file_error_bad_lines = []
+        new_df_names = []
 
         just_final_file_names = [basename(normpath(file_name)) for file_name in file_names]
 
@@ -115,6 +116,7 @@ class SimpleImportStepPerformer(StepPerformer):
                 df_name=df_name,
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )   
+            new_df_names.append(df_name)
 
         # Save the renames that have occured in the step, for transpilation reasons
         # and also save the seperator that we used for each file
@@ -124,7 +126,8 @@ class SimpleImportStepPerformer(StepPerformer):
             'file_decimals': file_decimals,
             'file_skiprows': file_skiprows,
             'file_error_bad_lines': file_error_bad_lines,
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_df_names': new_df_names
         }
 
     @classmethod
@@ -144,7 +147,8 @@ class SimpleImportStepPerformer(StepPerformer):
                 get_param(execution_data if execution_data is not None else {}, 'file_encodings'), 
                 get_param(execution_data if execution_data is not None else {}, 'file_decimals'), 
                 get_param(execution_data if execution_data is not None else {}, 'file_skiprows'), 
-                get_param(execution_data if execution_data is not None else {}, 'file_error_bad_lines')
+                get_param(execution_data if execution_data is not None else {}, 'file_error_bad_lines'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_names')
             )
         ]
     

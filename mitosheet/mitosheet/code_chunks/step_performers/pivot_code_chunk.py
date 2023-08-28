@@ -94,7 +94,8 @@ class PivotCodeChunk(CodeChunk):
         values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: Optional[bool],
         was_series: Optional[bool],
-        public_interface_version: int
+        public_interface_version: int,
+        new_df_name: str
     ):
         super().__init__(prev_state, post_state)
         self.sheet_index = sheet_index
@@ -107,14 +108,8 @@ class PivotCodeChunk(CodeChunk):
         self.was_series = was_series
         self.public_interface_version = public_interface_version
 
-        self.old_df_name = self.post_state.df_names[self.sheet_index]
-        if self.destination_sheet_index is None:
-            self.new_df_name = self.post_state.df_names[-1]
-        else:
-            # If we're repivoting an existing pivot table, we have
-            # to make sure to overwrite the correct pivot table 
-            # by using the right name
-            self.new_df_name = self.post_state.df_names[self.destination_sheet_index]
+        self.old_df_name = self.prev_state.df_names[self.sheet_index]
+        self.new_df_name = new_df_name
 
 
     def get_display_name(self) -> str:
@@ -211,7 +206,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
                 pivot_code_chunk.was_series,
-                pivot_code_chunk.public_interface_version
+                pivot_code_chunk.public_interface_version,
+                pivot_code_chunk.new_df_name
             )
 
         # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
@@ -229,7 +225,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
                 pivot_code_chunk.was_series,
-                pivot_code_chunk.public_interface_version
+                pivot_code_chunk.public_interface_version,
+                pivot_code_chunk.new_df_name
             )
 
         return None
@@ -260,14 +257,15 @@ class PivotCodeChunk(CodeChunk):
                 self.values_column_ids_map,
                 self.flatten_column_headers,
                 self.was_series,
-                self.public_interface_version
+                self.public_interface_version,
+                self.new_df_name
             )
 
         return None
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         if self.destination_sheet_index is None:
-            return [len(self.post_state.dfs) - 1]
+            return [len(self.prev_state.dfs)]
         else:
             # Note: editing a dataframe does not create a sheet index, it 
             # overwrites it instead. See get_edited_sheet_indexes below

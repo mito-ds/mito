@@ -64,7 +64,8 @@ class MeltStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'include_value_vars': include_value_vars
+            'include_value_vars': include_value_vars,
+            'new_df_name': new_df_name
         }
 
     @classmethod
@@ -83,6 +84,7 @@ class MeltStepPerformer(StepPerformer):
                 get_param(params, 'id_var_column_ids'),
                 get_param(params, 'value_var_column_ids'),
                 get_param(execution_data if execution_data is not None else {}, 'include_value_vars'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
             )
         ]
 

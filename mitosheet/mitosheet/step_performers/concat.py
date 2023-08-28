@@ -49,10 +49,12 @@ class ConcatStepPerformer(StepPerformer):
             pandas_processing_time = perf_counter() - pandas_start_time
 
         # Add this dataframe to the new post state
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_CONCAT)
+        index = post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_CONCAT)
+        new_df_name = post_state.df_names[index]
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_df_name': new_df_name
         }
 
     @classmethod
@@ -70,6 +72,7 @@ class ConcatStepPerformer(StepPerformer):
                 get_param(params, 'join'),
                 get_param(params, 'ignore_index'),
                 get_param(params, 'sheet_indexes'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name')
             )
         ]
     

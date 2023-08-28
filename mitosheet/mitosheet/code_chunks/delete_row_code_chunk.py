@@ -17,7 +17,7 @@ class DeleteRowCodeChunk(CodeChunk):
         self.sheet_index = sheet_index
         self.labels = labels
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Delete Row'

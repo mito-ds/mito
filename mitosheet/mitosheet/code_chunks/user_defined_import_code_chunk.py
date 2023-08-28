@@ -20,12 +20,12 @@ def get_transpiled_importer_params(user_defined_importer_params: Dict[str, Any])
 
 class UserDefinedImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, importer: str, user_defined_importer_params: Dict[str, Any]):
+    def __init__(self, prev_state: State, post_state: State, importer: str, user_defined_importer_params: Dict[str, Any], new_df_names: List[str]):
         super().__init__(prev_state, post_state)
         self.importer = importer
         self.user_defined_importer_params = user_defined_importer_params
 
-        self.df_names = [df_name for index, df_name in enumerate(self.post_state.df_names) if index >= len(self.prev_state.df_names)]
+        self.df_names = new_df_names
 
     def get_display_name(self) -> str:
         return 'User Defined Import'
@@ -35,11 +35,9 @@ class UserDefinedImportCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         # For each new dataframe, we get it's name
-        new_df_names = self.post_state.df_names[len(self.prev_state.df_names):]
-        df_name_string = ', '.join(new_df_names)
+        df_name_string = ', '.join(self.df_names)
         code = f"{df_name_string} = {self.importer}({get_transpiled_importer_params(self.user_defined_importer_params)})"
         return [code], []
     
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
-        num_new_dfs = len(self.post_state.dfs) - len(self.prev_state.dfs)
-        return [i for i in range(len(self.post_state.dfs) - num_new_dfs, len(self.post_state.dfs))]
+        return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.df_names))]

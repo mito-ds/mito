@@ -30,14 +30,15 @@ class SetCellValueCodeChunk(CodeChunk):
         self.new_value = new_value
         self.type_corrected_new_value = type_corrected_new_value
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+        self.column_dtype = str(self.prev_state.dfs[self.sheet_index][self.column_header].dtype)
 
     def get_display_name(self) -> str:
         return 'Set cell value'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'Set a cell value in {column_header}'
+        return f'Set a cell value in {self.column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 
@@ -47,21 +48,19 @@ class SetCellValueCodeChunk(CodeChunk):
         if self.old_value == self.new_value:
             return code, []
 
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
 
         # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
-        column_dtype = str(self.prev_state.dfs[self.sheet_index][column_header].dtype)
-        if self.new_value is not None and '.' in self.new_value and is_int_dtype(column_dtype):
-            code.append(f'{self.df_name}[{transpiled_column_header}] = {self.df_name}[\'{column_header}\'].astype(\'float\')')
+        if self.new_value is not None and '.' in self.new_value and is_int_dtype(self.column_dtype):
+            code.append(f'{self.df_name}[{transpiled_column_header}] = {self.df_name}[\'{self.column_header}\'].astype(\'float\')')
 
         # Actually set the new value
         # We don't need to wrap the value in " if its None, a Boolean Series, or a Number Series.
-        if self.type_corrected_new_value is None or is_bool_dtype(column_dtype) or is_number_dtype(column_dtype):
+        if self.type_corrected_new_value is None or is_bool_dtype(self.column_dtype) or is_number_dtype(self.column_dtype):
             code.append(f'{self.df_name}.at[{self.row_index}, {transpiled_column_header}] = {self.type_corrected_new_value}')
-        elif is_datetime_dtype(column_dtype):
+        elif is_datetime_dtype(self.column_dtype):
             code.append(f'{self.df_name}.at[{self.row_index}, {transpiled_column_header}] = pd.to_datetime(\"{self.type_corrected_new_value}\")')
-        elif is_timedelta_dtype(column_dtype):
+        elif is_timedelta_dtype(self.column_dtype):
             code.append(f'{self.df_name}.at[{self.row_index}, {transpiled_column_header}] = pd.to_timedelta(\"{self.type_corrected_new_value}\")')
         else:
             code.append(f'{self.df_name}.at[{self.row_index}, {transpiled_column_header}] = \"{self.type_corrected_new_value}\"')

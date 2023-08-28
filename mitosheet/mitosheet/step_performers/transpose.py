@@ -45,6 +45,7 @@ class TransposeStepPerformer(StepPerformer):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
+            'new_df_name': new_df_name
         }
 
     @classmethod
@@ -56,7 +57,12 @@ class TransposeStepPerformer(StepPerformer):
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            TransposeCodeChunk(prev_state, post_state, get_param(params, 'sheet_index'))
+            TransposeCodeChunk(
+                prev_state, 
+                post_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name')
+            )
         ]
 
     @classmethod

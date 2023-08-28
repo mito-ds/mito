@@ -29,7 +29,7 @@ class DeleteColumnsCodeChunk(CodeChunk):
         self.sheet_index = sheet_index
         self.column_ids = column_ids
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Deleted columns'
@@ -93,11 +93,12 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
         return None
 
-    def _combine_left_add_column_code_chunk(self, other_code_chunk: "AddColumnCodeChunk") -> Optional["CodeChunk"]:
-        if not self.params_match(other_code_chunk, ['sheet_index']):
+    def _combine_left_add_column_code_chunk(self, add_column_code_chunk: "AddColumnCodeChunk") -> Optional["CodeChunk"]:
+        if not self.params_match(add_column_code_chunk, ['sheet_index']):
             return None
 
-        added_column_id = other_code_chunk.column_id
+        added_column_id = add_column_code_chunk.new_column_id
+        print("HERE!", added_column_id)
 
         if added_column_id in self.column_ids:
 
@@ -108,13 +109,13 @@ class DeleteColumnsCodeChunk(CodeChunk):
             # If there's nothing new, then we return a noop
             if len(new_column_ids) == 0:
                 return NoOpCodeChunk(
-                    other_code_chunk.prev_state,
+                    add_column_code_chunk.prev_state,
                     self.post_state,
                 )
             else:
                 # Otherwise, just delete what else is deleted in this step
                 return DeleteColumnsCodeChunk(
-                    other_code_chunk.prev_state,
+                    add_column_code_chunk.prev_state,
                     self.post_state,
                     self.sheet_index,
                     new_column_ids

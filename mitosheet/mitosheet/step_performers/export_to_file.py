@@ -80,6 +80,7 @@ class ExportToFileStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
         _type: str = get_param(params, 'type')
         sheet_indexes: List[int] = get_param(params, 'sheet_indexes')
         _file_name: str = get_param(params, 'file_name')
@@ -103,6 +104,7 @@ class ExportToFileStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'sheet_index_to_export_location': sheet_index_to_export_location,
+            'sheet_index_to_df_name': {i: n for i, n in enumerate(post_state.df_names)},
             'file_name': file_name,
         }
 
@@ -121,6 +123,7 @@ class ExportToFileStepPerformer(StepPerformer):
                 get_param(params, 'type'),
                 get_param(execution_data if execution_data is not None else {}, 'file_name'),
                 get_param(execution_data if execution_data is not None else {}, 'sheet_index_to_export_location'),
+                get_param(execution_data if execution_data is not None else {}, 'sheet_index_to_df_name'),
                 get_param(params, 'export_formatting')
             )
         ]

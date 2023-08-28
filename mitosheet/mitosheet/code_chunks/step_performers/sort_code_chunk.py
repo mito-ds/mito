@@ -19,14 +19,14 @@ class SortCodeChunk(CodeChunk):
         self.column_id = column_id
         self.sort_direction = sort_direction
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
 
     def get_display_name(self) -> str:
         return 'Sorted a column'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'Sorted {column_header} in {self.sort_direction} order'
+        return f'Sorted {self.column_header} in {self.sort_direction} order'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
@@ -36,8 +36,7 @@ class SortCodeChunk(CodeChunk):
         if self.sort_direction == SORT_DIRECTION_NONE:
             return [], []
 
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
         
         na_position_string = 'first' if self.sort_direction == SORT_DIRECTION_ASCENDING else 'last'
         

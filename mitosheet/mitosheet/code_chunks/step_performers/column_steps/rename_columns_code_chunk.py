@@ -21,6 +21,8 @@ class RenameColumnsCodeChunk(CodeChunk):
         self.sheet_index = sheet_index
         self.column_ids_to_new_column_headers = column_ids_to_new_column_headers
 
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+
     def get_display_name(self) -> str:
         return 'Renamed columns'
     
@@ -31,12 +33,11 @@ class RenameColumnsCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
 
         old_column_header_to_new_column_header_map: Dict[ColumnHeader, ColumnHeader] = dict()
-        df_name = self.post_state.df_names[self.sheet_index]
         for column_id, new_column_header in self.column_ids_to_new_column_headers.items():
             old_column_header_to_new_column_header_map[self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id)] = new_column_header
 
         rename_dict = column_header_map_to_string(old_column_header_to_new_column_header_map)
-        rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
+        rename_string = f'{self.df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string], []
 
     def get_edited_sheet_indexes(self) -> List[int]:

@@ -43,15 +43,20 @@ class DataframeRenameStepPerformer(StepPerformer):
 
         # Bail early, if there is no change
         if old_dataframe_name == new_dataframe_name:
-            return prev_state, None
+            return prev_state,  {
+                'pandas_processing_time': 0, # No time spent on pandas, only metadata changes
+                'new_dataframe_name': new_dataframe_name
+            }
 
         # Create a new step and save the parameters
         post_state = prev_state.copy()
 
-        post_state.df_names[sheet_index] = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
+        new_dataframe_name = get_valid_dataframe_name(post_state.df_names, new_dataframe_name)
+        post_state.df_names[sheet_index] = new_dataframe_name
 
         return post_state, {
-            'pandas_processing_time': 0 # No time spent on pandas, only metadata changes
+            'pandas_processing_time': 0, # No time spent on pandas, only metadata changes
+            'new_dataframe_name': new_dataframe_name
         }
 
     @classmethod
@@ -62,13 +67,14 @@ class DataframeRenameStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
+        print(execution_data)
         return [
             DataframeRenameCodeChunk(
                 prev_state, 
                 post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'old_dataframe_name'),
-                get_param(params, 'new_dataframe_name')
+                get_param(execution_data if execution_data is not None else {}, 'new_dataframe_name')
             )
         ]
 

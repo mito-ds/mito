@@ -27,7 +27,7 @@ class BulkOldRenameCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
 
         code = []
-        for sheet_index, df_name in enumerate(self.post_state.df_names):
+        for sheet_index, df_name in enumerate(self.prev_state.df_names):
             renames = self.column_header_renames_list[sheet_index]
             if len(renames) == 0:
                 continue

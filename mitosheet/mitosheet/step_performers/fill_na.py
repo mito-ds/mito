@@ -61,8 +61,11 @@ class FillNaStepPerformer(StepPerformer):
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
+        full_dataframe = len(df.columns) == len(column_headers)
+
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'full_dataframe': full_dataframe
         }
 
     @classmethod
@@ -80,6 +83,7 @@ class FillNaStepPerformer(StepPerformer):
                 get_param(params, 'sheet_index'),
                 get_param(params, 'column_ids'),
                 get_param(params, 'fill_method'),
+                get_param(execution_data if execution_data is not None else {}, 'full_dataframe') 
             )
         ]
     

@@ -56,6 +56,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         sheet_index_to_df_range: Dict[int, str] = {}
+        new_df_names = []
         for range_import in range_imports:
             _range: Optional[str]
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
@@ -83,6 +84,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 df_name=final_df_name
             )
 
+            new_df_names.append(final_df_name)
             sheet_index_to_df_range[len(post_state.dfs) - 1] = _range
 
         pandas_processing_time = perf_counter() - pandas_start_time
@@ -90,6 +92,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'new_sheet_index_to_df_range': sheet_index_to_df_range,
+            'new_df_names': new_df_names
         }
 
     @classmethod
@@ -108,6 +111,7 @@ class ExcelRangeImportStepPerformer(StepPerformer):
                 get_param(params, 'sheet'),
                 get_param(params, 'range_imports'),
                 get_param(params, 'convert_csv_to_xlsx'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_names')
             )
         ]
 

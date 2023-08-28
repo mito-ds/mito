@@ -156,11 +156,13 @@ class UserDefinedImportStepPerformer(StepPerformer):
         else:
             raise Exception(f"User defined importer {importer} must return a pandas dataframe or a list of pandas dataframes.")
 
+        new_df_names = []
         for df in new_dfs:
-            post_state.add_df_to_state(
+            index = post_state.add_df_to_state(
                 df,
                 DATAFRAME_SOURCE_IMPORTED,
             )
+            new_df_names.append(post_state.df_names[index])
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -168,6 +170,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
             'user_defined_importer_params': user_defined_importer_params,
+            'new_df_names': new_df_names,
             'result': {
                 'num_new_dfs': len(new_dfs),
             }
@@ -186,7 +189,8 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 get_param(params, 'importer'),
-                get_param(execution_data if execution_data is not None else dict(), 'user_defined_importer_params')
+                get_param(execution_data if execution_data is not None else dict(), 'user_defined_importer_params'),
+                get_param(execution_data if execution_data is not None else dict(), 'new_df_names')
             )
         ]
 

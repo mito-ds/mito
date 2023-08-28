@@ -21,7 +21,7 @@ UNIQUE_IN_RIGHT = 'unique in right'
 class MergeCodeChunk(CodeChunk):
 
 
-    def __init__(self, prev_state: State, post_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID]):
+    def __init__(self, prev_state: State, post_state: State, how: str, sheet_index_one: int, sheet_index_two: int, merge_key_column_ids: List[List[ColumnID]], selected_column_ids_one: List[ColumnID], selected_column_ids_two: List[ColumnID], new_df_name: str):
         super().__init__(prev_state, post_state)
         self.how: str = how 
         self.sheet_index_one: int = sheet_index_one 
@@ -30,15 +30,15 @@ class MergeCodeChunk(CodeChunk):
         self.selected_column_ids_one: List[ColumnID] = selected_column_ids_one 
         self.selected_column_ids_two: List[ColumnID] = selected_column_ids_two
 
-        self.df_one_name = self.post_state.df_names[self.sheet_index_one]
-        self.df_two_name = self.post_state.df_names[self.sheet_index_two]
-        self.df_new_name = self.post_state.df_names[len(self.post_state.dfs) - 1]
+        self.df_one_name = self.prev_state.df_names[self.sheet_index_one]
+        self.df_two_name = self.prev_state.df_names[self.sheet_index_two]
+        self.new_df_name = new_df_name
 
     def get_display_name(self) -> str:
         return 'Merged'
     
     def get_description_comment(self) -> str:
-        return f'Merged {self.df_one_name} and {self.df_two_name} into {self.df_new_name}'
+        return f'Merged {self.df_one_name} and {self.df_two_name} into {self.new_df_name}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         merge_keys_one: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_one, list(map(lambda x: x[0], self.merge_key_column_ids)))
@@ -48,7 +48,7 @@ class MergeCodeChunk(CodeChunk):
         selected_column_headers_two: List[ColumnHeader] = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index_two, self.selected_column_ids_two)
 
         if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
-            return [f'{self.df_new_name} = pd.DataFrame()'], ['import pandas as pd']
+            return [f'{self.new_df_name} = pd.DataFrame()'], ['import pandas as pd']
 
         # Now, we build the merge code 
         merge_code = []
@@ -62,8 +62,8 @@ class MergeCodeChunk(CodeChunk):
             how_to_use = self.how
 
         # If we are only taking some columns, write the code to drop the ones we don't need!
-        deleted_columns_one = set(self.post_state.dfs[self.sheet_index_one].keys()).difference(set(selected_column_headers_one).union(set(merge_keys_one)))
-        deleted_columns_two = set(self.post_state.dfs[self.sheet_index_two].keys()).difference(set(selected_column_headers_two).union(set(merge_keys_two)))
+        deleted_columns_one = set(self.prev_state.dfs[self.sheet_index_one].keys()).difference(set(selected_column_headers_one).union(set(merge_keys_one)))
+        deleted_columns_two = set(self.prev_state.dfs[self.sheet_index_two].keys()).difference(set(selected_column_headers_two).union(set(merge_keys_two)))
 
         if len(deleted_columns_one) > 0:
             deleted_transpiled_column_header_one_list = column_header_list_to_transpiled_code(deleted_columns_one)
@@ -93,7 +93,7 @@ class MergeCodeChunk(CodeChunk):
                 f'bool_index_array = {df_one_to_merge}.merge({df_two_to_merge}_tmp, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'left\', indicator=True)[\'_merge\'] == \'left_only\''
             )
             merge_code.append(
-                f'{self.df_new_name} = {df_one_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_one)}].reset_index(drop=True)'
+                f'{self.new_df_name} = {df_one_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_one)}].reset_index(drop=True)'
             )
         elif self.how == UNIQUE_IN_RIGHT:
             merge_code.append(
@@ -103,15 +103,15 @@ class MergeCodeChunk(CodeChunk):
                 f'bool_index_array = {df_one_to_merge}_tmp.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'right\', indicator=True)[\'_merge\'] == \'right_only\''
             )
             merge_code.append(
-                f'{self.df_new_name} = {df_two_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_two)}].reset_index(drop=True)'
+                f'{self.new_df_name} = {df_two_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_two)}].reset_index(drop=True)'
             )
         else:      
             merge_code.append(
-                f'{self.df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
+                f'{self.new_df_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
             )
 
         # And then return it
         return merge_code, []
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs) - 1]
+        return [len(self.prev_state.dfs)]

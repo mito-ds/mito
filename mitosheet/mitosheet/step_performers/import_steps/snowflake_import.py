@@ -92,6 +92,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
             'pandas_processing_time': pandas_processing_time,
             'connection_params_dict': connection_params_dict,
             'sql_query': sql_query,
+            'new_df_name': new_df_name
         }
 
     @classmethod
@@ -108,6 +109,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
                 post_state, 
                 get_param(execution_data if execution_data is not None else {}, 'connection_params_dict'),
                 [get_param(execution_data if execution_data is not None else {}, 'sql_query')],
+                [get_param(execution_data if execution_data is not None else {}, 'new_df_name')],
             )
         ]
 

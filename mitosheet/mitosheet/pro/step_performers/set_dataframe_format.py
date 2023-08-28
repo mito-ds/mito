@@ -60,7 +60,12 @@ class SetDataframeFormatStepPerformer(StepPerformer):
                 prev_state, 
                 post_state, 
                 'Set dataframe format',
-                'Set a dataframe format'
+                'Set a dataframe format',
+                # We don't optimize right as some steps (e.g. export to file) require the prev state
+                # to be the prev_state they started with -- so they have access to the dataframe
+                # formats. This right optimization willl change the prev_state for the export
+                # to file, which we don't want.
+                optimize_right=False
             )
         ]
 

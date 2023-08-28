@@ -18,19 +18,19 @@ class OneHotEncodingCodeChunk(CodeChunk):
         self.column_id = column_id
         self.new_column_headers = new_column_headers
 
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+
     def get_display_name(self) -> str:
         return 'One Hot Encoding'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'One-hot Encoded {column_header}'
+        return f'One-hot Encoded {self.column_header}'
         
     def get_code(self) -> Tuple[List[str], List[str]]:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        df_name = self.post_state.df_names[self.sheet_index]
-        column_index = self.post_state.dfs[self.sheet_index].columns.tolist().index(column_header)
+        df_name = self.prev_state.df_names[self.sheet_index]
+        column_index = self.prev_state.dfs[self.sheet_index].columns.tolist().index(self.column_header)
 
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
         new_transpiled_column_headers = column_header_list_to_transpiled_code(self.new_column_headers)
 
         encode_line = f'{df_name}[{new_transpiled_column_headers}] = pd.get_dummies({df_name}[{transpiled_column_header}])'

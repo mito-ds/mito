@@ -252,16 +252,20 @@ class State:
             # Return the index of this sheet
             return sheet_index
 
-    def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader]) -> None:
+    def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader]) -> List[ColumnID]:
         """
         Helper function for adding a new columns to this state, making sure that we 
         track the relevant metadata variables.
         """
         # Update column state variables
+        new_column_ids = []
         for column_header in column_headers:
             column_id = self.column_ids.add_column_header(sheet_index, column_header)
             self.column_formulas[sheet_index][column_id] = []
             self.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
+            new_column_ids.append(column_id)
+        return new_column_ids
+
 
     def does_sheet_index_exist_within_state(self, sheet_index: int) -> bool:
         """

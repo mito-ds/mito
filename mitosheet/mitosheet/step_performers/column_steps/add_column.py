@@ -50,7 +50,7 @@ class AddColumnStepPerformer(StepPerformer):
             column_header_index = len(prev_state.dfs[sheet_index].columns)
 
         # Update the state variables
-        post_state.add_columns_to_state(sheet_index, [column_header])
+        [new_column_id] = post_state.add_columns_to_state(sheet_index, [column_header])
             
         # Update the dataframe
         pandas_start_time = perf_counter()
@@ -59,7 +59,8 @@ class AddColumnStepPerformer(StepPerformer):
         
         return post_state, {
             'column_header_index': column_header_index,
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_column_id': new_column_id
         }
 
     @classmethod
@@ -76,7 +77,8 @@ class AddColumnStepPerformer(StepPerformer):
                 post_state, 
                 get_param(params, 'sheet_index'),    
                 get_param(params, 'column_header'),
-                execution_data.get('column_header_index', 0) if execution_data is not None else 0  
+                execution_data.get('column_header_index', 0) if execution_data is not None else 0,
+                execution_data.get('new_column_id', '') if execution_data is not None else '',
             )
         ]
 

@@ -70,10 +70,12 @@ class MergeStepPerformer(StepPerformer):
         pandas_processing_time = perf_counter() - pandas_start_time
 
         # Add this dataframe to the new post state
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED)
+        index = post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED)
+        new_df_name = post_state.df_names[index]
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_df_name': new_df_name
         }
 
     @classmethod
@@ -94,6 +96,7 @@ class MergeStepPerformer(StepPerformer):
                 get_param(params, 'merge_key_column_ids'),
                 get_param(params, 'selected_column_ids_one'),
                 get_param(params, 'selected_column_ids_two'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name') 
             )
         ]
     

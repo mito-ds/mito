@@ -15,13 +15,14 @@ from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_cod
 
 class ExcelImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: str):
+    def __init__(self, prev_state: State, post_state: State, file_name: str, sheet_names: List[str], has_headers: bool, skiprows: int, decimal: str, new_df_names: List[str]):
         super().__init__(prev_state, post_state)
         self.file_name = file_name
         self.sheet_names = sheet_names
         self.has_headers = has_headers
         self.skiprows = skiprows
         self.decimal = decimal
+        self.new_df_names = new_df_names
 
     def get_display_name(self) -> str:
         return 'Imported'
@@ -46,9 +47,8 @@ class ExcelImportCodeChunk(CodeChunk):
 
         df_definitions = []
         for index, sheet_name in enumerate(self.sheet_names):
-            adjusted_index = len(self.post_state.df_names) - len(self.sheet_names) + index
             df_definitions.append(
-                f'{self.post_state.df_names[adjusted_index]} = sheet_df_dictonary[\'{sheet_name}\']'
+                f'{self.new_df_names[index]} = sheet_df_dictonary[\'{sheet_name}\']'
             )
 
         return [
@@ -56,7 +56,7 @@ class ExcelImportCodeChunk(CodeChunk):
         ] + df_definitions, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [i for i in range(len(self.post_state.dfs) - len(self.sheet_names), len(self.post_state.dfs))]
+        return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.sheet_names))]
     
     def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
         return [(f'r{column_header_to_transpiled_code(self.file_name)}', 'file_name', 'Excel import file path')]

@@ -144,8 +144,10 @@ class Step:
         execution actually occured.
         """        
         # Saturate the event to get up to date parameters
+        # TODO: this should fill in the execution data - hopefully
+        # we can get all of it without executing. I think we probably can
         params = self.step_performer.saturate(new_prev_state, self.params)
-
+        
         # Actually execute the data transformation
         post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
 

@@ -144,14 +144,14 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         self.to_datetime_params_map = to_datetime_params_map
         self.public_interface_version = public_interface_version
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.changed_column_ids)
 
     def get_display_name(self) -> str:
         return 'Changed dtype'
     
     def get_description_comment(self) -> str:
-        column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.changed_column_ids)
-        return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {self.new_dtype}'
+        return f'Changed {", ".join([str(ch) for ch in self.column_headers])} to dtype {self.new_dtype}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 
@@ -164,7 +164,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
         for column_id in self.column_ids:
             old_dtype = self.old_dtypes[column_id]
 
-            conversion_code = get_conversion_code(self.post_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.to_datetime_params_map, self.public_interface_version)
+            conversion_code = get_conversion_code(self.prev_state, self.sheet_index, column_id, old_dtype, self.new_dtype, self.to_datetime_params_map, self.public_interface_version)
             if conversion_code is not None:
                 code.append(conversion_code)
         

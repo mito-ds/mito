@@ -7,7 +7,6 @@
 from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
-from mitosheet.types import ColumnID
 from mitosheet.state import State
 
 class ColumnHeadersTransformCodeChunk(CodeChunk):
@@ -17,7 +16,7 @@ class ColumnHeadersTransformCodeChunk(CodeChunk):
         self.sheet_index = sheet_index
         self.transformation = transformation
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Column Headers Transform'

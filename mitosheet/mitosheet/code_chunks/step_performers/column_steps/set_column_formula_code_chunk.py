@@ -30,27 +30,26 @@ class SetColumnFormulaCodeChunk(CodeChunk):
         self.new_formula = new_formula
         self.public_interface_version = public_interface_version
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
 
     def get_display_name(self) -> str:
         return 'Updated column formula'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         if self.index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
-            return f'Set formula of {column_header}'
+            return f'Set formula of {self.column_header}'
         else:
-            return f'Set formula of {column_header} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
+            return f'Set formula of {self.column_header} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
 
     def get_code(self) -> Tuple[List[str], List[str]]:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         python_code, _, _, _ = parse_formula(
             self.new_formula, 
-            column_header,
+            self.column_header,
             self.formula_label,
             self.index_labels_formula_is_applied_to,
-            self.post_state.dfs[self.sheet_index],
-            df_name=self.post_state.df_names[self.sheet_index],
+            self.prev_state.dfs[self.sheet_index],
+            df_name=self.prev_state.df_names[self.sheet_index],
         )
 
         return [
