@@ -8,8 +8,7 @@ from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_d
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntOrListType
-
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntRestrictedInputType
 
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
@@ -149,7 +148,7 @@ def GETNEXTVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Se
 
     return GETPREVIOUSVALUE(reversed_series, reversed_condition)[::-1]
 
-def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, index: IntOrListType) -> pd.Series:
+def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, index: IntRestrictedInputType) -> pd.Series:
     """
     {
         "function": "VLOOKUP",
@@ -169,24 +168,29 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
                 "description": "The range to look up in."
             }, {
                 "element": "index",
-                "description": "The column index(es) to return."
+                "description": "The column index to return."
             }
         ]
     }
     """
+    
     # If the lookup value is a primitive, we don't need to merge. 
     if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
         return where.loc[where.iloc[:,0] == lookup_value].iloc[0, index-1]
-    elif isinstance(lookup_value, pd.Series):
-        # First, we need to get the column we're looking up from in the df.
-        lookup_value.name = 'lookup_value'
+    
+    value = get_series_from_primitive_or_series(lookup_value, where.index)
+    value.name = 'lookup_value'
+    
+    # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
+    merged = pd.merge(lookup_value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
 
-        # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
-        merged = pd.merge(lookup_value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
+    if isinstance(index, int):
         return merged.iloc[:, index]
     else:
-        # TODO: determine the case where the lookup value is a primitive and the index is a list. 
-        return None
+        def helper_lookup(row):
+            print(row.name)
+            return row[index[row.name]-1]
+        return merged.apply(helper_lookup, axis=1)
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {

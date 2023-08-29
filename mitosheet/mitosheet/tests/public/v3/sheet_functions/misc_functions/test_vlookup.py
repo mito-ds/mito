@@ -41,14 +41,14 @@ TYPE_VALID_TESTS = [
         ],
         'e'
     ),
-    # Tests for when the index argument is a list
+    # Tests for when the index argument is a series
     (
         [
             pd.Series(['a', 'b', 'c']),
             pd.DataFrame({0: ['c', 'a', 'b'], 1: ['d', 'e', 'f'], 2: ['h', 'i', 'j']}),
-            [2,3]
+            pd.Series([2,3,1])
         ],
-        pd.DataFrame({1: ['e', 'f', 'd'], 2: ['i', 'j', 'h']})
+        pd.Series(['e', 'j', 'c'])
     ),
     # Date-time tests
     (
@@ -76,7 +76,5 @@ def test_vlookup_direct(_argv, expected):
     print(f'result: {result}')
     if isinstance(result, pd.Series):
         pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False)
-    elif isinstance(result, pd.DataFrame):
-        pd.testing.assert_frame_equal(result,expected, check_column_type=False)
     else: 
         assert result == expected

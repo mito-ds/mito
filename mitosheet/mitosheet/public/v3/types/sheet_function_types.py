@@ -33,8 +33,6 @@ AnyPrimitiveOrSeriesInputType = Union[AnyPrimitiveInputType, pd.Series]
 
 IfsInputType = Union[pd.Series, AnyPrimitiveOrSeriesInputType]
 
-IntOrListType = Union[List[int], int]
-
 # Return types
 StringFunctionReturnType = Union[pd.Series, str]
 IntFunctionReturnType = Union[pd.Series, int]
