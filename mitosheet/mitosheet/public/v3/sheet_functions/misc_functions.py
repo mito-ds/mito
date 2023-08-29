@@ -188,8 +188,11 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         return merged.iloc[:, index]
     else:
         def helper_lookup(row):
-            print(row.name)
-            return row[index[row.name]-1]
+            try:
+                return row[index[row.name]-1]
+            except Exception as e:
+                print(f"error: {e}")
+                return None
         return merged.apply(helper_lookup, axis=1)
 
 # TODO: we should see if we can list these automatically!

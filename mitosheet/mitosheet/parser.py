@@ -248,7 +248,7 @@ def check_common_errors(
 
     # TODO: update this with vlookup formula in mind
     # If the user used a lookup formula, point them to merge instead!
-    LOOKUP_FORMULAS = ['HLOOKUP', 'XLOOKUP', 'LOOKUP']
+    LOOKUP_FORMULAS = ['HLOOKUP', 'XLOOKUP']
     for lookup_formula in LOOKUP_FORMULAS:
         if safe_contains_function(formula.upper(), lookup_formula, column_headers):
             raise make_invalid_formula_error(
