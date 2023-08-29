@@ -3,7 +3,7 @@
 
 
 from datetime import datetime, timedelta
-from typing import Type, Union
+from typing import List, Type, Union
 
 import pandas as pd
 
@@ -33,7 +33,7 @@ AnyPrimitiveOrSeriesInputType = Union[AnyPrimitiveInputType, pd.Series]
 
 IfsInputType = Union[pd.Series, AnyPrimitiveOrSeriesInputType]
 
-IntOrListType = Union[list[int], int]
+IntOrListType = Union[List[int], int]
 
 # Return types
 StringFunctionReturnType = Union[pd.Series, str]
