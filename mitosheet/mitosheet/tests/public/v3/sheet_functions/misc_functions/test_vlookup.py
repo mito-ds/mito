@@ -15,7 +15,7 @@ import datetime
 from mitosheet.public.v3.sheet_functions.misc_functions import VLOOKUP
 
 TYPE_VALID_TESTS = [
-    # Basic tests
+    # Tests for when the lookup value is a series
     (
         [
             pd.Series([3, 1, 2]),
@@ -50,6 +50,7 @@ TYPE_VALID_TESTS = [
         ],
         pd.DataFrame({1: ['e', 'f', 'd'], 2: ['i', 'j', 'h']})
     ),
+    # Date-time tests
     (
         [
             pd.Series(['a', 'b', 'c']),
@@ -57,6 +58,14 @@ TYPE_VALID_TESTS = [
             2
         ],
         pd.Series([pd.Timestamp('2011-02-12'), pd.Timestamp('2018-04-02'), pd.Timestamp('2017-01-04')])
+    ),
+    (
+        [
+            pd.Series([pd.Timestamp('2011-02-12'), pd.Timestamp('2018-04-02'), pd.Timestamp('2017-01-04')]),
+            pd.DataFrame({'a': [pd.Timestamp('2017-01-04'), pd.Timestamp('2011-02-12'), pd.Timestamp('2018-04-02')], 2: ['h', 'i', 'j']}),
+            2
+        ],
+        pd.Series(['i', 'j', 'h'])
     ),
 ]
 

@@ -175,15 +175,18 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     }
     """
     # If the lookup value is a primitive, we don't need to merge. 
-    if not isinstance(lookup_value, pd.Series):
+    if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
         return where.loc[where.iloc[:,0] == lookup_value].iloc[0, index-1]
-    
-    # First, we need to get the column we're looking up from in the df.
-    lookup_value.name = 'lookup_value'
+    elif isinstance(lookup_value, pd.Series):
+        # First, we need to get the column we're looking up from in the df.
+        lookup_value.name = 'lookup_value'
 
-    # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
-    merged = pd.merge(lookup_value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
-    return merged.iloc[:, index]
+        # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
+        merged = pd.merge(lookup_value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
+        return merged.iloc[:, index]
+    else:
+        # TODO: determine the case where the lookup value is a primitive and the index is a list. 
+        return None
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
