@@ -174,7 +174,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     }
     """
     
-    # If the lookup value is a primitive, we don't need to merge. 
+    # If the lookup value and index are both a primitive, we don't need to merge. 
     if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
         return where.loc[where.iloc[:,0] == lookup_value].iloc[0, index-1]
     
@@ -182,18 +182,18 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     value.name = 'lookup_value'
     
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
-    merged = pd.merge(lookup_value, where, left_on='lookup_value', right_on=where.iloc[:,0], how='left')
-
+    where_deduplicated = where.drop_duplicates(subset=where.iloc[:,0].name)
+    merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_deduplicated.iloc[:,0], how='left')
     if isinstance(index, int):
         return merged.iloc[:, index]
     else:
-        def helper_lookup(row):
+        def get_nth_indexed_column(row):
             try:
                 return row[index[row.name]-1]
             except Exception as e:
                 print(f"error: {e}")
                 return None
-        return merged.apply(helper_lookup, axis=1)
+        return merged.apply(get_nth_indexed_column, axis=1)
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {

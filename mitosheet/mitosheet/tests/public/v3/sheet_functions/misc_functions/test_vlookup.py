@@ -67,6 +67,24 @@ TYPE_VALID_TESTS = [
         ],
         pd.Series(['i', 'j', 'h'])
     ),
+    # Tests for when the lookup value is a primitive and the index argument is a series
+    (
+        [
+            pd.Timestamp('2011-02-12'),
+            pd.DataFrame({'a': [pd.Timestamp('2017-01-04'), pd.Timestamp('2011-02-12'), pd.Timestamp('2018-04-02')], 2: ['h', 'i', 'j'], 'b': ['a', 'b', 'c']}),
+            pd.Series([2,3,1])
+        ],
+        pd.Series([None, 'i', None])
+    ),
+    # Tests for when there are duplicates
+    (
+        [
+            pd.Series([3, 1, 2]),
+            pd.DataFrame({'D': [3, 2, 3], 'E': ['d', 'e', 'f'], 'F': ['h', 'i', 'j']}),
+            2
+        ],
+        pd.Series(['d', None, 'e'])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", TYPE_VALID_TESTS)
