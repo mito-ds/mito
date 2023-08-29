@@ -10,6 +10,8 @@ from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
 from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntRestrictedInputType
 
+from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
+
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
     """
@@ -148,6 +150,7 @@ def GETNEXTVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Se
 
     return GETPREVIOUSVALUE(reversed_series, reversed_condition)[::-1]
 
+@cast_values_in_arg_to_type('index', 'int')
 def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, index: IntRestrictedInputType) -> pd.Series:
     """
     {
