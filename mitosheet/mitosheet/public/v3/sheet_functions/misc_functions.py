@@ -212,13 +212,13 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         )
     
     merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_first_column, how='left')
-    def get_nth_indexed_column(row):
+    def get_value_at_index_in_row(row):
         try:
             return row.iloc[indices[row.name]]
         # Because we can't control what the user puts in the index, we need to catch any errors
         except Exception:
             return None
-    return merged.apply(get_nth_indexed_column, axis=1)
+    return merged.apply(get_value_at_index_in_row, axis=1)
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
