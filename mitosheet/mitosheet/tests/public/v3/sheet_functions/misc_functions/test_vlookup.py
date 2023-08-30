@@ -74,7 +74,7 @@ TYPE_VALID_TESTS = [
             pd.DataFrame({'a': [pd.Timestamp('2017-01-04'), pd.Timestamp('2011-02-12'), pd.Timestamp('2018-04-02')], 2: ['h', 'i', 'j'], 'b': ['a', 'b', 'c']}),
             pd.Series([2,3,1])
         ],
-        pd.Series([None, 'i', None])
+        pd.Series(['i', 'b', pd.Timestamp('2011-02-12')])
     ),
     # Tests for when there are duplicates
     (
@@ -99,7 +99,7 @@ TYPE_VALID_TESTS = [
 def test_vlookup_direct(_argv, expected):
     result = VLOOKUP(*_argv)
     if isinstance(result, pd.Series):
-        pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False)
+        pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False, check_dtype=False)
     else: 
         assert result == expected
 

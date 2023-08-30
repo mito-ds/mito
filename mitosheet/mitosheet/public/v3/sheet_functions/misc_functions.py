@@ -178,16 +178,16 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         ]
     }
     """
-    
+    where_first_column = where.iloc[:,0]
     # If the lookup value and index are both a primitive, we don't need to merge. 
     if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
         if type(lookup_value) != type(where.iloc[0,0]):
             raise MitoError(
                 'invalid_args_error',
                 'VLOOKUP',
-                f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {type(lookup_value)} and the first column of the where range is of type {where.iloc[:,0].dtype}.'
+                f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {type(lookup_value)} and the first column of the where range is of type {type(where.iloc[0,0])}.'
             )
-        matching_row = where.loc[where.iloc[:,0] == lookup_value]
+        matching_row = where.loc[where_first_column == lookup_value]
         if matching_row.empty:
             return None
         else:
@@ -195,29 +195,30 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     
     value = get_series_from_primitive_or_series(lookup_value, where.index)
     value.name = 'lookup_value'
-    
+    indices = get_series_from_primitive_or_series(index, where.index)
+
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
-    where_deduplicated = where.drop_duplicates(subset=where.iloc[:,0].name)
+    where_deduplicated = where.drop_duplicates(subset=where_first_column.name)
+    
+    # Update first column to use the deduplicated version
+    where_first_column = where_deduplicated.iloc[:,0]
 
     # If the lookup value and the first column of the where range are different types, we raise an error
-    if value.dtype != where_deduplicated.iloc[:,0].dtype:
+    if value.dtype != where_first_column.dtype:
         raise MitoError(
             'invalid_args_error',
             'VLOOKUP',
-            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_deduplicated.iloc[:,0].dtype}.'
+            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_first_column.dtype}.'
         )
     
-    merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_deduplicated.iloc[:,0], how='left')
-    if isinstance(index, int):
-        return merged.iloc[:, index]
-    else:
-        def get_nth_indexed_column(row):
-            try:
-                return row[index[row.name]-1]
-            # Because we can't control what the user puts in the index, we need to catch any errors
-            except Exception:
-                return None
-        return merged.apply(get_nth_indexed_column, axis=1)
+    merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_first_column, how='left')
+    def get_nth_indexed_column(row):
+        try:
+            return row.iloc[indices[row.name]]
+        # Because we can't control what the user puts in the index, we need to catch any errors
+        except Exception:
+            return None
+    return merged.apply(get_nth_indexed_column, axis=1)
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
