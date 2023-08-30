@@ -157,14 +157,14 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     """
     {
         "function": "VLOOKUP",
-        "description": "Returns the next value from series that meets the condition.",
+        "description": "Looks up a value in a range and returns the value in the same row from a column you specify.",
         "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
         "examples": [
             "VLOOKUP(Names0, Sample_Names:Sample_Ages, 1, False)",
-            "VLOOKUP("Sample", Sample_Names:Sample_Ages, 2, False)",
+            "VLOOKUP('Sample', Sample_Names:Sample_Ages, 2, False)",
             "VLOOKUP(Names0, Sample_Names:Sample_Ages, [1, 2], False)"
         ],
-        "syntax": "VLOOKUP(lookup_value, where, index, approximate)",
+        "syntax": "VLOOKUP(lookup_value, where, index)",
         "syntax_elements": [{
                 "element": "lookup_value",
                 "description": "The value to look up."
