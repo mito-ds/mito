@@ -1135,8 +1135,6 @@ def test_parse(formula, column_header, formula_label, df, python_code, functions
 
 
 PARSE_TEST_ERRORS = [
-    ('=LOOKUP(100, A)', 'B', 'invalid_formula_error', 'LOOKUP'),
-    ('=VLOOKUP(100, A)', 'B', 'invalid_formula_error', 'VLOOKUP'),
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
     ('=XLOOKUP(100, A)', 'B', 'invalid_formula_error', 'XLOOKUP'),
     ('=A <> 100', 'B', 'invalid_formula_error', '<>'),

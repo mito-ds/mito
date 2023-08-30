@@ -3,7 +3,7 @@
 
 
 from datetime import datetime, timedelta
-from typing import Type, Union
+from typing import List, Type, Union
 
 import pandas as pd
 
