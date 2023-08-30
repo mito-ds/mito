@@ -9,10 +9,10 @@ Contains tests for the TYPE function.
 
 import pytest
 import pandas as pd
-import numpy as np
-import datetime
 
 from mitosheet.public.v3.sheet_functions.misc_functions import VLOOKUP
+
+from mitosheet.errors import MitoError
 
 TYPE_VALID_TESTS = [
     # Tests for when the lookup value is a series
@@ -85,6 +85,14 @@ TYPE_VALID_TESTS = [
         ],
         pd.Series(['d', None, 'e'])
     ),
+    (
+        [
+            pd.Series([3, 1, 3]),
+            pd.DataFrame({'D': [1, 2, 3], 'E': ['d', 'e', 'f'], 'F': ['h', 'i', 'j']}),
+            2
+        ],
+        pd.Series(['f', 'd', 'f'])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", TYPE_VALID_TESTS)
@@ -96,3 +104,23 @@ def test_vlookup_direct(_argv, expected):
         pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False)
     else: 
         assert result == expected
+
+# Invalid tests
+INVALID_TESTS = [
+    # Test for different types between lookup value and first column of where
+    (
+        [
+            pd.Series([1, 2, 3]),
+            pd.DataFrame({'D': ['a', 'b', 'c'], 'E': ['d', 'e', 'f'], 'F': ['h', 'i', 'j']}),
+            2
+        ],
+        'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type int64 and the first column of the where range is of type string.'
+    )
+]
+@pytest.mark.parametrize("_argv", INVALID_TESTS)
+def test_invalid_args_error(_argv):
+    with pytest.raises(MitoError) as e_info:
+        VLOOKUP(*_argv[0])
+        assert e_info.value.error_dict['error_type'] == 'invalid_args_error'
+        assert e_info.value.error_dict['function_name'] == 'VLOOKUP'
+        assert e_info.value.error_dict['error_message'] == _argv[1]

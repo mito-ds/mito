@@ -12,6 +12,8 @@ from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesI
 
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
 
+from mitosheet.errors import MitoError
+
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
     """
@@ -186,6 +188,12 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
     where_deduplicated = where.drop_duplicates(subset=where.iloc[:,0].name)
+    if value.dtype != where_deduplicated.iloc[:,0].dtype:
+        raise MitoError(
+            'invalid_args_error',
+            'VLOOKUP',
+            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_deduplicated.iloc[:,0].dtype}.'
+        )
     merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_deduplicated.iloc[:,0], how='left')
     if isinstance(index, int):
         return merged.iloc[:, index]
@@ -194,7 +202,6 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
             try:
                 return row[index[row.name]-1]
             except Exception as e:
-                print(f"error: {e}")
                 return None
         return merged.apply(get_nth_indexed_column, axis=1)
 
