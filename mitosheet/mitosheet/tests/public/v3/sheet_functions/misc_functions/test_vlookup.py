@@ -115,12 +115,20 @@ INVALID_TESTS = [
             2
         ],
         'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type int64 and the first column of the where range is of type string.'
+    ),
+    (
+        [
+            1,
+            pd.DataFrame({'D': ['a', 'b', 'c'], 'E': ['d', 'e', 'f'], 'F': ['h', 'i', 'j']}),
+            2
+        ],
+        "VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type <class 'str'> and the first column of the where range is of type object."
     )
 ]
-@pytest.mark.parametrize("_argv", INVALID_TESTS)
-def test_invalid_args_error(_argv):
+@pytest.mark.parametrize("_argv, expected", INVALID_TESTS)
+def test_invalid_args_error(_argv, expected):
     with pytest.raises(MitoError) as e_info:
-        VLOOKUP(*_argv[0])
+        VLOOKUP(*_argv)
         assert e_info.value.error_dict['error_type'] == 'invalid_args_error'
         assert e_info.value.error_dict['function_name'] == 'VLOOKUP'
-        assert e_info.value.error_dict['error_message'] == _argv[1]
+        assert e_info.value.error_dict['error_message'] == expected
