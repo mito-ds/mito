@@ -14,7 +14,7 @@ from mitosheet.public.v3.sheet_functions.misc_functions import VLOOKUP
 
 from mitosheet.errors import MitoError
 
-TYPE_VALID_TESTS = [
+VLOOKUP_VALID_TESTS = [
     # Tests for when the lookup value is a series
     (
         [
@@ -95,7 +95,7 @@ TYPE_VALID_TESTS = [
     ),
 ]
 
-@pytest.mark.parametrize("_argv, expected", TYPE_VALID_TESTS)
+@pytest.mark.parametrize("_argv, expected", VLOOKUP_VALID_TESTS)
 def test_vlookup_direct(_argv, expected):
     result = VLOOKUP(*_argv)
     if isinstance(result, pd.Series):
@@ -104,7 +104,7 @@ def test_vlookup_direct(_argv, expected):
         assert result == expected
 
 # Invalid tests
-INVALID_TESTS = [
+VLOOKUP_INVALID_TESTS = [
     # Test for different types between lookup value and first column of where
     (
         [
@@ -123,7 +123,7 @@ INVALID_TESTS = [
         "VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type <class 'str'> and the first column of the where range is of type object."
     )
 ]
-@pytest.mark.parametrize("_argv, expected", INVALID_TESTS)
+@pytest.mark.parametrize("_argv, expected", VLOOKUP_INVALID_TESTS)
 def test_invalid_args_error(_argv, expected):
     with pytest.raises(MitoError) as e_info:
         VLOOKUP(*_argv)
