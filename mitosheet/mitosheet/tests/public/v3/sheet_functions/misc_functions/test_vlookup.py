@@ -98,8 +98,6 @@ TYPE_VALID_TESTS = [
 @pytest.mark.parametrize("_argv, expected", TYPE_VALID_TESTS)
 def test_vlookup_direct(_argv, expected):
     result = VLOOKUP(*_argv)
-    print(f'expected: {expected}')
-    print(f'result: {result}')
     if isinstance(result, pd.Series):
         pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False)
     else: 

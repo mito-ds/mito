@@ -214,7 +214,8 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         def get_nth_indexed_column(row):
             try:
                 return row[index[row.name]-1]
-            except Exception as e:
+            # Because we can't control what the user puts in the index, we need to catch any errors
+            except Exception:
                 return None
         return merged.apply(get_nth_indexed_column, axis=1)
 
