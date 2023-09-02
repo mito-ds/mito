@@ -39,31 +39,13 @@ class SortStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        sort_direction: str = get_param(params, 'sort_direction')
-
-        raise_error_if_column_ids_do_not_exist(
-            'sort',
-            prev_state,
-            sheet_index,
-            column_id
-        )
-
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-        # We make a new state to modify it
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
         try: 
-            pandas_start_time = perf_counter()
-            if sort_direction != SORT_DIRECTION_NONE:
-                new_df = prev_state.dfs[sheet_index].sort_values(by=column_header, ascending=(sort_direction == SORT_DIRECTION_ASCENDING), na_position=('first' if sort_direction == SORT_DIRECTION_ASCENDING else 'last'))
-            else:
-                # We notably let the user sort by the "none" direction, which effectively allows the user
-                # to unapply the sort by toggling the sort button after they click it once
-                new_df = prev_state.dfs[sheet_index]
-            
-            pandas_processing_time = perf_counter() - pandas_start_time
-            post_state.dfs[sheet_index] = new_df
+            return cls.execute_through_transpile(
+                prev_state, 
+                params, 
+            )
         except TypeError as e:
             # A NameError occurs when you try to sort a column with incomparable 
             # dtypes (ie: a column with strings and floats)
@@ -71,9 +53,6 @@ class SortStepPerformer(StepPerformer):
             # Generate an error informing the user
             raise make_invalid_sort_error(column_header)
 
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
-        }
 
     @classmethod
     def transpile(

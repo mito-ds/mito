@@ -334,6 +334,11 @@ if sys.version_info[:3] > (3, 8, 0):
 
     UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
+    class ExecuteThroughTranspileNewDataframeParams(TypedDict):
+        new_df_names: List[str]
+        df_source: str
+        sheet_indexes: Optional[Dict[str, int]]
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -366,6 +371,7 @@ else:
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
+    ExecuteThroughTranspileNewDataframeParams = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]

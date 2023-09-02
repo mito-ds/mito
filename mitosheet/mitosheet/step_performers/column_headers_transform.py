@@ -31,61 +31,11 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        sheet_index: int = get_param(params, 'sheet_index')
-        transformation: Any = get_param(params, 'transformation')
-
-        # We make a new state to modify it
-        post_state = prev_state.copy() # TODO: update the deep copies
-
-        pandas_start_time = perf_counter()
-
-        df = post_state.dfs[sheet_index]
-
-        if transformation['type'] == 'uppercase' or transformation['type'] == 'lowercase':
-            new_columns = []
-            renamed_columns = {}
-            for col in df.columns:
-                if isinstance(col, str):
-                    new_column = col.upper() if transformation['type'] == 'uppercase' else col.lower()
-                    new_columns.append(new_column)
-                    renamed_columns[col] = new_column
-                else:
-                    new_columns.append(col)
-        elif transformation['type'] == 'replace':
-            new_columns = []
-            renamed_columns = {}
-            for col in df.columns:
-                if isinstance(col, str):
-                    new_column = col.replace(transformation['old'], transformation['new'])
-                    new_columns.append(new_column)
-                    renamed_columns[col] = new_column
-                else:
-                    new_columns.append(col)
-        else:
-            raise ValueError(f'Unknown transformation type: {transformation["type"]}')
-
-        if len(set(new_columns)) < len(new_columns):
-            # Get the first duplicated column in new_columns
-            seen: Set[str] = set()
-            for new_column_header in new_columns:
-                if new_column_header in seen:
-                    raise make_column_exists_error(new_column_header)
-                else:
-                    seen.add(new_column_header)
-                    
-        df.columns = new_columns
-
-        for old_column_header, new_column_header in renamed_columns.items():
-            column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_column_header)
-            post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
-        
-        post_state.dfs[sheet_index] = df
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
-        }
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            renamed_column_headers=True
+        )
 
     @classmethod
     def transpile(

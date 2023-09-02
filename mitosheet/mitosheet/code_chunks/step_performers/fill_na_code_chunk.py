@@ -14,12 +14,12 @@ from mitosheet.types import ColumnID
 
 class FillNaCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], fill_method: Dict[str, Any], full_dataframe: bool):
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], fill_method: Dict[str, Any]):
         super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.fill_method = fill_method
-        self.full_dataframe = full_dataframe
+        self.full_dataframe = len(self.prev_state.dfs[self.sheet_index]) == len(self.column_ids)
 
         self.df_name = self.prev_state.df_names[self.sheet_index]
         self.column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.column_ids)

@@ -68,7 +68,6 @@ class DataframeRenameCodeChunk(CodeChunk):
             pivot_code_chunk.pivot_filters_ids,
             pivot_code_chunk.values_column_ids_map,
             pivot_code_chunk.flatten_column_headers,
-            pivot_code_chunk.was_series,
             pivot_code_chunk.public_interface_version,
             self.new_dataframe_name
         )

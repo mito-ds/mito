@@ -934,3 +934,5 @@ def test_pivot_with_rename_works_then_edit_optimized_properly():
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
 
+
+# TODO: test it generates good key errors

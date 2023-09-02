@@ -31,12 +31,12 @@ class DropDuplicatesStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index = get_param(params, 'sheet_index')
 
-        post_state, pandas_processing_time = cls.execute_through_transpile(prev_state, params)
+        post_state, execution_data = cls.execute_through_transpile(prev_state, params)
 
         num_rows_dropped = len(prev_state.dfs[sheet_index].index) - len(post_state.dfs[sheet_index].index)
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time,
+            **execution_data,
             'result': {
                 'num_rows_dropped': num_rows_dropped
             }

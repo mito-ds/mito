@@ -45,44 +45,23 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        sheet_index: int = get_param(params, 'sheet_index')
-        index: Any = get_param(params, 'index')
 
-        # We make a new state to modify it
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        pandas_processing_time = 0.0
-
-        df = post_state.dfs[sheet_index]
-
-        new_headers = df.loc[index].tolist()
-        new_headers = deduplicate_column_headers(new_headers)
-
-        # Then, get all the column headers ids, before renamding them, so we don't have ordering bugs
-        id_to_new_heaeder = {post_state.column_ids.get_column_id_by_header(sheet_index, old): new for old, new in zip(df.columns, new_headers)}
-        # Then, update them in the state
-        for column_id, new_column_header in id_to_new_heaeder.items():
-             post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
-
-        # And then update the columns
-        pandas_start_time_drop = perf_counter()
-        df.columns = new_headers
-        pandas_processing_time_drop = perf_counter() - pandas_start_time_drop
-
-
-        post_state.dfs[sheet_index].drop(labels=[index], inplace=True)
+        post_state, execution_data = cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            renamed_column_headers=True
+        )
 
         # We make sure that this making of headers will work, and not cause issues 
         # later while trying to convert to json. We throw an error if this causes
         # errors. See this bug: https://github.com/mito-ds/monorepo/issues/267
         try:
+            sheet_index: int = get_param(params, 'sheet_index')
             convert_df_to_parsed_json(post_state.dfs[sheet_index].head(1))
         except:
             raise make_invalid_promote_row_to_header()
 
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time + pandas_processing_time_drop,
-        }
+        return post_state, execution_data
 
     @classmethod
     def transpile(

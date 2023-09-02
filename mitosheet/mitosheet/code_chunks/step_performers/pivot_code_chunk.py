@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
+from distutils.version import LooseVersion
 from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -23,6 +24,18 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
 from mitosheet.utils import is_prev_version
 
 USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
+
+
+def get_new_column_header_from_column_header_with_pivot_transform(chwpt: ColumnHeaderWithPivotTransform) -> ColumnHeader:
+    from mitosheet.step_performers.pivot import PCT_NO_OP
+
+    column_header, transformation = chwpt['column_header'], chwpt['transformation']
+    # We need to turn the column header into a string before creating the new one, so that we can
+    # append to it for the new temporary transformation column
+    if transformation == PCT_NO_OP:
+        return column_header
+
+    return f'{str(column_header)} ({transformation})'
 
 
 def get_flatten_code(use_inplace_pivot: bool) -> str:
@@ -56,8 +69,6 @@ def build_args_code(
     Helper function for building an arg string, while leaving
     out empty arguments. 
     """
-    from mitosheet.step_performers.pivot import \
-        get_new_column_header_from_column_header_with_pivot_transform
 
     # Because there might have been temporary columns created by the pivot
     # transformations, we need to use these in our final args usage. NOTE: as in 
@@ -92,7 +103,6 @@ class PivotCodeChunk(CodeChunk):
         pivot_filters: List[ColumnIDWithFilter],
         values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: Optional[bool],
-        was_series: Optional[bool],
         public_interface_version: int,
         new_df_name: str
     ):
@@ -104,8 +114,13 @@ class PivotCodeChunk(CodeChunk):
         self.pivot_filters_ids = pivot_filters
         self.values_column_ids_map = values_column_ids_map
         self.flatten_column_headers = flatten_column_headers
-        self.was_series = was_series
         self.public_interface_version = public_interface_version
+
+        # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
+        # a series from the above function call. Thus, we need to move it to a df for
+        # all our other code run properly on it. This code should only run in early 
+        # versions of pandas
+        self.was_series = LooseVersion(pd.__version__) <= LooseVersion('1.0.0')
 
         self.old_df_name = self.prev_state.df_names[self.sheet_index]
         self.new_df_name = new_df_name
@@ -203,7 +218,6 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series,
                 pivot_code_chunk.public_interface_version,
                 pivot_code_chunk.new_df_name
             )
@@ -221,7 +235,6 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series,
                 pivot_code_chunk.public_interface_version,
                 pivot_code_chunk.new_df_name
             )
@@ -252,7 +265,6 @@ class PivotCodeChunk(CodeChunk):
                 self.pivot_filters_ids,
                 self.values_column_ids_map,
                 self.flatten_column_headers,
-                self.was_series,
                 self.public_interface_version,
                 self.new_df_name
             )
@@ -280,8 +292,7 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         PCT_DATE_MONTH_DAY, PCT_DATE_QUARTER, PCT_DATE_SECOND, PCT_DATE_WEEK,
         PCT_DATE_YEAR, PCT_DATE_YEAR_MONTH, PCT_DATE_YEAR_MONTH_DAY,
         PCT_DATE_YEAR_MONTH_DAY_HOUR, PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
-        PCT_DATE_YEAR_QUARTER, PCT_NO_OP,
-        get_new_column_header_from_column_header_with_pivot_transform)        
+        PCT_DATE_YEAR_QUARTER, PCT_NO_OP)        
 
     code = []
     for chwpt in column_headers_with_transforms:

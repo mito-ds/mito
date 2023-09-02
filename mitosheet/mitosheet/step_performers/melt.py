@@ -42,31 +42,26 @@ class MeltStepPerformer(StepPerformer):
         # errors that we don't want
         value_vars = list(filter(lambda value_var: value_var not in id_vars, value_vars))
 
-        # We make a new state to modify it
-        post_state = prev_state.copy() 
-
-        params = {
-            'id_vars': id_vars
-        }
-
         # If we're not including any headers that wouldn't be included by default, then we can 
         # just leave the value_vars empty
-        include_value_vars = not set(post_state.dfs[sheet_index].columns).difference(id_vars).issubset(value_vars)
-        if include_value_vars:
-            params['value_vars'] = value_vars
+        include_value_vars = not set(prev_state.dfs[sheet_index].columns).difference(id_vars).issubset(value_vars)
 
-        pandas_start_time = perf_counter()
-        new_df = post_state.dfs[sheet_index].melt(**params)
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_unpivoted')
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MELTED, df_name=new_df_name)
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, f'{prev_state.df_names[sheet_index]}_unpivoted')
+        execution_data = {
             'include_value_vars': include_value_vars,
             'new_df_name': new_df_name
         }
+
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            execution_data, 
+            {
+                'df_source': DATAFRAME_SOURCE_MELTED,
+                'new_df_names': [new_df_name],
+                'sheet_indexes': None
+            }
+        )
 
     @classmethod
     def transpile(

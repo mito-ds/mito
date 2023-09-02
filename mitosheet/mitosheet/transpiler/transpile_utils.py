@@ -292,7 +292,7 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
     }
 
 
-def get_local_variables_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
+def get_globals_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
 
     df_names_to_df = {
         df_name: df for df, df_name in 
@@ -301,7 +301,7 @@ def get_local_variables_for_exec(state: State, public_interface: int) -> Dict[st
             state.df_names
         )
     }
-
+    
     if public_interface == 1:
         import mitosheet.public.v1 as v1
         local_vars = v1.__dict__

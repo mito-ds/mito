@@ -74,20 +74,19 @@ class FilterStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
+        post_state, execution_data = cls.execute_through_transpile(prev_state, params)
+
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         operator: OperatorType = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
-        post_state, pandas_processing_time = cls.execute_through_transpile(prev_state, params)
-
         # Keep track of which columns are filtered
         post_state.column_filters[sheet_index][column_id]["operator"] = operator
         post_state.column_filters[sheet_index][column_id]["filters"] = filters
 
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
-        }
+        return post_state, execution_data
 
     @classmethod
     def transpile(

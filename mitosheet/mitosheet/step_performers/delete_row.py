@@ -29,13 +29,6 @@ class DeleteRowStepPerformer(StepPerformer):
         return 'delete_row'
 
     @classmethod
-    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        post_state, pandas_processing_time = cls.execute_through_transpile(prev_state, params)
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
-        }
-
-    @classmethod
     def transpile(
         cls,
         prev_state: State,

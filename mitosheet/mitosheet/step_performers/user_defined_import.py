@@ -120,6 +120,11 @@ class UserDefinedImportStepPerformer(StepPerformer):
         importer: str = get_param(params, 'importer')
         importer_params: Dict[str, str] = get_param(params, 'importer_params')
 
+        execution_data = {
+            'user_defined_importer_params': user_defined_importer_params,
+            'new_df_names': new_df_names,
+        }
+
         # We make a new state to modify it
         post_state = prev_state.copy()
 

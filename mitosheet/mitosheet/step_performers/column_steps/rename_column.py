@@ -36,42 +36,25 @@ class RenameColumnStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        sheet_index: int = get_param(params, 'sheet_index')
-        column_id: ColumnID = get_param(params, 'column_id')
-        new_column_header: str = get_param(params, 'new_column_header')
-        level: int = get_param(params, 'new_column_header')
 
-        raise_error_if_column_ids_do_not_exist(
-            'rename column',
-            prev_state,
-            sheet_index,
-            column_id
-        )
+        sheet_index = params['sheet_index']
+        new_column_header = params['new_column_header']
 
-        if new_column_header in prev_state.dfs[sheet_index].keys():
+        if new_column_header in prev_state.dfs[sheet_index].columns:
             raise make_column_exists_error(new_column_header)
 
-        # If the user has deleted the column header entirely, this is very likely
-        # a mistake and not something they meant to do... so we just don't make any edits
-        # and don't throw an error
-        if new_column_header == '':
-            return prev_state, None
-
-        # Create a new post state for this step
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        old_level_value, pandas_processing_time = rename_column_headers_in_state(
-            post_state,
-            sheet_index,
-            column_id,
-            new_column_header,
-            level
-        )
-
-        return post_state, {
-            'old_level_value': old_level_value,
-            'pandas_processing_time': pandas_processing_time
+        execution_data = {
+            'column_ids_to_new_column_headers': {
+                params['column_id']: new_column_header
+            }
         }
+
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            execution_data,
+            renamed_column_headers=True
+        )
 
     @classmethod
     def transpile(
@@ -92,9 +75,7 @@ class RenameColumnStepPerformer(StepPerformer):
                 # convenient way to allow us to combine multiple renames
                 # into one
                 params['sheet_index'],
-                {
-                    params['column_id']: params['new_column_header']
-                },
+                get_param(execution_data if execution_data is not None else {}, 'column_ids_to_new_column_headers'),
             )
         ]
     
