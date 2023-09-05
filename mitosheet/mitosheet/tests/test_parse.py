@@ -1145,11 +1145,11 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES + VLOOKUP_TESTS
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
 
-@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
-def test_parse(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
-    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
+def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [df], ['df'], 0) 
     assert (code, funcs, cols) == \
         (
             python_code, 
@@ -1157,6 +1157,15 @@ def test_parse(formula, column_header, formula_label, dfs, df_names, sheet_index
             columns
         )
 
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
+def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
 
 PARSE_TEST_ERRORS = [
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
@@ -1174,7 +1183,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)), 1)
+        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [pd.DataFrame(get_number_data_for_df(['A', 'B'], 2))], ['df'], 0, 1)
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix
@@ -1193,5 +1202,5 @@ def test_safe_contains(formula, substring, contains):
 
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES)
 def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,df,python_code,functions,columns):
-    frontend_formula = get_frontend_formula(formula, formula_label, df)
+    frontend_formula = get_frontend_formula(formula, formula_label, [df], ['df'], 0)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula

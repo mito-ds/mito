@@ -300,7 +300,9 @@ def exec_column_formula(
         frontend_formula = get_frontend_formula(
             spreadsheet_code,
             formula_label,
-            post_state.dfs[sheet_index]
+            post_state.dfs,
+            post_state.df_names,
+            sheet_index
         )
         
         # If the user is setting the entire column, then there is only one formula for every cell in
