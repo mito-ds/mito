@@ -74,7 +74,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Edit your data just like you do in Excel, and receive production ready Python code. No searching Pandas documentation or Stack Overflow.
                 </p>
                 <p>
-                  See our <a href="https://blog.trymito.io/automating-spreadsheets-with-python-101/" target="_blank" rel="noreferrer" className={pageStyles.link}>guide to automating spreadsheet with Python.</a>
+                  See our <a href="https://trymito.io/blog/automating-spreadsheets-with-python-101/" target="_blank" rel="noreferrer" className={pageStyles.link}>guide to automating spreadsheet with Python.</a>
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>

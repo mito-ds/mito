@@ -1,0 +1,27 @@
+
+
+.post_content {
+    max-width: 720px;
+    margin-top: 4rem;
+}
+
+.post_metadata {
+    display: flex;
+    flex-direction: row;
+}
+
+.language-sql .language-sql {
+    color: #fff;
+    background: #000;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.3rem;
+}
+
+.post_content code {
+    /* Add some basic code formatting */
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.3rem;
+    background-color: white;
+}

@@ -180,7 +180,7 @@ const Home: NextPage = () => {
               </h2>
               <TextButton 
                 text="Read Tom's Story"
-                href="https://blog.trymito.io/enigma-case-study/"
+                href="https://trymito.io/blog/enigma-case-study/"
               />
             </div>
             <div className={homeStyles.case_study_headshot}>

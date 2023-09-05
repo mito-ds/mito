@@ -75,7 +75,7 @@ const Header = (): JSX.Element => {
                   <Link href='/security'>Security</Link>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
-                  <Link href='https://blog.trymito.io'>Blog</Link>
+                  <Link href='/blog'>Security</Link>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
@@ -136,7 +136,7 @@ const Header = (): JSX.Element => {
                   <Link href='/security'>Security</Link>
                 </li>
                 <li className='highlight-on-hover'>
-                  <Link href='https://blog.trymito.io'>Blog</Link>
+                  <Link href='/blog'>Blog</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>

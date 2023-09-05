@@ -769,8 +769,7 @@ const Plans: NextPage = () => {
 
             <section className={pageStyles.background_card}>
               <ContactCTACard />
-            </section>              
-            
+            </section>
         </main>
 
         <Footer />
