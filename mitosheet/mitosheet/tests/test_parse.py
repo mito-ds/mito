@@ -1112,6 +1112,29 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
     ),
 ]
 
+VLOOKUP_TESTS = [
+    (
+        '=VLOOKUP(A0, df_2!A:B, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'A\':\'B\'], 2)',
+        set(['VLOOKUP']),
+        set(['A', 'B'])
+    )
+]
+
 
 """
 PARSE_TESTS contains a variety of tests that make sure
@@ -1122,10 +1145,11 @@ Order of params is: formula, address, python_code, functions, columns
 
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
-@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
-def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
-    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES + VLOOKUP_TESTS
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
+def test_parse(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
     assert (code, funcs, cols) == \
         (
             python_code, 

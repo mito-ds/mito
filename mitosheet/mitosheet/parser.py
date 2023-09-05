@@ -215,7 +215,8 @@ def safe_count_function(formula: str, substring: str) -> int:
 
 def check_common_errors(
         formula: str,
-        df: pd.DataFrame
+        dfs: List[pd.DataFrame],
+        sheet_index: int,
     ) -> None:
     """
     Helper function for checking a formula for common errors, for better
@@ -225,7 +226,7 @@ def check_common_errors(
     that can be detected when parsing a formula, add it here!
     """
 
-    column_headers: List[ColumnHeader] = df.columns.to_list()
+    column_headers: List[ColumnHeader] = dfs[sheet_index].columns.to_list()
 
     if safe_contains(formula, "<>", column_headers):
         raise make_invalid_formula_error(
@@ -412,49 +413,72 @@ def get_raw_parser_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
         string_matches: List[Any],
-        df: pd.DataFrame
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> List[RawParserMatch]:
     """
     Returns a list of RawParserMatch, which are either column header matches
-    or matches on the index. 
+    or matches on the index or a sheet. 
 
     The parsing strategy generally can be described as follows:
     1. Match columns headers that are not followed by indexes (for backwards compatibility)
     2. Match column headers that are followed by indexes
+    3. Match sheet names that are followed by !
 
     (2) requires doing some reasoning about _what_ sort of index it is, 
     and therefore what sort of match is possible. Casting from the string
     to a parsed value is then done, and we can determine the row offset 
     of the match.
 
-    formula = "=A0"
+    formula = "=df 1!A0"
     formula_label = 1 (aka formula was written in B1)
     string_matches = []
     df = pd.DataFrame({'A': [1], 'B': [1]})
 
     We would get the matches: 
     {
-                        'type': '{HEADER}',
-                        'substring_range': (1, 1),
-                        'unparsed':'A',
-                        'parsed': 'A',
-                        'row_offset': 0
+        'type': '{SHEET}',
+        'substring_range': (1, 4),
+        'unparsed':'df 1',
+        'parsed': 'df 1'
     }
     {
-                        'type': '{INDEX}',
-                        'substring_range': (2, 2),
-                        'unparsed':'0',
-                        'parsed': 0,
-                        'row_offset': -1
+        'type': '{HEADER}',
+        'substring_range': (1, 1),
+        'unparsed':'A',
+        'parsed': 'A',
+        'row_offset': 0
+    }
+    {
+        'type': '{INDEX}',
+        'substring_range': (2, 2),
+        'unparsed':'0',
+        'parsed': 0,
+        'row_offset': -1
     }
 
     These would be returned in reverse, so that they were easy to work with.
     """
 
+    df = dfs[sheet_index]
     index = df.index
     column_headers: List[ColumnHeader] = df.columns.to_list()
 
     raw_parser_matches: List[RawParserMatch] = []
+
+    for sheet_index, sheet_name in enumerate(df_names):
+        if safe_contains(formula, f'{sheet_name}!', column_headers):
+            raw_parser_matches.append({
+                'type': '{SHEET}',
+                'substring_range': (formula.index(f'{sheet_name}!'), formula.index(f'{sheet_name}!') + len(sheet_name)),
+                'unparsed': f'{sheet_name}!',
+                'parsed': sheet_name,
+                'row_offset': 0
+            })
+
+            # Update to look at the column headers in the other sheet
+            column_headers = dfs[sheet_index].columns.to_list()
 
     # We look for column headers from longest to shortest, to enable us
     # to issues if one column header is a substring of another
@@ -531,7 +555,9 @@ def get_parser_matches(
         formula: str,
         formula_label: Union[str, bool, int, float], # Where the formula is written,
         string_matches: List[Any],
-        df: pd.DataFrame
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> List[ParserMatch]:
     """
     This function takes raw parser matches and turns them into ParserMatches, which are either:
@@ -539,7 +565,8 @@ def get_parser_matches(
     - {HEADER}{INDEX} which is how a user references a specific cell
     - {HEADER}:{HEADER} which is how a user references an entire column
     - {HEADER}{INDEX}:{HEADER}{INDEX} which is how a user references a range of specific cells
-
+    - {SHEET}!{HEADER}:{HEADER} which is how a user references a range of columns in a separate sheet
+    
     We take special care to match the longest options first, so that we don't match a {HEADER}{INDEX}
     when it is actual part of a {HEADER}{INDEX}:{HEADER}{INDEX}.
 
@@ -617,6 +644,32 @@ def get_parser_matches(
         
         return None
     
+
+    def get_sheet_header_header_match(formula: str, raw_parser_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
+        curr_match = raw_parser_matches[match_index]
+        if match_index + 2 >= len(raw_parser_matches):
+            return None
+
+        first_header_match = raw_parser_matches[match_index + 1]
+        second_header_match = raw_parser_matches[match_index + 2]
+        seperated_by_exclamation_from_next_match = curr_match['substring_range'][1] == first_header_match['substring_range'][0] - 1 and formula[curr_match['substring_range'][1]] == '!'
+        seperated_by_colon_from_next_match = first_header_match['substring_range'][1] == second_header_match['substring_range'][0] - 1 and formula[first_header_match['substring_range'][1]] == ':'
+
+        starts_with_sheet_reference = curr_match['type'] == '{SHEET}' and seperated_by_exclamation_from_next_match
+        has_two_headers = first_header_match['type'] == '{HEADER}' and seperated_by_colon_from_next_match and second_header_match['type'] == '{HEADER}'
+
+        if starts_with_sheet_reference and has_two_headers:
+            return {
+                'type': '{SHEET}!{HEADER}:{HEADER}',
+                'substring_range': (curr_match['substring_range'][0], second_header_match['substring_range'][1]),
+                'unparsed': curr_match['unparsed'] + first_header_match['unparsed'] + second_header_match['unparsed'],
+                'parsed': (curr_match['parsed'], first_header_match['parsed'], second_header_match['parsed']),
+                'row_offset': curr_match['row_offset']
+            }
+        
+        return None
+    
+
     def get_header_index_header_index_match(formula: str, raw_parser_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
 
         if match_index + 3 >= len(raw_parser_matches):
@@ -656,7 +709,9 @@ def get_parser_matches(
         formula,
         formula_label,
         string_matches,
-        df
+        dfs,
+        df_names,
+        sheet_index
     )
 
     match_index = 0
@@ -666,6 +721,12 @@ def get_parser_matches(
         if header_index_header_index_match is not None:
             parser_matches.append(header_index_header_index_match)
             match_index += 4
+            continue
+
+        sheet_header_header_match = get_sheet_header_header_match(formula, raw_parser_matches, match_index)
+        if sheet_header_header_match is not None:
+            parser_matches.append(sheet_header_header_match)
+            match_index += 3
             continue
 
         header_header_match = get_header_header_match(formula, raw_parser_matches, match_index)
@@ -696,8 +757,9 @@ def replace_column_headers_and_indexes(
         formula: str,
         formula_label: Union[str, bool, int, float],
         string_matches: List,
-        df: pd.DataFrame,
-        df_name: str
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> Tuple[str, Set[ColumnHeader], Set[IndexLabel]]:
     """
     Returns a modified formula, where:
@@ -713,8 +775,13 @@ def replace_column_headers_and_indexes(
         formula,
         formula_label,
         string_matches,
-        df
+        dfs,
+        df_names,
+        sheet_index
     )
+
+    df = dfs[sheet_index]
+    df_name = df_names[sheet_index]
 
     column_headers = set()
     index_labels = set()
@@ -745,7 +812,7 @@ def replace_column_headers_and_indexes(
 
         replace_string = ''
 
-        # We have to handle {HEADER}, {HEADER}{INDEX}, {HEADER}:{HEADER}, and {HEADER}{INDEX}:{HEADER}{INDEX}
+        # We have to handle {HEADER}, {HEADER}{INDEX}, {HEADER}:{HEADER}, {HEADER}{INDEX}:{HEADER}{INDEX}, and {SHEET}!{HEADER}:{HEADER}
         if match_type == '{HEADER}':
             column_header = match['parsed']
             row_offset = match['row_offset']
@@ -767,6 +834,18 @@ def replace_column_headers_and_indexes(
             transpiled_column_header = column_header_to_transpiled_code(column_header)
             replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}' # type: ignore
         
+        elif match_type == '{SHEET}!{HEADER}:{HEADER}':
+            (sheet_name, column_header_one, column_header_two) = match['parsed']
+            cross_sheet_df = dfs[df_names.index(sheet_name)]
+            # Ensure that the column headers are in the order they appear in the dataframe
+            first_column_header, second_column_header = (column_header_one, column_header_two) if cross_sheet_df.columns.get_loc(column_header_one) <= cross_sheet_df.columns.get_loc(column_header_two) else (column_header_two, column_header_one) 
+
+            # We add all of the column headers that are between these two headers
+            cols = cross_sheet_df.loc[:, first_column_header:second_column_header].columns.tolist()
+            column_headers.update(cols)
+            print(get_header_header_selection_code(first_column_header, second_column_header))
+            replace_string = f'{sheet_name}{get_header_header_selection_code(first_column_header, second_column_header)}'
+
         elif match_type == '{HEADER}:{HEADER}':
             (column_header_one, column_header_two) = match['parsed']
 
@@ -884,8 +963,9 @@ def parse_formula(
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
-        df: pd.DataFrame,
-        df_name: str='df',
+        dfs: List[pd.DataFrame],
+        df_names,
+        sheet_index: int,
         throw_errors: bool=True,
         include_df_set: bool=True,
     ) -> Tuple[str, Set[str], Set[ColumnHeader], Set[IndexLabel]]:
@@ -897,12 +977,15 @@ def parse_formula(
     If include_df_set, then will return {df_name}[{column_header}] = {parsed formula}, and if
     not then will just return {parsed formula}
     """
+    df = dfs[sheet_index]
+    df_name = df_names[sheet_index]
+
     # If the column doesn't have a formula, then there are no dependencies, duh!
     if formula is None or formula == '':
         return '', set(), set(), set()
 
     if throw_errors:
-        check_common_errors(formula, df)
+        check_common_errors(formula, dfs, sheet_index)
 
     # Chop off any whitespace at the start
     formula = formula.lstrip()
@@ -920,8 +1003,9 @@ def parse_formula(
         formula, 
         formula_label,
         string_matches,
-        df,
-        df_name
+        dfs,
+        df_names,
+        sheet_index
     )
 
     code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
@@ -975,7 +1059,9 @@ def get_frontend_formula_header_reference(
 def get_frontend_formula(
     formula: Optional[str], 
     formula_label: Union[str, bool, int, float],
-    df: pd.DataFrame,
+    dfs: List[pd.DataFrame],
+    df_names: List[str],
+    sheet_index: int
 ) -> FrontendFormula:
     # Returns a formula string in a representation that the frontend can correctly update
     # when the user views it in a different cell
@@ -988,7 +1074,9 @@ def get_frontend_formula(
         formula,
         formula_label,
         get_string_matches(formula),
-        df
+        dfs,
+        df_names,
+        sheet_index
     )
         
     frontend_formula: FrontendFormula = []
