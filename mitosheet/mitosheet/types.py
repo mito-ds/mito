@@ -264,14 +264,14 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
     class RawParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{INDEX}']
+        type: Literal['{HEADER}', '{INDEX}', '{SHEET}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
 
     class ParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}']
+        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}', '{SHEET}!{HEADER}:{HEADER}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any

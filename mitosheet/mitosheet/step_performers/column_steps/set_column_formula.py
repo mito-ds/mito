@@ -54,9 +54,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         else:
             try:
                 # Try and parse the formula, letting it throw errors if it is invalid
-                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index], throw_errors=True)
+                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index, throw_errors=True)
             except Exception as e:
-                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index])
+                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
 
         return params
 
@@ -84,7 +84,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             column_header,
             formula_label,
             index_labels_formula_is_applied_to,
-            prev_state.dfs[sheet_index],
+            prev_state.dfs,
+            prev_state.df_names,
+            sheet_index,
         )
 
         if public_interface_version == 1:
@@ -159,7 +161,9 @@ def _get_fixed_invalid_formula(
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
-        df: pd.DataFrame,
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -182,7 +186,7 @@ def _get_fixed_invalid_formula(
     for fixed_formula in POTENTIAL_VALID_FORMULAS:
         try:
             # Parse the formula, and return if it is valid
-            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, df, throw_errors=True)
+            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, dfs, df_names, sheet_index, throw_errors=True)
             return fixed_formula
         except:
             pass
@@ -269,7 +273,9 @@ def exec_column_formula(
         column_header,
         formula_label,
         index_labels_formula_is_applied_to,
-        post_state.dfs[sheet_index],
+        post_state.dfs,
+        post_state.df_names,
+        sheet_index,
     )
 
     try:

@@ -964,7 +964,7 @@ def parse_formula(
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
         dfs: List[pd.DataFrame],
-        df_names,
+        df_names: List[str],
         sheet_index: int,
         throw_errors: bool=True,
         include_df_set: bool=True,

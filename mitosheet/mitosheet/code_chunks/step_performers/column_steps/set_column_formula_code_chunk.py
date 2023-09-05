@@ -52,7 +52,6 @@ class SetColumnFormulaCodeChunk(CodeChunk):
             self.post_state.dfs,
             self.post_state.df_names,
             self.sheet_index,
-            df_name=self.post_state.df_names[self.sheet_index],
         )
 
         return [

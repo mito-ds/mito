@@ -45,8 +45,9 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             self.column_header,
             self.formula_label,
             self.index_labels_formula_is_applied_to,
-            self.post_state.dfs[self.sheet_index],
-            df_name=self.post_state.df_names[self.sheet_index],
+            self.post_state.dfs,
+            df_names=self.post_state.df_names,
+            sheet_index=self.sheet_index,
             include_df_set=False,
         )
 
