@@ -449,7 +449,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
 
     // If the user passes an onSelectionChange, then, we fire off events any time the user selects
-    // a new region. Notably, the 
+    // a new region
     const previousSelections = useRef(gridState.selections);
     useEffect(() => {
         if (props.onSelectionChange) {

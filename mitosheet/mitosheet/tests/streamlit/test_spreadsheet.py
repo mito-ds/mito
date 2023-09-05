@@ -45,7 +45,7 @@ SPREADSHEET_PARAMS = [
     ),
     (
         'return type of dfs',
-        [df1], {'return_type': 'dfs'},
+        [df1], {'return_type': 'dfs_dict'},
         (
             OrderedDict({'df1': df1})
         )

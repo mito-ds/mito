@@ -57,18 +57,14 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
     functions_before = [f for f in locals().values() if callable(f)]
     exec(code)
     functions = [f for f in locals().values() if callable(f) and f not in functions_before]
-    new_functions = []
+
     # We then find the one function that was defined inside of this module -- as the above 
     # exec likely defines all the other mitosheet functions (none of which we actaully want)
     for f in functions:
         if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
-            new_functions.append(f)
-
-    if len(new_functions) == 0:
-        return None
-
-    return new_functions[0]
-
+            return f
+        
+    raise ValueError(f'No functions defined in code: {code}')
 
 
 def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
@@ -312,7 +308,7 @@ try:
             return get_selected_element(final_state.dfs, selection)
         elif return_type == 'default_list':
             return final_state.dfs, code
-        elif return_type == 'dfs':
+        elif return_type == 'dfs_dict':
             return ordered_dict
         elif return_type == 'code':
             return code

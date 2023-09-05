@@ -208,7 +208,7 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
     result = re.sub(pattern, replacement, text)
     return result
 
-def get_final_function_params_from_code_options(
+def get_final_function_params_with_subtypes_turned_to_parameters(
         steps_manager: StepsManagerType, 
         function_params: CodeOptionsFunctionParams # type: ignore
     ) -> Dict[ParamName, ParamValue]:
@@ -257,7 +257,7 @@ def convert_script_to_function(
     final_code.append("")
 
     # Get the final function param
-    function_params = get_final_function_params_from_code_options(steps_manager, function_params)
+    function_params = get_final_function_params_with_subtypes_turned_to_parameters(steps_manager, function_params)
 
     # The param
     param_names = _get_param_names_string(steps_manager, function_params)
