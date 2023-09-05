@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import pytest
 from mitosheet.streamlit.v1 import spreadsheet
+from mitosheet.tests.decorators import requires_streamlit
 
 df1 = pd.DataFrame({'A': [123]})
 df2 = pd.DataFrame({'A': [1234]})
@@ -58,6 +59,7 @@ SPREADSHEET_PARAMS = [
         )
     ),
 ]
+@requires_streamlit
 @pytest.mark.parametrize('test, args, kwargs, expected', SPREADSHEET_PARAMS)
 def test_creates_spreadsheet(test, args, kwargs, expected):
 
@@ -84,10 +86,12 @@ def test_creates_spreadsheet(test, args, kwargs, expected):
     else:
         assert result == expected
 
+@requires_streamlit
 def test_return_type_function():
     f = spreadsheet(df1, code_options={'as_function': True, 'call_function': False, 'function_name': 'test', 'function_params': {}}, return_type='function')
     assert callable(f)
 
+@requires_streamlit
 def test_return_type_function_invalid_code_options():
     with pytest.raises(ValueError):
         spreadsheet(df1, return_type='function')
