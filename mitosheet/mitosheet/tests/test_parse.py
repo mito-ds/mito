@@ -1156,6 +1156,26 @@ VLOOKUP_TESTS = [
         'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'D\'], 2)',
         set(['VLOOKUP']),
         set(['A', 'D', 'C'])
+    ),
+    (
+        '=VLOOKUP(A0, df_2!B:C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2)',
+        set(['VLOOKUP']),
+        set(['A', 'B', 'C'])
     )
 ]
 
