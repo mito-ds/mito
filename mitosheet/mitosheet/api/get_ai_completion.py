@@ -8,6 +8,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests  # type: ignore
+from litellm import completion
 
 from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
 from mitosheet.types import Selection, StepsManagerType
@@ -146,30 +147,26 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
 
 
         data = _get_ai_completion_data(prompt)
-        headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {OPENAI_API_KEY}' 
-        }
-
         try:
-                res = requests.post(OPEN_AI_URL, headers=headers, json=data)
+                res = completion(
+                        **data,
+                        api_key=OPENAI_API_KEY
+                )
         except:
                 return {
                         'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
                 }
-        
-        if res.status_code == 200:
-                res_json = res.json()
-                completion: str = res_json['choices'][0]['message']["content"]
+        try:
+                completion_response: str = res['choices'][0]['message']["content"]
                 # We strip all blank lines from the generated code, if they are at the start or end
-                completion = completion.strip()
+                completion_response = completion_response.strip()
                 return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': completion,
                 }
-
-        return {
-                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
-        }
+        except:
+                return {
+                        'error': f'There was an error accessing the OpenAI API. {res}'
+                }
