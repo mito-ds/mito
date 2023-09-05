@@ -30,6 +30,9 @@ class MyDocument extends Document {
                 crossOrigin=""
             />
             <script defer data-domain="trymito.io" src="https://plausible.io/js/script.js"></script>
+            {/* Import Prism.js and css*/}
+            <link rel="stylesheet" href="/prism.css" />
+            <script src="/prism.js"></script>
         </Head> 
         <body>
           <Main />

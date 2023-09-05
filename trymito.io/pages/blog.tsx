@@ -34,16 +34,15 @@ function getReadingTime(slug: string) {
 }
 
 function Post (props: {post: PostOrPage}) {
-  console.log(props.post)
 
   return (
     <Link href={"/blog/" + props.post.slug} key={props.post.id}>
       <div className={blogStyles.post}>
 
         <h3>{props.post.title}</h3>
-        <div className={blogStyles.excerpt}>
+        <p className={blogStyles.excerpt}>
           {props.post.excerpt}...
-        </div>
+        </p>
         <div className={blogStyles.post_metadata}>
           <div className={blogStyles.published_at}>
             {props.post.published_at &&

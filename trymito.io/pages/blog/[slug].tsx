@@ -8,6 +8,13 @@ import Footer from '../../components/Footer/Footer';
 import pageStyles from '../../styles/Page.module.css'
 import postStyles from '../../styles/Post.module.css';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
+import { useEffect } from 'react';
+
+declare global {
+  interface Window { Prism: any; }
+}
+
+
 
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
@@ -20,10 +27,14 @@ const PostPage = (props: {post: PostOrPage}) => {
   const authorName = props.post.primary_author?.name;
   const pulishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
 
+  useEffect(() => {
+    window.Prism.highlightAll();
+  }, []);
+
   return (
     <>
       <Head>
-          <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
+          <title>{props.post.title} | Mito </title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         
@@ -35,18 +46,25 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_content}>
               <div className={postStyles.post_metadata}>
                 {authorName &&
-                  <div>
+                  <p>
                     By {props.post.primary_author?.name}
-                  </div>
+                  </p>
                 }
+                {!authorName &&
+                  <p>
+                    The Mito Team
+                  </p>
+                }
+                {/* A line with space on either side*/}
+                <p style={{marginLeft: '.5rem', marginRight: '.5rem'}}> - </p>
                 {pulishedAt &&
-                  <div>
+                  <p>
                     {pulishedAt}
-                  </div>
+                  </p>
                 }
 
               </div>
-              <h1>{props.post.title}</h1>
+              <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
               <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
             </div>
 
