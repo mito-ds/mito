@@ -1,9 +1,11 @@
 
+.post_title_and_content {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+}
 
 .post_content {
     max-width: min(720px, 90vw);
-    margin-top: 4rem;
-    margin-bottom: 4rem;
 }
 
 /* Make lists start at the right place*/
@@ -41,6 +43,11 @@
     margin-top: 2rem;
 }
 .post_content figcaption {
+    color: var(--color-text-secondary);
+}
+
+.post_content blockquote {
+    font-size: 2rem;
     color: var(--color-text-secondary);
 }
 

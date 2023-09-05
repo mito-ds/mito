@@ -43,7 +43,7 @@ const PostPage = (props: {post: PostOrPage}) => {
         <div className={pageStyles.container}>
           <main className={pageStyles.main}>
 
-            <div className={postStyles.post_content}>
+            <div className={postStyles.post_content_and_title}>
               <div className={postStyles.post_metadata}>
                 {authorName &&
                   <p>
@@ -65,7 +65,9 @@ const PostPage = (props: {post: PostOrPage}) => {
 
               </div>
               <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
-              <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
+              <div className={postStyles.post_content}>
+                <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
+              </div>
             </div>
 
             <section className={pageStyles.background_card}>
