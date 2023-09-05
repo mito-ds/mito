@@ -1112,6 +1112,30 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
     ),
 ]
 
+"""
+PARSE_TESTS contains a variety of tests that make sure
+formula parsing is working properly; it is passed as 
+a parameter into the test_parse test below.
+
+Order of params is: formula, address, python_code, functions, columns
+
+See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
+"""
+PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
+
+@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
+def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [df], ['df'], 0) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
+
+
+# Right now, VLOOKUP is the only formula that allows cross-sheet referencing. In the future, 
+# other cross-sheet references in parser can be added here. 
 VLOOKUP_TESTS = [
     (
         '=VLOOKUP(A0, df_2!A:B, 2)',
@@ -1134,28 +1158,6 @@ VLOOKUP_TESTS = [
         set(['A', 'B'])
     )
 ]
-
-
-"""
-PARSE_TESTS contains a variety of tests that make sure
-formula parsing is working properly; it is passed as 
-a parameter into the test_parse test below.
-
-Order of params is: formula, address, python_code, functions, columns
-
-See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
-"""
-PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
-
-@pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
-def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
-    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [df], ['df'], 0) 
-    assert (code, funcs, cols) == \
-        (
-            python_code, 
-            functions, 
-            columns
-        )
 
 @pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
 def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
