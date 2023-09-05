@@ -431,7 +431,7 @@ def get_raw_parser_matches(
     to a parsed value is then done, and we can determine the row offset 
     of the match.
 
-    formula = "=df 1!A0"
+    formula = "=df_1!A0"
     formula_label = 1 (aka formula was written in B1)
     string_matches = []
     df = pd.DataFrame({'A': [1], 'B': [1]})
@@ -440,8 +440,8 @@ def get_raw_parser_matches(
     {
         'type': '{SHEET}',
         'substring_range': (1, 4),
-        'unparsed':'df 1',
-        'parsed': 'df 1'
+        'unparsed':'df_1',
+        'parsed': 'df_1'
     }
     {
         'type': '{HEADER}',
@@ -467,7 +467,7 @@ def get_raw_parser_matches(
 
     raw_parser_matches: List[RawParserMatch] = []
 
-    for sheet_index, sheet_name in enumerate(df_names):
+    for other_sheet_index, sheet_name in enumerate(df_names):
         if safe_contains(formula, f'{sheet_name}!', column_headers):
             raw_parser_matches.append({
                 'type': '{SHEET}',
@@ -478,7 +478,7 @@ def get_raw_parser_matches(
             })
 
             # Update to look at the column headers in the other sheet
-            column_headers = dfs[sheet_index].columns.to_list()
+            column_headers = column_headers + dfs[other_sheet_index].columns.to_list()
 
     # We look for column headers from longest to shortest, to enable us
     # to issues if one column header is a substring of another
@@ -753,7 +753,7 @@ def get_parser_matches(
     return parser_matches
 
                 
-def replace_column_headers_and_indexes(
+def replace_column_headers_and_indexes_and_sheet_names(
         formula: str,
         formula_label: Union[str, bool, int, float],
         string_matches: List,
@@ -999,7 +999,7 @@ def parse_formula(
     string_matches = get_string_matches(formula)
 
     # Then, we get the column header matches, as well as replace them with valid python
-    code_with_column_headers, column_header_dependencies, index_label_dependencies = replace_column_headers_and_indexes(
+    code_with_column_headers, column_header_dependencies, index_label_dependencies = replace_column_headers_and_indexes_and_sheet_names(
         formula, 
         formula_label,
         string_matches,
