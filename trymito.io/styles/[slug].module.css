@@ -8,6 +8,10 @@
     max-width: min(800px, 90vw);
 }
 
+.post_title h1 {
+    font-size: 3rem;
+}
+
 .post_content {
     max-width: min(720px, 90vw);
 }
@@ -32,6 +36,7 @@
 .post_metadata {
     display: flex;
     flex-direction: row;
+    margin-bottom: .5rem;
 }
 
 .post_content pre {
@@ -51,6 +56,8 @@
 }
 .post_content figcaption {
     color: var(--color-text-secondary);
+    font-size: .7rem;
+    text-align: center;
 }
 
 .post_content blockquote {

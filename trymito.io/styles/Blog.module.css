@@ -1,16 +1,15 @@
-
-.first_post {
-    width: 60vw;
+.blog_title {
     margin-top: 4rem;
-    cursor: pointer;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-.first_post > h3 {
-    font-size: 4rem;
-}
-
-.first_post > p {
-    font-size: 1rem;
+.posts_container {
+    max-width: min(800px, 90vw);
 }
 
 .post {
@@ -40,10 +39,4 @@
 
 .reading_time {
     color: var(--color-text-secondary);
-}
-
-.other_posts {
-    align-self: start;
-    margin-top: 4rem;
-    margin-bottom: 1rem;
 }

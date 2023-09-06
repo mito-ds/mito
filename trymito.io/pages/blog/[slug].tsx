@@ -1,14 +1,14 @@
 
 import { PostOrPage } from '@tryghost/content-api';
-import { getSinglePost, getPosts } from '../../utils/posts';
-import { GetStaticProps } from 'next/types';
 import Head from 'next/head';
-import Header from '../../components/Header/Header';
+import { GetStaticProps } from 'next/types';
+import { useEffect } from 'react';
+import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
 import Footer from '../../components/Footer/Footer';
-import pageStyles from '../../styles/Page.module.css'
+import Header from '../../components/Header/Header';
+import pageStyles from '../../styles/Page.module.css';
 import postStyles from '../../styles/[slug].module.css';
-import ContactCTACard from '../../components/CTACards/ContactCTACard';
-import { useEffect, useState } from 'react';
+import { getPosts, getSinglePost } from '../../utils/posts';
 
 declare global {
   interface Window { Prism: any; }
@@ -65,9 +65,8 @@ const PostPage = (props: {post: PostOrPage}) => {
                       {pulishedAt}
                     </p>
                   }
-              </div>
-              <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
-
+                </div>
+                <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
             </div>
               <div className={postStyles.post_content}>
                 <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
@@ -75,7 +74,7 @@ const PostPage = (props: {post: PostOrPage}) => {
             </div>
 
             <section className={pageStyles.background_card}>
-              <ContactCTACard />
+              <DownloadCTACard />
             </section>
           </main>
 

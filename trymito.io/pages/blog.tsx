@@ -62,9 +62,6 @@ function Post (props: {post: PostOrPage}) {
  
 export default function Page(props: {posts: PostsOrPages}) {
 
-  const firstPost = props.posts[0]
-  const otherPosts = props.posts.slice(1)
-
   return (
     <>
       <Head>
@@ -77,24 +74,16 @@ export default function Page(props: {posts: PostsOrPages}) {
       <div className={pageStyles.container}>
 
           <main className={pageStyles.main}>
-
-          <Link href={"/blog/" + firstPost.slug} key={firstPost.id}>
-            <div className={blogStyles.first_post}>
-
-              <h3>{firstPost.title}</h3>
-              <p>
-                {firstPost.excerpt}...
-              </p>
-
+            <div className={blogStyles.blog_title}>
+              <h1> Mito Blog</h1>
+              <p style={{marginTop: '0'}}>The best place to stay up to date with Mito's development, spreadsheets in Python, and more.</p>
             </div>
-          </Link>
-          <h2 className={blogStyles.other_posts}>
-            More Issues
-          </h2>
-            
-            {otherPosts.map(post => (
-              <Post post={post} key={post.slug} />
-            ))}
+
+            <div className={blogStyles.posts_container}>
+              {props.posts.map(post => (
+                <Post post={post} key={post.slug} />
+              ))}
+            </div>            
         </main>
 
         <Footer />
