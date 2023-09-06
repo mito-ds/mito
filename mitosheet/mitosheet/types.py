@@ -290,6 +290,10 @@ if sys.version_info[:3] > (3, 8, 0):
         type: Literal['{HEADER}']
         display_column_header: str
 
+    class FrontendFormulaSheetReference(TypedDict):
+        type: Literal['{SHEET}']
+        display_sheet_name: str
+
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
 
@@ -368,7 +372,7 @@ else:
     UserDefinedImporterParamType = Any # type: ignore
 
 
-FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference, FrontendFormulaSheetReference]
 FrontendFormula = List[FrontendFormulaPart]
 
 FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]

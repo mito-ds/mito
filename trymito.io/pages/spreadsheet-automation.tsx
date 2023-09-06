@@ -320,7 +320,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
                 </div>
                 <h3>
-                  Lager datasets, faster edits
+                  Larger datasets, faster edits
                 </h3>
                 <p>
                   Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.

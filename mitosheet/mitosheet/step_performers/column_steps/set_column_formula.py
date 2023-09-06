@@ -114,7 +114,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             pandas_start_time = perf_counter()
-            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
+            exec_column_formula(post_state, sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -250,7 +250,6 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
 
 def exec_column_formula(
     post_state: State, 
-    df: pd.DataFrame, 
     sheet_index: int, 
     column_id: ColumnID, 
     formula_label: Union[str, bool, int, float], 
@@ -262,6 +261,7 @@ def exec_column_formula(
     Helper function for refreshing the column when the formula is set
     """
 
+    df = post_state.dfs[sheet_index]
     df_name = post_state.df_names[sheet_index]
 
     if spreadsheet_code == '':
@@ -296,10 +296,9 @@ def exec_column_formula(
         
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
-
         exec(
             python_code,
-            {'df': df, 'pd': pd}, 
+            {**dict(zip(post_state.df_names, post_state.dfs)), 'pd': pd}, 
             locals_for_exec
         )
         # Then, update the column spreadsheet code

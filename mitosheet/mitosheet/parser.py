@@ -662,7 +662,7 @@ def get_parser_matches(
             return {
                 'type': '{SHEET}!{HEADER}:{HEADER}',
                 'substring_range': (curr_match['substring_range'][0], second_header_match['substring_range'][1]),
-                'unparsed': curr_match['unparsed'] + first_header_match['unparsed'] + second_header_match['unparsed'],
+                'unparsed': curr_match['unparsed'] + first_header_match['unparsed'] + ':' + second_header_match['unparsed'],
                 'parsed': (curr_match['parsed'], first_header_match['parsed'], second_header_match['parsed']),
                 'row_offset': curr_match['row_offset']
             }
@@ -843,7 +843,6 @@ def replace_column_headers_and_indexes_and_sheet_names(
             # We add all of the column headers that are between these two headers
             cols = cross_sheet_df.loc[:, first_column_header:second_column_header].columns.tolist()
             column_headers.update(cols)
-            print(get_header_header_selection_code(first_column_header, second_column_header))
             replace_string = f'{sheet_name}{get_header_header_selection_code(first_column_header, second_column_header)}'
 
         elif match_type == '{HEADER}:{HEADER}':
@@ -1113,6 +1112,15 @@ def get_frontend_formula(
             frontend_formula.append(get_frontend_formula_header_index_reference(column_header_one, row_offset_one))
             frontend_formula.append({'type': 'string part', 'string': ':'})
             frontend_formula.append(get_frontend_formula_header_index_reference(column_header_two, row_offset_two))
+
+        elif match_type == '{SHEET}!{HEADER}:{HEADER}':
+            (sheet_name, column_header_one, column_header_two) = match['parsed']
+            frontend_formula.append({ 'type': '{SHEET}', 'display_sheet_name': sheet_name})
+            frontend_formula.append({'type': 'string part', 'string': '!'})
+            frontend_formula.append(get_frontend_formula_header_reference(column_header_one))
+            frontend_formula.append({'type': 'string part', 'string': ':'})
+            frontend_formula.append(get_frontend_formula_header_reference(column_header_two))
+
 
         start = parser_match_end 
 
