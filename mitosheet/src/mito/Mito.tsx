@@ -176,7 +176,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     useEffect(() => {
 
+        console.log(mitoAPI, sendFunctionStatus)
+
         const replayAnalysisOnFirstRenderInStreamlit = async () => {
+            if (sendFunctionStatus !== 'finished') {
+                return 
+            }
+            
             const analysisName = analysisData.analysisToReplay?.analysisName;
             if (analysisName === undefined) {
                 return

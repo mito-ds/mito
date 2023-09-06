@@ -269,7 +269,7 @@ try:
         # the key is None, we generate a new one. Notably, we do this after getting the
         # mito_backend, so that we can cache the mito_backend on the user provided key.
         if key is None:
-            key = mito_backend.analysis_name
+            key = analysis_name if analysis_name is not None else mito_backend.analysis_name
 
         sheet_data_json = mito_backend.steps_manager.sheet_data_json,
         analysis_data_json = mito_backend.steps_manager.analysis_data_json,
