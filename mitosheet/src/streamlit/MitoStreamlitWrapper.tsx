@@ -1,7 +1,8 @@
 import {
     StreamlitComponentBase,
     withStreamlitConnection,
-    Theme
+    Theme,
+    Streamlit
 } from "streamlit-component-lib"
 import Mito from '../mito/Mito';
 import React, { ReactNode } from "react"
@@ -11,7 +12,7 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 
 interface State {
     responses: MitoResponse[],
-    analysisName: string
+    analysisName: string,
 }
 
 // Max delay is the longest we'll wait for the API to return a value
@@ -81,7 +82,9 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 
     constructor(props: any) {
         super(props);
-        this.state = { responses: [], analysisName: '' };
+        this.state = { 
+            responses: [], analysisName: '',
+        };
     }
 
     public getResponseData<ResultType>(id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -164,6 +167,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
     
     public render = (): ReactNode => {
 
+        const returnType = this.props.args['return_type'] as string;
         const sheetDataArray = getSheetDataArrayFromString(this.props.args['sheet_data_json']);
         const analysisData = getAnalysisDataFromString(this.props.args['analysis_data_json']);
         const userProfile = getUserProfileFromString(this.props.args['user_profile_json']);
@@ -196,6 +200,16 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                 analysisData={analysisData} 
                 userProfile={userProfile}
                 theme={getMitoThemeFromStreamlitTheme(this.props.theme)}
+                // Only define the onSelectionChange callback if we are returning the selection - so we
+                // don't set the component value unnecessarily (trigger reruns)
+                onSelectionChange={returnType === 'selection' ? (selectedDataframeIndex, selections) => {
+                    // Note that we don't mind if some values are debounced, since we only need
+                    // the most recent value -- unlike message sending where we can't miss any
+                    Streamlit.setComponentValue({
+                        selectedDataframeIndex, 
+                        selections
+                    });
+                }: undefined}
             />  
         )
     }

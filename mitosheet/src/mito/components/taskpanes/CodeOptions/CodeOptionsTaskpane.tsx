@@ -29,8 +29,14 @@ interface CodeOptionsTaskpaneProps {
 const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
 
     const [codeOptions, setCodeOptions] = useState(() => props.analysisData.codeOptions);
+    const [firstRender, setFirstRender] = useState(true);
 
     useDebouncedEffect(() => {
+        if (firstRender) {
+            setFirstRender(false);
+            return;
+        }
+
         void props.mitoAPI.updateCodeOptions(codeOptions);
     }, [codeOptions], 500);
 

@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import hashlib
+import inspect
 import json
 import os
 import pickle
@@ -41,6 +42,71 @@ def get_dataframe_hash(df: pd.DataFrame) -> bytes:
         df = df.sample(n=_PANDAS_SAMPLE_SIZE, random_state=0)
     
     return _get_dataframe_hash(df)
+
+
+def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
+    """
+    Given a string of code, returns the first function defined in the code. Notably, to do
+    this, it executes the code, and then returns the first function defined in the code. 
+
+    As it executes the full code string, you should only use this function if you trust the
+    code string -- and in our case, if the function is not called.
+
+    If no functions are defined, returns None
+    """
+    functions_before = [f for f in locals().values() if callable(f)]
+    exec(code)
+    functions = [f for f in locals().values() if callable(f) and f not in functions_before]
+
+    # We then find the one function that was defined inside of this module -- as the above 
+    # exec likely defines all the other mitosheet functions (none of which we actaully want)
+    for f in functions:
+        if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
+            return f
+        
+    raise ValueError(f'No functions defined in code: {code}')
+
+
+def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
+
+    if indexAndSelections is None:
+        return None
+
+    selected_dataframe_index = indexAndSelections['selectedDataframeIndex']
+    if selected_dataframe_index < 0 or selected_dataframe_index >= len(dfs):
+        return None
+    
+    df = dfs[selected_dataframe_index]
+
+    # If there are multiple selections, for now we only return the first one - for simplicity in return types
+    selection = next(iter(indexAndSelections['selections']))
+
+    # Selections have the format: {'startingRowIndex': 0, 'endingRowIndex': 0, 'startingColumnIndex': 5, 'endingColumnIndex': 5}
+
+    smallerRowIndex = min(selection['startingRowIndex'], selection['endingRowIndex'])
+    largerRowIndex = max(selection['startingRowIndex'], selection['endingRowIndex'])
+    smallerColumnIndex = min(selection['startingColumnIndex'], selection['endingColumnIndex'])
+    largerColumnIndex = max(selection['startingColumnIndex'], selection['endingColumnIndex'])
+
+    # If the row indexes selected are both -1, we just return the column
+    if smallerRowIndex == -1 and largerRowIndex == -1:
+        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
+    
+    # If the column indexes selected are both -1, we just return the row
+    if smallerColumnIndex == -1 and largerColumnIndex == -1:
+        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
+    
+    # If one row index is -1, then we return the column
+    if smallerRowIndex == -1:
+        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
+    
+    # If one column index is -1, then we return the row
+    if smallerColumnIndex == -1:
+        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
+    
+    # Otherwise, we return the intersection of the row and column
+    return df.iloc[smallerRowIndex:largerRowIndex + 1, smallerColumnIndex:largerColumnIndex + 1]
+    
 
 try:
     import streamlit.components.v1 as components
@@ -136,8 +202,9 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
+            return_type: str='default',
             key=None
-        ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
+        ) -> Any:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -218,21 +285,43 @@ try:
             
         responses_json = json.dumps(responses)
 
-        _mito_component_func(
+        # NOTE: selection is Optional -- as if the user has not set the return type as selected, we don't
+        # waste a component value update setting the value
+        selection = _mito_component_func(
             key=key, 
             sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
-            responses_json=responses_json, id=id(mito_backend)
+            responses_json=responses_json, id=id(mito_backend),
+            return_type=return_type
         )
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
-        code = mito_backend.steps_manager.code()
+        code = "\n".join(mito_backend.steps_manager.code())
 
         ordered_dict = OrderedDict()
         for df_name, df in zip(final_state.df_names, final_state.dfs):
             ordered_dict[df_name] = df
 
-        return ordered_dict, "\n".join(code)
+        if return_type == 'default':
+            return ordered_dict, code
+        elif return_type == 'selection':
+            return get_selected_element(final_state.dfs, selection)
+        elif return_type == 'default_list':
+            return final_state.dfs, code
+        elif return_type == 'dfs_dict':
+            return ordered_dict
+        elif return_type == 'code':
+            return code
+        elif return_type == 'dfs_list':
+            return final_state.dfs
+        elif return_type == 'function':
+            if code_options is None or not code_options['as_function'] or code_options['call_function']:
+                raise ValueError(f"""You must set code_options with `as_function=True` and `call_function=False` in order to return a function.""")
+            
+            return get_function_from_code_unsafe(code)
+        else:
+            raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
+
     
 except ImportError:
     def spreadsheet(*args, key=None): # type: ignore

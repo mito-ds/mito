@@ -11,6 +11,7 @@ import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.types import ParamSubtype, ParamType, ParamValue
 from mitosheet.utils import is_prev_version
 
 # Note: These defaults must be the same as the pandas.read_csv defaults
@@ -133,11 +134,11 @@ class SimpleImportCodeChunk(CodeChunk):
 
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         return list(
             zip(
                 map(lambda x: f"r{column_header_to_transpiled_code(x)}", self.file_names), 
                 ['file_name'] * len(self.file_names),
-                ['CSV import file path'] * len(self.file_names),
+                ['file_name_import_csv'] * len(self.file_names),
             )
         )

@@ -9,7 +9,7 @@ import {
 // TODO: This delay is off. We should ask how long this debounce is, and then
 // set this to be a bit longer than that. TODO: as part of the beta, we need to figure
 // this out. 
-const DELAY_BETWEEN_SET_COMPONENT_VALUES = 25;
+export const DELAY_BETWEEN_SET_COMPONENT_VALUES = 25;
 
 /**
  * This component is used to pass messages from the Mito iframe to the running 
