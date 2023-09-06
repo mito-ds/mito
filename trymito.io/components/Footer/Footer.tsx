@@ -71,7 +71,7 @@ const Footer = (): JSX.Element => {
                         <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://blog.trymito.io'>Blog</a>
+                        <Link href='/blog'>Blog</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
