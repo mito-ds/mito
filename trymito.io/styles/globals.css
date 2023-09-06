@@ -308,3 +308,13 @@ a {
 .code-background:hover {
   background-color: var(--color-light-purple);
 }
+
+/* We don't want a video player to appear below the gifs on our blog, and so we globally hide them */
+.kg-video-player {
+  display: none;
+}
+
+.kg-embed-card > iframe {
+  width: 100%;
+  height: 250px;
+}

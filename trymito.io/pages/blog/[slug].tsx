@@ -6,9 +6,9 @@ import Head from 'next/head';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import pageStyles from '../../styles/Page.module.css'
-import postStyles from '../../styles/Post.module.css';
+import postStyles from '../../styles/[slug].module.css';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 declare global {
   interface Window { Prism: any; }
@@ -19,6 +19,7 @@ declare global {
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
   // Render post title and content in the page from props
+
 
   if (!props.post.html) {
     return <div>Not found</div>
@@ -43,28 +44,31 @@ const PostPage = (props: {post: PostOrPage}) => {
         <div className={pageStyles.container}>
           <main className={pageStyles.main}>
 
-            <div className={postStyles.post_content_and_title}>
-              <div className={postStyles.post_metadata}>
-                {authorName &&
-                  <p>
-                    By {props.post.primary_author?.name}
-                  </p>
-                }
-                {!authorName &&
-                  <p>
-                    The Mito Team
-                  </p>
-                }
-                {/* A line with space on either side*/}
-                <p style={{marginLeft: '.5rem', marginRight: '.5rem'}}> - </p>
-                {pulishedAt &&
-                  <p>
-                    {pulishedAt}
-                  </p>
-                }
+            <div className={postStyles.post}>
+              <div className={postStyles.post_title}>
 
+                <div className={postStyles.post_metadata}>
+                  {authorName &&
+                    <p>
+                      By {props.post.primary_author?.name}
+                    </p>
+                  }
+                  {!authorName &&
+                    <p>
+                      The Mito Team
+                    </p>
+                  }
+                  {/* A line with space on either side*/}
+                  <p style={{marginLeft: '.5rem', marginRight: '.5rem'}}> - </p>
+                  {pulishedAt &&
+                    <p>
+                      {pulishedAt}
+                    </p>
+                  }
               </div>
               <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
+
+            </div>
               <div className={postStyles.post_content}>
                 <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
               </div>

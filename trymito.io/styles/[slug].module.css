@@ -1,7 +1,11 @@
 
-.post_title_and_content {
+.post {
     margin-top: 4rem;
     margin-bottom: 4rem;
+}
+
+.post_title {
+    max-width: min(800px, 90vw);
 }
 
 .post_content {
@@ -19,6 +23,9 @@
 }
 
 .post_content ol > li {
+    margin-top: 0.5rem;
+}
+.post_content ul > li {
     margin-top: 0.5rem;
 }
 
@@ -61,6 +68,10 @@
 }
 
 .post_content img {
+    max-width: 100%;
+    height: auto;
+}
+.post_content video {
     max-width: 100%;
     height: auto;
 }
