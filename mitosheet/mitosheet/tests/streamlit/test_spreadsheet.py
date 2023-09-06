@@ -59,8 +59,9 @@ SPREADSHEET_PARAMS = [
         )
     ),
 ]
-@requires_streamlit
+
 @pytest.mark.parametrize('test, args, kwargs, expected', SPREADSHEET_PARAMS)
+@requires_streamlit
 def test_creates_spreadsheet(test, args, kwargs, expected):
 
     result = spreadsheet(*args, **kwargs)
