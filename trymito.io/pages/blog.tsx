@@ -76,7 +76,7 @@ export default function Page(props: {posts: PostsOrPages}) {
           <main className={pageStyles.main}>
             <div className={blogStyles.blog_title}>
               <h1> Mito Blog</h1>
-              <p style={{marginTop: '0'}}>The best place to stay up to date with Mito's development, spreadsheets in Python, and more.</p>
+              <p style={{marginTop: '0'}}>The best place to stay up to date with Mito&apos;s development, spreadsheets in Python, and more.</p>
             </div>
 
             <div className={blogStyles.posts_container}>
