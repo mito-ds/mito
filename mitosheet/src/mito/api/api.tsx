@@ -15,6 +15,7 @@ import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTa
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
 import { AnalysisData, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
+import { convertStringToFloatOrUndefined } from "../utils/numbers";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 
@@ -180,6 +181,7 @@ export class MitoAPI {
         // Generate a random id, and add it to the params
         const id = getRandomId();
         msg['id'] = id;
+        console.log('id: ', id)
 
         if (this._send === undefined) {
             const _send = await this.getSendFunction();
@@ -193,6 +195,7 @@ export class MitoAPI {
 
         const loadingTimeout = this._startLoading(msg);        
         const response = await this._send<ResultType>(msg);
+        console.log(response)
         this._stopLoading(id, loadingTimeout);
 
         if ('error' in response) {

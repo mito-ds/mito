@@ -175,6 +175,42 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [mitoAPI])
 
     useEffect(() => {
+
+        const replayAnalysisOnFirstRenderInStreamlit = async () => {
+            const analysisName = analysisData.analysisToReplay?.analysisName;
+            if (analysisName === undefined) {
+                return
+            }
+
+            // I have to actually get the args here
+            const error = await mitoAPI.updateReplayAnalysis(analysisName, []);
+
+            if ('error' in error) {
+                /**
+                 * If an analysis fails to replay, we open the update import pre replay 
+                 * taskpane with the error. The analysis either failed because an import
+                 * step failed, or some other step failed as the structure of the data 
+                 * changed. 
+                 * 
+                 * In either case, we give the user the update import pre replay taskpane
+                 * so that they can hopefully resolve these issues.
+                 */
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {
+                            type: TaskpaneType.UPDATEIMPORTS,
+                            failedReplayData: {
+                                analysisName: analysisName,
+                                error: error,
+                                args: []
+                            }
+                        }
+                    }
+                })
+            }
+        }
+
         /**
          * The mitosheet is rendered first when the mitosheet.sheet() call is made,
          * but then it may be rerendered when the page the mitosheet is on is refreshed.
@@ -183,7 +219,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * not when the page is refreshed. We do those things in this effect, and additionally
          * track each time we rerender.
          */
-        const updateMitosheetCallCellOnFirstRender = async () => {
+        const updateMitosheetCallCellOnFirstRenderInJupyter = async () => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
             const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName) ?? [];
@@ -264,16 +300,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
             // Note we check this is the first render AND that we have a created comm. This ensures
             // we only try to send messages when possible
             if (currentRenderCount === 0 && sendFunctionStatus === 'finished') {
-                await updateMitosheetCallCellOnFirstRender();
+                await updateMitosheetCallCellOnFirstRenderInJupyter();
             }
             // Anytime we render, update the render count
             await mitoAPI.updateRenderCount();
         }
 
+
+        console.log('in streamlit repaly: ', analysisData.replayAnalysisInStreamlit)
+
         // If we are in a notebook, we need to do some work on the first render. Notably, we do not need
         // to do this work if we are in streamlit, and rather it just adds message processing overhead
         if (isInJupyterNotebook() || isInJupyterLab()) {
             void handleRenderInNotebook();
+        }
+        
+        if (isInStreamlit() && analysisData.replayAnalysisInStreamlit) {
+            void replayAnalysisOnFirstRenderInStreamlit()
         }
     }, [mitoAPI, sendFunctionStatus])
 

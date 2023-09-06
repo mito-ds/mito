@@ -159,6 +159,7 @@ try:
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
+            analysis_name: Optional[str]=None,
             key: Optional[str]=None # So it caches on key
         ) -> Tuple[MitoBackend, List[Any]]: 
 
@@ -167,6 +168,7 @@ try:
             import_folder=import_folder,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions,
             code_options=_code_options,
+            analysis_to_replay=analysis_name,
         )
 
         # Make a send function that stores the responses in a list
@@ -207,6 +209,7 @@ try:
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
             return_type: str='default',
+            analysis_name: Optional[str]=None,
             key=None
         ) -> Any:
         """
@@ -258,6 +261,7 @@ try:
             import_folder=import_folder,
             session_id=session_id,
             df_names=df_names, 
+            analysis_name=analysis_name,
             key=key
         )
 

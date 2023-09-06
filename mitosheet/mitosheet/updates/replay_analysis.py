@@ -16,6 +16,7 @@ from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps import is_import_step_type
 from mitosheet.api.get_imported_files_and_dataframes_from_current_steps import get_import_data_with_single_import_list
 from mitosheet.updates.args_update import do_arg_update
+from mitosheet.user.location import is_streamlit
 
 REPLAY_ANALYSIS_UPDATE_EVENT = 'replay_analysis_update'
 REPLAY_ANALYSIS_UPDATE_PARAMS = [
@@ -83,8 +84,15 @@ def execute_replay_analysis_update(
 
     If any step fails to execute, none of the analysis gets replayed at all.
     """
+
+    if is_streamlit():
+        steps_manager.replayAnalysisInStreamlit = False
+    print("UPDATIND")
     # When the frontend is refreshed, we read in and replay the anlaysis again
     # unnecessarily, aka we need to read this
+    print(1)
+    print(analysis_name)
+    print(steps_manager.analysis_name)
     if analysis_name == steps_manager.analysis_name:
         return
 
@@ -102,6 +110,8 @@ def execute_replay_analysis_update(
 
     previous_public_interface_version = steps_manager.public_interface_version
     previous_code_options = steps_manager.code_options
+
+    print(5)
 
     # If there are args to the mitosheet call, then set them on the steps manager
     if len(args) > 0:
@@ -124,6 +134,7 @@ def execute_replay_analysis_update(
     # so that we actually do go about overwriting the saved analysis in this case.
     # If the above errors, then we won't overwrite the analysis that was attempted 
     # to be played
+    print(9)
     steps_manager.analysis_name = analysis_name
 
 

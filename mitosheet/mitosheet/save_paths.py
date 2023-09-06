@@ -14,3 +14,5 @@ else:
 
 # Where all global .mito files are stored
 MITO_FOLDER = os.path.join(HOME_FOLDER, ".mito")
+# Where all global .spreadsheet files are stored for this app
+SPREADHSEET_FOLDER = ".spreadsheet"

@@ -759,6 +759,7 @@ export interface AnalysisData {
         analysisName: string,
         existsOnDisk: boolean,
     } | null | undefined,
+    replayAnalysisInStreamlit: boolean, // TODO: Add doc string above
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,

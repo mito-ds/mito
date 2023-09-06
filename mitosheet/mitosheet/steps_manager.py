@@ -35,6 +35,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
+from mitosheet.user.location import is_streamlit
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
 from mitosheet.utils import (NpEncoder, check_valid_sheet_functions, dfs_to_array_for_json, get_new_id,
                              is_default_df_names)
@@ -193,7 +194,7 @@ class StepsManager:
         self.analysis_name = 'id-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
         # We also save some data about the analysis the user wants to replay, if there
-        # is such an analysis
+        # is such an analysis)
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
 
@@ -299,6 +300,8 @@ class StepsManager:
         self.redo_count = 0
         self.undo_count = 0
 
+        self.replayAnalysisInStreamlit = is_streamlit() and self.analysis_to_replay is not None and self.curr_step_idx == 0
+
         # This stores the number of times that the sheet renders, and we use it to detect
         # when we are on the first render of a sheet. This is very useful for making
         # sure we only update the state of the backend on the first render of a sheet
@@ -377,9 +380,10 @@ class StepsManager:
                 "analysisName": self.analysis_name,
                 "publicInterfaceVersion": self.public_interface_version,
                 "analysisToReplay": {
-                    'analysisName': self.analysis_to_replay,
+                    'analysisName': self.analysis_to_replay, # I want to use this one for streamlit
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
+                "replayAnalysisInStreamlit": self.replayAnalysisInStreamlit,
                 "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,

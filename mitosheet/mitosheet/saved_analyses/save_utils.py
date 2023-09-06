@@ -15,8 +15,9 @@ from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeOptions, StepsManagerType
+from mitosheet.user.location import is_streamlit
 from mitosheet.utils import NpEncoder
-from mitosheet.save_paths import MITO_FOLDER
+from mitosheet.save_paths import MITO_FOLDER, SPREADHSEET_FOLDER
 
 # The current version of the saved Mito analysis
 # where we save all the analyses for this version
@@ -42,9 +43,10 @@ def read_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
     representing it.
     """
 
-    analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
+    analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json' if not is_streamlit() else f'{SPREADHSEET_FOLDER}/{analysis_name}.json'
 
     if not os.path.exists(analysis_path):
+        print(f'No analysis found at {analysis_path}')
         return None
 
     with open(analysis_path) as f:
@@ -54,10 +56,11 @@ def read_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
         except: 
             return None
 
+
 def read_and_upgrade_analysis(analysis_name: str, args: List[str]) -> Optional[Dict[str, Any]]:
     """
-    Given an analysis_name, reads the saved analysis in
-    ~/.mito/{analysis_name}.json, does it's best to upgrade it to the current
+    Given an analysis_name, reads the saved analysis in ~/.mito/{analysis_name}.json
+    ~/.spreadsheet/{analysis_name}.json, does it's best to upgrade it to the current
     saved version, and then returns it.
     """
     from mitosheet.saved_analyses import upgrade_saved_analysis_to_current_version
