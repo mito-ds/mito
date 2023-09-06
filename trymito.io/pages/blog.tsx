@@ -93,7 +93,7 @@ export default function Page(props: {posts: PostsOrPages}) {
           </h2>
             
             {otherPosts.map(post => (
-              <Post post={post} />
+              <Post post={post} key={post.slug} />
             ))}
         </main>
 

@@ -20,6 +20,9 @@ declare global {
 const PostPage = (props: {post: PostOrPage}) => {
   // Render post title and content in the page from props
 
+  useEffect(() => {
+    window.Prism.highlightAll();
+  }, []);
 
   if (!props.post.html) {
     return <div>Not found</div>
@@ -28,9 +31,6 @@ const PostPage = (props: {post: PostOrPage}) => {
   const authorName = props.post.primary_author?.name;
   const pulishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
 
-  useEffect(() => {
-    window.Prism.highlightAll();
-  }, []);
 
   return (
     <>
@@ -107,7 +107,6 @@ export async function getStaticPaths() {
 // Pass the page slug over to the "getSinglePost" function
 // In turn passing it to the posts.read() to query the Ghost Content API
 export const getStaticProps: GetStaticProps = async (context) => {
-    console.log(context);
     const slug = context.params?.slug;
 
     const post = slug && await getSinglePost(slug as string)
