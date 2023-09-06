@@ -209,12 +209,13 @@ export class MitoAPI {
     /*
         Gets the path data for given path parts
     */
-    async getPathContents(pathParts: string[]): Promise<MitoAPIResult<PathContents>> {
+    async getPathContents(pathParts: string[], importFolderPath: string | undefined): Promise<MitoAPIResult<PathContents>> {
         return await this.send<PathContents>({
             'event': 'api_call',
             'type': 'get_path_contents',
             'params': {
-                'path_parts': pathParts
+                'path_parts': pathParts,
+                'import_folder': importFolderPath
             }
         });
     }
@@ -257,12 +258,13 @@ export class MitoAPI {
         must be decoded from base64, and then turned into bytes
         before it can be downloaded
     */
-    async getDataframesAsExcel(sheetIndexes: number[]): Promise<MitoAPIResult<string>> {
+    async getDataframesAsExcel(sheetIndexes: number[], exportFormatting?: boolean): Promise<MitoAPIResult<string>> {
         return await this.send<string>({
             'event': 'api_call',
             'type': 'get_dataframe_as_excel',
             'params': {
-                'sheet_indexes': sheetIndexes
+                'sheet_indexes': sheetIndexes,
+                'export_formatting': exportFormatting
             },
         });
     }

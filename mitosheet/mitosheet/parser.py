@@ -63,6 +63,22 @@ def get_string_matches(
 
     return list(string_matches_double_quotes) + list(string_matches_single_quotes)
 
+def remove_string_literals(formula: str) -> str:
+    """
+    Returns the formula with all of the string literals removed
+    """
+    string_matches = get_string_matches(formula)
+
+    output_string = ""
+    last_end = 0
+
+    for match_start, match_end in string_matches:
+        output_string += formula[last_end:match_start]
+        last_end = match_end
+
+    output_string += formula[last_end:]
+    return output_string
+
 def match_covered_by_matches( # type: ignore
         match_ranges: List[ParserMatchSubstringRange],
         match_range: ParserMatchSubstringRange
@@ -108,6 +124,44 @@ def safe_contains(
             return True
 
     return False
+
+def safe_contains_single_equals(formula: str, column_headers: List[ColumnHeader]) -> bool:
+    """
+        Check if the string contains a single equals sign that is not part of a substring:
+
+        "A = B",                    # True
+        "IF(A=B, 1, 0)",            # True
+        'A==B',                     # False
+        ' = ',                      # False
+        "CONCAT(A, 'ABC=123')",     # False
+        'A!=B',                     # False
+        'A>=B',                     # False
+        'A<=B',                     # False
+    """
+
+    # If the column headers contain an = then, we don't continue the check 
+    # because it is too hard, and rare.
+    for column_header in column_headers:
+        if isinstance(column_header, str) and '=' in column_header:
+            return False
+
+    # We don't want to search inside of string literals, so we remove them
+    formula = remove_string_literals(formula)
+
+    strings_to_ignore = [
+        '!=',
+        '>=',
+        '<=',
+    ]
+
+    # Remove all occurences of string_to_ignore from the formula. Do this outside of the regex
+    # because its easy to do here, and the regex is already complicated enough
+    for string_to_ignore in strings_to_ignore:
+        formula = formula.replace(string_to_ignore, '')
+
+    # This regex matches any single = that is not directly surrounded by another =
+    pattern = r"(?<!\=)\=(?!\=)"
+    return bool(re.search(pattern, formula))
 
 def safe_contains_function(
         formula: str, 
@@ -180,13 +234,26 @@ def check_common_errors(
             error_modal=False
         )
 
+
+    # Remove leading white space from formula so we can easily remove
+    # the leading = if it exists
+    formula_clean = formula.lstrip()
+    formula_without_leading_equals = formula_clean[1:] if formula_clean[0] == '=' else formula_clean
+    if safe_contains_single_equals(formula_without_leading_equals, column_headers):
+        raise make_invalid_formula_error(
+            formula,
+            'Use == instead of = to check equality.',
+            error_modal=False
+        )     
+
+    # TODO: update this with vlookup formula in mind
     # If the user used a lookup formula, point them to merge instead!
-    LOOKUP_FORMULAS = ['VLOOKUP', 'HLOOKUP', 'XLOOKUP', 'LOOKUP']
+    LOOKUP_FORMULAS = ['HLOOKUP', 'XLOOKUP']
     for lookup_formula in LOOKUP_FORMULAS:
         if safe_contains_function(formula.upper(), lookup_formula, column_headers):
             raise make_invalid_formula_error(
                 formula,
-                f'Instead of {lookup_formula}, try using the merge button in the toolbar!',
+                f'{lookup_formula} is not supported, but VLOOKUP is. See the documentation for more information.',
                 error_modal=False
             )
 
@@ -751,6 +818,23 @@ def replace_newlines_and_tabs(
     return re.sub(r'\n|\t', replace_newlines_and_tabs_internal, formula)
     
 
+    
+def replace_true_values(
+        formula: str,
+    ) -> str:
+    """
+    Replaces all values "TRUE" and "true" (that aren't in column headers) with True
+    """
+    string_matches = get_string_matches(formula)
+
+    def replace_true_values_internal(match):
+        if not match_covered_by_matches(string_matches, (match.start(), match.end())):
+            return 'True'
+        else:
+            return match.group()
+    return re.sub(r'TRUE|true', replace_true_values_internal, formula)
+    
+
 def replace_functions(
         formula: str,
     ) -> Tuple[str, Set[str]]:
@@ -841,8 +925,8 @@ def parse_formula(
     )
 
     code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
-
-    code_with_functions, functions = replace_functions(code_without_newlines_or_tabs)
+    code_with_values_replaced = replace_true_values(code_without_newlines_or_tabs)
+    code_with_functions, functions = replace_functions(code_with_values_replaced)
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
@@ -865,6 +949,7 @@ def parse_formula(
 
     else:
         final_code = f'{code_with_functions}'
+
     return final_code, functions, column_header_dependencies, index_label_dependencies
 
 
@@ -885,7 +970,6 @@ def get_frontend_formula_header_reference(
         'type': '{HEADER}',
         'display_column_header': get_column_header_display(column_header),
     }
-
 
 
 def get_frontend_formula(

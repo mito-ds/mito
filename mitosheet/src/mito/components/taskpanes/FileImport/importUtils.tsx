@@ -1,5 +1,5 @@
 import { MitoAPI } from "../../../api/api";
-import { UserProfile } from "../../../types";
+import { AnalysisData, UserProfile } from "../../../types";
 import { isAtLeastBenchmarkVersion, isExcelImportEnabled } from "../../../utils/packageVersion";
 import { fuzzyMatch } from "../../../utils/strings";
 import { FileBrowserState } from "../../import/FileBrowser/FileBrowserBody";
@@ -118,12 +118,12 @@ export const isExcelFile = (element: FileElement | undefined): boolean => {
         element?.name.toLowerCase().endsWith('.xlsm'))
 }
 
-export const getElementsToDisplay = (importState: FileBrowserState): FileElement[] => {
+export const getElementsToDisplay = (importState: FileBrowserState, analysisData: AnalysisData): FileElement[] => {
 
     const allElements: FileElement[] = [...importState.pathContents.elements];
 
     // If we're not in the top folder, add the parent folder
-    if (!inRootFolder(importState.pathContents.path_parts)) {
+    if (!inRootFolder(importState.pathContents.path_parts) && !inImportFolder(importState.pathContents.path_parts, analysisData.importFolderData?.pathParts)) {
         allElements.push({
             isDirectory: true,
             isParentDirectory: true,
@@ -163,6 +163,25 @@ export const inRootFolder = (pathParts: string[]): boolean => {
     pathParts = pathParts.filter(pathPart => pathPart !== '')
     return pathParts.length === 1 && (pathParts[0] === '/' || pathParts[0] === '\\');
 }
+
+export const inImportFolder = (pathParts: string[], importFolderDataPathParts: string[] | undefined): boolean => {
+
+    if (importFolderDataPathParts === undefined) {
+        return false;
+    }
+    
+    if (pathParts.length !== importFolderDataPathParts.length) {
+        return false;
+    }
+
+    for (let i = 0; i < pathParts.length; i++) {
+        if (pathParts[i] !== importFolderDataPathParts[i]) {
+            return false;
+        }
+    }
+    return true 
+}
+
 
 
 export const getFilePath = async (mitoAPI: MitoAPI, pathParts: string[], file: FileElement | undefined): Promise<string | undefined> => {

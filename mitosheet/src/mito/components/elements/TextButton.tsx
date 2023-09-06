@@ -112,7 +112,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 title={tooltip}
             >
                 <span
-                    className={classNames({'text-color-white-important': props.variant === 'dark'}, 'text-overflow-wrap')}
+                    className={classNames({'text-color-background-important': props.variant === 'dark'}, 'text-overflow-wrap')}
                 >
                     {props.children}
                 </span>
@@ -121,7 +121,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
     } else {
         return (
             <button 
-                className={classNames('text-button', widthClass, variantClass, disabledClass)}
+                className={classNames('text-button', widthClass, variantClass, disabledClass, className)}
                 onClick={props.onClick} 
                 type={props.type}
                 disabled={props.disabled}

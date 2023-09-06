@@ -113,9 +113,9 @@ const getSuccessMessage = (sheetData: SheetData | undefined, columnIDs: ColumnID
     const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(columnHeaders, 25)
     
     if (numOtherColumnHeaders === 0) {
-        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span>.</p>)
+        return (<p>Filled NaNs in <span className='text-color-medium-important'>{columnHeadersString}</span>.</p>)
     } else {
-        return (<p>Filled NaNs in <span className='text-color-gray-important'>{columnHeadersString}</span> and <span className='text-color-gray-important'>{numOtherColumnHeaders}</span> other columns.</p>)
+        return (<p>Filled NaNs in <span className='text-color-medium-important'>{columnHeadersString}</span> and <span className='tetext-color-medium-important'>{numOtherColumnHeaders}</span> other columns.</p>)
     }
 }
 
@@ -179,7 +179,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         });
                     }}
                 />
-                <Spacer px={15}/>
+                <Spacer px={10}/>
                 <Row justify='space-between' align='center' title='Select the columns to fill nan values in.'>
                     <Col>
                         <p className='text-header-3'>
@@ -204,7 +204,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         })
                     }}
                 />
-                <Spacer px={15}/>
+                <Spacer px={10}/>
                 <Row justify='space-between' align='center' title='Select the method for filling nan values'>
                     <Col>
                         <p className='text-header-3'>

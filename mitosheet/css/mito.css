@@ -1,20 +1,16 @@
-:root {
-    --taskpane-width: 430px;
-}
-
 /* 
     The following two css rules are used to style the Create new Mitosheet button in the notebook toolbar. 
     The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
     button, since we're not able to set the class name of our button in notebooks. 
 */
 :root .toolbar-mito-button-class, #mito-toolbar-button-id {
-    background-color: var(--mito-very-light-purple);
+    background-color: var(--mito-highlight-very-light);
     border-radius: 3px;
-    border: .5px solid var(--mito-light-gray);
+    border: .5px solid var(--mito-text-light);
 }
 
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
-    color: var(--mito-purple);
+    color: var(--mito-highlight);
 }
 
 .jp-RenderedHTMLCommon > .mito-container-container {
@@ -22,11 +18,12 @@
 }
 /* We overwrite rendering rules that give us problems in HTML output*/
 /* In Lab */
-.jp-RenderedHTMLCommon .mito-container p {
+.mito-container p {
     margin: initial;
     text-align: initial;
 }
-.jp-RenderedHTMLCommon .mito-container a:link,a:visited {
+.jp-RenderedHTMLCommon .mito-container a:link,
+.jp-RenderedHTMLCommon .mito-container a:visited {
     color: initial;
     text-decoration: initial;
 }
@@ -35,7 +32,8 @@
     margin: initial;
     text-align: initial;
 }
-.jp-rendered_html .mito-container a:link,a:visited {
+.jp-rendered_html .mito-container a:link,
+.jp-rendered_html .mito-container a:visited {
     color: initial;
     text-decoration: initial;
 }
@@ -67,7 +65,7 @@
     display: flex;
     flex-direction: column;
 
-    border: 1px solid var(--mito-border);
+    border: 1px solid var(--mito-text-light);
 
     /* Set the default font to Roboto */
     font-family: Roboto;
@@ -104,11 +102,6 @@
     flex-direction: column;
 }
 
-
-.mito-sheet-and-formula-bar-container-narrow-taskpane-open {
-    width: calc(100% - var(--taskpane-width));
-}
-
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {
     width: 0%;
     height: 0%;
@@ -121,7 +114,6 @@
 
 .mito-taskpane-container-narrow {
     visibility: visible;
-    width: var(--taskpane-width);
 }
 
 .mito-taskpane-container {
@@ -134,11 +126,4 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-}    
-
-.light-gray-container {
-    border-radius: 5px;
-    padding: 10px; 
-    background: var(--mito-very-light-gray);
-    box-sizing: border-box;
 }

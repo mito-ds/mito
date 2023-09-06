@@ -73,6 +73,10 @@ export const STRING_SELECT_OPTIONS: Record<StringFilterCondition, {'long_name': 
     ['string_ends_with']: {
         long_name: 'string ends with',
         short_name: 'ends with'
+    },
+    ['string_contains_case_insensitive']: {
+        long_name: 'string contains case insensitive',
+        short_name: 'contains case insensitive'
     }
 } 
 

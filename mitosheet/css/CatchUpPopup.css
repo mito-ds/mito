@@ -5,7 +5,7 @@
 
     /* Make it a sidebar on the right side */
     width: 290px;
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
     border-radius: 5px;
 
     /* Place it right inside the upper left corner of the sheet */
@@ -14,5 +14,5 @@
 
     padding: 15px 20px;
 
-    color: var(--mito-white);
+    color: var(--mito-text);
 }

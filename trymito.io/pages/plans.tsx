@@ -35,7 +35,15 @@ export interface Feature {
 
 const INTEGRATION_FEATURES: Feature[] = [
   {
-    feature: 'Jupyter Notebooks',
+    feature: 'Mito in Jupyter',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Mito in Streamlit',
     planSupport: {
       'Open Source': true,
       'Pro': true,
@@ -628,7 +636,7 @@ const Plans: NextPage = () => {
                               <Image className={iconAndTextCardStyles.icon} src={FlagIcon} alt='icon'></Image>
                           </div>
                           <h2>
-                              Shareable <br/> notebooks
+                            Shareable <br/> notebooks
                           </h2>
                           <p>
                             Share notebooks with Mito embedded in them so colleagues can continue the analysis in Mito. (coming soon)
@@ -690,7 +698,7 @@ const Plans: NextPage = () => {
                           Feature <br/> settings
                         </h2>
                         <p>
-                          Customize Mito by toggling code optimization, auto-documentation, seleting between light and dark mode, and more. (coming soon)
+                          Customize Mito by toggling on/off onboarding tours, support locations, seleting between light and dark mode, and more.
                         </p>
                     </div>
                 </div>
@@ -703,7 +711,7 @@ const Plans: NextPage = () => {
                           Custom <br /> transformations
                         </h2>
                         <p>
-                          Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet. (coming soon)
+                          Import custom Python snippets to use within the Mito Spreadsheet. Add completely new transformations directly into the Mitosheet.
                         </p>
                     </div>
                     <div className={iconAndTextCardStyles.icon_and_text_card + ' ' + pageStyles.subsection_second_element_mobile_spacing}>
@@ -754,7 +762,7 @@ const Plans: NextPage = () => {
               <FAQCard title='Where is Mito installable?'>
                 <div>
                   <p>
-                    Mito is installable in Jupyter Lab 2.0, Jupyter Lab 3.0 and Jupyter Notebooks. Mito does not work in VSCode, Google Collab, Streamlit or any other IDE&apos;s. 
+                    Out of the box, Mito is installable in Jupyter Lab 3.0, Jupyter Notebooks, and Streamlit. If you want to install Mito in VSCode, Google Collab or a custom app, <a href={"mailto:jake@sagacollab.com?subject=Change Plan"} className={pageStyles.link}>email us</a>. 
                   </p>
                 </div>
               </FAQCard>

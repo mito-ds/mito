@@ -1,0 +1,56 @@
+.sql_python_card_container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 4rem 2rem;
+    max-width: 30rem;
+    border-radius: 5px;
+}
+
+.sql_python_card_container p {
+    font-size: 1.25rem;
+}
+
+.sql_python_card_container_dark {
+    background-color: var(--color-light-background);
+}
+
+.sql_python_card_container_dark p,
+.sql_python_card_container_dark h3 {
+    color: var(--color-text-primary);
+}
+
+.sql_python_card_container_light {
+    background-color: var(--color-text-primary);
+}
+
+.sql_python_card_container_light p,
+.sql_python_card_container_light h3 {
+    color: var(--color-background);
+}
+
+.sql_python_card_title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+
+
+@media only screen and (min-width: 50em) {
+    .sql_python_card_container {
+        transition: transform 0.3s ease;
+    }
+    
+    
+    .sql_python_card_container_dark:hover {
+        transform: rotateZ(2deg);
+    }
+    
+    .sql_python_card_container_light:hover {
+        transform: rotateZ(-2deg);
+    }
+    
+}
+
+
+

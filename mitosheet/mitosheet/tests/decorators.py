@@ -13,7 +13,7 @@ import pandas as pd
 import sys
 from mitosheet.ai.ai_utils import is_open_ai_credentials_available
 
-from mitosheet.utils import is_prev_version, is_snowflake_connector_python_installed, is_snowflake_credentials_available
+from mitosheet.utils import is_prev_version, is_snowflake_connector_python_installed, is_snowflake_credentials_available, is_streamlit_installed
 
 pandas_pre_1_only = pytest.mark.skipif(
     not pd.__version__.startswith('0.'), 
@@ -63,6 +63,10 @@ python_post_3_6_only = pytest.mark.skipif(
 requires_snowflake_dependencies_and_credentials = pytest.mark.skipif(
     not is_snowflake_connector_python_installed() or not is_snowflake_credentials_available(),
     reason='requires snowflake_connector_python package and snowflake credentials'
+)
+requires_streamlit = pytest.mark.skipif(
+    not is_streamlit_installed(),
+    reason='requires streamlit to be installed'
 )
 
 requires_open_ai_credentials = pytest.mark.skipif(

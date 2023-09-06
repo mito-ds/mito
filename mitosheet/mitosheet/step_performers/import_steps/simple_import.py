@@ -153,8 +153,6 @@ class SimpleImportStepPerformer(StepPerformer):
         return {-1}
 
 
-
-
 def read_csv_get_delimiter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Given a file_name, will read in the file as a CSV, and
@@ -162,6 +160,11 @@ def read_csv_get_delimiter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, s
     """
     encoding = DEFAULT_ENCODING
     delimeter = DEFAULT_DELIMETER
+
+    if is_url_to_file(file_name):
+        df = pd.read_csv(file_name)
+        return df, delimeter, encoding
+
     try:
         # First attempt to read csv without specifying an encoding, just with a delimeter
         delimeter = guess_delimeter(file_name)
@@ -201,3 +204,17 @@ def guess_encoding(file_name: str) -> str:
     with open(file_name, 'rb') as f:
         result = chardet.detect(f.readline())
         return result['encoding']
+
+
+def is_url_to_file(file_name: str) -> bool:
+    """
+    Returns true if the file_name is a url to a file -- which we need to know
+    as we can't sniff the delimeter of a url.
+
+    This isn't perfect, and we should improve it, but it's ok for now!
+    """
+    if file_name.startswith('http://') or file_name.startswith('https://'):
+        return True
+    
+    return False
+

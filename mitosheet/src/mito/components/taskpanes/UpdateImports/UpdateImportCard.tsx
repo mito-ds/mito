@@ -29,31 +29,31 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
     if (dataframeCreationData.step_type === 'excel_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_name)}
+                <span className='text-color-medium-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_name)}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'simple_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0])}
+                <span className='text-color-medium-important'>Imported </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_names[0])}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'dataframe_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.df_names[0])}
+                <span className='text-color-medium-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.df_names[0])}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'excel_range_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_path)}
+                <span className='text-color-medium-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-important'>from </span> {getFileNameSpanFromFilePath(dataframeCreationData.params.file_path)}
             </div>
         )
     } else if (dataframeCreationData.step_type === 'snowflake_import') {
         return (
             <div>
-                <span className='text-color-medium-gray-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table_or_view)} <span className='text-color-medium-gray-important'>from Snowflake </span>
+                <span className='text-color-medium-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table_or_view)} <span className='text-color-medium-important'>from Snowflake </span>
             </div>
         )
     } else {
@@ -82,25 +82,25 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
     if (updatedDataframeCreationData.step_type === 'excel_import') {
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name)}
+                <span className='text-color-medium-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.sheet_names[0])} <span className='text-color-medium-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_name)}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'simple_import') {
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0])}
+                <span className='text-color-medium-important'>Update to </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_names[0])}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'dataframe_import') {
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0])}
+                <span className='text-color-medium-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.df_names[0])}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'excel_range_import') {
         return (
             <div className='mt-3px'>
-                <span className='text-color-medium-gray-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-gray-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path)}
+                <span className='text-color-medium-important'>Update to </span> {getSimpleNameSpan(updatedDataframeCreationData.params.range_imports[0].df_name)} <span className='text-color-medium-important'>from </span> {getFileNameSpanFromFilePath(updatedDataframeCreationData.params.file_path)}
             </div>
         )
     } else if (updatedDataframeCreationData.step_type === 'snowflake_import') {

@@ -16,10 +16,10 @@
     flex-grow: 1;
 
     /* Stylize border */
-    border: 1px solid var(--mito-light-gray);
+    border: 1px solid var(--mito-text-light);
     border-right: none;
     border-radius: 3px 0px 0px 3px;
-    background: var(--mito-very-light-gray);
+    background: var(--mito-background-off);
 
     /* Add spacing between text and left border of select*/
     padding-left: 5px;
@@ -40,7 +40,7 @@
     flex-shrink: 0;
     border-radius: 0px 3px 3px 0px;
 
-    background-color: var(--mito-purple);
+    background-color: var(--mito-highlight);
 }
 
 /* 
@@ -48,10 +48,10 @@
     set the backgroud color of the select icon container.
 */
 .select-container:hover:not(.select-disabled) > .select-dropdown-icon-container {
-    background-color: var(--mito-medium-purple);
+    background-color: var(--mito-highlight);
 }
 .select-dropdown-active > .select-dropdown-icon-container {
-    background-color: var(--mito-medium-purple);
+    background-color: var(--mito-highlight);
 }
 
 /* 
@@ -59,10 +59,10 @@
     set the border color of the select select text.
 */
 .select-container:hover:not(.select-disabled) > .select-text {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-highlight);
 }
 .select-dropdown-active > .select-text {
-    border-color: var(--mito-medium-purple);
+    border-color: var(--mito-highlight);
 }
 
 .select-dropdown-container {
@@ -82,9 +82,9 @@
     Classes for when the select is disabled
 */
 .select-disabled > .select-text {
-    color: var(--mito-light-gray) !important;
-    border-color: var(--mito-light-gray) !important;
+    color: var(--mito-text-light) !important;
+    border-color: var(--mito-text-light) !important;
 }
 .select-disabled > .select-dropdown-icon-container {
-    background-color: var(--mito-light-gray) !important;
+    background-color: var(--mito-background-off) !important;
 }

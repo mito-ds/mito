@@ -104,6 +104,7 @@ setup_args = dict(
     long_description_content_type = "text/markdown",
     cmdclass                 = cmdclass,
     packages                 = setuptools.find_packages(exclude=['deployment']),
+    package_data             = {'': ['*.js', '*.css', '*.html']},
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
@@ -134,10 +135,14 @@ setup_args = dict(
             "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
         ],
+        'streamlit': [
+            'streamlit>=1.0',
+        ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
             # snowflake-connect-python requires at least Python 3.7
             'snowflake-connector-python[pandas]; python_version>="3.7"',
+            'streamlit>=1.0',
         ]
     },
     zip_safe                = False,
@@ -153,6 +158,8 @@ setup_args = dict(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Framework :: Jupyter",
     ],
 )

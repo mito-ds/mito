@@ -72,6 +72,8 @@ def get_location() -> str:
         return 'location_google_colab'
     elif is_in_vs_code():
         return 'location_vs_code'
+    elif is_streamlit():
+        return 'location_streamlit'
     elif is_jupyterlite():
         return 'location_jupyterlite'
     elif notebook and (lab_running and not notebook_running):
@@ -119,3 +121,12 @@ def is_jupyterlite() -> bool:
         pass
 
     return False
+
+def is_streamlit() -> bool:
+    try:
+        # TODO: have to handle versions of streamlit that don't have this
+        # or it's in different places: https://discuss.streamlit.io/t/how-to-check-if-code-is-run-inside-streamlit-and-not-e-g-ipython/23439/8
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        return get_script_run_ctx() is not None
+    except ModuleNotFoundError:
+        return False

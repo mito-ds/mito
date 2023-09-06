@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
 
-  background-color: var(--mito-light-blue);
+  background-color: var(--mito-background-highlight);
 
   /* border-box to set the border inside the div, so it doesn't get chopped */
   box-sizing: border-box; 
@@ -15,7 +15,7 @@
   -webkit-box-sizing: border-box; /* Older Webkit browsers */
 
   /* We use this for seperating sections in the toolbar*/
-  --toolbar-seperator-color: #D0D2DF;
+  --toolbar-seperator-color: var(--mito-text-light);
 }
 
 .mito-toolbar-top {
@@ -45,17 +45,17 @@
   border-radius: 3px;
   font-family: Roboto;
   box-sizing: border-box;
-  color: var(--mito-legacy-gray);
+  color: var(--mito-text);
   cursor: pointer;
 }
 
 
 .mito-toolbar-dropdown-selector-selected {
-  background: var(--mito-light-purple);
+  background: var(--mito-highlight-light);
 }
 
 .mito-toolbar-dropdown-selector:hover {
-  background: var(--mito-light-purple);
+  background: var(--mito-highlight-light);
 }
 
 /* A line that seperates the top and bottom vertically */
@@ -78,10 +78,6 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  /* 
-    The left toolbar gets flex:3 and the right toolbar gets flex:1 
-    because the left has 3x as many buttons
-  */
   flex: 3; 
 }
 
@@ -89,7 +85,7 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  flex: 1;
+  flex: .5;
 }
 
 .mito-toolbar-button-container {
@@ -108,9 +104,9 @@
   justify-content: center;
 
   /* Make input blend in with formula bar */
-  background-color: var(--mito-light-blue);
+  background-color: var(--mito-background-highlight);
 
-  color: var(--mito-legacy-gray);
+  color: var(--mito-text);
 }
 
 
@@ -140,7 +136,7 @@
 }
 
 .mito-toolbar-button-container-enabled:hover {
-  background-color: var(--mito-light-purple);
+  background-color: var(--mito-highlight-light);
 }
 
 .mito-toolbar-button-container-disabled {
@@ -166,7 +162,7 @@
 }
 
 .mito-toolbar-button-draw-attention {
-  border: 2px solid var(--mito-blue);
+  border: 2px solid var(--mito-highlight);
   border-radius: 5px;
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
 	transform: scale(1);
@@ -176,13 +172,13 @@
 /* The button in the toolbar that lets the user upgrade or tells them they are pro */
 .mito-plan-button {
   border-radius: 3px;
-  background-color: var(--mito-purple);
+  background-color: var(--mito-highlight);
   font-size: 12px;
   text-align: center;
   justify-content: center;
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
-  color: var(--mito-white);
+  color: var(--mito-background);
   height: 18px;
 }

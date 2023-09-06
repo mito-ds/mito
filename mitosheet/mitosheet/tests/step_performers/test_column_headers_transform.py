@@ -60,6 +60,8 @@ def test_multiple_rename_column_header_transforms_optimize():
     mito.column_headers_transform(0, {'type': 'uppercase'})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.columns = [col.upper() if isinstance(col, str) else col for col in df1.columns]",
         '',
     ]
@@ -71,6 +73,8 @@ def test_does_not_optimize_with_replace():
     mito.column_headers_transform(0, {'type': 'uppercase'})
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '',
         "df1.columns = [col.lower() if isinstance(col, str) else col for col in df1.columns]",
         "",
         "df1.columns = [col.replace('A', 'B') if isinstance(col, str) else col for col in df1.columns]",

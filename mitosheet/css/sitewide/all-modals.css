@@ -1,15 +1,3 @@
-/* For labeling selection boxes, etc */
-.modal-element-label {
-    text-align: left;
-    margin-bottom: 2px;
-}
-
-/* When adding a value to a list, make the add text this */
-.modal-add {
-    text-align: left;
-    color: var(--mito-blue);
-}
-
 .overlay {
     height: 100%;
     width: 100%;

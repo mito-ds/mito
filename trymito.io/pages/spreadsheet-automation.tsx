@@ -10,7 +10,6 @@ import trifoldStyles from '../styles/Trifold.module.css';
 import functionalityCardStyles from '../styles/FunctionalityCard.module.css';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import PivotTableIcon from '../public/step-icons/PivotTableIcon.svg';
@@ -22,6 +21,7 @@ import FilterIcon from '../public/step-icons/FilterIcon.svg';
 
 import Link from 'next/link';
 import { useState } from 'react';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 
 
 
@@ -95,6 +95,25 @@ const SpreadsheetAutomation: NextPage = () => {
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
+            <div className={pageStyles.subsection}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
+              </div>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  Generate <span className='text-highlight'>formatted Excel files</span>
+                </h1>
+                <p>
+                  Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
+                </p>
+                <p>
+                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
               </div>
             </div>
           </section>
@@ -218,7 +237,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   </div>
                   <div>
                     <p className={functionalityCardStyles.subtext}>
-                      Make your org&apos;s custom functions, graph templates, and database connections accessible through Mito.
+                      Make your org&apos;s custom functions, graph templates, and database connections <Link href='/infrastructure-integration-python-tool'><a className={classNames(functionalityCardStyles.subtext, 'text-highlight')}>accessible through Mito</a></Link>.
                     </p>
                   </div>
                 </div>

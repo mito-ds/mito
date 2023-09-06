@@ -91,9 +91,39 @@ MitoSafeSnowflakeConnection = Optional[SnowflakeConnection]
 FORMULA_ENTIRE_COLUMN_TYPE = 'entire_column'
 FORMULA_SPECIFIC_INDEX_LABELS_TYPE = 'specific_index_labels'
 
+# The constants used in the filter step itself as filter conditions
+# NOTE: these must be unique (e.g. no repeating names for different types)
+FC_EMPTY = "empty"
+FC_NOT_EMPTY = "not_empty"
+FC_LEAST_FREQUENT = "least_frequent"
+FC_MOST_FREQUENT = "most_frequent"
 
-ParamName = str
-ParamValue = str
+FC_BOOLEAN_IS_TRUE = "boolean_is_true"
+FC_BOOLEAN_IS_FALSE = "boolean_is_false"
+
+FC_STRING_CONTAINS = "contains"
+FC_STRING_DOES_NOT_CONTAIN = "string_does_not_contain"
+FC_STRING_EXACTLY = "string_exactly"
+FC_STRING_NOT_EXACTLY = "string_not_exactly"
+FC_STRING_STARTS_WITH = "string_starts_with"
+FC_STRING_ENDS_WITH = "string_ends_with"
+FC_STRING_CONTAINS_CASE_INSENSITIVE = "string_contains_case_insensitive"
+
+FC_NUMBER_EXACTLY = "number_exactly"
+FC_NUMBER_NOT_EXACTLY = "number_not_exactly"
+FC_NUMBER_GREATER = "greater"
+FC_NUMBER_GREATER_THAN_OR_EQUAL = "greater_than_or_equal"
+FC_NUMBER_LESS = "less"
+FC_NUMBER_LESS_THAN_OR_EQUAL = "less_than_or_equal"
+FC_NUMBER_LOWEST = 'number_lowest'
+FC_NUMBER_HIGHEST = 'number_highest'
+
+FC_DATETIME_EXACTLY = "datetime_exactly"
+FC_DATETIME_NOT_EXACTLY = "datetime_not_exactly"
+FC_DATETIME_GREATER = "datetime_greater"
+FC_DATETIME_GREATER_THAN_OR_EQUAL = "datetime_greater_than_or_equal"
+FC_DATETIME_LESS = "datetime_less"
+FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
@@ -293,10 +323,31 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
         prints: str
 
+    ParamName = str
+    # NOTE: these cannot be changed, as they are part of the public interface, They are exposed through code-options
+    # function param specification - where you can pass the param subtype, to automatically generate params for all 
+    # of that subtype
+    ParamType = Literal[
+        'file_name'
+    ]
+    ParamSubtype = Literal[
+        'import_dataframe',
+        'file_name_export_excel',
+        'file_name_export_csv',
+        'file_name_import_excel',
+        'file_name_import_csv',
+    ]
+    ParamValue = str
+
+    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+
     class CodeOptions(TypedDict):
         as_function: bool
+        call_function: bool
         function_name: str
-        function_params: Dict[ParamName, ParamValue]
+        function_params: CodeOptionsFunctionParams # type: ignore
+
+    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
 else:
     Filter = Any #type: ignore
@@ -329,6 +380,14 @@ else:
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
+    UserDefinedImporterParamType = Any # type: ignore
+
+    ParamName = str # type: ignore
+    ParamType = str # type: ignore
+    ParamSubtype = str # type: ignore
+    ParamValue = str # type: ignore
+
+    CodeOptionsFunctionParams = Any # type: ignore
 
 
 FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]

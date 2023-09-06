@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import CodeOptions, ColumnHeader, ParamName, ParamValue, StepsManagerType
+from mitosheet.types import CodeOptions, CodeOptionsFunctionParams, ColumnHeader, ParamName, ParamSubtype, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -35,7 +35,7 @@ def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeade
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
+def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: int=0) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.
@@ -49,6 +49,10 @@ def column_header_to_transpiled_code(column_header: ColumnHeader) -> str:
         column_header_parts = [column_header_to_transpiled_code(column_header_part) for column_header_part in column_header]
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
+    if isinstance(column_header, list):
+        column_header_parts = [column_header_to_transpiled_code(column_header_part, tab_level=tab_level+1) for column_header_part in column_header]
+        column_header_parts_joined = f',\n{TAB*(tab_level + 1)}'.join(column_header_parts)
+        return f'[\n{TAB*(tab_level + 1)}{column_header_parts_joined}\n{TAB*tab_level}]'
 
     # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
     if not is_prev_version(pd.__version__, '1.0.0') and column_header is np.nan:
@@ -92,7 +96,7 @@ def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHead
         return result
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False) -> str:
+def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1, is_dict_entry: bool=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -107,21 +111,22 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         NEWLINE_CONSTANT = ''
     else:
         TAB_CONSTANT = TAB
-        NEWLINE_CONSTANT = '\n'
+        NEWLINE_CONSTANT = f'\n{TAB_CONSTANT * tab_level}'
 
-    if level == 0:
-        code = f"{NEWLINE_CONSTANT}"
-    else:
-        code = f"dict({NEWLINE_CONSTANT}"
+    code = f"{NEWLINE_CONSTANT}"
 
     value_num = 0
     for key, value in param_dict.items():
+        # If we're defining a dict entry, we need to add quotes around the key and use a colon
+        key_definition = f'"{key}": ' if is_dict_entry else f'{key}='
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
-            code_chunk = f"{key} = {param_dict_to_code(value, level=level + 1)}"
+            code_chunk = f"{key_definition}{{{f'{param_dict_to_code(value, level=level + 1, is_dict_entry=True)}{NEWLINE_CONSTANT}{TAB_CONSTANT * (level+1)}'}}}"
+        elif isinstance(value, list):
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
-            code_chunk = f"{key}={column_header_to_transpiled_code(value)}"
+            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
@@ -137,9 +142,6 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
 
     if level == 0:
         code += f"{NEWLINE_CONSTANT}"
-    else:
-        # Make sure to close the dict
-        code += f"{NEWLINE_CONSTANT}{TAB_CONSTANT * (level)})"
     
     return code
 
@@ -206,7 +208,45 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
     result = re.sub(pattern, replacement, text)
     return result
 
-def convert_script_to_function(steps_manager: StepsManagerType, imports: List[str], code: List[str], function_name: str, function_params: Dict[ParamName, ParamValue]) -> List[str]:
+def get_final_function_params_with_subtypes_turned_to_parameters(
+        steps_manager: StepsManagerType, 
+        function_params: CodeOptionsFunctionParams # type: ignore
+    ) -> Dict[ParamName, ParamValue]:
+    """
+    It's often useful in Streamlit dashboards to allow app creators to specify things like: 
+    1. Turn all of the imported CSV files into parameters
+    2. Turn all of the exported file paths into parameters
+
+    As such, we let users specify the subtype they want to generate params for.
+    """
+    if isinstance(function_params, str) or isinstance(function_params, list):
+        final_params = {}
+
+        from mitosheet.api.get_parameterizable_params import get_parameterizable_params
+        parameterizable_params = get_parameterizable_params({}, steps_manager)
+        
+        number_of_params_of_subtype: Dict[ParamSubtype, int] = {}
+        for param_value, param_type, param_subtype in parameterizable_params:
+            param_index = number_of_params_of_subtype.get(param_subtype, 0)
+            if isinstance(function_params, str) and function_params == param_subtype:
+                final_params[f"{param_subtype}_{param_index}"] = param_value
+                number_of_params_of_subtype[param_subtype] = param_index + 1
+            elif param_subtype in function_params:
+                final_params[f"{param_subtype}_{param_index}"] = param_value
+                number_of_params_of_subtype[param_subtype] = param_index + 1
+
+        return final_params
+    return function_params
+
+
+def convert_script_to_function(
+        steps_manager: StepsManagerType, 
+        imports: List[str], 
+        code: List[str], 
+        function_name: str, 
+        function_params: CodeOptionsFunctionParams, # type: ignore
+        call_function: bool
+    ) -> List[str]:
     """
     Given a list of code lines, puts it inside of a function.
     """
@@ -214,12 +254,13 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 
     # Add the imports
     final_code += imports
-    if len(imports) == 0: # Make sure we have a newline if there are no imports
-        final_code.append("")
+    final_code.append("")
+
+    # Get the final function param
+    function_params = get_final_function_params_with_subtypes_turned_to_parameters(steps_manager, function_params)
 
     # The param
     param_names = _get_param_names_string(steps_manager, function_params)
-    param_values = _get_param_values_string(steps_manager, function_params)
 
     # Add the function definition
     final_code.append(f"def {function_name}({param_names}):")
@@ -245,6 +286,10 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
     return_variables_string = _get_return_variables_string(steps_manager, function_params)
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
+
+    # If we are not calling the function, we just return the code without the call at the end
+    if not call_function:
+        return final_code
 
     # Build the params and variables taking special care to ensure that dataframes and file paths 
     # that are passed as parameters to the function. 
@@ -274,6 +319,7 @@ def convert_script_to_function(steps_manager: StepsManagerType, imports: List[st
 def get_default_code_options(analysis_name: str) -> CodeOptions:
     return {
         'as_function': False,
+        'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
         'function_params': dict()
     }

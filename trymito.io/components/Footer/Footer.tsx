@@ -32,18 +32,55 @@ const Footer = (): JSX.Element => {
             </div>
             
             <div className={footerStyle.site_map_container}>
-                <div className={classNames('flex-column')}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
                         Product
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <Link href='/spreadsheet-automation'>Automation</Link>
+                        <Link href='/spreadsheet-automation'>Mito Spreadsheet</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/python-ai-tools'>Mito AI</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/low-code-sql'>Low-Code SQL</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/data-app'>Data App</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
+                    </li>
+                </div>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
+                    <ol>
+                        Industries
+                    </ol>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/industries/financial-services'>Financial Services</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/industries/life-sciences'>Life Sciences</Link>
+                    </li>
+                </div>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
+                    <ol>
+                        Resources
+                    </ol>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <a href='/blog'>Blog</a>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
@@ -51,24 +88,13 @@ const Footer = (): JSX.Element => {
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/teams'>Teams</Link>
                     </li>
-                    <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Support</a>
-                    </li>
                 </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_two)}>
+                <div className={classNames('flex-column', footerStyle.site_map_column)}>
                     <ol>
-                        Industries
+                        Company
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <Link href='/industries/financial-services'>Financial Services</Link>
-                    </li>
-                </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_three)}>
-                    <ol>
-                        Resources
-                    </ol>
-                    <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
+                        <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/security'>Security</Link>
@@ -78,23 +104,6 @@ const Footer = (): JSX.Element => {
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://privacy.trymito.io/privacy-policy' target="_blank" rel="noreferrer">Privacy</a>
-                    </li>
-                    <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
-                    </li>
-                    <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
-                    </li>
-                </div>
-                <div className={classNames('flex-column', footerStyle.site_map_column_four)}>
-                    <ol>
-                        Company
-                    </ol>
-                    <li className={classNames(footerStyle.nav_item)}>
-                    <Link href='/blog'>Blog</Link>
-                    </li>
-                    <li className={classNames(footerStyle.nav_item)}>
-                        <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://twitter.com/tryMito' target="_blank" rel="noreferrer">Twitter</a>

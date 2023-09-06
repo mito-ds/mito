@@ -17,6 +17,10 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils import get_param
 
+from mitosheet.utils import write_to_excel
+
+from mitosheet.user.utils import is_pro, is_running_test
+
 def get_export_to_csv_sheet_index_to_file_name(file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
     """
     Note that we add the index to the file name if there are multiple sheets being exported,
@@ -49,6 +53,18 @@ def get_final_file_name(file_name: str, _type: str) -> str:
     return file_name
 
 
+def upgrade_export_to_file_1_to_2(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    '''
+    Adds a new param for exporting the formatting to excel which defaults to false. 
+    '''
+    params = step['params']
+    params['export_formatting'] = False
+    return [{
+        "step_version": 2, 
+        "step_type": "export_to_file", 
+        "params": params
+    }] + later_steps
+
 class ExportToFileStepPerformer(StepPerformer):
     """
     Allows you to export to file.
@@ -56,7 +72,7 @@ class ExportToFileStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 1
+        return 2
 
     @classmethod
     def step_type(cls) -> str:
@@ -77,13 +93,8 @@ class ExportToFileStepPerformer(StepPerformer):
 
         if _type == 'csv':
             sheet_index_to_export_location = get_export_to_csv_sheet_index_to_file_name(file_name, sheet_indexes)
-            for sheet_index, file_name in sheet_index_to_export_location.items():
-                post_state.dfs[sheet_index].to_csv(file_name, index=False)
         elif _type == 'excel':
             sheet_index_to_export_location = get_export_to_excel_sheet_index_to_sheet_name(post_state, file_name, sheet_indexes)
-            with pd.ExcelWriter(file_name) as writer:
-                for sheet_index, sheet_name in sheet_index_to_export_location.items():
-                    post_state.dfs[sheet_index].to_excel(writer, sheet_name=sheet_name, index=False)
         else:
             raise ValueError(f"Invalid file type: {_type}")
 
@@ -110,6 +121,7 @@ class ExportToFileStepPerformer(StepPerformer):
                 get_param(params, 'type'),
                 get_param(execution_data if execution_data is not None else {}, 'file_name'),
                 get_param(execution_data if execution_data is not None else {}, 'sheet_index_to_export_location'),
+                get_param(params, 'export_formatting')
             )
         ]
 

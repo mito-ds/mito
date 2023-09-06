@@ -1,6 +1,6 @@
 import React from "react";
 import { MitoAPI } from "../../../api/api";
-import { CodeOptions, ParamType, ParameterizableParams } from "../../../types";
+import { CodeOptions, ParamName, ParamSubType, ParamType, ParamValue, ParameterizableParams } from "../../../types";
 
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../../elements/DropdownButton";
@@ -26,6 +26,24 @@ const getParamDisplayString = (paramValue: string, paramType: ParamType): string
     }
 }
 
+const getParamDescriptionString = (paramSubtype: ParamSubType): string => {
+    if (paramSubtype === 'import_dataframe') {
+        return 'Dataframe'
+    } else if (paramSubtype === 'file_name_import_csv') {
+        return 'CSV Import File Path'
+    } else if (paramSubtype === 'file_name_import_excel') {
+        return 'Excel Import File Path'
+    } else if (paramSubtype === 'file_name_export_csv') {
+        return 'CSV Export File Path'
+    } else if (paramSubtype === 'file_name_export_excel') {
+        return 'Excel Export File Path'
+    } else {
+        return paramSubtype;
+    }
+
+
+}
+
 const getFileNameFromParamValue = (paramValue: string): string => {
     // eslint-disable-next-line no-useless-escape
     let fileName = paramValue.replace(/^.*[\\\/]/, ''); // Get the final path
@@ -49,6 +67,10 @@ const getDefaultParamName = (paramValue: string, paramType: ParamType): string =
     }
 }
 
+function isFunctionParamsDict(functionParams: Record<ParamName, ParamValue> | ParamSubType | ParamSubType[]): functionParams is Record<ParamName, ParamValue> {
+    return (typeof functionParams === 'object' && !Array.isArray(functionParams));
+}
+
 /* 
     This is the CodeOptions taskpane, allows you to configure how the code is generated
 */
@@ -68,12 +90,12 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
         return !Object.values(props.codeOptions.function_params).includes(paramName);
     });
 
-    const disabled = parameterizableParams.length === 0 || props.codeOptions.as_function === false;
+    const functionParams = props.codeOptions.function_params;
 
-    const paramNamesAndValues = Object.entries(props.codeOptions.function_params).sort((a, b) => {
-        // Only sort by value, as this is static and doesn't change
-        return a[1].localeCompare(b[1]);
-    });
+    const disabled = parameterizableParams.length === 0 
+        || props.codeOptions.as_function === false
+        || !isFunctionParamsDict(functionParams);
+
 
     return (
         <>
@@ -91,7 +113,9 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                         disabled={disabled}
                         title={!props.codeOptions.as_function ? 'Toggle Generate Function before adding parameters.' : (parameterizableParams.length === 0 ? 'There are no available options to parameterize. Import data first.' : undefined)}
                     >   
-                        {unparametizedParams.map(([paramValue, paramType, paramDescription], index) => {
+                        {unparametizedParams.map(([paramValue, paramType, paramSubtype], index) => {
+                            const paramDescription = getParamDescriptionString(paramSubtype);
+
                             return (
                                 <DropdownItem
                                     key={index}
@@ -100,7 +124,12 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                     onClick={() => {                                        
                                         props.setCodeOptions((prevCodeOptions) => {
                                             const newCodeOptions = {...prevCodeOptions};
+                                            if (!isFunctionParamsDict(newCodeOptions.function_params)) {
+                                                return prevCodeOptions;
+                                            }
+
                                             const paramName = getDefaultParamName(paramValue, paramType);
+                                            
                                             newCodeOptions.function_params[paramName] = paramValue;
                                             return newCodeOptions;
                                         })
@@ -116,7 +145,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                 <Row justify='space-between' align='center'>
                     <Col span={8} offsetRight={2}>
                         <p>
-                            Current Value
+                            Value
                         </p>
                     </Col>
                     <Col span={10} offsetRight={2}>
@@ -128,7 +157,12 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     </Col>
                 </Row>
             }
-            {paramNamesAndValues.map(([paramName, paramValue], index) => {
+            {!isFunctionParamsDict(functionParams) && 
+                <p>
+                    Function params have been set by the mitosheet creator and cannot be edited.
+                </p>
+            }
+            {isFunctionParamsDict(functionParams) && Object.entries(functionParams).sort((a, b) => a[1].localeCompare(b[1])).map(([paramName, paramValue], index) => {
                 return (
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
@@ -146,6 +180,10 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
 
                                     const newCodeOptions = {...props.codeOptions};
 
+                                    if (!isFunctionParamsDict(newCodeOptions.function_params)) {
+                                        return;
+                                    }
+
                                     if (Object.keys(newCodeOptions.function_params).includes(newParamName)) {
                                         let i = 1;
                                         finalNewParamName = newParamName + i;
@@ -160,6 +198,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                     newCodeOptions.function_params[finalNewParamName] = newCodeOptions.function_params[paramName];
                                     delete newCodeOptions.function_params[paramName];
                                     props.setCodeOptions(newCodeOptions);
+
                                 }}
                             />
                         </Col>
@@ -167,14 +206,18 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                             <XIcon
                                 onClick={() => {
                                     const newCodeOptions = {...props.codeOptions};
+                                    if (!isFunctionParamsDict(newCodeOptions.function_params)) {
+                                        return;
+                                    }
+
                                     delete newCodeOptions.function_params[paramName];
                                     props.setCodeOptions(newCodeOptions);
                                 }}
                             />
                         </Col>
                     </Row>
-                )
-            })}
+                )}
+            )}
         </>
     )
 }

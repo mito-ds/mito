@@ -26,7 +26,7 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
         return 'copy'
 
     @classmethod
-    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         
         new_args = []
         for arg in args:
@@ -37,8 +37,8 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
                 # Simple deepcopy if it's a string
                 arg_copy = deepcopy(arg)
             new_args.append(arg_copy)
-        return new_args, None
+        return new_args, None, None
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> List[str]:
-        return []
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+        return [], []

@@ -54,15 +54,17 @@ const AuthenticateToSnowflakeCard = (props: {
         <div className='mito-collapsible-content-card-container'>
             <CollapsibleSection 
                 title={(
-                    <div className={classNames('text-header-3',{'text-color-gray-disabled': loading})}>
+                    <div className={classNames('text-header-3',{'text-color-disabled': loading})}>
                         Connection
                     </div>
                 )}
                 open={props.isOpen}
             >
-                <Row justify="space-between">
+                <Row justify="space-between" align='center'>
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p 
+                            className={classNames('text-body-1', {'text-color-disabled': loading})}
+                        >
                             Username
                         </p>
                     </Col>
@@ -78,9 +80,9 @@ const AuthenticateToSnowflakeCard = (props: {
                             }}/>
                     </Col>
                 </Row>
-                <Row justify="space-between">
+                <Row justify="space-between" align='center'>
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-disabled': loading})}>
                             Password
                         </p>
                     </Col>
@@ -98,9 +100,9 @@ const AuthenticateToSnowflakeCard = (props: {
                             }}/>
                     </Col>
                 </Row>
-                <Row justify="space-between">
+                <Row justify="space-between" align='center'>
                     <Col>
-                        <p className={classNames({'text-color-gray-disabled': loading})}>
+                        <p className={classNames('text-body-1', {'text-color-disabled': loading})}>
                             Account
                         </p>
                     </Col>

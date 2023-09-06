@@ -35,6 +35,8 @@ def test_roll_back_updates_code():
     mito.checkout_step_by_idx(0)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         IN_PREVIOUS_STEP_COMMENT,
     ]
 
@@ -50,12 +52,16 @@ def test_can_rollback_many_steps():
     mito.checkout_step_by_idx(0)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         IN_PREVIOUS_STEP_COMMENT,
     ]
 
     mito.checkout_step_by_idx(1)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', 0)',
         '',
         IN_PREVIOUS_STEP_COMMENT,
@@ -64,6 +70,8 @@ def test_can_rollback_many_steps():
     mito.checkout_step_by_idx(4)
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         'df1.insert(1, \'B\', 0)',
         '',
         'df1.insert(2, \'C\', 0)',
@@ -84,6 +92,8 @@ def test_does_not_allow_edit_events_when_rolled_back():
     mito.add_column(0, 'C')
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        '',
         IN_PREVIOUS_STEP_COMMENT,
     ]
 

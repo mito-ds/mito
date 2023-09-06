@@ -32,6 +32,12 @@ try:
 except ImportError:
     MITOSHEET_HELPER_ENTERPRISE = False
 
+try:
+    import mitosheet_private
+    MITOSHEET_PRIVATE = True
+except ImportError:
+    MITOSHEET_PRIVATE = False
+
 
 def is_running_test() -> bool:
     """
@@ -63,6 +69,13 @@ def is_enterprise() -> bool:
     # This package overides the user.json
     if MITOSHEET_HELPER_ENTERPRISE:
         return MITOSHEET_HELPER_ENTERPRISE
+    
+    # Check if the config is set
+    mito_config_enterprise = os.environ.get('MITO_CONFIG_ENTERPRISE')
+    mito_config_enterprise_temp_license = os.environ.get('MITO_CONFIG_ENTERPRISE_TEMP_LICENSE')
+    from mitosheet.enterprise.mito_config import get_enterprise_from_config
+    if get_enterprise_from_config(mito_config_enterprise, mito_config_enterprise_temp_license):
+        return True
 
     return is_enterprise if is_enterprise is not None else False
 
@@ -75,6 +88,10 @@ def is_pro() -> bool:
     # This package overides the user.json
     if MITOSHEET_HELPER_PRO:
         return MITOSHEET_HELPER_PRO
+
+    # This package overides the user.json
+    if MITOSHEET_PRIVATE:
+        return MITOSHEET_PRIVATE
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_PRO') is not None:
@@ -98,25 +115,6 @@ def is_local_deployment() -> bool:
     """
     return not is_on_kuberentes_mito()  
 
-
-def should_upgrade_mitosheet() -> bool:
-    """
-    A helper function that calculates if a user should upgrade, which does so by 
-    checking if the user has upgraded in the past 21 days (3 weeks), since this is
-    about how often we release big features.
-
-    Always returns false if:
-    - it is not a local installation, for obvious reasons.
-    - if it has an admin package installed, as this is managed by an admin
-
-    NOTE: if the user clicks the upgrade button in the app, then we change the upgraded 
-    date to this date, so that the user doesn't get a bunch of annoying popups. This just
-    pushes back when they are annoyed to upgrade!
-
-    NOTE: THIS FUNCTION IS NOT IN USE ANY MORE. WE NO LONGER TELL USERS TO UPGRADE
-    AS THERE IS NO REAL REASON FOR THEM TO DO SO, AND IT IS ANNOYING.
-    """
-    return False
 
 def get_pandas_version() -> str:
     """

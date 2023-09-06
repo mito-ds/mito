@@ -29,10 +29,16 @@ interface CodeOptionsTaskpaneProps {
 const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
 
     const [codeOptions, setCodeOptions] = useState(() => props.analysisData.codeOptions);
+    const [firstRender, setFirstRender] = useState(true);
 
     useDebouncedEffect(() => {
+        if (firstRender) {
+            setFirstRender(false);
+            return;
+        }
+
         void props.mitoAPI.updateCodeOptions(codeOptions);
-    }, [codeOptions], 100);
+    }, [codeOptions], 500);
 
     return (
         <DefaultTaskpane>
@@ -66,7 +72,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                     </Col>
                 </Row>
                 <Row justify='space-between' align='center'>
-                    <Col>
+                    <Col span={14}>
                         <LabelAndTooltip tooltip="Give your function a short, descriptive name descring what it does.">
                             Function Name
                         </LabelAndTooltip>
@@ -81,6 +87,24 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                                 setCodeOptions(newCodeOptions);
                             }}
                         ></Input>
+                    </Col>
+                </Row>
+                <Row justify='space-between' align='center'>
+                    <Col>
+                        <LabelAndTooltip tooltip="You can optionally configure the code to not call your generated function. Toggling this to false in a Jupyter notebook may break later cells.">
+                            Call Function
+                        </LabelAndTooltip>
+                    </Col>
+                    <Col>
+                        <Toggle 
+                            value={props.analysisData.codeOptions.call_function} 
+                            disabled={!codeOptions.as_function}
+                            onChange={function (): void {
+                                const newCodeOptions = {...codeOptions};
+                                newCodeOptions.call_function = !newCodeOptions.call_function;
+                                setCodeOptions(newCodeOptions);
+                            }}
+                        />
                     </Col>
                 </Row>
                 <CodeOptionsParameters

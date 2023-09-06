@@ -45,6 +45,7 @@ def get_format_string_for_column_format(column_format: Optional[ColumnFormat], d
         return f"\"${OPEN_BRACKET}:{precision_string}{format_f_or_d}{CLOSE_BRACKET}\""    
     elif type == NUMBER_FORMAT_ACCOUNTING:
         return f"lambda val: '${OPEN_BRACKET}:>,{precision_string}{format_f_or_d}{CLOSE_BRACKET}'.format(abs(val)) if val > 0 else '$({OPEN_BRACKET}:>,{precision_string}{format_f_or_d}{CLOSE_BRACKET})'.format(abs((val)))"
+    
     elif type == NUMBER_FORMAT_PERCENTAGE:
         # For some reason, if the int dype is used, then we need to add a leading .0 on the percentage
         # so we don't display decimals

@@ -24,6 +24,7 @@ def test_bulk_rename_renames_all_headers():
     assert list(mito.dfs[1].keys()) == ['A_A', 'B_B']
 
     assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
         'import pandas as pd', 
         '',
         "test = pd.read_csv(r'test.csv')", 

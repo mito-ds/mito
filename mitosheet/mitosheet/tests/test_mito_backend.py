@@ -6,6 +6,7 @@
 import json
 import os
 import pandas as pd
+from mitosheet.transpiler.transpile_utils import get_default_code_options
 import pytest
 import numpy as np
 
@@ -94,6 +95,9 @@ def test_can_call_sheet_with_df_and_filename():
     code_container = transpile(mito.steps_manager)
 
     assert code_container == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
+        '',
         '# Read in filepaths as dataframes',
         'df_1 = pd.read_csv(r\'../1.csv\')',
         '',
@@ -114,6 +118,9 @@ def test_can_use_utf_16_when_passing_string():
     code_container = transpile(mito.steps_manager)
 
     assert code_container == [
+        'from mitosheet.public.v3 import *',
+        'import pandas as pd',
+        '',
         '# Read in filepaths as dataframes',
         f'test_file_path = pd.read_csv(r\'test_file_path.csv\', encoding=\'{encoding}\')',
         '',
@@ -154,3 +161,16 @@ def test_throws_duplicated_column_error():
         df = pd.DataFrame(columns=['A', 'A'])
         get_mito_backend(df)
     assert 'A' in str(e_info)
+
+def test_create_mito_backend_with_string_names_set_df_names():
+    df = pd.DataFrame({i: [1, 2, 3] for i in range(MAX_COLUMNS + 100)})
+    df.to_csv('test_file.csv', index=False)
+    mito = create_mito_wrapper('test_file.csv')
+    assert mito.mito_backend.steps_manager.curr_step.final_defined_state.df_names == ['test_file']
+    os.remove('test_file.csv')
+
+def test_create_backend_with_code_options_works():
+    code_options = get_default_code_options('tmp')
+    code_options['call_function'] = False
+    mito_backend = MitoBackend(code_options=code_options)
+    assert mito_backend.steps_manager.code_options == code_options

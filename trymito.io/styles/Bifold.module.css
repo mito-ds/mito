@@ -1,0 +1,23 @@
+.bifold_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.bifold_container > div {
+    margin-top: 2rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+    .bifold_container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: flex-start;
+    }
+
+    .bifold_container > div {
+        margin-top: 0;
+    }
+    
+}

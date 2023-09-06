@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
+import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
 
 const Home: NextPage = () => {
 
@@ -41,7 +42,7 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
               <h1 className={titleStyles.title}>
-                Spreadsheets, meet <span className='text-color-purple'>AI Automation</span>
+                Automate your spreadsheets. No computer science degree required.
               </h1>
 
               <h2 className={titleStyles.description}>
@@ -50,14 +51,20 @@ const Home: NextPage = () => {
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='try jupyterlite' align='center'/>
+                <CTAButtons variant='download' align='center'/>
               </div>
               
-            <div id='video'>
-              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                <source src="/demo.mp4" />
-              </video>
-            </div>
+              <iframe
+                className='display-desktop-only-inline-block'
+                src="https://mito-for-st-demo.streamlit.app/?embed=true"
+                height="650"
+                style={{width: '80%', border: 'none'}}
+              ></iframe>
+              <div id='video' className='display-mobile-only'>
+               <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                 <source src="/demo.mp4" />
+               </video>
+             </div>
           </section>
 
           <section>
@@ -113,10 +120,10 @@ const Home: NextPage = () => {
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span>
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span> and <span className='text-color-streamlit-red'>Streamlit</span>
                 </h2>
                 <p className='display-mobile-only'> 
-                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. 
+                  Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
                 <p className='display-desktop-only-inline-block'>
@@ -132,19 +139,32 @@ const Home: NextPage = () => {
                     pip install mitosheet
                   </span> {copied && "- copied!"}
                 </p>
-
-                <a href="https://docs.trymito.io/getting-started/installing-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
-                  Download Mito for Jupyter →
-                </a>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/Mito_in_jupyter.png'} alt='Automate analysis with Mito' width={500} height={250} layout='responsive'/>
+                <Image src={'/jupyter-and-streamlit.png'} alt='Use Mito in Jupyter or Streamlit' width={678} height={342} layout='responsive'/>
               </div>
             </div>
 
           </section>
-          
-          <AIThesis/>
+
+
+          <section>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
+                <h2>
+                  Upgrade Python scripts to interactive Streamlit Dashboards
+                </h2>
+                <p>
+                  Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
+                </p>
+                <p className={pageStyles.link}>
+                  <Link href="/data-apps" >
+                    Learn more about Mito in Streamlit →
+                  </Link>
+                </p>
+            </div>
+            <StreamlitAppGallery />
+                
+          </section>
 
           <section className={homeStyles.metrics_container + ' margin-top-8rem'}>
             <div className={homeStyles.metric_container}>
@@ -173,7 +193,9 @@ const Home: NextPage = () => {
             </div>
           </section>
 
-          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section)}>
+          <AIThesis/>
+
+          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section, 'margin-top-8rem')}>
             <div>
               <h2 className={homeStyles.case_study_text}>
                 Enigma’s Director of Finance saves 16 hours per month with Mito

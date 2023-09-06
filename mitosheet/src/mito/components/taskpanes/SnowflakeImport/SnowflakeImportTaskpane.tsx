@@ -202,7 +202,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 <Spacer px={20}/>
                 <CollapsibleSection 
                     title={(
-                        <div className={classNames('text-header-3',{'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                        <div className={classNames('text-header-3',{'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                             Configure Query
                         </div>
                     )} 
@@ -210,7 +210,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                 >
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Role
                             </p>
                         </Col>
@@ -244,7 +244,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Warehouse
                             </p>
                         </Col>
@@ -269,7 +269,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Database
                             </p>
                         </Col>
@@ -302,7 +302,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Schema
                             </p>
                         </Col>
@@ -335,7 +335,7 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                     </Row>
                     <Row justify="space-between">
                         <Col>
-                            <p className={classNames({'text-color-gray-disabled': loadingAvailableOptionsAndDefaults})}>
+                            <p className={classNames({'text-color-disabled': loadingAvailableOptionsAndDefaults})}>
                                 Table/View 
                             </p>
                         </Col>

@@ -11,6 +11,55 @@ import { classNames } from "../../utils/classNames"
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
 
+
+const HeaderDropdownItem = (props: {
+  title: string,
+  subtext?: string,
+  href: string,
+  iconSrc: string,
+  altText: string,
+}) => {
+  return (
+    <li>
+      <Link href={props.href}>
+        <div className={classNames(headerStyles.dropdown_item)}>
+          <div className={classNames(headerStyles.dropdown_item_row)}>
+            <Image src={props.iconSrc} alt={props.altText} width={20} height={20} />
+            <p className='margin-top-0'> 
+              {props.title}
+            </p>
+          </div>
+          {props.subtext !== undefined &&
+            <div className={classNames(headerStyles.dropdown_item_row)}>
+              <p className={headerStyles.dropdown_item_subtext}>
+                {props.subtext}
+              </p>
+            </div> 
+          }
+        </div>
+      </Link>                 
+    </li>
+  )
+}
+
+const HeaderDropdown = (props: {
+  dropdownButtonTitle: string
+  children: JSX.Element[]
+}): JSX.Element => {
+
+  return (
+    <li className={classNames('highlight-on-hover', headerStyles.dropdown_container, headerStyles.nav_item)}>
+      <span>{props.dropdownButtonTitle}</span>
+      <div className={headerStyles.dropdown_anchor_container}>
+        <Image src={'/down-anchor.svg'} alt='Dropdown indicator' width={16} height={6} />
+      </div>
+      <ul className={headerStyles.dropdown}>
+        {props.children}
+      </ul>
+    </li>
+  )
+}
+
 const Header = (): JSX.Element => {
 
     const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
@@ -24,55 +73,62 @@ const Header = (): JSX.Element => {
               </a>
             </Link>
             <nav className={classNames(headerStyles.desktop_menu_items, 'display-desktop-only-flex')}>
-              <ul className={classNames(headerStyles.nav_item)}>
-                <li className={classNames('highlight-on-hover', headerStyles.dropdown_container)}>
-                  <span>Product </span>
-                  <div className={headerStyles.dropdown_anchor_container}>
-                    <Image src={'/down-anchor.svg'} alt='Dropdown indicator' width={16} height={6} />
-                  </div>
-                  <ul className={headerStyles.dropdown}>
-                    <li>
-                      <Link href='/spreadsheet-automation'>
-                        <div className={classNames(headerStyles.dropdown_item)}>
-                          <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <Image src={'/step-icons/spreadsheet_icon.svg'} alt='Mito spreadsheet' width={20} height={20} />
-                            <p className='margin-top-0'> 
-                              Mito Spreadsheet 
-                            </p>
-                          </div>
-                          <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <p className={headerStyles.dropdown_item_subtext}>
-                              Edit a spreadsheet. Generate Python code.
-                            </p>
-                          </div>   
-                        </div>
-                      </Link>                 
-                    </li>
+              <ul>
 
-                    <li>
-                      <Link href='/python-ai-tools'>
-                        <div className={classNames(headerStyles.dropdown_item)}>
-                          <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <Image src={'/step-icons/ai_icon.svg'} alt='Mito spreadsheet' width={20} height={20} />
-                            <p className='margin-top-0'>
-                              Mito AI
-                            </p>
-                          </div>
-                          <div className={classNames(headerStyles.dropdown_item_row)}>
-                            <p className={headerStyles.dropdown_item_subtext}>
-                              Automate your report with a Python expert.
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    </li>
-                  </ul>
-                </li>
+                {/* Product Dropdown */}
+                <HeaderDropdown dropdownButtonTitle="Product">
+                  <HeaderDropdownItem 
+                    title='Mito Spreadsheet'
+                    href='/spreadsheet-automation'
+                    iconSrc='/step-icons/spreadsheet_icon.svg'
+                    altText="Mito Spreadsheet"
+                  />
+                  <HeaderDropdownItem 
+                    title='Mito AI'
+                    href='/python-ai-tools'
+                    iconSrc='/mito-ai.svg'
+                    altText="Mito AI"
+                  />
+                  <HeaderDropdownItem 
+                    title='Low-Code SQL'
+                    href='/low-code-sql'
+                    iconSrc='/step-icons/low-code-sql.svg'
+                    altText="Low-Code SQL"
+                  />
+                  <HeaderDropdownItem 
+                    title='Data App'
+                    href='/data-app'
+                    iconSrc='/data_app.svg'
+                    altText="Data App"
+                  />
+                  <HeaderDropdownItem 
+                    title='Infrastructure Integration'
+                    href='/infrastructure-integration-python-tool'
+                    iconSrc='/settings-hollow.svg'
+                    altText="Infrastructure Integration"
+                  />
+                </HeaderDropdown>
+
+
+                {/* Industries Dropdown */}
+                <HeaderDropdown dropdownButtonTitle="Industries">
+                  <HeaderDropdownItem
+
+                    title='Financial Services'
+                    href='/industries/financial-services'
+                    iconSrc='/financial-services.svg'
+                    altText="Financial Services"
+                  />
+                  <HeaderDropdownItem
+                    title='Life Sciences'
+                    href='/industries/life-sciences'
+                    iconSrc='/life-sciences.svg'
+                    altText="Life Sciences"
+                  />
+                </HeaderDropdown>
+
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='/plans'>Plans</Link>
-                </li>
-                <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
-                  <Link href='/security'>Security</Link>
                 </li>
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='/blog'>Blog</Link>
@@ -128,6 +184,21 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/python-ai-tools'>Mito AI</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/low-code-sql'>Low-Code SQL</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/data-app'>Data App</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/industries/financial-services'>Financial Services</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/industries/life-sciences'>Life Sciences</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>

@@ -7,7 +7,7 @@
     font-size: 40px;
     font-family: Roboto Medium;
     font-weight: 500;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* Use as side bar titles */
@@ -15,7 +15,7 @@
     font-size: 20px;
     font-family: Roboto Medium;
     font-weight: 500;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* 
@@ -27,7 +27,7 @@
     font-size: 15px;
     font-family: Roboto Medium;
     font-weight: 500;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* Use for Small titles */
@@ -35,7 +35,7 @@
     font-size: 13px;
     font-family: Roboto Medium;
     font-weight: 500;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* 
@@ -47,7 +47,7 @@
     font-size: 15px;
     font-family: Roboto;
     font-weight: 400;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 /* Use for links */
@@ -55,7 +55,12 @@
     font-size: 15px;
     font-family: Roboto;
     font-weight: 400;
-    color: var(--mito-purple);
+    color: var(--mito-highlight);
+    text-decoration: underline;
+}
+
+.text-link {
+    color: var(--mito-highlight);
     text-decoration: underline;
 }
 
@@ -69,14 +74,14 @@
     font-size: 13px;
     font-family: Roboto;
     font-weight: 400;
-    color: var(--mito-gray);
+    color: var(--mito-text);
 }
 
 .text-body-2-link {
     font-size: 13px;
     font-family: Roboto;
     font-weight: 400;
-    color: var(--mito-purple);
+    color: var(--mito-highlight);
     text-decoration: underline;
 }
 
@@ -85,7 +90,7 @@
     font-size: 12px;
     font-family: Roboto;
     font-weight: 400;
-    color: var(--mito-medium-gray);
+    color: var(--mito-text-medium);
 }
 
 /* 
@@ -93,23 +98,26 @@
     also have white text (e.g. the tour). In this case, we
     can override the color with this text
 */
-.text-color-mito-purple {
-    color: var(--mito-purple) !important;
+.text-color-mito-text {
+    color: var(--mito-text) !important;
 }
-.text-color-mito-light-purple {
-    color: var(--mito-light-purple)
+.text-color-mito-highlight {
+    color: var(--mito-highlight) !important;
 }
-.text-color-white-important {
-    color: white !important;
+.text-color-mito-highlight-light {
+    color: var(--mito-highlight-light)
 }
-.text-color-mito-purple-important {
-    color: var(--mito-purple) !important;
+.text-color-background-important {
+    color: var(--mito-background) !important;
 }
-.text-color-gray-important {
-    color: var(--mito-gray) !important;
+.text-color-mito-highlight-important {
+    color: var(--mito-highlight) !important;
 }
-.text-color-medium-gray-important {
-    color: var(--mito-medium-gray) !important;
+.text-color-medium-important {
+    color: var(--mito-text-medium) !important;
+}
+.text-font-family-normal-important {
+    font-family: Roboto !important;
 }
 .text-color-recon-created {
     color: var(--mito-recon-created-text-color) !important;
@@ -119,20 +127,21 @@
 }
 
 
+
 /*
     Set the text to an error color. In the future, we
     should probably make this a bit less aggressive
 */
 .text-color-error {
-    color: var(--mito-red);
+    color: var(--mito-status-error);
 }
 
 .text-color-error-important {
-    color: var(--mito-red) !important;
+    color: var(--mito-status-error) !important;
 }
 
 .text-color-success {
-    color: var(--mito-green);
+    color: var(--mito-status-success);
 }
 
 /* 
@@ -192,7 +201,14 @@
 .text-underline-on-hover:hover {
     text-decoration: underline;
 }
+.text-color-highlight-important-on-hover:hover {
+    color: var(--mito-highlight) !important;
+}
 
-.text-color-gray-disabled {
-    color: var(--mito-gray-disabled);
+.text-color-disabled {
+    color: var(--mito-text-light);
+}
+
+.text-cursor-default {
+    cursor: default;
 }

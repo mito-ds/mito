@@ -212,7 +212,6 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 {/* Display the dropdown that allows a user to perform some action */}
                 <div 
                     ref={openDropdownDivRef}
-                    className='sheet-tab-dropdown-button-div' 
                     onClick={() => {setDisplayActions(true)}}
                 >
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}

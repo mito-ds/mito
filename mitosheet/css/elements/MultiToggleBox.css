@@ -12,10 +12,10 @@
     /* These in pair make it so less than the max height will just take up the space it needs, and anything larger scrolls */
     overflow: auto;
 
-    border: 0.5px solid var(--mito-legacy-gray);
+    border: 0.5px solid var(--mito-text-light);
     box-sizing: border-box;
     border-radius: 3px;
-    background-color: #F8F8F8;
+    background-color: var(--mito-background-off);
 }
 
 .multi-toggle-box-row {
@@ -26,13 +26,13 @@
 }
 
 .multi-toggle-box-row:hover {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .multi-toggle-box-row-selected {
-    background-color: var(--mito-light-blue);
+    background-color: var(--mito-background-highlight);
 }
 
 .multi-toggle-box-row-disabled {
-    color: var(--mito-medium-gray) !important;
+    opacity: 70%;
 }

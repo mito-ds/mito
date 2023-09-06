@@ -584,6 +584,7 @@ class MitoWidgetTestWrapper:
             type: str,
             sheet_indexes: List[int],
             file_name: str,
+            export_formatting: bool=False
         ) -> bool:
 
         return self.mito_backend.receive_message(
@@ -595,7 +596,8 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'type': type,
                     'sheet_indexes': sheet_indexes,
-                    'file_name': file_name
+                    'file_name': file_name,
+                    'export_formatting': export_formatting
                 }
             }
         )
@@ -679,6 +681,7 @@ class MitoWidgetTestWrapper:
     def user_defined_import(
             self, 
             importer: str,
+            importer_params: Dict[str, str]
         ) -> bool:
 
 
@@ -690,7 +693,7 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'importer': importer,
-                    
+                    'importer_params': importer_params
                 }
             }
         )
@@ -1197,7 +1200,7 @@ class MitoWidgetTestWrapper:
                 'type': 'replay_analysis_update',
                 'params': {
                     'analysis_name': analysis_name,
-                    'args': args if args is not None else self.mito_backend.steps_manager.original_args_raw_strings,
+                    'args': args if args is not None else [],
                     'step_import_data_list_to_overwrite': step_import_data_list_to_overwrite if step_import_data_list_to_overwrite is not None else []
                 },
             }
@@ -1205,6 +1208,20 @@ class MitoWidgetTestWrapper:
     
     @check_transpiled_code_after_call
     def code_options_update(self, code_options: CodeOptions) -> bool:
+        return self.mito_backend.receive_message(
+            {
+                'event': 'update_event',
+                'id': get_new_id(),
+                'type': 'code_options_update',
+                'params': {
+                    'code_options': code_options
+                },
+            }
+        )
+    
+    # Some code options allow you to turn off the actually calling of a function, and
+    # in this case, we don't want to check the transpiled code, as it will always fail
+    def code_options_update_no_check_transpiled(self, code_options: CodeOptions) -> bool:
         return self.mito_backend.receive_message(
             {
                 'event': 'update_event',

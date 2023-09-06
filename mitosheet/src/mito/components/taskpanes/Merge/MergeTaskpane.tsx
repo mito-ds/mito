@@ -137,12 +137,12 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <Row justify='space-between' align='center' suppressTopBottomMargin>
-                    <Col offsetRight={1}>
+                    <Col offsetRight={1} span={7}>
                         <p className='text-header-3'>
                             Merge Type
                         </p>
                     </Col>
-                    <Col offsetRight={2}>
+                    <Col span={14}>
                         <Select 
                             value={params.how}
                             onChange={(mergeType: string) => {
@@ -154,11 +154,11 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                     }
                                 })
                             }}
-                            width='medium-large'
+                            width='block'
                         >
                             <DropdownItem
                                 title={MergeType.LOOKUP}
-                                subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are mulitple matches in the second sheet, only takes the first."
+                                subtext="Includes all rows from the first sheet and only matching rows from the second sheet. If there are multiple matches in the second sheet, only takes the first."
                             />
                             <DropdownItem
                                 title={MergeType.LEFT}

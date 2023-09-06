@@ -18,7 +18,7 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     4. Return errors if errors are returned that are not meant to be displayed
        in the error modal are returned.
 
-    See ConcatTaskpane for how this is used. In generally, it allows us to
+    See ConcatTaskpane for how this is used. In general, it allows us to
     take the custom UI code we have to write down to _just_ the code to display
     the parameters to the user and allow them to edit them. This is really
     sweet, and we'll continue to migrate to this hook over time. Woo!
@@ -29,11 +29,13 @@ import { useEffectOnUpdateEvent } from "./useEffectOnUpdateEvent";
     backend is different than what is useful on the frontend.
 */
 function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
+    // Params to represent what should be shown when we open the taskpane and are by default send to the backend
     defaultParams: FrontendParamType | undefined | (() => FrontendParamType | undefined),
     stepType: string,
     mitoAPI: MitoAPI,
     analysisData: AnalysisData,
     debounceDelay: number,
+    // Functions to update params when passed between frontend and backend. 
     frontendToBackendConverters?: {
         getBackendFromFrontend: (params: FrontendParamType, sheetDataArray?: SheetData[]) => BackendParamType,
         getFrontendFromBackend: (params: BackendParamType, sheetDataArray?: SheetData[]) => FrontendParamType,

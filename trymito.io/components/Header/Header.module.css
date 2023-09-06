@@ -184,5 +184,6 @@
             we need to apply !important to apply our own margins
         */ 
         margin-bottom: 2px !important;
+        margin-left: 2px !important;
     }
 }

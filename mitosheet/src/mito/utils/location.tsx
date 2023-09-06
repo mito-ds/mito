@@ -18,3 +18,17 @@ export const isInJupyterNotebook = (): boolean => {
     return window.location.pathname.startsWith('/notebooks') ||
         (window as any).Jupyter !== undefined
 }
+
+export const isInStreamlit = (): boolean => {
+    
+    // We are in streamlit if we are in an iframe that has a parent with
+    // a class of "stApp"
+
+    if (window.parent) {
+        const parent = window.parent.document.querySelector('.stApp')
+        if (parent) {
+            return true
+        }
+    }
+    return false
+}

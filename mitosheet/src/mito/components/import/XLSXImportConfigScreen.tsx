@@ -201,7 +201,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                         <Col>
                             <Select
                                 value={params.has_headers ? 'Yes' : 'No'}
-                                width='medium'
+                                width='small'
                                 onChange={(newValue: string) => props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
@@ -223,14 +223,14 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                     <Row justify='space-between' align='center' title={SKIP_ROWS_TOOLTIP}>
                         <Col>
                             <LabelAndTooltip tooltip={SKIP_ROWS_TOOLTIP}>
-                                Number of Rows to Skip
+                                Rows to Skip
                             </LabelAndTooltip>
                         </Col>
                         <Col>
                             <Input
                                 value={"" + params.skiprows}
                                 type='number'
-                                width='medium'
+                                width='small'
                                 onChange={(e) => {
                                     const newValue = e.target.value;
 
@@ -257,7 +257,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                             </Col>
                             <Col>
                                 <Select 
-                                    width='medium' 
+                                    width='small' 
                                     value={decimalCharToTitle[params.decimal]} 
                                     onChange={(newDecimalSeparator) => {
                                         props.setParams(prevParams => {
@@ -298,7 +298,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 })
                             }}
                         >
-                            Want to import multiple ranges from {params.sheet_names[0]}? <span className='text-underline'>Click here.</span>
+                            <span className='text-underline'>Click here</span> to import multiple ranges.
                         </p>
                     }
                     {/* 
