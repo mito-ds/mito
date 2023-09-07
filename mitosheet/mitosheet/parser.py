@@ -465,8 +465,6 @@ def get_raw_parser_matches(
         'parsed': 0,
         'row_offset': -1
     }
-
-    These would be returned in reverse, so that they were easy to work with.
     """
 
     df = dfs[sheet_index]
