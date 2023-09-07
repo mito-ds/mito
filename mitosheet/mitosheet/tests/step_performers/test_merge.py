@@ -270,6 +270,42 @@ MERGE_UNIQUE_TESTS = [
             pd.DataFrame({'A': [4]}),
         ],
     ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3]}),
+            pd.DataFrame({'B': [4]}, index=[2]),
+        ],
+        'unique in right', 0, 1, [['A', 'B']], ['A'], ['B'],
+        [
+            pd.DataFrame({'A': [1, 2, 3]}),
+            pd.DataFrame({'B': [4]}, index=[2]),
+            pd.DataFrame({'B': [4]}),
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2], 'B': [1, 2]}),
+            pd.DataFrame({'A': [2], 'B': [2]})
+        ],
+        'unique in left', 0, 1, [['A', 'B']], ['A', 'B'], ['A', 'B'],
+        [
+            pd.DataFrame({'A': [1, 2], 'B': [1, 2]}),
+            pd.DataFrame({'A': [2], 'B': [2]}),
+            pd.DataFrame({'A': [1], 'B': [1]})
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({'A': [2], 'B': [2]}),
+            pd.DataFrame({'A': [1, 2], 'B': [1, 2]}),
+        ],
+        'unique in right', 0, 1, [['B', 'A']], ['A', 'B'], ['A', 'B'],
+        [
+            pd.DataFrame({'A': [2], 'B': [2]}),
+            pd.DataFrame({'A': [1, 2], 'B': [1, 2]}),
+            pd.DataFrame({'A': [1], 'B': [1]})
+        ],
+    ),
 ]
 @pandas_post_1_only
 @pytest.mark.parametrize("input_dfs, how, sheet_index_one, sheet_index_two, merge_key_columns, selected_columns_one, selected_columns_two, output_dfs", MERGE_UNIQUE_TESTS)
@@ -282,6 +318,8 @@ def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_ke
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
 
