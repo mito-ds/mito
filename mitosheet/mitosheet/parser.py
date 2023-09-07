@@ -216,6 +216,7 @@ def safe_count_function(formula: str, substring: str) -> int:
 def check_common_errors(
         formula: str,
         dfs: List[pd.DataFrame],
+        df_names: List[str],
         sheet_index: int,
     ) -> None:
     """
@@ -235,6 +236,13 @@ def check_common_errors(
             error_modal=False
         )
 
+    for sheet_name in df_names:
+        if safe_contains(formula, f'{sheet_name}!', column_headers) and not safe_contains_function(formula, 'VLOOKUP', column_headers):
+            raise make_invalid_formula_error(
+                formula,
+                f'Cross-sheet references are only allowed in calls to VLOOKUP',
+                error_modal=False
+            )
 
     # Remove leading white space from formula so we can easily remove
     # the leading = if it exists
@@ -984,7 +992,7 @@ def parse_formula(
         return '', set(), set(), set()
 
     if throw_errors:
-        check_common_errors(formula, dfs, sheet_index)
+        check_common_errors(formula, dfs, df_names, sheet_index)
 
     # Chop off any whitespace at the start
     formula = formula.lstrip()
