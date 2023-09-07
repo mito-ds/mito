@@ -283,11 +283,9 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
         })];
     }
 
-    const allFunctionNamesAndDescription = functionDocumentationObjects.map(f => {
+    const allFunctionNamesAndDescription = functionDocumentationObjects.concat(analysisData.userDefinedFunctions).map(f => {
         return {function: f.function, description: f.description, search_terms: f.search_terms}}
-    ).concat(
-        analysisData.userDefinedFunctions.map(f => {return {function: f, description: 'User-defined function', search_terms: [f]}})
-    );
+    )
 
 
     // Then, we lookup based on the name of the function
