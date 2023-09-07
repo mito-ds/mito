@@ -175,9 +175,9 @@ const CellEditorDropdown = (props: {
                                     {suggestion}
                                 </span>
                                 {selected &&
-                                    <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
+                                    <pre className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
                                         {subtext}
-                                    </div>
+                                    </pre>
                                 }
                             </div>
                         )
@@ -191,9 +191,9 @@ const CellEditorDropdown = (props: {
                         <p className='text-body-2'>
                             {displayedDropdownType.documentationFunction.syntax}
                         </p>
-                        <p className='text-subtext-1'>
+                        <pre className='cell-editor-function-documentation-body text-subtext-1'>
                             {displayedDropdownType.documentationFunction.description}
-                        </p>
+                        </pre>
                     </div>
                     {displayedDropdownType.documentationFunction.examples && 
                         <div className='pt-5px pb-10px pr-10px pl-10px'>

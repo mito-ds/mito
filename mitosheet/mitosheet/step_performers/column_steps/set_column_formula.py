@@ -382,7 +382,10 @@ def get_user_defined_sheet_function_objects(state: Optional[State]) -> List[Any]
         except:
             pass
 
-        # Otherwise, we build the function documentation object ourself
+        # Otherwise, we build the function documentation object ourself. We make sure
+        # to strip unnecessary whitespace (leading tabs) out of the docstring
+        description = description.strip()
+        description = description.replace('\n\t', '\n')
 
         # The search terms are any word in the description
         # and filter out any words that are less than 3 characters
