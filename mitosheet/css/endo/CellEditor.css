@@ -54,6 +54,7 @@
     display: flex;
     flex-direction: column;
     padding-left: 10px;
+    overflow: scroll;
 
     margin-top: 4px;
     margin-bottom: 4px;
@@ -65,6 +66,10 @@
 
 .cell-editor-function-documentation-header {
     background-color: var(--mito-background-highlight);
+}
+
+.cell-editor-function-documentation-body {
+    overflow: scroll;
 }
 
 .cell-editor-function-documentation-header > * + * {

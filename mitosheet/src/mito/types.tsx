@@ -4,6 +4,7 @@ import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPane
 import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
+import { FunctionDocumentationObject } from "./data/function_documentation";
 
 
 /**
@@ -771,7 +772,7 @@ export interface AnalysisData {
     lastResult: any;
     experiment: Experiment | undefined;
     codeOptions: CodeOptions;
-    userDefinedFunctions: string[];
+    userDefinedFunctions: FunctionDocumentationObject[];
     userDefinedImporters: UserDefinedImporter[];
 
     importFolderData: {

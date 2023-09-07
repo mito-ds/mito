@@ -218,7 +218,7 @@ const CellEditor = (props: {
             ...props.editorState,
             formula: newFormula,
             pendingSelections: undefined,
-            arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false
+            arrowKeysScrollInFormula: props.editorState.editorLocation === 'formula bar' ? true : false,
         })
 
         // Make sure we jump to the end of the input, as we took the suggestion
