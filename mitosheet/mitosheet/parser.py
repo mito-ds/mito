@@ -738,11 +738,7 @@ def get_parser_matches(
             parser_matches.append(header_match)
             match_index += 1
         else:
-            raise make_invalid_formula_error(
-                formula,
-                'Something went wrong parsing the formula.',
-                error_modal=True
-            )
+            match_index += 1
 
     # Put the parser matches in back-to-front order so we can work with them easily in consuming functions
     parser_matches.reverse()
