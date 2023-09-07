@@ -86,7 +86,7 @@ def test_user_defined_function_valid_doc_string():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), sheet_functions=[ADD1])
     documentation = json.loads(mito.analysis_data_json)['userDefinedFunctions']
 
-    assert documentation == [{'function': 'ADD1', 'description': 'Adds 1 to the column', 'search_terms': ['Adds', '1', 'to', 'the', 'column'], 'syntax': 'ADD1(col)', 'syntax_elements': [{'element': 'col', 'description': ''}]}]
+    assert documentation == [{'function': 'ADD1', 'description': 'Adds 1 to the column', 'search_terms': ['Adds', 'the', 'column'], 'syntax': 'ADD1(col)', 'syntax_elements': [{'element': 'col', 'description': ''}]}]
 
 def test_user_defined_function_function_documentation_object():
     def ADD1(col):
