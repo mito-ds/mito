@@ -755,8 +755,7 @@ def replace_column_headers_and_indexes_and_sheet_names(
         string_matches: List,
         dfs: List[pd.DataFrame],
         df_names: List[str],
-        sheet_index: int,
-        throw_errors: bool
+        sheet_index: int
     ) -> Tuple[str, Set[ColumnHeader], Set[IndexLabel]]:
     """
     Returns a modified formula, where:
@@ -774,8 +773,7 @@ def replace_column_headers_and_indexes_and_sheet_names(
         string_matches,
         dfs,
         df_names,
-        sheet_index,
-        throw_errors
+        sheet_index
     )
 
     df = dfs[sheet_index]
@@ -1002,8 +1000,7 @@ def parse_formula(
         string_matches,
         dfs,
         df_names,
-        sheet_index,
-        throw_errors
+        sheet_index
     )
 
     code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
@@ -1074,8 +1071,7 @@ def get_frontend_formula(
         get_string_matches(formula),
         dfs,
         df_names,
-        sheet_index,
-        False
+        sheet_index
     )
         
     frontend_formula: FrontendFormula = []
