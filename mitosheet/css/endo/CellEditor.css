@@ -60,6 +60,12 @@
     margin-bottom: 4px;
 }
 
+.cell-editor-suggestion-subtext {
+    overflow: scroll;
+    white-space: pre-wrap;
+    max-height: 200px;
+}
+
 .cell-editor-suggestion-selected {
     background-color: var(--mito-background-highlight);
 }
@@ -70,6 +76,8 @@
 
 .cell-editor-function-documentation-body {
     overflow: scroll;
+    white-space: pre-wrap;
+    max-height: 200px;
 }
 
 .cell-editor-function-documentation-header > * + * {
