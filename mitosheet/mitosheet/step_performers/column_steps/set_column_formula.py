@@ -385,7 +385,9 @@ def get_user_defined_sheet_function_objects(state: Optional[State]) -> List[Any]
         # Otherwise, we build the function documentation object ourself
 
         # The search terms are any word in the description
+        # and filter out any words that are less than 3 characters
         search_terms = description.split(' ')
+        search_terms = [term for term in search_terms if len(term) >= 3]
 
         # The syntax is the function name, followed by the arguments
         # We get the arguments by inspecting the function signature

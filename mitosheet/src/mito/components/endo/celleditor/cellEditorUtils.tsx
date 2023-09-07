@@ -328,10 +328,8 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
 /**
  * Returns the documentation for the function that the user is currently writing, specifically
  * returning documentation for the last function in the formula that the user has typed.
- * 
- * @param formula - the formula the user is currently writing
  */
-export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null): FunctionDocumentationObject | undefined => {
+export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null, analysisData: AnalysisData): FunctionDocumentationObject | undefined => {
     
     // Find the final function that is before the users selection
     const finalParenIndex = formula.substring(0, selectionStart || undefined).lastIndexOf('(')
@@ -343,7 +341,7 @@ export const getDocumentationFunction = (formula: string, selectionStart: number
     let finalFunction = '';
     for (let i = finalParenIndex - 1; i >= 0; i--) {
         const char = formula[i].toLowerCase();
-        if (char.match(/^[a-z]+$/i)) {
+        if (char.match(/^[a-z]+$/i) || char === '_') {
             finalFunction += char;
         } else {
             break;
@@ -354,7 +352,9 @@ export const getDocumentationFunction = (formula: string, selectionStart: number
     finalFunction = finalFunction.split("").reverse().join("").toLowerCase();
 
     // Return the matching function, if it exists
-    const matchingFunctions = functionDocumentationObjects.filter(functionDocumentationObject => functionDocumentationObject.function.toLowerCase() === finalFunction);
+    const allFunctionDocumentationObjects = functionDocumentationObjects.concat(analysisData.userDefinedFunctions);
+    const matchingFunctions = allFunctionDocumentationObjects.filter(functionDocumentationObject => functionDocumentationObject.function.toLowerCase() === finalFunction);
+    
     if (matchingFunctions.length !== 1) {
         return undefined;
     } else {
