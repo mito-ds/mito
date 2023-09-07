@@ -601,7 +601,7 @@ def get_parser_matches(
         not_followed_immediately_by_next_match = curr_match['substring_range'][1] != next_match['substring_range'][0]
         not_followed_by_colon_and_then_next_match = curr_match['substring_range'][1] != next_match['substring_range'][0] - 1 or formula[curr_match['substring_range'][1] + 1] != ':'
 
-        if not_followed_immediately_by_next_match or not_followed_by_colon_and_then_next_match:
+        if curr_match['type'] == '{HEADER}' and (not_followed_immediately_by_next_match or not_followed_by_colon_and_then_next_match):
             return {
                 'type': '{HEADER}',
                 'substring_range': curr_match['substring_range'],
@@ -722,40 +722,30 @@ def get_parser_matches(
 
     match_index = 0
     while match_index < len(raw_parser_matches):
-
-        header_index_header_index_match = get_header_index_header_index_match(formula, raw_parser_matches, match_index)
-        if header_index_header_index_match is not None:
+        if (header_index_header_index_match := get_header_index_header_index_match(formula, raw_parser_matches, match_index)) is not None:
             parser_matches.append(header_index_header_index_match)
             match_index += 4
-            continue
-
-        sheet_header_header_match = get_sheet_header_header_match(formula, raw_parser_matches, match_index)
-        if sheet_header_header_match is not None:
+        elif (sheet_header_header_match := get_sheet_header_header_match(formula, raw_parser_matches, match_index)) is not None:
             parser_matches.append(sheet_header_header_match)
             match_index += 3
-            continue
-
-        header_header_match = get_header_header_match(formula, raw_parser_matches, match_index)
-        if header_header_match is not None:
+        elif (header_header_match := get_header_header_match(formula, raw_parser_matches, match_index)) is not None:
             parser_matches.append(header_header_match)
             match_index += 2
-            continue
-
-        header_index_match = get_header_index_match(formula, raw_parser_matches, match_index)
-        if header_index_match is not None:
+        elif (header_index_match := get_header_index_match(formula, raw_parser_matches, match_index)) is not None:
             parser_matches.append(header_index_match)
             match_index += 2
-            continue
-
-        header_match = get_header_match(formula, raw_parser_matches, match_index)
-        if header_match is not None:
+        elif (header_match := get_header_match(formula, raw_parser_matches, match_index)) is not None:
             parser_matches.append(header_match)
             match_index += 1
-            continue
+        else:
+            raise make_invalid_formula_error(
+                formula,
+                'Something went wrong parsing the formula.',
+                error_modal=True
+            )
 
     # Put the parser matches in back-to-front order so we can work with them easily in consuming functions
     parser_matches.reverse()
-
     return parser_matches
 
                 
@@ -765,7 +755,8 @@ def replace_column_headers_and_indexes_and_sheet_names(
         string_matches: List,
         dfs: List[pd.DataFrame],
         df_names: List[str],
-        sheet_index: int
+        sheet_index: int,
+        throw_errors: bool
     ) -> Tuple[str, Set[ColumnHeader], Set[IndexLabel]]:
     """
     Returns a modified formula, where:
@@ -783,7 +774,8 @@ def replace_column_headers_and_indexes_and_sheet_names(
         string_matches,
         dfs,
         df_names,
-        sheet_index
+        sheet_index,
+        throw_errors
     )
 
     df = dfs[sheet_index]
@@ -1010,7 +1002,8 @@ def parse_formula(
         string_matches,
         dfs,
         df_names,
-        sheet_index
+        sheet_index,
+        throw_errors
     )
 
     code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
@@ -1081,7 +1074,8 @@ def get_frontend_formula(
         get_string_matches(formula),
         dfs,
         df_names,
-        sheet_index
+        sheet_index,
+        False
     )
         
     frontend_formula: FrontendFormula = []
