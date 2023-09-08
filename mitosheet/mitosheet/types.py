@@ -361,6 +361,7 @@ else:
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaHeaderIndexReference = Any # type:ignore
     FrontendFormulaHeaderReference = Any # type:ignore
+    FrontendFormulaSheetReference = Any # type:ignore
     FormulaLocationEntireColumn = Any # type:ignore
     FormulaLocationToSpecificIndexLabels = Any # type:ignore
     Selection = Any # type:ignore
