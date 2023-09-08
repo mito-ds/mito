@@ -724,27 +724,42 @@ def get_parser_matches(
 
     match_index = 0
     while match_index < len(raw_parser_matches):
-        if (header_index_header_index_match := get_header_index_header_index_match(formula, raw_parser_matches, match_index)) is not None:
+        header_index_header_index_match = get_header_index_header_index_match(formula, raw_parser_matches, match_index)
+        if header_index_header_index_match is not None:
             parser_matches.append(header_index_header_index_match)
             match_index += 4
-        elif (sheet_header_header_match := get_sheet_header_header_match(formula, raw_parser_matches, match_index)) is not None:
+            continue
+
+        sheet_header_header_match = get_sheet_header_header_match(formula, raw_parser_matches, match_index)
+        if sheet_header_header_match is not None:
             parser_matches.append(sheet_header_header_match)
             match_index += 3
-        elif (header_header_match := get_header_header_match(formula, raw_parser_matches, match_index)) is not None:
+            continue
+        
+        header_header_match = get_header_header_match(formula, raw_parser_matches, match_index)
+        if header_header_match is not None:
             parser_matches.append(header_header_match)
             match_index += 2
-        elif (header_index_match := get_header_index_match(formula, raw_parser_matches, match_index)) is not None:
+            continue
+
+        header_index_match = get_header_index_match(formula, raw_parser_matches, match_index)
+        if header_index_match is not None:
             parser_matches.append(header_index_match)
             match_index += 2
-        elif (header_match := get_header_match(formula, raw_parser_matches, match_index)) is not None:
+            continue
+
+        header_match = get_header_match(formula, raw_parser_matches, match_index)
+        if header_match is not None:
             parser_matches.append(header_match)
             match_index += 1
-        else:
-            raise make_invalid_formula_error(
-                formula,
-                'Something went wrong while parsing the formula. Please contact support.',
-                error_modal=False
-            )
+            continue
+        
+        # If you've gotten here, then something has gone wrong
+        raise make_invalid_formula_error(
+            formula,
+            'Something went wrong while parsing the formula. Please contact support.',
+            error_modal=False
+        )
 
     # Put the parser matches in back-to-front order so we can work with them easily in consuming functions
     parser_matches.reverse()

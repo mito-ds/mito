@@ -73,9 +73,9 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
             formula = formula.replace(str(dependency), anonymize_as_string(dependency))
         for index_label in index_label_dependencies:
             formula = formula.replace(str(index_label), f"I[{anonymize_as_string(index_label)}]") # Tag with an I so we know it's an index
-    except Exception:
-        # If the formula is invalid, we just return an empty string to preserve privacy
-        formula = ''
+    except Exception as e:
+        # If the formula is invalid, we just return an error string to preserve privacy
+        formula = f'Error parsing formula.'
     return formula
 
 def anonymize_object(obj: Any, anonymize_key: bool=False) -> Any:
