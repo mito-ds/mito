@@ -1189,6 +1189,7 @@ def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, 
             columns
         )
 
+# Right now, only {SHEET}{HEADER}{HEADER} is supported, so any other kind of cross-sheet reference should throw an error.
 INVALID_VLOOKUP_TESTS = [
     (
         '=VLOOKUP(df_2!A0, df_2!C:D, 2)',
@@ -1226,6 +1227,40 @@ INVALID_VLOOKUP_TESTS = [
     ),
     (
         '=VLOOKUP(A0, C:D, df_1!)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C0:D0, 1)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C0, 1)',
         'B',
         0,
         [
