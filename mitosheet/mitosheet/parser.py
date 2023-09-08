@@ -1161,6 +1161,8 @@ def get_backend_formula_from_frontend_formula(
             formula += formula_part['string'] # type: ignore
         elif formula_part['type'] == '{HEADER}':
             formula += formula_part['display_column_header']
+        elif formula_part['type'] == '{SHEET}':
+            formula += formula_part['display_sheet_name'] # type: ignore
         else:
             formula += formula_part['display_column_header'] # type: ignore
             formula += get_column_header_display(df.index[df.index.get_indexer([formula_label])[0] - formula_part['row_offset']]) # type: ignore
