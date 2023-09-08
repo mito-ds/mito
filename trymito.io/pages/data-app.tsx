@@ -104,6 +104,9 @@ const DataApp: NextPage = () => {
                         </iframe>
                     </div>
                 </div>
+                <div>
+                    <p> <a href="mailto:founders@sagacollab.com" className={pageStyles.link}> Contact us </a> for a demo of this app.</p>
+                </div>
             </section>
 
             <section>
