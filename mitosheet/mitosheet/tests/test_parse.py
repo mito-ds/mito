@@ -12,6 +12,7 @@ import pandas as pd
 from mitosheet.errors import MitoError
 from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_contains, get_frontend_formula
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 
 def get_number_data_for_df(columns: List[Any], length: int) -> Dict[Any, Any]:
@@ -1218,7 +1219,20 @@ VLOOKUP_TESTS = [
         'df_1[\'B\'] = SUM(df_1[\'C\'], VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2))',
         set(['VLOOKUP', 'SUM']),
         set(['A', 'B', 'C'])
-    ),
+    )
+]
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
+def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
+
+POST_PD_1_2_VLOOKUP_TESTS = [
     # Test for cross-sheet reference with non-string column header
     (
         '=VLOOKUP(A0, df_2!1:C, 2)',
@@ -1239,15 +1253,10 @@ VLOOKUP_TESTS = [
     )
 ]
 
-@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
-def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
-    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
-    assert (code, funcs, cols) == \
-        (
-            python_code, 
-            functions, 
-            columns
-        )
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", POST_PD_1_2_VLOOKUP_TESTS)
+@pandas_post_1_2_only
+def post_pandas_1_2_cross_sheet_tests(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
+    test_parse_cross_sheet_formulas(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns)
 
 # Right now, only {SHEET}{HEADER}{HEADER} is supported, so any other kind of cross-sheet reference should throw an error.
 INVALID_VLOOKUP_TESTS = [
