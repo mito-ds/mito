@@ -1386,6 +1386,6 @@ def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula
 
 @pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
-def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
+def test_get_cross_sheet_frontend_formula_reconstucts_properly(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
     frontend_formula = get_frontend_formula(formula, formula_label, dfs, df_names, sheet_index)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, dfs[sheet_index]) == formula
