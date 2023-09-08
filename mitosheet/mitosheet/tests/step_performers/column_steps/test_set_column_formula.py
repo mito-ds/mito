@@ -531,6 +531,12 @@ def test_set_specific_index_labels_twice():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
 
+def test_cross_sheet_formula():
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}))
+    mito.add_column(0, 'D')
+    mito.set_formula('=VLOOKUP(A0, df2!B:C, 2)', 0, 'D')
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'D': [4, 5, 6]}))
+
 def test_set_specific_index_labels_then_entire_column():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.add_column(0, 'B')
