@@ -4,6 +4,7 @@ import { ControlPanelTab } from "./components/taskpanes/ControlPanel/ControlPane
 import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
+import { FunctionDocumentationObject } from "./data/function_documentation";
 
 
 /**
@@ -75,14 +76,18 @@ export enum UpdateType {
 export type ParamName = string;
 export type ParamValue = string;
 export type ParamType = 'file_name' | 'df_name'
-export type ParamDescription = string;
-export type ParameterizableParams = [ParamValue, ParamType, ParamDescription][];
+export type ParamSubType = 'import_dataframe'
+    | 'file_name_export_excel'
+    | 'file_name_export_csv'
+    | 'file_name_import_excel'
+    | 'file_name_import_csv'
+export type ParameterizableParams = [ParamValue, ParamType, ParamSubType][];
 
 export type CodeOptions = {
     as_function: boolean,
     call_function: boolean,
     function_name: string
-    function_params: Record<ParamName, ParamValue>
+    function_params: Record<ParamName, ParamValue> | ParamSubType | ParamSubType[]
 }
 
 /**
@@ -768,7 +773,7 @@ export interface AnalysisData {
     lastResult: any;
     experiment: Experiment | undefined;
     codeOptions: CodeOptions;
-    userDefinedFunctions: string[];
+    userDefinedFunctions: FunctionDocumentationObject[];
     userDefinedImporters: UserDefinedImporter[];
 
     importFolderData: {

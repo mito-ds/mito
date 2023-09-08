@@ -113,6 +113,7 @@ def _execute_merge(
     Executes a merge on the sheets with the given indexes, merging on the 
     given keys, and only keeping the selection columns from each df.
     """
+    print("HERE123")
     # We currently error if you try and merge two dataframes where they
     # have different levels to the multi-index in the column headers. Aka, 
     # you cannot merge a multi-index dataframe into a regular dataframe
@@ -149,12 +150,12 @@ def _execute_merge(
 
     try:
         if how == UNIQUE_IN_LEFT:
-            result = df_one_cleaned.merge(df_two_cleaned[merge_keys_two], left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True)
+            result = df_one_cleaned.merge(df_two_cleaned[merge_keys_two], left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True, suffixes=(None, '_y'))
             result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
             result = result[df_one_cleaned.columns]
             return result
         if how == UNIQUE_IN_RIGHT:
-            result = df_two_cleaned.merge(df_one_cleaned[merge_keys_one], left_on=merge_keys_two, right_on=merge_keys_one, how='left', indicator=True)
+            result = df_two_cleaned.merge(df_one_cleaned[merge_keys_one], left_on=merge_keys_two, right_on=merge_keys_one, how='left', indicator=True, suffixes=(None, '_y'))
             result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
             result = result[df_two_cleaned.columns]
             return result

@@ -87,12 +87,12 @@ class MergeCodeChunk(CodeChunk):
         # Finially append the merge
         if self.how == UNIQUE_IN_LEFT:
             merge_code.extend([
-                f'{self.df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}[{column_header_list_to_transpiled_code(merge_keys_two)}], left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how="left", indicator=True)',
+                f'{self.df_new_name} = {df_one_to_merge}.merge({df_two_to_merge}[{column_header_list_to_transpiled_code(merge_keys_two)}], left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how="left", indicator=True, suffixes=(None, "_y"))',
                 f'{self.df_new_name} = {self.df_new_name}[{self.df_new_name}["_merge"] == "left_only"].drop(columns="_merge")[{df_one_to_merge}.columns].reset_index(drop=True)',
             ])
         elif self.how == UNIQUE_IN_RIGHT:
             merge_code.extend([
-                f'{self.df_new_name} = {df_two_to_merge}.merge({df_one_to_merge}[{column_header_list_to_transpiled_code(merge_keys_one)}], left_on={column_header_list_to_transpiled_code(merge_keys_two)}, right_on={column_header_list_to_transpiled_code(merge_keys_one)}, how="left", indicator=True)',
+                f'{self.df_new_name} = {df_two_to_merge}.merge({df_one_to_merge}[{column_header_list_to_transpiled_code(merge_keys_one)}], left_on={column_header_list_to_transpiled_code(merge_keys_two)}, right_on={column_header_list_to_transpiled_code(merge_keys_one)}, how="left", indicator=True, suffixes=(None, "_y"))',
                 f'{self.df_new_name} = {self.df_new_name}[{self.df_new_name}["_merge"] == "left_only"].drop(columns="_merge")[{df_two_to_merge}.columns].reset_index(drop=True)',
             ])
         else:      

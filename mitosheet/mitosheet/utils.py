@@ -512,6 +512,13 @@ def is_snowflake_connector_python_installed() -> bool:
         return True
     except ImportError:
         return False
+    
+def is_streamlit_installed() -> bool:
+    try:
+        import streamlit
+        return True
+    except ImportError:
+        return False
 
 
 def is_snowflake_credentials_available() -> bool:

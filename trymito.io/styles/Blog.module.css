@@ -1,0 +1,42 @@
+.blog_title {
+    margin-top: 4rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.posts_container {
+    max-width: min(800px, 90vw);
+}
+
+.post {
+    padding: 2rem 2rem;
+    border-radius: 2rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    background-color: var(--color-light-background);
+    cursor: pointer;
+}
+
+.excerpt {
+    margin: 1rem 0;
+    color: var(--color-text-primary);
+}
+
+.post_metadata {
+    margin-top: .5rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.published_at {
+    color: var(--color-purple);
+    margin-right: .35rem;
+}
+
+.reading_time {
+    color: var(--color-text-secondary);
+}

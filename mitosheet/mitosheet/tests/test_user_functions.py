@@ -1,4 +1,5 @@
 
+import json
 import pytest
 import pandas as pd
 from mitosheet.saved_analyses.save_utils import write_analysis
@@ -78,3 +79,36 @@ def test_pass_sheet_function_returns_list():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 6, 6]}))
 
 
+def test_user_defined_function_valid_doc_string():
+    def ADD1(col):
+        """Adds 1 to the column"""
+        return col + 1 
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), sheet_functions=[ADD1])
+    documentation = json.loads(mito.analysis_data_json)['userDefinedFunctions']
+
+    assert documentation == [{'function': 'ADD1', 'description': 'Adds 1 to the column', 'search_terms': ['Adds', 'the', 'column'], 'syntax': 'ADD1(col)', 'syntax_elements': [{'element': 'col', 'description': ''}]}]
+
+def test_user_defined_function_function_documentation_object():
+    def ADD1(col):
+        """
+        {
+            "function": "ADD1",
+            "description": "Returns the absolute value of the passed number or series.",
+            "search_terms": ["abs", "absolute value"],
+            "examples": [
+                "ABS(-1.3)",
+                "ABS(A)"
+            ],
+            "syntax": "ABS(value)",
+            "syntax_elements": [{
+                    "element": "value",
+                    "description": "The value or series to take the absolute value of."
+                }
+            ]
+        }
+        """
+        return col + 1 
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), sheet_functions=[ADD1])
+    documentation = json.loads(mito.analysis_data_json)['userDefinedFunctions']
+
+    assert documentation == [{'function': 'ADD1', 'description': 'Returns the absolute value of the passed number or series.', 'search_terms': ['abs', 'absolute value'], 'examples': ['ABS(-1.3)', 'ABS(A)'], 'syntax': 'ABS(value)', 'syntax_elements': [{'element': 'value', 'description': 'The value or series to take the absolute value of.'}]}]

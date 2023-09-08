@@ -16,6 +16,7 @@ from mitosheet.api.get_path_contents import get_path_parts
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
+from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer, get_user_defined_importers_for_frontend
@@ -392,7 +393,7 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
                 'codeOptions': self.code_options,
-                'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
+                'userDefinedFunctions': get_user_defined_sheet_function_objects(self.curr_step.post_state),
                 'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
                 "importFolderData": {
                     'path': self.import_folder,
