@@ -1197,6 +1197,48 @@ VLOOKUP_TESTS = [
         'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2)',
         set(['VLOOKUP']),
         set(['A', 'B', 'C'])
+    ),
+    # Test for calling VLOOKUP inside another function
+    (
+        '=SUM(C0, VLOOKUP(A0, df_2!C:B, 2))',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = SUM(df_1[\'C\'], VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2))',
+        set(['VLOOKUP', 'SUM']),
+        set(['A', 'B', 'C'])
+    ),
+    # Test for cross-sheet reference with non-string column header
+    (
+        '=VLOOKUP(A0, df_2!1:C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df([1, 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, 1:\'C\'], 2)',
+        set(['VLOOKUP']),
+        set([1, 'A', 'C'])
     )
 ]
 
