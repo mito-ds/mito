@@ -1229,10 +1229,7 @@ VLOOKUP_TESTS = [
                 get_number_data_for_df(['A', 'B', 'C'], 2),
                 index=pd.RangeIndex(0, 2)
             ),
-            pd.DataFrame(
-                get_number_data_for_df([1, 'C'], 2),
-                index=pd.RangeIndex(0, 2)
-            )
+            pd.DataFrame(get_number_data_for_df([1, 'C'], 2))
         ],
         ['df_1', 'df_2'],
         0,
