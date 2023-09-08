@@ -74,6 +74,7 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
         for index_label in index_label_dependencies:
             formula = formula.replace(str(index_label), f"I[{anonymize_as_string(index_label)}]") # Tag with an I so we know it's an index
     except Exception:
+        # If the formula is invalid, we just return an empty string to preserve privacy
         formula = ''
     return formula
 

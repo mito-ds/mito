@@ -1189,6 +1189,32 @@ def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, 
             columns
         )
 
+INVALID_VLOOKUP_TESTS = [
+    (
+        '=VLOOKUP(df_2!A0, df_2!C:D, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    )
+]
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index", INVALID_VLOOKUP_TESTS)
+def test_parse_invalid_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index):
+    with pytest.raises(MitoError) as e_info:
+        parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+    assert e_info.value.type_ == 'invalid_formula_error'
+
 PARSE_TEST_ERRORS = [
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
     ('=XLOOKUP(100, A)', 'B', 'invalid_formula_error', 'XLOOKUP'),
