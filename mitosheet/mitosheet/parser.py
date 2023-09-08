@@ -768,7 +768,7 @@ def get_parser_matches(
     return parser_matches
 
                 
-def replace_column_headers_and_indexes_and_sheet_names(
+def replace_sheet_names_and_column_headers_and_indexes(
         formula: str,
         formula_label: Union[str, bool, int, float],
         string_matches: List,
