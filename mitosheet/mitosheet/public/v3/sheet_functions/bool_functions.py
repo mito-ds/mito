@@ -4,8 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 """
-Contains all functions that are useful for control flow. For now, this
-is just IF statements.
+Contains all functions that are useful for control flow. 
 
 All functions describe their behavior with a function documentation object
 in the function docstring. Function documentation objects are described
@@ -14,14 +13,16 @@ in more detail in docs/README.md.
 NOTE: This file is alphabetical order!
 """
 
+import pdb
 from typing import Optional
 import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_series_from_primitive_or_series
 from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolFunctionReturnType, BoolInputType, BoolRestrictedInputType, IfsInputType
 
+from mitosheet.errors import MitoError
 
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
@@ -123,6 +124,66 @@ def IF(condition: pd.Series, true_series: AnyPrimitiveOrSeriesInputType, false_s
     )
 
 
+@handle_sheet_function_errors
+def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
+    """
+    {
+        "function": "IFS",
+        "description": "Returns the value of the first condition that is true. If no conditions are true, returns None.",
+        "search_terms": ["ifs", "if", "conditional", "and", "or"],
+        "examples": [
+            "IFS(height > 100, 'tall', height > 50, 'medium', height > 0, 'short')"
+        ],
+        "syntax": "IFS(boolean_condition_1, value_if_true, [boolean_condition_2, value_if_true, ...])",
+        "syntax_elements": [{
+                "element": "boolean_condition",
+                "description": "An expression or series that returns True or False values. Valid conditions for comparison include ==, !=, >, <, >=, <=."
+            },
+            {
+                "element": "value_if_true, ... [OPTIONAL]",
+                "description": "The value the function returns if condition is True, followed by alternating boolean conditions and values."
+            }
+        ]
+    }
+    """
+    if len(argv) % 2 != 0:
+        raise MitoError(
+            'invalid_args_error',
+            'IFS',
+            'IFS requires an even number of arguments.',
+            error_modal=False
+        )
+    base_index = next(iter(s.index for s in argv if isinstance(s, pd.Series)), None)
+    # If index is None, we're dealing with all constants
+    if base_index is None:
+        for index, arg in enumerate(argv):
+            if index % 2 == 0:
+                if arg == True:
+                    return argv[index+1]
+        return None
+
+    else:
+        # Otherwise, we have at least one series -- so we can go through and turn all of the constants into series.
+        argv_series = tuple([get_series_from_primitive_or_series(arg, base_index) for arg in argv])
+        results = pd.Series(index=base_index)
+
+        for index, condition in enumerate(argv_series):
+            if index % 2 == 0:
+                if condition.dtype != bool:
+                    raise MitoError(
+                        'invalid_args_error',
+                        'IFS',
+                        f"IFS requires all even indexed arguments to be boolean.",
+                        error_modal=False
+                    )
+                
+                # If it is, use the "true_series" to fill the value in the result series
+                true_series = argv_series[index+1]
+                new_series = true_series[condition]
+                results = results.combine_first(new_series)
+                
+    return results
+
 @cast_values_in_all_args_to_type('bool')
 @handle_sheet_function_errors
 def OR(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
@@ -164,5 +225,6 @@ CONTROL_FUNCTIONS = {
     'AND': AND,
     'BOOL': BOOL,
     'IF': IF,
+    'IFS': IFS,
     'OR': OR,
 }

@@ -44,12 +44,13 @@ export const getDisplayedDropdownType = (
     const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
 
+
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength, analysisData);
 
-    const documentationFunction = getDocumentationFunction(fullFormula, selectionStart);
+    const documentationFunction = getDocumentationFunction(fullFormula, selectionStart, analysisData);
 
     if (cellEditorError !== undefined) {
         return {
@@ -68,7 +69,7 @@ export const getDisplayedDropdownType = (
             'suggestedFunctions': suggestedFunctions,
             'suggestedFunctionsReplacementLength': suggestedFunctionsReplacementLength,
         };
-    } else if (documentationFunction !== undefined && editorState.pendingSelections === undefined) {
+    } else if (documentationFunction !== undefined) {
         return {
             'type': 'documentation',
             'documentationFunction': documentationFunction,
@@ -174,9 +175,9 @@ const CellEditorDropdown = (props: {
                                     {suggestion}
                                 </span>
                                 {selected &&
-                                    <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
+                                    <p className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
                                         {subtext}
-                                    </div>
+                                    </p>
                                 }
                             </div>
                         )
@@ -190,25 +191,27 @@ const CellEditorDropdown = (props: {
                         <p className='text-body-2'>
                             {displayedDropdownType.documentationFunction.syntax}
                         </p>
-                        <p className='text-subtext-1'>
+                        <p className='cell-editor-function-documentation-body text-subtext-1'>
                             {displayedDropdownType.documentationFunction.description}
                         </p>
                     </div>
-                    <div className='pt-5px pb-10px pr-10px pl-10px'>
-                        <p className='text-subtext-1'>
-                            Examples
-                        </p>
-                        {displayedDropdownType.documentationFunction.examples?.map((example, index) => {
-                            return (
-                                <p 
-                                    key={index}
-                                    className='cell-editor-function-documentation-example'
-                                >
-                                    {example}
-                                </p>
-                            )
-                        })}
-                    </div>
+                    {displayedDropdownType.documentationFunction.examples && 
+                        <div className='pt-5px pb-10px pr-10px pl-10px'>
+                            <p className='text-subtext-1'>
+                                Examples
+                            </p>
+                            {displayedDropdownType.documentationFunction.examples?.map((example, index) => {
+                                return (
+                                    <p 
+                                        key={index}
+                                        className='cell-editor-function-documentation-example'
+                                    >
+                                        {example}
+                                    </p>
+                                )
+                            })}
+                        </div>
+                    }
                 </div>
             }
             {/* Always display a link to the documentation */}

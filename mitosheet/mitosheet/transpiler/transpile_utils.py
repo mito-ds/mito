@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 import numpy as np
-from mitosheet.types import CodeOptions, ColumnHeader, ParamName, ParamValue, StepsManagerType
+from mitosheet.types import CodeOptions, CodeOptionsFunctionParams, ColumnHeader, ParamName, ParamSubtype, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
 # TAB is used in place of \t in generated code because
@@ -208,12 +208,43 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
     result = re.sub(pattern, replacement, text)
     return result
 
+def get_final_function_params_with_subtypes_turned_to_parameters(
+        steps_manager: StepsManagerType, 
+        function_params: CodeOptionsFunctionParams # type: ignore
+    ) -> Dict[ParamName, ParamValue]:
+    """
+    It's often useful in Streamlit dashboards to allow app creators to specify things like: 
+    1. Turn all of the imported CSV files into parameters
+    2. Turn all of the exported file paths into parameters
+
+    As such, we let users specify the subtype they want to generate params for.
+    """
+    if isinstance(function_params, str) or isinstance(function_params, list):
+        final_params = {}
+
+        from mitosheet.api.get_parameterizable_params import get_parameterizable_params
+        parameterizable_params = get_parameterizable_params({}, steps_manager)
+        
+        number_of_params_of_subtype: Dict[ParamSubtype, int] = {}
+        for param_value, param_type, param_subtype in parameterizable_params:
+            param_index = number_of_params_of_subtype.get(param_subtype, 0)
+            if isinstance(function_params, str) and function_params == param_subtype:
+                final_params[f"{param_subtype}_{param_index}"] = param_value
+                number_of_params_of_subtype[param_subtype] = param_index + 1
+            elif param_subtype in function_params:
+                final_params[f"{param_subtype}_{param_index}"] = param_value
+                number_of_params_of_subtype[param_subtype] = param_index + 1
+
+        return final_params
+    return function_params
+
+
 def convert_script_to_function(
         steps_manager: StepsManagerType, 
         imports: List[str], 
         code: List[str], 
         function_name: str, 
-        function_params: Dict[ParamName, ParamValue],
+        function_params: CodeOptionsFunctionParams, # type: ignore
         call_function: bool
     ) -> List[str]:
     """
@@ -224,6 +255,9 @@ def convert_script_to_function(
     # Add the imports
     final_code += imports
     final_code.append("")
+
+    # Get the final function param
+    function_params = get_final_function_params_with_subtypes_turned_to_parameters(steps_manager, function_params)
 
     # The param
     param_names = _get_param_names_string(steps_manager, function_params)
@@ -253,6 +287,10 @@ def convert_script_to_function(
     final_code.append(f"{TAB}return {return_variables_string}")
     final_code.append("")
 
+    # If we are not calling the function, we just return the code without the call at the end
+    if not call_function:
+        return final_code
+
     # Build the params and variables taking special care to ensure that dataframes and file paths 
     # that are passed as parameters to the function. 
     final_params_to_call_function_with = []
@@ -266,10 +304,6 @@ def convert_script_to_function(
 
     if len(function_params) > 0:
         final_code.append("")
-
-    # If we are not calling the function, we just return the code without the call at the end
-    if not call_function:
-        return final_code
 
     final_params_to_call_function_with_string = ", ".join(final_params_to_call_function_with)
 

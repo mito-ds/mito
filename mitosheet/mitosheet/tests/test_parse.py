@@ -77,6 +77,42 @@ CONSTANT_TEST_CASES: Any = [
         set([])
     ),
     (
+        '=TRUE',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = True',
+        set([]),
+        set([])
+    ),
+    (
+        '=true',
+        'B',
+        0,
+        pd.DataFrame(get_string_data_for_df(['B'], 2)),
+        'df[\'B\'] = True',
+        set([]),
+        set([])
+    ),
+    (
+        '=true0',
+        'true',
+        0,
+        pd.DataFrame(get_string_data_for_df(['true'], 2)),
+        'df[\'true\'] = df[\'true\']',
+        set([]),
+        {'true'}
+    ),
+    (
+        '=TRUE0',
+        'TRUE',
+        0,
+        pd.DataFrame(get_string_data_for_df(['TRUE'], 2)),
+        'df[\'TRUE\'] = df[\'TRUE\']',
+        set([]),
+        {'TRUE'}
+    ),
+    (
         '=\'StringSingleQuotes\'',
         'B',
         0,
@@ -1099,8 +1135,6 @@ def test_parse(formula, column_header, formula_label, df, python_code, functions
 
 
 PARSE_TEST_ERRORS = [
-    ('=LOOKUP(100, A)', 'B', 'invalid_formula_error', 'LOOKUP'),
-    ('=VLOOKUP(100, A)', 'B', 'invalid_formula_error', 'VLOOKUP'),
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
     ('=XLOOKUP(100, A)', 'B', 'invalid_formula_error', 'XLOOKUP'),
     ('=A <> 100', 'B', 'invalid_formula_error', '<>'),

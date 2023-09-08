@@ -246,13 +246,14 @@ def check_common_errors(
             error_modal=False
         )     
 
+    # TODO: update this with vlookup formula in mind
     # If the user used a lookup formula, point them to merge instead!
-    LOOKUP_FORMULAS = ['VLOOKUP', 'HLOOKUP', 'XLOOKUP', 'LOOKUP']
+    LOOKUP_FORMULAS = ['HLOOKUP', 'XLOOKUP']
     for lookup_formula in LOOKUP_FORMULAS:
         if safe_contains_function(formula.upper(), lookup_formula, column_headers):
             raise make_invalid_formula_error(
                 formula,
-                f'Instead of {lookup_formula}, try using the merge button in the toolbar!',
+                f'{lookup_formula} is not supported, but VLOOKUP is. See the documentation for more information.',
                 error_modal=False
             )
 
@@ -817,6 +818,23 @@ def replace_newlines_and_tabs(
     return re.sub(r'\n|\t', replace_newlines_and_tabs_internal, formula)
     
 
+    
+def replace_true_values(
+        formula: str,
+    ) -> str:
+    """
+    Replaces all values "TRUE" and "true" (that aren't in column headers) with True
+    """
+    string_matches = get_string_matches(formula)
+
+    def replace_true_values_internal(match):
+        if not match_covered_by_matches(string_matches, (match.start(), match.end())):
+            return 'True'
+        else:
+            return match.group()
+    return re.sub(r'TRUE|true', replace_true_values_internal, formula)
+    
+
 def replace_functions(
         formula: str,
     ) -> Tuple[str, Set[str]]:
@@ -907,8 +925,8 @@ def parse_formula(
     )
 
     code_without_newlines_or_tabs = replace_newlines_and_tabs(code_with_column_headers)
-
-    code_with_functions, functions = replace_functions(code_without_newlines_or_tabs)
+    code_with_values_replaced = replace_true_values(code_without_newlines_or_tabs)
+    code_with_functions, functions = replace_functions(code_with_values_replaced)
 
     transpiled_column_header = column_header_to_transpiled_code(column_header)
 
