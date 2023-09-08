@@ -30,6 +30,8 @@ from mitosheet.types import (ColumnHeader, FrontendFormula,
 from mitosheet.user.utils import get_pandas_version
 from mitosheet.utils import is_prev_version
 
+from mitosheet.array_utils import deduplicate_array
+
 def is_quote(char: str) -> bool:
     """
     A helper to detect if a character is a quote
@@ -484,7 +486,7 @@ def get_raw_parser_matches(
             })
 
             # Update to look at the column headers in the other sheet
-            column_headers = column_headers + dfs[other_sheet_index].columns.to_list()
+            column_headers = deduplicate_array(column_headers + dfs[other_sheet_index].columns.to_list())
 
     # We look for column headers from longest to shortest, to enable us
     # to issues if one column header is a substring of another
