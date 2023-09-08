@@ -585,6 +585,8 @@ def get_parser_matches(
             return None
 
         curr_match = raw_parser_matches[match_index]
+        if curr_match['type'] != '{HEADER}':
+            return None
 
         is_final_solo_column_header = match_index + 1 >= len(raw_parser_matches) and curr_match['type'] == '{HEADER}'
 

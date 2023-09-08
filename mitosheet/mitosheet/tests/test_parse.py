@@ -1206,6 +1206,40 @@ INVALID_VLOOKUP_TESTS = [
         ],
         ['df_1', 'df_2'],
         0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, C:D, df_1!)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
     )
 ]
 
