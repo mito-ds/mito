@@ -757,7 +757,7 @@ def get_parser_matches(
         # If you've gotten here, then something has gone wrong
         raise make_invalid_formula_error(
             formula,
-            'Something went wrong while parsing the formula. Please contact support.',
+            'Something went wrong while parsing the formula. Please edit the formula and try again.',
             error_modal=False
         )
 
