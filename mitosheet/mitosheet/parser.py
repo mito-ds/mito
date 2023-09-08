@@ -1011,7 +1011,7 @@ def parse_formula(
     string_matches = get_string_matches(formula)
 
     # Then, we get the column header matches, as well as replace them with valid python
-    code_with_column_headers, column_header_dependencies, index_label_dependencies = replace_column_headers_and_indexes_and_sheet_names(
+    code_with_column_headers, column_header_dependencies, index_label_dependencies = replace_sheet_names_and_column_headers_and_indexes(
         formula, 
         formula_label,
         string_matches,
