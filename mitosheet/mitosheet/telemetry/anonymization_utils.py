@@ -58,22 +58,23 @@ def anonymize_formula(formula: str, sheet_index: int, steps_manager: Optional[St
         return anonymize_as_string(formula)
 
     # We just input a random address, as we don't use it
-    _, _, column_header_depedencies, index_label_dependencies = parse_formula(
-        formula, 
-        'A', 
-        '0',
-        {'type': 'entire_column'},
-        steps_manager.curr_step.dfs,
-        steps_manager.curr_step.df_names,
-        sheet_index,
-        throw_errors=False
-    )
-    
-    for dependency in column_header_depedencies:
-        formula = formula.replace(str(dependency), anonymize_as_string(dependency))
-    for index_label in index_label_dependencies:
-        formula = formula.replace(str(index_label), f"I[{anonymize_as_string(index_label)}]") # Tag with an I so we know it's an index
-    
+    try:
+        _, _, column_header_depedencies, index_label_dependencies = parse_formula(
+            formula, 
+            'A', 
+            '0',
+            {'type': 'entire_column'},
+            steps_manager.curr_step.dfs,
+            steps_manager.curr_step.df_names,
+            sheet_index
+        )
+        
+        for dependency in column_header_depedencies:
+            formula = formula.replace(str(dependency), anonymize_as_string(dependency))
+        for index_label in index_label_dependencies:
+            formula = formula.replace(str(index_label), f"I[{anonymize_as_string(index_label)}]") # Tag with an I so we know it's an index
+    except Exception:
+        formula = ''
     return formula
 
 def anonymize_object(obj: Any, anonymize_key: bool=False) -> Any:

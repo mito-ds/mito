@@ -738,7 +738,11 @@ def get_parser_matches(
             parser_matches.append(header_match)
             match_index += 1
         else:
-            match_index += 1
+            raise make_invalid_formula_error(
+                formula,
+                'Something went wrong while parsing the formula. Please contact support.',
+                error_modal=False
+            )
 
     # Put the parser matches in back-to-front order so we can work with them easily in consuming functions
     parser_matches.reverse()
@@ -957,7 +961,6 @@ def parse_formula(
         dfs: List[pd.DataFrame],
         df_names: List[str],
         sheet_index: int,
-        throw_errors: bool=True,
         include_df_set: bool=True,
     ) -> Tuple[str, Set[str], Set[ColumnHeader], Set[IndexLabel]]:
     """
@@ -975,8 +978,7 @@ def parse_formula(
     if formula is None or formula == '':
         return '', set(), set(), set()
 
-    if throw_errors:
-        check_common_errors(formula, dfs, df_names, sheet_index)
+    check_common_errors(formula, dfs, df_names, sheet_index)
 
     # Chop off any whitespace at the start
     formula = formula.lstrip()

@@ -54,7 +54,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         else:
             try:
                 # Try and parse the formula, letting it throw errors if it is invalid
-                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index, throw_errors=True)
+                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
             except Exception as e:
                 params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
 
@@ -186,7 +186,7 @@ def _get_fixed_invalid_formula(
     for fixed_formula in POTENTIAL_VALID_FORMULAS:
         try:
             # Parse the formula, and return if it is valid
-            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, dfs, df_names, sheet_index, throw_errors=True)
+            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, dfs, df_names, sheet_index)
             return fixed_formula
         except:
             pass
