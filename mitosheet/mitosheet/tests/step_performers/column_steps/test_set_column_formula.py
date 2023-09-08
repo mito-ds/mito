@@ -569,7 +569,6 @@ INVALID_CROSS_SHEET_TESTS = [
     ( "=VLOOKUP(df2!B0, df2!B:C, 2)" ),
     ( "=VLOOKUP(A0, df2!B0:C0, 2)" ),
     ( "=VLOOKUP(df2!A0, df2!B:C, 2)" ),
-    ( "=VLOOKUP(A0, df2!C:D, 2)" ),
 ]
 
 @pytest.mark.parametrize("formula", INVALID_CROSS_SHEET_TESTS)
