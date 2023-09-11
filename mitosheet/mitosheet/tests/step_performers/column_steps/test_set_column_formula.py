@@ -569,6 +569,13 @@ CROSS_SHEET_TESTS = [
         '=VLOOKUP(A0, df2!key:value, 2)',
         'B',
         pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c']})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]}),
+        pd.DataFrame({'key': [1, 2, 3], 'value': [7, 8, 9]}),
+        '=SUM(B0, VLOOKUP(A0, df2!key:value, 2))',
+        'C',
+        pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [11, 13, 15]})
     )
 ]
 
