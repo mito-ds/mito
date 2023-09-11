@@ -195,7 +195,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     
     value = get_series_from_primitive_or_series(lookup_value, where.index)
     value.name = 'lookup_value'
-    indices = get_series_from_primitive_or_series(index, where.index)
+    indices = get_series_from_primitive_or_series(index, value.index)
 
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
     where_deduplicated = where.drop_duplicates(subset=where_first_column.name)

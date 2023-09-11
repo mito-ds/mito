@@ -93,6 +93,14 @@ VLOOKUP_VALID_TESTS = [
         ],
         pd.Series(['f', 'd', 'f'])
     ),
+    (
+        [
+            pd.Series([1, 2, 3]),
+            pd.DataFrame({'A': [2, 3], 'B': ['b', 'c']}),
+            2
+        ],
+        pd.Series([None, 'b', 'c'])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", VLOOKUP_VALID_TESTS)
