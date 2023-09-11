@@ -411,7 +411,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
 
         // Close the cell editor if it is open
-        if (editorState !== undefined) {
+        if (editorState !== undefined && !editorState.formula.includes('VLOOKUP')) {
             setEditorState(undefined)
         }
 

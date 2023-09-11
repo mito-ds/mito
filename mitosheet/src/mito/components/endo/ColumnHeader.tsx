@@ -90,7 +90,8 @@ const ColumnHeader = (props: {
             columnIndex: props.columnIndex,
             formula: getDisplayColumnHeader(finalColumnHeader),
             editorLocation: 'cell',
-            editingMode: 'specific_index_labels'
+            editingMode: 'specific_index_labels',
+            sheetIndex: props.gridState.sheetIndex,
         })
     }
 
@@ -136,6 +137,7 @@ const ColumnHeader = (props: {
                         endingRowIndex: -1,
                         startingColumnIndex: props.columnIndex,
                         endingColumnIndex: props.columnIndex,
+                        sheetIndex: props.gridState.sheetIndex,
                     })
                 }
 
@@ -230,7 +232,8 @@ const ColumnHeader = (props: {
                                         columnIndex: props.columnIndex,
                                         formula: getDisplayColumnHeader(lowerLevelColumnHeader),
                                         editorLocation: 'cell',
-                                        editingMode: 'specific_index_labels'
+                                        editingMode: 'specific_index_labels',
+                                        sheetIndex: props.gridState.sheetIndex,
                                     })
                                 }}
                             >
@@ -344,7 +347,8 @@ const ColumnHeader = (props: {
                                     columnIndex: props.columnIndex,
                                     formula: getDisplayColumnHeader(finalColumnHeader),
                                     editorLocation: 'cell',
-                                    editingMode: 'specific_index_labels'
+                                    editingMode: 'specific_index_labels',
+                                    sheetIndex: props.gridState.sheetIndex,
                                 })
                             }}
                             key={props.columnIndex}

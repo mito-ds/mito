@@ -892,7 +892,8 @@ export const createActions = (
                     columnIndex: startingColumnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
-                    editingMode: 'specific_index_labels'
+                    editingMode: 'specific_index_labels',
+                    sheetIndex: sheetIndex
                 })
 
             },
@@ -985,7 +986,8 @@ export const createActions = (
                     // Since you can't reference other cells while setting the value of a single cell, we default to scrolling in the formula
                     arrowKeysScrollInFormula: true,
                     editorLocation: 'cell',
-                    editingMode: 'specific_index_labels'
+                    editingMode: 'specific_index_labels',
+                    sheetIndex: sheetIndex
                 })
             },
             isDisabled: () => {
@@ -1016,7 +1018,8 @@ export const createActions = (
                     formula: startingColumnFormula,
                     arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                     editorLocation: 'cell',
-                    editingMode: 'entire_column'
+                    editingMode: 'entire_column',
+                    sheetIndex: sheetIndex
                 })
             },
             isDisabled: () => {

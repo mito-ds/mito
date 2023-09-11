@@ -9,12 +9,15 @@ import { getCellDataFromCellIndexes } from "../utils";
 import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
-export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
+export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, sheetIndex: number): string => {
     // For each of the selections, we turn them into a string that goes into the formula
     const selectionStrings: string[] = []
 
     selections.forEach(selection => {
-
+        let sheetIndexStr = '';
+        if (sheetIndex !== selection.sheetIndex) {
+            sheetIndexStr = `${sheetData.dfName}!`;
+        }
         const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
 
         if (upperLeftColumnHeader === undefined && upperLeftIndexLabel === undefined && bottomRightColumnHeader === undefined && bottomRightIndexLabel === undefined) {
@@ -22,13 +25,13 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
             return;
         } else if (upperLeftIndexLabel === undefined && bottomRightIndexLabel === undefined && (upperLeftColumnHeader !== undefined && bottomRightColumnHeader !== undefined)) {
             // Handle selections that are just column headers
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
         } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined)) {
             // Then, we handle the case where there is just a single cell selected
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
         } else if (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined && bottomRightColumnHeader !== undefined && bottomRightIndexLabel !== undefined) {
             // Then, handle the case where they are all defined
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
+            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
         }
     })
 
@@ -41,20 +44,15 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
     accepted these pending selected columns.
 */
 export const getFullFormula = (
-    formula: string, 
-    pendingSelections: {
-        selections: MitoSelection[],
-        inputSelectionStart: number,
-        inputSelectionEnd: number,
-    } | undefined,
+    editorState: EditorState,
     sheetData: SheetData,
 ): string => {
-
+    const { formula, pendingSelections, sheetIndex } = editorState; 
     if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, sheetIndex);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);

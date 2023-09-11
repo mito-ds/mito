@@ -51,7 +51,7 @@ const FormulaBar = (props: {
         }
     } else {
         // If we're editing, display the formula
-        formulaBarValue = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+        formulaBarValue = getFullFormula(props.editorState, props.sheetData);
     }
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -99,7 +99,8 @@ const FormulaBar = (props: {
                                 formula: formulaBarValue,
                                 arrowKeysScrollInFormula: true,
                                 editorLocation: 'formula bar',
-                                editingMode: columnFormulaLocation || 'entire_column'
+                                editingMode: columnFormulaLocation || 'entire_column',
+                                sheetIndex: props.editorState?.sheetIndex ?? props.sheetIndex,
                             })
                         }}
                     >

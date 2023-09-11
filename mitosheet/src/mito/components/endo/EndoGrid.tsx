@@ -244,6 +244,7 @@ function EndoGrid(props: {
                     endingRowIndex: rowIndex !== undefined ? rowIndex : -1,
                     startingColumnIndex: columnIndex,
                     endingColumnIndex: columnIndex,
+                    sheetIndex: sheetIndex,
                 }]
 
                 // Select the column that was clicked on, as they do in Excel
@@ -306,6 +307,7 @@ function EndoGrid(props: {
                             endingRowIndex: rowIndex,
                             startingColumnIndex: columnIndex,
                             endingColumnIndex: columnIndex,
+                            sheetIndex: sheetIndex,
                         })
                         return {
                             ...gridState,
@@ -333,6 +335,7 @@ function EndoGrid(props: {
                                     endingRowIndex: rowIndex,
                                     startingColumnIndex: columnIndex,
                                     endingColumnIndex: columnIndex,
+                                    sheetIndex: sheetIndex,
                                 })
                                 return {
                                     ...gridState,
@@ -349,6 +352,7 @@ function EndoGrid(props: {
                                 endingRowIndex: rowIndex,
                                 startingColumnIndex: columnIndex,
                                 endingColumnIndex: columnIndex,
+                                sheetIndex: sheetIndex,
                             })
                             setGridState((gridState) => {
                                 return {
@@ -367,6 +371,7 @@ function EndoGrid(props: {
                                         endingRowIndex: rowIndex,
                                         startingColumnIndex: columnIndex,
                                         endingColumnIndex: columnIndex,
+                                        sheetIndex: sheetIndex,
                                     }]
                                 }
                             })
@@ -395,6 +400,7 @@ function EndoGrid(props: {
                                 endingRowIndex: rowIndex,
                                 startingColumnIndex: columnIndex,
                                 endingColumnIndex: columnIndex,
+                                sheetIndex: sheetIndex,
                             }]
                         }
                     })
@@ -511,7 +517,8 @@ function EndoGrid(props: {
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
-            editingMode: editingMode
+            editingMode: editingMode,
+            sheetIndex: sheetIndex,
         })
     }
     
@@ -578,7 +585,8 @@ function EndoGrid(props: {
                         formula: startingColumnFormula,
                         arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
-                        editingMode: editingMode
+                        editingMode: editingMode,
+                        sheetIndex: sheetIndex,
                     });
 
                     e.preventDefault();
@@ -589,7 +597,8 @@ function EndoGrid(props: {
                             startingRowIndex: lastSelection.startingRowIndex,
                             endingRowIndex: lastSelection.startingRowIndex,
                             startingColumnIndex: lastSelection.startingColumnIndex,
-                            endingColumnIndex: lastSelection.startingColumnIndex
+                            endingColumnIndex: lastSelection.startingColumnIndex,
+                            sheetIndex: sheetIndex,
                         }]
                     }
                 })

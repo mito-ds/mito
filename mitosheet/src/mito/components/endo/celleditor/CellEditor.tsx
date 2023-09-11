@@ -56,7 +56,7 @@ const CellEditor = (props: {
     mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const fullFormula = getFullFormula(props.editorState, props.sheetData);
 
     const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
@@ -105,7 +105,7 @@ const CellEditor = (props: {
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
                 // TODO: use the correct funciton, rather than JSON.stringify
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.sheetIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
@@ -154,7 +154,7 @@ const CellEditor = (props: {
         cellEditorInputRef.current?.selectionStart,
         cellEditorError,
         loading,
-        props.analysisData
+        props.analysisData,
     )
 
     // A helper function to close the cell editor, selecting the cell that was
@@ -380,6 +380,7 @@ const CellEditor = (props: {
                         endingRowIndex: props.editorState.rowIndex,
                         startingColumnIndex: props.editorState.columnIndex,
                         endingColumnIndex: props.editorState.columnIndex,
+                        sheetIndex: props.sheetIndex,
                     }]
                 }
             });
@@ -392,9 +393,7 @@ const CellEditor = (props: {
 
             // Take the pendingSelections, and clear them
             const fullFormula = getFullFormula(
-                props.editorState.formula, 
-                props.editorState.pendingSelections,
-                props.sheetData,
+                props.editorState, props.sheetData
             );
 
             props.setEditorState({
@@ -487,7 +486,7 @@ const CellEditor = (props: {
 
         const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+        const formula = getFullFormula(props.editorState, props.sheetData)
         const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading

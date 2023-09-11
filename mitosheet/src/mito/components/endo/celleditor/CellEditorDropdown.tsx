@@ -41,7 +41,7 @@ export const getDisplayedDropdownType = (
     analysisData: AnalysisData,
 ): DisplayedDropdownType | undefined => {
 
-    const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
+    const fullFormula = getFullFormula(editorState, sheetData);
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
 
 
@@ -99,7 +99,7 @@ const CellEditorDropdown = (props: {
 
     const displayedDropdownType = props.displayedDropdownType;
 
-    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+    const formula = getFullFormula(props.editorState, props.sheetData)
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
 
     return (
