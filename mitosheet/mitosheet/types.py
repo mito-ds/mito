@@ -261,14 +261,14 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
     class RawParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{INDEX}']
+        type: Literal['{HEADER}', '{INDEX}', '{SHEET}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
 
     class ParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}']
+        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}', '{SHEET}!{HEADER}:{HEADER}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
@@ -286,6 +286,10 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaHeaderReference(TypedDict):
         type: Literal['{HEADER}']
         display_column_header: str
+
+    class FrontendFormulaSheetReference(TypedDict):
+        type: Literal['{SHEET}']
+        display_sheet_name: str
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
@@ -372,6 +376,7 @@ else:
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaHeaderIndexReference = Any # type:ignore
     FrontendFormulaHeaderReference = Any # type:ignore
+    FrontendFormulaSheetReference = Any # type:ignore
     FormulaLocationEntireColumn = Any # type:ignore
     FormulaLocationToSpecificIndexLabels = Any # type:ignore
     Selection = Any # type:ignore
@@ -390,7 +395,7 @@ else:
     CodeOptionsFunctionParams = Any # type: ignore
 
 
-FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference, FrontendFormulaSheetReference]
 FrontendFormula = List[FrontendFormulaPart]
 
 FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]

@@ -388,6 +388,8 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
             formulaString += formulaPart.string
         } else if (formulaPart.type === '{HEADER}') {
             formulaString += formulaPart.display_column_header
+        } else if (formulaPart.type == '{SHEET}') {
+            formulaString += formulaPart.display_sheet_name
         } else {
             const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {
