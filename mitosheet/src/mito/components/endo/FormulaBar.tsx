@@ -17,7 +17,7 @@ import { calculateCurrentSheetView } from './sheetViewUtils';
 import { getCellDataFromCellIndexes } from './utils';
 
 const FormulaBar = (props: {
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
     sheetIndex: number,
     gridState: GridState,
     editorState: EditorState | undefined,
@@ -35,10 +35,10 @@ const FormulaBar = (props: {
 
     const rowIndex = props.selection.startingRowIndex
     const colIndex = props.selection.startingColumnIndex
-
-    const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(props.sheetData, rowIndex, colIndex);
+    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
-    const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
     const formulaBarColumnHeader = props.editorState === undefined ? columnHeader : cellEditingCellData?.columnHeader;
 
     let formulaBarValue = ''
@@ -51,7 +51,7 @@ const FormulaBar = (props: {
         }
     } else {
         // If we're editing, display the formula
-        formulaBarValue = getFullFormula(props.editorState, props.sheetData);
+        formulaBarValue = getFullFormula(props.editorState, sheetData);
     }
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -73,7 +73,7 @@ const FormulaBar = (props: {
             <Col flex='1'>
                 {props.editorState?.editorLocation === 'formula bar' &&
                     <CellEditor
-                        sheetData={props.sheetData}
+                        sheetDataArray={props.sheetDataArray}
                         sheetIndex={props.sheetIndex}
                         gridState={props.gridState}
                         editorState={props.editorState}

@@ -637,7 +637,7 @@ function EndoGrid(props: {
     return (
         <>
             <FormulaBar
-                sheetData={sheetData}
+                sheetDataArray={sheetDataArray}
                 selection={gridState.selections[gridState.selections.length - 1]}
                 sheetIndex={props.sheetIndex}
                 editorState={editorState}
@@ -737,7 +737,7 @@ function EndoGrid(props: {
                 </div>
                 {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <FloatingCellEditor
-                        sheetData={sheetData}
+                        sheetDataArray={sheetDataArray}
                         sheetIndex={sheetIndex}
                         gridState={gridState}
                         editorState={editorState}

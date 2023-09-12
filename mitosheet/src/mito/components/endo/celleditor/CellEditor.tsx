@@ -40,7 +40,7 @@ const getDefaultTextAreaHeight = (formula: string): number => {
     The CellEditor takes up the entire parent component. 
 */
 const CellEditor = (props: {
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
     sheetIndex: number,
     gridState: GridState,
     editorState: EditorState,
@@ -56,7 +56,8 @@ const CellEditor = (props: {
     mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
-    const fullFormula = getFullFormula(props.editorState, props.sheetData);
+    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const fullFormula = getFullFormula(props.editorState, sheetData);
 
     const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
@@ -66,7 +67,7 @@ const CellEditor = (props: {
     const [selectionRangeToSet, setSelectionRangeToSet] = useState<number|undefined>(undefined) // Allows us to place the cursor at a specific location
     const [textAreaHeight, setTextAreaHeight] = useState(() => getDefaultTextAreaHeight(fullFormula));
 
-    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     // When we first render the cell editor input, make sure to save it and focus on it
     // and ensure our cursor is at the final input
@@ -105,7 +106,7 @@ const CellEditor = (props: {
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
                 // TODO: use the correct funciton, rather than JSON.stringify
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetData, props.editorState.sheetIndex).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, sheetData, props.editorState.sheetIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
@@ -130,7 +131,7 @@ const CellEditor = (props: {
                 return prevEditingState;
             } 
             
-            const startingColumnFormula = getStartingFormula(props.sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
+            const startingColumnFormula = getStartingFormula(sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula
@@ -149,7 +150,7 @@ const CellEditor = (props: {
     }
 
     const displayedDropdownType = getDisplayedDropdownType(
-        props.sheetData,
+        sheetData,
         props.editorState,
         cellEditorInputRef.current?.selectionStart,
         cellEditorError,
@@ -309,7 +310,7 @@ const CellEditor = (props: {
                 // arrow keys are not scrolling in the formula
 
                 props.setGridState((gridState) => {
-                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, props.sheetData);
+                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
 
                     // If there is already some suggested column headers, we do not change this selection, 
                     // as we want any future expanded selection of column headers to overwrite the same 
@@ -393,7 +394,7 @@ const CellEditor = (props: {
 
             // Take the pendingSelections, and clear them
             const fullFormula = getFullFormula(
-                props.editorState, props.sheetData
+                props.editorState, sheetData
             );
 
             props.setEditorState({
@@ -476,6 +477,15 @@ const CellEditor = (props: {
         // Don't refresh the page
         e.preventDefault();
 
+        if (props.sheetIndex !== props.editorState.sheetIndex) {
+            props.setUIState((prevUIState: UIState) => {
+                return {
+                    ...prevUIState,
+                    selectedSheetIndex: props.editorState.sheetIndex
+                }
+            })
+        }
+
         // If we have a suggested item selected, then this should be handled by the onKeyDown
         // above, as we want to take the suggestion, so we actually don't submit here
         if (selectedSuggestionIndex !== -1) {
@@ -484,10 +494,11 @@ const CellEditor = (props: {
             return;
         }
 
-        const columnID = props.sheetData.data[props.editorState.columnIndex].columnID;
-        const columnHeader = props.sheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState, props.sheetData)
-        const formulaLabel = props.sheetData.index[props.editorState.rowIndex];
+        const editorSheetData = props.sheetDataArray[props.editorState.sheetIndex];
+        const columnID = editorSheetData.data[props.editorState.columnIndex].columnID;
+        const columnHeader = editorSheetData.data[props.editorState.columnIndex].columnHeader;
+        const formula = getFullFormula(props.editorState, sheetData)
+        const formulaLabel = editorSheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
         setLoading(true);
@@ -507,7 +518,7 @@ const CellEditor = (props: {
 
 
             errorMessage = await props.mitoAPI.editSetColumnFormula(
-                props.sheetIndex,
+                props.editorState.sheetIndex,
                 columnID,
                 formulaLabel,
                 formula,
@@ -605,7 +616,7 @@ const CellEditor = (props: {
                 }
             </form>
             <CellEditorDropdown
-                sheetData={props.sheetData}
+                sheetData={sheetData}
                 sheetIndex={props.sheetIndex}
                 editorState={props.editorState}
                 setEditorState={props.setEditorState}
