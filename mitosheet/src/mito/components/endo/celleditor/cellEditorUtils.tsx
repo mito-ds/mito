@@ -14,6 +14,10 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
     const selectionStrings: string[] = []
 
     selections.forEach(selection => {
+        // For cross-sheet formulas, the sheetData represents the sheet that is currently open,
+        // while the editorState.sheetIndex represents the sheet that the formula is being written in.
+        // If you're writing to a different sheet from the sheet that is currently open,
+        // we need to add the sheet name to the formula
         let dfName = '';
         if (sheetIndex !== selection.sheetIndex) {
             dfName = `${sheetData.dfName}!`;
