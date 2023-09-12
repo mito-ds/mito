@@ -49,14 +49,15 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
 */
 export const getFullFormula = (
     editorState: EditorState,
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
+    selectedSheetIndex: number
 ): string => {
     const { formula, pendingSelections, sheetIndex } = editorState; 
     if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData, sheetIndex);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetDataArray[selectedSheetIndex], sheetIndex);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);

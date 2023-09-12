@@ -56,8 +56,8 @@ const CellEditor = (props: {
     mitoContainerRef: React.RefObject<HTMLDivElement>,
 }): JSX.Element => {
 
-    const sheetData = props.sheetDataArray[props.sheetIndex];
-    const fullFormula = getFullFormula(props.editorState, sheetData);
+    const fullFormula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
+    const sheetData = props.sheetDataArray[props.editorState.sheetIndex];
 
     const cellEditorInputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
@@ -149,7 +149,8 @@ const CellEditor = (props: {
     }
 
     const displayedDropdownType = getDisplayedDropdownType(
-        sheetData,
+        props.sheetDataArray,
+        props.editorState.sheetIndex,
         props.editorState,
         cellEditorInputRef.current?.selectionStart,
         cellEditorError,
@@ -392,9 +393,7 @@ const CellEditor = (props: {
             );
 
             // Take the pendingSelections, and clear them
-            const fullFormula = getFullFormula(
-                props.editorState, sheetData
-            );
+            const fullFormula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
 
             props.setEditorState({
                 ...props.editorState,
@@ -498,7 +497,7 @@ const CellEditor = (props: {
         const editorSheetData = props.sheetDataArray[props.editorState.sheetIndex];
         const columnID = editorSheetData.data[props.editorState.columnIndex].columnID;
         const columnHeader = editorSheetData.data[props.editorState.columnIndex].columnHeader;
-        const formula = getFullFormula(props.editorState, sheetData)
+        const formula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
         const formulaLabel = editorSheetData.index[props.editorState.rowIndex];
 
         // Mark this as loading
@@ -617,7 +616,7 @@ const CellEditor = (props: {
                 }
             </form>
             <CellEditorDropdown
-                sheetData={sheetData}
+                sheetDataArray={props.sheetDataArray}
                 sheetIndex={props.sheetIndex}
                 editorState={props.editorState}
                 setEditorState={props.setEditorState}

@@ -41,11 +41,11 @@ const FloatingCellEditor = (props: {
         left: 0,
         display: 'none'
     })
-    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const sheetData = props.sheetDataArray[props.editorState.sheetIndex];
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const {columnID, columnHeader} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    const fullFormula = getFullFormula(props.editorState, sheetData);
+    const fullFormula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
     const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation)
 
     // Ensures that the cell editor is in the right location, when initially placed.
