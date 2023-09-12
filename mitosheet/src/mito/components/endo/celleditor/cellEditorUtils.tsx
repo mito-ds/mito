@@ -9,7 +9,7 @@ import { getCellDataFromCellIndexes } from "../utils";
 import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
-export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData, sheetIndex: number): string => {
+export const getSelectionFormulaString = (selections: MitoSelection[], selectedSheetData: SheetData, editorSheetIndex: number): string => {
     // For each of the selections, we turn them into a string that goes into the formula
     const selectionStrings: string[] = []
 
@@ -19,8 +19,8 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
         // If you're writing to a different sheet from the sheet that is currently open,
         // we need to add the sheet name to the formula
         let dfName = '';
-        if (sheetIndex !== selection.sheetIndex) {
-            dfName = `${sheetData.dfName}!`;
+        if (editorSheetIndex !== selection.sheetIndex) {
+            dfName = `${selectedSheetData.dfName}!`;
         }
         const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
 
