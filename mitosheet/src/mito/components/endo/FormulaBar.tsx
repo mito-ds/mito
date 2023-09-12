@@ -35,7 +35,7 @@ const FormulaBar = (props: {
 
     const rowIndex = props.selection.startingRowIndex
     const colIndex = props.selection.startingColumnIndex
-    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const sheetData = props.sheetDataArray[props.editorState?.sheetIndex ?? props.sheetIndex];
     const {columnHeader, columnFormula, cellValue, columnFormulaLocation} = getCellDataFromCellIndexes(sheetData, rowIndex, colIndex);
     const originalFormulaBarValue = '' + (columnFormula !== undefined && columnFormula !== '' ? columnFormula : (cellValue !== undefined ? cellValue : ''));
     const cellEditingCellData = props.editorState === undefined ? undefined : getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
