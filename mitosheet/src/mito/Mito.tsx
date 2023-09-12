@@ -1000,6 +1000,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
+            onKeyDown={(e) => {
+                // If the user presses escape anywhere in the mitosheet, we close the editor
+                if (e.key === 'Escape') {
+                    setEditorState(undefined)
+                }
+            }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 
