@@ -409,12 +409,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (source !== undefined && source === DFSource.Pivoted && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
             void openEditedPivot()
         }
-
-        // Close the cell editor if it is open
-        if (editorState !== undefined && !editorState.formula.includes('VLOOKUP')) {
-            setEditorState(undefined)
-        }
-
     }, [uiState.selectedSheetIndex])
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders

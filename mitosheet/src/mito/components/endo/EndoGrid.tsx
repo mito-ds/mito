@@ -238,11 +238,17 @@ function EndoGrid(props: {
                     editorState.pendingSelections?.inputSelectionEnd,
                     selectionEnd
                 )
+
+                // If the user is holding down the shift key, we want to extend the selection
+                // rather than starting from scratch with a new selection
                 let startingColumnIndex = props.editorState?.pendingSelections?.selections[0].startingColumnIndex ?? columnIndex;
                 let endingColumnIndex = props.editorState?.pendingSelections?.selections[0].endingColumnIndex ?? columnIndex;
-                if (startingColumnIndex > columnIndex) {
+                if (e.shiftKey && startingColumnIndex > columnIndex) {
                     startingColumnIndex = columnIndex;
-                } else if (endingColumnIndex < columnIndex) {
+                } else if (e.shiftKey && endingColumnIndex < columnIndex) {
+                    endingColumnIndex = columnIndex;
+                } else if (!e.shiftKey) {
+                    startingColumnIndex = columnIndex;
                     endingColumnIndex = columnIndex;
                 }
                 const newSelection: MitoSelection[] = [{

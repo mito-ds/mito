@@ -14,9 +14,9 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
     const selectionStrings: string[] = []
 
     selections.forEach(selection => {
-        let sheetIndexStr = '';
+        let dfName = '';
         if (sheetIndex !== selection.sheetIndex) {
-            sheetIndexStr = `${sheetData.dfName}!`;
+            dfName = `${sheetData.dfName}!`;
         }
         const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
 
@@ -25,13 +25,13 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
             return;
         } else if (upperLeftIndexLabel === undefined && bottomRightIndexLabel === undefined && (upperLeftColumnHeader !== undefined && bottomRightColumnHeader !== undefined)) {
             // Handle selections that are just column headers
-            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
         } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined)) {
             // Then, we handle the case where there is just a single cell selected
-            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
         } else if (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined && bottomRightColumnHeader !== undefined && bottomRightIndexLabel !== undefined) {
             // Then, handle the case where they are all defined
-            selectionStrings.push(sheetIndexStr + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
         }
     })
 
