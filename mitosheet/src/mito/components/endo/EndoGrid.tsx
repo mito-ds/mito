@@ -238,12 +238,18 @@ function EndoGrid(props: {
                     editorState.pendingSelections?.inputSelectionEnd,
                     selectionEnd
                 )
-
+                let startingColumnIndex = props.editorState?.pendingSelections?.selections[0].startingColumnIndex ?? columnIndex;
+                let endingColumnIndex = props.editorState?.pendingSelections?.selections[0].endingColumnIndex ?? columnIndex;
+                if (startingColumnIndex > columnIndex) {
+                    startingColumnIndex = columnIndex;
+                } else if (endingColumnIndex < columnIndex) {
+                    endingColumnIndex = columnIndex;
+                }
                 const newSelection: MitoSelection[] = [{
                     startingRowIndex: rowIndex !== undefined ? rowIndex : -1,
                     endingRowIndex: rowIndex !== undefined ? rowIndex : -1,
-                    startingColumnIndex: columnIndex,
-                    endingColumnIndex: columnIndex,
+                    startingColumnIndex: startingColumnIndex,
+                    endingColumnIndex: endingColumnIndex,
                     sheetIndex: sheetIndex,
                 }]
 
