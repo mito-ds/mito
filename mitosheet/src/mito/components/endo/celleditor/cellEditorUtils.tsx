@@ -22,7 +22,7 @@ export const getSelectionFormulaString = (selections: MitoSelection[], selectedS
         if (editorSheetIndex !== selection.sheetIndex) {
             dfName = `${selectedSheetData.dfName}!`;
         }
-        const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+        const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, selectedSheetData);
 
         if (upperLeftColumnHeader === undefined && upperLeftIndexLabel === undefined && bottomRightColumnHeader === undefined && bottomRightIndexLabel === undefined) {
             // If none are defined, skip this selection
