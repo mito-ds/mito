@@ -15,6 +15,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import importlib.util
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
@@ -557,4 +558,39 @@ def check_valid_sheet_functions(
         # Check the name is all caps
         if not sheet_function.__name__.isupper():
             raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which has a name that is not all caps. Please use a named function instead.")
+    
+def get_non_validated_custom_sheet_functions(path):
+    # Get the filename from the path
+    filename = os.path.basename(path)
+
+    # Create a module spec from the file path
+    module_spec = importlib.util.spec_from_file_location(filename, path)
+
+    # Create the module by loading the spec
+    custom_functions_module = importlib.util.module_from_spec(module_spec)
+
+    # Execute the module (this runs the code in the file)
+    module_spec.loader.exec_module(custom_functions_module)
+
+    # Execute the module (this runs the code in the file)
+    module_spec.loader.exec_module(custom_functions_module)
+
+    # Get a list of functions defined in custom_functions.py
+    function_list = [getattr(custom_functions_module, attr) for attr in dir(custom_functions_module) if callable(getattr(custom_functions_module, attr))]
+
+    # Filter out any functions that are not all uppercase
+    function_list = [func for func in function_list if func.__name__.isupper()]
+
+    # Now, function_list contains the callable objects (functions) defined in custom_functions.py
+    return function_list
+
+def validate_sheet_functions(user_defined_sheet_functions):
+    check_valid_sheet_functions(user_defined_sheet_functions)
+    from mitosheet.public.v3.errors import handle_sheet_function_errors
+    user_defined_functions = [handle_sheet_function_errors(user_defined_sheet_function) for user_defined_sheet_function in (user_defined_sheet_functions if user_defined_sheet_functions is not None else [])]
+    return user_defined_functions
+
+def get_custom_sheet_functions(path):
+    non_validated_custom_sheet_functions = get_non_validated_custom_sheet_functions(path)
+    return validate_sheet_functions(non_validated_custom_sheet_functions)
     

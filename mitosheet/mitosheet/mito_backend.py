@@ -22,7 +22,7 @@ from IPython.display import HTML, display
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
 from mitosheet.data_in_mito import DataTypeInMito
-from mitosheet.enterprise.mito_config import MitoConfig
+from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
 from mitosheet.saved_analyses import write_analysis
@@ -39,7 +39,7 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
-from mitosheet.utils import get_new_id
+from mitosheet.utils import get_custom_sheet_functions, get_new_id, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 
@@ -67,6 +67,12 @@ class MitoBackend():
 
         # Setup the MitoConfig class
         self.mito_config = MitoConfig() # type: ignore
+        custom_sheet_functions_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH]
+
+        all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
+        if custom_sheet_functions_path is not None:
+            all_user_defined_functions.extend(get_non_validated_custom_sheet_functions(custom_sheet_functions_path))
+        
             
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
@@ -74,7 +80,7 @@ class MitoBackend():
             mito_config=self.mito_config, 
             analysis_to_replay=analysis_to_replay, 
             import_folder=import_folder,
-            user_defined_functions=user_defined_functions,
+            user_defined_functions=all_user_defined_functions,
             user_defined_importers=user_defined_importers,
             code_options=code_options
         )
