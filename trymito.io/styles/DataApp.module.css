@@ -1,0 +1,24 @@
+.video_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.video_container {
+    position: relative;
+    padding-bottom: 49.6%; /* The aspect ratio that fits the loom video without adding a black border to any side */
+    width: 100%;
+    max-width: 80rem;
+    border-radius: 10px;
+    overflow: hidden; /* Clip the rounded corners */
+}
+
+.video_container .video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
