@@ -678,7 +678,6 @@ def get_parser_matches(
             }
         
         return None
-    
 
     def get_header_index_header_index_match(formula: str, raw_parser_matches: List[RawParserMatch], match_index: int) -> Optional[ParserMatch]:
 
@@ -756,6 +755,15 @@ def get_parser_matches(
             match_index += 1
             continue
         
+        # If the user is trying to reference a sheet without it being {SHEET}{HEADER}{HEADER},
+        # then we try to point them to using the correct syntax. 
+        if raw_parser_matches[match_index]['type'] == '{SHEET}':
+            raise make_invalid_formula_error(
+                formula,
+                f'Cross-sheet references are only allowed for ranges of columns.',
+                error_modal=False
+            )
+            
         # If you've gotten here, then something has gone wrong
         raise make_invalid_formula_error(
             formula,

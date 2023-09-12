@@ -114,7 +114,8 @@ export const getNewSelectionAfterMouseUp = (selection: MitoSelection, rowIndex: 
         startingRowIndex: selection.startingRowIndex,
         endingRowIndex: rowIndex,
         startingColumnIndex: selection.startingColumnIndex,
-        endingColumnIndex: columnIndex
+        endingColumnIndex: columnIndex,
+        sheetIndex: selection.sheetIndex
     }
 }
 
@@ -295,7 +296,8 @@ export const getNewSelectionAfterKeyPress = (selection: MitoSelection, e: Keyboa
         startingRowIndex: startingRowIndex,
         endingRowIndex: endingRowIndex,
         startingColumnIndex: startingColumnIndex,
-        endingColumnIndex: endingColumnIndex
+        endingColumnIndex: endingColumnIndex,
+        sheetIndex: selection.sheetIndex,
     }
 }
 
@@ -608,7 +610,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: -1,
             endingRowIndex: -1,
             startingColumnIndex: 0,
-            endingColumnIndex: 0
+            endingColumnIndex: 0,
+            sheetIndex: newSheetIndex
         }
     }
 
@@ -660,7 +663,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: selection.startingRowIndex,
             endingRowIndex: selection.endingRowIndex,
             startingColumnIndex: newStartingColumnIndex,
-            endingColumnIndex: newEndingColumnIndex
+            endingColumnIndex: newEndingColumnIndex,
+            sheetIndex: newSheetIndex
         }
     } else if (oldColumnIDsArray.length < newColumnsIDsArray.length) {
         // Columns have been added
@@ -696,7 +700,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: selection.startingRowIndex,
             endingRowIndex: selection.endingRowIndex,
             startingColumnIndex: newStartingColumnIndex,
-            endingColumnIndex: newEndingColumnIndex
+            endingColumnIndex: newEndingColumnIndex,
+            sheetIndex: newSheetIndex
         }
 
     } 
@@ -728,7 +733,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
                     startingRowIndex: -1,
                     endingRowIndex: -1,
                     startingColumnIndex: smallerColumnIndex,
-                    endingColumnIndex: columnIndex - 1
+                    endingColumnIndex: columnIndex - 1,
+                    sheetIndex: selection.sheetIndex
                 })
             } 
 
@@ -737,7 +743,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
                     startingRowIndex: -1,
                     endingRowIndex: -1,
                     startingColumnIndex: columnIndex + 1,
-                    endingColumnIndex: largerColumnIndex
+                    endingColumnIndex: largerColumnIndex,
+                    sheetIndex: selection.sheetIndex
                 })
             }
         } 
@@ -750,7 +757,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
             startingColumnIndex: 0,
             endingColumnIndex: 0,
             startingRowIndex: 0,
-            endingRowIndex: 0
+            endingRowIndex: 0,
+            sheetIndex: 0
         })
     }
 

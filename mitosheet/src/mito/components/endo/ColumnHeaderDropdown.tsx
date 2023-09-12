@@ -159,7 +159,8 @@ export default function ColumnHeaderDropdown(props: {
                         formula: startingColumnFormula,
                         arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
-                        editingMode: editingMode
+                        editingMode: editingMode,
+                        sheetIndex: props.sheetIndex,
                     })
                 }}
                 supressFocusSettingOnClose

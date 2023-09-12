@@ -1352,6 +1352,7 @@ def test_parse_invalid_cross_sheet_formulas(formula, column_header, formula_labe
     with pytest.raises(MitoError) as e_info:
         parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
     assert e_info.value.type_ == 'invalid_formula_error'
+    assert e_info.value.to_fix == 'Cross-sheet references are only allowed for ranges of columns.'
 
 PARSE_TEST_ERRORS = [
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
