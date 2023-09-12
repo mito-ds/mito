@@ -105,7 +105,6 @@ const CellEditor = (props: {
             // If there is a pendingSelections, then we set the selection to be 
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
-                // TODO: use the correct funciton, rather than JSON.stringify
                 const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, sheetData, props.editorState.sheetIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
@@ -477,6 +476,8 @@ const CellEditor = (props: {
         // Don't refresh the page
         e.preventDefault();
 
+        // If the user is currently editing a cell but is looking at a different sheet (for cross-sheet formulas),
+        // then we want to switch to the sheet they are editing in when they're done editing the cell. 
         if (props.sheetIndex !== props.editorState.sheetIndex) {
             props.setUIState((prevUIState: UIState) => {
                 return {
