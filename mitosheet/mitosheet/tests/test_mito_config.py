@@ -15,6 +15,7 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
     MITO_CONFIG_CODE_SNIPPETS_URL, 
     MITO_CONFIG_CODE_SNIPPETS_VERSION,
+    MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
     MITO_CONFIG_DISABLE_TOURS,
     MITO_CONFIG_ENTERPRISE,
     MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
@@ -37,6 +38,7 @@ def delete_env_var_if_exists(env_var: str) -> None:
     Deletes the environment variable only if it exists to avoid errors. Helpful for testing.
     """
     if os.environ.get(env_var) is not None:
+        print(f"Deleting {env_var}")
         del os.environ[env_var]
 
 def delete_all_mito_config_environment_variables() -> None:
@@ -58,11 +60,15 @@ def test_keys_did_not_change():
     assert MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL == 'MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL'
 
 def test_none_works():
+    print(1)
     # Delete the environmnet variables so we can test the none condition
     delete_all_mito_config_environment_variables()
+    print(2)
 
     mito_config = MitoConfig()
+    print(mito_config)
     mito_config_dict = mito_config.get_mito_config()
+    print(mito_config_dict)
     assert mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_SUPPORT_EMAIL,
@@ -74,7 +80,8 @@ def test_none_works():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
     }
 
 def test_none_config_version_is_string():
@@ -111,7 +118,8 @@ def test_version_2_works():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
     }
 
     # Delete the environmnet variables for the next test
@@ -135,7 +143,8 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None
     }    
 
     # Delete the environmnet variables for the next test
@@ -159,7 +168,8 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None
     }    
 
     delete_all_mito_config_environment_variables()
@@ -183,7 +193,8 @@ def test_mito_config_dont_display_snowflake_import():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None
     }    
 
     delete_all_mito_config_environment_variables()
@@ -205,7 +216,8 @@ def test_mito_config_dont_display_ai_transform():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False
+        MITO_CONFIG_PRO: False,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None
     }    
 
     delete_all_mito_config_environment_variables()
@@ -259,7 +271,6 @@ def test_mito_config_enable_enterprise_date():
 
 def test_mito_config_disable_enterprise_date():
     
-
     # Get tomorrow as a date
     from datetime import date, timedelta
     yesterday = date.today() + timedelta(days=-1)
@@ -269,5 +280,17 @@ def test_mito_config_disable_enterprise_date():
 
     from mitosheet.user import is_enterprise
     assert not is_enterprise()
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_config_custom_sheet_functions_path():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] = "./folder/file.py"
+
+    mito_config = MitoConfig()
+    mito_config = mito_config.get_mito_config()
+    mito_config[MITO_CONFIG_VERSION] == '2'
+    mito_config[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] == "./folder/file.py"
 
     delete_all_mito_config_environment_variables()
