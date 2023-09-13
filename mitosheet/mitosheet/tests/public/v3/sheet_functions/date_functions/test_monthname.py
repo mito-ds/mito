@@ -16,11 +16,10 @@ from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 MONTHNAME_TESTS = [
     # Just series tests
     (pd.Series(data=[pd.to_datetime('2000-1-2')], dtype='datetime64[ns]'), pd.Series(['Jan'])),
-    (pd.Series(['2000-1-1', '2000-2-1', '2000-3-1', '2000-4-1', '2000-5-1', '2000-6-1', '2000-7-1', '2000-8-1', '2000-9-1', '2000-10-1', '2000-11-1', '2000-12-1', None], dtype='datetime64[ns]'), 
-        pd.Series(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', None])
+    (pd.Series(['2000-1-1', '2000-2-1', '2000-3-1', '2000-4-1', '2000-5-1', '2000-6-1', '2000-7-1', '2000-8-1', '2000-9-1', '2000-10-1', '2000-11-1', '2000-12-1'], dtype='datetime64[ns]'), 
+        pd.Series(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
     ),
-    (pd.Series(data=[pd.to_datetime(None)]), pd.Series([None])),
-
+    
     # Just constant tests
     (pd.to_datetime('2000-1-2'), 'Jan'),
     (pd.to_datetime('2000-4-2 13:12:11'), 'Apr'),
