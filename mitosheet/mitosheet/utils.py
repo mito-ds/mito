@@ -589,8 +589,4 @@ def validate_sheet_functions(user_defined_sheet_functions):
     from mitosheet.public.v3.errors import handle_sheet_function_errors
     user_defined_functions = [handle_sheet_function_errors(user_defined_sheet_function) for user_defined_sheet_function in (user_defined_sheet_functions if user_defined_sheet_functions is not None else [])]
     return user_defined_functions
-
-def get_custom_sheet_functions(path):
-    non_validated_custom_sheet_functions = get_non_validated_custom_sheet_functions(path)
-    return validate_sheet_functions(non_validated_custom_sheet_functions)
     
