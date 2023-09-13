@@ -52,8 +52,6 @@ export const get_no_import_message = (): string => {
 }
 
 
-
-
 /* 
     This is the UserDefinedImport taskpane.
 */

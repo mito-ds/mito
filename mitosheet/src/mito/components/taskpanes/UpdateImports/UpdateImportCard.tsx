@@ -255,7 +255,7 @@ const UpdateImportCard = (props: {
                     <Dropdown 
                         display={displayDropdown}
                         closeDropdown={() => closeDropdown()}
-                        width='medium'
+                        width='large'
                     >
                         {getUpdateImportOptionDropdownItems()}
                     </Dropdown>

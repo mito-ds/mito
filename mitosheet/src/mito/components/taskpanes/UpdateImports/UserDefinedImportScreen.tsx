@@ -33,7 +33,8 @@ const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpanePro
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
                 header="Custom Import"
-                setUIState={props.setUIState}           
+                setUIState={props.setUIState}       
+                backCallback={props.backCallback}    
             />
             <DefaultTaskpaneBody
                 requiresEnterprise={{
