@@ -239,11 +239,24 @@ function EndoGrid(props: {
                     selectionEnd
                 )
 
+                // If the user is holding down the shift key, we want to extend the selection
+                // rather than starting from scratch with a new selection
+                let startingColumnIndex = props.editorState?.pendingSelections?.selections[0].startingColumnIndex ?? columnIndex;
+                let endingColumnIndex = props.editorState?.pendingSelections?.selections[0].endingColumnIndex ?? columnIndex;
+                if (e.shiftKey && startingColumnIndex > columnIndex) {
+                    startingColumnIndex = columnIndex;
+                } else if (e.shiftKey && endingColumnIndex < columnIndex) {
+                    endingColumnIndex = columnIndex;
+                } else if (!e.shiftKey) {
+                    startingColumnIndex = columnIndex;
+                    endingColumnIndex = columnIndex;
+                }
                 const newSelection: MitoSelection[] = [{
                     startingRowIndex: rowIndex !== undefined ? rowIndex : -1,
                     endingRowIndex: rowIndex !== undefined ? rowIndex : -1,
-                    startingColumnIndex: columnIndex,
-                    endingColumnIndex: columnIndex,
+                    startingColumnIndex: startingColumnIndex,
+                    endingColumnIndex: endingColumnIndex,
+                    sheetIndex: sheetIndex,
                 }]
 
                 // Select the column that was clicked on, as they do in Excel
@@ -306,6 +319,7 @@ function EndoGrid(props: {
                             endingRowIndex: rowIndex,
                             startingColumnIndex: columnIndex,
                             endingColumnIndex: columnIndex,
+                            sheetIndex: sheetIndex,
                         })
                         return {
                             ...gridState,
@@ -333,6 +347,7 @@ function EndoGrid(props: {
                                     endingRowIndex: rowIndex,
                                     startingColumnIndex: columnIndex,
                                     endingColumnIndex: columnIndex,
+                                    sheetIndex: sheetIndex,
                                 })
                                 return {
                                     ...gridState,
@@ -349,6 +364,7 @@ function EndoGrid(props: {
                                 endingRowIndex: rowIndex,
                                 startingColumnIndex: columnIndex,
                                 endingColumnIndex: columnIndex,
+                                sheetIndex: sheetIndex,
                             })
                             setGridState((gridState) => {
                                 return {
@@ -367,6 +383,7 @@ function EndoGrid(props: {
                                         endingRowIndex: rowIndex,
                                         startingColumnIndex: columnIndex,
                                         endingColumnIndex: columnIndex,
+                                        sheetIndex: sheetIndex,
                                     }]
                                 }
                             })
@@ -395,6 +412,7 @@ function EndoGrid(props: {
                                 endingRowIndex: rowIndex,
                                 startingColumnIndex: columnIndex,
                                 endingColumnIndex: columnIndex,
+                                sheetIndex: sheetIndex,
                             }]
                         }
                     })
@@ -511,7 +529,8 @@ function EndoGrid(props: {
             formula: startingColumnFormula,
             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
             editorLocation: 'cell',
-            editingMode: editingMode
+            editingMode: editingMode,
+            sheetIndex: sheetIndex,
         })
     }
     
@@ -578,7 +597,8 @@ function EndoGrid(props: {
                         formula: startingColumnFormula,
                         arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                         editorLocation: 'cell',
-                        editingMode: editingMode
+                        editingMode: editingMode,
+                        sheetIndex: sheetIndex,
                     });
 
                     e.preventDefault();
@@ -589,7 +609,8 @@ function EndoGrid(props: {
                             startingRowIndex: lastSelection.startingRowIndex,
                             endingRowIndex: lastSelection.startingRowIndex,
                             startingColumnIndex: lastSelection.startingColumnIndex,
-                            endingColumnIndex: lastSelection.startingColumnIndex
+                            endingColumnIndex: lastSelection.startingColumnIndex,
+                            sheetIndex: sheetIndex,
                         }]
                     }
                 })
@@ -628,7 +649,7 @@ function EndoGrid(props: {
     return (
         <>
             <FormulaBar
-                sheetData={sheetData}
+                sheetDataArray={sheetDataArray}
                 selection={gridState.selections[gridState.selections.length - 1]}
                 sheetIndex={props.sheetIndex}
                 editorState={editorState}
@@ -728,7 +749,7 @@ function EndoGrid(props: {
                 </div>
                 {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <FloatingCellEditor
-                        sheetData={sheetData}
+                        sheetDataArray={sheetDataArray}
                         sheetIndex={sheetIndex}
                         gridState={gridState}
                         editorState={editorState}

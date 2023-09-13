@@ -538,12 +538,14 @@ export interface SheetView {
  * @param endingRowIndex - The index of the final row the user is selecting. Might be less than startingRowIndex.
  * @param startingColumnIndex - The index of the column that the user first selected.
  * @param endingColumnIndex - The index of the final column the user is selecting. Might be less than startingColumnIndex.
+ * @param sheetIndex - the index of the sheet that the user is selecting
  */
 export interface MitoSelection {
     startingRowIndex: number;
     endingRowIndex: number;
     startingColumnIndex: number;
     endingColumnIndex: number;
+    sheetIndex: number;
 }
 
 /**
@@ -614,6 +616,7 @@ export interface ScrollPosition {
 export type EditorState = {
     rowIndex: number;
     columnIndex: number;
+    sheetIndex: number;
     formula: string;
     editingMode: 'entire_column' | 'specific_index_labels';
 
