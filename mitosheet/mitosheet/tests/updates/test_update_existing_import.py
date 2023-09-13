@@ -565,10 +565,10 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
 @python_post_3_6_only
 def test_update_user_defined_imports():
 
-    def create_df_one(column_name: str):
+    def create_df_one(column_name: str) -> pd.DataFrame:
         return pd.DataFrame(data={column_name: [1, 2, 3], 'B': [2, 3, 4]})
 
-    def create_df_two(negative: bool):
+    def create_df_two(negative: bool) -> pd.DataFrame:
         if negative:
             return pd.DataFrame(data={'C': [-1, -2, -3], 'D': [-2, -3, -4]})
         else: 
