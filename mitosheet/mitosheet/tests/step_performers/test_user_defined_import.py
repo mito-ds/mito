@@ -173,11 +173,6 @@ def test_user_defined_custom_imports_from_environment_variable_with_imports():
 import pandas as pd
 def _helper_df_creation():
     return pd.DataFrame({'A': [1, 2, 3]})
-"""
-
-    file_two = """
-import pandas as pd
-from file_one import _helper_df_creation
 
 def get_df_one():
     return _helper_df_creation()
@@ -189,12 +184,10 @@ def get_df_two():
     # Write these files to the folder
     with open('file_one.py', 'w') as f:
         f.write(file_one)
-    with open('file_two.py', 'w') as f:
-        f.write(file_two)
 
     # Set the environment variable
     os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] = "./file_two.py"
+    os.environ[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] = "./file_one.py"
 
     mito = create_mito_wrapper()
     mito.user_defined_import('get_df_one', {})
@@ -210,7 +203,6 @@ def get_df_two():
     # Reset the environmnet
     delete_all_mito_config_environment_variables()
     os.remove('file_one.py')
-    os.remove('file_two.py')
 
 def test_user_defined_custom_imports_from_environment_variable_and_mitosheet_call():
     file_one = """

@@ -561,7 +561,6 @@ def check_valid_sheet_functions(
     
 def get_functions_from_path(path: str) -> List[Callable]:
     # Get the filename from the path
-    print(path)
     filename = os.path.basename(path)
 
     # Create a module spec from the file path
