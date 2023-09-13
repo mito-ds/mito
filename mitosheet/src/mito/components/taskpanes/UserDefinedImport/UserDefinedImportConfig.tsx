@@ -115,6 +115,7 @@ const UserDefinedImportImportConfig = (props: {
                                 <Input
                                     width="medium"
                                     value={paramValue}
+                                    type={paramName.toLocaleLowerCase() =='password' ? 'password' : undefined}
                                     onChange={(e) => {
                                         const newValue = e.target.value;
                                         props.setParams(prevParams => {
