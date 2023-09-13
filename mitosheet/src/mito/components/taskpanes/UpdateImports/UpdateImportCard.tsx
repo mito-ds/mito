@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
+import { UserProfile } from '../../../types';
 import Dropdown from '../../elements/Dropdown';
 import DropdownItem from '../../elements/DropdownItem';
 import CSVFileIcon from '../../icons/CSVFileIcon';
@@ -54,6 +55,12 @@ export const getUpdateImportCardTitle = (dataframeCreationData: DataframeCreatio
         return (
             <div>
                 <span className='text-color-medium-important'>Imported </span> {getSimpleNameSpan(dataframeCreationData.params.table_loc_and_warehouse.table_or_view)} <span className='text-color-medium-important'>from Snowflake </span>
+            </div>
+        )
+    } else if (dataframeCreationData.step_type === 'user_defined_import') {
+        return (
+            <div>
+                <span className='text-color-medium-important'>Imported custom importer </span> {getSimpleNameSpan(dataframeCreationData.params?.importer)}
             </div>
         )
     } else {
@@ -111,6 +118,12 @@ export const getUpdateImportCardSubtitle = (updatedDataframeCreationData: Datafr
                 <></>
             </div>
         )
+    } else if (updatedDataframeCreationData.step_type === 'user_defined_import') {
+        return (
+            <div className='mt-3px'>
+                <span className='text-color-medium-important'>Update using </span> {getSimpleNameSpan(updatedDataframeCreationData.params?.importer)}
+            </div>
+        )
     } else {
         return (
             <div>
@@ -137,6 +150,8 @@ const UpdateImportCard = (props: {
 
     preUpdateInvalidImportMessage: string | undefined;
     postUpdateInvalidImportMessage: string | undefined;
+
+    userProfile: UserProfile;
 }): JSX.Element => {
 
     const displayDropdown = props.displayedImportCardDropdown === props.dataframeCreationIndex;
@@ -195,6 +210,19 @@ const UpdateImportCard = (props: {
                         params: {df_names: []}
                     });
                 }}
+            />,
+            <DropdownItem
+                key='Replace with custom import'
+                title='Replace with custom import'
+                onClick={() => {
+                    props.setReplacingDataframeState({
+                        dataframeCreationIndex: props.dataframeCreationIndex,
+                        importState: {screen: 'user_defined_import'},
+                        params: undefined
+                    });
+                }}
+                disabled={!props.userProfile.isEnterprise}
+                subtext={!props.userProfile.isEnterprise ? 'Requires Mito Enterprise' : undefined}
             />
         ])
 
