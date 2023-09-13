@@ -306,7 +306,7 @@ class MitoConfig:
             return None
         return self.mec[MITO_CONFIG_ANALYTICS_URL]
 
-    def get_custom_sheet_functions_path(self):
+    def get_custom_sheet_functions_path(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] is None:
             return None
         else:
