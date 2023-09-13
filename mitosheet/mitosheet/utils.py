@@ -575,9 +575,6 @@ def get_non_validated_custom_sheet_functions(path: str) -> List[Callable]:
     # Execute the module (this runs the code in the file)
     module_spec.loader.exec_module(custom_functions_module) # type: ignore
 
-    # Execute the module (this runs the code in the file)
-    module_spec.loader.exec_module(custom_functions_module) # type: ignore
-
     # Get a list of functions defined in custom_functions.py
     function_list = [getattr(custom_functions_module, attr) for attr in dir(custom_functions_module) if callable(getattr(custom_functions_module, attr))]
 
