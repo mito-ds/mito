@@ -559,7 +559,7 @@ def check_valid_sheet_functions(
         if not sheet_function.__name__.isupper():
             raise ValueError(f"sheet_functions must be a list of functions, but got {sheet_function} which has a name that is not all caps. Please use a named function instead.")
     
-def get_non_validated_custom_sheet_functions(path: str) -> List[Callable]:
+def get_functions_from_path(path: str) -> List[Callable]:
     # Get the filename from the path
     filename = os.path.basename(path)
 
@@ -576,13 +576,20 @@ def get_non_validated_custom_sheet_functions(path: str) -> List[Callable]:
     module_spec.loader.exec_module(custom_functions_module) # type: ignore
 
     # Get a list of functions defined in custom_functions.py
-    function_list = [getattr(custom_functions_module, attr) for attr in dir(custom_functions_module) if callable(getattr(custom_functions_module, attr))]
+    functions = [getattr(custom_functions_module, attr) for attr in dir(custom_functions_module) if callable(getattr(custom_functions_module, attr))]
 
-    # Filter out any functions that are not all uppercase
-    function_list = [func for func in function_list if func.__name__.isupper()]
+    # Filter out private functions
+    functions = [func for func in functions if not func.__name__.startswith('_')]
 
     # Now, function_list contains the callable objects (functions) defined in custom_functions.py
-    return function_list
+    return functions
+
+def get_non_validated_custom_sheet_functions(path: str) -> List[Callable]:
+    functions = get_functions_from_path(path)
+    
+    # Filter out functions that are not all caps
+    functions = [func for func in functions if func.__name__.isupper()]
+    return functions
 
 def validate_sheet_functions(user_defined_sheet_functions: Optional[List[Callable]]) -> List[Callable]:
     check_valid_sheet_functions(user_defined_sheet_functions)
