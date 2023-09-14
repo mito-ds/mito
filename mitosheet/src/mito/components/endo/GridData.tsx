@@ -9,7 +9,7 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
-import { HighlightedCellData } from './HighlightedCellData';
+import { HighlightedText } from './HighlightedText';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
@@ -90,8 +90,8 @@ const GridData = (props: {
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)
 
                             // Add highlighting to the cell
-                            const highlightedCellData = (<HighlightedCellData
-                                    cellData={displayCellData}
+                            const highlightedCellData = (<HighlightedText
+                                    text={displayCellData}
                                     searchValue={props.uiState.currOpenSearch.searchValue}
                                 />)
                             return (

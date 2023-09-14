@@ -16,6 +16,7 @@ import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
+import { HighlightedText } from './HighlightedText';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -355,7 +356,7 @@ const ColumnHeader = (props: {
                             tabIndex={-1}
                         >
                             {/* Only display the final column header in this final section */}
-                            {finalColumnHeader + ''}
+                            <HighlightedText text={finalColumnHeader + ''} searchValue={props.uiState.currOpenSearch.searchValue}/>
                         </div>
 
                         <div className='endo-column-header-final-right-side' >
