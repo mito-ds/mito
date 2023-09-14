@@ -4,24 +4,15 @@ import React from 'react';
 import { UIState } from '../types';
 import XIcon from './icons/XIcon';
 
+import '../../../css/elements/SearchBar.css';
+
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
-    return (<div
-        style={{
-            'position': 'absolute',
-            'top': '72px',
-            'right': '0',
-            'backgroundColor': 'var(--mito-background-highlight)',
-            'borderLeft': '3px solid var(--mito-light-gray)',
-            'boxShadow': '1px 4px 6px var(--mito-light-gray)',
-            'padding': '5px',
-            'display': 'flex',
-        }}
-    >
+    return (<div className='mito-search-bar'>
         <input
             onChange={(e) => {
                 props.setUIState({
@@ -32,18 +23,19 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }
                 })
             }}
+            className='mito-search-input'
             placeholder='Find...'
-            style={{
-                'border': 'none',
-                'width': '200px',
-                'padding': '0.4em'
-            }}
         />
-        <button style={{ 'border': 'none', 'background': 'none', 'display': 'flex', 'alignItems': 'center', 'padding': '0 0 0 5px'}} onClick={() => {
-            props.setUIState({
-                ...props.uiState,
-                currOpenSearch: { isOpen: false }
-            })
-        }}><XIcon/></button>
+        <button
+            className='mito-close-search-button'
+            onClick={() => {
+                props.setUIState({
+                    ...props.uiState,
+                    currOpenSearch: { isOpen: false }
+                })
+            }}
+        >
+            <XIcon strokeWidth='1' width='15' height='15' />
+        </button>
     </div>);
 }
