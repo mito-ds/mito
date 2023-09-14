@@ -135,7 +135,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
         currOpenSearch: {
-            isOpen: true
+            isOpen: false
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
