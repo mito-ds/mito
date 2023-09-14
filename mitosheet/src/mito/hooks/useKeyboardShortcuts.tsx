@@ -8,6 +8,7 @@ const KEYBOARD_SHORTCUTS: Record<string, ActionEnum> = {
     'c': ActionEnum.Copy,
     'z': ActionEnum.Undo,
     'y': ActionEnum.Redo,
+    'f': ActionEnum.OpenSearch,
 }
 
 // See comment in plugin.tsx. Because of some JupyterLab plugin issues
@@ -15,7 +16,7 @@ const KEYBOARD_SHORTCUTS: Record<string, ActionEnum> = {
 // some keypresses on JLab to be explicit about where things run.
 // NOTE: ignoring these is not actually required, as we don't get
 // these keydown events anyways, but I want to be explicit here!
-const JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y'];
+const JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y', 'f'];
 
 /* 
     This effect actually does keyboard shortcuts.

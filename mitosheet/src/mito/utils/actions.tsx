@@ -1094,6 +1094,29 @@ export const createActions = (
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
         },
+        [ActionEnum.OpenSearch]: {
+            type: ActionEnum.OpenSearch,
+            shortTitle: 'Search',
+            longTitle: 'Search',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenSearch: { isOpen: !uiState.currOpenSearch.isOpen },
+                    }
+                })
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['search', 'find', 'filter', 'lookup'],
+            tooltip: "Search for a value in your data.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+F',
+                windows: 'Ctrl+F'
+            }
+        },
         [ActionEnum.Undo]: {
             type: ActionEnum.Undo,
             shortTitle: 'Undo',

@@ -40,6 +40,7 @@ const ToolbarEditDropdown = (props: ToolbarEditDropdownProps): JSX.Element => {
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Clear], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Copy], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.OpenSearch], props.userProfile)}
             </Dropdown>
         </>
     );

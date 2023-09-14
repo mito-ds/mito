@@ -9,6 +9,7 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
+import { HighlightedCellData } from './HighlightedCellData';
 
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
@@ -88,6 +89,11 @@ const GridData = (props: {
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)
 
+                            // Add highlighting to the cell
+                            const highlightedCellData = (<HighlightedCellData
+                                    cellData={displayCellData}
+                                    searchValue={props.uiState.currOpenSearch.searchValue}
+                                />)
                             return (
                                 <div 
                                     className={className} key={columnIndex}
@@ -101,7 +107,7 @@ const GridData = (props: {
                                     mito-row-index={rowIndex}
                                     title={displayCellData}
                                 >
-                                    {displayCellData}
+                                    {highlightedCellData}
                                 </div>
                             )
                         })}

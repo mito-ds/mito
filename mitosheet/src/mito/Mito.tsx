@@ -63,6 +63,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
+import { SearchBar } from './components/SearchBar';
 import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { createActions } from './utils/actions';
 import { classNames } from './utils/classNames';
@@ -132,6 +133,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
+        },
+        currOpenSearch: {
+            isOpen: true
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
@@ -1057,6 +1061,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         >
                             {getCurrOpenTaskpane()}
                         </div>
+                    }
+                    {uiState.currOpenSearch.isOpen &&
+                        <SearchBar
+                            uiState={uiState}
+                            setUIState={setUIState}
+                        />
                     }
                 </div>
                 {/* Display the tour if there is one */}
