@@ -7,24 +7,32 @@ interface HighlightedMatchProps {
 
 export const HighlightedText: React.FC<HighlightedMatchProps> = (props) => {
     const { searchValue, text } = props;
-    if (searchValue === undefined) {
+    if (searchValue === undefined || searchValue === '') {
         return <div>{text}</div>;
     }
 
-    const searchValueIndex = text.toLowerCase().indexOf(searchValue.toLowerCase());
-    let highlightedText = text;
+    let searchValueIndex = text.toLowerCase().indexOf(searchValue.toLowerCase());
     if (searchValueIndex === -1) {
         return <div>{text}</div>;
     }
+    let unhighlightedText = text;
+    let highlightedText = [];
+    while (searchValueIndex > -1) {
+        highlightedText.push(unhighlightedText.slice(0, searchValueIndex))
+        highlightedText.push(
+            <span style={{ 'backgroundColor': 'yellow'}} className="mito-search-highlight">
+                {unhighlightedText.slice(
+                    searchValueIndex,
+                    searchValueIndex + searchValue.length
+                )}
+            </span>
+        )
+        unhighlightedText = unhighlightedText.slice(searchValueIndex + searchValue.length);
+        searchValueIndex = unhighlightedText.toLowerCase().indexOf(searchValue.toLowerCase());
+    }
+    highlightedText.push(unhighlightedText);
     return (<div>
-        {highlightedText.slice(0, searchValueIndex)}
-        <span style={{ 'backgroundColor': 'yellow'}} className="mito-search-highlight">
-            {highlightedText.slice(
-                searchValueIndex,
-                searchValueIndex + searchValue.length
-            )}
-        </span>
-        {highlightedText.slice(searchValueIndex + searchValue.length)}
+        {highlightedText}
     </div>);
 }
 
