@@ -96,16 +96,15 @@ export async function getStaticPaths() {
 
   // Get the paths we want to create based on posts
   const paths = posts.map((post) => {
-    if (SLUG_REDIRECTS[post.slug]) {
-      return {
-        params: { slug: SLUG_REDIRECTS[post.slug] },
-      }
-    }
-
     return {
       params: { slug: post.slug },
     }
-  })
+  }).concat(Object.keys(SLUG_REDIRECTS).map(key => {
+    // Support all the new slug paths as well
+    return {
+      params: { slug: SLUG_REDIRECTS[key] },
+    }
+  }))
 
   // { fallback: false } means posts not found should 404.
   return { paths, fallback: false }
