@@ -8,6 +8,14 @@ import Header from '../components/Header/Header'
 import pageStyles from '../styles/Page.module.css'
 import blogStyles from '../styles/Blog.module.css'
 
+// These are names we could have named better
+export const SLUG_REDIRECTS: Record<string, string> = {
+  'untitled-3': 'python-spreadsheet-ai-for-enterprise-applications',
+  'untitled': 'wall-st-finance-python-spreadsheet-applications',
+  'test-post': 'mito-team-5-questions',
+  'hello-word': 'hello-world',
+}
+
  
 export const getStaticProps: GetStaticProps<{posts: PostsOrPages}> = async () => {
     const posts = await getPosts()
@@ -17,6 +25,13 @@ export const getStaticProps: GetStaticProps<{posts: PostsOrPages}> = async () =>
         notFound: true,
       }
     }
+
+    // Redirect old slugs to new slugs
+    posts.forEach(post => {
+      if (SLUG_REDIRECTS[post.slug]) {
+        post.slug = SLUG_REDIRECTS[post.slug]
+      }
+    })
   
     return {
       props: { posts },
@@ -37,25 +52,26 @@ function Post (props: {post: PostOrPage}) {
 
   return (
     <Link href={"/blog/" + props.post.slug} key={props.post.id}>
-      <div className={blogStyles.post}>
+      <a>
+        <div className={blogStyles.post}>
+          <h3>{props.post.title}</h3>
+          <p className={blogStyles.excerpt}>
+            {props.post.excerpt}...
+          </p>
+          <div className={blogStyles.post_metadata}>
+            <div className={blogStyles.published_at}>
+              {props.post.published_at &&
+                new Intl.DateTimeFormat('en-US')
+                  .format(new Date(props.post.published_at))
+              }
+            </div>
+            <div className={blogStyles.reading_time}>
+              - {getReadingTime(props.post.slug)}
+            </div>
+          </div>
 
-        <h3>{props.post.title}</h3>
-        <p className={blogStyles.excerpt}>
-          {props.post.excerpt}...
-        </p>
-        <div className={blogStyles.post_metadata}>
-          <div className={blogStyles.published_at}>
-            {props.post.published_at &&
-              new Intl.DateTimeFormat('en-US')
-                .format(new Date(props.post.published_at))
-            }
-          </div>
-          <div className={blogStyles.reading_time}>
-            - {getReadingTime(props.post.slug)}
-          </div>
         </div>
-
-      </div>
+      </a>
     </Link>
   )
 }
@@ -65,8 +81,8 @@ export default function Page(props: {posts: PostsOrPages}) {
   return (
     <>
       <Head>
-        <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Blog, FAQs and Resources | Mito </title>
+        <meta name="description" content="The Mito blog provides resources for training spreadsheet users on Python, helping Excel users learn Python, and helps your team automate repetative spreadsheet processes. | Mito" />
       </Head>
       
       <Header/>
