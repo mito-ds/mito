@@ -24,7 +24,7 @@ jobs:
             pandas-version: '0.24.2'
           - python-version: 3.11
             pandas-version: '0.24.2'
-          - pandas-version: 3.6
+          - python-version: 3.6
             optional_feature_dependencies: True
 
     steps:
