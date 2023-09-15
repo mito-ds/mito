@@ -16,7 +16,7 @@ export const HighlightedText: React.FC<HighlightedMatchProps> = (props) => {
         return <div>{text}</div>;
     }
     let unhighlightedText = text;
-    let highlightedText = [];
+    const highlightedText = [];
     while (searchValueIndex > -1) {
         highlightedText.push(unhighlightedText.slice(0, searchValueIndex))
         highlightedText.push(
