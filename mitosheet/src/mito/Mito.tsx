@@ -1001,7 +1001,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
             onKeyDown={(e) => {
                 // If the user presses escape anywhere in the mitosheet, we close the editor
                 if (e.key === 'Escape') {
-                    setEditorState(undefined)
+                    if (editorState !== undefined) {
+                        setEditorState(undefined)
+                    } else if (uiState.currOpenSearch.isOpen) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenSearch: {
+                                    isOpen: false,
+                                }
+                            }
+                        })
+                    }
                 }
             }}
         >
