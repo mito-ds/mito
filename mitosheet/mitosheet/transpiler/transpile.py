@@ -8,14 +8,14 @@ Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
-from typing import Any, Dict, List
+from typing import List
 from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.transpiler.transpile_utils import convert_script_to_function
+from mitosheet.transpiler.transpile_utils import convert_script_to_function, get_imports_for_custom_python_code
 from mitosheet.types import StepsManagerType
 
 
@@ -27,6 +27,7 @@ IMPORT_STATEMENTS = {
     2: 'from mitosheet.public.v2 import *',
     3: 'from mitosheet.public.v3 import *'
 }
+
 
 def transpile(
         steps_manager: StepsManagerType, 
@@ -87,9 +88,17 @@ def transpile(
     # We then deduplicate the imports, keeping the same order as originally
     final_imports_code = deduplicate_array(imports_code)
 
+    # If the user wants the custom imports to be included in the script, we include them here
+    if steps_manager.code_options['import_custom_python_code']:
+        for import_line in get_imports_for_custom_python_code(code, steps_manager):
+            final_imports_code.insert(0, import_line)
+
     # We then add the import statement for the correct version of mitosheet
     if len(code) > 0:
         final_imports_code.insert(0, IMPORT_STATEMENTS[steps_manager.public_interface_version])
+
+    
+
 
     # If we should transpile this as a function, we do so
     if steps_manager.code_options['as_function']:

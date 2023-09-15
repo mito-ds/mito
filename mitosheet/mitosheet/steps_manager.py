@@ -234,10 +234,11 @@ class StepsManager:
         # before passing them to the step to be used
         check_valid_sheet_functions(user_defined_functions)
         from mitosheet.public.v3.errors import handle_sheet_function_errors
-        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
+        self.user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
 
         # We also do some checks for the user_defined_importers
-        if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
+        self.user_defined_importers = user_defined_importers
+        if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
         # Then we initialize the analysis with just a simple initialize step
@@ -247,8 +248,8 @@ class StepsManager:
                 State(
                     args, 
                     df_names=df_names,
-                    user_defined_functions=user_defined_functions, 
-                    user_defined_importers=user_defined_importers
+                    user_defined_functions=self.user_defined_functions, 
+                    user_defined_importers=self.user_defined_importers
                 ), 
                 {}
             )
