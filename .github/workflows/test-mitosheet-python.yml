@@ -45,7 +45,7 @@ jobs:
         pip install "pandas==${{ matrix.pandas-version }}"
         pip install -e ".[test, deploy]"
     - name: Install optional feature dependencies
-      if: ${{ matrix.optional_feature_installs }}
+      if: ${{ matrix.optional_feature_dependencies }}
       run: |
         cd mitosheet
         pip install -e ".[optional_feature_dependencies]"
