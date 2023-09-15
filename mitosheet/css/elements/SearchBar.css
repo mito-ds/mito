@@ -15,7 +15,6 @@
     top: 72px;
     right: 0;
     background-color: var(--mito-background-highlight);
-    border-left: 3px solid var(--mito-light-gray);
     box-shadow: 1px 4px 6px var(--mito-light-gray);
     padding: 5px;
     display: flex;

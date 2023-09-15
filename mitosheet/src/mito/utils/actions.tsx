@@ -1101,13 +1101,16 @@ export const createActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenSearch: { isOpen: true },
-                    }
-                })
+                if (uiState.currOpenSearch.isOpen) {
+                    document.getElementById('mito-search-bar-input')?.focus();
+                } else {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenSearch: { isOpen: true },
+                        }
+                    })
+                }
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['search', 'find', 'filter', 'lookup'],

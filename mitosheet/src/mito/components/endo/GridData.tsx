@@ -9,8 +9,6 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
-import { HighlightedText } from './HighlightedText';
-
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
@@ -72,6 +70,7 @@ const GridData = (props: {
 
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
+                            const matchesSearch = !!props.uiState.currOpenSearch.searchValue && cellData.toString().toLowerCase().includes(props.uiState.currOpenSearch.searchValue.toLowerCase())
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
@@ -89,17 +88,12 @@ const GridData = (props: {
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)
 
-                            // Add highlighting to the cell
-                            const highlightedCellData = (<HighlightedText
-                                    text={displayCellData}
-                                    searchValue={props.uiState.currOpenSearch.searchValue}
-                                />)
                             return (
                                 <div 
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, props.uiState.highlightedColumnIndex),
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex),
                                         ...(conditionalFormat || {})
                                     }}
                                     tabIndex={-1}
@@ -107,7 +101,7 @@ const GridData = (props: {
                                     mito-row-index={rowIndex}
                                     title={displayCellData}
                                 >
-                                    {highlightedCellData}
+                                    {displayCellData}
                                 </div>
                             )
                         })}

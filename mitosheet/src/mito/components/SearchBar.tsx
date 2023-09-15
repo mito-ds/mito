@@ -16,6 +16,7 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
     return (<div className='mito-search-bar'>
         <Input
+            id='mito-search-bar-input'
             value={props.uiState.currOpenSearch.searchValue ?? ''}
             onChange={(e) => {
                 props.setUIState({
