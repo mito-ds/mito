@@ -6,6 +6,7 @@ import XIcon from './icons/XIcon';
 
 import '../../../css/elements/SearchBar.css';
 import { classNames } from '../utils/classNames';
+import Input from './elements/Input';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -14,7 +15,8 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
     return (<div className='mito-search-bar'>
-        <input
+        <Input
+            value={props.uiState.currOpenSearch.searchValue ?? ''}
             onChange={(e) => {
                 props.setUIState({
                     ...props.uiState,
@@ -26,6 +28,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             }}
             className={classNames('mito-input')}
             placeholder='Find...'
+            autoFocus
         />
         <button
             className='mito-close-search-button'

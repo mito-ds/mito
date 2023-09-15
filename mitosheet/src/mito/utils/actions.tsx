@@ -861,7 +861,7 @@ export const createActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-    
+
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
     

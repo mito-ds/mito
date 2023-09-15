@@ -409,6 +409,11 @@ const Toolbar = (
                     <div className="toolbar-vertical-line"></div>
 
                     <ToolbarButton
+                        id='mito-open-search' // NOTE: this is used to click the open search button in plugin.tsx
+                        toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
+                        action={props.actions[ActionEnum.OpenSearch]}
+                    />
+                    <ToolbarButton
                         toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
                         action={props.actions[ActionEnum.Fullscreen]}
                     />

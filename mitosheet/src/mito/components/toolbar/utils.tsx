@@ -21,6 +21,7 @@ import MoreIcon from '../icons/MoreIcon';
 import LessIcon from '../icons/LessIcon';
 import AIIcon from '../icons/AIIcon';
 import CodeSnippetIcon from '../icons/CodeSnippetIcon';
+import SearchNavigateIcon from '../icons/SearchNavigateIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -62,7 +63,8 @@ export enum ToolbarButtonType {
     CATCH_UP = "CATCH UP",
     STEPS = "STEPS",
     OPEN_FULLSCREEN = "OPEN FULLSCREEN",
-    CLOSE_FULLSCREEN = "CLOSE FULLSCREEN"
+    CLOSE_FULLSCREEN = "CLOSE FULLSCREEN",
+    OPEN_SEARCH = "OPEN SEARCH",
 }
 
 /* 
@@ -95,6 +97,7 @@ export const getToolbarItemIcon = (toolbarButtonType: ToolbarButtonType): JSX.El
         case ToolbarButtonType.STEPS: {return <StepsIcon />}
         case ToolbarButtonType.OPEN_FULLSCREEN: {return <OpenFullscreenIcon />}
         case ToolbarButtonType.CLOSE_FULLSCREEN: {return <CloseFullscreenIcon />}
+        case ToolbarButtonType.OPEN_SEARCH: {return <SearchNavigateIcon upOrDown={'up'} />}
     }
 }
 
