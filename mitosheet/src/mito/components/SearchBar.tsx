@@ -5,6 +5,7 @@ import { UIState } from '../types';
 import XIcon from './icons/XIcon';
 
 import '../../../css/elements/SearchBar.css';
+import { classNames } from '../utils/classNames';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -23,7 +24,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }
                 })
             }}
-            className='mito-search-input'
+            className={classNames('mito-input')}
             placeholder='Find...'
         />
         <button
