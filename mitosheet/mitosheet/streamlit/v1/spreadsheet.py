@@ -1,9 +1,12 @@
 from collections import OrderedDict
+from distutils.version import LooseVersion
 import hashlib
+import importlib
 import inspect
 import json
 import os
 import pickle
+import re
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
@@ -43,6 +46,43 @@ def get_dataframe_hash(df: pd.DataFrame) -> bytes:
     
     return _get_dataframe_hash(df)
 
+def do_dynamic_imports(code: str) -> None:
+    """
+    When you get back Mito code, and you want to execute it, it requires imports defined in the global scope
+    of the executing process. 
+
+    To do this, we dynamically read in the import lines, and execute them using the importlib, and then add 
+    them to the global scope.
+    """
+
+    # Extract import lines from the code_str
+    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from", "import"))]
+
+    # Dynamically import modules and attributes in the global scope
+    for import_line in import_lines:
+        if import_line.startswith("from"):
+            match = re.match(r"from (.+) import (.+)", import_line)
+            module_name = match.group(1)
+            imported_objects = match.group(2).split(",")
+            
+            module = importlib.import_module(module_name)
+            for obj in imported_objects:
+                obj = obj.strip()
+                if obj == "*":
+                    for attr_name in dir(module):
+                        if not attr_name.startswith("_"):
+                            globals()[attr_name] = getattr(module, attr_name)
+                else:
+                    globals()[obj] = getattr(module, obj)
+        else:
+            split = import_line.split(' ')
+            module_name = split[1]
+            alias = split[3]
+            
+            module = importlib.import_module(module_name)
+            globals()[alias if alias else module_name] = module
+
+
 
 def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
     """
@@ -62,6 +102,7 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
     # exec likely defines all the other mitosheet functions (none of which we actaully want)
     for f in functions:
         if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
+            do_dynamic_imports(code)
             return f
         
     raise ValueError(f'No functions defined in code: {code}')
