@@ -16,7 +16,6 @@ import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
-import { HighlightedText } from './HighlightedText';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -83,7 +82,8 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, props.uiState.highlightedColumnIndex);
+    const matchesSearch = !!props.uiState.currOpenSearch.searchValue && (finalColumnHeader + '').toLowerCase().includes(props.uiState.currOpenSearch.searchValue.toLowerCase());
+    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
         props.setEditorState({
@@ -356,7 +356,7 @@ const ColumnHeader = (props: {
                             tabIndex={-1}
                         >
                             {/* Only display the final column header in this final section */}
-                            <HighlightedText text={finalColumnHeader + ''} searchValue={props.uiState.currOpenSearch.searchValue}/>
+                            {finalColumnHeader + ''}
                         </div>
 
                         <div className='endo-column-header-final-right-side' >

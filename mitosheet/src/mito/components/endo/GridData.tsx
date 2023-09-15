@@ -70,6 +70,12 @@ const GridData = (props: {
 
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
+                            let searchValue = props.uiState.currOpenSearch.searchValue;
+                            // If the search value is a number, we need to remove the unnecessary decimals
+                            if (searchValue !== undefined && !isNaN(Number(searchValue))) {
+                                searchValue = Number(searchValue).toString()
+                                console.log(searchValue)
+                            }
                             const matchesSearch = !!props.uiState.currOpenSearch.searchValue && cellData.toString().toLowerCase().includes(props.uiState.currOpenSearch.searchValue.toLowerCase())
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
