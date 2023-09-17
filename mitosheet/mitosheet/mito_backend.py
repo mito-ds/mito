@@ -39,7 +39,8 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
-from mitosheet.utils import get_functions_from_path, get_new_id, get_non_validated_custom_sheet_functions
+from mitosheet.utils import get_new_id
+from mitosheet.step_performers.utils.user_defined_functionality import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 

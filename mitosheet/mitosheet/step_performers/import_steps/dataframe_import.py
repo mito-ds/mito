@@ -16,7 +16,7 @@ from mitosheet.code_chunks.step_performers.import_steps.dataframe_import_code_ch
 from mitosheet.errors import make_dataframe_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 
 
 def get_variable_with_name_from_caller(variable_name: str) -> Optional[Any]:

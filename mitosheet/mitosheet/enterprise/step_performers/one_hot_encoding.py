@@ -15,7 +15,7 @@ from mitosheet.errors import make_column_exists_error, make_columns_exists_error
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import add_columns_to_df, get_param
+from mitosheet.step_performers.utils.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnID
 
 class OneHotEncodingStepPerformer(StepPerformer):

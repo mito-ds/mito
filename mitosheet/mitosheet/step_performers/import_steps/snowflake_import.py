@@ -13,7 +13,7 @@ from mitosheet.errors import make_invalid_snowflake_credentials_error, make_inva
 
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, SnowflakeCredentials, SnowflakeQueryParams, SnowflakeTableLocationAndWarehouse
 from mitosheet.utils import get_valid_dataframe_name
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials

@@ -12,10 +12,6 @@ from mitosheet.enterprise.license_key import decode_license_to_date
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
 from mitosheet.user.utils import is_enterprise
-from mitosheet._version import package_name
-
-from mitosheet.utils import check_valid_sheet_functions
-
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.

@@ -16,7 +16,7 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import \
 from mitosheet.step_performers.column_steps.rename_column import \
     rename_column_headers_in_state
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 
 
 class BulkOldRenameStepPerformer(StepPerformer):
