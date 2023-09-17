@@ -188,6 +188,7 @@ def test_snowflake_import_invalid_column():
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
+@pandas_post_1_4_only
 def test_snowflake_import_integration_type_test_simple():
     mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
@@ -218,7 +219,6 @@ def test_snowflake_import_integration_type_test_simple():
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
-@pandas_post_1_4_only
 def test_snowflake_import_integration_column_headers():
     mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
