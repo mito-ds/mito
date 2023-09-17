@@ -66,11 +66,13 @@ def get_functions_from_path(path: str) -> List[Callable]:
     # Now, function_list contains the callable objects (functions) defined in custom_functions.py
     return functions
 
+
 def get_non_validated_custom_sheet_functions(path: str) -> List[Callable]:
     functions = get_functions_from_path(path)
 
     # Filter out any functions that are not all uppercase
     return [func for func in functions if func.__name__.isupper()]
+
 
 def validate_and_wrap_sheet_functions(user_defined_sheet_functions: Optional[List[Callable]]) -> List[Callable]:
     check_valid_sheet_functions(user_defined_sheet_functions)

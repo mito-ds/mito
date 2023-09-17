@@ -530,4 +530,3 @@ def is_snowflake_credentials_available() -> bool:
     return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None and \
         PYTEST_SNOWFLAKE_USERNAME != 'None' and PYTEST_SNOWFLAKE_PASSWORD != 'None' and PYTEST_SNOWFLAKE_ACCOUNT != 'None'
 
-

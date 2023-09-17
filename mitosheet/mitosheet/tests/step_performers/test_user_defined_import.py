@@ -234,3 +234,24 @@ def get_df_one():
     delete_all_mito_config_environment_variables()
     os.remove('file_one.py')
 
+
+def test_user_defined_imports_must_return_one_dataframe():
+    def get_df_one():
+        df = pd.DataFrame({'A': [1, 2, 3]})
+        return [df, df]
+
+    mito = create_mito_wrapper(importers=[get_df_one])
+    mito.user_defined_import('get_df_one', {})
+
+    assert len(mito.dfs) == 0
+
+def test_user_defined_imports_must_return_one_dataframe_2():
+    def get_df_one():
+        return 'A'
+
+    mito = create_mito_wrapper(importers=[get_df_one])
+    mito.user_defined_import('get_df_one', {})
+
+    assert len(mito.dfs) == 0
+
+

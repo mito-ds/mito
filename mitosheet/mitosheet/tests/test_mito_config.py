@@ -39,7 +39,6 @@ def delete_env_var_if_exists(env_var: str) -> None:
     Deletes the environment variable only if it exists to avoid errors. Helpful for testing.
     """
     if os.environ.get(env_var) is not None:
-        print(f"Deleting {env_var}")
         del os.environ[env_var]
 
 def delete_all_mito_config_environment_variables() -> None:

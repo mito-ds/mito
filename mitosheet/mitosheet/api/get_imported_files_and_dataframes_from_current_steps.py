@@ -15,6 +15,7 @@ from mitosheet.types import StepsManagerType
 from mitosheet.step_performers.import_steps.simple_import import SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_import import ExcelImportStepPerformer
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.step_performers.import_steps import is_import_step_type
 
 def get_sublist_at_index_from_optional_list(l: Optional[List[Any]], index: int) -> Optional[List[Any]]:
@@ -86,6 +87,15 @@ def get_import_data_with_single_import_list(step_type: str, params: Dict[str, An
             }
         }]
 
+    if step_type == UserDefinedImportStepPerformer.step_type():
+        return [{
+            'step_type': step_type,
+            'params': {
+                'importer': params['importer'],
+                'importer_params': params['importer_params']
+            }
+        }]
+
     return []
 
 
@@ -117,7 +127,11 @@ def get_imported_files_and_dataframes_from_current_steps(params: Dict[str, Any],
             {
                 step_type: 'snowflake_import'
                 params: SnowflakeImportParams
-            }  
+            } |
+            {
+                step_type: 'user_defined_import'
+                params: UserDefinedImportParams
+            }
             )[]
         }
 	]
