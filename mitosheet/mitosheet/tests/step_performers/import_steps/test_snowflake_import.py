@@ -16,7 +16,7 @@ from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 from mitosheet.errors import MitoError
-from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials, pandas_post_1_4_only
+from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials, pandas_post_1_5_only
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
@@ -188,7 +188,7 @@ def test_snowflake_import_invalid_column():
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
-@pandas_post_1_4_only
+@pandas_post_1_5_only
 def test_snowflake_import_integration_type_test_simple():
     mito = create_mito_wrapper()
     get_validate_snowflake_credentials(TEST_SNOWFLAKE_CREDENTIALS, mito.mito_backend.steps_manager)
