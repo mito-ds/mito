@@ -60,6 +60,9 @@ def get_functions_from_path(path: str) -> List[Callable]:
     # Filter out private functions
     functions = [func for func in functions if not func.__name__.startswith('_')]
 
+    # Filter out functions imported from a different modules
+    functions = [func for func in functions if func.__module__ == custom_functions_module.__name__]
+
     # Now, function_list contains the callable objects (functions) defined in custom_functions.py
     return functions
 

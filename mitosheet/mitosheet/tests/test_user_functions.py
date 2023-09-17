@@ -141,15 +141,15 @@ def ADD1(col):
 
 def test_user_defined_function_from_environment_variable_with_imports():
     file_one = """
-def helper_function():
+def HELPER_FUNCTION():
     print(1)
 """
 
     file_two = """
-from file_one import helper_function
+from file_one import HELPER_FUNCTION
 
 def ADD1(col):
-    helper_function()
+    HELPER_FUNCTION()
     return col + 1
 
 def ADD2(col):
@@ -170,6 +170,8 @@ def ADD2(col):
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
     mito.set_formula('=ADD2(A0)', 0, 'B', add_column=True)
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 4, 5]}))
+
+    assert len(json.loads(mito.mito_backend.steps_manager.analysis_data_json)["userDefinedFunctions"]) == 2
 
     # Reset the environmnet
     delete_all_mito_config_environment_variables()
