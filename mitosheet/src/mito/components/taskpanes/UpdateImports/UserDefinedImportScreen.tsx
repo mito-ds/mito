@@ -7,7 +7,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
-import { getDefaultUserDefinedImportParams, get_no_import_message, UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
+import { getDefaultUserDefinedImportParams, getNoImportMessage, UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
 import UserDefinedImportConfig from "../UserDefinedImport/UserDefinedImportConfig";
 
 
@@ -22,8 +22,8 @@ interface UpdateUserDefinedImportTaskpaneProps {
 }
 
 /* 
-    This is the UpdateSnowflakeCredentialsScreen. It is used to re-enter your snowflake
-    credentials after the kernel has restarted.
+    This component lets you select a custom importer as the replacement 
+    for a previously imported file.
 */
 const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpaneProps): JSX.Element => {
 
@@ -57,7 +57,7 @@ const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpanePro
                     width='block'
                     onClick={() => props.edit(params)}
                     disabled={params === undefined}
-                    disabledTooltip={get_no_import_message()}
+                    disabledTooltip={getNoImportMessage()}
                 >
                     Update Import
                 </TextButton>

@@ -85,6 +85,7 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                     preUpdateInvalidImportMessage={props.importDataAndErrors?.invalidImportMessages[index]}
                     postUpdateInvalidImportMessage={props.postUpdateInvalidImportMessages[index]}
                     userProfile={props.userProfile}
+                    analysisData={props.analysisData}
                 />
             )
         })

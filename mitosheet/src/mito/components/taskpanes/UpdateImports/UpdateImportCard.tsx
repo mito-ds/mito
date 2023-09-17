@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { UserProfile } from '../../../types';
+import { AnalysisData, UserProfile } from '../../../types';
 import Dropdown from '../../elements/Dropdown';
 import DropdownItem from '../../elements/DropdownItem';
 import CSVFileIcon from '../../icons/CSVFileIcon';
@@ -152,6 +152,7 @@ const UpdateImportCard = (props: {
     postUpdateInvalidImportMessage: string | undefined;
 
     userProfile: UserProfile;
+    analysisData: AnalysisData;
 }): JSX.Element => {
 
     const displayDropdown = props.displayedImportCardDropdown === props.dataframeCreationIndex;
@@ -211,7 +212,11 @@ const UpdateImportCard = (props: {
                     });
                 }}
             />,
-            <DropdownItem
+            
+        ])
+
+        if (props.analysisData.userDefinedImporters.length > 0) {
+            dropdownItems.push(<DropdownItem
                 key='Replace with custom import'
                 title='Replace with custom import'
                 onClick={() => {
@@ -223,8 +228,8 @@ const UpdateImportCard = (props: {
                 }}
                 disabled={!props.userProfile.isEnterprise}
                 subtext={!props.userProfile.isEnterprise ? 'Requires Mito Enterprise' : undefined}
-            />
-        ])
+            />)
+        }
 
         return dropdownItems
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import { get_no_import_message, UserDefinedImportParams } from "./UserDefinedImportTaskpane"
+import { getNoImportMessage, UserDefinedImportParams } from "./UserDefinedImportTaskpane"
 import Input from "../../elements/Input";
 import Toggle from "../../elements/Toggle";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
@@ -53,7 +53,7 @@ const UserDefinedImportImportConfig = (props: {
         <>
             {params === undefined &&
                 <p>
-                    {get_no_import_message()}
+                    {getNoImportMessage()}
                 </p>
             }
             {params !== undefined &&

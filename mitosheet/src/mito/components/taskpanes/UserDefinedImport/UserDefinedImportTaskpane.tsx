@@ -41,14 +41,14 @@ export const getDefaultUserDefinedImportParams = (
 }
 
 
-export const get_no_import_message = (): string => {
-    let no_import_message = 'You have not defined any importers. An importer is just a function that returns a pandas dataframe.';
+export const getNoImportMessage = (): string => {
+    let noImportMessage = 'You have not defined any importers. An importer is just a function that returns a pandas dataframe.';
     if (isInStreamlit()) {
-        no_import_message += ' You can define importers in the mito_component call with the `importers` parameter.';
+        noImportMessage += ' You can define importers in the mito_component call with the `importers` parameter.';
     } else {
-        no_import_message += ' You can define importers in the mitosheet.sheet call with the `importers` parameter.';
+        noImportMessage += ' You can define importers in the mitosheet.sheet call with the `importers` parameter.';
     }
-    return no_import_message
+    return noImportMessage
 }
 
 
@@ -98,7 +98,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                         }
                     }}
                     disabled={params === undefined}
-                    disabledTooltip={get_no_import_message()}
+                    disabledTooltip={getNoImportMessage()}
                 >
                     Import Data
                 </TextButton>

@@ -201,6 +201,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 <UpdateImportsPostReplayTaskpane
                     mitoAPI={props.mitoAPI}
                     sheetDataArray={props.sheetDataArray}
+                    analysisData={props.analysisData}
                     userProfile={props.userProfile}
                     setUIState={props.setUIState}
 
