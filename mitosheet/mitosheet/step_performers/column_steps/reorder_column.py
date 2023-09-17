@@ -12,7 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 

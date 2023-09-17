@@ -17,7 +17,7 @@ from mitosheet.code_chunks.user_defined_import_code_chunk import \
 from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 import inspect
 
 from mitosheet.types import UserDefinedImporterParamType

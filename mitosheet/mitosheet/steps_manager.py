@@ -37,8 +37,8 @@ from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
-from mitosheet.utils import (NpEncoder, check_valid_sheet_functions, dfs_to_array_for_json, get_new_id,
-                             is_default_df_names)
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.step_performers.utils.user_defined_functionality import validate_and_wrap_sheet_functions
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
@@ -229,12 +229,8 @@ class StepsManager:
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data       
 
-
         # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
-        # before passing them to the step to be used
-        check_valid_sheet_functions(user_defined_functions)
-        from mitosheet.public.v3.errors import handle_sheet_function_errors
-        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
+        user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 
 
         # We also do some checks for the user_defined_importers
         if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:

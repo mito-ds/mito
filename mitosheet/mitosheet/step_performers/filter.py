@@ -14,7 +14,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType
 from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,

@@ -23,7 +23,7 @@ from mitosheet.public.v2 import get_table_range
 from mitosheet.public.v2.excel_utils import convert_csv_file_to_xlsx_file
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ExcelRangeImport
 from mitosheet.utils import get_valid_dataframe_name
 

@@ -10,7 +10,7 @@ from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_valid_dataframe_name
 
 

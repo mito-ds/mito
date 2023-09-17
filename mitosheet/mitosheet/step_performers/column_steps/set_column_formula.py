@@ -22,7 +22,7 @@ from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.user_defined_import import get_user_defined_importer_param_type
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType
 
 
