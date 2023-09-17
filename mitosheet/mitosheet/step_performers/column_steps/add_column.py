@@ -12,7 +12,7 @@ from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk im
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 
 
 class AddColumnStepPerformer(StepPerformer):

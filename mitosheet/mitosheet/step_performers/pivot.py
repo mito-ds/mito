@@ -17,7 +17,7 @@ from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.filter import (combine_filters,
                                               get_applied_filter)
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,

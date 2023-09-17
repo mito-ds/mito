@@ -19,7 +19,7 @@ from mitosheet.is_type_utils import (is_int_dtype, is_none_type,
                                                    is_string_dtype)
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
 

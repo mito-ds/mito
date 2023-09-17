@@ -12,7 +12,7 @@ from mitosheet.column_headers import get_column_header_id
 
 from mitosheet.state import DATAFRAME_SOURCE_DUPLICATED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_first_unused_dataframe_name
 
 

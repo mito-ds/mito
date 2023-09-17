@@ -12,7 +12,7 @@ from mitosheet.code_chunks.melt_code_chunk import MeltCodeChunk
 
 from mitosheet.state import DATAFRAME_SOURCE_MELTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 from mitosheet.utils import get_first_unused_dataframe_name
 

@@ -18,7 +18,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph_code,
 )
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import GraphID
 
 
