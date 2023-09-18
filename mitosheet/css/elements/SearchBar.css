@@ -1,3 +1,13 @@
+.mito-search-bar {
+    position: absolute;
+    top: 72px;
+    right: 0;
+    background-color: var(--mito-background-highlight);
+    box-shadow: 1px 4px 6px var(--mito-light-gray);
+    padding: 5px;
+    display: flex;
+}
+
 .mito-close-search-button {
     border: none;
     background: none;
@@ -8,14 +18,4 @@
 
 .mito-close-search-button:hover {
     background-color: var(--mito-highlight-light);
-}
-
-.mito-search-bar {
-    position: absolute;
-    top: 72px;
-    right: 0;
-    background-color: var(--mito-background-highlight);
-    box-shadow: 1px 4px 6px var(--mito-light-gray);
-    padding: 5px;
-    display: flex;
 }
