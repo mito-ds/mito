@@ -83,7 +83,7 @@ export const getTypeIdentifier = (columnDtype: string): string => {
  * @param searchValue - The search value that you want to match
  * @returns Boolean indicating if the value matches the search value
  */
-export const checkMatchesSearch = (value: any, searchValue?: string) => {
+export const checkMatchesSearch = (value: string, searchValue?: string) => {
     if (searchValue === undefined || searchValue === '' || value === undefined) return false;
     // Trailing spaces are ignored
     searchValue = searchValue?.toLocaleLowerCase().trim();
