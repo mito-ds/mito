@@ -88,12 +88,6 @@ export const checkMatchesSearch = (value: any, searchValue?: string) => {
     // Trailing spaces are ignored
     searchValue = searchValue?.toLocaleLowerCase().trim();
 
-    // If the search value is a number, we convert it to a number and then back to a string,
-    // so that number formatting is removed. 
-    if (!isNaN(Number(searchValue))) {
-        searchValue = Number(searchValue).toString().toLowerCase();
-    }
-
     // For now, this is case insensitive, so we convert both value and search value to lowercase.
     return value.toLowerCase().includes(searchValue)
 }
