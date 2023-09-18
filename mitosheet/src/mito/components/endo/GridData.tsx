@@ -9,7 +9,7 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
-
+import { checkMatchesSearch } from './utils';
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
@@ -71,6 +71,7 @@ const GridData = (props: {
 
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
+                            const matchesSearch = checkMatchesSearch(cellData.toString(), props.uiState.currOpenSearch.searchValue);
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
@@ -93,7 +94,7 @@ const GridData = (props: {
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, props.uiState.highlightedColumnIndex),
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex),
                                         ...(conditionalFormat || {})
                                     }}
                                     tabIndex={-1}

@@ -3,7 +3,7 @@ import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
-import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
+import { checkMatchesSearch, getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
@@ -82,7 +82,8 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, props.uiState.highlightedColumnIndex);
+    const matchesSearch = checkMatchesSearch(finalColumnHeader + '', props.uiState.currOpenSearch.searchValue);
+    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
         props.setEditorState({
@@ -171,7 +172,7 @@ const ColumnHeader = (props: {
                 'endo-column-header-text',
                 {
                     'endo-column-header-container-selected': selected,
-                    'recon': isColumnCreated || isColumnRenamed
+                    'recon': isColumnCreated || isColumnRenamed,
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}

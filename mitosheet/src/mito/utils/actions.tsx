@@ -861,7 +861,7 @@ export const createActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-    
+
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
     
@@ -1093,6 +1093,32 @@ export const createActions = (
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
+        },
+        [ActionEnum.OpenSearch]: {
+            type: ActionEnum.OpenSearch,
+            shortTitle: 'Search',
+            longTitle: 'Search',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (uiState.currOpenSearch.isOpen) {
+                    mitoContainerRef.current?.querySelector<HTMLInputElement>('#mito-search-bar-input')?.focus();
+                } else {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenSearch: { isOpen: true },
+                        }
+                    })
+                }
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['search', 'find', 'filter', 'lookup'],
+            tooltip: "Search for a value in your data.",
+            displayKeyboardShortcuts: {
+                mac: 'Cmd+F',
+                windows: 'Ctrl+F'
+            }
         },
         [ActionEnum.Undo]: {
             type: ActionEnum.Undo,

@@ -1,0 +1,25 @@
+.mito-search-bar {
+    position: absolute;
+    top: 72px;
+    right: 0;
+    background-color: var(--mito-background-highlight);
+    box-shadow: 0px 3px 11px -4px;
+    padding: 5px;
+    display: flex;
+}
+
+.mito-close-search-button {
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+    height: fit-content;
+    padding: 4px;
+    align-self: center;
+    justify-content: center;
+}
+
+.mito-close-search-button:hover {
+    background-color: var(--mito-highlight-light);
+}

@@ -893,8 +893,14 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
+    currOpenSearch: SearchInfo;
     dataRecon: AIRecon | undefined,
     taskpaneWidth: number
+}
+
+export interface SearchInfo {
+    isOpen: boolean;
+    searchValue?: string;
 }
 
 /**
@@ -942,6 +948,7 @@ export enum ActionEnum {
     Import_Files = 'import files',
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
+    OpenSearch = 'open search',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',

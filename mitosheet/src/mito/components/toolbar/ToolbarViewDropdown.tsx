@@ -36,6 +36,7 @@ const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
                 width='medium'
             >
                 {makeToolbarDropdownItem(props.actions[ActionEnum.Fullscreen], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions[ActionEnum.OpenSearch], props.userProfile)}
             </Dropdown>
         </>
     );
