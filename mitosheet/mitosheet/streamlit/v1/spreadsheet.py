@@ -62,8 +62,8 @@ def do_dynamic_imports(code: str) -> None:
     for import_line in import_lines:
         if import_line.startswith("from"):
             match = re.match(r"from (.+) import (.+)", import_line)
-            module_name = match.group(1)
-            imported_objects = match.group(2).split(",")
+            module_name = match.group(1) #type: ignore
+            imported_objects = match.group(2).split(",")  #type: ignore
             
             module = importlib.import_module(module_name)
             for obj in imported_objects:
