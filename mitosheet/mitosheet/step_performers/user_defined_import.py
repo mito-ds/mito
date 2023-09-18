@@ -17,7 +17,7 @@ from mitosheet.code_chunks.user_defined_import_code_chunk import \
 from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 import inspect
 
 from mitosheet.types import UserDefinedImporterParamType
@@ -151,10 +151,8 @@ class UserDefinedImportStepPerformer(StepPerformer):
 
         if isinstance(result, pd.DataFrame):
             new_dfs = [result]
-        elif isinstance(result, list):
-            new_dfs = result
         else:
-            raise Exception(f"User defined importer {importer} must return a pandas dataframe or a list of pandas dataframes.")
+            raise Exception(f"User defined importer {importer} must return a single pandas dataframe.")
 
         for df in new_dfs:
             post_state.add_df_to_state(

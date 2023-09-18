@@ -2,7 +2,9 @@
 import json
 import pytest
 import pandas as pd
+from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_VERSION
 from mitosheet.saved_analyses.save_utils import write_analysis
+from mitosheet.tests.test_mito_config import delete_all_mito_config_environment_variables
 
 from mitosheet.tests.test_utils import create_mito_wrapper
 
@@ -112,3 +114,111 @@ def test_user_defined_function_function_documentation_object():
     documentation = json.loads(mito.analysis_data_json)['userDefinedFunctions']
 
     assert documentation == [{'function': 'ADD1', 'description': 'Returns the absolute value of the passed number or series.', 'search_terms': ['abs', 'absolute value'], 'examples': ['ABS(-1.3)', 'ABS(A)'], 'syntax': 'ABS(value)', 'syntax_elements': [{'element': 'value', 'description': 'The value or series to take the absolute value of.'}]}]
+
+def test_user_defined_function_from_environment_variable():
+    file_one = """
+def ADD1(col):
+    return col + 1
+"""
+
+    # Write these files to the folder
+    with open('file_one.py', 'w') as f:
+        f.write(file_one)
+
+    # Set the environment variable
+    import os
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] = "./file_one.py"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.set_formula('=ADD1(A0)', 0, 'B', add_column=True)
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
+
+    # Reset the environmnet
+    delete_all_mito_config_environment_variables()
+    os.remove('file_one.py')
+
+
+def test_user_defined_function_from_environment_variable_with_imports():
+    file_one = """
+def HELPER_FUNCTION():
+    print(1)
+"""
+
+    file_two = """
+from file_one import HELPER_FUNCTION
+
+def ADD1(col):
+    HELPER_FUNCTION()
+    return col + 1
+
+def ADD2(col):
+    return ADD1(col) + 1
+"""
+
+    # Write these files to the folder
+    with open('file_one.py', 'w') as f:
+        f.write(file_one)
+    with open('file_two.py', 'w') as f:
+        f.write(file_two)
+
+    # Set the environment variable
+    import os
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] = "./file_two.py"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.set_formula('=ADD2(A0)', 0, 'B', add_column=True)
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [3, 4, 5]}))
+
+    assert len(json.loads(mito.mito_backend.steps_manager.analysis_data_json)["userDefinedFunctions"]) == 2
+
+    # Reset the environmnet
+    delete_all_mito_config_environment_variables()
+    os.remove('file_one.py')
+    os.remove('file_two.py')
+
+def test_user_defined_function_from_environment_variable_and_mitosheet_call():
+    file_one = """
+def ADD1(col):
+    return col + 1
+"""
+
+    # Write these files to the folder
+    with open('file_one.py', 'w') as f:
+        f.write(file_one)
+
+    # Set the environment variable
+    import os
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] = "./file_one.py"
+
+    def ADD2(col):
+        """
+        {
+            "function": "ADD1",
+            "description": "Returns the absolute value of the passed number or series.",
+            "search_terms": ["abs", "absolute value"],
+            "examples": [
+                "ABS(-1.3)",
+                "ABS(A)"
+            ],
+            "syntax": "ABS(value)",
+            "syntax_elements": [{
+                    "element": "value",
+                    "description": "The value or series to take the absolute value of."
+                }
+            ]
+        }
+        """
+        return col + 2
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]}), sheet_functions=[ADD2])
+    mito.set_formula('=ADD1(A0)', 0, 'A')
+    mito.set_formula('=ADD2(B0)', 0, 'B')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [2, 3, 4], 'B': [3, 4, 5]}))
+
+    # Reset the environmnet
+    delete_all_mito_config_environment_variables()
+    os.remove('file_one.py')
+

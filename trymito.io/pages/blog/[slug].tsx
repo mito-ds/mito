@@ -9,6 +9,7 @@ import Header from '../../components/Header/Header';
 import pageStyles from '../../styles/Page.module.css';
 import postStyles from '../../styles/[slug].module.css';
 import { getPosts, getSinglePost } from '../../utils/posts';
+import { SLUG_REDIRECTS } from '../blog';
 
 declare global {
   interface Window { Prism: any; }
@@ -94,8 +95,15 @@ export async function getStaticPaths() {
   }
 
   // Get the paths we want to create based on posts
-  const paths = posts.map((post) => ({
-    params: { slug: post.slug },
+  const paths = posts.map((post) => {
+    return {
+      params: { slug: post.slug },
+    }
+  }).concat(Object.keys(SLUG_REDIRECTS).map(key => {
+    // Support all the new slug paths as well
+    return {
+      params: { slug: SLUG_REDIRECTS[key] },
+    }
   }))
 
   // { fallback: false } means posts not found should 404.
@@ -108,7 +116,11 @@ export async function getStaticPaths() {
 export const getStaticProps: GetStaticProps = async (context) => {
     const slug = context.params?.slug;
 
-    const post = slug && await getSinglePost(slug as string)
+    // If the slug is in values of SLUG_REDIRECTS, get it's key for the slug
+    // Otherwise, use the slug
+    const slugToQuery = Object.keys(SLUG_REDIRECTS).find(key => SLUG_REDIRECTS[key] === slug) || slug;
+
+    const post = slug && await getSinglePost(slugToQuery as string)
 
     if (!post) {
         return {

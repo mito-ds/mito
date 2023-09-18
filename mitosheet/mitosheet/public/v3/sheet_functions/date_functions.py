@@ -16,7 +16,7 @@ import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import IntFunctionReturnType, DatetimeRestrictedInputType, DatetimeFunctionReturnType
+from mitosheet.public.v3.types.sheet_function_types import IntFunctionReturnType, DatetimeRestrictedInputType, DatetimeFunctionReturnType, StringFunctionReturnType
 
 
 # Inspired by: https://stackoverflow.com/questions/69345845/why-does-dateoffset-rollback-not-work-the-way-i-expect-it-to-with-days-hours
@@ -217,6 +217,32 @@ def MONTH(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         return arg.month
     
     return arg.dt.month
+
+
+@cast_values_in_arg_to_type('arg', 'datetime')
+@handle_sheet_function_errors
+def MONTHNAME(arg: DatetimeRestrictedInputType) -> StringFunctionReturnType:
+    """
+    {
+        "function": "MONTHNAME",
+        "description": "Returns the month that a specific date falls in, as Jan, Feb, Mar, etc.",
+        "search_terms": ["month", "monthname", "date"],
+        "examples": [
+            "MONTHNAME(date_column)",
+            "MONTHNAME('2012-12-22')"
+        ],
+        "syntax": "MONTHNAME(date)",
+        "syntax_elements": [{
+                "element": "date",
+                "description": "The date or date series to get the month of."
+            }
+        ]
+    }
+    """
+    if isinstance(arg, datetime) or isinstance(arg, pd.Timestamp):
+        return arg.strftime('%b')
+
+    return arg.dt.strftime('%b')
 
 
 @cast_values_in_arg_to_type('arg', 'datetime')
@@ -568,6 +594,7 @@ DATE_FUNCTIONS = {
     'ENDOFMONTH': ENDOFMONTH,
     'HOUR': HOUR,
     'MONTH': MONTH,
+    'MONTHNAME': MONTHNAME,
     'MINUTE': MINUTE,
     'QUARTER': QUARTER,
     'SECOND': SECOND,

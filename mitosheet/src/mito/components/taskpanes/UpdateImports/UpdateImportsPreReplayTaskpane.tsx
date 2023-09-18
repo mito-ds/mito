@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { AnalysisData, PopupLocation, PopupType, UIState } from "../../../types";
+import { AnalysisData, PopupLocation, PopupType, UIState, UserProfile } from "../../../types";
 import TextButton from "../../elements/TextButton";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
@@ -17,6 +17,7 @@ import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs 
 interface UpdateImportPreReplayTaskpaneProps {
     mitoAPI: MitoAPI;
     analysisData: AnalysisData;
+    userProfile: UserProfile;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     updatedStepImportData: StepImportData[] | undefined;
@@ -83,6 +84,8 @@ const UpdateImportsPreReplayTaskpane = (props: UpdateImportPreReplayTaskpaneProp
                     setReplacingDataframeState={props.setReplacingDataframeState}
                     preUpdateInvalidImportMessage={props.importDataAndErrors?.invalidImportMessages[index]}
                     postUpdateInvalidImportMessage={props.postUpdateInvalidImportMessages[index]}
+                    userProfile={props.userProfile}
+                    analysisData={props.analysisData}
                 />
             )
         })
