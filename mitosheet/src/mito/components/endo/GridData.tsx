@@ -9,6 +9,7 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
+import { checkMatchesSearch } from './utils';
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
@@ -70,11 +71,7 @@ const GridData = (props: {
 
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
-                            let searchValue = props.uiState.currOpenSearch.searchValue?.toLocaleLowerCase().trim();
-                            if (searchValue !== undefined && searchValue !== '' && !isNaN(Number(searchValue))) {
-                                searchValue = Number(searchValue).toString().toLowerCase();
-                            }
-                            const matchesSearch = !!searchValue && cellData.toString().toLowerCase().includes(searchValue)
+                            const matchesSearch = checkMatchesSearch(cellData.toString(), props.uiState.currOpenSearch.searchValue);
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,

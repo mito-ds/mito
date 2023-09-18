@@ -77,6 +77,27 @@ export const getTypeIdentifier = (columnDtype: string): string => {
     return typeText;
 }
 
+/**
+ * A helper function to check if a cell or column header matches a search value
+ * @param value - The value that you want to check against. This can be a cell value or a column header
+ * @param searchValue - The search value that you want to match
+ * @returns Boolean indicating if the value matches the search value
+ */
+export const checkMatchesSearch = (value: any, searchValue?: string) => {
+    if (searchValue === undefined || searchValue === '' || value === undefined) return false;
+    // Trailing spaces are ignored
+    searchValue = searchValue?.toLocaleLowerCase().trim();
+
+    // If the search value is a number, we convert it to a number and then back to a string,
+    // so that number formatting is removed. 
+    if (!isNaN(Number(searchValue))) {
+        searchValue = Number(searchValue).toString().toLowerCase();
+    }
+
+    // For now, this is case insensitive, so we convert both value and search value to lowercase.
+    return value.toLowerCase().includes(searchValue)
+}
+
 
 /**
  * A helper function to get data describing a cell from
