@@ -77,7 +77,7 @@ import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
-import Toolbar from './components/toolbar/Toolbar';
+import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';

@@ -10,6 +10,7 @@ import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
+import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -331,7 +332,7 @@ function activateMitosheetExtension(
             const mitoContainer = getParentMitoContainer();
 
             // Get the search input, and click + focus on it
-            const searchButton = mitoContainer?.querySelector('#mito-open-search') as HTMLInputElement | null;
+            const searchButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_OPEN_SEARCH_ID}`) as HTMLInputElement | null;
 
             // Focusing on the searchInput so that we begin typing there
             searchButton?.click();
@@ -356,7 +357,7 @@ function activateMitosheetExtension(
             }
 
             // Get the undo button, and click it
-            const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
+            const undoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_UNDO_ID}`) as HTMLDivElement | null;
             undoButton?.click()
         }
     });
@@ -379,7 +380,7 @@ function activateMitosheetExtension(
             }
 
             // Get the undo button, and click it
-            const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
+            const redoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_REDO_ID}`) as HTMLDivElement | null;
             redoButton?.click()
         }
     });

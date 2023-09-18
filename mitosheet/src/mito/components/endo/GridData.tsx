@@ -81,7 +81,6 @@ const GridData = (props: {
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
                                 'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
                                 'right-align-number-series': isNumberDtype(columnDtype),
-                                'mito-search-match': matchesSearch,
                                 'recon created-recon-background-color': isColumnCreated && rowIndex % 2 !== 0,
                                 'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,
                                 'recon modified-recon-background-color': isColumnModified && rowIndex % 2 !== 0,

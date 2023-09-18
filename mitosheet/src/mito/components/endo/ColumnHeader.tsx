@@ -173,7 +173,6 @@ const ColumnHeader = (props: {
                 {
                     'endo-column-header-container-selected': selected,
                     'recon': isColumnCreated || isColumnRenamed,
-                    'mito-search-match': matchesSearch,
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}

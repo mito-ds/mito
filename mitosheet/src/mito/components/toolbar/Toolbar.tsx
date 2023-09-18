@@ -26,7 +26,11 @@ import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
 import ToolbarCodeDropdown from './ToolbarCodeDropdown';
 
-const Toolbar = (
+export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
+export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
+export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
+
+export const Toolbar = (
     props: {
         mitoAPI: MitoAPI
         currStepIdx: number;
@@ -180,13 +184,13 @@ const Toolbar = (
             <div className='mito-toolbar-bottom'>
                 <div className='mito-toolbar-bottom-left-half'>
                     <ToolbarButton
-                        id='mito-undo-button' // NOTE: this is used to click the undo button in plugin.tsx
+                        id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.UNDO}
                         action={props.actions[ActionEnum.Undo]}
                         disabledTooltip={props.actions[ActionEnum.Undo].isDisabled()}
                     />
                     <ToolbarButton
-                        id='mito-redo-button' // NOTE: this is used to click the redo button in plugin.tsx
+                        id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.REDO}
                         action={props.actions[ActionEnum.Redo]}
                         disabledTooltip={props.actions[ActionEnum.Redo].isDisabled()}
@@ -409,7 +413,7 @@ const Toolbar = (
                     <div className="toolbar-vertical-line"></div>
 
                     <ToolbarButton
-                        id='mito-open-search' // NOTE: this is used to click the open search button in plugin.tsx
+                        id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
                         action={props.actions[ActionEnum.OpenSearch]}
                     />
@@ -422,5 +426,3 @@ const Toolbar = (
         </div>
     );
 };
-
-export default Toolbar;
