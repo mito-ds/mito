@@ -35,7 +35,7 @@ class Spreadsheet(Component):
     _children_props = []
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
-    _type = 'MitoDashWrapper'
+    _type = 'Spreadsheet'
     _prop_names = ['id', 'all_json']
     _valid_wildcard_attributes = []
     available_properties = ['id', 'all_json']
@@ -159,7 +159,7 @@ def spreadsheet_callback(
     if input_id is None:
         raise ValueError('input_id must be provided')
     
-    # Find the MitoDashWrapper component with the given id - searching all objects in this Python runtime
+    # Find the Spreadsheet component with the given id - searching all objects in this Python runtime
     callback_component = None
     components = [
         obj for obj in gc.get_objects()
@@ -170,9 +170,9 @@ def spreadsheet_callback(
         callback_component = components[0]
 
     if callback_component is None:
-        raise ValueError(f'Could not find MitoDashWrapper with id {input_id}')
+        raise ValueError(f'Could not find Spreadsheet with id {input_id}')
     
-    # Create a callback that will send the result to the MitoDashWrapper component
+    # Create a callback that will send the result to the Spreadsheet component
     # with the given id
     def callback_decorator(func):
         @callback(
