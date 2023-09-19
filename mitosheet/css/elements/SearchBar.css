@@ -11,6 +11,9 @@
 
 .mito-search-bar span {
     margin-left: 5px;
+    min-width: 9ch;
+    justify-content: flex-end;
+    display: flex;
 }
 
 .mito-close-search-button {

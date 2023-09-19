@@ -8,6 +8,8 @@ import '../../../css/elements/SearchBar.css';
 import { classNames } from '../utils/classNames';
 import Input from './elements/Input';
 import { MitoAPI } from '../api/api';
+import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
+import LoadingDots from './elements/LoadingDots';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -23,7 +25,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     /**
      * Update the total number of matches when the search value changes
      */
-    React.useEffect(() => {
+    useDebouncedEffect(() => {
         // If the search value is empty, set the total matches to 0
         if (searchValue === undefined || searchValue === '') {
             setTotalMatches(0);
@@ -38,7 +40,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 setTotalMatches(Number(total));
             }
         });
-    }, [searchValue, uiState.selectedSheetIndex]);
+    }, [searchValue, uiState.selectedSheetIndex], 500);
 
     return (<div className='mito-search-bar'>
         <Input
@@ -52,12 +54,17 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                         searchValue: e.target.value
                     }
                 })
+                if (e.target.value === '') {
+                    setTotalMatches(0)
+                } else {
+                    setTotalMatches(undefined);
+                }
             }}
             className={classNames('mito-input')}
             placeholder='Find...'
             autoFocus
         />
-        <span>{totalMatches ?? '...'} match{totalMatches === 1 ? '' : 'es'}</span>
+        <span>{totalMatches ?? <LoadingDots />} match{totalMatches === 1 ? '' : 'es'}</span>
         <button
             className='mito-close-search-button'
             onClick={() => {
