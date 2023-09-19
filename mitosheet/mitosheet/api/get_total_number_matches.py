@@ -16,7 +16,7 @@ def get_total_number_matches(params: Dict[str, Any], steps_manager: StepsManager
     search_value = params['search_value']
     df = steps_manager.dfs[sheet_index]
 
-    # First, count the matches in the dataframe:
+    # First, generate a count for each value in the dataframe:
     unique_value_counts = df.value_counts()
 
     # Then, filter for the search value:
