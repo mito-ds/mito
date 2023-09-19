@@ -1102,7 +1102,11 @@ export const createActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
                 if (uiState.currOpenSearch.isOpen) {
-                    mitoContainerRef.current?.querySelector<HTMLInputElement>('#mito-search-bar-input')?.focus();
+                    const searchInput = mitoContainerRef.current?.querySelector<HTMLInputElement>('#mito-search-bar-input');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
                 } else {
                     setUIState(prevUIState => {
                         return {
