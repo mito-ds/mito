@@ -3,6 +3,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+import re
 from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 
@@ -19,7 +20,7 @@ def get_total_number_matches(params: Dict[str, Any], steps_manager: StepsManager
     unique_value_counts = df.value_counts()
 
     # Then, filter for the search value:
-    matches = unique_value_counts.filter(like=search_value, axis=0)
+    matches = unique_value_counts.filter(regex=re.compile(search_value, re.IGNORECASE), axis=0)
 
     # Then, sum the matches:
     total_number_matches = matches.sum()

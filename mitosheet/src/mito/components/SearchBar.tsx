@@ -7,22 +7,48 @@ import XIcon from './icons/XIcon';
 import '../../../css/elements/SearchBar.css';
 import { classNames } from '../utils/classNames';
 import Input from './elements/Input';
+import { MitoAPI } from '../api/api';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
+    mitoAPI: MitoAPI;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
+    const { setUIState, uiState, mitoAPI } = props;
+    const [totalMatches, setTotalMatches] = React.useState<number | null>(null);
+    const searchValue = uiState.currOpenSearch.searchValue;
+
+    /**
+     * Update the total number of matches when the search value changes
+     */
+    React.useEffect(() => {
+        // If the search value is empty, set the total matches to 0
+        if (searchValue === undefined || searchValue === '') {
+            setTotalMatches(0);
+            return;
+        }
+        mitoAPI.getTotalNumberMatches(uiState.selectedSheetIndex, searchValue ?? '').then((response) => {
+            if ('error' in response) {
+                return;
+            }
+            const total = response.result;
+            if (total !== null && !isNaN(Number(total))) {
+                setTotalMatches(Number(total));
+            }
+        });
+    }, [searchValue, uiState.selectedSheetIndex]);
+
     return (<div className='mito-search-bar'>
         <Input
             id='mito-search-bar-input'
-            value={props.uiState.currOpenSearch.searchValue ?? ''}
+            value={searchValue ?? ''}
             onChange={(e) => {
-                props.setUIState({
-                    ...props.uiState,
+                setUIState({
+                    ...uiState,
                     currOpenSearch: {
-                        ...props.uiState.currOpenSearch,
+                        ...uiState.currOpenSearch,
                         searchValue: e.target.value
                     }
                 })
@@ -31,11 +57,12 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             placeholder='Find...'
             autoFocus
         />
+        <span>{totalMatches ?? '...'} matches</span>
         <button
             className='mito-close-search-button'
             onClick={() => {
-                props.setUIState({
-                    ...props.uiState,
+                setUIState({
+                    ...uiState,
                     currOpenSearch: { isOpen: false }
                 })
             }}

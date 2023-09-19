@@ -39,6 +39,12 @@ NUMBER_MATCHES_TESTS = [
         'ef',
         1
     ),
+    (
+        ['abc', 'def', 'fgh', 'ABC'],
+        0, 
+        'abc',
+        2
+    ),
 
     # Tests for numbers
     (

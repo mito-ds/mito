@@ -6,6 +6,11 @@
     box-shadow: 0px 3px 11px -4px;
     padding: 5px;
     display: flex;
+    align-items: center;
+}
+
+.mito-search-bar span {
+    margin-left: 5px;
 }
 
 .mito-close-search-button {

@@ -1077,6 +1077,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         <SearchBar
                             uiState={uiState}
                             setUIState={setUIState}
+                            mitoAPI={mitoAPI}
                         />
                     }
                 </div>
