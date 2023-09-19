@@ -12,6 +12,7 @@ import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data
 from mitosheet.api.get_total_number_matches import get_total_number_matches
+from mitosheet.tests.decorators import pandas_post_1_only
 
 NUMBER_MATCHES_TESTS = [
     (
@@ -114,6 +115,7 @@ NUMBER_MATCHES_TESTS = [
     ),
 ]
 
+@pandas_post_1_only
 @pytest.mark.parametrize("data,sheet_index,search_value,expected", NUMBER_MATCHES_TESTS)
 # This tests exporting as excel without formatting
 def test_get_number_matches(data, sheet_index, search_value, expected):
