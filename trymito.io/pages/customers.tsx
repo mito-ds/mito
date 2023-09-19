@@ -1,33 +1,18 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
-import bifoldStyles from '../styles/Bifold.module.css';
 import titleStyles from '../styles/Title.module.css';
-import textImageSplitStyles from '../styles/TextImageSplit.module.css';
-import lowCodeSQLStyles from '../styles/LowCodeSQL.module.css';
-import trifoldStyles from '../styles/Trifold.module.css';
-import homeStyles from '../styles/Home.module.css';
+
 import customerStyles from '../styles/Customers.module.css';
 
 
 // Import Icons & Background Grid
 import { classNames } from '../utils/classNames';
-import ImageTextCard from '../components/ImageTextCard/ImageTextCard';
-import AuthenticateIcon from '../public/low-code-sql/AuthenticateIcon.svg';
-import EditIcon from '../public/low-code-sql/EditIcon.svg';
-import EmailIcon from '../public/low-code-sql/EmailIcon.svg';
-import ExploreIcon from '../public/low-code-sql/ExploreIcon.svg';
-import FilterIcon from '../public/low-code-sql/FilterIcon.svg';
-import ScheduleIcon from '../public/low-code-sql/ScheduleIcon.svg';
-import SelectIcon from '../public/low-code-sql/SelectIcon.svg';
-import SpreadsheetIcon from '../public/low-code-sql/SpreadsheetIcon.svg';
-import WideGraphIcon from '../public/low-code-sql/WideGraphIcon.svg';
-import CTAButtons from '../components/CTAButtons/CTAButtons';
 import ContactCTACard from '../components/CTACards/ContactCTACard';
+import CustomerCard from '../components/CustomerCard/CustomerCard';
 
 const Customers: NextPage = () => {
 
@@ -47,11 +32,58 @@ const Customers: NextPage = () => {
 
             <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Find our why thousands of analysts at the world's largest companies are using Mito
+                    Find out why thousands of analysts at the world's largest companies are using Mito
                 </h1>
             </section>
+            <section>
+              <div className={customerStyles.customer_cards_container}>
+                <CustomerCard
+                  customerName={"Bulge Bracket Bank"}
+                  imageSrc={"/customers/white-financial-services.png"}
+                  width={68}
+                  quoteText={"I used Mito to automate a critical monthly reporting process that is sent to the C-suite."}
+                  readMoreLink={"https://www.trymito.io/blog/wealth-management-analyst-automates-critical-monthly-deliverable"}
+                />
+                <CustomerCard
+                  customerName={"Major PE Firm"}
+                  imageSrc={"/customers/pe_logo.png"}
+                  width={77}
+                  quoteText={"The Mito report process will end up saving my team and I countless hours during the year."}
+                  readMoreLink={"http://localhost:3000/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"}
+                />
+                <CustomerCard
+                  customerName={"Enigma"}
+                  imageSrc={"/customers/enigma.png"}
+                  width={134}
+                  quoteText={"Instead of fighting with Excel... I'm using Mito to generate Python scripts myself savings four hours/week."}
+                  readMoreLink={"https://www.trymito.io/blog/enigma-case-study"}
+                />
+                <CustomerCard
+                  customerName={"Cytiva"}
+                  imageSrc={"/customers/cytiva.png"}
+                  width={60}
+                  quoteText={"Three years later, I can’t imagine tackling my day-to-day work without Mito as one of my tools."}
+                />
+                <CustomerCard
+                  customerName={"Bulge Bracket Bank"}
+                  imageSrc={"/customers/white-financial-services.png"}
+                  width={68}
+                  quoteText={"We’ve trained thousands of analysts to use Mito. It’s a major part of our Python training."}
+                />
+                <CustomerCard
+                  customerName={"Major Asset Manager"}
+                  imageSrc={"/customers/white-financial-services.png"}
+                  width={58}
+                  quoteText={"We were going to hire a Python developer to automate this report. With Mito, I automated it myself."}
+                />
 
-            <section className={customerStyles.customer_table}>
+              </div>
+              
+
+            </section>
+            
+            
+            <section className={classNames(customerStyles.customer_table, 'display-desktop-only-inline-block')}>
                 <table>
                     <tr>
                         <td><Image src="/customers/sap.png" height={60} width={107} alt="Image 1"/></td>
@@ -69,7 +101,6 @@ const Customers: NextPage = () => {
                         <td><Image src="/customers/pwc.png" height={60} width={148} alt="Image 9"/></td>
                     </tr>
                 </table>
-
             </section>
 
             <section className={pageStyles.background_card}>
