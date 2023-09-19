@@ -17,7 +17,7 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const { setUIState, uiState, mitoAPI } = props;
-    const [totalMatches, setTotalMatches] = React.useState<number | null>(null);
+    const [totalMatches, setTotalMatches] = React.useState<number | undefined>(undefined);
     const searchValue = uiState.currOpenSearch.searchValue;
 
     /**
@@ -34,7 +34,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 return;
             }
             const total = response.result;
-            if (total !== null && !isNaN(Number(total))) {
+            if (total !== undefined && !isNaN(Number(total))) {
                 setTotalMatches(Number(total));
             }
         });
