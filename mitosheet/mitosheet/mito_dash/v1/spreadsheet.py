@@ -3,33 +3,43 @@ import gc
 import json
 import time
 from queue import Queue
+from typing import List
 
-
+import pandas as pd
 from dash.development.base_component import Component, _explicitize_args
 
-from dash import Input, Output, callback
+from dash_usage import Input, Output, callback
 from mitosheet.mito_backend import MitoBackend
-
-
-def get_random_id():
-    import random
-    return "".join(random.choice('abcdefghijklmnopqrstuvwxyz') for i in range(10))
+from mitosheet.utils import get_random_id
 
 
 class SpreadsheetResult():
 
-    def __init__(self, dfs):
-        self._dfs = dfs
+    def __init__(
+        self, 
+        dfs: List[pd.DataFrame],
+        code: List[str]
+    ):
+        self.__dfs = dfs
+        self.__code = code
 
-    def dfs(self):
-        return self._dfs
+    def dfs(self) -> List[pd.DataFrame]:
+        return self.__dfs
+    
+    def code(self) -> str:
+        return "\n".join(self.__code)
     
 
 class Spreadsheet(Component):
+
     _children_props = []
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
     _type = 'MitoDashWrapper'
+    _prop_names = ['id', 'all_json']
+    _valid_wildcard_attributes = []
+    available_properties = ['id', 'all_json']
+    available_wildcard_properties = []
 
     @_explicitize_args
     def __init__(
@@ -47,10 +57,6 @@ class Spreadsheet(Component):
         
         self.mito_backend.mito_send = send
 
-        self._prop_names = ['id', 'all_json']
-        self._valid_wildcard_attributes = []
-        self.available_properties = ['id', 'all_json']
-        self.available_wildcard_properties = []
         _explicit_args = kwargs.pop('_explicit_args')
 
         _locals = locals()
@@ -106,29 +112,54 @@ class Spreadsheet(Component):
         })
     
     def get_result(self):
-        return SpreadsheetResult(self.mito_backend.steps_manager.code())
+        return SpreadsheetResult(
+            dfs=self.mito_backend.steps_manager.dfs,
+            code=self.mito_backend.steps_manager.code(),
+        )
     
 
 def spreadsheet_callback(
     *_args,
-    input_id=None,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
-    **_kwargs,
+    input_id=None
 ):
     """
-    When the 
+    Provides a server-side callback relating the values of one or more `Output` items 
+    to a single spreadsheet with the given id.
+
+    Example usage:
+    ```
+    from mitosheet.mito_dash.v1 import Spreadsheet, spreadsheet_callback
+    from dash import Dash, html, Output
+
+    import pandas as pd
+
+    df = pd.DataFrame({'A': [1, 2, 3]})
+
+    app = Dash(__name__)
+
+    app.layout = html.Div([
+        Spreadsheet(df, id='mito-dash-wrapper'),
+        html.Div(id='output'),    
+    ])
+
+    @spreadsheet_callback(
+        Output('output', 'children'),
+        input_id='mito-dash-wrapper',
+    )
+    def update_output(spreadsheet_result):
+        dfs = spreadsheet_result.dfs()
+        return f'Output: {str(dfs)}'
+
+    
+    if __name__ == '__main__':
+        app.run_server(debug=True)
+    ```
+
     """
     if input_id is None:
         raise ValueError('input_id must be provided')
     
-    # Find the MitoDashWrapper component with the given id - searching all objects
+    # Find the MitoDashWrapper component with the given id - searching all objects in this Python runtime
     callback_component = None
     components = [
         obj for obj in gc.get_objects()
@@ -147,7 +178,8 @@ def spreadsheet_callback(
         @callback(
             *_args,
             Input(callback_component.mito_id, 'all_json'),
-            # TODO: do we need to register the output here? I think yes.
+            # TODO: do we need to register the output here? I think yes. 
+            # What about passing the other args
         )
         def callback_wrapper(*args, **kwargs):
             result = callback_component.get_result()
