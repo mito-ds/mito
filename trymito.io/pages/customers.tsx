@@ -19,9 +19,9 @@ const Customers: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Join the world's largest banks, asset managers, and insurance firms using Mito | Mito</title>
+        <title>Join the world&apos;s largest banks, asset managers, and insurance firms using Mito | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Mito is used by the world's largest banks, asset managers, insurance firms, and private equity firms to help non-technical analysts automate Excel reports" />
+        <meta name="description" content="Mito is used by the world&apos;s largest banks, asset managers, insurance firms, and private equity companies to help non-technical analysts automate Excel reports" />
       </Head>
       
       <Header/>
@@ -32,7 +32,7 @@ const Customers: NextPage = () => {
 
             <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Find out why thousands of analysts at the world's largest companies use Mito
+                    Find out why thousands of analysts at the world&apos;s largest companies use Mito
                 </h1>
             </section>
             <section>
