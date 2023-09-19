@@ -15,7 +15,7 @@ from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk 
 from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_valid_dataframe_name
 
 

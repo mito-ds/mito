@@ -20,7 +20,7 @@ from mitosheet.is_type_utils import (is_bool_dtype,
 from mitosheet.public.v1.sheet_functions.types.utils import get_to_datetime_params
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
 

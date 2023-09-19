@@ -13,7 +13,7 @@ from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_co
 from mitosheet.is_type_utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import add_columns_to_df, get_param
+from mitosheet.step_performers.utils.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 

@@ -13,6 +13,7 @@ from mitosheet.step_performers.import_steps.excel_import import \
 from mitosheet.step_performers.import_steps.simple_import import \
     SimpleImportStepPerformer
 from mitosheet.step_performers.import_steps.snowflake_import import SnowflakeImportStepPerformer
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 
 
 def is_import_step_type(step_type: str) -> bool:
@@ -20,4 +21,5 @@ def is_import_step_type(step_type: str) -> bool:
         or step_type == ExcelImportStepPerformer.step_type() \
         or step_type == DataframeImportStepPerformer.step_type() \
         or step_type == ExcelRangeImportStepPerformer.step_type() \
-        or step_type == SnowflakeImportStepPerformer.step_type() 
+        or step_type == SnowflakeImportStepPerformer.step_type() \
+        or step_type == UserDefinedImportStepPerformer.step_type()

@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
 from mitosheet.state import State
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ParamSubtype, ParamType, ParamValue
 

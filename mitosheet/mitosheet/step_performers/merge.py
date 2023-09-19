@@ -14,7 +14,7 @@ from mitosheet.errors import (make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 LOOKUP = 'lookup'

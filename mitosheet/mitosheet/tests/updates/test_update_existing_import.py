@@ -559,3 +559,116 @@ def test_update_imports_replays_unchanged_files_correctly_from_analysis_name():
     # Remove the test files
     os.remove(TEST_CSV_FILE)
     os.remove(TEST_EXCEL_FILE)
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_update_user_defined_imports():
+
+    def create_df_one(column_name: str) -> pd.DataFrame:
+        return pd.DataFrame(data={column_name: [1, 2, 3], 'B': [2, 3, 4]})
+
+    def create_df_two(negative: bool) -> pd.DataFrame:
+        if negative:
+            return pd.DataFrame(data={'C': [-1, -2, -3], 'D': [-2, -3, -4]})
+        else: 
+            return pd.DataFrame(data={'C': [1, 2, 3], 'D': [2, 3, 4]})
+
+
+    # Create user defined import functions
+    mito = create_mito_wrapper(importers=[create_df_one, create_df_two])
+    mito.user_defined_import("create_df_one", {'column_name': 'A'})
+
+    # Test that all parameters are handled properly from get_imported_files_and_dataframes_from_current_steps
+    # by making sure that the dataframes are the same when the import configuration is not changed
+    from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import get_imported_files_and_dataframes_from_analysis_name
+    import_data = get_imported_files_and_dataframes_from_analysis_name({'analysis_name': mito.mito_backend.analysis_name, 'args': []}, mito.mito_backend.steps_manager)
+
+    assert import_data[0]['imports'][0]['params']['importer'] == 'create_df_one'
+    assert import_data[0]['imports'][0]['params']['importer_params']['column_name'] == 'A'
+
+    mito.update_existing_imports([
+        {
+            'step_id': mito.steps_including_skipped[1].step_id,
+            'imports': [{
+                'step_type': 'user_defined_import',
+                'params': {
+                    'importer': 'create_df_two',
+                    'importer_params': {
+                        'negative': 'True'
+                    }
+                    
+                }
+            }]
+        },
+    ])
+    
+    assert mito.dfs[0].equals(pd.DataFrame(data={'C': [-1, -2, -3], 'D': [-2, -3, -4]}))
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_update_simple_import_to_user_defined_import():
+
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_CSV_FILE, index=False, sep=',', encoding='utf-8')
+
+    def create_df_one() -> pd.DataFrame:
+        return pd.DataFrame(data={'new_A': [1, 2, 3], 'new_B': [2, 3, 4]})
+
+    # Create user defined import functions
+    mito = create_mito_wrapper(importers=[create_df_one])
+    mito.user_defined_import("create_df_one", {})
+
+    mito.update_existing_imports([
+        {
+            'step_id': mito.steps_including_skipped[1].step_id,
+            'imports': [{
+                'step_type': 'simple_import',
+                'params': {
+                    'file_names': [TEST_CSV_FILE]
+                }
+            }]
+        }
+    ])
+    
+    assert mito.dfs[0].equals(pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}))
+
+    # Cleanup test
+    os.remove(TEST_CSV_FILE)
+
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_update_user_defined_import_to_simple_import():
+
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_csv(TEST_CSV_FILE, index=False, sep=',', encoding='utf-8')
+
+    def create_df_one() -> pd.DataFrame:
+        return pd.DataFrame(data={'new_A': [1, 2, 3], 'new_B': [2, 3, 4]})
+
+    # Create user defined import functions
+    mito = create_mito_wrapper(importers=[create_df_one])
+
+    mito.simple_import([TEST_CSV_FILE])
+
+    mito.update_existing_imports([
+        {
+            'step_id': mito.steps_including_skipped[1].step_id,
+            'imports': [{
+                'step_type': 'user_defined_import',
+                'params': {
+                    'importer': 'create_df_one',
+                    'importer_params': {}  
+                }
+            }]
+        },
+    ])
+    
+    assert mito.dfs[0].equals(pd.DataFrame(data={'new_A': [1, 2, 3], 'new_B': [2, 3, 4]}))
+
+    # Cleanup test
+    os.remove(TEST_CSV_FILE)
+
+

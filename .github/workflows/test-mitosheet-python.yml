@@ -24,6 +24,8 @@ jobs:
             pandas-version: '0.24.2'
           - python-version: 3.11
             pandas-version: '0.24.2'
+          - python-version: 3.6
+            optional_feature_dependencies: True
 
     steps:
     - name: Cancel Previous Runs
@@ -45,7 +47,7 @@ jobs:
         pip install "pandas==${{ matrix.pandas-version }}"
         pip install -e ".[test, deploy]"
     - name: Install optional feature dependencies
-      if: ${{ matrix.optional_feature_installs }}
+      if: ${{ matrix.optional_feature_dependencies }}
       run: |
         cd mitosheet
         pip install -e ".[optional_feature_dependencies]"

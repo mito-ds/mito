@@ -63,6 +63,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
+import { SearchBar } from './components/SearchBar';
 import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { createActions } from './utils/actions';
 import { classNames } from './utils/classNames';
@@ -76,7 +77,7 @@ import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
-import Toolbar from './components/toolbar/Toolbar';
+import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
@@ -132,6 +133,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
+        },
+        currOpenSearch: {
+            isOpen: false
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
@@ -997,7 +1001,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
             onKeyDown={(e) => {
                 // If the user presses escape anywhere in the mitosheet, we close the editor
                 if (e.key === 'Escape') {
-                    setEditorState(undefined)
+                    if (editorState !== undefined) {
+                        setEditorState(undefined)
+                    } else if (uiState.currOpenSearch.isOpen) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenSearch: {
+                                    isOpen: false,
+                                }
+                            }
+                        })
+                    }
                 }
             }}
         >
@@ -1057,6 +1072,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         >
                             {getCurrOpenTaskpane()}
                         </div>
+                    }
+                    {uiState.currOpenSearch.isOpen &&
+                        <SearchBar
+                            uiState={uiState}
+                            setUIState={setUIState}
+                            mitoAPI={mitoAPI}
+                        />
                     }
                 </div>
                 {/* Display the tour if there is one */}

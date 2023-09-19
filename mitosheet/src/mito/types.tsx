@@ -717,6 +717,8 @@ export enum MitoEnterpriseConfigKey {
     ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL',
     TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY',
     PRO = 'MITO_CONFIG_PRO',
+    CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH',
+    CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH',
 }
 
 export type PublicInterfaceVersion = 1 | 2 | 3;
@@ -796,7 +798,9 @@ export interface MitoConfig {
     } | null | undefined
     [MitoEnterpriseConfigKey.ENABLE_SNOWFLAKE]: boolean
     [MitoEnterpriseConfigKey.DISPLAY_SNOWFLAKE_IMPORT]: boolean
-    [MitoEnterpriseConfigKey.DISPLAY_AI_TRANSFORM]: boolean
+    [MitoEnterpriseConfigKey.DISPLAY_AI_TRANSFORM]: boolean,
+    [MitoEnterpriseConfigKey.CUSTOM_SHEET_FUNCTIONS_PATH]: string,
+    [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
 }
 
 /**
@@ -889,8 +893,14 @@ export interface UIState {
         // TODO: Move the other popups (loading, tour, fast forward) to use this infrastructure
         [PopupLocation.TopRight]: PopupInfo 
     }
+    currOpenSearch: SearchInfo;
     dataRecon: AIRecon | undefined,
     taskpaneWidth: number
+}
+
+export interface SearchInfo {
+    isOpen: boolean;
+    searchValue?: string;
 }
 
 /**
@@ -938,6 +948,7 @@ export enum ActionEnum {
     Import_Files = 'import files',
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
+    OpenSearch = 'open search',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
@@ -1079,7 +1090,6 @@ export interface AITransformationResult extends AIRecon {
     last_line_value: string | boolean | number | undefined | null,  
     prints: string[],
 }
-
 
 export interface MitoTheme {
     primaryColor?: string

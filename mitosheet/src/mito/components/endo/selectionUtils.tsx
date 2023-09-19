@@ -434,7 +434,7 @@ export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-text-light)';
  * handles highlighting the border between columns
  * when reordering columns. 
  */
-export const getBorderStyle = (selections: MitoSelection[], copiedSelections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number, highlightedColumnIndex?: number): BorderStyle => {
+export const getBorderStyle = (selections: MitoSelection[], copiedSelections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number, matchesSearch: boolean, highlightedColumnIndex?: number): BorderStyle => {
     const borderStyle: BorderStyle = {}
 
     // First, calculate the border based on the selections
@@ -458,6 +458,13 @@ export const getBorderStyle = (selections: MitoSelection[], copiedSelections: Mi
         borderStyle.borderTop = combineBorderStyles(borderStyle.borderTop, newBorderStyle.borderTop) 
         borderStyle.borderBottom = combineBorderStyles(borderStyle.borderBottom, newBorderStyle.borderBottom) 
     })
+
+    if (matchesSearch) {
+        borderStyle.borderRight = combineBorderStyles(borderStyle.borderRight, SELECTED_BORDER_STYLE)
+        borderStyle.borderLeft = combineBorderStyles(borderStyle.borderLeft, SELECTED_BORDER_STYLE)
+        borderStyle.borderTop = combineBorderStyles(borderStyle.borderTop, SELECTED_BORDER_STYLE)
+        borderStyle.borderBottom = combineBorderStyles(borderStyle.borderBottom, SELECTED_BORDER_STYLE)
+    }
 
     return borderStyle
 }

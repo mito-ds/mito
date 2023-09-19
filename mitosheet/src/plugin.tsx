@@ -10,6 +10,7 @@ import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
+import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -319,22 +320,22 @@ function activateMitosheetExtension(
         focus on it, so the user can just starting typing in it!
     */
     app.commands.addKeyBinding({
-        command: 'mitosheet:focus-on-search',
+        command: 'mitosheet:open-search',
         args: {},
         keys: ['Accel F'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mitosheet:focus-on-search', {
+    app.commands.addCommand('mitosheet:open-search', {
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
             // First, get the mito container that this element is a part of
             const mitoContainer = getParentMitoContainer();
 
             // Get the search input, and click + focus on it
-            const searchInput = mitoContainer?.querySelector('#action-search-bar-id') as HTMLInputElement | null;
+            const searchButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_OPEN_SEARCH_ID}`) as HTMLInputElement | null;
 
             // Focusing on the searchInput so that we begin typing there
-            searchInput?.focus();
+            searchButton?.click();
         }
     });
 
@@ -356,7 +357,7 @@ function activateMitosheetExtension(
             }
 
             // Get the undo button, and click it
-            const undoButton = mitoContainer?.querySelector('#mito-undo-button') as HTMLDivElement | null;
+            const undoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_UNDO_ID}`) as HTMLDivElement | null;
             undoButton?.click()
         }
     });
@@ -379,7 +380,7 @@ function activateMitosheetExtension(
             }
 
             // Get the undo button, and click it
-            const redoButton = mitoContainer?.querySelector('#mito-redo-button') as HTMLDivElement | null;
+            const redoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_REDO_ID}`) as HTMLDivElement | null;
             redoButton?.click()
         }
     });

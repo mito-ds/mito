@@ -252,6 +252,20 @@ export class MitoAPI {
     }
 
     /*
+        Returns a string encoding of the CSV file to download
+    */
+    async getTotalNumberMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<string>> {
+        return await this.send<string>({
+            'event': 'api_call',
+            'type': 'get_total_number_matches',
+            'params': {
+                'sheet_index': sheetIndex,
+                'search_value': searchValue
+            },
+        })
+    }
+
+    /*
         Returns a string encoding of the excel file to download
 
         See the download taskpane to how to use this string, but it
