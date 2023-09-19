@@ -1,0 +1,11 @@
+.customer_table table {
+    border-collapse: collapse;
+}
+
+.customer_table td {
+    padding-top: 100px;
+    padding-bottom: 100px;
+
+    width: 500px;
+    text-align: center;
+}
