@@ -46,7 +46,7 @@ const Customers: NextPage = () => {
                 />
                 <CustomerCard
                   customerName={"Major PE Firm"}
-                  imageSrc={"/customers/pe_logo.png"}
+                  imageSrc={"/customers/private_equity_logo.png"}
                   width={77}
                   quoteText={"The Mito report process will end up saving my team and I countless hours during the year."}
                   readMoreLink={"http://trymito.io/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"}
