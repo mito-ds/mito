@@ -80,3 +80,15 @@ def _jupyter_nbextension_paths():
         'dest': 'mitosheet',
         'require': 'mitosheet/extension'
     }]
+
+
+# TODO: document this for dash
+
+_js_dist = [
+    {'relative_package_path': 'mito_dash/v1/build/component.js', 'namespace': 'mitosheet'}, 
+    {'relative_package_path': 'mito_dash/v1/build/component.js.map', 'namespace': 'mitosheet', 'dynamic': True}
+]
+
+_css_dist = [
+    {'relative_package_path': 'mito_dash/v1/build/component.css', 'namespace': 'mitosheet'}, 
+]

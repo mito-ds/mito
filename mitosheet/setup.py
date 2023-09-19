@@ -143,6 +143,7 @@ setup_args = dict(
             # snowflake-connect-python requires at least Python 3.7
             'snowflake-connector-python[pandas]; python_version>="3.7"',
             'streamlit>=1.24',
+            'dash'
         ]
     },
     zip_safe                = False,

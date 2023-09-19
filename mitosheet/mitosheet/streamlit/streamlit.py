@@ -8,6 +8,6 @@ st.set_page_config(layout="wide")
 
 from mitosheet.streamlit.v1 import spreadsheet
 import pandas as pd 
-df = pd.DataFrame({'A': [1, 2, 3]})
-selection = spreadsheet(df, return_type='selection')
+df = pd.read_csv("https://raw.githubusercontent.com/dataprofessor/data/master/nba-player-stats-2019.csv")
+selection = spreadsheet(df)
 st.write(selection)
