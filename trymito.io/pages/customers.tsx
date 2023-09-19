@@ -49,7 +49,7 @@ const Customers: NextPage = () => {
                   imageSrc={"/customers/pe_logo.png"}
                   width={77}
                   quoteText={"The Mito report process will end up saving my team and I countless hours during the year."}
-                  readMoreLink={"http://localhost:3000/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"}
+                  readMoreLink={"http://trymito.io/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"}
                 />
                 <CustomerCard
                   customerName={"Enigma"}
@@ -83,7 +83,38 @@ const Customers: NextPage = () => {
             </section>
             
             
-            <section className={classNames(customerStyles.customer_table, 'display-desktop-only-inline-block')}>
+            <section className='display-mobile-only'>
+              <div className={customerStyles.customer_logos}>
+                <div>
+                  <Image src="/customers/sap.png" height={60} width={107} alt="Image 1"/>
+                </div>
+                <div>
+                  <Image src="/customers/kpmg.png" height={60} width={150} alt="Image 2"/>
+                </div>
+                <div>
+                  <Image src="/customers/ericsson.png" height={60} width={182} alt="Image 3"/>
+                </div>
+                <div>
+                  <Image src="/customers/amazon.png" height={60} width={199} alt="Image 4"/>
+                </div>
+                <div>
+                  <Image src="/customers/wayfair.png" height={60}  width={224} alt="Image 6"/>
+                </div>
+                <div>
+                  <Image src="/customers/accenture.png" height={60} width={194} alt="Image 5"/>
+                </div>
+                <div>
+                  <Image src="/customers/cisco.png" height={60} width={113} alt="Image 7"/>
+                </div>
+                <div>
+                  <Image src="/customers/deloitte.png" height={60} width={220} alt="Image 8"/>
+                </div>
+                <div>
+                  <Image src="/customers/pwc.png" height={60} width={148} alt="Image 9"/>
+                </div>
+              </div>
+            </section>
+            <section className={classNames(customerStyles.customer_table, 'display-desktop-only-flex')}>
                 <table>
                     <tr>
                         <td><Image src="/customers/sap.png" height={60} width={107} alt="Image 1"/></td>

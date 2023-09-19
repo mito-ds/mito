@@ -1,3 +1,8 @@
+.customer_table {
+    text-align: center;
+    justify-content: center;
+}
+
 .customer_table table {
     border-collapse: collapse;
 }
@@ -21,4 +26,17 @@
 
 .customer_cards_container * {
     margin: 5px;
+}
+
+.customer_logos {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.customer_logos div {
+    text-align: center;
+    margin-top: 40px !important;
+    margin-bottom: 40px !important;
+
 }

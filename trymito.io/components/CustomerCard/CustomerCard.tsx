@@ -12,9 +12,11 @@ const CustomerCard = (props: {
     readMoreLink?: string
 }): JSX.Element => {
 
-
     return (
-        <div className={customerCardStyles.container}>
+        <div 
+            className={classNames(customerCardStyles.container, {[customerCardStyles.border_on_hover]: props.readMoreLink !== undefined})}
+            onClick={props.readMoreLink !== undefined ? () => window.open(props.readMoreLink, '_blank'): undefined}
+        >
             <div className={customerCardStyles.image}>
                 <Image 
                     height={58} // Use the same height in every card for uniformity
@@ -25,11 +27,10 @@ const CustomerCard = (props: {
             <p className={customerCardStyles.customer_name}>{props.customerName}</p>
             <p className='quote'><span className={customerCardStyles.quote_symbol}>❝</span>{props.quoteText}</p>
             {props.readMoreLink && 
-                <a href={props.readMoreLink} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, customerCardStyles.read_more)}>Read More →</a> 
+                <p className={classNames(pageStyles.link, customerCardStyles.read_more)}>Read More →</p> 
             }
         </div>
-    )
-    
+    )   
 }
 
 export default CustomerCard; 
