@@ -29,7 +29,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             setTotalMatches(0);
             return;
         }
-        mitoAPI.getTotalNumberMatches(uiState.selectedSheetIndex, searchValue ?? '').then((response) => {
+        void mitoAPI.getTotalNumberMatches(uiState.selectedSheetIndex, searchValue ?? '').then((response) => {
             if ('error' in response) {
                 return;
             }
@@ -57,7 +57,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             placeholder='Find...'
             autoFocus
         />
-        <span>{totalMatches ?? '...'} matches</span>
+        <span>{totalMatches ?? '...'} match{totalMatches === 1 ? '' : 'es'}</span>
         <button
             className='mito-close-search-button'
             onClick={() => {
