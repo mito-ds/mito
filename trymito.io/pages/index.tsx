@@ -218,10 +218,9 @@ const Home: NextPage = () => {
               <h3 className={titleStyles.description + ' display-desktop-only-inline-block'}>
                 See why Mito is ranked as one of the top Python libraries of 2022
               </h3>
-              <GithubButton 
-                variant='Issue'
-                text='Join the discussion on Github'
-              />
+              <p>
+                 <Link href='/customers'><a className={pageStyles.link}>Read how enterprises use Mito to save hours per week →</a></Link>
+              </p>
             </div>
             <Tweets />
           </section>

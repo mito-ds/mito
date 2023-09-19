@@ -32,7 +32,7 @@ const Customers: NextPage = () => {
 
             <section className={classNames(titleStyles.title_card)}>
                 <h1 className={titleStyles.title}>
-                    Find out why thousands of analysts at the world's largest companies are using Mito
+                    Find out why thousands of analysts at the world's largest companies use Mito
                 </h1>
             </section>
             <section>
