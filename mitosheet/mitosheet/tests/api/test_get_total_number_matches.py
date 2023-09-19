@@ -7,6 +7,7 @@
 Contains tests for the add_formatting_to_excel_sheet function.
 """
 
+import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data
@@ -37,6 +38,8 @@ NUMBER_MATCHES_TESTS = [
         'ef',
         1
     ),
+
+    # Tests for numbers
     (
         [1234, 123, 345, 456],
         0, 
@@ -80,6 +83,34 @@ NUMBER_MATCHES_TESTS = [
         0, 
         '1230',
         1
+    ),
+
+    # Tests for booleans
+    (
+        [True, False, True, False],
+        0,
+        'True',
+        2
+    ),
+    (
+        [True, False, True, False],
+        0,
+        'False',
+        2
+    ),
+
+    # Tests for dates
+    (
+        [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03'), pd.Timestamp('2021-01-04')],
+        0,
+        '2021-01-01',
+        1
+    ),
+    (
+        [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03'), pd.Timestamp('2021-01-04')],
+        0,
+        '2021-01',
+        4
     ),
 ]
 
