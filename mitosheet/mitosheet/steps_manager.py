@@ -230,10 +230,11 @@ class StepsManager:
             ] = execution_data       
 
         # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
-        user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 
+        self.user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 
 
         # We also do some checks for the user_defined_importers
-        if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
+        self.user_defined_importers = user_defined_importers
+        if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
 
         # Then we initialize the analysis with just a simple initialize step
@@ -243,8 +244,8 @@ class StepsManager:
                 State(
                     args, 
                     df_names=df_names,
-                    user_defined_functions=user_defined_functions, 
-                    user_defined_importers=user_defined_importers
+                    user_defined_functions=self.user_defined_functions, 
+                    user_defined_importers=self.user_defined_importers
                 ), 
                 {}
             )
