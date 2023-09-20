@@ -361,6 +361,11 @@ def upgrade_saved_analysis_to_have_code_options(saved_analysis: Optional[Dict[st
         # this param was added later
         if 'call_function' not in code_options:
             saved_analysis['code_options']['call_function'] = True
+
+        # If the import_custom_python_code is not in the code options, we default it to False. 
+        # this param was added later
+        if 'import_custom_python_code' not in code_options:
+            saved_analysis['code_options']['import_custom_python_code'] = False
     else:
         # Otherwise, we have to add it to the analysis as default 1
         saved_analysis['code_options'] = get_default_code_options(analysis_name)
@@ -396,7 +401,7 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
     saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
         saved_analysis_with_args,
         analysis_name,
-        saved_analysis.get('code_options', None) if saved_analysis is not None else None
+        saved_analysis.get('code_options', None) if saved_analysis is not None else None,
     )
 
     return saved_analysis_with_code_options

@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
+import inspect
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -314,6 +315,31 @@ def convert_script_to_function(
 
     return final_code
 
+def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsManagerType) -> List[str]:
+
+    import_map: Dict[str, List[str]] = {}
+
+    all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or [])
+
+    for func in all_custom_python_code:
+        if any(func.__name__ in line for line in code):
+            module = inspect.getmodule(func)
+            if module is not None:
+                module_name = module.__name__
+                function_name = func.__name__
+
+                imports_from_module = import_map.get(module_name, [])
+                imports_from_module.append(function_name)
+
+                import_map[module_name] = imports_from_module
+
+    import_strings = [
+        f"from {module_name} import {', '.join(function_names)}"
+        for module_name, function_names in import_map.items()
+    ]
+
+    return import_strings           
+
 
 
 def get_default_code_options(analysis_name: str) -> CodeOptions:
@@ -321,5 +347,6 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
         'as_function': False,
         'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
-        'function_params': dict()
+        'function_params': dict(),
+        'import_custom_python_code': False
     }
