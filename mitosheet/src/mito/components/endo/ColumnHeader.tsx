@@ -85,12 +85,12 @@ const ColumnHeader = (props: {
 
     // Check if the column header is a match of the search
     const matchesSearch = props.uiState.currOpenSearch.matches.find((value) => {
-        return value.row === -1 && value.col === props.columnIndex;
+        return value.rowIndex === -1 && value.colIndex === props.columnIndex;
     }) !== undefined;
 
     // Check if the current match is this column header. If so, highlight it. 
     const currentMatch = props.uiState.currOpenSearch.matches[props.uiState.currOpenSearch.currentMatchIndex];
-    const isCurrentMatch = currentMatch?.row === -1 && currentMatch?.col === props.columnIndex;
+    const isCurrentMatch = currentMatch?.rowIndex === -1 && currentMatch?.colIndex === props.columnIndex;
     const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {

@@ -37,18 +37,18 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
 
     // totalMatches is undefined when we're making the API call to get the total number of matches.
-    const [totalMatches, setTotalMatches] = React.useState<number | undefined>(undefined);
+    const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
-    const scrollMatchIntoView = (match?: { row: number; col: number }) => {
+    const scrollMatchIntoView = (match?: { rowIndex: number; colIndex: number }) => {
         // Columns have row index -1, so we check for that first.
-        if (match?.row === -1) {
+        if (match?.rowIndex === -1) {
             scrollColumnIntoView(
                 containerDiv,
                 scrollAndRenderedContainerDiv,
                 sheetView,
                 gridState,
-                match?.col
+                match?.colIndex
             )
         } else if (match !== undefined) {
             ensureCellVisible(
@@ -56,8 +56,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 scrollAndRenderedContainerDiv,
                 sheetView,
                 gridState,
-                match.row,
-                match.col,
+                match.rowIndex,
+                match.colIndex,
             )
         }
     }
@@ -107,7 +107,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     // If there are no matches, display "No results." Otherwise, display the matches text.
     const finalMatchInfo =
-        totalMatches !== 0 && totalMatchesDisplayed === 0
+        totalMatches === 0
         ? <span>No results.</span>
         : matchesInfo;
 

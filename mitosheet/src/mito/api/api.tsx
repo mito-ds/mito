@@ -39,7 +39,7 @@ export interface PathContents {
 
 interface SearchResults {
     total_number_matches: number | null;
-    matches: {row: number, col: number}[];
+    matches: {rowIndex: number, colIndex: number}[];
 }
 
 // "stepIndex" -> fileNames list
