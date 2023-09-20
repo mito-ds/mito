@@ -32,9 +32,13 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     # Then, add the column names to the matches:
     total_number_matches += len([col for col in df.columns if re.search(search_regex,str(col)) is not None])
 
+    # Get the number of rows and columns so that we don't have to calculate the length in each iteration
+    num_rows = len(df.index)
+    num_cols = len(df.columns)
+
     # Find the indices of cells containing the search value
     # Only search the first 1500 rows because the editor only shows the first 1500 rows. 
-    cell_matches = [{'rowIndex': i, 'colIndex': j} for i in range(min(1500,len(df.index))) for j in range(len(df.columns)) if (re.search(search_regex,str(df.iloc[i, j])) is not None)]
+    cell_matches = [{'rowIndex': i, 'colIndex': j} for i in range(min(1500,num_rows)) for j in range(num_cols) if (re.search(search_regex,str(df.iat[i, j])) is not None)]
 
     # Find the indices of columns containing the search value
     column_matches = [{'rowIndex': -1, 'colIndex': j} for j, column in enumerate(df.columns) if (re.search(re.compile(search_value, re.IGNORECASE),str(column)) is not None)]
