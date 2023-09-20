@@ -130,9 +130,23 @@ const Header = (): JSX.Element => {
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='/plans'>Plans</Link>
                 </li>
-                <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
-                  <Link href='/blog'>Blog</Link>
-                </li>
+
+                {/* About Dropdown */}
+                <HeaderDropdown dropdownButtonTitle="About">
+                  <HeaderDropdownItem
+                    title='Customers'
+                    href='/customers'
+                    iconSrc='/customers.svg'
+                    altText="Customers"
+                  />
+                  <HeaderDropdownItem
+                    title='Blog'
+                    href='/blog'
+                    iconSrc='/blog.svg'
+                    altText="Blog"
+                  />
+                </HeaderDropdown>
+
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                 </li>
@@ -202,6 +216,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/plans'>Plans</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/customers'>Customers</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/security'>Security</Link>
