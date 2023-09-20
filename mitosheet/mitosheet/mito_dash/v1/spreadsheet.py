@@ -1,4 +1,3 @@
-# AUTO GENERATED FILE - DO NOT EDIT
 import gc
 import json
 import time
@@ -35,7 +34,7 @@ class Spreadsheet(Component):
     _children_props = []
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
-    _type = 'Spreadsheet'
+    _type = 'MitoDashWrapper'
     _prop_names = ['id', 'all_json']
     _valid_wildcard_attributes = []
     available_properties = ['id', 'all_json']
