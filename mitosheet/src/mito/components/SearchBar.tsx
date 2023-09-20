@@ -160,7 +160,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 handleCurrentMatchChange('prev')
             }}
         >
-            <SearchNavigateIcon upOrDown='up' />
+            <SearchNavigateIcon upOrDown='up' strokeColor='var(--mito-text)' strokeWidth={1} />
         </button>
         <button
             className='mito-search-button'
@@ -168,7 +168,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 handleCurrentMatchChange('next')
             }}
         >
-            <SearchNavigateIcon upOrDown='down' />   
+            <SearchNavigateIcon upOrDown='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
         </button>
         <button
             className='mito-search-button'
