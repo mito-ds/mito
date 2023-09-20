@@ -11,6 +11,7 @@ import { MitoAPI } from '../api/api';
 import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
 import LoadingDots from './elements/LoadingDots';
 import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils';
+import SearchNavigateIcon from './icons/SearchNavigateIcon';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -74,53 +75,57 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const matchesText = <span> {totalMatches ?? 0 > 0 ? currentMatchIndex + 1 : 0} of {totalMatches ?? <LoadingDots />} </span>;
     const finalText = totalMatches !== undefined && totalMatchesDisplayed === 0 ? <span>No results.</span> : matchesText
 
+    const handleCurrentMatchChange = (direction: 'next' | 'prev') => {
+        setUIState((prevUIState) => {
+            let currentMatch = currentMatchIndex;
+            if (direction === 'prev') {
+                if (currentMatch === 0) {
+                    currentMatch = totalMatchesDisplayed - 1;
+                } else {
+                    currentMatch = currentMatch - 1;
+                }
+            } else {
+                if (currentMatch >= (totalMatchesDisplayed) - 1) {
+                    currentMatch = 0;
+                } else {
+                    currentMatch += 1;
+                }
+            }
+            if (currentMatch < totalMatchesDisplayed && matches !== undefined) {
+                console.log(matches[currentMatch])
+                if (matches[currentMatch].row === -1) {
+                    scrollColumnIntoView(
+                        containerDiv,
+                        scrollAndRenderedContainerDiv,
+                        sheetView,
+                        gridState,
+                        matches[currentMatch].col
+                    )
+                } else {
+                    ensureCellVisible(
+                        containerDiv,
+                        scrollAndRenderedContainerDiv,
+                        sheetView,
+                        gridState,
+                        matches[currentMatch].row,
+                        matches[currentMatch].col,
+                    )
+                }
+            }
+            return {
+                ...prevUIState,
+                currOpenSearch: {
+                    ...prevUIState.currOpenSearch,
+                    currentMatchIndex: currentMatch
+                }
+            }
+        })
+    }
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
-            setUIState((prevUIState) => {
-                let currentMatch = currentMatchIndex;
-                // TODO: this isn't working
-                if (e.shiftKey) {
-                    if (currentMatch === 0) {
-                        currentMatch = totalMatchesDisplayed - 1;
-                    } else {
-                        currentMatch = currentMatch - 1;
-                    }
-                } else {
-                    if (currentMatch >= (totalMatchesDisplayed) - 1) {
-                        currentMatch = 0;
-                    } else {
-                        currentMatch += 1;
-                    }
-                }
-                if (currentMatch < totalMatchesDisplayed && matches !== undefined) {
-                    console.log(matches[currentMatch])
-                    if (matches[currentMatch].row === -1) {
-                        scrollColumnIntoView(
-                            containerDiv,
-                            scrollAndRenderedContainerDiv,
-                            sheetView,
-                            gridState,
-                            matches[currentMatch].col
-                        )
-                    } else {
-                        ensureCellVisible(
-                            containerDiv,
-                            scrollAndRenderedContainerDiv,
-                            sheetView,
-                            gridState,
-                            matches[currentMatch].row,
-                            matches[currentMatch].col,
-                        )
-                    }
-                }
-                return {
-                    ...prevUIState,
-                    currOpenSearch: {
-                        ...prevUIState.currOpenSearch,
-                        currentMatchIndex: currentMatch
-                    }
-                }
-            })
+            // TODO: this isn't working with the shift key held down.
+            handleCurrentMatchChange(e.shiftKey ? 'prev' : 'next');
         }
     }
 
@@ -153,7 +158,23 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         />
         <span>{finalText}</span>
         <button
-            className='mito-close-search-button'
+            className='mito-search-button'
+            onClick={() => {
+                handleCurrentMatchChange('prev')
+            }}
+        >
+            <SearchNavigateIcon upOrDown='up' />
+        </button>
+        <button
+            className='mito-search-button'
+            onClick={() => {
+                handleCurrentMatchChange('next')
+            }}
+        >
+            <SearchNavigateIcon upOrDown='down' />   
+        </button>
+        <button
+            className='mito-search-button'
             onClick={() => {
                 setUIState({
                     ...uiState,
