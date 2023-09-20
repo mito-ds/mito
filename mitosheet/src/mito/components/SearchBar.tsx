@@ -39,6 +39,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
     const scrollMatchIntoView = (match?: { row: number; col: number }) => {
+        // Columns have row index -1, so we check for that first.
         if (match?.row === -1) {
             scrollColumnIntoView(
                 containerDiv,
@@ -138,7 +139,6 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             }
 
             // Then, we scroll the cell / column into view.
-            // Columns have row index -1, so we check for that first.
             scrollMatchIntoView(matches?.[currentMatch])
 
             // Finally, we update the current match index in UIState.
