@@ -9,7 +9,6 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
-import { checkMatchesSearch } from './utils';
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
@@ -71,8 +70,11 @@ const GridData = (props: {
 
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
-                            const matchesSearch = checkMatchesSearch(cellData.toString(), props.uiState.currOpenSearch.searchValue);
-
+                            const matchesSearch = !!props.uiState.currOpenSearch.matches?.find((value) => {
+                                return value.row === rowIndex && value.col === columnIndex
+                            });
+                            const currentMatch = props.uiState.currOpenSearch.matches?.[props.uiState.currOpenSearch.currentMatchIndex]
+                            const isCurrentMatch = currentMatch?.row === rowIndex && currentMatch?.col === columnIndex;
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,
                                 'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
@@ -82,6 +84,7 @@ const GridData = (props: {
                                 'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,
                                 'recon modified-recon-background-color': isColumnModified && rowIndex % 2 !== 0,
                                 'recon modified-recon-background-color-dark': isColumnModified && rowIndex % 2 === 0,
+                                'mito-grid-cell-search-match': isCurrentMatch,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];

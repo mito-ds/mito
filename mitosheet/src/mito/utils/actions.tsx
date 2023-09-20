@@ -1113,7 +1113,7 @@ export const createActions = (
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenSearch: { isOpen: true },
+                            currOpenSearch: { ...prevUIState.currOpenSearch, isOpen: true },
                         }
                     })
                 }

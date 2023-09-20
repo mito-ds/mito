@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import re
+import pandas as pd
 from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 
@@ -25,4 +26,6 @@ def get_total_number_matches(params: Dict[str, Any], steps_manager: StepsManager
     # Then, sum the matches:
     total_number_matches = matches.sum()
 
-    return total_number_matches
+    # Find the indices of cells containing the search value
+    indices = [{'row': i, 'col': j} for i in range(min(1500,len(df.index))) for j in range(len(df.columns)) if (re.search(re.compile(search_value, re.IGNORECASE),str(df.iloc[i, j])) is not None)]
+    return {'total_number_matches': total_number_matches, 'matches': indices }

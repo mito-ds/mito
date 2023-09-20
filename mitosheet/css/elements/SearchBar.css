@@ -11,7 +11,7 @@
 
 .mito-search-bar span {
     margin-left: 5px;
-    min-width: 9ch;
+    min-width: 5ch;
     justify-content: flex-end;
     display: flex;
 }
@@ -30,4 +30,10 @@
 
 .mito-close-search-button:hover {
     background-color: var(--mito-highlight-light);
+}
+
+.mito-grid-cell-search-match {
+    background-color: var(--mito-highlight-light);
+    color: var(--mito-text);
+    font-weight: bold;
 }

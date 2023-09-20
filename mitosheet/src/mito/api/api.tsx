@@ -37,6 +37,11 @@ export interface PathContents {
     elements: FileElement[];
 }
 
+interface SearchResults {
+    total_number_matches: number | null;
+    matches: {row: number, col: number}[];
+}
+
 // "stepIndex" -> fileNames list
 export type ImportSummaries = Record<string, string[]>;
 
@@ -254,8 +259,8 @@ export class MitoAPI {
     /*
         Returns a string encoding of the CSV file to download
     */
-    async getTotalNumberMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<string>> {
-        return await this.send<string>({
+    async getTotalNumberMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<SearchResults>> {
+        return await this.send<SearchResults>({
             'event': 'api_call',
             'type': 'get_total_number_matches',
             'params': {

@@ -18,6 +18,7 @@ import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
+import { SearchBar } from "../SearchBar";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -743,7 +744,6 @@ function EndoGrid(props: {
                             gridState={gridState}
                             uiState={uiState}
                             editorState={editorState}
-
                         />
                     </div>
                 </div>
@@ -765,6 +765,17 @@ function EndoGrid(props: {
                     />
                 }
             </div>
+            {uiState.currOpenSearch.isOpen &&
+                <SearchBar
+                    uiState={uiState}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                    containerDiv={containerRef.current}
+                    scrollAndRenderedContainerDiv={scrollAndRenderedContainerRef.current}
+                    sheetView={currentSheetView}
+                    gridState={gridState}
+                />
+            }
         </>
     )
 }

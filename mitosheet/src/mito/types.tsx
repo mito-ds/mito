@@ -901,6 +901,8 @@ export interface UIState {
 export interface SearchInfo {
     isOpen: boolean;
     searchValue?: string;
+    matches?: {row: number; col: number}[];
+    currentMatchIndex: number;
 }
 
 /**
