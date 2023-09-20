@@ -9,7 +9,7 @@ from typing import Any, Dict
 from mitosheet.types import StepsManagerType
 
 
-def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) -> Any:
     """
     Finds the number of matches to a given search value in the dataframe.
     """

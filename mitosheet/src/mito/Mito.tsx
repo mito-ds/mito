@@ -135,7 +135,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         },
         currOpenSearch: {
             isOpen: false,
-            currentMatchIndex: 0
+            currentMatchIndex: 0,
+            matches: []
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
@@ -1010,6 +1011,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 currOpenSearch: {
                                     isOpen: false,
                                     currentMatchIndex: 0,
+                                    matches: []
                                 }
                             }
                         })

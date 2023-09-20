@@ -72,12 +72,12 @@ const GridData = (props: {
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
 
                             // Check if the cell is a search match. 
-                            const matchesSearch = !!props.uiState.currOpenSearch.matches?.find((value) => {
+                            const matchesSearch = !!props.uiState.currOpenSearch.matches.find((value) => {
                                 return value.row === rowIndex && value.col === columnIndex
                             });
 
                             // Check if the cell is the current match, and if so, highlight it. 
-                            const currentMatch = props.uiState.currOpenSearch.matches?.[props.uiState.currOpenSearch.currentMatchIndex]
+                            const currentMatch = props.uiState.currOpenSearch.matches[props.uiState.currOpenSearch.currentMatchIndex]
                             const isCurrentMatch = currentMatch?.row === rowIndex && currentMatch?.col === columnIndex;
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected,

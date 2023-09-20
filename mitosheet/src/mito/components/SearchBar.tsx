@@ -35,6 +35,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         gridState
     } = props;
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
+
+    // totalMatches is undefined when we're making the API call to get the total number of matches.
     const [totalMatches, setTotalMatches] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
@@ -73,27 +75,28 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             if ('error' in response) {
                 return;
             }
-            const { total_number_matches, matches } = response.result;
-
+            const new_total_number_matches = response.result.total_number_matches;
+            const new_matches = response.result.matches;
             // Update the total matches. 
-            if (total_number_matches !== undefined && !isNaN(Number(total_number_matches))) {
-                setTotalMatches(Number(total_number_matches));
+            if (!isNaN(Number(new_total_number_matches))) {
+                setTotalMatches(Number(new_total_number_matches));
+            }
+
+            if (new_matches?.length > 0) {
+                scrollMatchIntoView(new_matches[currentMatchIndex]);
             }
 
             // Update the matches in UIState. This will trigger a re-render of the grid with
             // the matches highlighted.
-            if (matches !== undefined) {
-                scrollMatchIntoView(matches[currentMatchIndex]);
-                setUIState((prevUIState) => {
-                    return {
-                        ...prevUIState,
-                        currOpenSearch: {
-                            ...prevUIState.currOpenSearch,
-                            matches: matches
-                        }
+            setUIState((prevUIState) => {
+                return {
+                    ...prevUIState,
+                    currOpenSearch: {
+                        ...prevUIState.currOpenSearch,
+                        matches: new_matches ?? []
                     }
-                });
-            }
+                }
+            });
         });
     }, [searchValue, uiState.selectedSheetIndex], 500);
 
@@ -106,7 +109,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     // If there are no matches, display "No results." Otherwise, display the matches text.
     const finalMatchInfo =
-        totalMatches !== undefined && totalMatchesDisplayed === 0
+        totalMatches !== 0 && totalMatchesDisplayed === 0
         ? <span>No results.</span>
         : matchesInfo;
 
@@ -163,7 +166,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 ...uiState.currOpenSearch,
                 searchValue: e.target.value,
                 currentMatchIndex: 0,
-                matches: e.target.value === '' ? undefined : uiState.currOpenSearch.matches
+                matches: e.target.value === '' ? [] : uiState.currOpenSearch.matches
             }
         })
 
@@ -193,6 +196,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             autoFocus
         />
         <span>{finalMatchInfo}</span>
+        {/* This button jumps to the previous match */}
         <button
             className='mito-search-button'
             onClick={() => {
@@ -201,6 +205,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         >
             <SearchNavigateIcon upOrDown='up' strokeColor='var(--mito-text)' strokeWidth={1} />
         </button>
+        {/* This button jumps to the next match */}
         <button
             className='mito-search-button'
             onClick={() => {
@@ -209,12 +214,13 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         >
             <SearchNavigateIcon upOrDown='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
         </button>
+        {/* This button closes the search bar. */}
         <button
             className='mito-search-button'
             onClick={() => {
                 setUIState({
                     ...uiState,
-                    currOpenSearch: { isOpen: false, currentMatchIndex: 0 }
+                    currOpenSearch: { isOpen: false, currentMatchIndex: 0, matches: [] }
                 })
             }}
         >
