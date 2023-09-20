@@ -126,9 +126,15 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     }
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            // TODO: this isn't working with the shift key held down.
-            handleCurrentMatchChange(e.shiftKey ? 'prev' : 'next');
+        if (e.key === 'Enter' && !e.shiftKey) {
+            handleCurrentMatchChange('next');
+        }
+    }
+
+    // onKeyDown doesn't allow for shift + enter, so we use onKeyUp
+    const handleKeyUp = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && e.shiftKey) {
+            handleCurrentMatchChange('prev');
         }
     }
 
@@ -156,6 +162,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             value={searchValue ?? ''}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
             className={classNames('mito-input')}
             placeholder='Find...'
             autoFocus
