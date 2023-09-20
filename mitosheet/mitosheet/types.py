@@ -350,6 +350,8 @@ if sys.version_info[:3] > (3, 8, 0):
         call_function: bool
         function_name: str
         function_params: CodeOptionsFunctionParams # type: ignore
+
+        # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
 
     UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']

@@ -89,7 +89,7 @@ def transpile(
     final_imports_code = deduplicate_array(imports_code)
 
     # If the user wants the custom imports to be included in the script, we include them here
-    if steps_manager.code_options['import_custom_python_code']:
+    if steps_manager.code_options.get('import_custom_python_code', False):
         for import_line in get_imports_for_custom_python_code(code, steps_manager):
             final_imports_code.insert(0, import_line)
 
