@@ -70,7 +70,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         });
     }, [searchValue, uiState.selectedSheetIndex], 500);
 
-    const totalMatchesDisplayed = matches?.length ?? 0;
+    const totalMatchesDisplayed: number = matches?.length ?? 0;
     const matchesText = <span> {totalMatches ?? 0 > 0 ? currentMatchIndex + 1 : 0} of {totalMatches ?? <LoadingDots />} </span>;
     const finalText = totalMatches !== undefined && totalMatchesDisplayed === 0 ? <span>No results.</span> : matchesText
 
@@ -80,7 +80,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             if (direction === 'prev') {
                 if (currentMatch === 0) {
                     currentMatch = totalMatchesDisplayed - 1;
-                    setShowCautionMessage(true);
+                    setShowCautionMessage((totalMatches ?? totalMatchesDisplayed) > totalMatchesDisplayed);
                 } else {
                     currentMatch = currentMatch - 1;
                     setShowCautionMessage(false);
@@ -88,7 +88,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             } else {
                 if (currentMatch >= (totalMatchesDisplayed) - 1) {
                     currentMatch = 0;
-                    setShowCautionMessage(true);
+                    setShowCautionMessage((totalMatches ?? totalMatchesDisplayed) > totalMatchesDisplayed);
                 } else {
                     currentMatch += 1;
                     setShowCautionMessage(false);
