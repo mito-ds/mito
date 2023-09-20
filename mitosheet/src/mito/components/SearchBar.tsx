@@ -12,6 +12,7 @@ import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
 import LoadingDots from './elements/LoadingDots';
 import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils';
 import SearchNavigateIcon from './icons/SearchNavigateIcon';
+import CautionIcon from './icons/CautionIcon';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -35,6 +36,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     } = props;
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
     const [totalMatches, setTotalMatches] = React.useState<number | undefined>(undefined);
+    const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
     // Update the total number of matches when the search value changes
     useDebouncedEffect(() => {
@@ -78,14 +80,18 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             if (direction === 'prev') {
                 if (currentMatch === 0) {
                     currentMatch = totalMatchesDisplayed - 1;
+                    setShowCautionMessage(true);
                 } else {
                     currentMatch = currentMatch - 1;
+                    setShowCautionMessage(false);
                 }
             } else {
                 if (currentMatch >= (totalMatchesDisplayed) - 1) {
                     currentMatch = 0;
+                    setShowCautionMessage(true);
                 } else {
                     currentMatch += 1;
+                    setShowCautionMessage(false);
                 }
             }
             if (currentMatch < totalMatchesDisplayed && matches !== undefined) {
@@ -136,6 +142,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 matches: e.target.value === '' ? undefined : uiState.currOpenSearch.matches
             }
         })
+        setShowCautionMessage(false);
         if (e.target.value === '') {
             setTotalMatches(0);
         } else {
@@ -181,5 +188,9 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         >
             <XIcon strokeWidth='1' width='15' height='15' />
         </button>
+        {showCautionMessage && <div className='mito-search-caution'>
+            <CautionIcon />
+            <span>Only the first 1500 rows are displayed.</span>
+        </div>}
     </div>);
 }
