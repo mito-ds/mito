@@ -20,17 +20,21 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     # First, generate a count for each value in the dataframe:
     unique_value_counts = df.value_counts()
 
+    # Use the same regex for all searching
+    search_regex = re.compile(search_value, re.IGNORECASE)
+
     # Then, filter for the search value:
-    matches = unique_value_counts.filter(regex=re.compile(search_value, re.IGNORECASE), axis=0)
+    matches = unique_value_counts.filter(regex=search_regex, axis=0)
 
     # Then, sum the matches:
     total_number_matches = matches.sum()
 
     # Then, add the column names to the matches:
-    total_number_matches += len([col for col in df.columns if re.search(re.compile(search_value, re.IGNORECASE),str(col)) is not None])
+    total_number_matches += len([col for col in df.columns if re.search(search_regex,str(col)) is not None])
 
     # Find the indices of cells containing the search value
-    cell_matches = [{'row': i, 'col': j} for i in range(min(1500,len(df.index))) for j in range(len(df.columns)) if (re.search(re.compile(search_value, re.IGNORECASE),str(df.iloc[i, j])) is not None)]
+    # Only search the first 1500 rows because the editor only shows the first 1500 rows. 
+    cell_matches = [{'row': i, 'col': j} for i in range(min(1500,len(df.index))) for j in range(len(df.columns)) if (re.search(search_regex,str(df.iloc[i, j])) is not None)]
 
     # Find the indices of columns containing the search value
     column_matches = [{'row': -1, 'col': j} for j in range(len(df.columns)) if (re.search(re.compile(search_value, re.IGNORECASE),str(df.columns[j])) is not None)]
