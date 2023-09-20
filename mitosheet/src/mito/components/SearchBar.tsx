@@ -38,7 +38,6 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     // Update the total number of matches when the search value changes
     useDebouncedEffect(() => {
-        console.log(searchValue)
         // If the search value is empty, set the total matches to 0
         if (searchValue === undefined || searchValue === '') {
             setTotalMatches(0);
@@ -50,10 +49,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             if ('error' in response) {
                 return;
             }
-            console.log('response', response)
             const total_number_matches = response.result.total_number_matches;
             const matches = response.result.matches;
-            console.log('total_number_matches', total_number_matches)
             if (total_number_matches !== undefined && !isNaN(Number(total_number_matches))) {
                 setTotalMatches(Number(total_number_matches));
             }
