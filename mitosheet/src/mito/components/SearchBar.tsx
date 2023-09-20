@@ -78,9 +78,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             const new_total_number_matches = response.result.total_number_matches;
             const new_matches = response.result.matches;
             // Update the total matches. 
-            if (!isNaN(Number(new_total_number_matches))) {
-                setTotalMatches(Number(new_total_number_matches));
-            }
+            setTotalMatches(new_total_number_matches ?? 0);
 
             if (new_matches?.length > 0) {
                 scrollMatchIntoView(new_matches[currentMatchIndex]);
