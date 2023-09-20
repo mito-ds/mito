@@ -71,7 +71,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         }
 
         // Call the API to get the total number of matches and the displayed matches. 
-        void mitoAPI.getTotalNumberMatches(uiState.selectedSheetIndex, searchValue ?? '').then((response) => {
+        void mitoAPI.getSearchMatches(uiState.selectedSheetIndex, searchValue ?? '').then((response) => {
             if ('error' in response) {
                 return;
             }

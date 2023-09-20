@@ -259,7 +259,7 @@ export class MitoAPI {
     /*
         Returns a string encoding of the CSV file to download
     */
-    async getTotalNumberMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<SearchResults>> {
+    async getSearchMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<SearchResults>> {
         return await this.send<SearchResults>({
             'event': 'api_call',
             'type': 'get_search_matches',
