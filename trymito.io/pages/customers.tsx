@@ -86,50 +86,50 @@ const Customers: NextPage = () => {
             <section className='display-mobile-only'>
               <div className={customerStyles.customer_logos}>
                 <div>
-                  <Image src="/customers/sap.png" height={60} width={107} alt="Image 1"/>
+                  <Image src="/customers/sap.png" height={60} width={107} alt="SAP"/>
                 </div>
                 <div>
-                  <Image src="/customers/kpmg.png" height={60} width={150} alt="Image 2"/>
+                  <Image src="/customers/kpmg.png" height={60} width={150} alt="KPMG"/>
                 </div>
                 <div>
-                  <Image src="/customers/ericsson.png" height={60} width={182} alt="Image 3"/>
+                  <Image src="/customers/ericsson.png" height={60} width={182} alt="Ericsson"/>
                 </div>
                 <div>
-                  <Image src="/customers/amazon.png" height={60} width={199} alt="Image 4"/>
+                  <Image src="/customers/amazon.png" height={60} width={199} alt="Amazon"/>
                 </div>
                 <div>
-                  <Image src="/customers/wayfair.png" height={60}  width={224} alt="Image 6"/>
+                  <Image src="/customers/wayfair.png" height={60}  width={224} alt="Wayfair"/>
                 </div>
                 <div>
-                  <Image src="/customers/accenture.png" height={60} width={194} alt="Image 5"/>
+                  <Image src="/customers/accenture.png" height={60} width={194} alt="Accenture"/>
                 </div>
                 <div>
-                  <Image src="/customers/cisco.png" height={60} width={113} alt="Image 7"/>
+                  <Image src="/customers/cisco.png" height={60} width={113} alt="Cisco"/>
                 </div>
                 <div>
-                  <Image src="/customers/deloitte.png" height={60} width={220} alt="Image 8"/>
+                  <Image src="/customers/deloitte.png" height={60} width={220} alt="Deloitte"/>
                 </div>
                 <div>
-                  <Image src="/customers/pwc.png" height={60} width={148} alt="Image 9"/>
+                  <Image src="/customers/pwc.png" height={60} width={148} alt="PWC"/>
                 </div>
               </div>
             </section>
             <section className={classNames(customerStyles.customer_table, 'display-desktop-only-flex')}>
                 <table>
                     <tr>
-                        <td><Image src="/customers/sap.png" height={60} width={107} alt="Image 1"/></td>
-                        <td><Image src="/customers/kpmg.png" height={60} width={150} alt="Image 2"/></td>
-                        <td><Image src="/customers/ericsson.png" height={60} width={182} alt="Image 3"/></td>
+                        <td><Image src="/customers/sap.png" height={60} width={107} alt="SAP"/></td>
+                        <td><Image src="/customers/kpmg.png" height={60} width={150} alt="KPMG"/></td>
+                        <td><Image src="/customers/ericsson.png" height={60} width={182} alt="Ericsson"/></td>
                     </tr>
                     <tr>
-                        <td><Image src="/customers/amazon.png" height={60} width={199} alt="Image 4"/></td>
-                        <td><Image src="/customers/wayfair.png" height={60}  width={224} alt="Image 6"/></td>
-                        <td><Image src="/customers/accenture.png" height={60} width={194} alt="Image 5"/></td>
+                        <td><Image src="/customers/amazon.png" height={60} width={199} alt="Amazon"/></td>
+                        <td><Image src="/customers/wayfair.png" height={60}  width={224} alt="Wayfair"/></td>
+                        <td><Image src="/customers/accenture.png" height={60} width={194} alt="Accenture"/></td>
                     </tr>
                     <tr>
-                        <td><Image src="/customers/cisco.png" height={60} width={113} alt="Image 7"/></td>
-                        <td><Image src="/customers/deloitte.png" height={60} width={220} alt="Image 8"/></td>
-                        <td><Image src="/customers/pwc.png" height={60} width={148} alt="Image 9"/></td>
+                        <td><Image src="/customers/cisco.png" height={60} width={113} alt="Cisco"/></td>
+                        <td><Image src="/customers/deloitte.png" height={60} width={220} alt="Deloitte"/></td>
+                        <td><Image src="/customers/pwc.png" height={60} width={148} alt="PWC"/></td>
                     </tr>
                 </table>
             </section>

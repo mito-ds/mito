@@ -216,10 +216,10 @@ const Home: NextPage = () => {
                 Mito is the go-to Python tool at the largest banks in the world
               </h2>
               <h3 className={titleStyles.description + ' display-desktop-only-inline-block'}>
-                See why Mito is ranked as one of the top Python libraries of 2022
+                See why Mito is ranked as one of the top Python libraries of 2023
               </h3>
               <p>
-                 <Link href='/customers'><a className={pageStyles.link}>Read how enterprises use Mito to save hours per week →</a></Link>
+                 <Link href='/customers'><a className={pageStyles.link}>Read how analysts at the largest financial institutions use Mito to save hours per week →</a></Link>
               </p>
             </div>
             <Tweets />
