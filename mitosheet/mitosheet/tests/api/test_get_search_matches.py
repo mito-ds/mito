@@ -131,14 +131,12 @@ def test_get_number_matches(data, sheet_index, search_value, expected):
     total_matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
     
     # Check that the excel string is not empty
-    assert total_matches == expected
+    assert total_matches['total_number_matches'] == expected
 
 
 NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
     (
-        [
-            pd.DataFrame({'A': [1, 2, 3]}),
-        ],
+        [ pd.DataFrame({'A': [1, 2, 3]}) ],
         0,
         '1',
         1
@@ -159,7 +157,7 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
         ],
         0,
         'c',
-        1
+        2
     )
 ]
 
@@ -170,4 +168,4 @@ def test_get_number_matches_multiple_dataframes(dfs,sheet_index,search_value,exp
 
     total_matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
 
-    assert total_matches == expected
+    assert total_matches['total_number_matches'] == expected
