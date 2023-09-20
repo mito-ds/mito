@@ -3,7 +3,7 @@ import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
-import { checkMatchesSearch, getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
+import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
@@ -82,7 +82,11 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const matchesSearch = checkMatchesSearch(finalColumnHeader + '', props.uiState.currOpenSearch.searchValue);
+    const matchesSearch = props.uiState.currOpenSearch.matches?.find((value) => {
+        return value.row === -1 && value.col === props.columnIndex;
+    }) !== undefined;
+    const currentMatch = props.uiState.currOpenSearch.matches?.[props.uiState.currOpenSearch.currentMatchIndex];
+    const isCurrentMatch = currentMatch?.row === -1 && currentMatch?.col === props.columnIndex;
     const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
@@ -171,7 +175,7 @@ const ColumnHeader = (props: {
                 'endo-column-header-container',
                 'endo-column-header-text',
                 {
-                    'endo-column-header-container-selected': selected,
+                    'endo-column-header-container-selected': selected || isCurrentMatch,
                     'recon': isColumnCreated || isColumnRenamed,
                 },
             )}
