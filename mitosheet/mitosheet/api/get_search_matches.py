@@ -37,7 +37,7 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     cell_matches = [{'row': i, 'col': j} for i in range(min(1500,len(df.index))) for j in range(len(df.columns)) if (re.search(search_regex,str(df.iloc[i, j])) is not None)]
 
     # Find the indices of columns containing the search value
-    column_matches = [{'row': -1, 'col': j} for j in range(len(df.columns)) if (re.search(re.compile(search_value, re.IGNORECASE),str(df.columns[j])) is not None)]
+    column_matches = [{'row': -1, 'col': j} for j, column in enumerate(df.columns) if (re.search(re.compile(search_value, re.IGNORECASE),str(column)) is not None)]
     
     # We want the columns to come first
     all_matches = column_matches + cell_matches
