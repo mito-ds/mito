@@ -8,7 +8,7 @@ from typing import List
 import pandas as pd
 from dash.development.base_component import Component, _explicitize_args
 
-from dash_usage import Input, Output, callback
+from dash import Input, Output, callback
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.utils import get_random_id
 
