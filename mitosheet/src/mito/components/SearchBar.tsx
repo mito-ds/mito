@@ -10,7 +10,7 @@ import Input from './elements/Input';
 import { MitoAPI } from '../api/api';
 import { useDebouncedEffect } from '../hooks/useDebouncedEffect';
 import LoadingDots from './elements/LoadingDots';
-import { ensureCellVisible } from './endo/visibilityUtils';
+import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -71,7 +71,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     }, [searchValue, uiState.selectedSheetIndex], 500);
 
     const totalMatchesDisplayed = matches?.length ?? 0;
-    const matchesText = <span> {currentMatchIndex} of {totalMatches ?? <LoadingDots />} </span>;
+    const matchesText = <span> {totalMatches ?? 0 > 0 ? currentMatchIndex + 1 : 0} of {totalMatches ?? <LoadingDots />} </span>;
     const finalText = totalMatches !== undefined && totalMatchesDisplayed === 0 ? <span>No results.</span> : matchesText
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -93,14 +93,25 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }
                 }
                 if (currentMatch < totalMatchesDisplayed && matches !== undefined) {
-                    ensureCellVisible(
-                        containerDiv,
-                        scrollAndRenderedContainerDiv,
-                        sheetView,
-                        gridState,
-                        matches[currentMatch].row,
-                        matches[currentMatch].col,
-                    )
+                    console.log(matches[currentMatch])
+                    if (matches[currentMatch].row === -1) {
+                        scrollColumnIntoView(
+                            containerDiv,
+                            scrollAndRenderedContainerDiv,
+                            sheetView,
+                            gridState,
+                            matches[currentMatch].col
+                        )
+                    } else {
+                        ensureCellVisible(
+                            containerDiv,
+                            scrollAndRenderedContainerDiv,
+                            sheetView,
+                            gridState,
+                            matches[currentMatch].row,
+                            matches[currentMatch].col,
+                        )
+                    }
                 }
                 return {
                     ...prevUIState,
@@ -119,7 +130,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             currOpenSearch: {
                 ...uiState.currOpenSearch,
                 searchValue: e.target.value,
-                currentMatchIndex: 0
+                currentMatchIndex: 0,
+                matches: e.target.value === '' ? undefined : uiState.currOpenSearch.matches
             }
         })
         if (e.target.value === '') {

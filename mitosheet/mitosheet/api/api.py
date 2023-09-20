@@ -18,7 +18,7 @@ from mitosheet.api.get_csv_files_metadata import get_csv_files_metadata
 from mitosheet.api.get_dataframe_as_csv import get_dataframe_as_csv
 from mitosheet.api.get_dataframe_as_excel import get_dataframe_as_excel
 from mitosheet.api.get_defined_df_names import get_defined_df_names
-from mitosheet.api.get_total_number_matches import get_total_number_matches
+from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.api.get_excel_file_metadata import get_excel_file_metadata
 from mitosheet.api.get_imported_files_and_dataframes_from_analysis_name import \
     get_imported_files_and_dataframes_from_analysis_name
@@ -179,8 +179,8 @@ def handle_api_event(
             result = get_dataframe_as_excel(params, steps_manager)
         elif event["type"] == "get_defined_df_names":
             result = get_defined_df_names(params, steps_manager)
-        elif event["type"] == "get_total_number_matches":
-            result = get_total_number_matches(params, steps_manager)
+        elif event["type"] == "get_search_matches":
+            result = get_search_matches(params, steps_manager)
         elif event["type"] == 'get_imported_files_and_dataframes_from_current_steps':
             result = get_imported_files_and_dataframes_from_current_steps(params, steps_manager)
         elif event["type"] == 'get_imported_files_and_dataframes_from_analysis_name':

@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_with_data
-from mitosheet.api.get_total_number_matches import get_total_number_matches
+from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.tests.decorators import pandas_post_1_only
 
 NUMBER_MATCHES_TESTS = [
@@ -128,7 +128,7 @@ def test_get_number_matches(data, sheet_index, search_value, expected):
     # Create a mito wrapper with data
     test_wrapper = create_mito_wrapper_with_data(data)
 
-    total_matches = get_total_number_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
+    total_matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
     
     # Check that the excel string is not empty
     assert total_matches == expected
@@ -168,6 +168,6 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
 def test_get_number_matches_multiple_dataframes(dfs,sheet_index,search_value,expected):
     test_wrapper = create_mito_wrapper(*dfs)
 
-    total_matches = get_total_number_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
+    total_matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
 
     assert total_matches == expected

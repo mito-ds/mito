@@ -262,7 +262,7 @@ export class MitoAPI {
     async getTotalNumberMatches(sheetIndex: number, searchValue: string): Promise<MitoAPIResult<SearchResults>> {
         return await this.send<SearchResults>({
             'event': 'api_call',
-            'type': 'get_total_number_matches',
+            'type': 'get_search_matches',
             'params': {
                 'sheet_index': sheetIndex,
                 'search_value': searchValue
