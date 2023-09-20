@@ -38,6 +38,27 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const [totalMatches, setTotalMatches] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
+    const scrollMatchIntoView = (match?: { row: number; col: number }) => {
+        if (match?.row === -1) {
+            scrollColumnIntoView(
+                containerDiv,
+                scrollAndRenderedContainerDiv,
+                sheetView,
+                gridState,
+                match?.col
+            )
+        } else if (match !== undefined) {
+            ensureCellVisible(
+                containerDiv,
+                scrollAndRenderedContainerDiv,
+                sheetView,
+                gridState,
+                match.row,
+                match.col,
+            )
+        }
+    }
+
     // Call the backend to get the new match information when the search value or sheet index changes.
     useDebouncedEffect(() => {
         // If the search value is empty, set the total matches to 0 and don't call the API.
@@ -61,6 +82,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             // Update the matches in UIState. This will trigger a re-render of the grid with
             // the matches highlighted.
             if (matches !== undefined) {
+                scrollMatchIntoView(matches[currentMatchIndex]);
                 setUIState((prevUIState) => {
                     return {
                         ...prevUIState,
@@ -117,24 +139,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
             // Then, we scroll the cell / column into view.
             // Columns have row index -1, so we check for that first.
-            if (matches?.[currentMatch].row === -1) {
-                scrollColumnIntoView(
-                    containerDiv,
-                    scrollAndRenderedContainerDiv,
-                    sheetView,
-                    gridState,
-                    matches[currentMatch].col
-                )
-            } else if (matches?.[currentMatch] !== undefined) {
-                ensureCellVisible(
-                    containerDiv,
-                    scrollAndRenderedContainerDiv,
-                    sheetView,
-                    gridState,
-                    matches[currentMatch].row,
-                    matches[currentMatch].col,
-                )
-            }
+            scrollMatchIntoView(matches?.[currentMatch])
 
             // Finally, we update the current match index in UIState.
             return {
