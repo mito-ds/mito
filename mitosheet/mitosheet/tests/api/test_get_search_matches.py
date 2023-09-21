@@ -150,8 +150,8 @@ def test_get_number_matches(data, sheet_index, search_value, expected_number_mat
     assert matches['total_number_matches'] == expected_number_matches
 
     for i, match in enumerate(matches['matches']):
-        assert match['row'] == expected_matches[i][0]
-        assert match['col'] == expected_matches[i][1]
+        assert match['rowIndex'] == expected_matches[i][0]
+        assert match['colIndex'] == expected_matches[i][1]
 
 NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
     (
@@ -203,5 +203,5 @@ def test_get_number_matches_multiple_dataframes(dfs,sheet_index,search_value,exp
     assert matches['total_number_matches'] == expected_total_matches
 
     for i, match in enumerate(matches['matches']):
-        assert match['row'] == expected_matches[i][0]
-        assert match['col'] == expected_matches[i][1]
+        assert match['rowIndex'] == expected_matches[i][0]
+        assert match['colIndex'] == expected_matches[i][1]
