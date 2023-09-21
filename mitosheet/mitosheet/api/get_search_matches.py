@@ -18,7 +18,7 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     df = steps_manager.dfs[sheet_index]
 
     # First, generate a count for each value in the dataframe:
-    unique_value_counts = df.value_counts()
+    unique_value_counts = df.stack().value_counts()
 
     # Use the same regex for all searching
     search_regex = re.compile(search_value, re.IGNORECASE)
