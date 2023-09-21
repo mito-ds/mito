@@ -96,7 +96,7 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.CONDITIONALFORMATTING,
         startingColumnIDs?: string[]
-      }
+    }
     | {type: TaskpaneType.DATAFRAMEIMPORT}
     | {
         type: TaskpaneType.UPDATEIMPORTS,

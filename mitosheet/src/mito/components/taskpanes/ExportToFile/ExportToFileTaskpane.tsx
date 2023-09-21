@@ -144,9 +144,9 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         <p className="text-header-3">Export with formatting</p>&nbsp;
                         {!props.userProfile.isPro && 
                             <div title='Upgrade to Mito Pro or Enterprise to generate formatted Excel files'>
-                                 <ProIcon/>
+                                <ProIcon/>
                             </div>
-                       }
+                        }
                     </Col>
                     <Col>
                         <Toggle
