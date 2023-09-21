@@ -125,6 +125,7 @@ def get_table_range(
         num_empty = 0
         for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
             is_empty_row = all([c.value is None for c in row])
+            print("ROW", row[0].column, row[-1].column, [c.value for c in row])
             if is_empty_row:
                 num_empty += 1
             

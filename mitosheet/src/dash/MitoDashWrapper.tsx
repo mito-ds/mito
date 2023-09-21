@@ -9,6 +9,14 @@ interface State {
     analysisName: string,
 }
 
+type AllJson = {
+    key: string,
+    sheet_data_json: string,
+    analysis_data_json: string,
+    user_profile_json: string
+    responses_json: string,
+}
+
 interface Props {
     id: string,
     all_json: string,
@@ -96,8 +104,8 @@ export default class MitoDashWrapper extends Component<Props, State> {
     
     render = () => {
 
-        const {id, all_json} = this.props;
-        const {sheet_data_json, analysis_data_json, user_profile_json, responses_json} = JSON.parse(all_json)
+        const {all_json} = this.props;
+        const {sheet_data_json, analysis_data_json, user_profile_json, responses_json, key} = JSON.parse(all_json) as AllJson;
     
 
         const sheetDataArray = getSheetDataArrayFromString(sheet_data_json);
@@ -125,7 +133,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
 
         return (
             <Mito 
-                key={id as string}
+                key={key as string}
                 getSendFunction={async () => this.send.bind(this)} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 

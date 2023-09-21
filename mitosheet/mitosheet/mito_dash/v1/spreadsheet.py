@@ -1,4 +1,5 @@
 import gc
+from io import StringIO
 import json
 import time
 from queue import Queue
@@ -35,9 +36,9 @@ class Spreadsheet(Component):
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
     _type = 'MitoDashWrapper'
-    _prop_names = ['id', 'all_json']
+    _prop_names = ['id', 'all_json', 'data']
     _valid_wildcard_attributes = []
-    available_properties = ['id', 'all_json']
+    available_properties = ['id', 'all_json', 'data']
     available_wildcard_properties = []
 
     @_explicitize_args
@@ -45,16 +46,9 @@ class Spreadsheet(Component):
             self, 
             *args,
             **kwargs
-    ):
+    ):     
         self.mito_id = kwargs['id']
-        self.mito_backend = MitoBackend(*args)
-
-        # Make a send function that stores the responses in a list
-        self.responses = []
-        def send(response):
-            self.responses.append(response)
-        
-        self.mito_backend.mito_send = send
+        self._set_new_mito_backend(args)
 
         _explicit_args = kwargs.pop('_explicit_args')
 
@@ -75,12 +69,30 @@ class Spreadsheet(Component):
         self.processing_messages = False
 
 
-        @callback(Output(self.mito_id, 'all_json'), Input(self.mito_id, 'message'), prevent_initial_call=True)
+        @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
         def handle_message(value):
             self.unprocessed_messages.put(value)
             self.process_single_message()
             return self.get_all_json()
 
+        @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'data'), prevent_initial_call=True)
+        def handle_data_change_data(df_in_json):
+            df = pd.read_json(StringIO(df_in_json))
+            self._set_new_mito_backend((df, ))
+            return self.get_all_json()
+        
+    def _set_new_mito_backend(self, args):
+        """
+        Called when the component is created, or when the input data is changed.
+        """
+        self.mito_frontend_key = get_random_id()
+        self.mito_backend = MitoBackend(*args)
+        self.responses = []
+        def send(response):
+            self.responses.append(response)
+        self.mito_backend.mito_send = send
+        
+            
     def process_single_message(self):
 
         # If we are already processing messages -- then wait until it is
@@ -108,6 +120,7 @@ class Spreadsheet(Component):
         return json.dumps({
             **self.mito_backend.get_shared_state_variables(),
             'responses_json': json.dumps(self.responses),
+            'key': self.mito_frontend_key
         })
     
     def get_result(self):
