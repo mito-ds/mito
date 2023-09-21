@@ -42,7 +42,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
 
-    const scrollMatchIntoView = (match?: { rowIndex: number; colIndex: number }) => {
+    const scrollMatchIntoViewAndUpdateSelection = (match?: { rowIndex: number; colIndex: number }) => {
         // Columns have row index -1, so we check for that first.
         if (match?.rowIndex === -1) {
             scrollColumnIntoView(
@@ -61,6 +61,22 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 match.rowIndex,
                 match.colIndex,
             )
+        }
+
+        // Either way, update the selection in the grid state.
+        if (match !== undefined) {
+            setGridState((prevGridState) => {
+                return {
+                    ...prevGridState,
+                    selections: [{
+                        startingColumnIndex: match.colIndex,
+                        endingColumnIndex: match.colIndex,
+                        startingRowIndex: match.rowIndex,
+                        endingRowIndex: match.rowIndex,
+                        sheetIndex: uiState.selectedSheetIndex,
+                    }]
+                }
+            });
         }
     }
 
@@ -82,8 +98,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             // Update the total matches. 
             setTotalMatches(new_total_number_matches ?? 0);
 
-            if (new_matches?.length > 0) {
-                scrollMatchIntoView(new_matches[currentMatchIndex]);
+            if (new_matches.length > 0) {
+                scrollMatchIntoViewAndUpdateSelection(new_matches[currentMatchIndex]);
             }
 
             // Update the matches in UIState. This will trigger a re-render of the grid with
@@ -143,21 +159,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
             // Then, we scroll the cell / column into view.
             const newMatch = matches?.[currentMatch];
-            scrollMatchIntoView(newMatch)
-            if (newMatch) {
-                setGridState((prevGridState) => {
-                    return {
-                        ...prevGridState,
-                        selections: [{
-                            startingColumnIndex: newMatch.colIndex,
-                            endingColumnIndex: newMatch.colIndex,
-                            startingRowIndex: newMatch.rowIndex,
-                            endingRowIndex: newMatch.rowIndex,
-                            sheetIndex: uiState.selectedSheetIndex,
-                        }]
-                    }
-                })
-            }
+            scrollMatchIntoViewAndUpdateSelection(newMatch);
 
             // Finally, we update the current match index in UIState.
             return {
