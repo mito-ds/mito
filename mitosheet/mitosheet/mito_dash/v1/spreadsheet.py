@@ -32,14 +32,14 @@ class SpreadsheetResult():
 
 class Spreadsheet(Component):
 
-    _children_props = []
+    _children_props: List[str] = []
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
     _type = 'MitoDashWrapper'
     _prop_names = ['id', 'all_json', 'data']
-    _valid_wildcard_attributes = []
+    _valid_wildcard_attributes: List[str] = []
     available_properties = ['id', 'all_json', 'data']
-    available_wildcard_properties = []
+    available_wildcard_properties: List[str] = []
 
     @_explicitize_args
     def __init__(

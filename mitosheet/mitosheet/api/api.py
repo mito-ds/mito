@@ -49,10 +49,10 @@ MAX_QUEUED_API_CALLS = 3
 # so the API calls are handled in the main thread, to make printing easy.
 # In newer versions of JupyterLab, to see these print statements:
 # View > Show Log Console > in the console set Log Level to Debug
-THREADED_DEFAULT = True
+THREADED = True
 
 
-def get_api_should_be_threaded():
+def get_api_should_be_threaded() -> bool:
 
     # JupyterLite does not support multiple threads, so we have to set it equal
     # to False in this case
@@ -62,11 +62,10 @@ def get_api_should_be_threaded():
     if is_streamlit():
         return False
 
-    print("IN DASH", is_dash())
     if is_dash():
         return False
     
-    return THREADED_DEFAULT
+    return True
 
 
 
@@ -92,7 +91,7 @@ class API:
 
         self.thread: Optional[Thread] = None
 
-    def start_thread(self):
+    def start_api_thread(self) -> None:
         # Note that we make the thread a daemon thread, which practically means that when
         # The process that starts this thread terminate, our API will terminate as well.
         self.thread = Thread(
@@ -116,12 +115,20 @@ class API:
         thread, as we don't want to drop the event. For example, lazy loading
         data has priority!
         """
+        # On the first API call, we check if the API should be threaded, and if the it is not already created -- and create it in this case
+        global THREADED
+        
+        if self.thread is None and get_api_should_be_threaded():
+            self.start_api_thread()
+            THREADED = True
+        else:
+            THREADED = False
 
-        if get_api_should_be_threaded() and "priority" not in event:
-            print("HERE123")
+        
+        if THREADED and "priority" not in event:
 
             if self.thread is None:
-                self.start_thread()
+                self.start_api_thread()
 
             if self.api_queue.full():
                 # If the queue is full, we drop the first event, and just return a None
@@ -131,7 +138,6 @@ class API:
 
             self.api_queue.put(event)
         else:
-            print("GOT EVENT", event)
             handle_api_event(self.mito_backend.mito_send, event, self.steps_manager)
 
 
