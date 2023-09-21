@@ -135,7 +135,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         },
         currOpenSearch: {
             isOpen: false,
-            currentMatchIndex: 0,
+            currentMatchIndex: -1,
             matches: []
         },
         dataRecon: undefined,
@@ -1010,7 +1010,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 ...prevUIState,
                                 currOpenSearch: {
                                     isOpen: false,
-                                    currentMatchIndex: 0,
+                                    currentMatchIndex: -1,
                                     matches: []
                                 }
                             }

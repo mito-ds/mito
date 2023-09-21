@@ -98,10 +98,6 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             // Update the total matches. 
             setTotalMatches(new_total_number_matches ?? 0);
 
-            if (new_matches.length > 0) {
-                scrollMatchIntoViewAndUpdateSelection(new_matches[currentMatchIndex]);
-            }
-
             // Update the matches in UIState. This will trigger a re-render of the grid with
             // the matches highlighted.
             setUIState((prevUIState) => {
@@ -175,14 +171,14 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     // This handles when the user types in the search bar. 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         // Update the search value in UIState. Also, resets the current
-        // match index to 0 and the matches to undefined so that the former
+        // match index to -1 and the matches to undefined so that the former
         // search results are not displayed.
         setUIState({
             ...uiState,
             currOpenSearch: {
                 ...uiState.currOpenSearch,
                 searchValue: e.target.value,
-                currentMatchIndex: 0,
+                currentMatchIndex: -1,
                 matches: e.target.value === '' ? [] : uiState.currOpenSearch.matches
             }
         })
@@ -237,7 +233,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             onClick={() => {
                 setUIState({
                     ...uiState,
-                    currOpenSearch: { isOpen: false, currentMatchIndex: 0, matches: [] }
+                    currOpenSearch: { isOpen: false, currentMatchIndex: -1, matches: [] }
                 })
             }}
         >
