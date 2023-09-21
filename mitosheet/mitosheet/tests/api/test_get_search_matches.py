@@ -188,7 +188,7 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
         ],
         1,
         '3',
-        3,
+        4,
         [(0, 0), (1, 0), (2, 0), (2, 3)]
     )
 ]
