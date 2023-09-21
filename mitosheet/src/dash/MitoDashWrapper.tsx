@@ -93,6 +93,16 @@ export default class MitoDashWrapper extends Component<Props, State> {
 
     public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
 
+        // We don't send log events, we have a limited messaging budget for performance reasons
+        // and because there is debouncing that cause messages to get lost
+        if (msg.event === 'log_event') {
+            return {
+                error: `No response on message: {id: ${msg.id}}`,
+                errorShort: `No response received`,
+                showErrorModal: false
+            }
+        }
+
         this.props.setProps({
             'message': msg
         })

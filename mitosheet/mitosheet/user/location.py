@@ -130,3 +130,34 @@ def is_streamlit() -> bool:
         return get_script_run_ctx() is not None
     except ModuleNotFoundError:
         return False
+    
+_IS_DASH = False
+    
+def is_dash() -> bool:
+    global _IS_DASH
+    # If we are ever in dash, we always are, so we can avoid work. Notably, because the dash app starts after the running of the process,
+    # we do have to check multiple times. I am a bit worried about the performance here - as it it's called every-time the API is called 
+    # when the user is not in dash... I can't think of any way to avoid this except a timeout, which seems kinda hacky...
+    if _IS_DASH:
+        return True
+    
+    try:
+        
+        import dash
+        from flask import current_app
+
+        # If any of these routes are defined, then we are in a dash app
+        dash_routes = [
+            '/_dash-dependencies',
+            '/_dash-component-suites',
+            '/_dash-layout'
+        ]
+
+        for rule in current_app.url_map.iter_rules():
+            for dash_route in dash_routes:
+                if dash_route in str(rule):
+                    return True
+
+    except:
+        pass
+    return False

@@ -6,7 +6,7 @@
 """
 Makes sure we don't accidently deploy single threaded code
 """
-from mitosheet.api.api import THREADED
+from mitosheet.api.api import THREADED_DEFAULT
 
 def test_multi_threaded():
-    assert THREADED
+    assert THREADED_DEFAULT
