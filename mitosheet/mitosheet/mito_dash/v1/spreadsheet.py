@@ -71,7 +71,6 @@ class Spreadsheet(Component):
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
         def handle_message(value):
-            print("MESSAGE", value)
             self.unprocessed_messages.put(value)
             self.process_single_message()
             return self.get_all_json()
