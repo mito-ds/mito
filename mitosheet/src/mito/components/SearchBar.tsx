@@ -22,6 +22,7 @@ interface SearchBarProps {
     scrollAndRenderedContainerDiv: HTMLDivElement | null;
     sheetView: SheetView;
     gridState: GridState;
+    setGridState: React.Dispatch<React.SetStateAction<GridState>>;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
@@ -32,7 +33,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         containerDiv,
         scrollAndRenderedContainerDiv,
         sheetView,
-        gridState
+        gridState,
+        setGridState
     } = props;
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
 
@@ -140,7 +142,22 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             }
 
             // Then, we scroll the cell / column into view.
-            scrollMatchIntoView(matches?.[currentMatch])
+            const newMatch = matches?.[currentMatch];
+            scrollMatchIntoView(newMatch)
+            if (newMatch) {
+                setGridState((prevGridState) => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingColumnIndex: newMatch.colIndex,
+                            endingColumnIndex: newMatch.colIndex,
+                            startingRowIndex: newMatch.rowIndex,
+                            endingRowIndex: newMatch.rowIndex,
+                            sheetIndex: uiState.selectedSheetIndex,
+                        }]
+                    }
+                })
+            }
 
             // Finally, we update the current match index in UIState.
             return {

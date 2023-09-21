@@ -32,12 +32,6 @@
     background-color: var(--mito-highlight-light);
 }
 
-.mito-grid-cell-search-match {
-    background-color: var(--mito-highlight-light);
-    color: var(--mito-text);
-    font-weight: bold;
-}
-
 .mito-search-caution {
     position: absolute;
     background: #FFE092;

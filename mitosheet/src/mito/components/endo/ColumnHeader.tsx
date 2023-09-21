@@ -89,8 +89,6 @@ const ColumnHeader = (props: {
     }) !== undefined;
 
     // Check if the current match is this column header. If so, highlight it. 
-    const currentMatch = props.uiState.currOpenSearch.matches[props.uiState.currOpenSearch.currentMatchIndex];
-    const isCurrentMatch = currentMatch?.rowIndex === -1 && currentMatch?.colIndex === props.columnIndex;
     const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
@@ -179,7 +177,7 @@ const ColumnHeader = (props: {
                 'endo-column-header-container',
                 'endo-column-header-text',
                 {
-                    'endo-column-header-container-selected': selected || isCurrentMatch,
+                    'endo-column-header-container-selected': selected,
                     'recon': isColumnCreated || isColumnRenamed,
                 },
             )}

@@ -774,6 +774,7 @@ function EndoGrid(props: {
                     scrollAndRenderedContainerDiv={scrollAndRenderedContainerRef.current}
                     sheetView={currentSheetView}
                     gridState={gridState}
+                    setGridState={setGridState}
                 />
             }
         </>
