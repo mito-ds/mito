@@ -201,8 +201,15 @@ export default class MitoDashWrapper extends Component<Props, State> {
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
-                // TODO: figure out selection on Dash
-                onSelectionChange={undefined}
+                onSelectionChange={(selectedDataframeIndex, selections) => {
+                    this.send({
+                        'type': 'selection_event',
+                        'indexAndSelections': {
+                            selectedDataframeIndex, 
+                            selections
+                        }
+                    })
+                }}
             />  
         )
     }

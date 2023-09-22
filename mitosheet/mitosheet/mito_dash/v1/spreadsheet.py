@@ -10,6 +10,7 @@ from dash.development.base_component import Component, _explicitize_args
 
 from dash import Input, Output, callback
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_random_id
 
 
@@ -18,10 +19,12 @@ class SpreadsheetResult():
     def __init__(
         self, 
         dfs: List[pd.DataFrame],
-        code: List[str]
+        code: List[str],
+        index_and_selections: Optional[Any]=None
     ):
         self.__dfs = dfs
         self.__code = code
+        self.__index_and_selections = index_and_selections
 
     def dfs(self) -> List[pd.DataFrame]:
         return self.__dfs
@@ -29,6 +32,9 @@ class SpreadsheetResult():
     def code(self) -> str:
         return "\n".join(self.__code)
     
+    def selection(self) -> Optional[Union[pd.DataFrame, pd.Series]]:
+        return get_selected_element(self.__dfs, self.__index_and_selections)
+     
 
 class Spreadsheet(Component):
 
@@ -68,11 +74,18 @@ class Spreadsheet(Component):
         self.unprocessed_messages = Queue()
         self.processing_messages = False
 
+        self.index_and_selections: Optional[pd.DataFrame] = None
+
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
-        def handle_message(value):
-            self.unprocessed_messages.put(value)
-            self.process_single_message()
+        def handle_message(msg):
+
+            if msg['type'] == 'selection_event':
+                self.index_and_selections = msg['indexAndSelections']
+            else:
+                self.unprocessed_messages.put(msg)
+                self.process_single_message()
+            
             return self.get_all_json()
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'data'), prevent_initial_call=True)
@@ -133,6 +146,7 @@ class Spreadsheet(Component):
         return SpreadsheetResult(
             dfs=self.mito_backend.steps_manager.dfs,
             code=self.mito_backend.steps_manager.code(),
+            index_and_selections=self.index_and_selections
         )
     
 

@@ -10,7 +10,8 @@ app = Dash(__name__)
 
 app.layout = html.Div([
     Spreadsheet(df, id='mito-dash-wrapper'),
-    dash_table.DataTable(df.to_dict('records'), id='output'),
+    Spreadsheet(df, id='output'),
+    html.Div(id='selection'),
     html.Button('New Mito Data', id='new-mito-data')
 ])
 
@@ -21,6 +22,14 @@ app.layout = html.Div([
 def update_output(spreadsheet_result):
     dfs = spreadsheet_result.dfs()
     return dfs[0].to_dict('records')
+
+@spreadsheet_callback(
+    Output('selection', 'children'),
+    input_id='mito-dash-wrapper',
+)
+def update_selection(spreadsheet_result):
+    selection = spreadsheet_result.selection()
+    return str(selection)
 
 
 @callback(Output('mito-dash-wrapper', 'data'), Input('new-mito-data', 'n_clicks'), prevent_initial_call=True)
