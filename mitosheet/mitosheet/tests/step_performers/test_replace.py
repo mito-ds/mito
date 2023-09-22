@@ -13,6 +13,8 @@ from mitosheet.tests.test_utils import create_mito_wrapper
 
 from mitosheet.errors import MitoError
 
+from mitosheet.utils import get_new_id
+
 REPLACE_TESTS = [
     # Tests with boolean columns
     (
@@ -149,28 +151,39 @@ def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs
         print(expected)
         pd.testing.assert_frame_equal(actual,expected)
 
-# REPLACE_INVALID_TESTS = [
-#     (
-#         [
-#             pd.DataFrame({
-#                 'A': [1, 2, 3],
-#                 'B': [1.0, 2.0, 3.0],
-#                 'C': [True, False, True],
-#                 'D': ["string", "with spaces", "and/!other@characters3"],
-#                 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']),
-#                 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
-#             })
-#         ],
-#         0,
-#         "3",
-#         "hi"
-#     ),
-# ]
+REPLACE_INVALID_TESTS = [
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0],
+                'C': [True, False, True],
+                'D': ["string", "with spaces", "and/!other@characters3"],
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']),
+                'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
+            })
+        ],
+        0,
+        "3",
+        "hi"
+    ),
+]
 
-# @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", REPLACE_INVALID_TESTS)
-# def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
-#     mito = create_mito_wrapper(*input_dfs)
+@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", REPLACE_INVALID_TESTS)
+def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
+    mito = create_mito_wrapper(*input_dfs)
 
-#     with pytest.raises(MitoError):
-#         mito.replace(sheet_index, search_value, replace_value)
-        
+    with pytest.raises(MitoError):
+        mito.mito_backend.handle_edit_event(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'replace_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'search_value': search_value,
+                    'replace_value': replace_value,
+                }
+            }
+        )

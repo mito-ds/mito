@@ -17,6 +17,7 @@ from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.public.v3.types.bool import cast_string_to_bool
 from mitosheet.errors import MitoError
 from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
+from mitosheet.errors import make_invalid_replace_error
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
@@ -63,12 +64,7 @@ class ReplaceStepPerformer(StepPerformer):
                 post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
             post_state.dfs[sheet_index] = df
         except Exception as e:
-            raise MitoError(
-                'replace_incompatible_types', 
-                'Search and Replace Incompatible Types',
-                f'{search_value} cannot be replaced with {replace_value} because the types are incompatible.',
-                error_modal=True
-            )
+            raise make_invalid_replace_error(search_value, replace_value)
         pandas_processing_time = perf_counter() - pandas_start_time
         return post_state, {
             'pandas_processing_time': pandas_processing_time
