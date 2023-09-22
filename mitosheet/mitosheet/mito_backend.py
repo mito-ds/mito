@@ -79,6 +79,15 @@ class MitoBackend():
         all_custom_importers = user_defined_importers if user_defined_importers is not None else []
         if custom_importers_path is not None:
             all_custom_importers.extend(get_functions_from_path(custom_importers_path))
+
+        # Get the absolute path to the import_folder, in case it is relative. Also
+        # check that this folder exists, and throw an error if it does not.
+        if import_folder is not None:
+            import_folder = os.path.expanduser(import_folder)
+            import_folder = os.path.abspath(import_folder)
+
+            if not os.path.exists(import_folder):
+                raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
         
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(

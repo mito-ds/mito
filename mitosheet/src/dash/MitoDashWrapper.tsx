@@ -3,10 +3,14 @@ import React, { Component } from "react"
 import { MitoResponse, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
+export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
+
 
 interface State {
     responses: MitoResponse[],
     analysisName: string,
+    messageQueue: Record<string, any>[],
+    isSendingMessages: boolean,
 }
 
 type AllJson = {
@@ -33,10 +37,12 @@ export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 
 export default class MitoDashWrapper extends Component<Props, State> {
-    
+    processMessageQueueTimer: null | NodeJS.Timeout;
+
     constructor(props: Props) {
         super(props);
-        this.state = { responses: [], analysisName: '' };
+        this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false };
+        this.processMessageQueueTimer = null; // Variable to store the timer
     }
 
     public getResponseData<ResultType>(id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -91,22 +97,69 @@ export default class MitoDashWrapper extends Component<Props, State> {
         })
     }
 
-    public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
+
+    processQueue = () => {
+        if (this.state.messageQueue.length > 0) {
+            // Send one message
+            const message = this.state.messageQueue[0];
+            this.props.setProps({
+                'message': message
+            })
+
+            // Remove the processed message from the queue - making sure
+            // to avoid merge conflicts by finding by value
+            this.setState((prevState) => {
+                const messageQueue = [...prevState.messageQueue];
+                const index = messageQueue.findIndex((m) => m === message);
+                messageQueue.splice(index, 1);
+
+                return { 
+                    messageQueue,
+                    isSendingMessages: messageQueue.length > 0,
+                };
+            });
+
+            // Set a timer to process the next message after a delay
+            this.processMessageQueueTimer = setTimeout(this.processQueue, DELAY_BETWEEN_SET_DASH_PROPS);
+        } else {
+            // Otherwise, we have processed the full queue
+            this.setState({ isSendingMessages: false });
+        }
+    };
+    
+    handleMitoEvent = (message: Record<string, unknown>) => {
+        // TODO: I think we have to check the origin here, but I'm not sure
+        // how to do that.
 
         // We don't send log events, we have a limited messaging budget for performance reasons
-        // and because there is debouncing that cause messages to get lost
-        if (msg.event === 'log_event') {
-            return {
-                error: `No response on message: {id: ${msg.id}}`,
-                errorShort: `No response received`,
-                showErrorModal: false
-            }
+        // and because there is debouncing that cause messages to get lost. 
+        if (message.event === 'log_event') {
+            return
         }
+    
+        // Add the message to the queue
+        this.setState((prevState) => ({
+            messageQueue: [...prevState.messageQueue, message],
+        }));
+    
+        // Do some work to make sure we avoid race conditions. Namely, we only want to
+        // start processing the queue if we are not already processing the queue.
+        let processQueue = false;
+        this.setState(prevState => {
+            if (!prevState.isSendingMessages) {
+                processQueue = true;
+            }
+            return { isSendingMessages: true };
+        }, () => {
+            if (processQueue) {
+                this.processQueue();
+            }
+        });
+    };
 
-        this.props.setProps({
-            'message': msg
-        })
-        
+
+    public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
+        this.handleMitoEvent(msg);
         const response = await this.getResponseData(msg['id'] as string);        
         return response;
     }

@@ -59,6 +59,9 @@ def get_api_should_be_threaded() -> bool:
     if is_jupyterlite():
         return False
 
+    # Dashboarding solutions like Streamlit and Dash do their own thing with threads, so we
+    # don't create a thread in that case either
+
     if is_streamlit():
         return False
 

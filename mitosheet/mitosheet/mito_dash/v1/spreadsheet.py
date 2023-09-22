@@ -3,7 +3,7 @@ from io import StringIO
 import json
 import time
 from queue import Queue
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from dash.development.base_component import Component, _explicitize_args
@@ -36,9 +36,9 @@ class Spreadsheet(Component):
     _base_nodes = ['children']
     _namespace = 'dash_spreadsheet_v1'
     _type = 'MitoDashWrapper'
-    _prop_names = ['id', 'all_json', 'data']
+    _prop_names = ['id', 'all_json', 'data', 'import_folder']
     _valid_wildcard_attributes: List[str] = []
-    available_properties = ['id', 'all_json', 'data']
+    available_properties = ['id', 'all_json', 'data', 'import_folder']
     available_wildcard_properties: List[str] = []
 
     @_explicitize_args
@@ -48,7 +48,7 @@ class Spreadsheet(Component):
             **kwargs
     ):     
         self.mito_id = kwargs['id']
-        self._set_new_mito_backend(args)
+        self._set_new_mito_backend(args, kwargs.get('import_folder'))
 
         _explicit_args = kwargs.pop('_explicit_args')
 
@@ -77,16 +77,22 @@ class Spreadsheet(Component):
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'data'), prevent_initial_call=True)
         def handle_data_change_data(df_in_json):
-            df = pd.read_json(StringIO(df_in_json))
+            
+            # TODO: we should handle more data types. Namely, those that dash_table does
+            if isinstance(df_in_json, str):
+                df = pd.read_json(StringIO(df_in_json))
+            elif isinstance(df_in_json, list):
+                df = pd.DataFrame(df_in_json)
+
             self._set_new_mito_backend((df, ))
             return self.get_all_json()
         
-    def _set_new_mito_backend(self, args):
+    def _set_new_mito_backend(self, args, import_folder: Optional[str]=None):
         """
         Called when the component is created, or when the input data is changed.
         """
         self.mito_frontend_key = get_random_id()
-        self.mito_backend = MitoBackend(*args)
+        self.mito_backend = MitoBackend(*args, import_folder=import_folder)
         self.responses = []
         def send(response):
             self.responses.append(response)
@@ -182,7 +188,7 @@ def spreadsheet_callback(
         callback_component = components[0]
 
     if callback_component is None:
-        raise ValueError(f'Could not find Spreadsheet with id {input_id}')
+        raise ValueError(f'Could not find Spreadsheet with id {input_id}. Make sure the input_id matches the id of a spreadsheet component')
     
     # Create a callback that will send the result to the Spreadsheet component
     # with the given id
