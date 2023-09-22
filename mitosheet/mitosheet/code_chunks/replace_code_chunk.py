@@ -42,7 +42,7 @@ class ReplaceCodeChunk(CodeChunk):
                 f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}').map(cast_string_to_bool)"
             ]
 
-        return [], code_chunk
+        return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]
