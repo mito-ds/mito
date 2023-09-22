@@ -41,6 +41,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     // totalMatches is undefined when we're making the API call to get the total number of matches.
     const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
+    const [ isExpanded, setIsExpanded ] = React.useState<boolean>(false);
+    const [ replaceValue, setReplaceValue ] = React.useState<string>('');
 
     const scrollMatchIntoViewAndUpdateSelection = (match?: { rowIndex: number; colIndex: number }) => {
         // Columns have row index -1, so we check for that first.
@@ -189,56 +191,89 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     }
 
     return (<div className='mito-search-bar'>
-        <Input
-            id='mito-search-bar-input'
-            value={searchValue ?? ''}
-            onChange={handleChange}
-            onKeyDown={(e: React.KeyboardEvent) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    handleCurrentMatchChange('next');
-                }
-            }}
-            onKeyUp={(e: React.KeyboardEvent) => {
-                // onKeyDown can't detect shift+enter, so we use onKeyUp to detect it
-                if (e.key === 'Enter' && e.shiftKey) {
-                    handleCurrentMatchChange('prev');
-                }
-            }}
-            className={classNames('mito-input')}
-            placeholder='Find...'
-            autoFocus
-        />
-        <span>{finalMatchInfo}</span>
-        {/* This button jumps to the previous match */}
         <button
-            className='mito-search-button'
             onClick={() => {
-                handleCurrentMatchChange('prev')
+                setIsExpanded(!isExpanded);
             }}
-        >
-            <SearchNavigateIcon upOrDown='up' strokeColor='var(--mito-text)' strokeWidth={1} />
-        </button>
-        {/* This button jumps to the next match */}
-        <button
             className='mito-search-button'
-            onClick={() => {
-                handleCurrentMatchChange('next')
-            }}
         >
-            <SearchNavigateIcon upOrDown='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+            <SearchNavigateIcon direction={isExpanded ? 'up' : 'right'} strokeWidth={1} strokeColor='var(--mito-text)'/>
         </button>
-        {/* This button closes the search bar. */}
-        <button
-            className='mito-search-button'
-            onClick={() => {
-                setUIState({
-                    ...uiState,
-                    currOpenSearch: { isOpen: false, currentMatchIndex: -1, matches: [] }
-                })
-            }}
-        >
-            <XIcon strokeWidth='1' width='15' height='15' />
-        </button>
+        <div className='mito-search-bar-content'>
+            <div className='mito-search-bar-search'>
+                <Input
+                    id='mito-search-bar-input'
+                    value={searchValue ?? ''}
+                    onChange={handleChange}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            handleCurrentMatchChange('next');
+                        }
+                    }}
+                    onKeyUp={(e: React.KeyboardEvent) => {
+                        // onKeyDown can't detect shift+enter, so we use onKeyUp to detect it
+                        if (e.key === 'Enter' && e.shiftKey) {
+                            handleCurrentMatchChange('prev');
+                        }
+                    }}
+                    className={classNames('mito-input')}
+                    placeholder='Find...'
+                    autoFocus
+                />
+                <span>{finalMatchInfo}</span>
+                {/* This button jumps to the previous match */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        handleCurrentMatchChange('prev')
+                    }}
+                >
+                    <SearchNavigateIcon direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
+                </button>
+                {/* This button jumps to the next match */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        handleCurrentMatchChange('next')
+                    }}
+                >
+                    <SearchNavigateIcon direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+                </button>
+                {/* This button closes the search bar. */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        setUIState({
+                            ...uiState,
+                            currOpenSearch: { isOpen: false, currentMatchIndex: 0, matches: [] }
+                        })
+                    }}
+                >
+                    <XIcon strokeWidth='1' width='15' height='15' />
+                </button>
+            </div>
+            {isExpanded && <div className='mito-search-bar-replace'>
+                <Input
+                    value={replaceValue}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setReplaceValue(e.target.value);
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === 'Enter') {
+                            mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                        }
+                    }}
+                    className='mito-input'
+                    placeholder='Replace...'
+                    autoFocus
+                />
+                <button className='mito-search-button' onClick={() => {
+                    mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                }}>
+                    Replace All
+                </button>
+            </div>}
+        </div>
         {showCautionMessage && <div className='mito-search-caution'>
             <CautionIcon />
             <span>Only the first 1500 rows are displayed.</span>

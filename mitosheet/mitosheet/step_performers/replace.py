@@ -17,8 +17,6 @@ from mitosheet.public.v3.types.bool import cast_string_to_bool
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
-import re
-
 class ReplaceStepPerformer(StepPerformer):
     """
     Allows you to replace.
