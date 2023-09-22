@@ -93,6 +93,7 @@ class API:
         self.mito_backend = mito_backend
 
         self.thread: Optional[Thread] = None
+        self.had_first_api_call = False
 
     def start_api_thread(self) -> None:
         # Note that we make the thread a daemon thread, which practically means that when
@@ -103,7 +104,7 @@ class API:
             daemon=True,
         )
 
-        self.thread.start
+        self.thread.start()
 
 
     def process_new_api_call(self, event: Dict[str, Any]) -> None:
@@ -118,20 +119,19 @@ class API:
         thread, as we don't want to drop the event. For example, lazy loading
         data has priority!
         """
-        # On the first API call, we check if the API should be threaded, and if the it is not already created -- and create it in this case
+        # On the first API call , we check if the API should be threaded, and if the it is not already created -- and create it in this case
         global THREADED
-        
-        if self.thread is None and get_api_should_be_threaded():
-            self.start_api_thread()
-            THREADED = True
-        else:
-            THREADED = False
 
-        
-        if THREADED and "priority" not in event:
-
-            if self.thread is None:
+        if not self.had_first_api_call:
+            if self.thread is None and get_api_should_be_threaded():
                 self.start_api_thread()
+                THREADED = True
+            else:
+                THREADED = False
+            
+            self.had_first_api_call = True
+
+        if THREADED and "priority" not in event:
 
             if self.api_queue.full():
                 # If the queue is full, we drop the first event, and just return a None
