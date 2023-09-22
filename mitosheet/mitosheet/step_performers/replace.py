@@ -5,6 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import re
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -14,6 +15,8 @@ from mitosheet.code_chunks.replace_code_chunk import ReplaceCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.public.v3.types.bool import cast_string_to_bool
+from mitosheet.errors import MitoError
+from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
@@ -43,14 +46,29 @@ class ReplaceStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         
         df = post_state.dfs[sheet_index]
-        if any(df.dtypes == 'bool'):
-            bool_columns = df.select_dtypes(include='bool')
-            non_bool_columns = df.select_dtypes(exclude='bool')
-            df[bool_columns.columns] = bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).map(cast_string_to_bool)
-            df[non_bool_columns.columns] = non_bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
-        else:
-            df = df.astype(str).replace(f'(?i){search_value}', replace_value).astype(df.dtypes.to_dict())
-        post_state.dfs[sheet_index] = df
+        try:
+            if any(df.dtypes == 'bool'):
+                bool_columns = df.select_dtypes(include='bool')
+                non_bool_columns = df.select_dtypes(exclude='bool')
+                df[bool_columns.columns] = bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).map(cast_string_to_bool)
+                df[non_bool_columns.columns] = non_bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
+            else:
+                df = df.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(df.dtypes.to_dict())
+            column_matches = [column for column in df.columns if re.search(re.compile(search_value, re.IGNORECASE), column)]
+            df.columns = df.columns.str.replace(f'(?i){search_value}', replace_value, regex=True)
+            for column in column_matches:
+                print(f'column: {column}')
+                new_column_name = re.sub(re.compile(search_value, re.IGNORECASE), replace_value, column)
+                column_id = post_state.column_ids.get_column_id_by_header(sheet_index, column)
+                post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
+            post_state.dfs[sheet_index] = df
+        except Exception as e:
+            raise MitoError(
+                'replace_incompatible_types', 
+                'Search and Replace Incompatible Types',
+                f'{search_value} cannot be replaced with {replace_value} because the types are incompatible.',
+                error_modal=True
+            )
         pandas_processing_time = perf_counter() - pandas_start_time
         return post_state, {
             'pandas_processing_time': pandas_processing_time

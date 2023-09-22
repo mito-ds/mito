@@ -11,7 +11,10 @@ import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
 
+from mitosheet.errors import MitoError
+
 REPLACE_TESTS = [
+    # Tests with boolean columns
     (
         [
             pd.DataFrame({
@@ -110,6 +113,29 @@ REPLACE_TESTS = [
             })
         ],
     ),
+
+    # Tests without boolean columns
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "a", 
+        "f", 
+        [
+            pd.DataFrame({
+                'f': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spfces", "fnd/!other@chfrfcters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", REPLACE_TESTS)
 def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
@@ -122,3 +148,29 @@ def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs
         print(actual)
         print(expected)
         pd.testing.assert_frame_equal(actual,expected)
+
+# REPLACE_INVALID_TESTS = [
+#     (
+#         [
+#             pd.DataFrame({
+#                 'A': [1, 2, 3],
+#                 'B': [1.0, 2.0, 3.0],
+#                 'C': [True, False, True],
+#                 'D': ["string", "with spaces", "and/!other@characters3"],
+#                 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']),
+#                 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
+#             })
+#         ],
+#         0,
+#         "3",
+#         "hi"
+#     ),
+# ]
+
+# @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", REPLACE_INVALID_TESTS)
+# def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
+#     mito = create_mito_wrapper(*input_dfs)
+
+#     with pytest.raises(MitoError):
+#         mito.replace(sheet_index, search_value, replace_value)
+        

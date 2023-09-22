@@ -114,7 +114,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         });
     }, [searchValue, uiState.selectedSheetIndex], 500);
 
-    // This is separate from totalMatches because we only display the first 1500 matches.
+    // This is separate from totalMatches because we only display the first 1500 rows.
     const totalMatchesDisplayed: number = matches?.length ?? 0;
 
     // This displays a loading icon if the total matches is undefined.
@@ -133,7 +133,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setUIState((prevUIState) => {
             let currentMatch = currentMatchIndex;
 
-            // Because we only display the first 1500 matches, we need to check if there are some matches not displayed
+            // Because we only display the first 1500 rows, we need to check if there are some matches not displayed
             const someMatchesNotDisplayed = (totalMatches ?? totalMatchesDisplayed) > totalMatchesDisplayed;
 
             // First, we calculate the new current match index and show the caution message if necessary

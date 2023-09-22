@@ -70,7 +70,7 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-        assert final_dfs[df_name].equals(df)
+        pd.testing.assert_frame_equal(final_dfs[df_name],df)
 
     code = "\n".join(
         test_wrapper.transpiled_code +
