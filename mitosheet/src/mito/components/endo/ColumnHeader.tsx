@@ -3,7 +3,7 @@ import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
-import { checkMatchesSearch, getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
+import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { classNames } from '../../utils/classNames';
@@ -82,7 +82,13 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const matchesSearch = checkMatchesSearch(finalColumnHeader + '', props.uiState.currOpenSearch.searchValue);
+
+    // Check if the column header is a match of the search
+    const matchesSearch = props.uiState.currOpenSearch.matches.find((value) => {
+        return value.rowIndex === -1 && value.colIndex === props.columnIndex;
+    }) !== undefined;
+
+    // Check if the current match is this column header. If so, highlight it. 
     const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {

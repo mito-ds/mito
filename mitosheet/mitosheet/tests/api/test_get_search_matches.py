@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_with_data
-from mitosheet.api.get_total_number_matches import get_total_number_matches
+from mitosheet.api.get_search_matches import get_search_matches
 from mitosheet.tests.decorators import pandas_post_1_only
 
 NUMBER_MATCHES_TESTS = [
@@ -19,31 +19,36 @@ NUMBER_MATCHES_TESTS = [
         ['abc', 'def', 'fgh', 'abc'],
         0, 
         'abc',
-        2
+        2,
+        [(0, 0), (3, 0)]
     ),
     (
         ['abcdef', 'def', 'fgh', 'abc'],
         0, 
         'def',
-        2
+        2,
+        [(0, 0), (1, 0)]
     ),
     (
         ['abc', 'def', 'fgh', 'abc'],
         0, 
         'f',
-        2
+        2,
+        [(1, 0), (2, 0)]
     ),
     (
         ['abc', 'def', 'fgh', 'abc'],
         0, 
         'ef',
-        1
+        1,
+        [(1, 0)]
     ),
     (
         ['abc', 'def', 'fgh', 'ABC'],
         0, 
         'abc',
-        2
+        2,
+        [(0, 0), (3, 0)]
     ),
 
     # Tests for numbers
@@ -51,31 +56,36 @@ NUMBER_MATCHES_TESTS = [
         [1234, 123, 345, 456],
         0, 
         '123',
-        2
+        2,
+        [(0, 0), (1, 0)]
     ),
     (
         [1234, 123.456, 345, 456],
         0, 
         '456',
-        2
+        2,
+        [(1, 0), (3, 0)]
     ),
     (
         [123, 123.456, 345, 456],
         0, 
         '123',
-        2
+        2,
+        [(0, 0), (1, 0)]
     ),
     (
         [123, 123.456, 345, 456],
         0, 
         '45',
-        3
+        3,
+        [(1, 0), (2, 0), (3, 0)]
     ),
     (
         [123, 123.0, 345, 456],
         0, 
         '123',
-        2
+        2,
+        [(0, 0), (1, 0)]
     ),
 
     # TODO: This test shows a case that doesn't align with the frontend.
@@ -83,13 +93,15 @@ NUMBER_MATCHES_TESTS = [
         [123, 123.0, 345, 456],
         0, 
         '123.0',
-        2
+        2,
+        [(0, 0), (1, 0)]
     ),
     (
         [123000, 123, 345, 456],
         0, 
         '1230',
-        1
+        1,
+        [(0, 0)]
     ),
 
     # Tests for booleans
@@ -97,13 +109,15 @@ NUMBER_MATCHES_TESTS = [
         [True, False, True, False],
         0,
         'True',
-        2
+        2,
+        [(0, 0), (2, 0)]
     ),
     (
         [True, False, True, False],
         0,
         'False',
-        2
+        2,
+        [(1, 0), (3, 0)]
     ),
 
     # Tests for dates
@@ -111,37 +125,41 @@ NUMBER_MATCHES_TESTS = [
         [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03'), pd.Timestamp('2021-01-04')],
         0,
         '2021-01-01',
-        1
+        1,
+        [(0, 0)]
     ),
     (
         [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03'), pd.Timestamp('2021-01-04')],
         0,
         '2021-01',
-        4
+        4,
+        [(0, 0), (1, 0), (2, 0), (3, 0)]
     ),
 ]
 
 @pandas_post_1_only
-@pytest.mark.parametrize("data,sheet_index,search_value,expected", NUMBER_MATCHES_TESTS)
+@pytest.mark.parametrize("data,sheet_index,search_value,expected_number_matches,expected_matches", NUMBER_MATCHES_TESTS)
 # This tests exporting as excel without formatting
-def test_get_number_matches(data, sheet_index, search_value, expected):
+def test_get_number_matches(data, sheet_index, search_value, expected_number_matches, expected_matches):
     # Create a mito wrapper with data
     test_wrapper = create_mito_wrapper_with_data(data)
 
-    total_matches = get_total_number_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
+    matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
     
     # Check that the excel string is not empty
-    assert total_matches == expected
+    assert matches['total_number_matches'] == expected_number_matches
 
+    for i, match in enumerate(matches['matches']):
+        assert match['rowIndex'] == expected_matches[i][0]
+        assert match['colIndex'] == expected_matches[i][1]
 
 NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
     (
-        [
-            pd.DataFrame({'A': [1, 2, 3]}),
-        ],
+        [ pd.DataFrame({'A': [1, 2, 3]}) ],
         0,
         '1',
-        1
+        1,
+        [(0, 0)]
     ),
     (
         [
@@ -150,7 +168,8 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
         ],
         1,
         'c',
-        2
+        2,
+        [(0, 1), (1, 1)]
     ),
     (
         [
@@ -159,15 +178,30 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
         ],
         0,
         'c',
-        1
+        2,
+        [(-1, 2), (2, 1)]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c'], 'C': [True, False, True], 'D': [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03')]}),
+            pd.DataFrame({'E': [3, 3, 3], 'F': ['c', 'c', 'd'], 'G': [True, False, False], 'H': [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03')]})
+        ],
+        1,
+        '3',
+        4,
+        [(0, 0), (1, 0), (2, 0), (2, 3)]
     )
 ]
 
 @pandas_post_1_only
-@pytest.mark.parametrize("dfs,sheet_index,search_value,expected", NUMBER_MATCHES_TESTS_MULTIPLE_DF)
-def test_get_number_matches_multiple_dataframes(dfs,sheet_index,search_value,expected):
+@pytest.mark.parametrize("dfs,sheet_index,search_value,expected_total_matches,expected_matches", NUMBER_MATCHES_TESTS_MULTIPLE_DF)
+def test_get_number_matches_multiple_dataframes(dfs,sheet_index,search_value,expected_total_matches,expected_matches):
     test_wrapper = create_mito_wrapper(*dfs)
 
-    total_matches = get_total_number_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
+    matches = get_search_matches({'sheet_index': sheet_index, 'search_value': search_value }, test_wrapper.mito_backend.steps_manager)
 
-    assert total_matches == expected
+    assert matches['total_number_matches'] == expected_total_matches
+
+    for i, match in enumerate(matches['matches']):
+        assert match['rowIndex'] == expected_matches[i][0]
+        assert match['colIndex'] == expected_matches[i][1]

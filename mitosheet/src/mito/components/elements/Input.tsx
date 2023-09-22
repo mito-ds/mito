@@ -32,6 +32,11 @@ interface InputProps {
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 
     /** 
+        * @param [onKeyUp] - Function to be called when a key is up
+    */
+    onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+
+    /** 
         * @param [onKeyPress] - Function to be called when a key is pressed
     */
     onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -166,6 +171,7 @@ const Input = (props: InputProps): JSX.Element => {
                         props.onEscape()
                     }
                 }}
+                onKeyUp={props.onKeyUp}
                 onKeyPress={props.onKeyPress}
                 onChange={props.onChange}
                 onClick={props.onClick}

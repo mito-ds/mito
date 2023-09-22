@@ -11,12 +11,12 @@
 
 .mito-search-bar span {
     margin-left: 5px;
-    min-width: 9ch;
+    min-width: 5ch;
     justify-content: flex-end;
     display: flex;
 }
 
-.mito-close-search-button {
+.mito-search-button {
     border: none;
     background: none;
     display: flex;
@@ -28,6 +28,13 @@
     justify-content: center;
 }
 
-.mito-close-search-button:hover {
+.mito-search-button:hover {
     background-color: var(--mito-highlight-light);
+}
+
+.mito-search-caution {
+    position: absolute;
+    background: #FFE092;
+    top: 40px;
+    display: flex;
 }

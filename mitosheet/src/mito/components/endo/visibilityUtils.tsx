@@ -30,7 +30,7 @@ const scrollRowIntoView = (containerDiv: HTMLDivElement | null, scrollAndRendere
 }
 
 // A helper to scroll a column into view
-const scrollColumnIntoView = (containerDiv: HTMLDivElement | null, scrollAndRenderedContainerDiv: HTMLDivElement | null, currentSheetView: SheetView, gridState: GridState, columnIndex: number) => {
+export const scrollColumnIntoView = (containerDiv: HTMLDivElement | null, scrollAndRenderedContainerDiv: HTMLDivElement | null, currentSheetView: SheetView, gridState: GridState, columnIndex: number) => {
 
     // The index headers are always visible, so we don't have to do anything
     if (columnIndex === -1) {
