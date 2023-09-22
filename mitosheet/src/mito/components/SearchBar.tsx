@@ -197,7 +197,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             }}
             className='mito-search-button'
         >
-            <SearchNavigateIcon direction={isExpanded ? 'up' : 'right'} strokeWidth={1} strokeColor='var(--mito-text)'/>
+            <SearchNavigateIcon width='17' height='17' direction={isExpanded ? 'up' : 'right'} strokeWidth={1} strokeColor='var(--mito-text)'/>
         </button>
         <div className='mito-search-bar-content'>
             <div className='mito-search-bar-search'>
@@ -228,7 +228,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                         handleCurrentMatchChange('prev')
                     }}
                 >
-                    <SearchNavigateIcon direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
+                    <SearchNavigateIcon width='17' height='17' direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
                 </button>
                 {/* This button jumps to the next match */}
                 <button
@@ -237,7 +237,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                         handleCurrentMatchChange('next')
                     }}
                 >
-                    <SearchNavigateIcon direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+                    <SearchNavigateIcon width='17' height='17' direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
                 </button>
                 {/* This button closes the search bar. */}
                 <button

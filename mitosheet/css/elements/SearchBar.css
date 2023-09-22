@@ -12,6 +12,7 @@
 .mito-search-bar-content {
     display: flex;
     flex-direction: column;
+    margin-left: 5px;
 }
 
 .mito-search-bar-search {
