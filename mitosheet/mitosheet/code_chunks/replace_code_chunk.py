@@ -21,7 +21,7 @@ class ReplaceCodeChunk(CodeChunk):
         return 'Replace'
     
     def get_description_comment(self) -> str:
-        return "Replace {self.search_value} with {self.replace_value} in {self.df_name}}"
+        return f"Replace {self.search_value} with {self.replace_value} in {self.post_state.df_names[self.sheet_index]}"
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         search_value = self.search_value
@@ -30,13 +30,11 @@ class ReplaceCodeChunk(CodeChunk):
         df_name = self.post_state.df_names[self.sheet_index]
 
         code_chunk = [
-            '# Replace search values',
             f'{df_name} = {df_name}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name}.dtypes.to_dict())'
         ]
 
-        if df.select_dtypes(include='bool').any().any():
+        if any(df.dtypes == 'bool'):
             code_chunk = [
-                '# Replace search values',
                 f"non_bool_cols, bool_cols = {df_name}.select_dtypes(exclude='bool'), {df_name}.select_dtypes(include='bool')",
                 f"{df_name}[non_bool_cols.columns] = non_bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).astype(non_bool_cols.dtypes.to_dict())",
                 f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}').map(cast_string_to_bool)"

@@ -43,8 +43,8 @@ class ReplaceStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         
         df = post_state.dfs[sheet_index]
-        bool_columns = df.select_dtypes(include='bool')
-        if bool_columns.any().any():
+        if any(df.dtypes == 'bool'):
+            bool_columns = df.select_dtypes(include='bool')
             non_bool_columns = df.select_dtypes(exclude='bool')
             df[bool_columns.columns] = bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).map(cast_string_to_bool)
             df[non_bool_columns.columns] = non_bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
