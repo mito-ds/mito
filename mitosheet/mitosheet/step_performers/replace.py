@@ -48,6 +48,8 @@ class ReplaceStepPerformer(StepPerformer):
         
         df = post_state.dfs[sheet_index]
         try:
+            # Special case for boolean columns because when we convert to string, the values are 
+            # all converted back to bool as True - even if the value is "False". 
             if any(df.dtypes == 'bool'):
                 bool_columns = df.select_dtypes(include='bool')
                 non_bool_columns = df.select_dtypes(exclude='bool')
@@ -55,13 +57,16 @@ class ReplaceStepPerformer(StepPerformer):
                 df[non_bool_columns.columns] = non_bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
             else:
                 df = df.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(df.dtypes.to_dict())
+
+            # Then, we replace the search_value inside the column headers
             column_matches = [column for column in df.columns if re.search(re.compile(search_value, re.IGNORECASE), column)]
+            # We replace in the dataframe *and* in the state column_ids object
             df.columns = df.columns.str.replace(f'(?i){search_value}', replace_value, regex=True)
             for column in column_matches:
-                print(f'column: {column}')
                 new_column_name = re.sub(re.compile(search_value, re.IGNORECASE), replace_value, column)
                 column_id = post_state.column_ids.get_column_id_by_header(sheet_index, column)
                 post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
+
             post_state.dfs[sheet_index] = df
         except Exception as e:
             raise make_invalid_replace_error(search_value, replace_value)

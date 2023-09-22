@@ -29,6 +29,10 @@ class ReplaceCodeChunk(CodeChunk):
         df = self.post_state.dfs[self.sheet_index]
         df_name = self.post_state.df_names[self.sheet_index]
 
+        # The shorter code chunk is for dataframes that *don't* have any boolean columns
+        # Boolean columns are a special case, because when we convert them to str then back
+        # to bool, they all become True. So we have to convert them back to bool with a custom
+        # function.
         code_chunk = [
             f'{df_name} = {df_name}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name}.dtypes.to_dict())',
         ]
@@ -40,8 +44,8 @@ class ReplaceCodeChunk(CodeChunk):
                 f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).map(cast_string_to_bool)",
             ]
 
+        # Then, we always replace the search_value inside the column headers
         code_chunk.append(f"{df_name}.columns = {df_name}.columns.str.replace('(?i){search_value}', '{replace_value}', regex=True)")
-        print(f'code chunk: {code_chunk}')
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:
