@@ -23,7 +23,8 @@ from mitosheet.types import ColumnID
 
 class ReplaceStepPerformer(StepPerformer):
     """
-    Allows you to replace.
+    Allows you to replace a search value with a replace value in a sheet for both
+    the values in the cells and the column headers.
     """
 
     @classmethod
