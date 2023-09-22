@@ -3,7 +3,7 @@ from io import StringIO
 import json
 import time
 from queue import Queue
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from dash.development.base_component import Component, _explicitize_args
@@ -48,7 +48,7 @@ class Spreadsheet(Component):
             **kwargs
     ):     
         self.mito_id = kwargs['id']
-        self._set_new_mito_backend(args, kwargs.get('import_folder'))
+        self._set_new_mito_backend(*args, kwargs.get('import_folder'))
 
         _explicit_args = kwargs.pop('_explicit_args')
 
@@ -84,16 +84,16 @@ class Spreadsheet(Component):
             elif isinstance(df_in_json, list):
                 df = pd.DataFrame(df_in_json)
 
-            self._set_new_mito_backend((df, ))
+            self._set_new_mito_backend(df)
             return self.get_all_json()
         
-    def _set_new_mito_backend(self, args, import_folder: Optional[str]=None):
+    def _set_new_mito_backend(self, *args: Union[pd.DataFrame, str, None], import_folder: Optional[str]=None) -> None:
         """
         Called when the component is created, or when the input data is changed.
         """
         self.mito_frontend_key = get_random_id()
         self.mito_backend = MitoBackend(*args, import_folder=import_folder)
-        self.responses = []
+        self.responses: List[Dict[str, Any]] = []
         def send(response):
             self.responses.append(response)
         self.mito_backend.mito_send = send
