@@ -19,8 +19,8 @@ REPLACE_TESTS = [
                 'B': [1.0, 2.0, 3.0], 
                 'C': [True, False, True], 
                 'D': ["string", "with spaces", "and/!other@characters3"], 
-                # 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
-                # 'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+                'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
             })
         ],
         0,
@@ -32,8 +32,8 @@ REPLACE_TESTS = [
                 'B': [1.0, 2.0, 4.0], 
                 'C': [True, False, True], 
                 'D': ["string", "with spaces", "and/!other@characters4"], 
-                # 'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
-                # 'F': pd.to_timedelta(['1 days', '2 days', '4 days'])
+                'E': pd.to_datetime(['12-22-1997', '12-24-1997', '12-24-1997']), 
+                'F': pd.to_timedelta(['1 days', '2 days', '4 days'])
             })
         ]
     ),
@@ -46,4 +46,6 @@ def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        assert actual.equals(expected)
+        print(actual)
+        print(expected)
+        pd.testing.assert_frame_equal(actual,expected)
