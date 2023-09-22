@@ -86,7 +86,7 @@ def get_typescript_api_code(name: str, params: Dict[str, str], result_params: Di
     {CLOSE_BRACKET}"""
 
 def write_to_typscript_api(name: str, params: Dict[str, str], result_params: Dict[str, str]) -> None:
-    path_to_api_tsx = get_src_folder() / 'jupyter' / 'api.tsx'
+    path_to_api_tsx = get_src_folder() / 'mito' / 'api' / 'api.tsx'
 
     with open(path_to_api_tsx, 'r') as f:
         code = f.read()
