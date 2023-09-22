@@ -162,6 +162,8 @@ def make_invalid_replace_error(search_value: str, replace_value: str) -> MitoErr
 
     Occurs when:
     -  the user tries to replace a number with a string.
+    -  the user replaces a date and it is not a valid date.
+    -  the user replaces a timedelta and it is not a valid timedelta.
     """
     return MitoError(
         'replace_incompatible_types', 
