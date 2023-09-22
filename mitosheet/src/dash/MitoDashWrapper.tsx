@@ -202,7 +202,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
                 analysisData={analysisData} 
                 userProfile={userProfile}
                 onSelectionChange={(selectedDataframeIndex, selections) => {
-                    this.send({
+                    void this.send({
                         'type': 'selection_event',
                         'indexAndSelections': {
                             selectedDataframeIndex, 
