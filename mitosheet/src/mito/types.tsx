@@ -77,10 +77,10 @@ export type ParamName = string;
 export type ParamValue = string;
 export type ParamType = 'file_name' | 'df_name'
 export type ParamSubType = 'import_dataframe'
-    | 'file_name_export_excel'
-    | 'file_name_export_csv'
-    | 'file_name_import_excel'
-    | 'file_name_import_csv'
+| 'file_name_export_excel'
+| 'file_name_export_csv'
+| 'file_name_import_excel'
+| 'file_name_import_csv'
 export type ParameterizableParams = [ParamValue, ParamType, ParamSubType][];
 
 export type CodeOptions = {

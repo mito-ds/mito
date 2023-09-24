@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.selectionUtils import get_selected_element
 from mitosheet.types import CodeOptions
 from mitosheet.utils import get_new_id
 
@@ -107,47 +108,6 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
         
     raise ValueError(f'No functions defined in code: {code}')
 
-
-def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
-
-    if indexAndSelections is None:
-        return None
-
-    selected_dataframe_index = indexAndSelections['selectedDataframeIndex']
-    if selected_dataframe_index < 0 or selected_dataframe_index >= len(dfs):
-        return None
-    
-    df = dfs[selected_dataframe_index]
-
-    # If there are multiple selections, for now we only return the first one - for simplicity in return types
-    selection = next(iter(indexAndSelections['selections']))
-
-    # Selections have the format: {'startingRowIndex': 0, 'endingRowIndex': 0, 'startingColumnIndex': 5, 'endingColumnIndex': 5}
-
-    smallerRowIndex = min(selection['startingRowIndex'], selection['endingRowIndex'])
-    largerRowIndex = max(selection['startingRowIndex'], selection['endingRowIndex'])
-    smallerColumnIndex = min(selection['startingColumnIndex'], selection['endingColumnIndex'])
-    largerColumnIndex = max(selection['startingColumnIndex'], selection['endingColumnIndex'])
-
-    # If the row indexes selected are both -1, we just return the column
-    if smallerRowIndex == -1 and largerRowIndex == -1:
-        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
-    
-    # If the column indexes selected are both -1, we just return the row
-    if smallerColumnIndex == -1 and largerColumnIndex == -1:
-        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
-    
-    # If one row index is -1, then we return the column
-    if smallerRowIndex == -1:
-        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
-    
-    # If one column index is -1, then we return the row
-    if smallerColumnIndex == -1:
-        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
-    
-    # Otherwise, we return the intersection of the row and column
-    return df.iloc[smallerRowIndex:largerRowIndex + 1, smallerColumnIndex:largerColumnIndex + 1]
-    
 
 try:
     import streamlit.components.v1 as components
@@ -276,15 +236,6 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
-        # Get the absolute path to the import_folder, in case it is relative. Also
-        # check that this folder exists, and throw an error if it does not.
-        if import_folder is not None:
-            import_folder = os.path.expanduser(import_folder)
-            import_folder = os.path.abspath(import_folder)
-
-            if not os.path.exists(import_folder):
-                raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
-
         session_id = get_session_id()
 
         mito_backend, responses = _get_mito_backend(

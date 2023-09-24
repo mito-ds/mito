@@ -80,3 +80,25 @@ def _jupyter_nbextension_paths():
         'dest': 'mitosheet',
         'require': 'mitosheet/extension'
     }]
+
+
+"""
+Dash Integration below. 
+
+These are the files that are loaded by the Dash app. Notably, these need to be defined in the root __init__.py file,
+as Dash will look for them there. 
+
+The namespace stuff is a bit confusing, as well, but here's what's my current understanding is:
+1. These files are loaded by Dash, and they need to be loaded by the root __init__.py file
+2. The namespace in these files must be the package name, which is mitosheet
+3. The _namespace in the Dash spreadsheet component must be the same as the globalName in the esbuild for dash - this is how it knows to call the right function
+"""
+
+_js_dist = [
+    {'relative_package_path': 'mito_dash/v1/build/component.js', 'namespace': 'mitosheet'}, 
+    {'relative_package_path': 'mito_dash/v1/build/component.js.map', 'namespace': 'mitosheet', 'dynamic': True}
+]
+
+_css_dist = [
+    {'relative_package_path': 'mito_dash/v1/build/component.css', 'namespace': 'mitosheet'}, 
+]
