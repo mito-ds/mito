@@ -138,6 +138,29 @@ REPLACE_TESTS = [
             })
         ],
     ),
+
+    # Tests with strings that could interact with regex
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["'string.'", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "string.", 
+        "f", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["'f'", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", REPLACE_TESTS)
 def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
