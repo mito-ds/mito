@@ -95,10 +95,10 @@ The namespace stuff is a bit confusing, as well, but here's what's my current un
 """
 
 _js_dist = [
-    {'relative_package_path': 'mito_dash/v1/build/component.js', 'namespace': 'mitosheet'}, 
-    {'relative_package_path': 'mito_dash/v1/build/component.js.map', 'namespace': 'mitosheet', 'dynamic': True}
+    {'relative_package_path': 'mito_dash/v1/mitoBuild/component.js', 'namespace': 'mitosheet'}, 
+    {'relative_package_path': 'mito_dash/v1/mitoBuild/component.js.map', 'namespace': 'mitosheet', 'dynamic': True}
 ]
 
 _css_dist = [
-    {'relative_package_path': 'mito_dash/v1/build/component.css', 'namespace': 'mitosheet'}, 
+    {'relative_package_path': 'mito_dash/v1/mitoBuild/component.css', 'namespace': 'mitosheet'}, 
 ]

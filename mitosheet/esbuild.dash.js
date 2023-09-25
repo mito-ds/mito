@@ -41,7 +41,7 @@ esbuild
   .build({
     entryPoints: ['./src/dash/index.tsx'],
     bundle: true,
-    outfile: 'mitosheet/mito_dash/v1/build/component.js',
+    outfile: 'mitosheet/mito_dash/v1/mitoBuild/component.js',
     sourcemap: false,
     platform: 'browser',
     target: ['es6'],
