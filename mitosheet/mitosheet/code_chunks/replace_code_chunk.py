@@ -41,7 +41,7 @@ class ReplaceCodeChunk(CodeChunk):
             code_chunk = [
                 f"non_bool_cols, bool_cols = {df_name}.select_dtypes(exclude='bool'), {df_name}.select_dtypes(include='bool')",
                 f"{df_name}[non_bool_cols.columns] = non_bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).astype(non_bool_cols.dtypes.to_dict())",
-                f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).map(cast_string_to_bool)",
+                f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).applymap(cast_string_to_bool)",
             ]
 
         # Then, we always replace the search_value inside the column headers

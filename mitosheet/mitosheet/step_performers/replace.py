@@ -54,7 +54,7 @@ class ReplaceStepPerformer(StepPerformer):
             if any(df.dtypes == 'bool'):
                 bool_columns = df.select_dtypes(include='bool')
                 non_bool_columns = df.select_dtypes(exclude='bool')
-                df[bool_columns.columns] = bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).map(cast_string_to_bool)
+                df[bool_columns.columns] = bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).applymap(cast_string_to_bool)
                 df[non_bool_columns.columns] = non_bool_columns.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
             else:
                 df = df.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(df.dtypes.to_dict())
