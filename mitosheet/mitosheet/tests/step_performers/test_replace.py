@@ -39,6 +39,30 @@ REPLACE_TESTS = [
                 'E': pd.to_datetime(['12-22-1997', '12-24-1997', '12-24-1997']), 
             })
         ]
+    ),
+    # Test partial match to a boolean column
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [True, False, True], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "ue", 
+        "testing", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [False, False, False], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ]
     ),(
         [
             pd.DataFrame({
