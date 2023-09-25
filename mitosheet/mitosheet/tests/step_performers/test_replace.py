@@ -10,7 +10,7 @@ Contains tests for Replace
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.tests.decorators import pandas_post_1_2_only
+from mitosheet.tests.decorators import pandas_post_1_2_only, pandas_pre_1_2_only
 from mitosheet.errors import MitoError
 
 from mitosheet.utils import get_new_id
@@ -166,7 +166,7 @@ def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs
 
 
 # Replace uses conversion between timedeltas that pandas pre 1.1.5 doesn't support. 
-PANDAS_POST_115_REPLACE_TESTS = [
+PANDAS_POST_1_2_REPLACE_TESTS = [
     (
         [
             pd.DataFrame({
@@ -195,7 +195,7 @@ PANDAS_POST_115_REPLACE_TESTS = [
 ]
 
 @pandas_post_1_2_only
-@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", PANDAS_POST_115_REPLACE_TESTS)
+@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", PANDAS_POST_1_2_REPLACE_TESTS)
 def test_pandas_post_115_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
     mito = create_mito_wrapper(*input_dfs)
 
@@ -225,6 +225,47 @@ REPLACE_INVALID_TESTS = [
 
 @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", REPLACE_INVALID_TESTS)
 def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
+    mito = create_mito_wrapper(*input_dfs)
+
+    with pytest.raises(MitoError):
+        mito.mito_backend.handle_edit_event(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'replace_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'search_value': search_value,
+                    'replace_value': replace_value,
+                }
+            }
+        )
+
+
+TEST_REPLACE_INVALID_PRE_1_2 = [
+    # Tests that an error is thrown when an early version of pandas is used with
+    # a timedelta column. 
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0],
+                'C': [True, False, True],
+                'D': ["string", "with spaces", "and/!other@characters3"],
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']),
+                'F': pd.to_timedelta(['1 days', '2 days', '3 days'])
+            })
+        ],
+        0,
+        "3",
+        "hi"
+    ),
+]
+
+@pandas_pre_1_2_only
+@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", TEST_REPLACE_INVALID_PRE_1_2)
+def test_invalid_pre_1_2_replace(input_dfs, sheet_index, search_value, replace_value):
     mito = create_mito_wrapper(*input_dfs)
 
     with pytest.raises(MitoError):

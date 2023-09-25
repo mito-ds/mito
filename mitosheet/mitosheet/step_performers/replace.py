@@ -48,6 +48,15 @@ class ReplaceStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
         
         df = post_state.dfs[sheet_index]
+
+
+        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.2):
+            raise MitoError(
+                'version_error',
+                'Pandas version error',
+                'This version of pandas doesn\'t support replacing values in timedelta columns. Please upgrade to pandas 1.2 or later.',
+            )
+        
         try:
             # Special case for boolean columns because when we convert to string, the values are 
             # all converted back to bool as True - even if the value is "False". 

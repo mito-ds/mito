@@ -8,6 +8,9 @@ from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.state import State
+import pandas as pd
+
+from mitosheet.errors import MitoError
 
 class ReplaceCodeChunk(CodeChunk):
 
@@ -36,6 +39,13 @@ class ReplaceCodeChunk(CodeChunk):
         code_chunk = [
             f'{df_name} = {df_name}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name}.dtypes.to_dict())',
         ]
+
+        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.2):
+            raise MitoError(
+                'version_error',
+                'Pandas version error',
+                'This version of pandas doesn\'t support replacing values in timedelta columns. Please upgrade to pandas 1.2 or later.',
+            )
 
         if any(df.dtypes == 'bool'):
             code_chunk = [
