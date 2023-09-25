@@ -155,6 +155,70 @@ REPLACE_TESTS = [
         ],
     ),
 
+    # Tests when the search value matches a float w/o decimal points (shouldn't be replaced)
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "10", 
+        "5", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+
+    # Empty dataframe w/ matching column
+    (
+        [
+            pd.DataFrame(columns=['A', 'B', 'C']),
+        ],
+        0,
+        "A",
+        "X",
+        [
+            pd.DataFrame(columns=['X', 'B', 'C']),
+        ]
+    ),
+
+    # Empty dataframe w/out matching column
+    (
+        [
+            pd.DataFrame(columns=['A', 'B', 'C']),
+        ],
+        0,
+        "D",
+        "X",
+        [
+            pd.DataFrame(columns=['A', 'B', 'C']),
+        ]
+    ),
+
+    # Multiple dataframes
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3]}),
+            pd.DataFrame({'A': [4, 5, 6]}),
+        ],
+        1,  # Specify sheet_index to target the second sheet.
+        "4",
+        "7",
+        [
+            pd.DataFrame({'A': [1, 2, 3]}),
+            pd.DataFrame({'A': [7, 5, 6]}),
+        ]
+    ),
+
     # Tests with strings that could interact with regex
     (
         [
@@ -177,6 +241,43 @@ REPLACE_TESTS = [
             })
         ],
     ),
+    (
+        [
+            pd.DataFrame({'A': ['!hello!', '@world@', '#python#']}),
+        ],
+        0,
+        "!",
+        "*",
+        [
+            pd.DataFrame({'A': ['*hello*', '@world@', '#python#']}),
+        ]
+    ),
+
+    # Case sensitive tests
+    (
+        [
+            pd.DataFrame({'A': ['apple', 'Banana', 'Cherry']}),
+        ],
+        0,
+        "B",
+        "b",
+        [
+            pd.DataFrame({'A': ['apple', 'banana', 'Cherry']}),
+        ]
+    ),
+
+    # Replace with empty string
+    (
+        [
+            pd.DataFrame({'A': ['apple', 'Banana', 'Cherry']}),
+        ],
+        0,
+        "b",
+        "",
+        [
+            pd.DataFrame({'A': ['apple', 'anana', 'Cherry']}),
+        ]
+    )
 ]
 @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", REPLACE_TESTS)
 def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
