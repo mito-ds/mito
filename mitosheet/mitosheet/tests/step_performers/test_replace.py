@@ -40,7 +40,7 @@ REPLACE_TESTS = [
             })
         ]
     ),
-    # Test partial match to a boolean column
+    # Test partial match to a boolean column - should default to false
     (
         [
             pd.DataFrame({
@@ -131,6 +131,52 @@ REPLACE_TESTS = [
             })
         ],
     ),
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [True, False, True], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "FALSE", 
+        "True", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [True, True, True], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [True, False, True], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "FaLsE", 
+        "TRUE", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': [True, True, True], 
+                'D': ["string", "with spaces", "and/!other@characters3"], 
+                'E': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 
     # Tests without boolean columns
     (
@@ -171,6 +217,27 @@ REPLACE_TESTS = [
         [
             pd.DataFrame({
                 'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 10000],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "10,000", 
+        "5", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 10000],
                 'B': [1.0, 2.0, 3.0], 
                 'C': ["string", "with spaces", "and/!other@characters3"], 
                 'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
@@ -375,6 +442,19 @@ REPLACE_INVALID_TESTS = [
         0,
         "3",
         "hi"
+    ),
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "3", 
+        "5,000"
     ),
 ]
 
