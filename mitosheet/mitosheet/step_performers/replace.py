@@ -50,7 +50,7 @@ class ReplaceStepPerformer(StepPerformer):
         df = post_state.dfs[sheet_index]
 
 
-        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.2):
+        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.4):
             raise MitoError(
                 'version_error',
                 'Pandas version error',

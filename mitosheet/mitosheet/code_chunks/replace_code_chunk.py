@@ -40,7 +40,7 @@ class ReplaceCodeChunk(CodeChunk):
             f'{df_name} = {df_name}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name}.dtypes.to_dict())',
         ]
 
-        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.2):
+        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.4):
             raise MitoError(
                 'version_error',
                 'Pandas version error',
