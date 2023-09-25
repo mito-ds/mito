@@ -260,7 +260,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }}
                     onKeyDown={(e: React.KeyboardEvent) => {
                         if (e.key === 'Enter') {
-                            mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                            void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
                         }
                     }}
                     className='mito-input'
@@ -268,7 +268,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     autoFocus
                 />
                 <button className='mito-search-button' onClick={() => {
-                    mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                    void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
                 }}>
                     Replace All
                 </button>
