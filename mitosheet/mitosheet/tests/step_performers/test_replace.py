@@ -10,7 +10,7 @@ Contains tests for Replace
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.tests.decorators import pandas_post_1_2_only, pandas_pre_1_2_only
+from mitosheet.tests.decorators import pandas_post_1_3_only, pandas_pre_1_2_only
 from mitosheet.errors import MitoError
 
 from mitosheet.utils import get_new_id
@@ -319,7 +319,7 @@ PANDAS_POST_1_2_REPLACE_TESTS = [
     )
 ]
 
-@pandas_post_1_2_only
+@pandas_post_1_3_only
 @pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, output_dfs", PANDAS_POST_1_2_REPLACE_TESTS)
 def test_pandas_post_115_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
     mito = create_mito_wrapper(*input_dfs)
