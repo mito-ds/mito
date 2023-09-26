@@ -450,7 +450,7 @@ class StepsManager:
         return step_summary_list
     
     def code(self) -> List[str]:
-        return transpile(self, optimize=(is_pro() or is_running_test()))
+        return transpile(self, optimize=True)
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """
