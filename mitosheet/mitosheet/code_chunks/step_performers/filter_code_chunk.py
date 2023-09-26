@@ -9,7 +9,6 @@ from copy import copy
 from typing import List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-
 from mitosheet.is_type_utils import is_datetime_dtype
 from mitosheet.state import State
 from mitosheet.types import (
@@ -26,7 +25,6 @@ from mitosheet.transpiler.transpile_utils import (
     column_header_to_transpiled_code, list_to_string_without_internal_quotes)
 from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
                              Filter, FilterGroup, OperatorType)
-from mitosheet.utils import get_column_header_string_for_comment
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -396,8 +394,7 @@ class FilterCodeChunk(CodeChunk):
     def get_description_comment(self) -> str:
         column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
         column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
-        column_header_string = get_column_header_string_for_comment(column_headers)
-        return f'Filtered {column_header_string}'
+        return f'Filtered {", ".join(map(str, column_headers))}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         all_filter_strings_with_none = [

@@ -6,7 +6,6 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
@@ -28,8 +27,7 @@ class ReorderColumnCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        column_header_string = get_column_header_string_for_comment([column_header])
-        return f'Reordered column {column_header_string}'
+        return f'Reordered column {column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.column_steps.reorder_column import get_valid_index

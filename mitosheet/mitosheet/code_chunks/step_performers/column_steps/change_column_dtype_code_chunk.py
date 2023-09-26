@@ -6,7 +6,6 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.types import ColumnID
 from mitosheet.state import State
 
@@ -152,8 +151,7 @@ class ChangeColumnDtypeCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.changed_column_ids)
-        column_header_string = get_column_header_string_for_comment(column_headers)
-        return f'Changed {column_header_string} to dtype {self.new_dtype}'
+        return f'Changed {", ".join([str(ch) for ch in column_headers])} to dtype {self.new_dtype}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 

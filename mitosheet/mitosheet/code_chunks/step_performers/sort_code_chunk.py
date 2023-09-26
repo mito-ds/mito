@@ -7,7 +7,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
 from mitosheet.types import ColumnID
@@ -27,8 +26,7 @@ class SortCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        column_header_string = get_column_header_string_for_comment([column_header])
-        return f'Sorted {column_header_string} in {self.sort_direction} order'
+        return f'Sorted {column_header} in {self.sort_direction} order'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING

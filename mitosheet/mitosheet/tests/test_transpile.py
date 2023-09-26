@@ -881,6 +881,7 @@ def test_transpile_handles_new_line_character():
 
     assert "\n".join(mito.transpiled_code_with_comments) == """from mitosheet.public.v3 import *
 
-# Filtered A B
+# Filtered A
+# B
 df1 = df1[df1['A\\nB'] > 1]
 """
