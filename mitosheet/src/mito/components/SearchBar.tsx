@@ -113,7 +113,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 }
             });
         });
-    }, [searchValue, uiState.selectedSheetIndex, uiState.currOpenSearch.matches], 500);
+    }, [searchValue, uiState.selectedSheetIndex], 500);
 
     // This is separate from totalMatches because we only display the first 1500 rows.
     const totalMatchesDisplayed: number = matches?.length ?? 0;
@@ -201,6 +201,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 matches: []
             }
         })
+        setTotalMatches(0);
     }
 
     return (<div className='mito-search-bar'>
