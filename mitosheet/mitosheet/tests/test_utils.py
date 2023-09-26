@@ -707,6 +707,7 @@ class MitoWidgetTestWrapper:
     def replace(
             self, 
             sheet_index: int,
+            column_ids: List[ColumnID],
             search_value: str,
             replace_value: str,
         ) -> bool:
@@ -721,9 +722,9 @@ class MitoWidgetTestWrapper:
                 'step_id': get_new_id(),
                 'params': {
                     'sheet_index': sheet_index,
+                    'column_ids': column_ids,
                     'search_value': search_value,
-                    'replace_value': replace_value,
-                    
+                    'replace_value': replace_value,                    
                 }
             }
         )

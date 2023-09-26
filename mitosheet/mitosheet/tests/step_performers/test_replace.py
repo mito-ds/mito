@@ -350,12 +350,50 @@ REPLACE_TESTS = [
 def test_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
     mito = create_mito_wrapper(*input_dfs)
 
-    mito.replace(sheet_index, search_value, replace_value)
+    mito.replace(sheet_index, [], search_value, replace_value)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
         pd.testing.assert_frame_equal(actual,expected)
 
+
+REPLACE_SELECTED_COLUMNS = [
+    # Tests with boolean columns
+    (
+        [
+            pd.DataFrame({
+                'test1': [1, 2, 3],
+                'test2': [1.0, 2.0, 3.0], 
+                'test3': [True, False, True], 
+                'test4': ["string", "with spaces", "and/!other@characters3"], 
+                'test5': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "test4" ],
+        "3", 
+        "4", 
+        [
+            pd.DataFrame({
+                'test1': [1, 2, 3],
+                'test2': [1.0, 2.0, 3.0], 
+                'test3': [True, False, True], 
+                'test4': ["string", "with spaces", "and/!other@characters4"], 
+                'test5': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+]
+
+@pytest.mark.parametrize("input_dfs, sheet_index, column_ids, search_value, replace_value, output_dfs", REPLACE_SELECTED_COLUMNS)
+def test_replace_selected_columns(input_dfs, sheet_index, column_ids, search_value, replace_value, output_dfs):
+    mito = create_mito_wrapper(*input_dfs)
+
+    mito.replace(sheet_index, column_ids, search_value, replace_value)
+
+    assert len(mito.dfs) == len(output_dfs)
+    for actual, expected in zip(mito.dfs, output_dfs):
+        pd.testing.assert_frame_equal(actual,expected)
 
 # Replace uses conversion between timedeltas that pandas pre 1.1.5 doesn't support. 
 PANDAS_POST_1_4_REPLACE_TESTS = [

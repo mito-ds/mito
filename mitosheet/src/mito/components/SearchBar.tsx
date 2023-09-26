@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { GridState, SheetView, UIState } from '../types';
+import { GridState, SheetData, SheetView, UIState } from '../types';
 import XIcon from './icons/XIcon';
 
 import '../../../css/elements/SearchBar.css';
@@ -14,6 +14,7 @@ import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils'
 import SearchNavigateIcon from './icons/SearchNavigateIcon';
 import CautionIcon from './icons/CautionIcon';
 import ExpandCollapseIcon from './icons/ExpandCollapseIcon';
+import { getSelectedColumnIDsWithEntireSelectedColumn } from './endo/selectionUtils';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -24,6 +25,7 @@ interface SearchBarProps {
     sheetView: SheetView;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
+    sheetData: SheetData;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
@@ -35,7 +37,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         scrollAndRenderedContainerDiv,
         sheetView,
         gridState,
-        setGridState
+        setGridState,
+        sheetData
     } = props;
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
 
@@ -193,8 +196,15 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setTotalMatches(e.target.value === '' ? 0 : undefined);
     }
 
-    const handleReplace = () => {
-        void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '').then(() => {
+    const handleReplace = (onlySelectedColumns?: boolean) => {
+        void mitoAPI.editReplace(
+            uiState.selectedSheetIndex,
+            searchValue ?? '',
+            replaceValue ?? '',
+            onlySelectedColumns ?
+                getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData):
+                []
+            ).then(() => {
             getMatches();
         });
     }
@@ -280,6 +290,11 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     handleReplace()
                 }}>
                     Replace All
+                </button>
+                <button className='mito-search-button' disabled={getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData).length === 0} onClick={() => {
+                    handleReplace(true);
+                }}>
+                    Replace in Selected Columns
                 </button>
             </div>}
         </div>
