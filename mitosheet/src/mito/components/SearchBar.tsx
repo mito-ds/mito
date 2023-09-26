@@ -194,8 +194,9 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     }
 
     const handleReplace = async () => {
-        await mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '');
-        getMatches();
+        void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '').then(() => {
+            getMatches();
+        });
     }
 
     return (<div className='mito-search-bar'>
