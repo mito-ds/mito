@@ -37,6 +37,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.FillNa: {
             return 'Filling NaN values'
         }
+        case StepType.Replace: {
+            return 'Replacing values'
+        }
         case StepType.FilterColumn: {
             return 'Filtering a column'
         }

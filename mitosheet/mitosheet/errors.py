@@ -155,6 +155,23 @@ def make_columns_exists_error(column_headers: Iterable[ColumnHeader]) -> MitoErr
         f'{(", ").join(map(str, column_headers))} alread exist. Try renaming these columns!'
     )
 
+
+def make_invalid_replace_error(search_value: str, replace_value: str) -> MitoError:
+    """
+    Helper function for creating a replace_incompatible_types error.
+
+    Occurs when:
+    -  the user tries to replace a number with a string.
+    -  the user replaces a date and it is not a valid date.
+    -  the user replaces a timedelta and it is not a valid timedelta.
+    """
+    return MitoError(
+        'replace_incompatible_types', 
+        'Search and Replace Incompatible Types',
+        f'{search_value} cannot be replaced with {replace_value} because the types are incompatible.'
+    )
+
+
 def make_invalid_formula_error(formula: str, to_fix: Optional[str]=None, error_modal: bool=True) -> MitoError:
     """
     Helper function for creating a invalid_formula_error.

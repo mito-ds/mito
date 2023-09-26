@@ -6,8 +6,35 @@
     box-shadow: 0px 3px 11px -4px;
     padding: 5px;
     display: flex;
-    align-items: center;
+    flex-direction: row;
 }
+
+.mito-search-bar-content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5px;
+}
+
+.mito-search-bar-search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.mito-search-bar-replace {
+    display: flex;
+    flex-direction: row;
+}
+
+.mito-search-bar-replace .mito-search-button:hover {
+    background: var(--mito-highlight-medium);
+}
+
+.mito-search-bar-replace .mito-search-button {
+    background: var(--mito-highlight-light);
+}
+
 
 .mito-search-bar span {
     margin-left: 5px;
@@ -21,7 +48,6 @@
     background: none;
     display: flex;
     align-items: center;
-    margin-left: 5px;
     height: fit-content;
     padding: 4px;
     align-self: center;
@@ -35,6 +61,6 @@
 .mito-search-caution {
     position: absolute;
     background: #FFE092;
-    top: 40px;
     display: flex;
+    padding: 3px;
 }

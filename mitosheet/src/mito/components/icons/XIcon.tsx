@@ -8,6 +8,7 @@ const XIcon = (
         width?: string, 
         height?: string,
         strokeWidth?: string,
+        strokeColor?: string,
         onClick?: (e: React.MouseEvent) => void
     }): JSX.Element => {
 
