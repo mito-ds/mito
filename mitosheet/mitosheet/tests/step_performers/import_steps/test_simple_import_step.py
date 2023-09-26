@@ -508,3 +508,4 @@ def test_can_import_with_skiprows():
 
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
+

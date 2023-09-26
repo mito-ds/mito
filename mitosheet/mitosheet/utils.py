@@ -12,6 +12,7 @@ import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
 import os
+import keyword
 
 import numpy as np
 import pandas as pd
@@ -40,7 +41,14 @@ def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_
     dataframe name. If no append is necessary, will just
     return the initial passed value.
     """
-    if new_dataframe_name not in existing_df_names:
+    # These are technically legal python variables, but we don't support them
+    mito_invalid_python_variables = ['print']
+
+    if new_dataframe_name not in existing_df_names: 
+
+        # Make sure that the dataframe name is a valid Python variable
+        if keyword.iskeyword(new_dataframe_name) or new_dataframe_name in mito_invalid_python_variables:
+            new_dataframe_name = f'{new_dataframe_name}_df'
         return new_dataframe_name
 
     for i in range(len(existing_df_names) + 1):
