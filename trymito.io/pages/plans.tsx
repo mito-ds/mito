@@ -281,7 +281,7 @@ const CODE_GENERATION_FEATURES: Feature[] = [
   {
     feature: 'Optimized Generated Code',
     planSupport: {
-      'Open Source': false,
+      'Open Source': true,
       'Pro': true,
       'Enterprise': true 
     }
