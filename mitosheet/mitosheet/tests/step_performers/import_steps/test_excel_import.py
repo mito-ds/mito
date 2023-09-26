@@ -6,7 +6,6 @@
 import os
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
-
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
@@ -228,32 +227,20 @@ def test_comma_decimal_excel_import():
 @python_post_3_6_only
 def test_only_creates_valid_python_variables():
     df = pd.DataFrame({'KG': [267.88, 458.99, 125.89, 1.55, 1]}) 
+
+    import keyword
+    keywords = list(keyword.kwlist)
+    keywords.append('print')
+
     with pd.ExcelWriter(TEST_FILE) as writer:  
-        df.to_excel(writer, sheet_name='print', index=False)
-        df.to_excel(writer, sheet_name='return', index=False)
-        df.to_excel(writer, sheet_name='as', index=False)
-        df.to_excel(writer, sheet_name='or', index=False)
-        df.to_excel(writer, sheet_name='and', index=False)
-        df.to_excel(writer, sheet_name='if', index=False)
-        df.to_excel(writer, sheet_name='else', index=False)
-        df.to_excel(writer, sheet_name='elif', index=False)
-        df.to_excel(writer, sheet_name='for', index=False)
-        df.to_excel(writer, sheet_name='while', index=False)
-        df.to_excel(writer, sheet_name='in', index=False)
-        df.to_excel(writer, sheet_name='is', index=False)
-        df.to_excel(writer, sheet_name='not', index=False)
-        df.to_excel(writer, sheet_name='None', index=False)
-        df.to_excel(writer, sheet_name='True', index=False)
-        df.to_excel(writer, sheet_name='False', index=False)
-        df.to_excel(writer, sheet_name='break', index=False)
-        df.to_excel(writer, sheet_name='continue', index=False)
+        for kw in keywords:
+            df.to_excel(writer, sheet_name=kw, index=False)
 
     mito = create_mito_wrapper()
-    mito.excel_import(TEST_FILE, [
-        'print', 'return', 'as', 'or', 'and', 'if', 'else', 'elif', 'for', 'while', 'in', 'is', 'not', 'None', 'True', 'False', 'break', 'continue'
-    ], True, 0, ',')
+    mito.excel_import(TEST_FILE, keywords, True, 0, ',')
     
-    assert mito.df_names == ['print_df', 'return_df', 'as_df', 'or_df', 'and_df', 'if_df', 'else_df', 'elif_df', 'for_df', 'while_df', 'in_df', 'is_df', 'not_df', 'None_df', 'True_df', 'False_df', 'break_df', 'continue_df']
+    correct_keyword_names = [kw + '_df' for kw in keywords]
+    assert mito.df_names == correct_keyword_names
 
     # Remove the test file
     os.remove(TEST_FILE)

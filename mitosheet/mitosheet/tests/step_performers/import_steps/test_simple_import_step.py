@@ -509,7 +509,7 @@ def test_can_import_with_skiprows():
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
 
-def test_can_import_with_skiprows():
+def test_can_import_with_invalid_name():
     file_path = 'return.csv'
     df = pd.DataFrame(data={'A': ['B', 2, 3], 'C': ['D', 3, 4]})
     df.to_csv(file_path, index=False)
