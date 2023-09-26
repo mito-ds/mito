@@ -509,3 +509,22 @@ def test_can_import_with_skiprows():
     # Remove the test file
     os.remove(TEST_FILE_PATHS[0])
 
+def test_can_import_with_skiprows():
+    file_path = 'return.csv'
+    df = pd.DataFrame(data={'A': ['B', 2, 3], 'C': ['D', 3, 4]})
+    df.to_csv(file_path, index=False)
+
+    # Create with no dataframes
+    mito = create_mito_wrapper()
+    # And then import just a test file
+    mito.simple_import([file_path], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(pd.DataFrame({
+        'B': [2, 3], 'D': [3, 4]
+    }))
+    assert mito.df_names == ['return_df']
+
+    # Remove the test file
+    os.remove(file_path)
+
