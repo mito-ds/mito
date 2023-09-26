@@ -193,7 +193,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setTotalMatches(e.target.value === '' ? 0 : undefined);
     }
 
-    const handleReplace = async () => {
+    const handleReplace = () => {
         void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '').then(() => {
             getMatches();
         });
