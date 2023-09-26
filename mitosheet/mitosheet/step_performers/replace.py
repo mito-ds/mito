@@ -110,5 +110,5 @@ class ReplaceStepPerformer(StepPerformer):
 
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
-        return {get_param(params, 'sheet_index')} # TODO: add the modified indexes here!
+        return {get_param(params, 'sheet_index')}
     
