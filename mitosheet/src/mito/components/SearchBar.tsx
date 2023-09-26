@@ -282,7 +282,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 </button>
             </div>}
         </div>
-        {showCautionMessage && <div className='mito-search-caution'>
+        {showCautionMessage && <div style={{top: isExpanded ? '71px' : '40px'}} className='mito-search-caution'>
             <CautionIcon />
             <span>Only the first 1500 rows are displayed.</span>
         </div>}

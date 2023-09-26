@@ -61,6 +61,6 @@
 .mito-search-caution {
     position: absolute;
     background: #FFE092;
-    top: 40px;
     display: flex;
+    padding: 3px;
 }
