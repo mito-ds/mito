@@ -160,6 +160,10 @@ class MitoWidgetTestWrapper:
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
         return transpile(self.mito_backend.steps_manager, add_comments=False)
+
+    @property
+    def transpiled_code_with_comments(self):
+        return transpile(self.mito_backend.steps_manager, add_comments=True)
     
     @property
     def unoptimized_code_chunks(self):
