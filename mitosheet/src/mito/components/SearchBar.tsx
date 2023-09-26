@@ -83,8 +83,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         }
     }
 
-    // Call the backend to get the new match information when the search value or sheet index changes.
-    useDebouncedEffect(() => {
+    const getMatches = () => {
         // If the search value is empty, set the total matches to 0 and don't call the API.
         if (searchValue === undefined || searchValue === '') {
             setTotalMatches(0);
@@ -113,7 +112,10 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 }
             });
         });
-    }, [searchValue, uiState.selectedSheetIndex], 500);
+    }
+
+    // Call the backend to get the new match information when the search value or sheet index changes.
+    useDebouncedEffect(getMatches, [searchValue, uiState.selectedSheetIndex], 500);
 
     // This is separate from totalMatches because we only display the first 1500 rows.
     const totalMatchesDisplayed: number = matches?.length ?? 0;
@@ -193,15 +195,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     const handleReplace = () => {
         void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '');
-        setUIState({
-            ...uiState,
-            currOpenSearch: {
-                ...uiState.currOpenSearch,
-                currentMatchIndex: -1,
-                matches: []
-            }
-        })
-        setTotalMatches(0);
+        getMatches();
     }
 
     return (<div className='mito-search-bar'>
