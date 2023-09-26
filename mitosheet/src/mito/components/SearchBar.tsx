@@ -13,6 +13,7 @@ import LoadingDots from './elements/LoadingDots';
 import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils';
 import SearchNavigateIcon from './icons/SearchNavigateIcon';
 import CautionIcon from './icons/CautionIcon';
+import ExpandCollapseIcon from './icons/ExpandCollapseIcon';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -197,7 +198,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             }}
             className='mito-search-button'
         >
-            <SearchNavigateIcon width='17' height='17' direction={isExpanded ? 'up' : 'right'} strokeWidth={1} strokeColor='var(--mito-text)'/>
+            <ExpandCollapseIcon action={isExpanded ? 'collapse' : 'expand'} strokeColor='var(--mito-text)' strokeWidth={1}/>
         </button>
         <div className='mito-search-bar-content'>
             <div className='mito-search-bar-search'>
@@ -228,7 +229,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                         handleCurrentMatchChange('prev')
                     }}
                 >
-                    <SearchNavigateIcon width='17' height='17' direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
+                    <SearchNavigateIcon width='17' height='15' direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
                 </button>
                 {/* This button jumps to the next match */}
                 <button
@@ -237,7 +238,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                         handleCurrentMatchChange('next')
                     }}
                 >
-                    <SearchNavigateIcon width='17' height='17' direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+                    <SearchNavigateIcon width='17' height='15' direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
                 </button>
                 {/* This button closes the search bar. */}
                 <button
