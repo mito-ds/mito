@@ -68,14 +68,19 @@ class ReplaceStepPerformer(StepPerformer):
             else:
                 df = df.astype(str).replace(f'(?i){search_value}', replace_value, regex=True).astype(df.dtypes.to_dict())
 
-            # Then, we replace the search_value inside the column headers
-            column_matches = [column for column in df.columns if re.search(re.compile(search_value, re.IGNORECASE), column)]
-            # We replace in the dataframe *and* in the state column_ids object
-            df.columns = df.columns.str.replace(f'(?i){search_value}', replace_value, regex=True)
-            for column in column_matches:
-                new_column_name = re.sub(re.compile(search_value, re.IGNORECASE), replace_value, column)
-                column_id = post_state.column_ids.get_column_id_by_header(sheet_index, column)
+            # Then, we replace the column headers in the state column_ids object
+            new_columns = df.columns.str.replace(f'(?i){search_value}', replace_value, regex=True)
+
+            # Update the column headers in the state column_ids object
+            for old_column_name, new_column_name in zip(df.columns, new_columns):
+                # If the column name didn't change, then we don't need to do anything
+                if old_column_name == new_column_name:
+                    continue
+                column_id = post_state.column_ids.get_column_id_by_header(sheet_index, old_column_name)
                 post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
+            
+            # Finally, we replace the column headers in the dataframe
+            df.columns = new_columns
 
             post_state.dfs[sheet_index] = df
         except Exception as e:
