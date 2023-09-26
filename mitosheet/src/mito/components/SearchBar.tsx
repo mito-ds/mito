@@ -113,7 +113,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 }
             });
         });
-    }, [searchValue, uiState.selectedSheetIndex], 500);
+    }, [searchValue, uiState.selectedSheetIndex, uiState.currOpenSearch.matches], 500);
 
     // This is separate from totalMatches because we only display the first 1500 rows.
     const totalMatchesDisplayed: number = matches?.length ?? 0;
@@ -191,6 +191,18 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setTotalMatches(e.target.value === '' ? 0 : undefined);
     }
 
+    const handleReplace = () => {
+        void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '');
+        setUIState({
+            ...uiState,
+            currOpenSearch: {
+                ...uiState.currOpenSearch,
+                currentMatchIndex: -1,
+                matches: []
+            }
+        })
+    }
+
     return (<div className='mito-search-bar'>
         <button
             onClick={() => {
@@ -261,7 +273,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }}
                     onKeyDown={(e: React.KeyboardEvent) => {
                         if (e.key === 'Enter') {
-                            void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                            handleReplace();
                         }
                     }}
                     className='mito-input'
@@ -269,7 +281,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     autoFocus
                 />
                 <button className='mito-search-button' onClick={() => {
-                    void mitoAPI.editReplace(uiState.selectedSheetIndex, searchValue ?? '', replaceValue ?? '')
+                    handleReplace()
                 }}>
                     Replace All
                 </button>
