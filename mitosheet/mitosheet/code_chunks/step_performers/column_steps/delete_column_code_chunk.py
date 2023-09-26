@@ -6,6 +6,7 @@
 
 from copy import copy
 from typing import List, Optional, TYPE_CHECKING, Any, Dict, Tuple
+from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.state import State
 
 from mitosheet.types import ColumnID, ColumnHeader
@@ -36,7 +37,8 @@ class DeleteColumnsCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, self.column_ids)
-        return f'Deleted columns {", ".join([str(ch) for ch in column_headers])}'
+        column_header_string = get_column_header_string_for_comment(column_headers)
+        return f'Deleted columns {column_header_string}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 

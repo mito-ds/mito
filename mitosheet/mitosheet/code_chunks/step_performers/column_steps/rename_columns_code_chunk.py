@@ -8,6 +8,7 @@ from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_map_to_string
@@ -26,7 +27,8 @@ class RenameColumnsCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         new_column_headers = self.column_ids_to_new_column_headers.values()
-        return f'Renamed columns {", ".join(new_column_headers)}'
+        column_header_string = get_column_header_string_for_comment(new_column_headers)
+        return f'Renamed columns {column_header_string}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 

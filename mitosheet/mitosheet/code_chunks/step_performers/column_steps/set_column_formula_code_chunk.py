@@ -8,8 +8,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.code_chunk_utils import \
-    get_right_combine_with_column_delete_code_chunk
+from mitosheet.code_chunks.code_chunk_utils import get_right_combine_with_column_delete_code_chunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import \
     DeleteColumnsCodeChunk
 from mitosheet.parser import parse_formula
@@ -17,6 +16,7 @@ from mitosheet.state import State
 from mitosheet.types import (FORMULA_ENTIRE_COLUMN_TYPE, ColumnID,
                              FormulaAppliedToType)
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.utils import get_column_header_string_for_comment
 
 
 class SetColumnFormulaCodeChunk(CodeChunk):
@@ -37,10 +37,11 @@ class SetColumnFormulaCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+        column_header_string = get_column_header_string_for_comment([column_header])
         if self.index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
-            return f'Set formula of {column_header}'
+            return f'Set formula of {column_header_string}'
         else:
-            return f'Set formula of {column_header} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
+            return f'Set formula of {column_header_string} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)

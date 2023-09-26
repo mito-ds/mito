@@ -17,6 +17,7 @@ from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     column_header_to_transpiled_code
 from mitosheet.types import ColumnID
+from mitosheet.utils import get_column_header_string_for_comment
 
 
 class SetCellValueCodeChunk(CodeChunk):
@@ -37,7 +38,8 @@ class SetCellValueCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'Set a cell value in {column_header}'
+        column_header_string = get_column_header_string_for_comment([column_header])
+        return f'Set a cell value in {column_header_string}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 

@@ -6,6 +6,7 @@
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.utils import get_column_header_string_for_comment
 from mitosheet.is_type_utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code, param_dict_to_code
@@ -51,8 +52,9 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
     
     def get_description_comment(self) -> str:
         column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+        column_header_string = get_column_header_string_for_comment([column_header])
         delimiters_string = (', ').join(map(lambda x: f'"{x}"', self.delimiters))
-        return f'Split {column_header} on {delimiters_string}'
+        return f'Split {column_header_string} on {delimiters_string}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         delimiter_string = repr('|'.join(self.delimiters))
