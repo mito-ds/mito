@@ -122,7 +122,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     // This displays a loading icon if the total matches is undefined.
     // Otherwise, it displays the current match index and the total number of matches.
-    const matchesInfo = <span> {(totalMatches ?? 0) > 0 ? currentMatchIndex + 1 : 0} of {totalMatches ?? <LoadingDots />} </span>;
+    const matchesInfo = <span> {(totalMatches ?? 0) > 0 ? Math.max(currentMatchIndex + 1, 0) : 0} of {totalMatches ?? <LoadingDots />} </span>;
 
     // If there are no matches, display "No results." Otherwise, display the matches text.
     const finalMatchInfo =
