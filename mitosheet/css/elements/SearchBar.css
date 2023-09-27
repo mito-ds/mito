@@ -64,3 +64,7 @@
     display: flex;
     padding: 3px;
 }
+
+.mito-search-bar-search .mito-input-container {
+    flex-grow: 1;
+}

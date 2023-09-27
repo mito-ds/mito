@@ -239,7 +239,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     placeholder='Find...'
                     autoFocus
                 />
-                <span>{finalMatchInfo}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{finalMatchInfo}</span>
                 {/* This button jumps to the previous match */}
                 <button
                     className='mito-search-button'
