@@ -631,7 +631,7 @@ TEST_REPLACE_INVALID_PRE_1_2 = [
         0,
         "3",
         "hi",
-        []
+        ['A'],
     ),
 ]
 
