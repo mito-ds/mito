@@ -87,7 +87,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
 
 
     /**
-     * If we are in streamlit and the user hasn't configured the import folder,
+     * If we are in streamlit or dash and the user hasn't configured the import folder,
      * we display a message telling them to do so.
      * 
      * This is because the security model of streamlit requires us to know the

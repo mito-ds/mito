@@ -3,12 +3,13 @@ from io import StringIO
 import json
 import time
 from queue import Queue
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
+from unittest.mock import patch
 
 import pandas as pd
 from dash.development.base_component import Component, _explicitize_args
 
-from dash import Input, Output, callback
+from dash import Input, Output, callback, State
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_random_id
@@ -149,74 +150,63 @@ class Spreadsheet(Component):
             index_and_selections=self.index_and_selections
         )
     
-
-def spreadsheet_callback(
-    *_args,
-    input_id=None
-):
-    """
-    Provides a server-side callback relating the values of one or more `Output` items 
-    to a single spreadsheet with the given id.
-
-    Example usage:
-    ```
-    from mitosheet.mito_dash.v1 import Spreadsheet, spreadsheet_callback
-    from dash import Dash, html, Output
-
-    import pandas as pd
-
-    df = pd.DataFrame({'A': [1, 2, 3]})
-
-    app = Dash(__name__)
-
-    app.layout = html.Div([
-        Spreadsheet(df, id='mito-dash-wrapper'),
-        html.Div(id='output'),    
-    ])
-
-    @spreadsheet_callback(
-        Output('output', 'children'),
-        input_id='mito-dash-wrapper',
-    )
-    def update_output(spreadsheet_result):
-        dfs = spreadsheet_result.dfs()
-        return f'Output: {str(dfs)}'
-
-    
-    if __name__ == '__main__':
-        app.run_server(debug=True)
-    ```
-
-    """
-    if input_id is None:
-        raise ValueError('input_id must be provided')
-    
-    # Find the Spreadsheet component with the given id - searching all objects in this Python runtime
-    callback_component = None
+def get_component_with_id(id: str) -> Optional[Spreadsheet]:
     components = [
         obj for obj in gc.get_objects()
-        if isinstance(obj, Spreadsheet) and getattr(obj, 'mito_id', None) == input_id
+        if isinstance(obj, Spreadsheet) and getattr(obj, 'mito_id', None) == id
     ]
 
     if len(components) > 0:
-        callback_component = components[0]
-
-    if callback_component is None:
-        raise ValueError(f'Could not find Spreadsheet with id {input_id}. Make sure the input_id matches the id of a spreadsheet component')
+        return components[0]
+    else:
+        return None
     
-    # Create a callback that will send the result to the Spreadsheet component
-    # with the given id
-    def callback_decorator(func):
-        @callback(
-            *_args,
-            Input(callback_component.mito_id, 'all_json'),
-            # TODO: do we need to register the output here? I think yes. 
-            # What about passing the other args
-        )
-        def callback_wrapper(*args, **kwargs):
-            result = callback_component.get_result()
+def get_spreadsheets_and_index_in_callback_args(*args) -> List[Tuple[int, int, Spreadsheet]]:
+    """
+    Returns a list of all the Input components that are Spreadsheet components, and their indexes
+    """
+    result = []
+    callback_index = 0
+    for index, arg in enumerate(args):
 
-            return func(result)
-        return callback_wrapper
 
-    return callback_decorator
+        if (isinstance(arg, Input) or isinstance(arg, State)) and arg.component_id is not None:
+            spreadsheet = get_component_with_id(arg.component_id)
+            if spreadsheet is not None and isinstance(spreadsheet, Spreadsheet):
+                result.append((index, callback_index, spreadsheet))
+
+        if (isinstance(arg, Input) or isinstance(arg, State)):
+            callback_index += 1
+            
+    return result
+
+
+def mito_callback(*args, **kwargs):
+    # First, check if there are any args that are Inputs that contain a mito_id
+    spreadsheet_components = get_spreadsheets_and_index_in_callback_args(*args)
+
+    # If there are no spreadsheet input components, then we just call the regular callback
+    if len(spreadsheet_components) == 0:
+        return callback(*args, **kwargs)
+    
+    else:
+
+        def function_wrapper(original_function):
+            def new_function(*_args, **_kwargs):
+                new_args = list(_args)
+                for _, callback_index, spreadsheet in spreadsheet_components:
+                    new_args[callback_index] = spreadsheet.get_result()
+
+                return original_function(*new_args, **_kwargs)
+            
+            new_args = list(args)
+                
+            for index, _, spreadsheet in spreadsheet_components:
+                if isinstance(new_args[index], Input):
+                    new_args[index] = Input(spreadsheet.mito_id, 'all_json')
+                else:
+                    new_args[index] = State(spreadsheet.mito_id, 'all_json')
+
+            return callback(*new_args, **kwargs)(new_function)
+        
+        return function_wrapper
