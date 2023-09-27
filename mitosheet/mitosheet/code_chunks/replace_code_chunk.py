@@ -35,12 +35,15 @@ class ReplaceCodeChunk(CodeChunk):
         column_ids = self.column_ids
         df_name = self.df_name
         selected_columns = self.df_name
+        sheet_index = self.sheet_index
         df = self.df
 
         if (column_ids is not None and len(column_ids) > 0):
-            selected_columns = f'{self.df_name}[{column_ids}]'
-            df = self.df[column_ids]
-        
+            column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
+            selected_columns = f'{self.df_name}[{column_headers}]'
+            df = self.df[column_headers]
+
+        print("df_before_exec: ", df)
         # The shorter code chunk is for dataframes that *don't* have any boolean columns
         # Boolean columns are a special case, because when we convert them to str then back
         # to bool, they all become True. So we have to convert them back to bool with a custom
@@ -64,7 +67,8 @@ class ReplaceCodeChunk(CodeChunk):
 
         # Then, we always replace the search_value inside the column headers
         if any(df.columns.str.contains(search_value, case=False)):
-            code_chunk.append(f"{selected_columns}.columns = {selected_columns}.columns.str.replace('(?i){search_value}', '{replace_value}', regex=True)")
+            columns_to_replace = df.columns.str.replace(search_value, replace_value, case=False)
+            code_chunk.append(f"{df_name}.rename(columns={dict(zip(df.columns, columns_to_replace.to_list()))}, inplace=True)")
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:

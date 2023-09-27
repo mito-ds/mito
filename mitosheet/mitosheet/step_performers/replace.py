@@ -50,10 +50,12 @@ class ReplaceStepPerformer(StepPerformer):
 
         # If no column_ids are specified, then we replace the values in all columns
         if column_ids is None or len(column_ids) == 0:
-            column_ids = df.columns
+            column_ids = post_state.column_ids.get_column_ids(sheet_index)
+
+        column_headers = post_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
 
         # Selected columns is the dataframe with only the columns we want to replace values in
-        selected_columns = df[column_ids]
+        selected_columns = df[column_headers]
 
         # Raise an error if the pandas version is too old to use timedelta with replace.
         if (any(selected_columns.dtypes == 'timedelta') and pd.__version__ < 1.4):
@@ -87,10 +89,10 @@ class ReplaceStepPerformer(StepPerformer):
                 post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
 
             # Replace the selected columns in the actual dataframe
-            df[column_ids] = selected_columns
+            df[column_headers] = selected_columns
 
             # Finally, we replace the column headers in the dataframe
-            df.rename(columns=dict(zip(column_ids, new_columns)), inplace=True)
+            df.rename(columns=dict(zip(column_headers, new_columns)), inplace=True)
             post_state.dfs[sheet_index] = df
         except Exception as e:
             raise make_invalid_replace_error(search_value, replace_value)

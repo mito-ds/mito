@@ -469,6 +469,16 @@ def test_replace_selected_columns(input_dfs, sheet_index, column_ids, search_val
     for actual, expected in zip(mito.dfs, output_dfs):
         pd.testing.assert_frame_equal(actual,expected)
 
+
+def test_rename_column_then_replace():
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c']}))
+
+    mito.rename_column(0, 'A', 'C')
+    mito.replace(0, ['A'], 'C', 'd')
+
+    assert len(mito.dfs) == 1
+    pd.testing.assert_frame_equal(mito.dfs[0], pd.DataFrame({'d': [1, 2, 3], 'B': ['a', 'b', 'c']}))
+
 # Replace uses conversion between timedeltas that pandas pre 1.1.5 doesn't support. 
 PANDAS_POST_1_4_REPLACE_TESTS = [
     (
