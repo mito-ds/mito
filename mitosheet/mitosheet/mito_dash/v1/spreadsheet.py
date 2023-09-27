@@ -7,12 +7,14 @@ from typing import Any, Dict, List, Optional, Union, Tuple
 from unittest.mock import patch
 
 import pandas as pd
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 from dash import Input, Output, callback, State
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_random_id
+from mitosheet.types import CodeOptions
+
 
 
 class SpreadsheetResult():
@@ -48,20 +50,20 @@ class Spreadsheet(Component):
     available_properties = ['id', 'all_json', 'data', 'import_folder']
     available_wildcard_properties: List[str] = []
 
-    @_explicitize_args
     def __init__(
             self, 
             *args,
+            id: str,
+            import_folder: Optional[str]=None,
+            code_options: Optional[CodeOptions]=None,
             **kwargs
-    ):     
-        self.mito_id = kwargs['id']
-        self._set_new_mito_backend(*args, kwargs.get('import_folder'))
 
-        _explicit_args = kwargs.pop('_explicit_args')
+    ):     
+        self.mito_id = id
+        self._set_new_mito_backend(*args, import_folder=import_folder, code_options=code_options)
 
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs and excess named props
-        args = {k: _locals[k] for k in _explicit_args}
         args = {
             'id': self.mito_id, 
             'all_json': self.get_all_json()
@@ -76,6 +78,11 @@ class Spreadsheet(Component):
         self.processing_messages = False
 
         self.index_and_selections: Optional[pd.DataFrame] = None
+
+        # Make sure to save import-folder and code-options as attributes, so if we need
+        # to recreate the backend, we can do so
+        self.import_folder = import_folder
+        self.code_options = code_options
 
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
@@ -98,15 +105,20 @@ class Spreadsheet(Component):
             elif isinstance(df_in_json, list):
                 df = pd.DataFrame(df_in_json)
 
-            self._set_new_mito_backend(df)
+            self._set_new_mito_backend(df, import_folder=self.import_folder, code_options=self.code_options)
             return self.get_all_json()
         
-    def _set_new_mito_backend(self, *args: Union[pd.DataFrame, str, None], import_folder: Optional[str]=None) -> None:
+    def _set_new_mito_backend(
+            self, 
+            *args: Union[pd.DataFrame, str, None], 
+            import_folder: Optional[str]=None,
+            code_options: Optional[CodeOptions]=None
+        ) -> None:
         """
         Called when the component is created, or when the input data is changed.
         """
         self.mito_frontend_key = get_random_id()
-        self.mito_backend = MitoBackend(*args, import_folder=import_folder)
+        self.mito_backend = MitoBackend(*args, import_folder=import_folder, code_options=code_options)
         self.responses: List[Dict[str, Any]] = []
         def send(response):
             self.responses.append(response)
