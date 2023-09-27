@@ -313,6 +313,20 @@ EXCEL_RANGE_IMPORT_TESTS = [
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'A'}, 'end_condition': {'type': 'cumulative number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
         [TEST_DF_7.iloc[0:3, 0:2]],
     ), 
+    # Tests number of consecutive empty rows
+    (
+        ['A1:B2', 'A4:B5', 'A9:B10'],
+        [TEST_DF_1, TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'consecutive number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, 'header 1', 1], 'header 2': [2, None, 'header 2', 2]})],
+    ), 
+    # Test number of consecutive empty rows, with partially filled row
+    (
+        ['A1:B2', 'A4:B5', 'B7:C8'],
+        [TEST_DF_1, TEST_DF_1, TEST_DF_1],
+        [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'consecutive number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
+        [pd.DataFrame({'header 1': [1, None, 'header 1', 1, None, None, None], 'header 2': [2, None, 'header 2', 2, None, 'header 1', 1]})],
+    )
 
     
 ]
