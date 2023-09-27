@@ -81,7 +81,7 @@ import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
-import { isInStreamlit } from './utils/location';
+import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
@@ -118,9 +118,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
-            ? (!isInStreamlit() 
+            ? ((!isInDashboard())
                 ? {type: ModalEnum.SignUp} 
-                : {type: ModalEnum.StreamlitSignUp}   
+                : {type: ModalEnum.DashboardSignup}   
             ) : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
@@ -535,7 +535,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case ModalEnum.StreamlitSignUp: return (
+            case ModalEnum.DashboardSignup: return (
                 <StreamlitSignupModal
                     setUIState={setUIState}
                     numUsages={userProfile.numUsages}
@@ -941,8 +941,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
             return <></>;
         }
 
-        // If the user is in streamlit, don't display the tour
-        if (isInStreamlit()) {
+        // If the user is in streamlit or dash, don't display the tour
+        if (isInDashboard()) {
             return <></>;
         }
 

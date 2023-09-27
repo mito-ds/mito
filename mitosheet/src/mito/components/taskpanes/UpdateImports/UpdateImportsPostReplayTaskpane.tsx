@@ -12,7 +12,7 @@ import ImportCard from "./UpdateImportCard";
 import { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
-import { isInStreamlit } from "../../../utils/location";
+import { isInDash, isInStreamlit } from "../../../utils/location";
 
 
 interface UpdateImportPostReplayTaskpaneProps {
@@ -44,7 +44,10 @@ interface UpdateImportPostReplayTaskpaneProps {
 
 let PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mitosheet.sheet call above.'
 if (isInStreamlit()) {
-    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mito_component call.'
+    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the spreadsheet call.'
+}
+if (isInDash()) {
+    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the Spreadsheet call.'
 }
     
 

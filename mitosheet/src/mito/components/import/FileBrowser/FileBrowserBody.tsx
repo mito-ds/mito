@@ -5,7 +5,7 @@ import '../../../../../css/taskpanes/Import/FileBrowser.css';
 import { MitoAPI } from '../../../api/api';
 import { AnalysisData, UIState, UserProfile } from '../../../types';
 import { classNames } from '../../../utils/classNames';
-import { isInStreamlit } from '../../../utils/location';
+import { isInDashboard } from '../../../utils/location';
 import { isExcelImportEnabled } from '../../../utils/packageVersion';
 import SortArrowIcon from '../../icons/SortArrowIcon';
 import Col from '../../layout/Col';
@@ -95,7 +95,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
      * to be able to import from anywhere on the server -- there could be private
      * data.
      */
-    if (isInStreamlit() && !props.analysisData.importFolderData) {
+    if (isInDashboard() && !props.analysisData.importFolderData) {
         return (
             <>
                 <p 

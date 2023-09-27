@@ -33,4 +33,22 @@ export const isInStreamlit = (): boolean => {
     return false
 }
 
-// TODO: We need to support detecting dash, and then we need to disable importing when you're on dash
+export const isInDash = (): boolean => {
+    // Check if there is a div with the id _dash-app-content
+    const dashAppContent = document.getElementById('_dash-app-content')
+    if (dashAppContent) {
+        return true
+    }
+
+    // Check for _dash-global-error-container
+    const dashGlobalErrorContainer = document.getElementById('_dash-global-error-container')
+    if (dashGlobalErrorContainer) {
+        return true
+    }
+
+    return false;
+}
+
+export const isInDashboard = (): boolean => {
+    return isInStreamlit() || isInDash()
+}

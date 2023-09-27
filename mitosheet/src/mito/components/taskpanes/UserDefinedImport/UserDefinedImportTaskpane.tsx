@@ -8,7 +8,7 @@ import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { isInStreamlit } from "../../../utils/location";
+import { isInDash, isInStreamlit } from "../../../utils/location";
 import UserDefinedImportConfig, { getEmptyDefaultParamsForImporter } from "./UserDefinedImportConfig";
 
 
@@ -44,7 +44,9 @@ export const getDefaultUserDefinedImportParams = (
 export const getNoImportMessage = (): string => {
     let noImportMessage = 'You have not defined any importers. An importer is just a function that returns a pandas dataframe.';
     if (isInStreamlit()) {
-        noImportMessage += ' You can define importers in the mito_component call with the `importers` parameter.';
+        noImportMessage += ' You can define importers in the spreadsheet call with the `importers` parameter.';
+    } else if (isInDash()) {
+        noImportMessage += ' You can define importers in the Spreadsheet call with the `importers` parameter.';
     } else {
         noImportMessage += ' You can define importers in the mitosheet.sheet call with the `importers` parameter.';
     }
