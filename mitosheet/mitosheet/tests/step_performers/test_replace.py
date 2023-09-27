@@ -523,7 +523,9 @@ REPLACE_INVALID_TESTS = [
         ],
         0,
         "3",
-        "hi"
+        "hi",
+        [],
+        MitoError
     ),
     (
         [
@@ -538,7 +540,9 @@ REPLACE_INVALID_TESTS = [
         ],
         0,
         "3",
-        "12"
+        "12",
+        [],
+        MitoError
     ),
     (
         [
@@ -553,7 +557,9 @@ REPLACE_INVALID_TESTS = [
         ],
         0,
         "3",
-        "hi"
+        "hi",
+        [],
+        MitoError
     ),
     (
         [
@@ -566,15 +572,32 @@ REPLACE_INVALID_TESTS = [
         ],
         0,
         "3", 
-        "5,000"
+        "5,000",
+        [],
+        MitoError
+    ),
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        "3", 
+        "4",
+        ['A', 'E'],
+        KeyError
     ),
 ]
 
-@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", REPLACE_INVALID_TESTS)
-def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
+@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, column_ids, expected_error", REPLACE_INVALID_TESTS)
+def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value, column_ids, expected_error):
     mito = create_mito_wrapper(*input_dfs)
 
-    with pytest.raises(MitoError):
+    with pytest.raises(expected_error):
         mito.mito_backend.handle_edit_event(
             {
                 'event': 'edit_event',
@@ -585,6 +608,7 @@ def test_replace_invalid(input_dfs, sheet_index, search_value, replace_value):
                     'sheet_index': sheet_index,
                     'search_value': search_value,
                     'replace_value': replace_value,
+                    'column_ids': column_ids
                 }
             }
         )
@@ -606,13 +630,14 @@ TEST_REPLACE_INVALID_PRE_1_2 = [
         ],
         0,
         "3",
-        "hi"
+        "hi",
+        []
     ),
 ]
 
 @pandas_pre_1_2_only
-@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value", TEST_REPLACE_INVALID_PRE_1_2)
-def test_invalid_pre_1_2_replace(input_dfs, sheet_index, search_value, replace_value):
+@pytest.mark.parametrize("input_dfs, sheet_index, search_value, replace_value, column_ids", TEST_REPLACE_INVALID_PRE_1_2)
+def test_invalid_pre_1_2_replace(input_dfs, sheet_index, search_value, replace_value, column_ids):
     mito = create_mito_wrapper(*input_dfs)
 
     with pytest.raises(MitoError):
@@ -626,6 +651,7 @@ def test_invalid_pre_1_2_replace(input_dfs, sheet_index, search_value, replace_v
                     'sheet_index': sheet_index,
                     'search_value': search_value,
                     'replace_value': replace_value,
+                    'column_ids': column_ids
                 }
             }
         )
