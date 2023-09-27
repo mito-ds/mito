@@ -383,6 +383,80 @@ REPLACE_SELECTED_COLUMNS = [
             })
         ],
     ),
+    # Replace boolean and non-boolean columns
+    (
+        [
+            pd.DataFrame({
+                'test1': [1, 2, 3],
+                'test2': [1.0, 2.0, 3.0], 
+                'test3': [True, False, True], 
+                'test4': ["string", "with spaces", "and/!other@characters3"], 
+                'test5': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "test3", "test4" ],
+        "a", 
+        "b", 
+        [
+            pd.DataFrame({
+                'test1': [1, 2, 3],
+                'test2': [1.0, 2.0, 3.0], 
+                'test3': [True, False, True], 
+                'test4': ["string", "with spbces", "bnd/!other@chbrbcters3"], 
+                'test5': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+    
+    # Replace in df without boolean columns
+    # Non-consecutive columns
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "A", "C" ],
+        "1", 
+        "2", 
+        [
+            pd.DataFrame({
+                'A': [2, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+
+    # Date-time columns
+    (
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "A", "D" ],
+        "7", 
+        "2", 
+        [
+            pd.DataFrame({
+                'A': [1, 2, 3],
+                'B': [1.0, 2.0, 3.0], 
+                'C': ["string", "with spaces", "and/!other@characters3"], 
+                'D': pd.to_datetime(['12-22-1992', '12-23-1992', '12-24-1992']), 
+            })
+        ],
+    ),
 ]
 
 @pytest.mark.parametrize("input_dfs, sheet_index, column_ids, search_value, replace_value, output_dfs", REPLACE_SELECTED_COLUMNS)
