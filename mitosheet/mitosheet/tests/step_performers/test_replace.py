@@ -635,7 +635,7 @@ PANDAS_POST_1_4_REPLACE_TESTS = [
 def test_pandas_post_1_3_replace(input_dfs, sheet_index, search_value, replace_value, output_dfs):
     mito = create_mito_wrapper(*input_dfs)
 
-    mito.replace(sheet_index, search_value, replace_value)
+    mito.replace(sheet_index, [], search_value, replace_value)
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
