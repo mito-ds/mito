@@ -5,7 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Any
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, convert_column_header_map_to_string
@@ -39,6 +39,7 @@ class ReplaceCodeChunk(CodeChunk):
         df_name_with_selected_columns = self.df_name
         sheet_index = self.sheet_index
         df = self.df
+        column_headers: Any = []
 
         if (column_ids is not None and len(column_ids) > 0):
             column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
