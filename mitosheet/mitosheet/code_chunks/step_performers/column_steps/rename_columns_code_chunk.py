@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk import DeleteColumnsCodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_map_to_string
+from mitosheet.transpiler.transpile_utils import convert_column_header_map_to_string
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -35,7 +35,7 @@ class RenameColumnsCodeChunk(CodeChunk):
         for column_id, new_column_header in self.column_ids_to_new_column_headers.items():
             old_column_header_to_new_column_header_map[self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id)] = new_column_header
 
-        rename_dict = column_header_map_to_string(old_column_header_to_new_column_header_map)
+        rename_dict = convert_column_header_map_to_string(old_column_header_to_new_column_header_map)
         rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string], []
 

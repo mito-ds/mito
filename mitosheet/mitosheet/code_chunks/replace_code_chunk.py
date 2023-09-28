@@ -8,7 +8,7 @@ import re
 from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, convert_column_header_map_to_string
 from mitosheet.state import State
 import pandas as pd
 
@@ -72,7 +72,7 @@ class ReplaceCodeChunk(CodeChunk):
         string_value_regex = re.compile(search_value, re.IGNORECASE)
         new_columns = [type(column)(re.sub(string_value_regex, replace_value, str(column))) for column in column_headers]
         if len(new_columns) > 0:
-            code_chunk.append(f"{df_name}.rename(columns={column_header_map_to_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
+            code_chunk.append(f"{df_name}.rename(columns={convert_column_header_map_to_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:

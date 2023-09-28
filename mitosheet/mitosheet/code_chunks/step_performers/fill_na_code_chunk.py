@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, convert_column_header_map_to_string, column_header_to_transpiled_code
 from mitosheet.types import ColumnID
 
 
@@ -43,7 +43,7 @@ class FillNaCodeChunk(CodeChunk):
                 return [f"{self.df_name}.fillna({column_header_to_transpiled_code(self.fill_method['value'])}, inplace=True)"], []
             else:
                 values = {column_header: self.fill_method['value'] for column_header in column_headers}
-                values_string = column_header_map_to_string(values) # this function is misnamed, but works for us
+                values_string = convert_column_header_map_to_string(values) # this function is misnamed, but works for us
                 return [f"{self.df_name}.fillna({values_string}, inplace=True)"], []
         else:
             if fill_method_type == 'ffill':
