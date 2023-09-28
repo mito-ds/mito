@@ -554,6 +554,54 @@ REPLACE_SELECTED_COLUMNS = [
             })
         ],
     ),
+    (
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "2013-01-23 00:00:00" ],
+        "2013-01-23 00:00:00", 
+        "helloworld", 
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                'helloworld': pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "33" ],
+        "33", 
+        "helloworld", 
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                'helloworld': [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 
     # Replace in df without boolean columns
     # Non-consecutive columns
@@ -746,38 +794,6 @@ REPLACE_INVALID_TESTS = [
         "4",
         ['A', 'E'],
         KeyError
-    ),
-    (
-        [
-            pd.DataFrame({
-                '123': [1, 2, 3],
-                'abc': [1.0, 2.0, 3.0], 
-                33: [True, False, True], 
-                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
-                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
-            })
-        ],
-        0,
-        "2013-01-23 00:00:00", 
-        "helloworld", 
-        [ "2013-01-23 00:00:00" ],
-        MitoError
-    ),
-    (
-        [
-            pd.DataFrame({
-                '123': [1, 2, 3],
-                'abc': [1.0, 2.0, 3.0], 
-                33: [True, False, True], 
-                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
-                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
-            })
-        ],
-        0,
-        "33", 
-        "helloworld", 
-        [ "33" ],
-        MitoError
     ),
 ]
 

@@ -14,6 +14,14 @@ import pandas as pd
 
 from mitosheet.errors import MitoError
 
+
+def convert_to_original_type_or_str(column: str, original_type: type) -> Any:
+    try:
+        return original_type(column)
+    except:
+        return column
+
+
 class ReplaceCodeChunk(CodeChunk):
 
     def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], search_value: str, replace_value: str):
@@ -71,7 +79,8 @@ class ReplaceCodeChunk(CodeChunk):
 
         # Then, we always replace the search_value inside the column headers
         string_value_regex = re.compile(search_value, re.IGNORECASE)
-        new_columns = [type(column)(re.sub(string_value_regex, replace_value, str(column))) for column in column_headers]
+
+        new_columns = [convert_to_original_type_or_str(re.sub(string_value_regex, replace_value, str(column)), type(column)) for column in column_headers]
         if len(new_columns) > 0:
             code_chunk.append(f"{df_name}.rename(columns={convert_column_header_map_to_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
         return code_chunk, []

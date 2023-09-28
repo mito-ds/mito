@@ -10,7 +10,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 import pandas as pd
-from mitosheet.code_chunks.replace_code_chunk import ReplaceCodeChunk
+from mitosheet.code_chunks.replace_code_chunk import ReplaceCodeChunk, convert_to_original_type_or_str
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
@@ -79,7 +79,7 @@ class ReplaceStepPerformer(StepPerformer):
 
             # Then, we replace the column headers in the state column_ids object
             # We convert the column headers to strings because the column headers can be any type
-            new_columns = [type(column)(re.sub(search_value_regex, replace_value, str(column))) for column in df_only_selected_columns.columns]
+            new_columns = [convert_to_original_type_or_str(re.sub(search_value_regex, replace_value, str(column)), type(column)) for column in df_only_selected_columns.columns]
 
             # Update the column headers in the state column_ids object
             for old_column_name, new_column_name in zip(df_only_selected_columns.columns, new_columns):
