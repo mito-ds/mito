@@ -81,8 +81,10 @@ class ReplaceCodeChunk(CodeChunk):
         string_value_regex = re.compile(search_value, re.IGNORECASE)
 
         new_columns = [convert_to_original_type_or_str(re.sub(string_value_regex, replace_value, str(column)), type(column)) for column in column_headers]
-        if len(new_columns) > 0:
-            code_chunk.append(f"{df_name}.rename(columns={get_column_header_map_as_code_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
+        column_rename_map = dict(zip(column_headers, new_columns))
+        column_rename_map = {k: v for k, v in column_rename_map.items() if k != v}
+        if len(column_rename_map) > 0:
+            code_chunk.append(f"{df_name}.rename(columns={get_column_header_map_as_code_string(column_rename_map)}, inplace=True)")
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:

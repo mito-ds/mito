@@ -52,6 +52,7 @@
     padding: 4px;
     align-self: center;
     justify-content: center;
+    margin-left: 4px;
 }
 
 .mito-search-button:hover {
