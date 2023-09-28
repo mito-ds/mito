@@ -173,9 +173,11 @@ def get_component_with_id(id: str) -> Optional[Spreadsheet]:
     else:
         return None
     
-def get_spreadsheets_and_index_in_callback_args(*args) -> List[Tuple[int, int, Spreadsheet]]:
+def get_spreadsheet_id_and_indexes_in_callback_args(*args) -> List[Tuple[str, int, int]]:
     """
     Returns a list of all the Input components that are Spreadsheet components, and their indexes
+
+    TODO: maybe need to handle lists of Outputs and Inputs and States
     """
     result = []
     callback_index = 0
@@ -183,9 +185,14 @@ def get_spreadsheets_and_index_in_callback_args(*args) -> List[Tuple[int, int, S
 
 
         if (isinstance(arg, Input) or isinstance(arg, State)) and arg.component_id is not None:
-            spreadsheet = get_component_with_id(arg.component_id)
-            if spreadsheet is not None and isinstance(spreadsheet, Spreadsheet):
-                result.append((index, callback_index, spreadsheet))
+            component_id = arg.component_id
+            component_property = arg.component_property
+
+            # Mito currently supports the following properities:
+            # - mito_return_value
+
+            if component_property == 'mito_return_value':
+                result.append((component_id, index, callback_index))
 
         if (isinstance(arg, Input) or isinstance(arg, State)):
             callback_index += 1
@@ -195,10 +202,10 @@ def get_spreadsheets_and_index_in_callback_args(*args) -> List[Tuple[int, int, S
 
 def mito_callback(*args, **kwargs):
     # First, check if there are any args that are Inputs that contain a mito_id
-    spreadsheet_components = get_spreadsheets_and_index_in_callback_args(*args)
+    indexes = get_spreadsheet_id_and_indexes_in_callback_args(*args)
 
     # If there are no spreadsheet input components, then we just call the regular callback
-    if len(spreadsheet_components) == 0:
+    if len(indexes) == 0:
         return callback(*args, **kwargs)
     
     else:
@@ -206,18 +213,22 @@ def mito_callback(*args, **kwargs):
         def function_wrapper(original_function):
             def new_function(*_args, **_kwargs):
                 new_args = list(_args)
-                for _, callback_index, spreadsheet in spreadsheet_components:
+                for id, index, callback_index in indexes:
+                    spreadsheet = get_component_with_id(id)
+                    if spreadsheet is None:
+                        # TODO: use a more dash exception  
+                        raise Exception(f"Could not find spreadsheet with id {id}")
                     new_args[callback_index] = spreadsheet.get_result()
 
                 return original_function(*new_args, **_kwargs)
             
             new_args = list(args)
                 
-            for index, _, spreadsheet in spreadsheet_components:
+            for id, index, _ in indexes:
                 if isinstance(new_args[index], Input):
-                    new_args[index] = Input(spreadsheet.mito_id, 'all_json')
+                    new_args[index] = Input(id, 'all_json')
                 else:
-                    new_args[index] = State(spreadsheet.mito_id, 'all_json')
+                    new_args[index] = State(id, 'all_json')
 
             return callback(*new_args, **kwargs)(new_function)
         
