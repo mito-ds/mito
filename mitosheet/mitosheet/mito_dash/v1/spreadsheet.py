@@ -3,7 +3,7 @@ from io import StringIO
 import json
 import time
 from queue import Queue
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from unittest.mock import patch
 
 import pandas as pd
@@ -12,7 +12,7 @@ from dash.development.base_component import Component
 from dash import Input, Output, callback, State
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.utils import get_random_id
+from mitosheet.utils import get_new_id, get_random_id
 from mitosheet.types import CodeOptions
 
 
@@ -56,20 +56,24 @@ class Spreadsheet(Component):
             id: str,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
-            **kwargs
-
+            df_names: Optional[List[str]]=None,
+            sheet_functions: Optional[List[Callable]]=None, 
+            importers: Optional[List[Callable]]=None
     ):     
         self.mito_id = id
-        self._set_new_mito_backend(*args, import_folder=import_folder, code_options=code_options)
+        self._set_new_mito_backend(
+            *args, 
+            import_folder=import_folder, 
+            code_options=code_options,
+            df_names=df_names,
+            sheet_functions=sheet_functions,
+            importers=importers
+        )
 
-        _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs and excess named props
-        args = {
-            'id': self.mito_id, 
-            'all_json': self.get_all_json()
-        }
-
-        super(Spreadsheet, self).__init__(**args)
+        super(Spreadsheet, self).__init__(
+            id=id,
+            all_json=self.get_all_json(),
+        )
 
         # We save the unprocessed messages in a list -- so that we can process them
         # in the callback in the order that they were received -- without them interrupting
@@ -83,6 +87,9 @@ class Spreadsheet(Component):
         # to recreate the backend, we can do so
         self.import_folder = import_folder
         self.code_options = code_options
+        self.df_names = df_names
+        self.sheet_functions = sheet_functions
+        self.importers = importers
 
 
         @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
@@ -104,25 +111,57 @@ class Spreadsheet(Component):
                 df = pd.read_json(StringIO(df_in_json))
             elif isinstance(df_in_json, list):
                 df = pd.DataFrame(df_in_json)
+            else:
+                raise Exception(f"Unsupported data type {type(df_in_json)}")
 
-            self._set_new_mito_backend(df, import_folder=self.import_folder, code_options=self.code_options)
+            self._set_new_mito_backend(
+                df, 
+                import_folder=self.import_folder, 
+                code_options=self.code_options,
+                df_names=self.df_names,
+                sheet_functions=self.sheet_functions,
+                importers=self.importers
+            )
             return self.get_all_json()
         
     def _set_new_mito_backend(
             self, 
             *args: Union[pd.DataFrame, str, None], 
             import_folder: Optional[str]=None,
-            code_options: Optional[CodeOptions]=None
+            code_options: Optional[CodeOptions]=None,
+            df_names: Optional[List[str]]=None,
+            sheet_functions: Optional[List[Callable]]=None, 
+            importers: Optional[List[Callable]]=None
         ) -> None:
         """
         Called when the component is created, or when the input data is changed.
         """
         self.mito_frontend_key = get_random_id()
-        self.mito_backend = MitoBackend(*args, import_folder=import_folder, code_options=code_options)
+        self.mito_backend = MitoBackend(
+            *args, 
+            import_folder=import_folder, 
+            code_options=code_options,
+            user_defined_functions=sheet_functions,
+            user_defined_importers=importers,
+        )
         self.responses: List[Dict[str, Any]] = []
         def send(response):
             self.responses.append(response)
-        self.mito_backend.mito_send = send
+        self.mito_backend.mito_send = send'
+
+        # If there are any df_names, then we send them to the backend as well. 
+        # TODO: we should be able to pass this directly to the backend
+        if df_names is not None and len(df_names) > 0:
+            self.mito_backend.receive_message(
+                {
+                    'event': 'update_event',
+                    'id': get_new_id(),
+                    'type': 'args_update',
+                    'params': {
+                        'args': df_names
+                    },
+                }
+            )
         
             
     def process_single_message(self):
