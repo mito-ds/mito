@@ -146,7 +146,7 @@ def get_table_range(
                 num_empty = 0
 
             if num_empty >= consecutive_number_of_empty_rows:
-                max_found_row_index = row[0].row - 1 # minus b/c this is one past the end
+                max_found_row_index = row[0].row - consecutive_number_of_empty_rows # minus b/c this is past the end, empty rows
                 break
             if row[0].row == sheet.max_row:
                 max_found_row_index = row[0].row # stop at the end as well
