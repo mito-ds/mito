@@ -8,6 +8,7 @@ import re
 from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
+from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
 from mitosheet.state import State
 import pandas as pd
 
@@ -41,12 +42,11 @@ class ReplaceCodeChunk(CodeChunk):
 
         if (column_ids is not None and len(column_ids) > 0):
             column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
-            selected_columns = f'{self.df_name}[{column_headers}]'
+            selected_columns = f'{self.df_name}[{column_header_list_to_transpiled_code(column_headers)}]'
             df = self.df[column_headers]
         else:
             column_headers = df.columns.to_list()
 
-        print("df_before_exec: ", df)
         # The shorter code chunk is for dataframes that *don't* have any boolean columns
         # Boolean columns are a special case, because when we convert them to str then back
         # to bool, they all become True. So we have to convert them back to bool with a custom
