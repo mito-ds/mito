@@ -738,6 +738,7 @@ export class MitoAPI {
         sheet_index: number,
         search_value: string,
         replace_value: string,
+        column_ids: ColumnID[],
     ): Promise<void> {
 
         const stepID = getRandomId();
@@ -749,6 +750,7 @@ export class MitoAPI {
                 sheet_index: sheet_index,
                 search_value: search_value,
                 replace_value: replace_value,
+                column_ids: column_ids,
             }
         })
     }

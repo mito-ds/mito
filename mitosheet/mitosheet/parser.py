@@ -23,7 +23,7 @@ from mitosheet.is_type_utils import (is_datetime_dtype,
                                                    is_string_dtype)
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference, IndexLabel
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import (ColumnHeader, FrontendFormula,
                              FormulaAppliedToType, RawParserMatch, ParserMatch,
                              ParserMatchSubstringRange, RowOffset)
@@ -822,9 +822,9 @@ def replace_sheet_names_and_column_headers_and_indexes(
         # If the column headers are the same, we can generate much simpler code
         # TODO: we potentially can do better if the columnns are next to eachother as well
         if column_header_one == column_header_two:
-            return f'[[{column_header_to_transpiled_code(column_header_two)}]]'
+            return f'[[{get_column_header_as_transpiled_code(column_header_two)}]]'
         else:
-            return f'.loc[:, {column_header_to_transpiled_code(column_header_one)}:{column_header_to_transpiled_code(column_header_two)}]'
+            return f'.loc[:, {get_column_header_as_transpiled_code(column_header_one)}:{get_column_header_as_transpiled_code(column_header_two)}]'
     
     # Then, go through from the end to the start, and actually replace all the column headers
     # and remove all of the index labels
@@ -843,7 +843,7 @@ def replace_sheet_names_and_column_headers_and_indexes(
 
             column_headers.add(column_header)
 
-            transpiled_column_header = column_header_to_transpiled_code(column_header)
+            transpiled_column_header = get_column_header_as_transpiled_code(column_header)
             replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}' # type: ignore
 
         elif match_type == '{HEADER}{INDEX}':
@@ -854,7 +854,7 @@ def replace_sheet_names_and_column_headers_and_indexes(
             column_headers.add(column_header)
             index_labels.add(index_label)
 
-            transpiled_column_header = column_header_to_transpiled_code(column_header)
+            transpiled_column_header = get_column_header_as_transpiled_code(column_header)
             replace_string = f'{df_name}[{transpiled_column_header}]{get_shift_string(column_dtype, row_offset)}' # type: ignore
         
         elif match_type == '{SHEET}!{HEADER}:{HEADER}':
@@ -1032,7 +1032,7 @@ def parse_formula(
     code_with_values_replaced = replace_true_values(code_without_newlines_or_tabs)
     code_with_functions, functions = replace_functions(code_with_values_replaced)
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_column_header_as_transpiled_code(column_header)
 
     if include_df_set:
         if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
@@ -1045,11 +1045,11 @@ def parse_formula(
                 index_labels = pd.to_datetime(index_labels)
 
             if len(column_header_dependencies) > 0:
-                final_set_code = f'({code_with_functions}).loc[{column_header_list_to_transpiled_code(index_labels)}]' # type: ignore
+                final_set_code = f'({code_with_functions}).loc[{get_column_header_list_as_transpiled_code(index_labels)}]' # type: ignore
             else:
                 final_set_code = f'{code_with_functions}'
                 
-            final_code = f'{df_name}.loc[{column_header_list_to_transpiled_code(index_labels)}, [{transpiled_column_header}]] = {final_set_code}' # type: ignore
+            final_code = f'{df_name}.loc[{get_column_header_list_as_transpiled_code(index_labels)}, [{transpiled_column_header}]] = {final_set_code}' # type: ignore
 
     else:
         final_code = f'{code_with_functions}'

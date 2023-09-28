@@ -775,6 +775,7 @@ function EndoGrid(props: {
                     sheetView={currentSheetView}
                     gridState={gridState}
                     setGridState={setGridState}
+                    sheetData={sheetData}
                 />
             }
         </>

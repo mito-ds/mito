@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 
 
@@ -31,7 +31,7 @@ class PromoteRowToHeaderCodeChunk(CodeChunk):
         return f"Promoted row {self.index} to header in {self.df_name}"
         
     def get_code(self) -> Tuple[List[str], List[str]]:
-        transpiled_index = column_header_to_transpiled_code(self.index)
+        transpiled_index = get_column_header_as_transpiled_code(self.index)
 
         code = [f"{self.df_name}.columns = {self.df_name}.loc[{transpiled_index}]"]
 

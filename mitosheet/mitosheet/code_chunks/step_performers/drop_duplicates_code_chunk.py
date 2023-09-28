@@ -8,7 +8,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import ColumnID
 
 class DropDuplicatesCodeChunk(CodeChunk):
@@ -41,9 +41,9 @@ class DropDuplicatesCodeChunk(CodeChunk):
         # We leave subset and keep empty if they are not used
         param_string = ''
         if len(column_headers) != len(self.post_state.dfs[self.sheet_index].keys()):
-            param_string += 'subset=' + column_header_list_to_transpiled_code(column_headers) + ', '
+            param_string += 'subset=' + get_column_header_list_as_transpiled_code(column_headers) + ', '
         
-        param_string += 'keep=' + column_header_to_transpiled_code(self.keep) # not a column header, but we can use the same utility
+        param_string += 'keep=' + get_column_header_as_transpiled_code(self.keep) # not a column header, but we can use the same utility
 
         return [
             f'{self.df_name} = {self.df_name}.drop_duplicates({param_string})'

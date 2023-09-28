@@ -12,7 +12,7 @@ from mitosheet.excel_utils import (get_column_from_column_index,
                                    get_col_and_row_indexes_from_range)
 from mitosheet.public.v2.excel_utils import get_read_excel_params_from_range
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code, get_param_dict_as_code
 from mitosheet.types import ExcelRangeImport, ParamSubtype, ParamType, ParamValue
 
 
@@ -138,7 +138,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
         code = []
 
-        transpiled_sheet_name = column_header_to_transpiled_code(self.sheet['value'])
+        transpiled_sheet_name = get_column_header_as_transpiled_code(self.sheet['value'])
 
         if self.convert_csv_to_xlsx:
             code.append(f'xlsx_file_path = convert_csv_file_to_xlsx_file(\'{self.file_path}\', {transpiled_sheet_name})')
@@ -168,7 +168,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
                 column_end_condition = range_import['column_end_condition'] #type: ignore
 
                 params = get_table_range_params(self.sheet, start_condition, end_condition, column_end_condition)
-                params_code = param_dict_to_code(params, as_single_line=True)
+                params_code = get_param_dict_as_code(params, as_single_line=True)
 
                 code.extend([
                     f'_range = get_table_range({transpiled_file_path}, {params_code})',
@@ -210,5 +210,5 @@ class ExcelRangeImportCodeChunk(CodeChunk):
         return None
     
     def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
-        return [(f'r{column_header_to_transpiled_code(self.file_path)}', 'file_name', 'file_name_import_excel')]
+        return [(f'r{get_column_header_as_transpiled_code(self.file_path)}', 'file_name', 'file_name_import_excel')]
     
