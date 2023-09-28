@@ -485,9 +485,9 @@ REPLACE_SELECTED_COLUMNS = [
     (
         [
             pd.DataFrame({
-                pd.Timestamp('1-3-2013'): [1, 2, 3],
-                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
-                pd.Timestamp('2-4-2013'): [True, False, True], 
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
                 pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
                 pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
             })
@@ -498,9 +498,9 @@ REPLACE_SELECTED_COLUMNS = [
         "4", 
         [
             pd.DataFrame({
-                pd.Timestamp('1-3-2013'): [1, 2, 3],
-                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
-                pd.Timestamp('2-4-2013'): [True, False, True], 
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
                 pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
                 pd.Timestamp('1-24-2014'): pd.to_datetime(['12-22-1997', '12-24-1997', '12-24-1997']), 
             })

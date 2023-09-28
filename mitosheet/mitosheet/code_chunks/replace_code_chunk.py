@@ -36,13 +36,13 @@ class ReplaceCodeChunk(CodeChunk):
         replace_value = self.replace_value
         column_ids = self.column_ids
         df_name = self.df_name
-        selected_columns = self.df_name
+        df_name_with_selected_columns = self.df_name
         sheet_index = self.sheet_index
         df = self.df
 
         if (column_ids is not None and len(column_ids) > 0):
             column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
-            selected_columns = f'{self.df_name}[{column_header_list_to_transpiled_code(column_headers)}]'
+            df_name_with_selected_columns = f'{self.df_name}[{column_header_list_to_transpiled_code(column_headers)}]'
             df = self.df[column_headers]
         else:
             column_headers = df.columns.to_list()
@@ -52,7 +52,7 @@ class ReplaceCodeChunk(CodeChunk):
         # to bool, they all become True. So we have to convert them back to bool with a custom
         # function.
         code_chunk = [
-            f'{selected_columns} = {selected_columns}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({selected_columns}.dtypes.to_dict())',
+            f'{df_name_with_selected_columns} = {df_name_with_selected_columns}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name_with_selected_columns}.dtypes.to_dict())',
         ]
 
         if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.4):
@@ -63,14 +63,14 @@ class ReplaceCodeChunk(CodeChunk):
             )
         if any(df.dtypes == bool):
             code_chunk = [
-                f"non_bool_cols, bool_cols = {selected_columns}.select_dtypes(exclude='bool'), {selected_columns}.select_dtypes(include='bool')",
+                f"non_bool_cols, bool_cols = {df_name_with_selected_columns}.select_dtypes(exclude='bool'), {df_name_with_selected_columns}.select_dtypes(include='bool')",
                 f"{df_name}[non_bool_cols.columns] = non_bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).astype(non_bool_cols.dtypes.to_dict())",
                 f"{df_name}[bool_cols.columns] = bool_cols.astype(str).replace('(?i){search_value}', '{replace_value}', regex=True).applymap(cast_string_to_bool).astype(bool)",
             ]
 
         # Then, we always replace the search_value inside the column headers
         string_value_regex = re.compile(search_value, re.IGNORECASE)
-        new_columns = pd.Index([re.sub(string_value_regex, replace_value, str(column)) for column in column_headers]).astype(df.columns.dtype).to_list()
+        new_columns = [type(column)(re.sub(string_value_regex, replace_value, str(column))) for column in column_headers]
         if len(new_columns) > 0:
             code_chunk.append(f"{df_name}.rename(columns={column_header_map_to_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
         return code_chunk, []

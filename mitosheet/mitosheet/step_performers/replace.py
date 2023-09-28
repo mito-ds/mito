@@ -55,10 +55,10 @@ class ReplaceStepPerformer(StepPerformer):
         column_headers = post_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
 
         # Selected columns is the dataframe with only the columns we want to replace values in
-        selected_columns = df[column_headers]
+        df_only_selected_columns = df[column_headers]
 
         # Raise an error if the pandas version is too old to use timedelta with replace.
-        if (any(selected_columns.dtypes == 'timedelta') and pd.__version__ < 1.4):
+        if (any(df_only_selected_columns.dtypes == 'timedelta') and pd.__version__ < 1.4):
             raise MitoError(
                 'version_error',
                 'Pandas version error',
@@ -69,20 +69,20 @@ class ReplaceStepPerformer(StepPerformer):
             search_value_regex = f'(?i){search_value}'
             # Special case for boolean columns because when we convert to string, the values are 
             # all converted back to bool as True - even if the value is "False". 
-            if any(selected_columns.dtypes == 'bool'):
-                bool_columns = selected_columns.select_dtypes(include='bool')
-                non_bool_columns = selected_columns.select_dtypes(exclude='bool')
-                selected_columns[bool_columns.columns] = bool_columns.astype(str).replace(search_value_regex, replace_value, regex=True).applymap(cast_string_to_bool).astype(bool)
-                selected_columns[non_bool_columns.columns] = non_bool_columns.astype(str).replace(search_value_regex, replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
+            if any(df_only_selected_columns.dtypes == 'bool'):
+                bool_columns = df_only_selected_columns.select_dtypes(include='bool')
+                non_bool_columns = df_only_selected_columns.select_dtypes(exclude='bool')
+                df_only_selected_columns[bool_columns.columns] = bool_columns.astype(str).replace(search_value_regex, replace_value, regex=True).applymap(cast_string_to_bool).astype(bool)
+                df_only_selected_columns[non_bool_columns.columns] = non_bool_columns.astype(str).replace(search_value_regex, replace_value, regex=True).astype(non_bool_columns.dtypes.to_dict())
             else:
-                selected_columns = selected_columns.astype(str).replace(search_value_regex, replace_value, regex=True).astype(selected_columns.dtypes.to_dict())
+                df_only_selected_columns = df_only_selected_columns.astype(str).replace(search_value_regex, replace_value, regex=True).astype(df_only_selected_columns.dtypes.to_dict())
 
             # Then, we replace the column headers in the state column_ids object
             # We convert the column headers to strings because the column headers can be any type
-            # Then we call astype because we need to convert them back to their original type. 
-            new_columns = pd.Index([re.sub(search_value_regex, replace_value, str(column)) for column in selected_columns.columns]).astype(selected_columns.columns.dtype).to_list()
+            new_columns = [type(column)(re.sub(search_value_regex, replace_value, str(column))) for column in df_only_selected_columns.columns]
+
             # Update the column headers in the state column_ids object
-            for old_column_name, new_column_name in zip(selected_columns.columns, new_columns):
+            for old_column_name, new_column_name in zip(df_only_selected_columns.columns, new_columns):
                 # If the column name didn't change, then we don't need to do anything
                 if old_column_name == new_column_name:
                     continue
@@ -90,7 +90,7 @@ class ReplaceStepPerformer(StepPerformer):
                 post_state.column_ids.set_column_header(sheet_index, column_id, new_column_name)
 
             # Replace the selected columns in the actual dataframe
-            df[column_headers] = selected_columns
+            df[column_headers] = df_only_selected_columns
 
             # Finally, we replace the column headers in the dataframe
             df.rename(columns=dict(zip(column_headers, new_columns)), inplace=True)
