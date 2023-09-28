@@ -81,7 +81,7 @@ def list_to_string_without_internal_quotes(list: List[Any]) -> str:
     string = (', ').join(list)
     return "[" + string +  "]"
 
-def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHeader]) -> str:
+def convert_column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHeader]) -> str:
     if len(column_header_map) <= 3:
         # If there are only a few column headers, we put them in a single line
         result = '{' 
