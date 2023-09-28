@@ -408,7 +408,57 @@ REPLACE_SELECTED_COLUMNS = [
             })
         ],
     ),
-    
+
+    # Tests with non-string column headers
+    (
+        [
+            pd.DataFrame({
+                1: [1, 2, 3],
+                2: [1.0, 2.0, 3.0], 
+                3: [True, False, True], 
+                4: ["string", "with spaces", "and/!other@characters3"], 
+                5: pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "4" ],
+        "a", 
+        "b", 
+        [
+            pd.DataFrame({
+                1: [1, 2, 3],
+                2: [1.0, 2.0, 3.0], 
+                3: [True, False, True], 
+                4: ["string", "with spbces", "bnd/!other@chbrbcters3"], 
+                5: pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({
+                1: [1, 2, 3],
+                2: [1.0, 2.0, 3.0], 
+                3: [True, False, True], 
+                4: ["string", "with spaces", "and/!other@characters3"], 
+                5: pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "4" ],
+        "4", 
+        "6", 
+        [
+            pd.DataFrame({
+                1: [1, 2, 3],
+                2: [1.0, 2.0, 3.0], 
+                3: [True, False, True], 
+                6: ["string", "with spaces", "and/!other@characters3"], 
+                5: pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
+
     # Replace in df without boolean columns
     # Non-consecutive columns
     (

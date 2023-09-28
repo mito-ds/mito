@@ -4,6 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
+import re
 from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
@@ -42,6 +43,8 @@ class ReplaceCodeChunk(CodeChunk):
             column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
             selected_columns = f'{self.df_name}[{column_headers}]'
             df = self.df[column_headers]
+        else:
+            column_headers = df.columns.to_list()
 
         print("df_before_exec: ", df)
         # The shorter code chunk is for dataframes that *don't* have any boolean columns
@@ -66,9 +69,10 @@ class ReplaceCodeChunk(CodeChunk):
             ]
 
         # Then, we always replace the search_value inside the column headers
-        if any(df.columns.str.contains(search_value, case=False)):
-            columns_to_replace = df.columns.str.replace(search_value, replace_value, case=False)
-            code_chunk.append(f"{df_name}.rename(columns={dict(zip(df.columns, columns_to_replace.to_list()))}, inplace=True)")
+        string_value_regex = re.compile(search_value, re.IGNORECASE)
+        new_columns = pd.Index([re.sub(string_value_regex, replace_value, str(column)) for column in column_headers]).astype(df.columns.dtype).to_list()
+        if len(new_columns) > 0:
+            code_chunk.append(f"{df_name}.rename(columns={dict(zip(df.columns.to_list(), new_columns))}, inplace=True)")
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:

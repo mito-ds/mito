@@ -78,8 +78,9 @@ class ReplaceStepPerformer(StepPerformer):
                 selected_columns = selected_columns.astype(str).replace(search_value_regex, replace_value, regex=True).astype(selected_columns.dtypes.to_dict())
 
             # Then, we replace the column headers in the state column_ids object
-            new_columns = selected_columns.columns.str.replace(search_value_regex, replace_value, regex=True)
-
+            # We convert the column headers to strings because the column headers can be any type
+            # Then we call astype because we need to convert them back to their original type. 
+            new_columns = pd.Index([re.sub(search_value_regex, replace_value, str(column)) for column in selected_columns.columns]).astype(selected_columns.columns.dtype).to_list()
             # Update the column headers in the state column_ids object
             for old_column_name, new_column_name in zip(selected_columns.columns, new_columns):
                 # If the column name didn't change, then we don't need to do anything
