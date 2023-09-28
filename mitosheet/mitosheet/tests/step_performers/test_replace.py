@@ -530,6 +530,30 @@ REPLACE_SELECTED_COLUMNS = [
             })
         ],
     ),
+    (
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "2014-05-19 00:00:00" ],
+        "2014-05-19 00:00:00", 
+        "", 
+        [
+            pd.DataFrame({
+                '123': [1, 2, 3],
+                'abc': [1.0, 2.0, 3.0], 
+                33: [True, False, True], 
+                pd.NaT: ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 
     # Replace in df without boolean columns
     # Non-consecutive columns
