@@ -458,6 +458,54 @@ REPLACE_SELECTED_COLUMNS = [
             })
         ],
     ),
+    (
+        [
+            pd.DataFrame({
+                pd.Timestamp('1-3-2013'): [1, 2, 3],
+                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
+                pd.Timestamp('2-4-2013'): [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "2013-01-23 00:00:00" ],
+        "9", 
+        "8", 
+        [
+            pd.DataFrame({
+                pd.Timestamp('1-3-2013'): [1, 2, 3],
+                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
+                pd.Timestamp('2-4-2013'): [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1887', '12-23-1887', '12-24-1887']), 
+            })
+        ],
+    ),
+    (
+        [
+            pd.DataFrame({
+                pd.Timestamp('1-3-2013'): [1, 2, 3],
+                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
+                pd.Timestamp('2-4-2013'): [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-23-2013'): pd.to_datetime(['12-22-1997', '12-23-1997', '12-24-1997']), 
+            })
+        ],
+        0,
+        [ "2013-01-23 00:00:00" ],
+        "3", 
+        "4", 
+        [
+            pd.DataFrame({
+                pd.Timestamp('1-3-2013'): [1, 2, 3],
+                pd.Timestamp('1-10-2013'): [1.0, 2.0, 3.0], 
+                pd.Timestamp('2-4-2013'): [True, False, True], 
+                pd.Timestamp('5-19-2014'): ["string", "with spaces", "and/!other@characters3"], 
+                pd.Timestamp('1-24-2014'): pd.to_datetime(['12-22-1997', '12-24-1997', '12-24-1997']), 
+            })
+        ],
+    ),
 
     # Replace in df without boolean columns
     # Non-consecutive columns
