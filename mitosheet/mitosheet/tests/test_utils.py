@@ -23,7 +23,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import (CodeOptions, ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
@@ -70,8 +70,6 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-        print(final_dfs[df_name])
-        print(df)
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
@@ -1739,5 +1737,5 @@ def get_dataframe_generation_code(df: pd.DataFrame) -> str:
     OPEN_BRACKET = "{"
     CLOSE_BRACKET = "}"
 
-    data = ", ".join([f"{column_header_to_transpiled_code(column_header)}: {column_header_list_to_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
+    data = ", ".join([f"{get_column_header_as_transpiled_code(column_header)}: {get_column_header_list_as_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
     return f'pd.DataFrame({OPEN_BRACKET}{data}{CLOSE_BRACKET})'

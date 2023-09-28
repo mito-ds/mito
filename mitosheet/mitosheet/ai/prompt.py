@@ -9,7 +9,7 @@ import pandas as pd
 
 from mitosheet.transpiler.transpile_utils import (
     CLOSE_BRACKET, NEWLINE, OPEN_BRACKET,
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import Selection
 
 MAX_TOKENS = 4096
@@ -44,7 +44,7 @@ def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, flo
     """
 
     transpiled_column_headers_to_transpiled_values = {
-        column_header_to_transpiled_code(column_header): column_header_list_to_transpiled_code(df[column_header].to_list())
+        get_column_header_as_transpiled_code(column_header): get_column_header_list_as_transpiled_code(df[column_header].to_list())
         for column_header in df.columns
     }
 
@@ -72,7 +72,7 @@ def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, flo
 
     while low < high:
         mid = (low + high) // 2
-        reduced_headers = column_header_list_to_transpiled_code(columns[:mid])
+        reduced_headers = get_column_header_list_as_transpiled_code(columns[:mid])
         num_not_included = len(columns) - mid + 1
 
         if (len(reduced_headers) + len_container) < max_characters:

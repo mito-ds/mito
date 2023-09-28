@@ -20,7 +20,7 @@ from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_
 from mitosheet.state import State
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_column_header_as_transpiled_code
 
 
 class AddColumnCodeChunk(CodeChunk):
@@ -42,7 +42,7 @@ class AddColumnCodeChunk(CodeChunk):
         return f'Added column {self.column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
-        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
         return [
             f'{self.df_name}.insert({self.column_header_index}, {transpiled_column_header}, 0)'
         ], []

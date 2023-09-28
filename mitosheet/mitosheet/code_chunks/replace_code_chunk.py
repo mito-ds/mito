@@ -8,7 +8,7 @@ import re
 from typing import List, Tuple, Any
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, convert_column_header_map_to_string
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code, get_column_header_map_as_code_string
 from mitosheet.state import State
 import pandas as pd
 
@@ -51,7 +51,7 @@ class ReplaceCodeChunk(CodeChunk):
 
         if (column_ids is not None and len(column_ids) > 0):
             column_headers = self.prev_state.column_ids.get_column_headers_by_ids(sheet_index, column_ids)
-            df_name_with_selected_columns = f'{self.df_name}[{column_header_list_to_transpiled_code(column_headers)}]'
+            df_name_with_selected_columns = f'{self.df_name}[{get_column_header_list_as_transpiled_code(column_headers)}]'
             df = self.df[column_headers]
         else:
             column_headers = df.columns.to_list()
@@ -82,7 +82,7 @@ class ReplaceCodeChunk(CodeChunk):
 
         new_columns = [convert_to_original_type_or_str(re.sub(string_value_regex, replace_value, str(column)), type(column)) for column in column_headers]
         if len(new_columns) > 0:
-            code_chunk.append(f"{df_name}.rename(columns={convert_column_header_map_to_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
+            code_chunk.append(f"{df_name}.rename(columns={get_column_header_map_as_code_string(dict(zip(df.columns, new_columns)))}, inplace=True)")
         return code_chunk, []
 
     def get_edited_sheet_indexes(self) -> List[int]:

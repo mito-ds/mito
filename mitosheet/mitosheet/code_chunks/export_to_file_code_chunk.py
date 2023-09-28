@@ -8,9 +8,9 @@ from typing import Dict, List, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import TAB, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import TAB, get_column_header_as_transpiled_code
 
-from mitosheet.transpiler.transpile_utils import param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_param_dict_as_code
 from mitosheet.types import ParamSubtype, ParamType, ParamValue
 
 from mitosheet.utils import (
@@ -50,7 +50,7 @@ def get_format_code(state: State, sheet_index_to_export_location: Dict[int, str]
         if param_dict == {}:
             continue
 
-        params_code = param_dict_to_code(param_dict, tab_level=1)
+        params_code = get_param_dict_as_code(param_dict, tab_level=1)
         code.append(f'{TAB}add_formatting_to_excel_sheet(writer, "{export_location}", {state.df_names[sheet_index]}, {params_code})')
     return code
 
@@ -73,12 +73,12 @@ class ExportToFileCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
         if self.export_type == 'csv':
             return [
-                f"{self.post_state.df_names[sheet_index]}.to_csv(r{column_header_to_transpiled_code(export_location)}, index=False)"
+                f"{self.post_state.df_names[sheet_index]}.to_csv(r{get_column_header_as_transpiled_code(export_location)}, index=False)"
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
         elif self.export_type == 'excel':
             format_code = get_format_code(self.post_state, self.sheet_index_to_export_location) if self.export_formatting else []
-            return [f"with pd.ExcelWriter(r{column_header_to_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
+            return [f"with pd.ExcelWriter(r{get_column_header_as_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
                 f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ] + format_code, ['import pandas as pd']
@@ -88,9 +88,9 @@ class ExportToFileCodeChunk(CodeChunk):
     def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         if self.export_type == 'csv':
             return [
-                (f"r{column_header_to_transpiled_code(export_location)}", 'file_name', 'file_name_export_csv') for export_location in self.sheet_index_to_export_location.values()
+                (f"r{get_column_header_as_transpiled_code(export_location)}", 'file_name', 'file_name_export_csv') for export_location in self.sheet_index_to_export_location.values()
             ]
         elif self.export_type == 'excel':
-            return [(f"r{column_header_to_transpiled_code(self.file_name)}", 'file_name', 'file_name_export_excel')]
+            return [(f"r{get_column_header_as_transpiled_code(self.file_name)}", 'file_name', 'file_name_export_excel')]
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')

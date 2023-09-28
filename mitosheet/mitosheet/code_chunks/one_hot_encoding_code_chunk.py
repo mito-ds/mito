@@ -7,7 +7,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID
 
 class OneHotEncodingCodeChunk(CodeChunk):
@@ -30,8 +30,8 @@ class OneHotEncodingCodeChunk(CodeChunk):
         df_name = self.post_state.df_names[self.sheet_index]
         column_index = self.post_state.dfs[self.sheet_index].columns.tolist().index(column_header)
 
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-        new_transpiled_column_headers = column_header_list_to_transpiled_code(self.new_column_headers)
+        transpiled_column_header = get_column_header_as_transpiled_code(column_header)
+        new_transpiled_column_headers = get_column_header_list_as_transpiled_code(self.new_column_headers)
 
         encode_line = f'{df_name}[{new_transpiled_column_headers}] = pd.get_dummies({df_name}[{transpiled_column_header}])'
         reorder_columns_line = f'{df_name} = {df_name}[{df_name}.columns[:{column_index + 1}].tolist() + {new_transpiled_column_headers} + {df_name}.columns[{column_index + 1}:-{len(self.new_column_headers)}].tolist()]'

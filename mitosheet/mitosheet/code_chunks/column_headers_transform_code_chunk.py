@@ -6,7 +6,7 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 from mitosheet.state import State
 
@@ -35,8 +35,8 @@ class ColumnHeadersTransformCodeChunk(CodeChunk):
         elif self.transformation['type'] == 'lowercase':
             code.append(f"{self.df_name}.columns = [col.lower() if isinstance(col, str) else col for col in {self.df_name}.columns]")
         elif self.transformation['type'] == 'replace':
-            old = column_header_to_transpiled_code(self.transformation['old'])
-            new = column_header_to_transpiled_code(self.transformation['new'])
+            old = get_column_header_as_transpiled_code(self.transformation['old'])
+            new = get_column_header_as_transpiled_code(self.transformation['new'])
             code.append(f"{self.df_name}.columns = [col.replace({old}, {new}) if isinstance(col, str) else col for col in {self.df_name}.columns]")
         else:
             raise ValueError(f'Unknown transformation type: {self.transformation["type"]}')
