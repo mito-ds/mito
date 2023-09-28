@@ -10,7 +10,7 @@ Contains tests for Replace
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.tests.decorators import pandas_post_1_4_only, pandas_pre_1_2_only
+from mitosheet.tests.decorators import pandas_post_1_4_only, pandas_pre_1_2_only, pandas_post_0_24_0_only
 from mitosheet.errors import MitoError
 
 from mitosheet.utils import get_new_id
@@ -653,6 +653,7 @@ REPLACE_SELECTED_COLUMNS = [
     ),
 ]
 
+@pandas_post_0_24_0_only
 @pytest.mark.parametrize("input_dfs, sheet_index, column_ids, search_value, replace_value, output_dfs", REPLACE_SELECTED_COLUMNS)
 def test_replace_selected_columns(input_dfs, sheet_index, column_ids, search_value, replace_value, output_dfs):
     mito = create_mito_wrapper(*input_dfs)
