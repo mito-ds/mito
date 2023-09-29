@@ -168,7 +168,7 @@ def make_invalid_replace_error(search_value: str, replace_value: str) -> MitoErr
     return MitoError(
         'replace_incompatible_types', 
         'Search and Replace Incompatible Types',
-        f'{search_value} cannot be replaced with {replace_value} because the types are incompatible.'
+        f'"{search_value}" cannot be replaced with "{replace_value}" because the types are incompatible.'
     )
 
 
