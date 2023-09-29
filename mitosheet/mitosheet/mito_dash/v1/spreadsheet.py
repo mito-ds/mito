@@ -147,7 +147,7 @@ class Spreadsheet(Component):
         self.responses: List[Dict[str, Any]] = []
         def send(response):
             self.responses.append(response)
-        self.mito_backend.mito_send = send'
+        self.mito_backend.mito_send = send
 
         # If there are any df_names, then we send them to the backend as well. 
         # TODO: we should be able to pass this directly to the backend
