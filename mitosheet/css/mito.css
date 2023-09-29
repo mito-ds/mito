@@ -4,13 +4,13 @@
     button, since we're not able to set the class name of our button in notebooks. 
 */
 :root .toolbar-mito-button-class, #mito-toolbar-button-id {
-    background-color: var(--mito-highlight-very-light);
+    background-color: var(--mito-highlight-very-light, #ece3ff);
     border-radius: 3px;
-    border: .5px solid var(--mito-text-light);
+    border: .5px solid var(--mito-text-light, #ACACAD);
 }
 
 :root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
-    color: var(--mito-highlight);
+    color: var(--mito-highlight, #9D6CFF);
 }
 
 .jp-RenderedHTMLCommon > .mito-container-container {
