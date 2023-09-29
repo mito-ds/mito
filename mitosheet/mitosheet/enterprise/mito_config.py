@@ -4,15 +4,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
+from ast import List
 import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 import os
 from mitosheet.enterprise.license_key import decode_license_to_date
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
 from mitosheet.user.utils import is_enterprise
-from mitosheet._version import package_name
-
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
@@ -31,6 +30,8 @@ MITO_CONFIG_ENTERPRISE = 'MITO_CONFIG_ENTERPRISE'
 MITO_CONFIG_ENTERPRISE_TEMP_LICENSE = 'MITO_CONFIG_ENTERPRISE_TEMP_LICENSE'
 MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
+MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH'
+MITO_CONFIG_CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -75,7 +76,9 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         MITO_CONFIG_FEATURE_TELEMETRY: None,
         MITO_CONFIG_PRO: None,
         MITO_CONFIG_ENTERPRISE: None,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE: None
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE: None,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
+        MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }
 
 """
@@ -128,7 +131,9 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_FEATURE_TELEMETRY,
         MITO_CONFIG_PRO,
         MITO_CONFIG_ENTERPRISE,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
+        MITO_CONFIG_CUSTOM_IMPORTERS_PATH
     ]
 }
 
@@ -299,6 +304,18 @@ class MitoConfig:
         if self.mec is None or self.mec[MITO_CONFIG_ANALYTICS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_ANALYTICS_URL]
+
+    def get_custom_sheet_functions_path(self) -> Optional[str]:
+        if self.mec is None or self.mec[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] is None:
+            return None
+        else:
+            return self.mec[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH]
+
+    def get_custom_importers_path(self) -> Optional[str]:
+        if self.mec is None or self.mec[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] is None:
+            return None
+        else:
+            return self.mec[MITO_CONFIG_CUSTOM_IMPORTERS_PATH]
     
     def get_feature_telemetry(self) -> bool:
         if self.mec is None or self.mec[MITO_CONFIG_FEATURE_TELEMETRY] is None:
@@ -340,6 +357,8 @@ class MitoConfig:
             MITO_CONFIG_LLM_URL: self.get_llm_url(),
             MITO_CONFIG_ANALYTICS_URL: self.get_analytics_url(),
             MITO_CONFIG_FEATURE_TELEMETRY: self.get_feature_telemetry(),
+            MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: self.get_custom_sheet_functions_path(),
+            MITO_CONFIG_CUSTOM_IMPORTERS_PATH: self.get_custom_importers_path(),
             MITO_CONFIG_PRO: self.get_pro(),
         }
 

@@ -76,7 +76,7 @@ import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
-import Toolbar from './components/toolbar/Toolbar';
+import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
@@ -132,6 +132,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
+        },
+        currOpenSearch: {
+            isOpen: false,
+            currentMatchIndex: -1,
+            matches: []
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
@@ -409,12 +414,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (source !== undefined && source === DFSource.Pivoted && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
             void openEditedPivot()
         }
-
-        // Close the cell editor if it is open
-        if (editorState !== undefined) {
-            setEditorState(undefined)
-        }
-
     }, [uiState.selectedSheetIndex])
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
@@ -1000,6 +999,27 @@ export const Mito = (props: MitoProps): JSX.Element => {
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
+            onKeyDown={(e) => {
+                // If the user presses escape anywhere in the mitosheet, we close the editor
+                if (e.key === 'Escape') {
+                    if (editorState !== undefined) {
+                        setEditorState(undefined)
+                    } else if (uiState.currOpenSearch.isOpen) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenSearch: {
+                                    isOpen: false,
+                                    currentMatchIndex: -1,
+                                    matches: []
+                                }
+                            }
+                        })
+                        const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
+                        focusGrid(endoGridContainer);
+                    }
+                }
+            }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 

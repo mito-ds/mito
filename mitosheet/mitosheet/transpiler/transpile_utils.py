@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import copy
+import inspect
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -22,20 +23,20 @@ OPEN_BRACKET = "{"
 CLOSE_BRACKET = "}"
 
 
-def column_header_list_to_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader], List[Tuple[str, Optional[str]]]]) -> str:
+def get_column_header_list_as_transpiled_code(column_headers: Union[List[ColumnHeader], Set[ColumnHeader], List[Tuple[str, Optional[str]]]]) -> str:
     """
     A helper function for turning a list of column headers into a 
     valid list of Python code.
     """
     transpiled_column_headers = [
-        column_header_to_transpiled_code(column_header)
+        get_column_header_as_transpiled_code(column_header)
         for column_header in column_headers
     ]
     joined_transpiled_column_headers = ', '.join(transpiled_column_headers)
     return f'[{joined_transpiled_column_headers}]'
 
 
-def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: int=0) -> str:
+def get_column_header_as_transpiled_code(column_header: ColumnHeader, tab_level: int=0) -> str:
     """
     Makes sure the column header is correctly transpiled to 
     code in a way that makes sure it's referenced properly.
@@ -46,11 +47,11 @@ def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: int
     # If this is a multi-index header, then we turn each of the pieces of the column
     # header into valid transpiled code, and then we combine them into a tuple
     if isinstance(column_header, tuple):
-        column_header_parts = [column_header_to_transpiled_code(column_header_part) for column_header_part in column_header]
+        column_header_parts = [get_column_header_as_transpiled_code(column_header_part) for column_header_part in column_header]
         column_header_parts_joined = ', '.join(column_header_parts)
         return f'({column_header_parts_joined})'
     if isinstance(column_header, list):
-        column_header_parts = [column_header_to_transpiled_code(column_header_part, tab_level=tab_level+1) for column_header_part in column_header]
+        column_header_parts = [get_column_header_as_transpiled_code(column_header_part, tab_level=tab_level+1) for column_header_part in column_header]
         column_header_parts_joined = f',\n{TAB*(tab_level + 1)}'.join(column_header_parts)
         return f'[\n{TAB*(tab_level + 1)}{column_header_parts_joined}\n{TAB*tab_level}]'
 
@@ -72,7 +73,7 @@ def column_header_to_transpiled_code(column_header: ColumnHeader, tab_level: int
 
     return repr(column_header)
 
-def list_to_string_without_internal_quotes(list: List[Any]) -> str:
+def get_list_as_string_without_internal_quotes(list: List[Any]) -> str:
     """
     Helper function for formatting a list as a string without 
     leading and trailing '
@@ -80,23 +81,23 @@ def list_to_string_without_internal_quotes(list: List[Any]) -> str:
     string = (', ').join(list)
     return "[" + string +  "]"
 
-def column_header_map_to_string(column_header_map: Dict[ColumnHeader, ColumnHeader]) -> str:
+def get_column_header_map_as_code_string(column_header_map: Dict[ColumnHeader, ColumnHeader]) -> str:
     if len(column_header_map) <= 3:
         # If there are only a few column headers, we put them in a single line
         result = '{' 
         for column_header_key, column_header_value in column_header_map.items():
-            result += f'{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)}, '
+            result += f'{get_column_header_as_transpiled_code(column_header_key)}: {get_column_header_as_transpiled_code(column_header_value)}, '
         result = result[:-2] + "}" # don't take the last comma and space
         return result
     else:
         result = '{\n' 
         for column_header_key, column_header_value in column_header_map.items():
-            result += f'{TAB}{column_header_to_transpiled_code(column_header_key)}: {column_header_to_transpiled_code(column_header_value)},\n'
+            result += f'{TAB}{get_column_header_as_transpiled_code(column_header_key)}: {get_column_header_as_transpiled_code(column_header_value)},\n'
         result = result[:-2] + "\n}" # don't take the last comma and new line
         return result
 
 
-def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1, is_dict_entry: bool=False) -> str:
+def get_param_dict_as_code(param_dict: Dict[str, Any], level: int=0, as_single_line: bool=False, tab_level: int=1, is_dict_entry: bool=False) -> str:
     """
     Takes a potentially nested params dictonary and turns it into a
     code string that we can use in the graph generated code.
@@ -121,12 +122,12 @@ def param_dict_to_code(param_dict: Dict[str, Any], level: int=0, as_single_line:
         key_definition = f'"{key}": ' if is_dict_entry else f'{key}='
         if isinstance(value, dict):
             # Recurse on this nested param dictonary
-            code_chunk = f"{key_definition}{{{f'{param_dict_to_code(value, level=level + 1, is_dict_entry=True)}{NEWLINE_CONSTANT}{TAB_CONSTANT * (level+1)}'}}}"
+            code_chunk = f"{key_definition}{{{f'{get_param_dict_as_code(value, level=level + 1, is_dict_entry=True)}{NEWLINE_CONSTANT}{TAB_CONSTANT * (level+1)}'}}}"
         elif isinstance(value, list):
-            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value, tab_level=tab_level + 1)}"
+            code_chunk = f"{key_definition}{get_column_header_as_transpiled_code(value, tab_level=tab_level + 1)}"
         else:
             # We use this slighly misnamed function to make sure values get transpiled right
-            code_chunk = f"{key_definition}{column_header_to_transpiled_code(value)}"
+            code_chunk = f"{key_definition}{get_column_header_as_transpiled_code(value)}"
         
         # If we're not on the first value in this dict, we need to add a 
         # command new line after the last value
@@ -239,7 +240,7 @@ def get_final_function_params_with_subtypes_turned_to_parameters(
     return function_params
 
 
-def convert_script_to_function(
+def get_script_as_function(
         steps_manager: StepsManagerType, 
         imports: List[str], 
         code: List[str], 
@@ -314,6 +315,31 @@ def convert_script_to_function(
 
     return final_code
 
+def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsManagerType) -> List[str]:
+
+    import_map: Dict[str, List[str]] = {}
+
+    all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or [])
+
+    for func in all_custom_python_code:
+        if any(func.__name__ in line for line in code):
+            module = inspect.getmodule(func)
+            if module is not None:
+                module_name = module.__name__
+                function_name = func.__name__
+
+                imports_from_module = import_map.get(module_name, [])
+                imports_from_module.append(function_name)
+
+                import_map[module_name] = imports_from_module
+
+    import_strings = [
+        f"from {module_name} import {', '.join(function_names)}"
+        for module_name, function_names in import_map.items()
+    ]
+
+    return import_strings           
+
 
 
 def get_default_code_options(analysis_name: str) -> CodeOptions:
@@ -321,5 +347,6 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
         'as_function': False,
         'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
-        'function_params': dict()
+        'function_params': dict(),
+        'import_custom_python_code': False
     }

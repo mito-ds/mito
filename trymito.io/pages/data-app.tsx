@@ -7,6 +7,7 @@ import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import titleStyles from '../styles/Title.module.css';
 import homeStyles from '../styles/Home.module.css';
+import dataAppStyles from '../styles/DataApp.module.css';
 
 // Import Icons & Background Grid
 
@@ -91,6 +92,24 @@ const DataApp: NextPage = () => {
             </section>
 
             <section>
+                <div className={classNames(dataAppStyles.video_wrapper, 'margin-top-4rem')}>
+                    <div className={dataAppStyles.video_container}>
+                        <iframe 
+                        className={dataAppStyles.video}
+                        src="https://www.loom.com/embed/ed87167b23ce4529ad7b369b53264709?sid=21b03009-35ef-4b76-8612-f8386297b11d"
+                        title="Loom video player" 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowFullScreen>
+                        </iframe>
+                    </div>
+                </div>
+                <div>
+                    <p> <a href="mailto:founders@sagacollab.com" className={pageStyles.link}> Contact us </a> for a demo of this app.</p>
+                </div>
+            </section>
+
+            <section>
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
                     <h2>
                         Mito Streamlit Gallery
@@ -121,7 +140,6 @@ const DataApp: NextPage = () => {
                     </div>
                 </div>
             </section>
-          
 
             <section className={pageStyles.background_card}>
                 <DashboardCTACard />

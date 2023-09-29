@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.is_type_utils import is_datetime_dtype, is_string_dtype, is_timedelta_dtype
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_to_transpiled_code, param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code, get_param_dict_as_code
 from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.user.utils import get_pandas_version
 from mitosheet.utils import is_prev_version
@@ -58,8 +58,8 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         delimiter_string = repr('|'.join(self.delimiters))
         
         column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
-        new_transpiled_column_headers = column_header_list_to_transpiled_code(self.new_column_headers)
+        transpiled_column_header = get_column_header_as_transpiled_code(column_header)
+        new_transpiled_column_headers = get_column_header_list_as_transpiled_code(self.new_column_headers)
         column_idx = self.prev_state.column_ids.get_column_ids(self.sheet_index).index(self.column_id)
 
         # Split column
@@ -74,7 +74,7 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
             string_conversion = ".astype('str')"
 
         split_param_dict = get_split_param_dict()
-        split_param_code = param_dict_to_code(split_param_dict, as_single_line=True)
+        split_param_code = get_param_dict_as_code(split_param_dict, as_single_line=True)
             
         split_column_line = f'{self.df_name}[{new_transpiled_column_headers}] = {self.df_name}[{transpiled_column_header}]{string_conversion}.str.split({delimiter_string}, {split_param_code})'
 

@@ -82,7 +82,14 @@ const ColumnHeader = (props: {
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
     // lowerLevelColumnHeaders will be an empty array
     const { lowerLevelColumnHeaders, finalColumnHeader } = getColumnHeaderParts(columnHeader);
-    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, props.uiState.highlightedColumnIndex);
+
+    // Check if the column header is a match of the search
+    const matchesSearch = props.uiState.currOpenSearch.matches.find((value) => {
+        return value.rowIndex === -1 && value.colIndex === props.columnIndex;
+    }) !== undefined;
+
+    // Check if the current match is this column header. If so, highlight it. 
+    const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex);
 
     const openColumnHeaderEditor = () => {
         props.setEditorState({
@@ -90,7 +97,8 @@ const ColumnHeader = (props: {
             columnIndex: props.columnIndex,
             formula: getDisplayColumnHeader(finalColumnHeader),
             editorLocation: 'cell',
-            editingMode: 'specific_index_labels'
+            editingMode: 'specific_index_labels',
+            sheetIndex: props.gridState.sheetIndex,
         })
     }
 
@@ -136,6 +144,7 @@ const ColumnHeader = (props: {
                         endingRowIndex: -1,
                         startingColumnIndex: props.columnIndex,
                         endingColumnIndex: props.columnIndex,
+                        sheetIndex: props.gridState.sheetIndex,
                     })
                 }
 
@@ -169,7 +178,7 @@ const ColumnHeader = (props: {
                 'endo-column-header-text',
                 {
                     'endo-column-header-container-selected': selected,
-                    'recon': isColumnCreated || isColumnRenamed
+                    'recon': isColumnCreated || isColumnRenamed,
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}
@@ -230,7 +239,8 @@ const ColumnHeader = (props: {
                                         columnIndex: props.columnIndex,
                                         formula: getDisplayColumnHeader(lowerLevelColumnHeader),
                                         editorLocation: 'cell',
-                                        editingMode: 'specific_index_labels'
+                                        editingMode: 'specific_index_labels',
+                                        sheetIndex: props.gridState.sheetIndex,
                                     })
                                 }}
                             >
@@ -344,7 +354,8 @@ const ColumnHeader = (props: {
                                     columnIndex: props.columnIndex,
                                     formula: getDisplayColumnHeader(finalColumnHeader),
                                     editorLocation: 'cell',
-                                    editingMode: 'specific_index_labels'
+                                    editingMode: 'specific_index_labels',
+                                    sheetIndex: props.gridState.sheetIndex,
                                 })
                             }}
                             key={props.columnIndex}

@@ -26,6 +26,7 @@ def get_table_range(
         bottom_left_value_contains: Optional[Union[str, int, float, bool]]=None,
         row_entirely_empty: Optional[bool]=None,
         cumulative_number_of_empty_rows: Optional[int]=None,
+        consecutive_number_of_empty_rows: Optional[int]=None,
         num_columns: Optional[int]=None
 ) -> Optional[str]:
     """
@@ -135,6 +136,21 @@ def get_table_range(
                 max_found_row_index = row[0].row # Stop at the end as well
                 break
 
+    if max_found_row_index is None and consecutive_number_of_empty_rows is not None:
+        num_empty = 0
+        for row in sheet.iter_rows(min_row=min_found_row_index, max_row=sheet.max_row+1, min_col=min_found_col_index, max_col=max_found_col_index):
+            is_empty_row = all([c.value is None for c in row])
+            if is_empty_row:
+                num_empty += 1
+            else:
+                num_empty = 0
+
+            if num_empty >= consecutive_number_of_empty_rows:
+                max_found_row_index = row[0].row - consecutive_number_of_empty_rows # minus b/c this is past the end, empty rows
+                break
+            if row[0].row == sheet.max_row:
+                max_found_row_index = row[0].row # stop at the end as well
+                break
 
     # Then check for other ending conditions
     if max_found_row_index is None:

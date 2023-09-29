@@ -8,12 +8,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID, UserDefinedImporterParamType
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code
 
 def get_transpiled_importer_params(user_defined_importer_params: Dict[str, Any]) -> str:
     param_strings = []
     for param_name, param_value in user_defined_importer_params.items():
-        param_strings.append(f'{param_name}={column_header_to_transpiled_code(param_value)}')
+        param_strings.append(f'{param_name}={get_column_header_as_transpiled_code(param_value)}')
     return ", ".join(param_strings)
 
 

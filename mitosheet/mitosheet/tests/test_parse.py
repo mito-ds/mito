@@ -12,6 +12,7 @@ import pandas as pd
 from mitosheet.errors import MitoError
 from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_contains, get_frontend_formula
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.tests.decorators import pandas_post_1_2_only
 
 
 def get_number_data_for_df(columns: List[Any], length: int) -> Dict[Any, Any]:
@@ -1112,7 +1113,6 @@ HEADER_INDEX_HEADER_INDEX_MATCHES = [
     ),
 ]
 
-
 """
 PARSE_TESTS contains a variety of tests that make sure
 formula parsing is working properly; it is passed as 
@@ -1123,9 +1123,10 @@ Order of params is: formula, address, python_code, functions, columns
 See documentation here: https://docs.pytest.org/en/latest/parametrize.html#parametrize-basics
 """
 PARSE_TESTS = CONSTANT_TEST_CASES + OPERATOR_TEST_CASES + FUNCTION_TEST_CASES + INDEX_TEST_CASES + INDEX_TEST_CASES_THAT_DONT_RECONSTRUCT_EXACTLY + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES
+
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", PARSE_TESTS)
 def test_parse(formula, column_header, formula_label, df, python_code, functions, columns):
-    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, df) 
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [df], ['df'], 0) 
     assert (code, funcs, cols) == \
         (
             python_code, 
@@ -1133,6 +1134,225 @@ def test_parse(formula, column_header, formula_label, df, python_code, functions
             columns
         )
 
+
+# Right now, VLOOKUP is the only formula that allows cross-sheet referencing. In the future, 
+# other cross-sheet references in parser can be added here. 
+VLOOKUP_TESTS = [
+    (
+        '=VLOOKUP(A0, df_2!C:D, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'D\'], 2)',
+        set(['VLOOKUP']),
+        set(['A', 'D', 'C'])
+    ),
+    (
+        '=VLOOKUP(A0, df_2!B:C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2)',
+        set(['VLOOKUP']),
+        set(['A', 'B', 'C'])
+    ),
+    # Test for setting the column headers to be the order that they appear in the dataframe after parsing
+    (
+        '=VLOOKUP(A0, df_2!C:B, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2)',
+        set(['VLOOKUP']),
+        set(['A', 'B', 'C'])
+    ),
+    # Test for calling VLOOKUP inside another function
+    (
+        '=SUM(C0, VLOOKUP(A0, df_2!C:B, 2))',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = SUM(df_1[\'C\'], VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2))',
+        set(['VLOOKUP', 'SUM']),
+        set(['A', 'B', 'C'])
+    )
+]
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
+def test_parse_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index, python_code, functions, columns):
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
+
+POST_PD_1_2_VLOOKUP_TESTS = [
+    # Test for cross-sheet reference with non-string column header
+    (
+        '=VLOOKUP(A0, df_2!1:C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B', 'C'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(get_number_data_for_df([1, 'C'], 2))
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = VLOOKUP(df_1[\'A\'], df_2.loc[:, 1:\'C\'], 2)',
+        set(['VLOOKUP']),
+        set([1, 'A', 'C'])
+    )
+]
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", POST_PD_1_2_VLOOKUP_TESTS)
+@pandas_post_1_2_only
+def post_pandas_1_2_cross_sheet_tests(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
+    test_parse_cross_sheet_formulas(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns)
+
+# Right now, only {SHEET}{HEADER}{HEADER} is supported, so any other kind of cross-sheet reference should throw an error.
+INVALID_VLOOKUP_TESTS = [
+    (
+        '=VLOOKUP(df_2!A0, df_2!C:D, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C, 2)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, C:D, df_1!)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C0:D0, 1)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    ),
+    (
+        '=VLOOKUP(A0, df_2!C0, 1)',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0
+    )
+]
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index", INVALID_VLOOKUP_TESTS)
+def test_parse_invalid_cross_sheet_formulas(formula, column_header, formula_label, dfs, df_names, sheet_index):
+    with pytest.raises(MitoError) as e_info:
+        parse_formula(formula, column_header, formula_label, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, dfs, df_names, sheet_index) 
+    assert e_info.value.type_ == 'invalid_formula_error'
+    assert e_info.value.to_fix == 'Cross-sheet references are only allowed for ranges of columns.'
 
 PARSE_TEST_ERRORS = [
     ('=HLOOKUP(100, A)', 'B', 'invalid_formula_error', 'HLOOKUP'),
@@ -1150,7 +1370,7 @@ PARSE_TEST_ERRORS = [
 @pytest.mark.parametrize("formula, address, error_type, to_fix_substr", PARSE_TEST_ERRORS)
 def test_parse_errors(formula, address, error_type, to_fix_substr):
     with pytest.raises(MitoError) as e_info:
-        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, pd.DataFrame(get_number_data_for_df(['A', 'B'], 2)), 1)
+        parse_formula(formula, address, 0, {'type': FORMULA_ENTIRE_COLUMN_TYPE}, [pd.DataFrame(get_number_data_for_df(['A', 'B'], 2))], ['df'], 0, 1)
     assert e_info.value.type_ == error_type
     if to_fix_substr is not None:
         assert to_fix_substr in e_info.value.to_fix
@@ -1169,5 +1389,10 @@ def test_safe_contains(formula, substring, contains):
 
 @pytest.mark.parametrize("formula,column_header,formula_label,df,python_code,functions,columns", INDEX_TEST_CASES + HEADER_HEADER_RANGE_TEST_CASES + HEADER_INDEX_HEADER_INDEX_MATCHES)
 def test_get_frontend_formula_reconstucts_properly(formula,column_header,formula_label,df,python_code,functions,columns):
-    frontend_formula = get_frontend_formula(formula, formula_label, df)
+    frontend_formula = get_frontend_formula(formula, formula_label, [df], ['df'], 0)
     assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, df) == formula
+
+@pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", VLOOKUP_TESTS)
+def test_get_cross_sheet_frontend_formula_reconstucts_properly(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
+    frontend_formula = get_frontend_formula(formula, formula_label, dfs, df_names, sheet_index)
+    assert get_backend_formula_from_frontend_formula(frontend_formula, formula_label, dfs[sheet_index]) == formula

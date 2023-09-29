@@ -22,7 +22,7 @@ from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.user_defined_import import get_user_defined_importer_param_type
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType
 
 
@@ -57,9 +57,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         else:
             try:
                 # Try and parse the formula, letting it throw errors if it is invalid
-                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index], throw_errors=True)
+                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
             except Exception as e:
-                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index])
+                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
 
         return params
 
@@ -87,7 +87,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             column_header,
             formula_label,
             index_labels_formula_is_applied_to,
-            prev_state.dfs[sheet_index],
+            prev_state.dfs,
+            prev_state.df_names,
+            sheet_index,
         )
 
         if public_interface_version == 1:
@@ -115,7 +117,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula, and then execute the new formula graph
         try:
             pandas_start_time = perf_counter()
-            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
+            exec_column_formula(post_state, sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -162,7 +164,9 @@ def _get_fixed_invalid_formula(
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
-        df: pd.DataFrame,
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -185,7 +189,7 @@ def _get_fixed_invalid_formula(
     for fixed_formula in POTENTIAL_VALID_FORMULAS:
         try:
             # Parse the formula, and return if it is valid
-            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, df, throw_errors=True)
+            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, dfs, df_names, sheet_index)
             return fixed_formula
         except:
             pass
@@ -249,7 +253,6 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
 
 def exec_column_formula(
     post_state: State, 
-    df: pd.DataFrame, 
     sheet_index: int, 
     column_id: ColumnID, 
     formula_label: Union[str, bool, int, float], 
@@ -261,6 +264,7 @@ def exec_column_formula(
     Helper function for refreshing the column when the formula is set
     """
 
+    df = post_state.dfs[sheet_index]
     df_name = post_state.df_names[sheet_index]
 
     if spreadsheet_code == '':
@@ -272,7 +276,9 @@ def exec_column_formula(
         column_header,
         formula_label,
         index_labels_formula_is_applied_to,
-        post_state.dfs[sheet_index],
+        post_state.dfs,
+        post_state.df_names,
+        sheet_index,
     )
 
     try:
@@ -293,17 +299,18 @@ def exec_column_formula(
         
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
-
         exec(
             python_code,
-            {'df': df, 'pd': pd}, 
+            {**dict(zip(post_state.df_names, post_state.dfs)), 'pd': pd}, 
             locals_for_exec
         )
         # Then, update the column spreadsheet code
         frontend_formula = get_frontend_formula(
             spreadsheet_code,
             formula_label,
-            post_state.dfs[sheet_index]
+            post_state.dfs,
+            post_state.df_names,
+            sheet_index
         )
         
         # If the user is setting the entire column, then there is only one formula for every cell in

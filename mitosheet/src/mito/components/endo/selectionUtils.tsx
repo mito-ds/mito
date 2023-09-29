@@ -114,7 +114,8 @@ export const getNewSelectionAfterMouseUp = (selection: MitoSelection, rowIndex: 
         startingRowIndex: selection.startingRowIndex,
         endingRowIndex: rowIndex,
         startingColumnIndex: selection.startingColumnIndex,
-        endingColumnIndex: columnIndex
+        endingColumnIndex: columnIndex,
+        sheetIndex: selection.sheetIndex
     }
 }
 
@@ -295,7 +296,8 @@ export const getNewSelectionAfterKeyPress = (selection: MitoSelection, e: Keyboa
         startingRowIndex: startingRowIndex,
         endingRowIndex: endingRowIndex,
         startingColumnIndex: startingColumnIndex,
-        endingColumnIndex: endingColumnIndex
+        endingColumnIndex: endingColumnIndex,
+        sheetIndex: selection.sheetIndex,
     }
 }
 
@@ -432,7 +434,7 @@ export const DEFAULT_BORDER_STYLE = '.5px solid var(--mito-text-light)';
  * handles highlighting the border between columns
  * when reordering columns. 
  */
-export const getBorderStyle = (selections: MitoSelection[], copiedSelections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number, highlightedColumnIndex?: number): BorderStyle => {
+export const getBorderStyle = (selections: MitoSelection[], copiedSelections: MitoSelection[], rowIndex: number, columnIndex: number, numRows: number, matchesSearch: boolean, highlightedColumnIndex?: number): BorderStyle => {
     const borderStyle: BorderStyle = {}
 
     // First, calculate the border based on the selections
@@ -456,6 +458,13 @@ export const getBorderStyle = (selections: MitoSelection[], copiedSelections: Mi
         borderStyle.borderTop = combineBorderStyles(borderStyle.borderTop, newBorderStyle.borderTop) 
         borderStyle.borderBottom = combineBorderStyles(borderStyle.borderBottom, newBorderStyle.borderBottom) 
     })
+
+    if (matchesSearch) {
+        borderStyle.borderRight = combineBorderStyles(borderStyle.borderRight, SELECTED_BORDER_STYLE)
+        borderStyle.borderLeft = combineBorderStyles(borderStyle.borderLeft, SELECTED_BORDER_STYLE)
+        borderStyle.borderTop = combineBorderStyles(borderStyle.borderTop, SELECTED_BORDER_STYLE)
+        borderStyle.borderBottom = combineBorderStyles(borderStyle.borderBottom, SELECTED_BORDER_STYLE)
+    }
 
     return borderStyle
 }
@@ -608,7 +617,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: -1,
             endingRowIndex: -1,
             startingColumnIndex: 0,
-            endingColumnIndex: 0
+            endingColumnIndex: 0,
+            sheetIndex: newSheetIndex
         }
     }
 
@@ -660,7 +670,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: selection.startingRowIndex,
             endingRowIndex: selection.endingRowIndex,
             startingColumnIndex: newStartingColumnIndex,
-            endingColumnIndex: newEndingColumnIndex
+            endingColumnIndex: newEndingColumnIndex,
+            sheetIndex: newSheetIndex
         }
     } else if (oldColumnIDsArray.length < newColumnsIDsArray.length) {
         // Columns have been added
@@ -696,7 +707,8 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
             startingRowIndex: selection.startingRowIndex,
             endingRowIndex: selection.endingRowIndex,
             startingColumnIndex: newStartingColumnIndex,
-            endingColumnIndex: newEndingColumnIndex
+            endingColumnIndex: newEndingColumnIndex,
+            sheetIndex: newSheetIndex
         }
 
     } 
@@ -728,7 +740,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
                     startingRowIndex: -1,
                     endingRowIndex: -1,
                     startingColumnIndex: smallerColumnIndex,
-                    endingColumnIndex: columnIndex - 1
+                    endingColumnIndex: columnIndex - 1,
+                    sheetIndex: selection.sheetIndex
                 })
             } 
 
@@ -737,7 +750,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
                     startingRowIndex: -1,
                     endingRowIndex: -1,
                     startingColumnIndex: columnIndex + 1,
-                    endingColumnIndex: largerColumnIndex
+                    endingColumnIndex: largerColumnIndex,
+                    sheetIndex: selection.sheetIndex
                 })
             }
         } 
@@ -750,7 +764,8 @@ export const removeColumnFromSelections = (selections: MitoSelection[], columnIn
             startingColumnIndex: 0,
             endingColumnIndex: 0,
             startingRowIndex: 0,
-            endingRowIndex: 0
+            endingRowIndex: 0,
+            sheetIndex: 0
         })
     }
 

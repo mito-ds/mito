@@ -21,7 +21,7 @@ interface EditorStyle {top?: number, left?: number, bottom?: number, right?: num
     it is visible in the right location. 
 */
 const FloatingCellEditor = (props: {
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
     sheetIndex: number,
     gridState: GridState,
     editorState: EditorState,
@@ -41,11 +41,11 @@ const FloatingCellEditor = (props: {
         left: 0,
         display: 'none'
     })
-
+    const sheetData = props.sheetDataArray[props.editorState.sheetIndex];
     const currentSheetView = calculateCurrentSheetView(props.gridState);
-    const {columnID, columnHeader} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const {columnID, columnHeader} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
-    const fullFormula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData);
+    const fullFormula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
     const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation)
 
     // Ensures that the cell editor is in the right location, when initially placed.
@@ -144,7 +144,7 @@ const FloatingCellEditor = (props: {
             }}
         >
             <CellEditor 
-                sheetData={props.sheetData}
+                sheetDataArray={props.sheetDataArray}
                 sheetIndex={props.sheetIndex}
                 gridState={props.gridState}
                 editorState={props.editorState}

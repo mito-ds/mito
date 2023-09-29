@@ -33,7 +33,8 @@ type DisplayedDropdownType = {
 
 
 export const getDisplayedDropdownType = (
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
+    sheetIndex: number,
     editorState: EditorState,
     selectionStart: number | null | undefined,
     cellEditorError: string | undefined,
@@ -41,7 +42,8 @@ export const getDisplayedDropdownType = (
     analysisData: AnalysisData,
 ): DisplayedDropdownType | undefined => {
 
-    const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
+    const fullFormula = getFullFormula(editorState, sheetDataArray, sheetIndex);
+    const sheetData = sheetDataArray[editorState.sheetIndex];
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
 
 
@@ -80,7 +82,7 @@ export const getDisplayedDropdownType = (
 }
 
 const CellEditorDropdown = (props: {
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
     sheetIndex: number,
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
@@ -90,8 +92,8 @@ const CellEditorDropdown = (props: {
     displayedDropdownType: DisplayedDropdownType | undefined,
     takeSuggestion: (idx: number) => void,
 }): JSX.Element => {
-
-    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
         return <></>;
@@ -99,7 +101,7 @@ const CellEditorDropdown = (props: {
 
     const displayedDropdownType = props.displayedDropdownType;
 
-    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+    const formula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex)
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
 
     return (

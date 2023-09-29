@@ -1,14 +1,18 @@
 from collections import OrderedDict
+from distutils.version import LooseVersion
 import hashlib
+import importlib
 import inspect
 import json
 import os
 import pickle
+import re
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.selectionUtils import get_selected_element
 from mitosheet.types import CodeOptions
 from mitosheet.utils import get_new_id
 
@@ -43,6 +47,43 @@ def get_dataframe_hash(df: pd.DataFrame) -> bytes:
     
     return _get_dataframe_hash(df)
 
+def do_dynamic_imports(code: str) -> None:
+    """
+    When you get back Mito code, and you want to execute it, it requires imports defined in the global scope
+    of the executing process. 
+
+    To do this, we dynamically read in the import lines, and execute them using the importlib, and then add 
+    them to the global scope.
+    """
+
+    # Extract import lines from the code_str
+    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from", "import"))]
+
+    # Dynamically import modules and attributes in the global scope
+    for import_line in import_lines:
+        if import_line.startswith("from"):
+            match = re.match(r"from (.+) import (.+)", import_line)
+            module_name = match.group(1) #type: ignore
+            imported_objects = match.group(2).split(",")  #type: ignore
+            
+            module = importlib.import_module(module_name)
+            for obj in imported_objects:
+                obj = obj.strip()
+                if obj == "*":
+                    for attr_name in dir(module):
+                        if not attr_name.startswith("_"):
+                            globals()[attr_name] = getattr(module, attr_name)
+                else:
+                    globals()[obj] = getattr(module, obj)
+        else:
+            split = import_line.split(' ')
+            module_name = split[1]
+            alias = split[3]
+            
+            module = importlib.import_module(module_name)
+            globals()[alias if alias else module_name] = module
+
+
 
 def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
     """
@@ -62,51 +103,11 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
     # exec likely defines all the other mitosheet functions (none of which we actaully want)
     for f in functions:
         if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
+            do_dynamic_imports(code)
             return f
         
     raise ValueError(f'No functions defined in code: {code}')
 
-
-def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
-
-    if indexAndSelections is None:
-        return None
-
-    selected_dataframe_index = indexAndSelections['selectedDataframeIndex']
-    if selected_dataframe_index < 0 or selected_dataframe_index >= len(dfs):
-        return None
-    
-    df = dfs[selected_dataframe_index]
-
-    # If there are multiple selections, for now we only return the first one - for simplicity in return types
-    selection = next(iter(indexAndSelections['selections']))
-
-    # Selections have the format: {'startingRowIndex': 0, 'endingRowIndex': 0, 'startingColumnIndex': 5, 'endingColumnIndex': 5}
-
-    smallerRowIndex = min(selection['startingRowIndex'], selection['endingRowIndex'])
-    largerRowIndex = max(selection['startingRowIndex'], selection['endingRowIndex'])
-    smallerColumnIndex = min(selection['startingColumnIndex'], selection['endingColumnIndex'])
-    largerColumnIndex = max(selection['startingColumnIndex'], selection['endingColumnIndex'])
-
-    # If the row indexes selected are both -1, we just return the column
-    if smallerRowIndex == -1 and largerRowIndex == -1:
-        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
-    
-    # If the column indexes selected are both -1, we just return the row
-    if smallerColumnIndex == -1 and largerColumnIndex == -1:
-        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
-    
-    # If one row index is -1, then we return the column
-    if smallerRowIndex == -1:
-        return df.iloc[:, smallerColumnIndex:largerColumnIndex + 1]
-    
-    # If one column index is -1, then we return the row
-    if smallerColumnIndex == -1:
-        return df.iloc[smallerRowIndex:largerRowIndex + 1, :]
-    
-    # Otherwise, we return the intersection of the row and column
-    return df.iloc[smallerRowIndex:largerRowIndex + 1, smallerColumnIndex:largerColumnIndex + 1]
-    
 
 try:
     import streamlit.components.v1 as components
@@ -235,15 +236,6 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
-        # Get the absolute path to the import_folder, in case it is relative. Also
-        # check that this folder exists, and throw an error if it does not.
-        if import_folder is not None:
-            import_folder = os.path.expanduser(import_folder)
-            import_folder = os.path.abspath(import_folder)
-
-            if not os.path.exists(import_folder):
-                raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
-
         session_id = get_session_id()
 
         mito_backend, responses = _get_mito_backend(

@@ -12,11 +12,13 @@ import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
 import { SnowflakeImportParams } from "../SnowflakeImport/SnowflakeImportTaskpane";
-import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
 import UpdateSnowflakeCredentialsScreen from "./UpdateSnowflakeCredentialsScreen";
 import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
+import { UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
+import UserDefinedImportScreen from "./UserDefinedImportScreen";
+import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 
 
 interface UpdateImportsTaskpaneProps {
@@ -49,7 +51,10 @@ export type DataframeCreationData = {
 } | {
     step_type: 'snowflake_import',
     params: SnowflakeImportParams
-}
+} | {
+    step_type: 'user_defined_import',
+    params: UserDefinedImportParams | undefined
+} 
 
 
 export interface StepImportData {
@@ -165,6 +170,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 <UpdateImportsPreReplayTaskpane
                     mitoAPI={props.mitoAPI}
                     analysisData={props.analysisData}
+                    userProfile={props.userProfile}
                     setUIState={props.setUIState}
 
                     updatedStepImportData={updatedStepImportData}
@@ -195,6 +201,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 <UpdateImportsPostReplayTaskpane
                     mitoAPI={props.mitoAPI}
                     sheetDataArray={props.sheetDataArray}
+                    analysisData={props.analysisData}
+                    userProfile={props.userProfile}
                     setUIState={props.setUIState}
 
                     updatedStepImportData={updatedStepImportData}
@@ -455,6 +463,32 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 notCloseable={updatePreReplay}
             />
         )
+    } else if (replacingDataframeState.importState.screen === 'user_defined_import') {
+        return (
+            <UserDefinedImportScreen 
+                mitoAPI={props.mitoAPI}
+                setUIState={props.setUIState}
+                edit={(params: UserDefinedImportParams | undefined) => {
+                    updateDataframeCreation(
+                        replacingDataframeState.dataframeCreationIndex,
+                        {
+                            'step_type': 'user_defined_import',
+                            'params': params
+                        },
+                        setUpdatedStepImportData,
+                        setUpdatedIndexes,
+                        setPostUpdateInvalidImportMessages,
+                        setReplacingDataframeState
+                    )
+                }}
+                backCallback={() => {
+                    setReplacingDataframeState(undefined);
+                }}
+                notCloseable={updatePreReplay}
+                analysisData={props.analysisData}
+                userProfile={props.userProfile}
+            />
+        )
     } else {
         // Dataframe import
 
@@ -472,6 +506,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 params={params}
                 setParams={(updater) => {
                     setReplacingDataframeState(prevReplacingDataframeState => {
+
                         if (prevReplacingDataframeState === undefined) {
                             return undefined;
                         }

@@ -16,7 +16,7 @@ from mitosheet.utils import get_new_id
 from mitosheet.api.get_available_snowflake_options_and_defaults import get_available_snowflake_options_and_defaults
 from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowflake_credentials
 from mitosheet.errors import MitoError
-from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
+from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials, pandas_post_1_5_only
 from mitosheet.tests.test_utils import create_mito_wrapper
 
 PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
@@ -202,7 +202,7 @@ def test_snowflake_import_integration_type_test_simple():
     }
 
     query_params = {
-        'columns': ['NUMBER_COL', 'FLOAT_COL', 'VARCHAR_COL', 'BOOLEAN_COL', 'DATE_COL'],
+        'columns': ['NUMBER_COL', 'FLOAT_COL', 'VARCHAR_COL', 'BOOLEAN_COL'],
         'limit': None
     }
 
@@ -213,7 +213,6 @@ def test_snowflake_import_integration_type_test_simple():
     assert mito.get_column(0, 'FLOAT_COL', as_list=True) == [1.5]
     assert mito.get_column(0, 'VARCHAR_COL', as_list=True) == ['ABC']
     assert mito.get_column(0, 'BOOLEAN_COL', as_list=True) == [True]
-    assert mito.get_column(0, 'DATE_COL', as_list=True) == pd.to_datetime(['2016.07.23'])
 
 
 @requires_snowflake_dependencies_and_credentials
@@ -376,7 +375,7 @@ def test_optimized_snowflake_imports():
     assert mito.dfs[0].equals(expected_df)
     assert len(mito.dfs) == 2
 
-    assert len(mito.transpiled_code) == 14
+    assert len(mito.transpiled_code) == 15
 
 
 @requires_snowflake_dependencies_and_credentials

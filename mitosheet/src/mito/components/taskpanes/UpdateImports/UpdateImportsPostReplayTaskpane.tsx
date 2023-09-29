@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
+import { AnalysisData, PopupLocation, PopupType, SheetData, UIState, UserProfile } from "../../../types";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -18,6 +18,8 @@ import { isInStreamlit } from "../../../utils/location";
 interface UpdateImportPostReplayTaskpaneProps {
     mitoAPI: MitoAPI;
     sheetDataArray: SheetData[];
+    userProfile: UserProfile;
+    analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     updatedStepImportData: StepImportData[] | undefined;
@@ -84,6 +86,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                     setReplacingDataframeState={props.setReplacingDataframeState}
                     preUpdateInvalidImportMessage={undefined}
                     postUpdateInvalidImportMessage={props.invalidImportMessages[index]}
+                    userProfile={props.userProfile}
+                    analysisData={props.analysisData}
                 />
             )
         })

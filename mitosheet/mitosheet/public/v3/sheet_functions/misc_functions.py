@@ -160,9 +160,9 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         "description": "Looks up a value in a range and returns the value in the same row from a column you specify.",
         "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
         "examples": [
-            "VLOOKUP(Names0, Ids:Ages, 1, False)",
-            "VLOOKUP('John Smith', Names:Ages, 2, False)",
-            "VLOOKUP(Names0, Ids:Ages, Column Indexes0, False)"
+            "VLOOKUP(Names0, Ids:Ages, 1)",
+            "VLOOKUP('John Smith', Names:Ages, 2)",
+            "VLOOKUP(Names0, Ids:Ages, Column Indexes0)"
         ],
         "syntax": "VLOOKUP(lookup_value, where, index)",
         "syntax_elements": [{
@@ -195,7 +195,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     
     value = get_series_from_primitive_or_series(lookup_value, where.index)
     value.name = 'lookup_value'
-    indices = get_series_from_primitive_or_series(index, where.index)
+    indices = get_series_from_primitive_or_series(index, value.index)
 
     # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
     where_deduplicated = where.drop_duplicates(subset=where_first_column.name)

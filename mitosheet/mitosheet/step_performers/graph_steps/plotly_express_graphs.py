@@ -22,7 +22,7 @@ from mitosheet.step_performers.graph_steps.graph_utils import (
     VIOLIN,
     get_graph_title,
 )
-from mitosheet.transpiler.transpile_utils import param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_param_dict_as_code
 from mitosheet.types import ColumnHeader
 from mitosheet.user.location import is_streamlit
 
@@ -269,7 +269,7 @@ def graph_creation_code(
         histfunc,
         nbins,
     )
-    param_code = param_dict_to_code(param_dict, as_single_line=True)
+    param_code = get_param_dict_as_code(param_dict, as_single_line=True)
 
     if graph_type == BAR:
         return f"fig = px.bar({df_name}, {param_code})"
@@ -430,7 +430,7 @@ def graph_styling_code(
     Returns the code for styling the Plotly express graph
     """
     param_dict = get_graph_styling_param_dict(graph_type, column_headers, filtered, graph_styling_params) 
-    params_code = param_dict_to_code(param_dict)
+    params_code = get_param_dict_as_code(param_dict)
     return f"fig.update_layout({params_code})"
 
 

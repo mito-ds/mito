@@ -23,7 +23,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import (CodeOptions, ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
@@ -160,6 +160,10 @@ class MitoWidgetTestWrapper:
         # NOTE: we don't add comments to this testing functionality, so that 
         # we don't have to change tests if we update comments
         return transpile(self.mito_backend.steps_manager, add_comments=False)
+
+    @property
+    def transpiled_code_with_comments(self):
+        return transpile(self.mito_backend.steps_manager, add_comments=True)
     
     @property
     def unoptimized_code_chunks(self):
@@ -694,6 +698,33 @@ class MitoWidgetTestWrapper:
                 'params': {
                     'importer': importer,
                     'importer_params': importer_params
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def replace(
+            self, 
+            sheet_index: int,
+            column_ids: List[ColumnID],
+            search_value: str,
+            replace_value: str,
+        ) -> bool:
+
+        
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'replace_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'sheet_index': sheet_index,
+                    'column_ids': column_ids,
+                    'search_value': search_value,
+                    'replace_value': replace_value,                    
                 }
             }
         )
@@ -1706,5 +1737,5 @@ def get_dataframe_generation_code(df: pd.DataFrame) -> str:
     OPEN_BRACKET = "{"
     CLOSE_BRACKET = "}"
 
-    data = ", ".join([f"{column_header_to_transpiled_code(column_header)}: {column_header_list_to_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
+    data = ", ".join([f"{get_column_header_as_transpiled_code(column_header)}: {get_column_header_list_as_transpiled_code(df[column_header].to_list())}" for column_header in df.columns])
     return f'pd.DataFrame({OPEN_BRACKET}{data}{CLOSE_BRACKET})'

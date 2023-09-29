@@ -16,13 +16,13 @@ from mitosheet.is_type_utils import ( is_bool_dtype,
                                                     is_int_dtype,
                                                     is_string_dtype,
                                                     is_timedelta_dtype)
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code, param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code, get_param_dict_as_code
 
 
 def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old_dtype: str, new_dtype: str, to_datetime_params_map: Optional[Dict[ColumnID, Dict[str, Any]]], public_interface_version: int) -> Optional[str]:
     
     column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_column_header_as_transpiled_code(column_header)
     df_name = state.df_names[sheet_index]
 
     if is_bool_dtype(old_dtype):
@@ -87,7 +87,7 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
             else:
                 to_datetime_params = {}
 
-            datetime_params_string = param_dict_to_code(to_datetime_params, as_single_line=True)
+            datetime_params_string = get_param_dict_as_code(to_datetime_params, as_single_line=True)
 
             return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], {datetime_params_string}, errors=\'coerce\')'
         elif is_timedelta_dtype(new_dtype):
