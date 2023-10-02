@@ -282,9 +282,9 @@ try:
         
 except ImportError:
 
-    class Spreadsheet():
+    class Spreadsheet(): # type: ignore
         def __init__(self, *args, **kwargs):
             raise Exception("You must install dash to use the Spreadsheet component")
         
-    def mito_callback(*args, **kwargs):
+    def mito_callback(*args, **kwargs): # type: ignore
         raise Exception("You must install dash to use the @mito_callback decorator component")
