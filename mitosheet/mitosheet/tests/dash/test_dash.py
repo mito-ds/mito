@@ -2,7 +2,6 @@ import pytest
 from mitosheet.tests.decorators import requires_dash
 from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
 
-
 @requires_dash
 def test_can_create_dash_spreadsheet_component():
     s = Spreadsheet(id='an id')
