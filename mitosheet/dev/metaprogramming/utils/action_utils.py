@@ -40,8 +40,8 @@ def get_action_code(action_name: str, enum_name: str, create_taskpane: bool) -> 
     """
 
 def write_to_actions_file(action_name: str, create_taskpane: bool) -> None:
-    path_to_types = get_src_folder() / 'types.tsx'
-    path_to_actions = get_src_folder() / 'utils' / 'actions.tsx'
+    path_to_types = get_src_folder() / 'mito/types.tsx'
+    path_to_actions = get_src_folder() / 'mito' / 'utils' / 'actions.tsx'
 
     enum_name = name_to_enum_key(action_name)
     enum_value = action_name.replace(' ', '_')

@@ -10,16 +10,16 @@ import json
 from random import randint
 import re
 import uuid
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 import os
+import keyword
 
 import numpy as np
 import pandas as pd
-import importlib.util
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
-from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType, FrontendFormula)
+from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
@@ -41,7 +41,14 @@ def get_first_unused_dataframe_name(existing_df_names: List[str], new_dataframe_
     dataframe name. If no append is necessary, will just
     return the initial passed value.
     """
-    if new_dataframe_name not in existing_df_names:
+    # These are technically legal python variables, but we don't support them
+    mito_invalid_python_variables = ['print']
+
+    if new_dataframe_name not in existing_df_names: 
+
+        # Make sure that the dataframe name is a valid Python variable
+        if keyword.iskeyword(new_dataframe_name) or new_dataframe_name in mito_invalid_python_variables:
+            new_dataframe_name = f'{new_dataframe_name}_df'
         return new_dataframe_name
 
     for i in range(len(existing_df_names) + 1):
@@ -536,4 +543,3 @@ def is_snowflake_credentials_available() -> bool:
 
     return PYTEST_SNOWFLAKE_USERNAME is not None and PYTEST_SNOWFLAKE_PASSWORD is not None and PYTEST_SNOWFLAKE_ACCOUNT is not None and \
         PYTEST_SNOWFLAKE_USERNAME != 'None' and PYTEST_SNOWFLAKE_PASSWORD != 'None' and PYTEST_SNOWFLAKE_ACCOUNT != 'None'
-

@@ -15,7 +15,7 @@ from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.transpiler.transpile_utils import convert_script_to_function, get_imports_for_custom_python_code
+from mitosheet.transpiler.transpile_utils import get_script_as_function, get_imports_for_custom_python_code
 from mitosheet.types import StepsManagerType
 
 
@@ -102,7 +102,7 @@ def transpile(
 
     # If we should transpile this as a function, we do so
     if steps_manager.code_options['as_function']:
-        final_code = convert_script_to_function(
+        final_code = get_script_as_function(
             steps_manager,
             final_imports_code,
             code,

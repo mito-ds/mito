@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { GridState, SheetView, UIState } from '../types';
+import { GridState, SheetData, SheetView, UIState } from '../types';
 import XIcon from './icons/XIcon';
 
 import '../../../css/elements/SearchBar.css';
@@ -13,6 +13,8 @@ import LoadingDots from './elements/LoadingDots';
 import { ensureCellVisible, scrollColumnIntoView } from './endo/visibilityUtils';
 import SearchNavigateIcon from './icons/SearchNavigateIcon';
 import CautionIcon from './icons/CautionIcon';
+import ExpandCollapseIcon from './icons/ExpandCollapseIcon';
+import { getSelectedColumnIDsWithEntireSelectedColumn } from './endo/selectionUtils';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -23,6 +25,7 @@ interface SearchBarProps {
     sheetView: SheetView;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
+    sheetData: SheetData;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = (props) => {
@@ -34,13 +37,16 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         scrollAndRenderedContainerDiv,
         sheetView,
         gridState,
-        setGridState
+        setGridState,
+        sheetData
     } = props;
     const { searchValue, currentMatchIndex, matches } = uiState.currOpenSearch;
 
     // totalMatches is undefined when we're making the API call to get the total number of matches.
     const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
+    const [ isExpanded, setIsExpanded ] = React.useState<boolean>(false);
+    const [ replaceValue, setReplaceValue ] = React.useState<string>('');
 
     const scrollMatchIntoViewAndUpdateSelection = (match?: { rowIndex: number; colIndex: number }) => {
         // Columns have row index -1, so we check for that first.
@@ -80,8 +86,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         }
     }
 
-    // Call the backend to get the new match information when the search value or sheet index changes.
-    useDebouncedEffect(() => {
+    const getMatches = () => {
         // If the search value is empty, set the total matches to 0 and don't call the API.
         if (searchValue === undefined || searchValue === '') {
             setTotalMatches(0);
@@ -110,14 +115,17 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 }
             });
         });
-    }, [searchValue, uiState.selectedSheetIndex], 500);
+    }
 
-    // This is separate from totalMatches because we only display the first 1500 matches.
+    // Call the backend to get the new match information when the search value or sheet index changes.
+    useDebouncedEffect(getMatches, [searchValue, uiState.selectedSheetIndex], 500);
+
+    // This is separate from totalMatches because we only display the first 1500 rows.
     const totalMatchesDisplayed: number = matches?.length ?? 0;
 
     // This displays a loading icon if the total matches is undefined.
     // Otherwise, it displays the current match index and the total number of matches.
-    const matchesInfo = <span> {(totalMatches ?? 0) > 0 ? currentMatchIndex + 1 : 0} of {totalMatches ?? <LoadingDots />} </span>;
+    const matchesInfo = <span> {(totalMatches ?? 0) > 0 ? Math.max(currentMatchIndex + 1, 0) : 0} of {totalMatches ?? <LoadingDots />} </span>;
 
     // If there are no matches, display "No results." Otherwise, display the matches text.
     const finalMatchInfo =
@@ -131,7 +139,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setUIState((prevUIState) => {
             let currentMatch = currentMatchIndex;
 
-            // Because we only display the first 1500 matches, we need to check if there are some matches not displayed
+            // Because we only display the first 1500 rows, we need to check if there are some matches not displayed
             const someMatchesNotDisplayed = (totalMatches ?? totalMatchesDisplayed) > totalMatchesDisplayed;
 
             // First, we calculate the new current match index and show the caution message if necessary
@@ -188,58 +196,109 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         setTotalMatches(e.target.value === '' ? 0 : undefined);
     }
 
+    const handleReplace = (onlySelectedColumns?: boolean) => {
+        void mitoAPI.editReplace(
+            uiState.selectedSheetIndex,
+            searchValue ?? '',
+            replaceValue ?? '',
+            onlySelectedColumns ?
+                getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData):
+                []
+            ).then(() => {
+            getMatches();
+        });
+    }
+
     return (<div className='mito-search-bar'>
-        <Input
-            id='mito-search-bar-input'
-            value={searchValue ?? ''}
-            onChange={handleChange}
-            onKeyDown={(e: React.KeyboardEvent) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    handleCurrentMatchChange('next');
-                }
-            }}
-            onKeyUp={(e: React.KeyboardEvent) => {
-                // onKeyDown can't detect shift+enter, so we use onKeyUp to detect it
-                if (e.key === 'Enter' && e.shiftKey) {
-                    handleCurrentMatchChange('prev');
-                }
-            }}
-            className={classNames('mito-input')}
-            placeholder='Find...'
-            autoFocus
-        />
-        <span>{finalMatchInfo}</span>
-        {/* This button jumps to the previous match */}
         <button
-            className='mito-search-button'
             onClick={() => {
-                handleCurrentMatchChange('prev')
+                setIsExpanded(!isExpanded);
             }}
-        >
-            <SearchNavigateIcon upOrDown='up' strokeColor='var(--mito-text)' strokeWidth={1} />
-        </button>
-        {/* This button jumps to the next match */}
-        <button
             className='mito-search-button'
-            onClick={() => {
-                handleCurrentMatchChange('next')
-            }}
         >
-            <SearchNavigateIcon upOrDown='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+            <ExpandCollapseIcon action={isExpanded ? 'collapse' : 'expand'} strokeColor='var(--mito-text)' strokeWidth={1}/>
         </button>
-        {/* This button closes the search bar. */}
-        <button
-            className='mito-search-button'
-            onClick={() => {
-                setUIState({
-                    ...uiState,
-                    currOpenSearch: { isOpen: false, currentMatchIndex: -1, matches: [] }
-                })
-            }}
-        >
-            <XIcon strokeWidth='1' width='15' height='15' />
-        </button>
-        {showCautionMessage && <div className='mito-search-caution'>
+        <div className='mito-search-bar-content'>
+            <div className='mito-search-bar-search'>
+                <Input
+                    id='mito-search-bar-input'
+                    value={searchValue ?? ''}
+                    onChange={handleChange}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            handleCurrentMatchChange('next');
+                        }
+                    }}
+                    onKeyUp={(e: React.KeyboardEvent) => {
+                        // onKeyDown can't detect shift+enter, so we use onKeyUp to detect it
+                        if (e.key === 'Enter' && e.shiftKey) {
+                            handleCurrentMatchChange('prev');
+                        }
+                    }}
+                    className={classNames('mito-input')}
+                    placeholder='Find...'
+                    autoFocus
+                />
+                <span style={{ whiteSpace: 'nowrap' }}>{finalMatchInfo}</span>
+                {/* This button jumps to the previous match */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        handleCurrentMatchChange('prev')
+                    }}
+                >
+                    <SearchNavigateIcon width='17' height='15' direction='up' strokeColor='var(--mito-text)' strokeWidth={1} />
+                </button>
+                {/* This button jumps to the next match */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        handleCurrentMatchChange('next')
+                    }}
+                >
+                    <SearchNavigateIcon width='17' height='15' direction='down' strokeColor='var(--mito-text)' strokeWidth={1} />   
+                </button>
+                {/* This button closes the search bar. */}
+                <button
+                    className='mito-search-button'
+                    onClick={() => {
+                        setUIState({
+                            ...uiState,
+                            currOpenSearch: { isOpen: false, currentMatchIndex: 0, matches: [] }
+                        })
+                    }}
+                >
+                    <XIcon strokeWidth='1' width='15' height='15' />
+                </button>
+            </div>
+            {isExpanded && <div className='mito-search-bar-replace'>
+                <Input
+                    value={replaceValue}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setReplaceValue(e.target.value);
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === 'Enter') {
+                            handleReplace();
+                        }
+                    }}
+                    className='mito-input'
+                    placeholder='Replace...'
+                    autoFocus
+                />
+                <button className='mito-search-button' onClick={() => {
+                    handleReplace()
+                }}>
+                    Replace All
+                </button>
+                <button className='mito-search-button' disabled={getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData).length === 0} onClick={() => {
+                    handleReplace(true);
+                }}>
+                    Replace in Selected Columns
+                </button>
+            </div>}
+        </div>
+        {showCautionMessage && <div style={{top: isExpanded ? '71px' : '40px'}} className='mito-search-caution'>
             <CautionIcon />
             <span>Only the first 1500 rows are displayed.</span>
         </div>}

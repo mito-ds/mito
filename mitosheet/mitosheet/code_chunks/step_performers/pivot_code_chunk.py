@@ -15,8 +15,8 @@ from mitosheet.code_chunks.step_performers.filter_code_chunk import (
     combine_filter_strings, get_single_filter_string)
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import (
-    NEWLINE_TAB, column_header_list_to_transpiled_code,
-    column_header_to_transpiled_code)
+    NEWLINE_TAB, get_column_header_list_as_transpiled_code,
+    get_column_header_as_transpiled_code)
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform)
@@ -67,14 +67,14 @@ def build_args_code(
 
     args = []
     if len(final_pivot_rows) > 0:
-        args.append(f'index={column_header_list_to_transpiled_code(final_pivot_rows)},')
+        args.append(f'index={get_column_header_list_as_transpiled_code(final_pivot_rows)},')
 
     if len(final_pivot_columns) > 0:
-        args.append(f'columns={column_header_list_to_transpiled_code(final_pivot_columns)},')
+        args.append(f'columns={get_column_header_list_as_transpiled_code(final_pivot_columns)},')
 
     if len(values) > 0:
         values_keys = list(values.keys())
-        args.append(f'values={column_header_list_to_transpiled_code(values_keys)},')
+        args.append(f'values={get_column_header_list_as_transpiled_code(values_keys)},')
         args.append(f'aggfunc={values_to_functions_code(values)}')
         
     return NEWLINE_TAB.join(args)
@@ -167,7 +167,7 @@ class PivotCodeChunk(CodeChunk):
 
         # Drop any columns we don't need, to avoid issues where pandas freaks out
         # and says there is a non-1-dimensional grouper
-        column_headers_list = column_header_list_to_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
+        column_headers_list = get_column_header_list_as_transpiled_code(list(set(pivot_rows + pivot_columns + list(values.keys()))))
         transpiled_code.append(f'tmp_df = {old_df_name}[{column_headers_list}].copy()')
 
         # Create any new temporary columns that are formed by the pivot transforms
@@ -299,41 +299,41 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         # append to it for the new temporary transformation column
         new_column_header = get_new_column_header_from_column_header_with_pivot_transform(chwpt)
         if transformation == PCT_DATE_YEAR:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.year')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.year')
         if transformation == PCT_DATE_QUARTER:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.quarter')
         if transformation == PCT_DATE_MONTH:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.month')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.month')
         if transformation == PCT_DATE_WEEK:
             if is_prev_version(pd.__version__, '1.0.0'):
-                code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.week')
+                code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.week')
             else:
-                code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.isocalendar().week.astype(int)')
+                code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.isocalendar().week.astype(int)')
         if transformation == PCT_DATE_DAY_OF_MONTH:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.day')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.day')
         if transformation == PCT_DATE_DAY_OF_WEEK:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.weekday')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.weekday')
         if transformation == PCT_DATE_HOUR:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.hour')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.hour')
         if transformation == PCT_DATE_MINUTE:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.minute')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.minute')
         if transformation == PCT_DATE_SECOND:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.second')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.second')
         if transformation == PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d %H:%M")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d %H:%M")')
         if transformation == PCT_DATE_YEAR_MONTH_DAY_HOUR:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d %H")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d %H")')
         if transformation == PCT_DATE_YEAR_MONTH_DAY:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%Y-%m-%d")')
         if transformation == PCT_DATE_YEAR_MONTH:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%Y-%m")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%Y-%m")')
         if transformation == PCT_DATE_YEAR_QUARTER:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.year.astype(str) + "-Q" + {df_name}[{column_header_to_transpiled_code(column_header)}].dt.quarter.astype(str)')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.year.astype(str) + "-Q" + {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.quarter.astype(str)')
         if transformation == PCT_DATE_MONTH_DAY:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%m-%d")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%m-%d")')
         if transformation == PCT_DATE_DAY_HOUR:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%d %H")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%d %H")')
         if transformation == PCT_DATE_HOUR_MINUTE:
-            code.append(f'{df_name}[{column_header_to_transpiled_code(new_column_header)}] = {df_name}[{column_header_to_transpiled_code(column_header)}].dt.strftime("%H:%M")')
+            code.append(f'{df_name}[{get_column_header_as_transpiled_code(new_column_header)}] = {df_name}[{get_column_header_as_transpiled_code(column_header)}].dt.strftime("%H:%M")')
 
     return code

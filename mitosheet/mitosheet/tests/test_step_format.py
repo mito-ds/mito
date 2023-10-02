@@ -53,6 +53,7 @@ from mitosheet.pro.step_performers.set_dataframe_format import SetDataframeForma
 from mitosheet.step_performers.transpose import TransposeStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.saved_analyses.upgrade import STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT
+from mitosheet.step_performers.replace import ReplaceStepPerformer
 
 def check_step(
         step_performer: Type[StepPerformer], 
@@ -321,7 +322,13 @@ def test_params_static():
         'user_defined_import'
     )
 
-    assert len(STEP_PERFORMERS) == 39
+    check_step(
+        ReplaceStepPerformer,
+        1,
+        'replace'
+    )
+
+    assert len(STEP_PERFORMERS) == 40
 
 
 def test_upgraders_bump_step_number():

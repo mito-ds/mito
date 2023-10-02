@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 
 
@@ -33,7 +33,7 @@ class ReorderColumnCodeChunk(CodeChunk):
         from mitosheet.step_performers.column_steps.reorder_column import get_valid_index
 
         column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        transpiled_column_header = column_header_to_transpiled_code(column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(column_header)
 
         new_column_index = get_valid_index(self.prev_state.dfs, self.sheet_index, self.new_column_index)
 

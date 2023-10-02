@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import param_dict_to_code
+from mitosheet.transpiler.transpile_utils import get_param_dict_as_code
 
 
 class SnowflakeImportCodeChunk(CodeChunk):
@@ -33,7 +33,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 
-        connection_param_transpiled_code = param_dict_to_code(self.connection_params_dict)
+        connection_param_transpiled_code = get_param_dict_as_code(self.connection_params_dict)
 
         snowflake_connection_code = [
             f'con = snowflake.connector.connect({connection_param_transpiled_code})',

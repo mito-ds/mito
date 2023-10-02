@@ -14,7 +14,7 @@ from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chun
 from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_column_header_as_transpiled_code
 from mitosheet.types import ColumnHeader, ColumnID, FormulaAppliedToType
 
 
@@ -37,7 +37,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
         return 'Added column'
     
     def get_description_comment(self) -> str:
-        return f'Added column {column_header_to_transpiled_code(self.column_header)}'
+        return f'Added column {get_column_header_as_transpiled_code(self.column_header)}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         python_code, _, _, _ = parse_formula(
@@ -51,7 +51,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
             include_df_set=False,
         )
 
-        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
         column_header_index = self.column_header_index
         return [
             f'{self.df_name}.insert({column_header_index}, {transpiled_column_header}, {python_code})'

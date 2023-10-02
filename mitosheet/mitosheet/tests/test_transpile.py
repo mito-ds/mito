@@ -12,6 +12,7 @@ from mitosheet.api.get_parameterizable_params import get_parameterizable_params
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_2_only, python_post_3_6_only
+from mitosheet.types import FC_NUMBER_GREATER
 
 def test_transpile_single_column():
     mito = create_mito_wrapper_with_data(['abc'])
@@ -870,3 +871,17 @@ def function():
     return df1
 
 df1 = function()"""
+
+
+def test_transpile_handles_new_line_character():
+    df = pd.DataFrame({'A\nB': [1,2,3]})
+    mito = create_mito_wrapper(df)
+
+    mito.filter(0, 'A\nB', "And", FC_NUMBER_GREATER, 1)
+
+    assert "\n".join(mito.transpiled_code_with_comments) == """from mitosheet.public.v3 import *
+
+# Filtered A
+# B
+df1 = df1[df1['A\\nB'] > 1]
+"""
