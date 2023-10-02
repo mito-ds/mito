@@ -233,6 +233,10 @@ def get_spreadsheet_id_and_indexes_in_callback_args(*args) -> List[Tuple[str, in
             if component_property == 'mito_return_value':
                 result.append((component_id, index, callback_index))
 
+            # If they try and access other properties of the Spreadsheet component, we raise an error
+            if component_property in ['all_json', ]:
+                raise Exception(f"Cannot access property {component_property} of Spreadsheet component with id {component_id}. Please only access the mito_return_value property.")
+
         if (isinstance(arg, Input) or isinstance(arg, State)):
             callback_index += 1
             

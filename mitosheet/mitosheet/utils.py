@@ -520,6 +520,13 @@ def is_streamlit_installed() -> bool:
         return True
     except ImportError:
         return False
+    
+def is_dash_installed() -> bool:
+    try:
+        import dash
+        return True
+    except ImportError:
+        return False
 
 
 def is_snowflake_credentials_available() -> bool:
