@@ -1,42 +1,35 @@
-
-from mitosheet.mito_dash.v1 import Spreadsheet, spreadsheet_callback
-from dash import Dash, html, Output, dash_table, html, callback, Input
-
-import pandas as pd
-
-df = pd.DataFrame({'A': [1, 2, 3]})
+from unittest.mock import patch
+from dash import Dash, dcc, html, Input, Output, callback, State
+from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
 
 app = Dash(__name__)
 
 app.layout = html.Div([
-    Spreadsheet(df, id='mito-dash-wrapper'),
-    Spreadsheet(df, id='output'),
-    html.Div(id='selection'),
-    html.Button('New Mito Data', id='new-mito-data')
+    html.H6("Change the value in the text box to see callbacks in action!"),
+    html.Div([
+        "Input: ",
+        dcc.Input(id='my-input', value='initial value', type='text')
+    ]),
+    Spreadsheet(id='my-spreadsheet'),
+    html.Br(),
+    html.Div(id='my-output'),
+
 ])
 
-@spreadsheet_callback(
-    Output('output', 'data'),
-    input_id='mito-dash-wrapper',
+
+
+
+
+@mito_callback(
+    Output(component_id='my-output', component_property='children'),
+    Input(component_id='my-spreadsheet', component_property='return_value'),   
+    prevent_initial_call=True
 )
-def update_output(spreadsheet_result):
-    dfs = spreadsheet_result.dfs()
-    return dfs[0].to_dict('records')
-
-@spreadsheet_callback(
-    Output('selection', 'children'),
-    input_id='mito-dash-wrapper',
-)
-def update_selection(spreadsheet_result):
-    selection = spreadsheet_result.selection()
-    return str(selection)
-
-
-@callback(Output('mito-dash-wrapper', 'data'), Input('new-mito-data', 'n_clicks'), prevent_initial_call=True)
-def reset_data(n_clicks):
-    new_df = pd.DataFrame({'A': [i for i in range(n_clicks)]})
-    return new_df.to_json(orient='records')
+def update_output_div(result):
+    print("HERE!")
+    result = result.selection()
+    return f'Output: {result}'
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)

@@ -1,10 +1,10 @@
 import React from 'react';
 import { MitoAPI } from '../../api/api';
+import { SendFunctionStatus } from '../../api/send';
 import { SheetData, UIState } from '../../types';
+import { isInDashboard } from '../../utils/location';
 import TextButton from '../elements/TextButton';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { SendFunctionStatus } from '../../api/send';
-import { isInStreamlit } from '../../utils/location';
 
 
 /**
@@ -58,7 +58,7 @@ const EmptyGridMessages = (props: {
                             Import Files
                         </TextButton>
                     </div>
-                    {!isInStreamlit() && 
+                    {!isInDashboard() && 
                         <p className='mt-5px text-body-1' style={{textAlign: 'center'}}>
                             Or import dfs using the syntax <code>mitosheet.sheet(df1, df2)</code> in the code above.
                         </p>

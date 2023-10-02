@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, CodeSnippetAPIResult, SheetData, UIState, UserProfile } from "../../../types";
 
+import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
+import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
+import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
+import { classNames } from "../../../utils/classNames";
+import { writeTextToClipboard } from "../../../utils/copy";
+import { isInDashboard } from "../../../utils/location";
+import { fuzzyMatch } from "../../../utils/strings";
+import Dropdown, { DROPDOWN_IGNORE_CLICK_CLASS } from "../../elements/Dropdown";
+import DropdownItem from "../../elements/DropdownItem";
+import Input from "../../elements/Input";
+import LoadingDots from "../../elements/LoadingDots";
+import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
+import DropdownIcon from "../../icons/DropdownIcon";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
-import Input from "../../elements/Input";
-import { fuzzyMatch } from "../../../utils/strings";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
-import DropdownIcon from "../../icons/DropdownIcon";
-import Dropdown, { DROPDOWN_IGNORE_CLICK_CLASS } from "../../elements/Dropdown";
-import DropdownItem from "../../elements/DropdownItem";
-import { writeTextToClipboard } from "../../../utils/copy";
-import CodeSnippetIcon from "../../icons/CodeSnippetIcon";
-import { useDebouncedEffect } from "../../../hooks/useDebouncedEffect";
-import { DISCORD_INVITE_LINK } from "../../../data/documentationLinks";
-import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
-import LoadingDots from "../../elements/LoadingDots";
-import { classNames } from "../../../utils/classNames";
-import { isInStreamlit } from "../../../utils/location";
 
 
 interface CodeSnippetsTaskpaneProps {
@@ -122,7 +122,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
                             title="Copy Code Snippet" 
                             onClick={copyToClipboard}
                         />,
-                        !isInStreamlit() 
+                        !isInDashboard() 
                             ? <DropdownItem 
                                 key="Write to Notebook" 
                                 title="Write to Notebook" 
