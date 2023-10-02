@@ -52,7 +52,7 @@ class Spreadsheet(Component):
 
     def __init__(
             self, 
-            *args,
+            *args: Union[pd.DataFrame, str, None],
             id: str,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
@@ -78,7 +78,7 @@ class Spreadsheet(Component):
         # We save the unprocessed messages in a list -- so that we can process them
         # in the callback in the order that they were received -- without them interrupting
         # eachother and having to deal with race conditions
-        self.unprocessed_messages = Queue()
+        self.unprocessed_messages: Any = Queue()
         self.processing_messages = False
 
         self.index_and_selections: Optional[pd.DataFrame] = None
@@ -187,7 +187,7 @@ class Spreadsheet(Component):
         self.processing_messages = False
         
         
-    def get_all_json(self):
+    def get_all_json(self) -> str:
         return json.dumps({
             **self.mito_backend.get_shared_state_variables(),
             'responses_json': json.dumps(self.responses),
@@ -212,7 +212,9 @@ def get_component_with_id(id: str) -> Optional[Spreadsheet]:
     else:
         return None
     
-def get_spreadsheet_id_and_indexes_in_callback_args(*args) -> List[Tuple[str, int, int]]:
+# TODO: I think we have to support lists of Inputs and Outputs and States
+# and we might also have to support named Inputs and Outputs and States (e.g. keyword args)
+def get_spreadsheet_id_and_indexes_in_callback_args(*args: Union[Output, Input, State]) -> List[Tuple[str, int, int]]:
     """
     Returns a list of all the Input components that are Spreadsheet components, and their indexes
 
@@ -228,14 +230,14 @@ def get_spreadsheet_id_and_indexes_in_callback_args(*args) -> List[Tuple[str, in
             component_property = arg.component_property
 
             # Mito currently supports the following properities:
-            # - mito_return_value
+            # - mito_spreadsheet_result
 
-            if component_property == 'mito_return_value':
+            if component_property == 'mito_spreadsheet_result':
                 result.append((component_id, index, callback_index))
 
             # If they try and access other properties of the Spreadsheet component, we raise an error
             if component_property in ['all_json', ]:
-                raise Exception(f"Cannot access property {component_property} of Spreadsheet component with id {component_id}. Please only access the mito_return_value property.")
+                raise Exception(f"Cannot access property {component_property} of Spreadsheet component with id {component_id}. Please only access the mito_spreadsheet_result property.")
 
         if (isinstance(arg, Input) or isinstance(arg, State)):
             callback_index += 1
