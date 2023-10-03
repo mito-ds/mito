@@ -34,7 +34,7 @@ def install_step_mitosheet_check_dependencies():
         return
     
     else:
-        raise Exception('Installed extensions {extension_names}'.format(extension_names=extension_names))
+        raise Exception("You're running JupyterLab {jupyterlab_version}. Mito requires JupyterLab 3.0 or higher. Please upgrade your JupyterLab installation or install Mito in a new virtual environment: https://docs.trymito.io/getting-started/installing-mito") 
 
 def remove_mitosheet_3_if_present():
     """
