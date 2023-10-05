@@ -364,7 +364,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         const parentElement = dropdownContainer.parentElement || dropdownContainer;
         const parentBoundingClientRect = parentElement.getBoundingClientRect();
         const parentTop = parentBoundingClientRect.top;
-        const parentBottom = parentBoundingClientRect.bottom;
+        const parentBottom = parentBoundingClientRect.bottom ;
         const parentLeft = parentBoundingClientRect.left;
         const parentRight = parentBoundingClientRect.right;
         
@@ -379,28 +379,28 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 top: parentBottom,
                 bottom: undefined,
                 right: undefined,
-                left: parentLeft 
+                left: parentLeft
             }
         } else if (topInBounds(parentBottom) && rightInBounds(parentRight, widthPixels)) {
             newBoundingRect = {
                 top: parentBottom,
                 bottom: undefined,
-                right: window.innerWidth - parentRight,
-                left: undefined 
+                right: parentRight,
+                left:  undefined
             }
         } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
             newBoundingRect = {
                 top: undefined,
                 bottom: window.innerHeight - parentTop,
                 right: undefined,
-                left: parentLeft 
+                left: parentLeft
             }
         } else {
             newBoundingRect = {
                 top: undefined,
                 bottom: window.innerHeight - parentTop,
                 right: window.innerWidth - parentRight,
-                left: undefined 
+                left:  undefined
             }
         }
 
@@ -467,7 +467,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 <div 
                     className={dropdownClassNames} 
                     style={{
-                        position: 'absolute',
+                        position: 'fixed',
                         top: boundingRect.top, 
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
