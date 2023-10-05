@@ -194,6 +194,8 @@ export default class MitoDashWrapper extends Component<Props, State> {
             this.setState({responses: responses});
         }
 
+        console.log('analsyisData', analysisData.theme)
+
         return (
             <Mito 
                 key={key as string}
@@ -201,6 +203,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
+                theme={analysisData.theme ?? undefined}
                 onSelectionChange={(selectedDataframeIndex, selections) => {
                     void this.send({
                         'type': 'selection_event',

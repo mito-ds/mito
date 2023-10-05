@@ -356,6 +356,12 @@ if sys.version_info[:3] > (3, 8, 0):
 
     UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
+    class MitoTheme(TypedDict):
+        primaryColor: str
+        backgroundColor: str
+        secondaryBackgroundColor: str
+        textColor: str
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -389,6 +395,7 @@ else:
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
+    MitoTheme = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore

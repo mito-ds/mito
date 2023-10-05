@@ -10,7 +10,7 @@ import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_random_id
-from mitosheet.types import CodeOptions
+from mitosheet.types import CodeOptions, MitoTheme
 
 
 
@@ -34,7 +34,7 @@ class SpreadsheetResult():
     
     def selection(self) -> Optional[Union[pd.DataFrame, pd.Series]]:
         return get_selected_element(self.__dfs, self.__index_and_selections)
-     
+         
 try:
     from dash.development.base_component import Component
     from dash import Input, Output, callback, State
@@ -59,7 +59,8 @@ try:
                 code_options: Optional[CodeOptions]=None,
                 df_names: Optional[List[str]]=None,
                 sheet_functions: Optional[List[Callable]]=None, 
-                importers: Optional[List[Callable]]=None
+                importers: Optional[List[Callable]]=None,
+                theme: Optional[MitoTheme]=None
         ):     
             self.mito_id = id
             self._set_new_mito_backend(
@@ -68,7 +69,8 @@ try:
                 code_options=code_options,
                 df_names=df_names,
                 sheet_functions=sheet_functions,
-                importers=importers
+                importers=importers,
+                theme=theme
             )
 
             super(Spreadsheet, self).__init__(
@@ -91,7 +93,7 @@ try:
             self.df_names = df_names
             self.sheet_functions = sheet_functions
             self.importers = importers
-
+            self.theme = theme
 
             @callback(Output(self.mito_id, 'all_json', allow_duplicate=True), Input(self.mito_id, 'message'), prevent_initial_call=True)
             def handle_message(msg):
@@ -121,7 +123,8 @@ try:
                     code_options=self.code_options,
                     df_names=self.df_names,
                     sheet_functions=self.sheet_functions,
-                    importers=self.importers
+                    importers=self.importers,
+                    theme=self.theme
                 )
                 return self.get_all_json()
             
@@ -132,7 +135,8 @@ try:
                 code_options: Optional[CodeOptions]=None,
                 df_names: Optional[List[str]]=None,
                 sheet_functions: Optional[List[Callable]]=None, 
-                importers: Optional[List[Callable]]=None
+                importers: Optional[List[Callable]]=None,
+                theme: Optional[MitoTheme]=None
             ) -> None:
             """
             Called when the component is created, or when the input data is changed.
@@ -144,6 +148,7 @@ try:
                 code_options=code_options,
                 user_defined_functions=sheet_functions,
                 user_defined_importers=importers,
+                theme=theme
             )
             self.responses: List[Dict[str, Any]] = []
             def send(response):
@@ -231,10 +236,10 @@ try:
                 component_property = arg.component_property
 
                 # Mito currently supports the following properities:
-                # - mito_spreadsheet_result
-
-                if component_property == 'mito_spreadsheet_result':
+                if component_property == 'spreadsheet_result':
                     result.append((component_id, index, callback_index))
+                elif component_property == 'mito_spreadsheet_result':
+                    raise Exception(f"mito_spreadsheet_result has been renamed to spreadsheet_result. Please switch your Input or State.")
 
                 # If they try and access other properties of the Spreadsheet component, we raise an error
                 if component_property in ['all_json', ]:

@@ -782,11 +782,11 @@ export interface AnalysisData {
     codeOptions: CodeOptions;
     userDefinedFunctions: FunctionDocumentationObject[];
     userDefinedImporters: UserDefinedImporter[];
-
     importFolderData: {
         path: string,
         pathParts: string[],
-    } | null
+    } | null;
+    theme: MitoTheme | null; 
 }
 
 export interface MitoConfig {
