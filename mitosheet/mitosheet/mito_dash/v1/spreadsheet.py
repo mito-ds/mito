@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.utils import get_new_id, get_random_id
+from mitosheet.utils import get_new_id, get_new_id
 from mitosheet.types import CodeOptions, MitoTheme
 
 
@@ -42,7 +42,6 @@ To get the proper value from the {prop_name}, change your callback to use the @m
 See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and-types
 # TODO: this linked docs could be way better - they should be specific instructions for how to resolve this
 
-# TODO: make this a JSON object
 {num_messages}
 {prop_name}
 {id}"""
@@ -75,7 +74,9 @@ try:
                 theme: Optional[MitoTheme]=None
         ):     
             self.mito_id = id
-            # TODO: document why this must be ever increasing -- so that the spredasheet result and spreadsheet seection always change
+            # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
+            # and spreadsheet_selection error strings change. This way, we can correctly trigger callbacks that correspond
+            # to these values in all cases
             self.num_messages=0
             self._set_new_mito_backend(
                 *args, 
@@ -180,7 +181,7 @@ try:
             """
             Called when the component is created, or when the input data is changed.
             """
-            self.mito_frontend_key = get_random_id()
+            self.mito_frontend_key = get_new_id()
             self.mito_backend = MitoBackend(
                 *args, 
                 import_folder=import_folder, 
@@ -208,7 +209,11 @@ try:
                     }
                 )
 
-            # TODO: document this - why we need to do this
+            # If you use the @callback decorator with spreadsheet_result or spreadsheet_selection, users will get these helpful error messages that 
+            # will tell them what is wrong with their approach - namely, that they need to use `@mito_callback` instead. Note that this includes:
+            # 1.    The num_messages so it triggers callbacks correct in the all cases
+            # 2.    The prop name and the id of the spreadsheet so the `@mito_callback` function can inspect this string and replace this arg with the
+            #       actual value the user really wants
             self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
             self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
 

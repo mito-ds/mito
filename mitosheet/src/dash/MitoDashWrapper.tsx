@@ -5,7 +5,9 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 
 export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
 
-// TODO: Update
+// When updating the props of the frontend component, we are either sending a message
+// to the MitoBackend, or we are just updating the selection. These are the two props names
+// we could be setting. 
 type PropNameForSetProps = 'message' | 'index_and_selections';
 
 interface State {

@@ -29,11 +29,12 @@ try:
         This is a replacement for the @callback decorator that improves the developer experience
         with using the Mito Spreadsheet component. 
 
+        When using the @mito_callback decorator to subscribe to changes in the `spreadsheet_result` or
+        `spreadsheet_selection` properties of a Mito Spreadsheet, you get the actual SpreadsheetResult
+        object - not some JSON string you need to parse and work with.
+
         To see the documentation for this decorator, see the @mito_callback decorator documentation:
         https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and-types
-
-        In practice, this function replaces the default spreadsheet_result error string with the 
-        actual SpreadsheetResult object from the corresponding Mito spreadsheet. 
         """
         def function_wrapper(original_function):
             # TODO: do we need an @wraps
@@ -43,8 +44,9 @@ try:
                 # TODO: do we need to handle kwargs? Probably. But we will do that in the future...
 
                 for index, arg in enumerate(new_args):
+
                     # We go through all the arguments passed to the function, and:
-                    # 1) find those that are Mito Spreadsheet Result error strings
+                    # 1) find those that are Mito spreadsheet_result/spreadsheet_selection error strings
                     # 2) Replace them with the the actual spreadsheet results
                     # As this is a dramatically better Spreadsheet experience
 

@@ -7,10 +7,15 @@ app = Dash(__name__)
 df = pd.DataFrame({'A': [1, 2, 3]})
 
 app.layout = html.Div([
-    html.H1("Stock Analysis", style={'color': 'white'}),
-    Spreadsheet(df, id='sheet'),
-    html.Div(id='output-code'),
-    html.Div(id='output-selection'),
+    html.H1("Stock Analysis", style={'color': 'black'}),
+    Spreadsheet(df, id='sheet', theme={
+        'primaryColor': '#00FF00',
+        'backgroundColor': '#111111',
+        'secondaryBackgroundColor': '#222222',
+        'textColor': '#FFFFFF',
+    }),
+    html.Div(id='output-code', style={'color': 'black'}),
+    html.Div(id='output-selection', style={'color': 'black'}),
 ])
 
 @mito_callback(
@@ -20,7 +25,7 @@ app.layout = html.Div([
 def update_code(spreadsheet_result):
     print("NEW SPREADSHEET RESULT")
     return html.Div([
-        html.Code(spreadsheet_result.code(), style={'color': 'white'})
+        html.Code(spreadsheet_result.code(), style={'color': 'black'})
     ])
     
 
@@ -31,7 +36,7 @@ def update_code(spreadsheet_result):
 def update_selection(new_selection):
     print("NEW SPREADSHEET SELECTION")
     return html.Div([
-        html.Code(str(new_selection), style={'color': 'white'})
+        html.Code(str(new_selection), style={'color': 'black'})
     ])
     
 

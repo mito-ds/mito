@@ -369,7 +369,7 @@ if sys.version_info[:3] > (3, 8, 0):
         endingColumnIndex: int
 
     class MitoFrontendIndexAndSelections(TypedDict):
-        selected_dataframe_index: int
+        selectedDataframeIndex: int
         selections: List[MitoFrontendSelection]
 
 else:
