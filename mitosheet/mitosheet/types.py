@@ -362,6 +362,16 @@ if sys.version_info[:3] > (3, 8, 0):
         secondaryBackgroundColor: str
         textColor: str
 
+    class MitoFrontendSelection(TypedDict):
+        startingRowIndex: int
+        endingRowIndex: int
+        startingColumnIndex: int
+        endingColumnIndex: int
+
+    class MitoFrontendIndexAndSelections(TypedDict):
+        selected_dataframe_index: int
+        selections: List[MitoFrontendSelection]
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -396,6 +406,8 @@ else:
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
     MitoTheme = Any # type: ignore
+    MitoFrontendSelection = Any # type: ignore
+    MitoFrontendIndexAndSelections = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore
