@@ -126,12 +126,12 @@ try:
             @callback(
                 Output(self.mito_id, 'all_json', allow_duplicate=True), 
                 Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                Input(self.mito_id, 'selection'), prevent_initial_call=True
+                Input(self.mito_id, 'index_and_selections'), prevent_initial_call=True
             )
-            def handle_selection_change(selection):
+            def handle_selection_change(index_and_selections):
                 self.num_messages += 1
 
-                self.index_and_selections = selection
+                self.index_and_selections = index_and_selections
                 
                 self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
                 return self.get_all_json(), self.spreadsheet_selection
@@ -236,7 +236,6 @@ try:
             self.processing_messages = False
 
             self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
-            print("NEW RESULT", self.spreadsheet_result)
             
             
         def get_all_json(self) -> str:
@@ -247,7 +246,6 @@ try:
             })
         
         def get_result(self):
-            print(self.mito_backend.steps_manager)
             return SpreadsheetResult(
                 dfs=self.mito_backend.steps_manager.dfs,
                 code=self.mito_backend.steps_manager.code(),

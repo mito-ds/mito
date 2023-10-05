@@ -38,7 +38,6 @@ try:
         def function_wrapper(original_function):
             # TODO: do we need an @wraps
             def new_function(*_args, **_kwargs):
-                print("CALLING CALLBACK")
                 new_args = list(_args)
 
                 # TODO: do we need to handle kwargs? Probably. But we will do that in the future...
@@ -58,7 +57,13 @@ try:
                             # TODO: use a more dash exception?
                             raise Exception(f"Could not find spreadsheet with id {id}")
                         
-                        new_args[index] = spreadsheet.get_result()
+                        if 'spreadsheet_result' in arg:
+                            # If the user is getting the result, give them the result
+                            new_args[index] = spreadsheet.get_result()
+                        else:
+                            # If they are just getting the selection, just get the current selection
+                            new_args[index] = spreadsheet.get_result().selection()
+
 
                 return original_function(*new_args, **_kwargs)
             

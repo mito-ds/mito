@@ -1,35 +1,39 @@
-from unittest.mock import patch
-from dash import Dash, dcc, html, Input, Output, callback, State
+from dash import Dash, callback, Input, Output, html, dcc
 from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
+import pandas as pd
 
 app = Dash(__name__)
 
-app.layout = html.Div([
-    html.H6("Change the value in the text box to see callbacks in action!"),
-    html.Div([
-        "Input: ",
-        dcc.Input(id='my-input', value='initial value', type='text')
-    ]),
-    Spreadsheet(id='my-spreadsheet'),
-    html.Br(),
-    html.Div(id='my-output'),
+df = pd.DataFrame({'A': [1, 2, 3]})
 
+app.layout = html.Div([
+    html.H1("Stock Analysis", style={'color': 'white'}),
+    Spreadsheet(df, id='sheet'),
+    html.Div(id='output-code'),
+    html.Div(id='output-selection'),
 ])
 
-
-
-
+@mito_callback(
+    Output('output-code', 'children'),
+    Input('sheet', 'spreadsheet_result'),
+)
+def update_code(spreadsheet_result):
+    print("NEW SPREADSHEET RESULT")
+    return html.Div([
+        html.Code(spreadsheet_result.code(), style={'color': 'white'})
+    ])
+    
 
 @mito_callback(
-    Output(component_id='my-output', component_property='children'),
-    Input(component_id='my-spreadsheet', component_property='return_value'),   
-    prevent_initial_call=True
+    Output('output-selection', 'children'),
+    Input('sheet', 'spreadsheet_selection'),
 )
-def update_output_div(result):
-    print("HERE!")
-    result = result.selection()
-    return f'Output: {result}'
-
+def update_selection(new_selection):
+    print("NEW SPREADSHEET SELECTION")
+    return html.Div([
+        html.Code(str(new_selection), style={'color': 'white'})
+    ])
+    
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=True)
