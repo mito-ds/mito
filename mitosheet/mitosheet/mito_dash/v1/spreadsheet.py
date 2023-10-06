@@ -40,7 +40,6 @@ WRONG_CALLBACK_ERROR_MESSAGE = """Error: Registering a callback with an Input or
 To get the proper value from the {prop_name}, change your callback to use the @mito_callback decorator instead of the @callback decorator.
 
 See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and-types
-# TODO: this linked docs could be way better - they should be specific instructions for how to resolve this
 
 {num_messages}
 {prop_name}
