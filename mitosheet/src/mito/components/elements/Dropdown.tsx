@@ -385,7 +385,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             newBoundingRect = {
                 top: parentBottom,
                 bottom: undefined,
-                right: parentRight,
+                right: window.innerWidth - parentRight,
                 left:  undefined
             }
         } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
