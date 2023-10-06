@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions
+from mitosheet.types import CodeOptions, MitoTheme
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
@@ -57,7 +57,8 @@ class MitoBackend():
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
-            code_options: Optional[CodeOptions]=None
+            code_options: Optional[CodeOptions]=None,
+            theme: Optional[MitoTheme]=None,
         ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
@@ -73,7 +74,6 @@ class MitoBackend():
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         if custom_sheet_functions_path is not None:
             all_user_defined_functions.extend(get_non_validated_custom_sheet_functions(custom_sheet_functions_path))
-
 
         custom_importers_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_IMPORTERS_PATH]
         all_custom_importers = user_defined_importers if user_defined_importers is not None else []
@@ -97,7 +97,8 @@ class MitoBackend():
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,
             user_defined_importers=all_custom_importers,
-            code_options=code_options
+            code_options=code_options,
+            theme=theme
         )
 
         # And the api
@@ -112,6 +113,8 @@ class MitoBackend():
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
         self.mito_send: Callable = lambda x: None # type: ignore
+
+        self.theme = theme
 
     @property
     def analysis_name(self):
