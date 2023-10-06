@@ -10,7 +10,7 @@ import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
-from mitosheet.types import CodeOptions, MitoTheme
+from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections
 
 
 
@@ -20,7 +20,7 @@ class SpreadsheetResult():
         self, 
         dfs: List[pd.DataFrame],
         code: List[str],
-        index_and_selections: Optional[Any]=None
+        index_and_selections: Optional[MitoFrontendIndexAndSelections]=None
     ):
         self.__dfs = dfs
         self.__code = code
@@ -98,7 +98,7 @@ try:
             self.unprocessed_messages: Any = Queue()
             self.processing_messages = False
 
-            self.index_and_selections: Optional[pd.DataFrame] = None
+            self.index_and_selections: Optional[MitoFrontendIndexAndSelections] = None
 
             # Make sure to save import-folder and code-options as attributes, so if we need
             # to recreate the backend, we can do so
