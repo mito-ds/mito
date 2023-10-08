@@ -35,16 +35,10 @@ class SetDataframeFormatStepPerformer(StepPerformer):
         
         # We make a new state to modify it
         post_state = prev_state.copy()
-
-        pandas_start_time = perf_counter()
-
         post_state.df_formats[sheet_index] = df_format
 
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-
         return post_state, {
-            'pandas_processing_time': pandas_processing_time,
+            'pandas_processing_time': 0,
         }
 
     @classmethod

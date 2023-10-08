@@ -68,7 +68,11 @@ class StepPerformer(ABC, object):
         adds to executing this event.
 
         By default, this function will return the result of just executing the transpiled
-        code. Note that this only works for functions that have no execution data they need.
+        code. 
+
+        In general, this function should use _no_ Pandas specific functionality, but rather 
+        should just be a) updating metadata or b) computing results from executed code
+        that is useful to the spreadsheet.
         """
         post_state, execution_data = cls.execute_through_transpile(prev_state, params)
         return post_state, execution_data

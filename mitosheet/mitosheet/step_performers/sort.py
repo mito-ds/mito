@@ -37,20 +37,19 @@ class SortStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        sheet_index: int = get_param(params, 'sheet_index')
-        column_id: ColumnID = get_param(params, 'column_id')
-        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
         try: 
             return cls.execute_through_transpile(
                 prev_state, 
                 params, 
             )
         except TypeError as e:
-            # A NameError occurs when you try to sort a column with incomparable 
+            # A TypeError occurs when you try to sort a column with incomparable 
             # dtypes (ie: a column with strings and floats)
-            print(e)
-            # Generate an error informing the user
+            
+            sheet_index: int = get_param(params, 'sheet_index')
+            column_id: ColumnID = get_param(params, 'column_id')
+            column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+
             raise make_invalid_sort_error(column_header)
 
 
