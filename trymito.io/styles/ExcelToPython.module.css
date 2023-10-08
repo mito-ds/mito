@@ -7,3 +7,23 @@
 .related_functions_card * {
     margin-right: 10px;
 }
+
+.table {
+    border-collapse: collapse;
+    color: white;
+    border-radius: 8px 8px 0 0; /* Round the top-left and top-right corners */
+    overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+}
+
+.table th,
+.table td {
+  padding: 20px;
+  text-align: left;
+  border: none; /* Remove the existing border */
+  border-bottom: 1.5px solid black; /* Add a black bottom border between rows */
+}
+
+.table thead {
+    background-color: black;
+    border-radius: 10px;
+}

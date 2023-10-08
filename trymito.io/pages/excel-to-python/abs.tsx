@@ -93,10 +93,13 @@ const PageContent = () => {
           <section>
               <h2>Understanding the Excel Function</h2>
               <p>
-                The SUM function in Excel is straightforward. It takes a range of numbers as input and returns their total. Here's how it works:
+                The ABS function in Excel takes a single parameters and returns its absolute value.
               </p>
-              <h3>SUM Syntax</h3>
-              <table>
+              <p>
+                =ABS(<span className='text-highlight'>number</span>)
+              </p>
+              <h3>ABS Excel Syntax</h3>
+              <table className={excelToPythonStyles.table}>
                 <thead>
                   <tr>
                     <th>Parameter</th>
@@ -106,15 +109,15 @@ const PageContent = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>number1, number2, ...</td>
-                    <td>The numbers you want to add together.</td>
+                    <td>number</td>
+                    <td>The number you want to take the absolute value of</td>
                     <td>number</td>
                   </tr>
                 </tbody>
               </table>
 
-              <h3>SUM Examples</h3>
-              <table>
+              <h3>ABS Examples</h3>
+              <table className={excelToPythonStyles.table}>
                 <thead>
                   <tr>
                     <th>Formula</th>
@@ -124,14 +127,14 @@ const PageContent = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>=SUM(1, 2, 3, 4)</td>
-                    <td>Adds up the numbers 1, 2, 3, and 4.</td>
-                    <td>10</td>
+                    <td>=ABS(-5)</td>
+                    <td>Calculate the absolute value of -5</td>
+                    <td>5</td>
                   </tr>
                   <tr>
-                    <td>=SUM(A1:A5)</td>
-                    <td>Calculates the sum of numbers in cells A1 to A5.</td>
-                    <td>Result varies based on cell values.</td>
+                    <td>=ABS(2*-2)</td>
+                    <td>Calculate the absolute value of 2 * -2</td>
+                    <td>4</td>
                   </tr>
                 </tbody>
               </table>
