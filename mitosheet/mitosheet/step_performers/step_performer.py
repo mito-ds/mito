@@ -95,7 +95,8 @@ class StepPerformer(ABC, object):
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
         renamed_column_headers: bool=False,
-        new_column_params: Optional[ExecuteThroughTranspileNewColumnParams]=None
+        new_column_params: Optional[ExecuteThroughTranspileNewColumnParams]=None,
+        use_deprecated_id_algorithm: Optional[bool]=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
         Some steps can be executed through the transpiled code -- and in these cases, we can call this function
@@ -170,7 +171,7 @@ class StepPerformer(ABC, object):
                 sheet_index = sheet_indexes.get(new_df_name, None)
 
                 new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
-                post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index)
+                post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
                 print("NEW DF", new_df)
 

@@ -123,7 +123,8 @@ class PivotStepPerformer(StepPerformer):
                     'sheet_indexes': {
                         new_df_name: destination_sheet_index
                     } if destination_sheet_index is not None else None
-                }
+                },
+                use_deprecated_id_algorithm=get_param(params, 'use_deprecated_id_algorithm')
             )
         except KeyError as e:
             column_header = e.args[0]
