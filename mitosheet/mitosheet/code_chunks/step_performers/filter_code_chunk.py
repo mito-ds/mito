@@ -22,7 +22,7 @@ from mitosheet.types import (
     FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
 from mitosheet.transpiler.transpile_utils import (
-    column_header_to_transpiled_code, list_to_string_without_internal_quotes)
+    get_column_header_as_transpiled_code, get_list_as_string_without_internal_quotes)
 from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
                              Filter, FilterGroup, OperatorType)
 
@@ -189,8 +189,8 @@ def get_single_filter_string(
     condition = filter_["condition"]
     value = filter_["value"]
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
-    value = column_header_to_transpiled_code(value)
+    transpiled_column_header = get_column_header_as_transpiled_code(column_header)
+    value = get_column_header_as_transpiled_code(value)
 
     return FILTER_FORMAT_STRING_DICT[condition].format(
         df_name=df_name, transpiled_column_header=transpiled_column_header, value=value
@@ -214,12 +214,12 @@ def get_multiple_filter_string(
     if is_datetime_dtype(column_dtype):
         values = [f'\'{filter["value"]}\'' for filter in filters]
         values = (
-            "pd.to_datetime(" + list_to_string_without_internal_quotes(values) + ")"
+            "pd.to_datetime(" + get_list_as_string_without_internal_quotes(values) + ")"
         )
     else:
         values = [filter["value"] for filter in filters]
 
-    transpiled_column_header = column_header_to_transpiled_code(column_header)
+    transpiled_column_header = get_column_header_as_transpiled_code(column_header)
 
     return FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT[condition][
         original_operator

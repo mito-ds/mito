@@ -16,6 +16,8 @@ from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.utils import get_new_id
 
+from mitosheet.errors import MitoError
+
 
 def test_edit_cell_formula_on_message_receive():
     mito = create_mito_wrapper_with_data([123])
@@ -530,6 +532,87 @@ def test_set_specific_index_labels_twice():
     mito.set_formula('=A1', 0, 'B', index_labels=[0])
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
+
+
+CROSS_SHEET_TESTS = [
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}),
+        '=VLOOKUP(A0, df2!B:C, 2)',
+        'D',
+        pd.DataFrame({'A': [1, 2, 3], 'D': [4, 5, 6]})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        pd.DataFrame({'A': [1, 2, 3], 'C': [4, 5, 6]}),
+        '=VLOOKUP(A0, df2!A:C, 2)',
+        'D',
+        pd.DataFrame({'A': [1, 2, 3], 'D': [4, 5, 6]})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        pd.DataFrame({'A': [1, 2, 3], 'C': [4, 5, 6]}),
+        '=VLOOKUP(A0, df2!A:C, 2)',
+        'D',
+        pd.DataFrame({'A': [1, 2, 3], 'D': [4, 5, 6]})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        pd.DataFrame({'key': [2, 3], 'value': ['b', 'c']}),
+        '=VLOOKUP(A0, df2!key:value, 2)',
+        'B',
+        pd.DataFrame({'A': [1, 2, 3], 'B': [None, 'b', 'c']})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3]}),
+        pd.DataFrame({'key': [1, 2, 3], 'value': ['a', 'b', 'c']}, index=[10, 11, 12]),
+        '=VLOOKUP(A0, df2!key:value, 2)',
+        'B',
+        pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c']})
+    ),
+    (
+        pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]}),
+        pd.DataFrame({'key': [1, 2, 3], 'value': [7, 8, 9]}),
+        '=SUM(B0, VLOOKUP(A0, df2!key:value, 2))',
+        'C',
+        pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [11, 13, 15]})
+    )
+]
+
+@pytest.mark.parametrize("input_df_1, input_df_2, formula, column_header, output_df", CROSS_SHEET_TESTS)
+def test_cross_sheet_formula(input_df_1, input_df_2, formula, column_header, output_df):
+    mito = create_mito_wrapper(input_df_1, input_df_2)
+    mito.add_column(0, column_header)
+    mito.set_formula(formula, 0, column_header)
+    assert mito.dfs[0].equals(output_df)
+
+INVALID_CROSS_SHEET_TESTS = [
+    ( "=VLOOKUP(df2!B0, df2!B:C, 2)" ),
+    ( "=VLOOKUP(A0, df2!B0:C0, 2)" ),
+    ( "=VLOOKUP(df2!A0, df2!B:C, 2)" ),
+]
+
+@pytest.mark.parametrize("formula", INVALID_CROSS_SHEET_TESTS)
+def test_invalid_cross_sheet_formula(formula):
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}), pd.DataFrame({'B': [1, 2, 3], 'C': [4, 5, 6]}))
+    mito.add_column(0, 'D')
+    with pytest.raises(MitoError) as e_info:
+        mito.mito_backend.steps_manager.handle_edit_event({
+            'event': 'edit_event',
+            'id': get_new_id(),
+            'type': 'set_column_formula_edit',
+            'step_id': get_new_id(),
+            'params': {
+                'sheet_index': 0,
+                'column_id': get_column_header_id('D'),
+                'formula_label': 0,
+                'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE},
+                'old_formula': '=0',
+                'new_formula': formula
+            }
+        })
+
+    assert e_info.value.type_ == 'invalid_formula_error'
 
 def test_set_specific_index_labels_then_entire_column():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))

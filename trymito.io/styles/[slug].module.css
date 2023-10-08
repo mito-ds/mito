@@ -1,0 +1,91 @@
+
+.post {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+}
+
+.post_title {
+    max-width: min(800px, 90vw);
+}
+
+.post_title h1 {
+    font-size: 3rem;
+}
+
+.post_content {
+    max-width: min(720px, 90vw);
+}
+
+/* Make lists start at the right place*/
+.post_content ol {
+    margin-top: 2rem;
+    padding-left: 1.5rem;
+}
+.post_content ul {
+    margin-top: 2rem;
+    padding-left: 1.5rem;
+}
+
+.post_content ol > li {
+    margin-top: 0.5rem;
+}
+.post_content ul > li {
+    margin-top: 0.5rem;
+}
+
+.post_metadata {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: .5rem;
+}
+
+.post_content pre {
+    padding: 1rem;
+    border-radius: 0.3rem;
+    background-color:var(--color-light-background);
+}
+
+.post_content h1 {
+    margin-top: 3rem;
+}
+.post_content h2 {
+    margin-top: 2rem;
+}
+.post_content h3 {
+    margin-top: 2rem;
+}
+.post_content figcaption {
+    color: var(--color-text-secondary);
+    font-size: .7rem;
+    text-align: center;
+}
+
+.post_content blockquote {
+    font-size: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.post_content a {
+    color: var(--color-purple);
+}
+
+.post_content a:hover {
+    /* Underline */
+    text-decoration: underline;
+}
+
+.post_content img {
+    max-width: 100%;
+    height: auto;
+}
+.post_content video {
+    max-width: 100%;
+    height: auto;
+}
+
+@media only screen and (min-width: 50em) {
+    .post_content blockquote {
+        font-size: 1.5rem;
+    }
+    
+}

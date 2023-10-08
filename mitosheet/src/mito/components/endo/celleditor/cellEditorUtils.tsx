@@ -9,26 +9,33 @@ import { getCellDataFromCellIndexes } from "../utils";
 import { CELL_EDITOR_DEFAULT_WIDTH, CELL_EDITOR_MAX_WIDTH } from "./CellEditor";
 
 
-export const getSelectionFormulaString = (selections: MitoSelection[], sheetData: SheetData): string => {
+export const getSelectionFormulaString = (selections: MitoSelection[], selectedSheetData: SheetData, editorSheetIndex: number): string => {
     // For each of the selections, we turn them into a string that goes into the formula
     const selectionStrings: string[] = []
 
     selections.forEach(selection => {
-
-        const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, sheetData);
+        // For cross-sheet formulas, the sheetData represents the sheet that is currently open,
+        // while the editorState.sheetIndex represents the sheet that the formula is being written in.
+        // If you're writing to a different sheet from the sheet that is currently open,
+        // we need to add the sheet name to the formula
+        let dfName = '';
+        if (editorSheetIndex !== selection.sheetIndex) {
+            dfName = `${selectedSheetData.dfName}!`;
+        }
+        const [[upperLeftColumnHeader, upperLeftIndexLabel], [bottomRightColumnHeader, bottomRightIndexLabel]] = getUpperLeftAndBottomRight(selection, selectedSheetData);
 
         if (upperLeftColumnHeader === undefined && upperLeftIndexLabel === undefined && bottomRightColumnHeader === undefined && bottomRightIndexLabel === undefined) {
             // If none are defined, skip this selection
             return;
         } else if (upperLeftIndexLabel === undefined && bottomRightIndexLabel === undefined && (upperLeftColumnHeader !== undefined && bottomRightColumnHeader !== undefined)) {
             // Handle selections that are just column headers
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + ":" + getDisplayColumnHeader(bottomRightColumnHeader));
         } else if (upperLeftColumnHeader == bottomRightColumnHeader && upperLeftIndexLabel == bottomRightIndexLabel && (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined)) {
             // Then, we handle the case where there is just a single cell selected
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel));
         } else if (upperLeftColumnHeader !== undefined && upperLeftIndexLabel !== undefined && bottomRightColumnHeader !== undefined && bottomRightIndexLabel !== undefined) {
             // Then, handle the case where they are all defined
-            selectionStrings.push(getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
+            selectionStrings.push(dfName + getDisplayColumnHeader(upperLeftColumnHeader) + getDisplayColumnHeader(upperLeftIndexLabel) + ":" + getDisplayColumnHeader(bottomRightColumnHeader) + getDisplayColumnHeader(bottomRightIndexLabel));
         }
     })
 
@@ -41,20 +48,16 @@ export const getSelectionFormulaString = (selections: MitoSelection[], sheetData
     accepted these pending selected columns.
 */
 export const getFullFormula = (
-    formula: string, 
-    pendingSelections: {
-        selections: MitoSelection[],
-        inputSelectionStart: number,
-        inputSelectionEnd: number,
-    } | undefined,
-    sheetData: SheetData,
+    editorState: EditorState,
+    sheetDataArray: SheetData[],
+    selectedSheetIndex: number
 ): string => {
-
+    const { formula, pendingSelections, sheetIndex } = editorState; 
     if (pendingSelections === undefined || pendingSelections.selections.length === 0) {
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetData);
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetDataArray[selectedSheetIndex], sheetIndex);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
@@ -283,11 +286,9 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
         })];
     }
 
-    const allFunctionNamesAndDescription = functionDocumentationObjects.map(f => {
+    const allFunctionNamesAndDescription = functionDocumentationObjects.concat(analysisData.userDefinedFunctions).map(f => {
         return {function: f.function, description: f.description, search_terms: f.search_terms}}
-    ).concat(
-        analysisData.userDefinedFunctions.map(f => {return {function: f, description: 'User-defined function', search_terms: [f]}})
-    );
+    )
 
 
     // Then, we lookup based on the name of the function
@@ -330,10 +331,8 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
 /**
  * Returns the documentation for the function that the user is currently writing, specifically
  * returning documentation for the last function in the formula that the user has typed.
- * 
- * @param formula - the formula the user is currently writing
  */
-export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null): FunctionDocumentationObject | undefined => {
+export const getDocumentationFunction = (formula: string, selectionStart: number | undefined | null, analysisData: AnalysisData): FunctionDocumentationObject | undefined => {
     
     // Find the final function that is before the users selection
     const finalParenIndex = formula.substring(0, selectionStart || undefined).lastIndexOf('(')
@@ -345,7 +344,7 @@ export const getDocumentationFunction = (formula: string, selectionStart: number
     let finalFunction = '';
     for (let i = finalParenIndex - 1; i >= 0; i--) {
         const char = formula[i].toLowerCase();
-        if (char.match(/^[a-z]+$/i)) {
+        if (char.match(/^[a-z]+$/i) || char === '_') {
             finalFunction += char;
         } else {
             break;
@@ -356,7 +355,9 @@ export const getDocumentationFunction = (formula: string, selectionStart: number
     finalFunction = finalFunction.split("").reverse().join("").toLowerCase();
 
     // Return the matching function, if it exists
-    const matchingFunctions = functionDocumentationObjects.filter(functionDocumentationObject => functionDocumentationObject.function.toLowerCase() === finalFunction);
+    const allFunctionDocumentationObjects = functionDocumentationObjects.concat(analysisData.userDefinedFunctions);
+    const matchingFunctions = allFunctionDocumentationObjects.filter(functionDocumentationObject => functionDocumentationObject.function.toLowerCase() === finalFunction);
+    
     if (matchingFunctions.length !== 1) {
         return undefined;
     } else {
@@ -390,6 +391,8 @@ export const getFormulaStringFromFrontendFormula = (formula: FrontendFormulaAndL
             formulaString += formulaPart.string
         } else if (formulaPart.type === '{HEADER}') {
             formulaString += formulaPart.display_column_header
+        } else if (formulaPart.type == '{SHEET}') {
+            formulaString += formulaPart.display_sheet_name
         } else {
             const newIndexLabel = getNewIndexLabelAtRowOffsetFromOtherIndexLabel(formula.index, indexLabel, formulaPart.row_offset);
             if (newIndexLabel !== undefined) {

@@ -281,7 +281,7 @@ const CODE_GENERATION_FEATURES: Feature[] = [
   {
     feature: 'Optimized Generated Code',
     planSupport: {
-      'Open Source': false,
+      'Open Source': true,
       'Pro': true,
       'Enterprise': true 
     }
@@ -777,8 +777,7 @@ const Plans: NextPage = () => {
 
             <section className={pageStyles.background_card}>
               <ContactCTACard />
-            </section>              
-            
+            </section>
         </main>
 
         <Footer />

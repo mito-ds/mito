@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code, column_header_map_to_string, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code, get_column_header_map_as_code_string, get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 
 
@@ -39,10 +39,10 @@ class FillNaCodeChunk(CodeChunk):
         if fill_method_type == 'value':
             if self.full_dataframe:
                 
-                return [f"{self.df_name}.fillna({column_header_to_transpiled_code(self.fill_method['value'])}, inplace=True)"], []
+                return [f"{self.df_name}.fillna({get_column_header_as_transpiled_code(self.fill_method['value'])}, inplace=True)"], []
             else:
                 values = {column_header: self.fill_method['value'] for column_header in self.column_headers}
-                values_string = column_header_map_to_string(values) # this function is misnamed, but works for us
+                values_string = get_column_header_map_as_code_string(values) # this function is misnamed, but works for us
                 return [f"{self.df_name}.fillna({values_string}, inplace=True)"], []
         else:
             if fill_method_type == 'ffill':
@@ -63,7 +63,7 @@ class FillNaCodeChunk(CodeChunk):
             if self.full_dataframe:
                 return [f"{self.df_name}.fillna({param_string}, inplace=True)"], []
             else:
-                column_headers_list_str = column_header_list_to_transpiled_code(self.column_headers)
+                column_headers_list_str = get_column_header_list_as_transpiled_code(self.column_headers)
                 return [
                     f"columns_to_fill_nan = {column_headers_list_str}",
                     f"{self.df_name}[columns_to_fill_nan] = {self.df_name}[columns_to_fill_nan].fillna({param_string})"

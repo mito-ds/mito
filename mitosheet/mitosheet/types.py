@@ -125,9 +125,6 @@ FC_DATETIME_GREATER_THAN_OR_EQUAL = "datetime_greater_than_or_equal"
 FC_DATETIME_LESS = "datetime_less"
 FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
 
-ParamName = str
-ParamValue = str
-
 import sys
 if sys.version_info[:3] > (3, 8, 0):
     from typing import TypedDict, Literal
@@ -264,14 +261,14 @@ if sys.version_info[:3] > (3, 8, 0):
         MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: Optional[str]
 
     class RawParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{INDEX}']
+        type: Literal['{HEADER}', '{INDEX}', '{SHEET}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
         row_offset: RowOffset
 
     class ParserMatch(TypedDict):
-        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}']
+        type: Literal['{HEADER}', '{HEADER}{INDEX}', '{HEADER}:{HEADER}', '{HEADER}{INDEX}:{HEADER}{INDEX}', '{SHEET}!{HEADER}:{HEADER}']
         substring_range: ParserMatchSubstringRange
         unparsed: str
         parsed: Any
@@ -289,6 +286,10 @@ if sys.version_info[:3] > (3, 8, 0):
     class FrontendFormulaHeaderReference(TypedDict):
         type: Literal['{HEADER}']
         display_column_header: str
+
+    class FrontendFormulaSheetReference(TypedDict):
+        type: Literal['{SHEET}']
+        display_sheet_name: str
 
     class FormulaLocationEntireColumn(TypedDict):
         type: Literal['entire_column']
@@ -326,11 +327,32 @@ if sys.version_info[:3] > (3, 8, 0):
         modified_dataframes_recons: Dict[str, ModifiedDataframeReconData]
         prints: str
 
+    ParamName = str
+    # NOTE: these cannot be changed, as they are part of the public interface, They are exposed through code-options
+    # function param specification - where you can pass the param subtype, to automatically generate params for all 
+    # of that subtype
+    ParamType = Literal[
+        'file_name'
+    ]
+    ParamSubtype = Literal[
+        'import_dataframe',
+        'file_name_export_excel',
+        'file_name_export_csv',
+        'file_name_import_excel',
+        'file_name_import_csv',
+    ]
+    ParamValue = str
+
+    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+
     class CodeOptions(TypedDict):
         as_function: bool
         call_function: bool
         function_name: str
-        function_params: Dict[ParamName, ParamValue]
+        function_params: CodeOptionsFunctionParams # type: ignore
+
+        # The params below become optional. Typing them is hard, so use care when accessing them
+        import_custom_python_code: bool
 
     UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
 
@@ -338,6 +360,10 @@ if sys.version_info[:3] > (3, 8, 0):
         new_df_names: List[str]
         df_source: str
         sheet_indexes: Optional[Dict[str, int]]
+
+    class ExecuteThroughTranspileNewColumnParams(TypedDict):
+        new_column_headers_to_column_id: Dict[ColumnHeader, ColumnID]
+        sheet_index: int
 
 else:
     Filter = Any #type: ignore
@@ -362,6 +388,7 @@ else:
     FrontendFormulaString = Any # type:ignore
     FrontendFormulaHeaderIndexReference = Any # type:ignore
     FrontendFormulaHeaderReference = Any # type:ignore
+    FrontendFormulaSheetReference = Any # type:ignore
     FormulaLocationEntireColumn = Any # type:ignore
     FormulaLocationToSpecificIndexLabels = Any # type:ignore
     Selection = Any # type:ignore
@@ -372,9 +399,17 @@ else:
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
     ExecuteThroughTranspileNewDataframeParams = Any # type: ignore
+    ExecuteThroughTranspileNewColumnParams = Any # type: ignore
+
+    ParamName = str # type: ignore
+    ParamType = str # type: ignore
+    ParamSubtype = str # type: ignore
+    ParamValue = str # type: ignore
+
+    CodeOptionsFunctionParams = Any # type: ignore
 
 
-FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference]
+FrontendFormulaPart = Union[FrontendFormulaString, FrontendFormulaHeaderIndexReference, FrontendFormulaHeaderReference, FrontendFormulaSheetReference]
 FrontendFormula = List[FrontendFormulaPart]
 
 FormulaAppliedToType = Union[FormulaLocationEntireColumn, FormulaLocationToSpecificIndexLabels]

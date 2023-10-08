@@ -7,6 +7,8 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+from mitosheet.types import ParamSubtype, ParamType, ParamValue
+
 if TYPE_CHECKING:
     from mitosheet.state import State
 else:
@@ -121,12 +123,12 @@ class CodeChunk:
         """
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         """
         Returns a list of parameters that can be parameterized. This is used
         for the parameterization UI.
 
-        The tuple is (param_name, param_type).
+        The tuple is (param_name, param_type, param_subtype).
         """
         return []
     

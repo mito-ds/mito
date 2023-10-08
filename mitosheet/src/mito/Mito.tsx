@@ -63,7 +63,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { createActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -71,17 +71,18 @@ import loadPlotly from './utils/plotly';
 import { MitoAPI, PublicInterfaceVersion, isInJupyterLab, isInJupyterNotebook } from '.';
 import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
+import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
-import Toolbar from './components/toolbar/Toolbar';
+import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
-import { isInStreamlit } from './utils/location';
-import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
+import { isInDashboard } from './utils/location';
+import { shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -101,6 +102,7 @@ export type MitoProps = {
         secondaryBackgroundColor?: string
         textColor?: string
     }
+    onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -116,9 +118,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
-            ? (!isInStreamlit() 
+            ? ((!isInDashboard())
                 ? {type: ModalEnum.SignUp} 
-                : {type: ModalEnum.StreamlitSignUp}   
+                : {type: ModalEnum.DashboardSignup}   
             ) : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
@@ -130,6 +132,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         exportConfiguration: {exportType: 'csv'},
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
+        },
+        currOpenSearch: {
+            isOpen: false,
+            currentMatchIndex: -1,
+            matches: []
         },
         dataRecon: undefined,
         taskpaneWidth: getDefaultTaskpaneWidth()
@@ -407,12 +414,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (source !== undefined && source === DFSource.Pivoted && uiState.currOpenTaskpane.type === TaskpaneType.NONE) {
             void openEditedPivot()
         }
-
-        // Close the cell editor if it is open
-        if (editorState !== undefined) {
-            setEditorState(undefined)
-        }
-
     }, [uiState.selectedSheetIndex])
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
@@ -444,6 +445,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
         })
 
     }, [props.theme])
+
+
+    // If the user passes an onSelectionChange, then, we fire off events any time the user selects
+    // a new region
+    const previousSelections = useRef(gridState.selections);
+    useEffect(() => {
+        if (props.onSelectionChange) {
+            if (!shallowEqualToDepth(previousSelections.current, gridState.selections, 2)) {
+                props.onSelectionChange(
+                    gridState.sheetIndex,
+                    gridState.selections
+                )
+                previousSelections.current = gridState.selections;
+            }
+        }
+
+    }, [props.onSelectionChange, gridState.selections, gridState.sheetIndex])
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
@@ -517,7 +535,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case ModalEnum.StreamlitSignUp: return (
+            case ModalEnum.DashboardSignup: return (
                 <StreamlitSignupModal
                     setUIState={setUIState}
                     numUsages={userProfile.numUsages}
@@ -923,8 +941,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
             return <></>;
         }
 
-        // If the user is in streamlit, don't display the tour
-        if (isInStreamlit()) {
+        // If the user is in streamlit or dash, don't display the tour
+        if (isInDashboard()) {
             return <></>;
         }
 
@@ -981,6 +999,27 @@ export const Mito = (props: MitoProps): JSX.Element => {
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
+            onKeyDown={(e) => {
+                // If the user presses escape anywhere in the mitosheet, we close the editor
+                if (e.key === 'Escape') {
+                    if (editorState !== undefined) {
+                        setEditorState(undefined)
+                    } else if (uiState.currOpenSearch.isOpen) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenSearch: {
+                                    isOpen: false,
+                                    currentMatchIndex: -1,
+                                    matches: []
+                                }
+                            }
+                        })
+                        const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
+                        focusGrid(endoGridContainer);
+                    }
+                }
+            }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 

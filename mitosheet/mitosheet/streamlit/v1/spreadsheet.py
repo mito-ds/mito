@@ -1,13 +1,18 @@
 from collections import OrderedDict
+from distutils.version import LooseVersion
 import hashlib
+import importlib
+import inspect
 import json
 import os
 import pickle
+import re
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
+from mitosheet.selectionUtils import get_selected_element
 from mitosheet.types import CodeOptions
 from mitosheet.utils import get_new_id
 
@@ -41,6 +46,68 @@ def get_dataframe_hash(df: pd.DataFrame) -> bytes:
         df = df.sample(n=_PANDAS_SAMPLE_SIZE, random_state=0)
     
     return _get_dataframe_hash(df)
+
+def do_dynamic_imports(code: str) -> None:
+    """
+    When you get back Mito code, and you want to execute it, it requires imports defined in the global scope
+    of the executing process. 
+
+    To do this, we dynamically read in the import lines, and execute them using the importlib, and then add 
+    them to the global scope.
+    """
+
+    # Extract import lines from the code_str
+    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from", "import"))]
+
+    # Dynamically import modules and attributes in the global scope
+    for import_line in import_lines:
+        if import_line.startswith("from"):
+            match = re.match(r"from (.+) import (.+)", import_line)
+            module_name = match.group(1) #type: ignore
+            imported_objects = match.group(2).split(",")  #type: ignore
+            
+            module = importlib.import_module(module_name)
+            for obj in imported_objects:
+                obj = obj.strip()
+                if obj == "*":
+                    for attr_name in dir(module):
+                        if not attr_name.startswith("_"):
+                            globals()[attr_name] = getattr(module, attr_name)
+                else:
+                    globals()[obj] = getattr(module, obj)
+        else:
+            split = import_line.split(' ')
+            module_name = split[1]
+            alias = split[3]
+            
+            module = importlib.import_module(module_name)
+            globals()[alias if alias else module_name] = module
+
+
+
+def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
+    """
+    Given a string of code, returns the first function defined in the code. Notably, to do
+    this, it executes the code, and then returns the first function defined in the code. 
+
+    As it executes the full code string, you should only use this function if you trust the
+    code string -- and in our case, if the function is not called.
+
+    If no functions are defined, returns None
+    """
+    functions_before = [f for f in locals().values() if callable(f)]
+    exec(code)
+    functions = [f for f in locals().values() if callable(f) and f not in functions_before]
+
+    # We then find the one function that was defined inside of this module -- as the above 
+    # exec likely defines all the other mitosheet functions (none of which we actaully want)
+    for f in functions:
+        if inspect.getmodule(f) == inspect.getmodule(get_function_from_code_unsafe):
+            do_dynamic_imports(code)
+            return f
+        
+    raise ValueError(f'No functions defined in code: {code}')
+
 
 try:
     import streamlit.components.v1 as components
@@ -136,8 +203,9 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
+            return_type: str='default',
             key=None
-        ) -> Tuple[OrderedDict[str, pd.DataFrame], str]:
+        ) -> Any:
         """
         Create a new instance of the Mito spreadsheet in a streamlit app.
 
@@ -168,15 +236,6 @@ try:
             final dataframes. The second element is a list of lines of code
             that were executed in the Mito spreadsheet.
         """
-        # Get the absolute path to the import_folder, in case it is relative. Also
-        # check that this folder exists, and throw an error if it does not.
-        if import_folder is not None:
-            import_folder = os.path.expanduser(import_folder)
-            import_folder = os.path.abspath(import_folder)
-
-            if not os.path.exists(import_folder):
-                raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
-
         session_id = get_session_id()
 
         mito_backend, responses = _get_mito_backend(
@@ -218,21 +277,43 @@ try:
             
         responses_json = json.dumps(responses)
 
-        _mito_component_func(
+        # NOTE: selection is Optional -- as if the user has not set the return type as selected, we don't
+        # waste a component value update setting the value
+        selection = _mito_component_func(
             key=key, 
             sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
-            responses_json=responses_json, id=id(mito_backend)
+            responses_json=responses_json, id=id(mito_backend),
+            return_type=return_type
         )
 
         # We return a mapping from dataframe names to dataframes
         final_state = mito_backend.steps_manager.curr_step.final_defined_state
-        code = mito_backend.steps_manager.code()
+        code = "\n".join(mito_backend.steps_manager.code())
 
         ordered_dict = OrderedDict()
         for df_name, df in zip(final_state.df_names, final_state.dfs):
             ordered_dict[df_name] = df
 
-        return ordered_dict, "\n".join(code)
+        if return_type == 'default':
+            return ordered_dict, code
+        elif return_type == 'selection':
+            return get_selected_element(final_state.dfs, selection)
+        elif return_type == 'default_list':
+            return final_state.dfs, code
+        elif return_type == 'dfs_dict':
+            return ordered_dict
+        elif return_type == 'code':
+            return code
+        elif return_type == 'dfs_list':
+            return final_state.dfs
+        elif return_type == 'function':
+            if code_options is None or not code_options['as_function'] or code_options['call_function']:
+                raise ValueError(f"""You must set code_options with `as_function=True` and `call_function=False` in order to return a function.""")
+            
+            return get_function_from_code_unsafe(code)
+        else:
+            raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
+
     
 except ImportError:
     def spreadsheet(*args, key=None): # type: ignore

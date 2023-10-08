@@ -52,6 +52,13 @@
   font-weight: 500;
   font-display: swap;
 }
+@font-face {
+  font-family: "Gerlik";
+  src: url("/fonts/Gerlick/Gerlick400.otf");
+  font-style: semibold;
+  font-weight: 400;
+  font-display: swap;
+}
 
 
 html,
@@ -158,6 +165,11 @@ a {
   color: inherit;
   text-decoration: none;
   display: inline-block
+}
+
+.quote {
+  font-style: italic;
+  color: var(--color-text-secondary);
 }
 
 .display-desktop-only-inline-block,
@@ -312,4 +324,14 @@ a {
 
 .code-background:hover {
   background-color: var(--color-light-purple);
+}
+
+/* We don't want a video player to appear below the gifs on our blog, and so we globally hide them */
+.kg-video-player {
+  display: none;
+}
+
+.kg-embed-card > iframe {
+  width: 100%;
+  height: 250px;
 }

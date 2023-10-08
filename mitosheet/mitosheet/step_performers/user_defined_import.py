@@ -17,7 +17,8 @@ from mitosheet.code_chunks.user_defined_import_code_chunk import \
 from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
+from mitosheet.utils import get_first_unused_dataframe_name
 import inspect
 
 from mitosheet.types import UserDefinedImporterParamType
@@ -119,31 +120,27 @@ class UserDefinedImportStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         importer: str = get_param(params, 'importer')
         importer_params: Dict[str, str] = get_param(params, 'importer_params')
+        
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, 'df' + str(len(prev_state.df_names)))
+
+        importer_function = next(f for f in prev_state.user_defined_importers if f.__name__ == importer)
 
         execution_data = {
-            'user_defined_importer_params': user_defined_importer_params,
-            'new_df_names': new_df_names,
+            'user_defined_importer_params': get_user_defined_importer_params_from_frontend_params(importer_function, importer_params),
+            'new_df_names': [new_df_name],
         }
-
-        # We make a new state to modify it
-        post_state = prev_state.copy()
-
-        pandas_start_time = perf_counter()
         
         try:
-            importer_function = next(f for f in post_state.user_defined_importers if f.__name__ == importer)
-        except:
-            raise MitoError(
-                'user_defined_importer_not_found',
-                f"Importer {importer} not found.",
-                f"User defined importer {importer} not found. Please check that it is defined in the `importers` list passed to mitosheet.sheet.",
-                error_modal=True
+            return cls.execute_through_transpile(
+                prev_state,
+                params,
+                execution_data,
+                {
+                    'df_source': DATAFRAME_SOURCE_IMPORTED,
+                    'new_df_names': [new_df_name],
+                    'sheet_indexes': None
+                }
             )
-        
-        user_defined_importer_params = get_user_defined_importer_params_from_frontend_params(importer_function, importer_params)
-    
-        try:
-            result = importer_function(**user_defined_importer_params)
         except:
             traceback_final_line = traceback.format_exc().splitlines()[-1]
 
@@ -153,33 +150,6 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 f"User defined importer {importer} raised an error: {traceback_final_line}",
                 error_modal=False
             )
-
-        if isinstance(result, pd.DataFrame):
-            new_dfs = [result]
-        elif isinstance(result, list):
-            new_dfs = result
-        else:
-            raise Exception(f"User defined importer {importer} must return a pandas dataframe or a list of pandas dataframes.")
-
-        new_df_names = []
-        for df in new_dfs:
-            index = post_state.add_df_to_state(
-                df,
-                DATAFRAME_SOURCE_IMPORTED,
-            )
-            new_df_names.append(post_state.df_names[index])
-
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
-            'user_defined_importer_params': user_defined_importer_params,
-            'new_df_names': new_df_names,
-            'result': {
-                'num_new_dfs': len(new_dfs),
-            }
-        }
 
     @classmethod
     def transpile(

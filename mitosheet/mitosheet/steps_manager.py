@@ -16,6 +16,7 @@ from mitosheet.api.get_path_contents import get_path_parts
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
+from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer, get_user_defined_importers_for_frontend
@@ -36,8 +37,8 @@ from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
-from mitosheet.utils import (NpEncoder, check_valid_sheet_functions, dfs_to_array_for_json, get_new_id,
-                             is_default_df_names)
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.step_performers.utils.user_defined_functionality import validate_and_wrap_sheet_functions
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
@@ -228,15 +229,12 @@ class StepsManager:
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data       
 
-
         # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
-        # before passing them to the step to be used
-        check_valid_sheet_functions(user_defined_functions)
-        from mitosheet.public.v3.errors import handle_sheet_function_errors
-        user_defined_functions = [handle_sheet_function_errors(user_defined_function) for user_defined_function in (user_defined_functions if user_defined_functions is not None else [])]
+        self.user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 
 
         # We also do some checks for the user_defined_importers
-        if not is_running_test() and not is_enterprise() and user_defined_importers is not None and len(user_defined_importers) > 0:
+        self.user_defined_importers = user_defined_importers
+        if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
         
 
@@ -251,8 +249,8 @@ class StepsManager:
                     args, 
                     self.public_interface_version,
                     df_names=df_names,
-                    user_defined_functions=user_defined_functions, 
-                    user_defined_importers=user_defined_importers
+                    user_defined_functions=self.user_defined_functions, 
+                    user_defined_importers=self.user_defined_importers
                 ), 
                 {}
             )
@@ -394,7 +392,7 @@ class StepsManager:
                 'lastResult': self.curr_step.execution_data['result'] if 'result' in self.curr_step.execution_data else None,
                 'experiment': self.experiment,
                 'codeOptions': self.code_options,
-                'userDefinedFunctions': [f.__name__ for f in (self.curr_step.post_state.user_defined_functions if self.curr_step.post_state else [])],
+                'userDefinedFunctions': get_user_defined_sheet_function_objects(self.curr_step.post_state),
                 'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
                 "importFolderData": {
                     'path': self.import_folder,
@@ -453,7 +451,7 @@ class StepsManager:
         return step_summary_list
     
     def code(self) -> List[str]:
-        return transpile(self, optimize=(is_pro() or is_running_test()))
+        return transpile(self, optimize=True)
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """

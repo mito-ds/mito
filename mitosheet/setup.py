@@ -118,7 +118,7 @@ setup_args = dict(
         'openpyxl',
         # xlsxwriter is needed for adding formatting to exported Excel sheets. 
         # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
-        'xlsxwriter>=0.6.9,<=3.0.2',
+        'xlsxwriter>=0.6.9,<=3.1.3',
     ],
     extras_require = {
         'test': [
@@ -136,12 +136,14 @@ setup_args = dict(
             "setuptools==56.0.0"
         ],
         'streamlit': [
-            'streamlit>=1.0',
+            'streamlit>=1.24',
         ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
             # snowflake-connect-python requires at least Python 3.7
             'snowflake-connector-python[pandas]; python_version>="3.7"',
+            'streamlit>=1.24',
+            'dash'
         ]
     },
     zip_safe                = False,

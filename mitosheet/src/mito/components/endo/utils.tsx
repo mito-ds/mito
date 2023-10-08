@@ -46,7 +46,8 @@ export const getDefaultGridState = (sheetDataArray: SheetData[], selectedSheetIn
             startingColumnIndex: 0,
             endingColumnIndex: 0,
             startingRowIndex: -1,
-            endingRowIndex: -1
+            endingRowIndex: -1,
+            sheetIndex: selectedSheetIndex,
         }],
         copiedSelections: [],
         // When sheetDataArray is empty, we create a default widthDataArray so that we avoid 

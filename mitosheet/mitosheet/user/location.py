@@ -130,3 +130,33 @@ def is_streamlit() -> bool:
         return get_script_run_ctx() is not None
     except ModuleNotFoundError:
         return False
+    
+_IS_DASH = False
+    
+def is_dash() -> bool:
+    global _IS_DASH
+    # If we are ever in dash, we always are, so we can avoid work. Notably, because the dash app starts after the Mito Backend is created
+    # we do have to check multiple times. 
+    if _IS_DASH:
+        return True
+    
+    try:
+        
+        import dash
+        from flask import current_app
+
+        # If any of these routes are defined, then we are in a dash app
+        dash_routes = [
+            '/_dash-dependencies',
+            '/_dash-component-suites',
+            '/_dash-layout'
+        ]
+
+        for rule in current_app.url_map.iter_rules():
+            for dash_route in dash_routes:
+                if dash_route in str(rule):
+                    return True
+
+    except:
+        pass
+    return False

@@ -10,7 +10,8 @@ import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code
+from mitosheet.types import ParamSubtype, ParamType, ParamValue
 from mitosheet.utils import is_prev_version
 
 # Note: These defaults must be the same as the pandas.read_csv defaults
@@ -57,9 +58,9 @@ def generate_read_csv_code(
     """
 
     params = get_read_csv_params(delimeter, encoding, decimal=decimal, skiprows=skiprows, error_bad_lines=error_bad_lines)
-    params_string = ', '.join(f'{key}={column_header_to_transpiled_code(value)}' for key, value in params.items())
+    params_string = ', '.join(f'{key}={get_column_header_as_transpiled_code(value)}' for key, value in params.items())
 
-    transpiled_file_path = 'r' + column_header_to_transpiled_code(file_name) if not file_name_is_variable else file_name
+    transpiled_file_path = 'r' + get_column_header_as_transpiled_code(file_name) if not file_name_is_variable else file_name
 
     return f'{df_name} = pd.read_csv({transpiled_file_path}{", " if len(params_string) > 0 else ""}{params_string})'
 
@@ -135,11 +136,11 @@ class SimpleImportCodeChunk(CodeChunk):
 
         return None
     
-    def get_parameterizable_params(self) -> List[Tuple[str, str, str]]:
+    def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         return list(
             zip(
-                map(lambda x: f"r{column_header_to_transpiled_code(x)}", self.file_names), 
+                map(lambda x: f"r{get_column_header_as_transpiled_code(x)}", self.file_names), 
                 ['file_name'] * len(self.file_names),
-                ['CSV import file path'] * len(self.file_names),
+                ['file_name_import_csv'] * len(self.file_names),
             )
         )

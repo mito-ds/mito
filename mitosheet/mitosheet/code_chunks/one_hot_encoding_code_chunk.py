@@ -7,7 +7,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 
 class OneHotEncodingCodeChunk(CodeChunk):
@@ -29,7 +29,7 @@ class OneHotEncodingCodeChunk(CodeChunk):
         df_name = self.prev_state.df_names[self.sheet_index]
         column_index = self.prev_state.dfs[self.sheet_index].columns.tolist().index(self.column_header)
 
-        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
 
         encode_line = f'tmp_df = pd.get_dummies({df_name}[{transpiled_column_header}])'
         add_line = f'{df_name}[tmp_df.columns] = tmp_df'

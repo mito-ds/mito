@@ -14,7 +14,7 @@ from mitosheet.code_chunks.ai_transformation_code_chunk import AITransformationC
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.ai.recon import exec_and_get_new_state_and_result
 
 class AITransformationStepPerformer(StepPerformer):

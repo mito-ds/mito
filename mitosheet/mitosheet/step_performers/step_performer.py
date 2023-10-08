@@ -12,7 +12,7 @@ from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.transpiler.transpile_utils import get_globals_for_exec
-from mitosheet.types import ExecuteThroughTranspileNewDataframeParams
+from mitosheet.types import ExecuteThroughTranspileNewDataframeParams, ExecuteThroughTranspileNewColumnParams
  
 class StepPerformer(ABC, object):
     """
@@ -95,6 +95,7 @@ class StepPerformer(ABC, object):
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
         renamed_column_headers: bool=False,
+        new_column_params: Optional[ExecuteThroughTranspileNewColumnParams]=None
     ) -> Tuple[State, Dict[str, Any]]:
         """
         Some steps can be executed through the transpiled code -- and in these cases, we can call this function
@@ -123,7 +124,6 @@ class StepPerformer(ABC, object):
         # NOTE; this is all wrong, but it's just b/c it's hard to get things out of exec. We do our best
         exec_globals = get_globals_for_exec(post_state, post_state.public_interface_version)
         exec_locals = {**exec_globals}
-
         
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
@@ -155,6 +155,10 @@ class StepPerformer(ABC, object):
                     if count > 1:
                         raise make_column_exists_error(ch)
 
+        if new_column_params:
+            sheet_index = new_column_params['sheet_index']
+            new_column_headers_to_column_id = new_column_params['new_column_headers_to_column_id']
+            post_state.add_columns_to_state(sheet_index, list(new_column_headers_to_column_id.keys()), new_column_headers_to_column_id)
 
         if new_dataframe_params:
             sheet_indexes = new_dataframe_params['sheet_indexes'] 
@@ -167,6 +171,9 @@ class StepPerformer(ABC, object):
 
                 new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
                 post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index)
+
+                print("NEW DF", new_df)
+
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,

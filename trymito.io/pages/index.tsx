@@ -202,7 +202,7 @@ const Home: NextPage = () => {
               </h2>
               <TextButton 
                 text="Read Tom's Story"
-                href="https://blog.trymito.io/enigma-case-study/"
+                href="/blog/enigma-case-study/"
               />
             </div>
             <div className={homeStyles.case_study_headshot}>
@@ -216,12 +216,11 @@ const Home: NextPage = () => {
                 Mito is the go-to Python tool at the largest banks in the world
               </h2>
               <h3 className={titleStyles.description + ' display-desktop-only-inline-block'}>
-                See why Mito is ranked as one of the top Python libraries of 2022
+                See why Mito is ranked as one of the top Python libraries of 2023
               </h3>
-              <GithubButton 
-                variant='Issue'
-                text='Join the discussion on Github'
-              />
+              <p>
+                 <Link href='/customers'><a className={pageStyles.link}>Read how analysts at the largest financial institutions use Mito to save hours per week →</a></Link>
+              </p>
             </div>
             <Tweets />
           </section>

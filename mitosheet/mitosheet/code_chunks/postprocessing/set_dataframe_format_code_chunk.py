@@ -9,7 +9,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FAKE_COLUMN_HEADER, get_entire_filter_string
 from mitosheet.is_type_utils import is_int_dtype, is_float_dtype
 from mitosheet.state import NUMBER_FORMAT_ACCOUNTING, NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PERCENTAGE, NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_SCIENTIFIC_NOTATION, State
-from mitosheet.transpiler.transpile_utils import TAB, column_header_list_to_transpiled_code, column_header_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import TAB, get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code
 from mitosheet.types import ColumnFormat, ColumnHeader
 from mitosheet.utils import MAX_ROWS
 from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
@@ -85,7 +85,7 @@ def get_all_columns_format_code(state: State, sheet_index: int) -> Optional[str]
     # Combine this all into one format string
     all_columns_format_code = ''
     for format_string, column_headers in format_string_to_column_headers.items():
-        all_columns_format_code += f'.format({format_string}, subset={column_header_list_to_transpiled_code(column_headers)})'
+        all_columns_format_code += f'.format({format_string}, subset={get_column_header_list_as_transpiled_code(column_headers)})'
 
     if len(all_columns_format_code) > 0:
         return all_columns_format_code
@@ -97,7 +97,7 @@ def get_transpiled_table_style(selector: str, props: List[Tuple[str, Optional[st
     # We filter out all the props that have None as values
     props = [prop for prop in props if prop[1] is not None]
     if len(props) > 0:
-        return f"{OPEN_BRACKET}'selector': \'{selector}\', 'props': {column_header_list_to_transpiled_code(props)}{CLOSE_BRACKET}"
+        return f"{OPEN_BRACKET}'selector': \'{selector}\', 'props': {get_column_header_list_as_transpiled_code(props)}{CLOSE_BRACKET}"
     return None
 
 def get_headers_format_code(state: State, sheet_index: int) -> Optional[str]:
@@ -207,7 +207,7 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Tuple[Op
 
         # Get the column headers
         column_headers = state.column_ids.get_column_headers_by_ids(sheet_index, final_column_ids)
-        transpiled_column_headers = column_header_list_to_transpiled_code(column_headers)
+        transpiled_column_headers = get_column_header_list_as_transpiled_code(column_headers)
 
         entire_filter_string = get_entire_filter_string(state, sheet_index, 'And', filters)
         if entire_filter_string is None:
@@ -216,7 +216,7 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Tuple[Op
         # The filter string, if it's not given a column header when generated, uses this FAKE_COLUMN_HEADER. 
         # See get_entire_filter_string for further description, but it allows us to filter the series var used
         # in the conditional formatting implementation
-        entire_filter_string = entire_filter_string.replace(f'{df_name}[{column_header_to_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
+        entire_filter_string = entire_filter_string.replace(f'{df_name}[{get_column_header_as_transpiled_code(FAKE_COLUMN_HEADER)}]', "series")
 
         color_string = ''
         if color is not None:

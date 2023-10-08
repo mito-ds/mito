@@ -16,7 +16,7 @@ from mitosheet.parser import parse_formula
 from mitosheet.state import State
 from mitosheet.types import (FORMULA_ENTIRE_COLUMN_TYPE, ColumnID,
                              FormulaAppliedToType)
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code
 
 
 class SetColumnFormulaCodeChunk(CodeChunk):
@@ -40,7 +40,7 @@ class SetColumnFormulaCodeChunk(CodeChunk):
         if self.index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
             return f'Set formula of {self.column_header}'
         else:
-            return f'Set formula of {self.column_header} at rows { {column_header_list_to_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
+            return f'Set formula of {self.column_header} at rows { {get_column_header_list_as_transpiled_code(self.index_labels_formula_is_applied_to["index_labels"])}}' # type: ignore
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         python_code, _, _, _ = parse_formula(
@@ -48,8 +48,9 @@ class SetColumnFormulaCodeChunk(CodeChunk):
             self.column_header,
             self.formula_label,
             self.index_labels_formula_is_applied_to,
-            self.prev_state.dfs[self.sheet_index],
-            df_name=self.prev_state.df_names[self.sheet_index],
+            self.prev_state.dfs,
+            self.prev_state.df_names,
+            self.sheet_index,
         )
 
         return [

@@ -12,7 +12,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -60,12 +60,3 @@ class ReorderColumnStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {get_param(params, 'sheet_index')}
-
-
-def _execute_reorder_column(df: pd.DataFrame, column_header: ColumnHeader, new_column_index: int) -> pd.DataFrame:
-    """
-    Helper function for reordering a column in the dataframe
-    """
-    df_columns = [col for col in df.columns if col != column_header]
-    df_columns.insert(new_column_index, column_header)
-    return df[df_columns]

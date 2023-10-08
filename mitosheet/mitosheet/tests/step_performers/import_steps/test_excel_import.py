@@ -6,7 +6,6 @@
 import os
 import pandas as pd
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL
-
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_post_1_4_only, python_post_3_6_only
 
@@ -220,6 +219,28 @@ def test_comma_decimal_excel_import():
     mito.excel_import(TEST_FILE, ['Sheet1'], True, 0, ',')
     
     assert mito.dfs[0].equals(df_result)
+
+    # Remove the test file
+    os.remove(TEST_FILE)
+
+@pandas_post_1_4_only
+@python_post_3_6_only
+def test_only_creates_valid_python_variables():
+    df = pd.DataFrame({'KG': [267.88, 458.99, 125.89, 1.55, 1]}) 
+
+    import keyword
+    keywords = list(keyword.kwlist)
+    keywords.append('print')
+
+    with pd.ExcelWriter(TEST_FILE) as writer:  
+        for kw in keywords:
+            df.to_excel(writer, sheet_name=kw, index=False)
+
+    mito = create_mito_wrapper()
+    mito.excel_import(TEST_FILE, keywords, True, 0, ',')
+    
+    correct_keyword_names = [kw + '_df' for kw in keywords]
+    assert mito.df_names == correct_keyword_names
 
     # Remove the test file
     os.remove(TEST_FILE)

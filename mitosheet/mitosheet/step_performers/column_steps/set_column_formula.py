@@ -4,8 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from copy import deepcopy
+import inspect
+import json
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -19,7 +21,8 @@ from mitosheet.errors import (MitoError, get_recent_traceback, make_execution_er
 from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.user_defined_import import get_user_defined_importer_param_type
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType
 
 
@@ -54,9 +57,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         else:
             try:
                 # Try and parse the formula, letting it throw errors if it is invalid
-                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index], throw_errors=True)
+                parse_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
             except Exception as e:
-                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs[sheet_index])
+                params['new_formula'] = _get_fixed_invalid_formula(new_formula, column_header, formula_label, index_labels_formula_is_applied_to, prev_state.dfs, prev_state.df_names, sheet_index)
 
         return params
 
@@ -84,7 +87,9 @@ class SetColumnFormulaStepPerformer(StepPerformer):
             column_header,
             formula_label,
             index_labels_formula_is_applied_to,
-            prev_state.dfs[sheet_index],
+            prev_state.dfs,
+            prev_state.df_names,
+            sheet_index,
         )
 
         if public_interface_version == 1:
@@ -112,7 +117,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         # Update the column formula
         try:
             pandas_start_time = perf_counter()
-            exec_column_formula(post_state, post_state.dfs[sheet_index], sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
+            exec_column_formula(post_state, sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
             pandas_processing_time = perf_counter() - pandas_start_time
         except MitoError as e:
             # Catch the error and make sure that we don't set the error modal
@@ -157,7 +162,9 @@ def _get_fixed_invalid_formula(
         column_header: ColumnHeader, 
         formula_label: Union[str, bool, int, float],
         index_labels_formula_is_applied_to: FormulaAppliedToType,
-        df: pd.DataFrame,
+        dfs: List[pd.DataFrame],
+        df_names: List[str],
+        sheet_index: int
     ) -> str:
     """
     A helper function that, given a formula, will try and fix
@@ -180,7 +187,7 @@ def _get_fixed_invalid_formula(
     for fixed_formula in POTENTIAL_VALID_FORMULAS:
         try:
             # Parse the formula, and return if it is valid
-            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, df, throw_errors=True)
+            parse_formula(fixed_formula, column_header, formula_label, index_labels_formula_is_applied_to, dfs, df_names, sheet_index)
             return fixed_formula
         except:
             pass
@@ -244,7 +251,6 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
 
 def exec_column_formula(
     post_state: State, 
-    df: pd.DataFrame, 
     sheet_index: int, 
     column_id: ColumnID, 
     formula_label: Union[str, bool, int, float], 
@@ -256,6 +262,7 @@ def exec_column_formula(
     Helper function for refreshing the column when the formula is set
     """
 
+    df = post_state.dfs[sheet_index]
     df_name = post_state.df_names[sheet_index]
 
     if spreadsheet_code == '':
@@ -267,7 +274,9 @@ def exec_column_formula(
         column_header,
         formula_label,
         index_labels_formula_is_applied_to,
-        post_state.dfs[sheet_index],
+        post_state.dfs,
+        post_state.df_names,
+        sheet_index,
     )
 
     try:
@@ -288,17 +297,18 @@ def exec_column_formula(
         
         # Exec the code, where the df is the original dataframe
         # See explination here: https://www.tutorialspoint.com/exec-in-python
-
         exec(
             python_code,
-            {'df': df, 'pd': pd}, 
+            {**dict(zip(post_state.df_names, post_state.dfs)), 'pd': pd}, 
             locals_for_exec
         )
         # Then, update the column spreadsheet code
         frontend_formula = get_frontend_formula(
             spreadsheet_code,
             formula_label,
-            post_state.dfs[sheet_index]
+            post_state.dfs,
+            post_state.df_names,
+            sheet_index
         )
         
         # If the user is setting the entire column, then there is only one formula for every cell in
@@ -332,3 +342,82 @@ def exec_column_formula(
         )
     except Exception as e:
         raise
+
+
+def get_user_defined_sheet_function_objects(state: Optional[State]) -> List[Any]:
+    """
+     Build a function documentation object of the format:
+     {
+        function: string;
+        description: string;
+        search_terms: string[];
+        examples?: (string)[] | null;
+        syntax: string;
+        syntax_elements?: (SyntaxElementsEntity)[] | null;
+    }
+
+     Where the syntax elements are of the format:
+     {
+       element: string;
+       description: string;
+     }
+    
+    """
+
+    if state is None:
+        return []
+
+    
+    sheet_function_objects = []
+    
+    for func in state.user_defined_functions:
+        name = func.__name__
+        
+        description = func.__doc__ if func.__doc__ is not None else ''
+
+        # First, we check if the user has provided our doc-string format -- as doing so 
+        # makes our lives very easy
+        try:
+            documentation = json.loads(description)
+            if 'function' not in documentation:
+                raise Exception('No function name provided')
+
+            sheet_function_objects.append(documentation)
+            continue
+        except:
+            pass
+
+        # Otherwise, we build the function documentation object ourself. We make sure
+        # to strip unnecessary whitespace (leading tabs) out of the docstring
+        description = description.strip()
+        description = description.replace('\n\t', '\n')
+
+        # The search terms are any word in the description
+        # and filter out any words that are less than 3 characters
+        search_terms = description.split(' ')
+        search_terms = [term for term in search_terms if len(term) >= 3]
+
+        # The syntax is the function name, followed by the arguments
+        # We get the arguments by inspecting the function signature
+        syntax = name + '('
+        for arg in inspect.signature(func).parameters:
+            syntax += arg + ', '
+        syntax = syntax[:-2] + ')'
+
+        # The syntax elements are the arguments, and their types
+        syntax_elements = []
+        for arg in inspect.signature(func).parameters:
+            syntax_elements.append({
+                'element': arg,
+                'description': ''
+            })
+
+        sheet_function_objects.append({
+            'function': name,
+            'description': description,
+            'search_terms': search_terms,
+            'syntax': syntax,
+            'syntax_elements': syntax_elements
+        })
+    
+    return sheet_function_objects

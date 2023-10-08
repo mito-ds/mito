@@ -74,7 +74,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Edit your data just like you do in Excel, and receive production ready Python code. No searching Pandas documentation or Stack Overflow.
                 </p>
                 <p>
-                  See our <a href="https://blog.trymito.io/automating-spreadsheets-with-python-101/" target="_blank" rel="noreferrer" className={pageStyles.link}>guide to automating spreadsheet with Python.</a>
+                  See our <Link href="/blog/automating-spreadsheets-with-python-101/"><span className={pageStyles.link}>guide to automating spreadsheet with Python.</span></Link>
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
@@ -95,6 +95,25 @@ const SpreadsheetAutomation: NextPage = () => {
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
                 <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
+              </div>
+            </div>
+            <div className={pageStyles.subsection}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
+              </div>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h1>
+                  Generate <span className='text-highlight'>formatted Excel files</span>
+                </h1>
+                <p>
+                  Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
+                </p>
+                <p>
+                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
+                </p>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+                <Image src={'/export_to_excel.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
               </div>
             </div>
           </section>
@@ -301,7 +320,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   <Image src={'/large_data.png'} alt='Large Data' width={1000} height={500}/>
                 </div>
                 <h3>
-                  Lager datasets, faster edits
+                  Larger datasets, faster edits
                 </h3>
                 <p>
                   Excel and Google Sheets aren&apos;t designed for modern data. Insert 1 million rows of data into Excel and you&apos;ll wait 10 minutes every time you update your analysis.

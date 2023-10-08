@@ -12,7 +12,7 @@ from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk
 from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
 
@@ -34,24 +34,23 @@ class DeleteColumnStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_ids: List[ColumnID] = get_param(params, 'column_ids')
 
-        raise_error_if_column_ids_do_not_exist(
-            'delete column',
+        post_state, execution_data = cls.execute_through_transpile(
             prev_state,
-            sheet_index,
-            column_ids
+            params,
+            {}
         )
 
-        # Make a post state, that is a deep copy
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
+        for column_id in column_ids:
+            # And then update all the state variables removing this column from the state
+            del post_state.column_formulas[sheet_index][column_id]
+            # TODO: do we want to remove the formulas
+            if column_id in post_state.df_formats[sheet_index]['columns']:
+                del post_state.df_formats[sheet_index]['columns'][column_id]
 
-        # Actually delete the columns and update state
-        post_state, pandas_processing_time = delete_column_ids(post_state, sheet_index, column_ids)
+            # Clean up the IDs
+            post_state.column_ids.delete_column_id(sheet_index, column_id)
 
-        return post_state, {
-            # Add the num_cols_deleted to the execution data for logging purposes. 
-            'num_cols_deleted': len(column_ids),
-            'pandas_processing_time': pandas_processing_time
-        }
+        return post_state, execution_data
 
     @classmethod
     def transpile(

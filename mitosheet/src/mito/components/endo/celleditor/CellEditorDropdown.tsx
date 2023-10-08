@@ -33,7 +33,8 @@ type DisplayedDropdownType = {
 
 
 export const getDisplayedDropdownType = (
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
+    sheetIndex: number,
     editorState: EditorState,
     selectionStart: number | null | undefined,
     cellEditorError: string | undefined,
@@ -41,15 +42,17 @@ export const getDisplayedDropdownType = (
     analysisData: AnalysisData,
 ): DisplayedDropdownType | undefined => {
 
-    const fullFormula = getFullFormula(editorState.formula, editorState.pendingSelections, sheetData);
+    const fullFormula = getFullFormula(editorState, sheetDataArray, sheetIndex);
+    const sheetData = sheetDataArray[editorState.sheetIndex];
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
+
 
     // NOTE: we get our suggestions off the non-full formula, as we don't want to make suggestions
     // for column headers that are pending currently
     const [suggestedColumnHeadersReplacementLength, suggestedColumnHeaders] = getSuggestedColumnHeaders(editorState.formula, sheetData);
     const [suggestedFunctionsReplacementLength, suggestedFunctions] = getSuggestedFunctions(editorState.formula, suggestedColumnHeadersReplacementLength, analysisData);
 
-    const documentationFunction = getDocumentationFunction(fullFormula, selectionStart);
+    const documentationFunction = getDocumentationFunction(fullFormula, selectionStart, analysisData);
 
     if (cellEditorError !== undefined) {
         return {
@@ -68,7 +71,7 @@ export const getDisplayedDropdownType = (
             'suggestedFunctions': suggestedFunctions,
             'suggestedFunctionsReplacementLength': suggestedFunctionsReplacementLength,
         };
-    } else if (documentationFunction !== undefined && editorState.pendingSelections === undefined) {
+    } else if (documentationFunction !== undefined) {
         return {
             'type': 'documentation',
             'documentationFunction': documentationFunction,
@@ -79,7 +82,7 @@ export const getDisplayedDropdownType = (
 }
 
 const CellEditorDropdown = (props: {
-    sheetData: SheetData,
+    sheetDataArray: SheetData[],
     sheetIndex: number,
     editorState: EditorState,
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
@@ -89,8 +92,8 @@ const CellEditorDropdown = (props: {
     displayedDropdownType: DisplayedDropdownType | undefined,
     takeSuggestion: (idx: number) => void,
 }): JSX.Element => {
-
-    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(props.sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
+    const sheetData = props.sheetDataArray[props.sheetIndex];
+    const {columnID, columnHeader, indexLabel} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     if (columnID === undefined || columnHeader === undefined || indexLabel === undefined) {
         return <></>;
@@ -98,7 +101,7 @@ const CellEditorDropdown = (props: {
 
     const displayedDropdownType = props.displayedDropdownType;
 
-    const formula = getFullFormula(props.editorState.formula, props.editorState.pendingSelections, props.sheetData)
+    const formula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex)
     const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
 
     return (
@@ -174,9 +177,9 @@ const CellEditorDropdown = (props: {
                                     {suggestion}
                                 </span>
                                 {selected &&
-                                    <div className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
+                                    <p className={classNames('cell-editor-suggestion-subtext', 'text-subtext-1')}>
                                         {subtext}
-                                    </div>
+                                    </p>
                                 }
                             </div>
                         )
@@ -190,25 +193,27 @@ const CellEditorDropdown = (props: {
                         <p className='text-body-2'>
                             {displayedDropdownType.documentationFunction.syntax}
                         </p>
-                        <p className='text-subtext-1'>
+                        <p className='cell-editor-function-documentation-body text-subtext-1'>
                             {displayedDropdownType.documentationFunction.description}
                         </p>
                     </div>
-                    <div className='pt-5px pb-10px pr-10px pl-10px'>
-                        <p className='text-subtext-1'>
-                            Examples
-                        </p>
-                        {displayedDropdownType.documentationFunction.examples?.map((example, index) => {
-                            return (
-                                <p 
-                                    key={index}
-                                    className='cell-editor-function-documentation-example'
-                                >
-                                    {example}
-                                </p>
-                            )
-                        })}
-                    </div>
+                    {displayedDropdownType.documentationFunction.examples && 
+                        <div className='pt-5px pb-10px pr-10px pl-10px'>
+                            <p className='text-subtext-1'>
+                                Examples
+                            </p>
+                            {displayedDropdownType.documentationFunction.examples?.map((example, index) => {
+                                return (
+                                    <p 
+                                        key={index}
+                                        className='cell-editor-function-documentation-example'
+                                    >
+                                        {example}
+                                    </p>
+                                )
+                            })}
+                        </div>
+                    }
                 </div>
             }
             {/* Always display a link to the documentation */}

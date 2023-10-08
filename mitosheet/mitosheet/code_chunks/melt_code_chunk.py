@@ -7,7 +7,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code
 from mitosheet.types import ColumnID
 
 class MeltCodeChunk(CodeChunk):
@@ -34,9 +34,9 @@ class MeltCodeChunk(CodeChunk):
 
         value_vars = list(filter(lambda value_var: value_var not in id_vars, value_vars))
 
-        param_string = f'id_vars={column_header_list_to_transpiled_code(id_vars)}'
+        param_string = f'id_vars={get_column_header_list_as_transpiled_code(id_vars)}'
         if self.include_value_vars:
-            param_string += f', value_vars={column_header_list_to_transpiled_code(value_vars)}'
+            param_string += f', value_vars={get_column_header_list_as_transpiled_code(value_vars)}'
 
         return [f'{self.new_df_name} = {self.df_name}.melt({param_string})'], []
     

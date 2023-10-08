@@ -11,7 +11,7 @@ from mitosheet.state import State
 from mitosheet.types import ColumnID, ColumnHeader
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import \
-    column_header_list_to_transpiled_code
+    get_column_header_list_as_transpiled_code
 from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
 
@@ -40,7 +40,7 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 
-        column_headers_list_string = column_header_list_to_transpiled_code(
+        column_headers_list_string = get_column_header_list_as_transpiled_code(
             [self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id) for column_id in self.column_ids]
         )
 

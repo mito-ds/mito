@@ -8,8 +8,11 @@ from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_float_d
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.sheet_functions.utils import get_series_from_primitive_or_series
-from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType
+from mitosheet.public.v3.types.sheet_function_types import AnyPrimitiveOrSeriesInputType, BoolRestrictedInputType, IntRestrictedInputType
 
+from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
+
+from mitosheet.errors import MitoError
 
 @handle_sheet_function_errors
 def FILLNAN(series: pd.Series, replacement: AnyPrimitiveOrSeriesInputType) -> pd.Series:
@@ -149,6 +152,73 @@ def GETNEXTVALUE(series: pd.Series, condition: BoolRestrictedInputType) -> pd.Se
 
     return GETPREVIOUSVALUE(reversed_series, reversed_condition)[::-1]
 
+@cast_values_in_arg_to_type('index', 'int')
+def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, index: IntRestrictedInputType) -> pd.Series:
+    """
+    {
+        "function": "VLOOKUP",
+        "description": "Looks up a value in a range and returns the value in the same row from a column you specify.",
+        "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
+        "examples": [
+            "VLOOKUP(Names0, Ids:Ages, 1)",
+            "VLOOKUP('John Smith', Names:Ages, 2)",
+            "VLOOKUP(Names0, Ids:Ages, Column Indexes0)"
+        ],
+        "syntax": "VLOOKUP(lookup_value, where, index)",
+        "syntax_elements": [{
+                "element": "lookup_value",
+                "description": "The value to look up."
+            }, {
+                "element": "where",
+                "description": "The range to look up in."
+            }, {
+                "element": "index",
+                "description": "The column index to return."
+            }
+        ]
+    }
+    """
+    where_first_column = where.iloc[:,0]
+    # If the lookup value and index are both a primitive, we don't need to merge. 
+    if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
+        if type(lookup_value) != type(where.iloc[0,0]):
+            raise MitoError(
+                'invalid_args_error',
+                'VLOOKUP',
+                f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {type(lookup_value)} and the first column of the where range is of type {type(where.iloc[0,0])}.'
+            )
+        matching_row = where.loc[where_first_column == lookup_value]
+        if matching_row.empty:
+            return None
+        else:
+            return matching_row.iloc[0, index-1]
+    
+    value = get_series_from_primitive_or_series(lookup_value, where.index)
+    value.name = 'lookup_value'
+    indices = get_series_from_primitive_or_series(index, value.index)
+
+    # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
+    where_deduplicated = where.drop_duplicates(subset=where_first_column.name)
+    
+    # Update first column to use the deduplicated version
+    where_first_column = where_deduplicated.iloc[:,0]
+
+    # If the lookup value and the first column of the where range are different types, we raise an error
+    if value.dtype != where_first_column.dtype:
+        raise MitoError(
+            'invalid_args_error',
+            'VLOOKUP',
+            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_first_column.dtype}.'
+        )
+    
+    merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_first_column, how='left')
+    def get_value_at_index_in_row(row):
+        try:
+            return row.iloc[indices[row.name]]
+        # Because we can't control what the user puts in the index, we need to catch any errors
+        except Exception:
+            return None
+    return merged.apply(get_value_at_index_in_row, axis=1)
 
 # TODO: we should see if we can list these automatically!
 MISC_FUNCTIONS = {
@@ -156,4 +226,5 @@ MISC_FUNCTIONS = {
     'GETPREVIOUSVALUE': GETPREVIOUSVALUE,
     'GETNEXTVALUE': GETNEXTVALUE,
     'TYPE': TYPE,
+    'VLOOKUP': VLOOKUP
 }

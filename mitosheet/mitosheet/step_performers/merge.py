@@ -4,20 +4,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import copy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.merge_code_chunk import MergeCodeChunk
-from mitosheet.errors import (get_recent_traceback, make_incompatible_merge_headers_error,
+from mitosheet.errors import (make_incompatible_merge_headers_error,
                               make_incompatible_merge_key_error)
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
-from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 from mitosheet.utils import get_first_unused_dataframe_name
 

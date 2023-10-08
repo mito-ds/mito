@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { PopupLocation, PopupType, SheetData, UIState } from "../../../types";
+import { AnalysisData, PopupLocation, PopupType, SheetData, UIState, UserProfile } from "../../../types";
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
@@ -12,12 +12,14 @@ import ImportCard from "./UpdateImportCard";
 import { ImportDataAndImportErrors } from "./UpdateImportsPreReplayTaskpane";
 import { ReplacingDataframeState, StepImportData } from "./UpdateImportsTaskpane";
 import { getErrorTextFromToFix, getOriginalAndUpdatedDataframeCreationDataPairs } from "./updateImportsUtils";
-import { isInStreamlit } from "../../../utils/location";
+import { isInDash, isInStreamlit } from "../../../utils/location";
 
 
 interface UpdateImportPostReplayTaskpaneProps {
     mitoAPI: MitoAPI;
     sheetDataArray: SheetData[];
+    userProfile: UserProfile;
+    analysisData: AnalysisData;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
 
     updatedStepImportData: StepImportData[] | undefined;
@@ -42,7 +44,10 @@ interface UpdateImportPostReplayTaskpaneProps {
 
 let PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mitosheet.sheet call above.'
 if (isInStreamlit()) {
-    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the mito_component call.'
+    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the spreadsheet call.'
+}
+if (isInDash()) {
+    PASSED_DATAFRAMES_CHANGE_MESSAGE = 'You can change imports by changing the data passed to the Spreadsheet call.'
 }
     
 
@@ -84,6 +89,8 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
                     setReplacingDataframeState={props.setReplacingDataframeState}
                     preUpdateInvalidImportMessage={undefined}
                     postUpdateInvalidImportMessage={props.invalidImportMessages[index]}
+                    userProfile={props.userProfile}
+                    analysisData={props.analysisData}
                 />
             )
         })

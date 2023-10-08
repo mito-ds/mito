@@ -14,7 +14,7 @@ import chardet
 import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS, SimpleImportCodeChunk, get_read_csv_params
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 
 from mitosheet.utils import get_valid_dataframe_names
 from mitosheet.errors import make_file_not_found_error, make_invalid_simple_import_error, make_is_directory_error

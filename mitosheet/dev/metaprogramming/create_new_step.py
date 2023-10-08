@@ -99,7 +99,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
 class {step_performer_name}(StepPerformer):
@@ -334,7 +334,7 @@ def write_testing_file(original_step_name: str, params: Dict[str, str]) -> None:
 
 
 def write_steptype_to_types_file(original_step_name: str) -> None:
-    path_to_types = get_src_folder() / 'types.tsx'
+    path_to_types = get_src_folder() / 'mito/types.tsx'
 
     step_name = get_step_name(original_step_name)
     enum_name = original_step_name.title().replace(' ', '')
@@ -384,7 +384,7 @@ def get_api_function_code(original_step_name: str, params: Dict[str, str]) -> st
     """
 
 def write_to_api_file(original_step_name: str, params: Dict[str, str]) -> None:
-    path_to_api = get_src_folder() / 'jupyter' / 'api.tsx'
+    path_to_api = get_src_folder() / 'mito' / 'api' / 'api.tsx'
 
     with open(path_to_api, 'r') as f:
         code = f.read()

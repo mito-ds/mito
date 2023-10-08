@@ -8,7 +8,7 @@ from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
-from mitosheet.transpiler.transpile_utils import column_header_list_to_transpiled_code
+from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code
 
 class DeleteRowCodeChunk(CodeChunk):
 
@@ -26,7 +26,7 @@ class DeleteRowCodeChunk(CodeChunk):
         return f'Deleted {len(self.labels)} row{"" if len(self.labels) == 1 else "s"} in {self.df_name}'
         
     def get_code(self) -> Tuple[List[str], List[str]]:
-        return [f'{self.df_name}.drop(labels={column_header_list_to_transpiled_code(self.labels)}, inplace=True)'], []
+        return [f'{self.df_name}.drop(labels={get_column_header_list_as_transpiled_code(self.labels)}, inplace=True)'], []
     
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

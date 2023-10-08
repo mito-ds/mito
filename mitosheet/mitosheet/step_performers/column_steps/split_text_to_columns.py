@@ -13,7 +13,7 @@ from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_co
 from mitosheet.is_type_utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import add_columns_to_df, get_param
+from mitosheet.step_performers.utils.utils import add_columns_to_df, get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 
@@ -39,14 +39,11 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         new_column_header_suffix: str = get_param(params, 'new_column_header_suffix')
 
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        column_idx = prev_state.dfs[sheet_index].columns.tolist().index(column_header)
             
         # Create a new post state
         post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
         final_df = post_state.dfs[sheet_index]
         delimiter_string = '|'.join(delimiters)
-        # Actually execute the column reordering
-        pandas_start_time = perf_counter() 
             
         split_param_dict = get_split_param_dict()
 
@@ -62,18 +59,19 @@ class SplitTextToColumnsStepPerformer(StepPerformer):
         # Note: We create the new_column_header_suffix on the frontend so that it is saved in the step parameters, which allows us
         # to replay the analysis and generate the same columns. 
         new_column_headers: List[ColumnHeader] = [f'{column_header}-split-{idx}-{new_column_header_suffix}' for column, idx in enumerate(new_columns_df)]
-        final_df = add_columns_to_df(final_df, new_columns_df, new_column_headers, column_idx)
-        pandas_processing_time = perf_counter() - pandas_start_time
 
-        # Update column state variables
-        post_state.add_columns_to_state(sheet_index, new_column_headers)
+        execution_data = {
+            'new_column_headers': new_column_headers
+        }
 
-        post_state.dfs[sheet_index] = final_df
+        post_state, execution_data = cls.execute_through_transpile(
+            prev_state,
+            params,
+            execution_data
+        )
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time,
-            # Save the new_column_headers so that the code chunk doesn't need to call .split to figure out how many columns were created
-            'new_column_headers': new_column_headers,
+            **execution_data,
             'result': {
                 'num_cols_created': len(new_column_headers)
             }

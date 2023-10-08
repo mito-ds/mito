@@ -23,7 +23,7 @@ from mitosheet.public.v2 import get_table_range
 from mitosheet.public.v2.excel_utils import convert_csv_file_to_xlsx_file
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ExcelRangeImport
 from mitosheet.utils import get_valid_dataframe_name
 
@@ -43,57 +43,27 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        file_path: str = get_param(params, 'file_path')
-        sheet: Dict[str, Union[str, int]] = get_param(params, 'sheet')
         range_imports: List[ExcelRangeImport] = get_param(params, 'range_imports')
-        convert_csv_to_xlsx: bool = get_param(params, 'convert_csv_to_xlsx')
 
-        if convert_csv_to_xlsx:
-            file_path = convert_csv_file_to_xlsx_file(file_path, sheet_name=sheet['value'])
-
-        post_state = prev_state.copy() 
-
-        pandas_start_time = perf_counter()
-
-        sheet_index_to_df_range: Dict[int, str] = {}
         new_df_names = []
         for range_import in range_imports:
-            _range: Optional[str]
-            if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
-                _range = range_import['value'] #type: ignore
-            else:
-                start_condition = range_import['start_condition'] #type: ignore
-                end_condition = range_import['end_condition'] #type: ignore
-                column_end_condition = range_import['column_end_condition'] #type: ignore
+            new_df_name = get_valid_dataframe_name(prev_state.df_names + new_df_names, range_import['df_name'])
+            new_df_names.append(new_df_name)
 
-                params = get_table_range_params(sheet, start_condition, end_condition, column_end_condition)
-                _range = get_table_range(file_path, **params)
-                
-            if _range is None:
-                raise make_range_not_found_error(range_import['start_condition']['value'], False) #type: ignore
-
-            ((start_col_index, start_row_index), (end_col_index, end_row_index)) = get_col_and_row_indexes_from_range(_range)
-            nrows = end_row_index - start_row_index
-            usecols = get_column_from_column_index(start_col_index) + ':' + get_column_from_column_index(end_col_index)
-
-            df = pd.read_excel(file_path, sheet_name=sheet['value'], skiprows=start_row_index, nrows=nrows, usecols=usecols)
-            final_df_name = get_valid_dataframe_name(post_state.df_names, range_import['df_name'])
-            post_state.add_df_to_state(
-                df,
-                DATAFRAME_SOURCE_IMPORTED,
-                df_name=final_df_name
-            )
-
-            new_df_names.append(final_df_name)
-            sheet_index_to_df_range[len(post_state.dfs) - 1] = _range
-
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
-            'new_sheet_index_to_df_range': sheet_index_to_df_range,
+        execution_data = {
             'new_df_names': new_df_names
         }
+
+        return cls.execute_through_transpile(
+            prev_state,
+            params,
+            execution_data,
+            new_dataframe_params={
+                'df_source': DATAFRAME_SOURCE_IMPORTED,
+                'new_df_names': new_df_names,
+                'sheet_indexes': None
+            }
+        )
 
     @classmethod
     def transpile(

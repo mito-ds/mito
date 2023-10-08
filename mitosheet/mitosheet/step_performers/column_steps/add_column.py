@@ -12,7 +12,8 @@ from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk im
 from mitosheet.errors import make_column_exists_error, make_no_sheet_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
+from mitosheet.column_headers import get_column_header_id
 
 
 class AddColumnStepPerformer(StepPerformer):
@@ -34,34 +35,27 @@ class AddColumnStepPerformer(StepPerformer):
         sheet_index: int = get_param(params, 'sheet_index')
         column_header: str = get_param(params, 'column_header')
         column_header_index: int = get_param(params, 'column_header_index')
-            
-        # if the sheet doesn't exist, throw an error
-        if not prev_state.does_sheet_index_exist_within_state(sheet_index):
-            raise make_no_sheet_error({sheet_index})
-
-        if column_header in prev_state.dfs[sheet_index].keys():
-            raise make_column_exists_error(column_header)
-
-        # We add a new step with the added column
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
 
         # If the column_header_index is out of range, then make the new column the last column
         if column_header_index < 0 or len(prev_state.dfs[sheet_index].columns) <= column_header_index:
             column_header_index = len(prev_state.dfs[sheet_index].columns)
 
-        # Update the state variables
-        [new_column_id] = post_state.add_columns_to_state(sheet_index, [column_header])
-            
-        # Update the dataframe
-        pandas_start_time = perf_counter()
-        post_state.dfs[sheet_index].insert(column_header_index, column_header, 0)
-        pandas_processing_time = perf_counter() - pandas_start_time
-        
-        return post_state, {
+        new_column_id = get_column_header_id(column_header)
+
+        execution_data = {
             'column_header_index': column_header_index,
-            'pandas_processing_time': pandas_processing_time,
             'new_column_id': new_column_id
         }
+
+        return cls.execute_through_transpile(
+            prev_state,
+            params,
+            execution_data,
+            new_column_params={
+                'sheet_index': sheet_index,
+                'new_column_headers_to_column_id': {column_header: new_column_id}
+            }
+        )
 
     @classmethod
     def transpile(

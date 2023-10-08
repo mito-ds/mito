@@ -13,7 +13,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_first_unused_dataframe_name
 
 

@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import (
-    column_header_list_to_transpiled_code, column_header_to_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
 from mitosheet.types import ColumnID, ColumnHeader
 
 LOOKUP = 'lookup'
@@ -55,7 +55,7 @@ class MergeCodeChunk(CodeChunk):
         if self.how == 'lookup':
             # If the mege is a lookup, then we add the drop duplicates code
             temp_df_name = 'temp_df'
-            merge_code.append(f'{temp_df_name} = {self.df_two_name}.drop_duplicates(subset={column_header_list_to_transpiled_code(merge_keys_two)}) # Remove duplicates so lookup merge only returns first match')
+            merge_code.append(f'{temp_df_name} = {self.df_two_name}.drop_duplicates(subset={get_column_header_list_as_transpiled_code(merge_keys_two)}) # Remove duplicates so lookup merge only returns first match')
             how_to_use = 'left'
         else:
             temp_df_name = self.df_two_name
@@ -66,12 +66,12 @@ class MergeCodeChunk(CodeChunk):
         deleted_columns_two = set(self.prev_state.dfs[self.sheet_index_two].keys()).difference(set(selected_column_headers_two).union(set(merge_keys_two)))
 
         if len(deleted_columns_one) > 0:
-            deleted_transpiled_column_header_one_list = column_header_list_to_transpiled_code(deleted_columns_one)
+            deleted_transpiled_column_header_one_list = get_column_header_list_as_transpiled_code(deleted_columns_one)
             merge_code.append(
                 f'{self.df_one_name}_tmp = {self.df_one_name}.drop({deleted_transpiled_column_header_one_list}, axis=1)'
             )
         if len(deleted_columns_two) > 0:
-            deleted_transpiled_column_header_two_list = column_header_list_to_transpiled_code(deleted_columns_two)
+            deleted_transpiled_column_header_two_list = get_column_header_list_as_transpiled_code(deleted_columns_two)
             merge_code.append(
                 f'{self.df_two_name}_tmp = {temp_df_name}.drop({deleted_transpiled_column_header_two_list}, axis=1)'
             )
@@ -86,28 +86,18 @@ class MergeCodeChunk(CodeChunk):
 
         # Finially append the merge
         if self.how == UNIQUE_IN_LEFT:
-            merge_code.append(
-                f'{df_two_to_merge}_tmp = {df_two_to_merge}.drop_duplicates(subset={column_header_list_to_transpiled_code(merge_keys_two)})'
-            )
-            merge_code.append(
-                f'bool_index_array = {df_one_to_merge}.merge({df_two_to_merge}_tmp, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'left\', indicator=True)[\'_merge\'] == \'left_only\''
-            )
-            merge_code.append(
-                f'{self.new_df_name} = {df_one_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_one)}].reset_index(drop=True)'
-            )
+            merge_code.extend([
+                f'{self.new_df_name} = {df_one_to_merge}.merge({df_two_to_merge}[{get_column_header_list_as_transpiled_code(merge_keys_two)}], left_on={get_column_header_list_as_transpiled_code(merge_keys_one)}, right_on={get_column_header_list_as_transpiled_code(merge_keys_two)}, how="left", indicator=True, suffixes=(None, "_y"))',
+                f'{self.new_df_name} = {self.new_df_name}[{self.new_df_name}["_merge"] == "left_only"].drop(columns="_merge")[{df_one_to_merge}.columns].reset_index(drop=True)',
+            ])
         elif self.how == UNIQUE_IN_RIGHT:
-            merge_code.append(
-                f'{df_one_to_merge}_tmp = {df_one_to_merge}.drop_duplicates(subset={column_header_list_to_transpiled_code(merge_keys_one)})'
-            )
-            merge_code.append(
-                f'bool_index_array = {df_one_to_merge}_tmp.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'right\', indicator=True)[\'_merge\'] == \'right_only\''
-            )
-            merge_code.append(
-                f'{self.new_df_name} = {df_two_to_merge}.copy(deep=True)[bool_index_array][{column_header_list_to_transpiled_code(selected_column_headers_two)}].reset_index(drop=True)'
-            )
+            merge_code.extend([
+                f'{self.new_df_name} = {df_two_to_merge}.merge({df_one_to_merge}[{get_column_header_list_as_transpiled_code(merge_keys_one)}], left_on={get_column_header_list_as_transpiled_code(merge_keys_two)}, right_on={get_column_header_list_as_transpiled_code(merge_keys_one)}, how="left", indicator=True, suffixes=(None, "_y"))',
+                f'{self.new_df_name} = {self.new_df_name}[{self.new_df_name}["_merge"] == "left_only"].drop(columns="_merge")[{df_two_to_merge}.columns].reset_index(drop=True)',
+            ])
         else:      
             merge_code.append(
-                f'{self.new_df_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={column_header_list_to_transpiled_code(merge_keys_one)}, right_on={column_header_list_to_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
+                f'{self.new_df_name} = {df_one_to_merge}.merge({df_two_to_merge}, left_on={get_column_header_list_as_transpiled_code(merge_keys_one)}, right_on={get_column_header_list_as_transpiled_code(merge_keys_two)}, how=\'{how_to_use}\', suffixes=[\'_{suffix_one}\', \'_{suffix_two}\'])'
             )
 
         # And then return it

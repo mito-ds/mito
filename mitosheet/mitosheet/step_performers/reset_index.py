@@ -12,7 +12,7 @@ from mitosheet.code_chunks.reset_index_code_chunk import ResetIndexCodeChunk
 
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 
 class ResetIndexStepPerformer(StepPerformer):
     """

@@ -12,7 +12,7 @@ from mitosheet.column_headers import ColumnIDMap
 from mitosheet.types import FrontendFormulaAndLocation
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.user.utils import is_enterprise, is_running_test
-from mitosheet.utils import check_valid_sheet_functions, get_first_unused_dataframe_name
+from mitosheet.utils import  get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from
 DATAFRAME_SOURCE_PASSED = "passed"  # passed in mitosheet.sheet
@@ -256,7 +256,7 @@ class State:
             # Return the index of this sheet
             return sheet_index
 
-    def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader]) -> List[ColumnID]:
+    def add_columns_to_state(self, sheet_index: int, column_headers: List[ColumnHeader], column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None) -> List[ColumnID]:
         """
         Helper function for adding a new columns to this state, making sure that we 
         track the relevant metadata variables.
@@ -264,7 +264,8 @@ class State:
         # Update column state variables
         new_column_ids = []
         for column_header in column_headers:
-            column_id = self.column_ids.add_column_header(sheet_index, column_header)
+            column_id = column_headers_to_column_ids.get(column_header, None) if column_headers_to_column_ids else None
+            column_id = self.column_ids.add_column_header(sheet_index, column_header, column_id=column_id)
             self.column_formulas[sheet_index][column_id] = []
             self.column_filters[sheet_index][column_id] = {'operator': 'And', 'filters': []}
             new_column_ids.append(column_id)

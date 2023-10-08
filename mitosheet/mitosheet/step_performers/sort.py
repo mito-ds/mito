@@ -13,7 +13,7 @@ from mitosheet.errors import (make_invalid_sort_error,
                               raise_error_if_column_ids_do_not_exist)
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils import get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 
 # CONSTANTS USED IN THE SORT STEP ITSELF

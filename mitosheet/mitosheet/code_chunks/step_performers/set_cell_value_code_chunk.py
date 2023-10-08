@@ -15,7 +15,7 @@ from mitosheet.is_type_utils import (is_bool_dtype,
                                                    is_timedelta_dtype)
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
-    column_header_to_transpiled_code
+    get_column_header_as_transpiled_code
 from mitosheet.types import ColumnID
 
 
@@ -48,7 +48,7 @@ class SetCellValueCodeChunk(CodeChunk):
         if self.old_value == self.new_value:
             return code, []
 
-        transpiled_column_header = column_header_to_transpiled_code(self.column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
 
         # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
         if self.new_value is not None and '.' in self.new_value and is_int_dtype(self.column_dtype):
