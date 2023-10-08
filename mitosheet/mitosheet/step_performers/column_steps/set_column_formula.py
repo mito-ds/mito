@@ -72,13 +72,8 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         new_formula: str = get_param(params, 'new_formula')
         public_interface_version: int = get_param(params, 'public_interface_version')
 
-        raise_error_if_column_ids_do_not_exist(
-            'set column formula',
-            prev_state,
-            sheet_index,
-            column_id
-        )
-
+        df = prev_state.dfs[sheet_index]
+        df_name = prev_state.df_names[sheet_index]
         column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Then we try and parse the formula
@@ -111,24 +106,56 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         if any(missing_functions):
             raise make_unsupported_function_error(missing_functions, error_modal=False)
 
-        # We check out a new step
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
         # Update the column formula
         try:
-            pandas_start_time = perf_counter()
-            exec_column_formula(post_state, sheet_index, column_id, formula_label, index_labels_formula_is_applied_to, new_formula, public_interface_version)
-            pandas_processing_time = perf_counter() - pandas_start_time
+            post_state, execution_data = cls.execute_through_transpile(
+                prev_state,
+                params
+            )
+
+            frontend_formula = get_frontend_formula(
+                new_formula,
+                formula_label,
+                post_state.dfs,
+                post_state.df_names,
+                sheet_index
+            )
+            
+            # If the user is setting the entire column, then there is only one formula for every cell in
+            # the entire column. But if they are just setting specific indexes, we need to store the formulas
+            # before this as well, so that we can figure out what formula is applied to each index
+            if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
+                post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()}]
+            else:
+                post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()})
+
+            return post_state, execution_data
+        except TypeError as e:
+            # We catch TypeErrors specificially, so that we can case on operator errors, to 
+            # give better error messages
+            operator_type_error_details = get_details_from_operator_type_error(e)
+            if operator_type_error_details is not None:
+                # If there is an operator error, we handle it specially, to give the user
+                # more information about how to recover
+                raise make_operator_type_error(*operator_type_error_details)
+            else:
+                # If it's not an operator error, we just propagate the error up
+                raise e
+        except NameError as e:
+            # If we have a column header that does not exist in the formula, we may
+            # throw a name error, in which case we alert the user
+            column_header = str(e).split('\'')[1]
+            raise MitoError(
+                'no_column_error',
+                'No Column Exists',
+                f'Setting a column formula failed. The column "{str(column_header)}" referenced in the formula does not exist in {df_name}.',
+                error_modal=True
+            )
         except MitoError as e:
-            # Catch the error and make sure that we don't set the error modal
             e.error_modal = False
             raise e
         except Exception as e:
             raise make_execution_error(error_modal=False)
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
-        }
 
     @classmethod
     def transpile(
@@ -247,102 +274,6 @@ def get_details_from_operator_type_error(error: TypeError) -> Optional[Tuple[str
         return ('+', 'str', 'number')
 
     return None
-
-
-def exec_column_formula(
-    post_state: State, 
-    sheet_index: int, 
-    column_id: ColumnID, 
-    formula_label: Union[str, bool, int, float], 
-    index_labels_formula_is_applied_to: FormulaAppliedToType,
-    spreadsheet_code: str,
-    public_interface_version: int
-) -> None:
-    """
-    Helper function for refreshing the column when the formula is set
-    """
-
-    df = post_state.dfs[sheet_index]
-    df_name = post_state.df_names[sheet_index]
-
-    if spreadsheet_code == '':
-        return
-
-    column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-    python_code, _, _, _ = parse_formula(
-        spreadsheet_code, 
-        column_header,
-        formula_label,
-        index_labels_formula_is_applied_to,
-        post_state.dfs,
-        post_state.df_names,
-        sheet_index,
-    )
-
-    try:
-        if public_interface_version == 1:
-            from mitosheet.public.v1 import FUNCTIONS as locals_for_exec
-        elif public_interface_version == 2:
-            from mitosheet.public.v2 import FUNCTIONS as locals_for_exec
-        elif public_interface_version == 3:
-            from mitosheet.public.v3 import FUNCTIONS, RollingRange
-            locals_for_exec = {**FUNCTIONS, 'RollingRange': RollingRange}
-        else:
-            raise Exception(f'Please add support for public_interface_version={public_interface_version}')
-        
-        locals_for_exec = {
-            **locals_for_exec,
-            **{f.__name__: f for f in post_state.user_defined_functions}
-        }
-        
-        # Exec the code, where the df is the original dataframe
-        # See explination here: https://www.tutorialspoint.com/exec-in-python
-        exec(
-            python_code,
-            {**dict(zip(post_state.df_names, post_state.dfs)), 'pd': pd}, 
-            locals_for_exec
-        )
-        # Then, update the column spreadsheet code
-        frontend_formula = get_frontend_formula(
-            spreadsheet_code,
-            formula_label,
-            post_state.dfs,
-            post_state.df_names,
-            sheet_index
-        )
-        
-        # If the user is setting the entire column, then there is only one formula for every cell in
-        # the entire column. But if they are just setting specific indexes, we need to store the formulas
-        # before this as well, so that we can figure out what formula is applied to each index
-        if index_labels_formula_is_applied_to['type'] == FORMULA_ENTIRE_COLUMN_TYPE:
-            post_state.column_formulas[sheet_index][column_id] = [{'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()}]
-        else:
-            post_state.column_formulas[sheet_index][column_id].append({'frontend_formula': frontend_formula, 'location': index_labels_formula_is_applied_to, 'index': df.index.to_list()})
-
-    except TypeError as e:
-        # We catch TypeErrors specificially, so that we can case on operator errors, to 
-        # give better error messages
-        operator_type_error_details = get_details_from_operator_type_error(e)
-        if operator_type_error_details is not None:
-            # If there is an operator error, we handle it specially, to give the user
-            # more information about how to recover
-            raise make_operator_type_error(*operator_type_error_details)
-        else:
-            # If it's not an operator error, we just propagate the error up
-            raise e
-    except NameError as e:
-        # If we have a column header that does not exist in the formula, we may
-        # throw a name error, in which case we alert the user
-        column_header = str(e).split('\'')[1]
-        raise MitoError(
-            'no_column_error',
-            'No Column Exists',
-            f'Setting a column formula failed. The column "{str(column_header)}" referenced in the formula does not exist in {df_name}.',
-            error_modal=True
-        )
-    except Exception as e:
-        raise
-
 
 def get_user_defined_sheet_function_objects(state: Optional[State]) -> List[Any]:
     """
