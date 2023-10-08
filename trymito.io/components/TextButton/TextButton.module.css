@@ -3,9 +3,6 @@
   font-style: medium;
   font-weight: 400;
   font-size: 2rem;
-  color: var(--color-text-primary);
-
-  background-color: var(--color-purple);
   max-width: 20rem;
   padding: 10px 15px;
   border-radius: 10px;
@@ -22,8 +19,22 @@
   display: inline-block;
 }
 
-.text_button:hover {
+.purple {
+  color: var(--color-text-primary);
+  background-color: var(--color-purple);
+}
+
+.purple:hover {
   background-color: var(--color-light-purple);
+}
+
+.white {
+  color: var(--color-background);
+  background-color: var(--color-text-primary);
+}
+
+.white:hover {
+  background-color: var(--color-text-secondary);
 }
 
 .text_button button,

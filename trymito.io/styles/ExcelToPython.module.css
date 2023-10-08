@@ -1,0 +1,9 @@
+.related_functions_card {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.related_functions_card * {
+    margin-right: 10px;
+}
