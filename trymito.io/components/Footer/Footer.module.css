@@ -4,8 +4,16 @@
     flex-wrap: wrap;
 }
 
-.footer_container h1 {
+.home_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.footer_mito_text {
+    font-size: 2rem !important;
     margin-right: 2rem;
+    margin-top: 0rem !important;
 }
 
 /* 
@@ -76,8 +84,8 @@
         margin-top: 2rem;
     }
 
-    .footer_container h1 {
-        font-size: 2rem;
+    .footer_mito_text {
+        font-size: 2rem !important;
         margin-right: 1rem;
     }
 
