@@ -121,8 +121,9 @@ class MitoBackend():
     @property
     def fully_parameterized_function(self) -> List[str]:
         """
-        Returns the fully parameterized function string, which is the string
-        that is used to call the function in the code.
+        Returns the fully parameterized function string. This is used for
+        cases where we want to get the function string regardless of the 
+        code options the user provided. 
         """
         return get_script_as_function(
             self.steps_manager,
