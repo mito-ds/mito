@@ -229,7 +229,7 @@ def get_final_function_params_with_subtypes_turned_to_parameters(
         number_of_params_of_subtype: Dict[ParamSubtype, int] = {}
         for param_value, param_type, param_subtype in parameterizable_params:
             param_index = number_of_params_of_subtype.get(param_subtype, 0)
-            if isinstance(function_params, str) and function_params == param_subtype:
+            if isinstance(function_params, str) and (function_params == param_subtype or function_params == 'all'):
                 final_params[f"{param_subtype}_{param_index}"] = param_value
                 number_of_params_of_subtype[param_subtype] = param_index + 1
             elif param_subtype in function_params:

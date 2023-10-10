@@ -130,13 +130,7 @@ class MitoBackend():
             [],
             transpile(self.steps_manager, add_comments=False),
             self.steps_manager.code_options['function_name'],
-            [
-                'import_dataframe',
-                'file_name_export_excel',
-                'file_name_export_csv',
-                'file_name_import_excel',
-                'file_name_import_csv',
-            ],
+            'all',
             False
         )
 
