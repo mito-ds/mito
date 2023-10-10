@@ -40,6 +40,8 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
 from mitosheet.utils import get_new_id
+from mitosheet.transpiler.transpile_utils import get_script_as_function
+from mitosheet.transpiler.transpile import transpile
 from mitosheet.step_performers.utils.user_defined_functionality import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
@@ -115,6 +117,22 @@ class MitoBackend():
         self.mito_send: Callable = lambda x: None # type: ignore
 
         self.theme = theme
+
+    @property
+    def fully_parameterized_function(self) -> str:
+        """
+        Returns the fully parameterized function string. This is used for
+        cases where we want to get the function string regardless of the 
+        code options the user provided. 
+        """
+        return '\n'.join(get_script_as_function(
+            self.steps_manager,
+            [],
+            transpile(self.steps_manager, add_comments=False),
+            self.steps_manager.code_options['function_name'],
+            'all',
+            False
+        ))
 
     @property
     def analysis_name(self):

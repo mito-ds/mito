@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
-from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, TAB
+from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, TAB, NEWLINE
 import pytest
 import pandas as pd
 
@@ -549,6 +549,75 @@ def test_transpile_as_function_single_param_multiple_times(tmp_path):
         "",
         f"txt, txt_1 = function(var_name)"
     ]
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_transpile_fully_parameterized_function_string(tmp_path):
+    tmp_file1 = str(tmp_path / 'txt.csv')
+    tmp_file2 = str(tmp_path / 'file.xlsx')
+    tmp_exportfile1 = str(tmp_path / 'export.csv')
+    tmp_exportfile2 = str(tmp_path / 'export.xlsx')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file1, index=False)
+    df1.to_excel(tmp_file2, index=False)
+
+    mito = create_mito_wrapper(df1, arg_names=['test_df_name'])
+    # Test imports for excel and CSV
+    mito.simple_import([tmp_file1])
+    mito.excel_import(tmp_file2, sheet_names=['Sheet1'], has_headers=True, skiprows=0)
+
+    # Test exports for excel and CSV
+    mito.export_to_file('csv', [0], tmp_exportfile1)
+    mito.export_to_file('excel', [1], tmp_exportfile2)
+
+    mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {}})
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        "import pandas as pd",
+        "",
+        f"txt = pd.read_csv(r'{tmp_file1}')",
+        "",
+        f"sheet_df_dictonary = "
+        f"pd.read_excel(r'{tmp_file2}', "
+        "engine='openpyxl', sheet_name=[\n"
+        f"{TAB}'Sheet1'{NEWLINE}"
+        '], skiprows=0)',
+        "Sheet1 = sheet_df_dictonary['Sheet1']",
+        "",
+        f"test_df_name.to_csv(r'{tmp_exportfile1}', "
+        'index=False)',
+        '',
+        'with '
+        f"pd.ExcelWriter(r'{tmp_exportfile2}', "
+        'engine="openpyxl") as writer:',
+        '    txt.to_excel(writer, sheet_name="txt", index=False)',
+        '',
+    ]
+
+    assert mito.mito_backend.fully_parameterized_function == '\n'.join([
+        "",
+        "def function(import_dataframe_0, file_name_import_csv_0, "
+        "file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):",
+        f'{TAB}from mitosheet.public.v3 import *',
+        f"{TAB}import pandas as pd",
+        f"{TAB}",
+        f"{TAB}txt = pd.read_csv(file_name_import_csv_0)",
+        f"{TAB}",
+        f"{TAB}sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, "
+        "engine='openpyxl', sheet_name=[\n"
+        f"{TAB}    'Sheet1'{NEWLINE}"
+        f'{TAB}], skiprows=0)',
+        f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
+        f'{TAB}',
+        f'{TAB}import_dataframe_0.to_csv(file_name_export_csv_0, index=False)',
+        f'{TAB}',
+        f'{TAB}with pd.ExcelWriter(file_name_export_excel_0, engine="openpyxl") as '
+        'writer:',
+        f'{TAB}    txt.to_excel(writer, sheet_name="txt", index=False)',
+        f'{TAB}',
+        f"{TAB}return import_dataframe_0, txt, Sheet1",
+        "",
+    ])
 
 def test_transpile_as_function_multiple_params(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')

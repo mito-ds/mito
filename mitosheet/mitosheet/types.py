@@ -340,6 +340,7 @@ if sys.version_info[:3] > (3, 8, 0):
         'file_name_export_csv',
         'file_name_import_excel',
         'file_name_import_csv',
+        'all' # This represents all of the above
     ]
     ParamValue = str
 
