@@ -561,7 +561,7 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
     df1.to_csv(tmp_file1, index=False)
     df1.to_excel(tmp_file2, index=False)
 
-    mito = create_mito_wrapper()
+    mito = create_mito_wrapper(df1, arg_names=['test_df_name'])
     # Test imports for excel and CSV
     mito.simple_import([tmp_file1])
     mito.excel_import(tmp_file2, sheet_names=['Sheet1'], has_headers=True, skiprows=0)
@@ -584,20 +584,20 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         '], skiprows=0)',
         "Sheet1 = sheet_df_dictonary['Sheet1']",
         "",
-        f"txt.to_csv(r'{tmp_exportfile1}', "
+        f"test_df_name.to_csv(r'{tmp_exportfile1}', "
         'index=False)',
         '',
         'with '
         f"pd.ExcelWriter(r'{tmp_exportfile2}', "
         'engine="openpyxl") as writer:',
-        '    Sheet1.to_excel(writer, sheet_name="Sheet1", index=False)',
+        '    txt.to_excel(writer, sheet_name="txt", index=False)',
         '',
     ]
 
     assert mito.mito_backend.fully_parameterized_function == [
         "",
-        "def function(file_name_import_csv_0, file_name_import_excel_0,"
-        " file_name_export_csv_0, file_name_export_excel_0):",
+        "def function(import_dataframe_0, file_name_import_csv_0, "
+        "file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):",
         f'{TAB}from mitosheet.public.v3 import *',
         f"{TAB}import pandas as pd",
         f"{TAB}",
@@ -609,13 +609,13 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         f'{TAB}], skiprows=0)',
         f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
         f'{TAB}',
-        f'{TAB}txt.to_csv(file_name_export_csv_0, index=False)',
+        f'{TAB}import_dataframe_0.to_csv(file_name_export_csv_0, index=False)',
         f'{TAB}',
         f'{TAB}with pd.ExcelWriter(file_name_export_excel_0, engine="openpyxl") as '
         'writer:',
-        f'{TAB}    Sheet1.to_excel(writer, sheet_name="Sheet1", index=False)',
+        f'{TAB}    txt.to_excel(writer, sheet_name="txt", index=False)',
         f'{TAB}',
-        f"{TAB}return txt, Sheet1",
+        f"{TAB}return import_dataframe_0, txt, Sheet1",
         "",
     ]
 
