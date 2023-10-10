@@ -9,11 +9,16 @@ import TextButton from '../../components/TextButton/TextButton';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 
+import CodeBlock from '../../components/CodeBlock/CodeBlock';
+
+
+
 // Define the specific function name
 const functionName = "ABS";
 
 // Define your page content and metadata
 const PageContent = () => {
+
   return (
     <>
       <Head>
@@ -59,7 +64,7 @@ const PageContent = () => {
 
       <div className={pageStyles.container}>
         <main>
-          <h1>{`How to Implement Excel's: ${functionName} function in Pandas`}</h1>
+          <h1>{`How to Implement Excels: ${functionName} function in Pandas`}</h1>
           <div className={classNames(excelToPythonStyles.related_functions_card)}>
             <p>Related Functions</p>
             <TextButton 
@@ -85,7 +90,7 @@ const PageContent = () => {
               Excel&apos;s ABS function finds the absolute value of a number. The absolute value of a function is the non-negative value of a number. The absolute value function is commonly used, for example, to calculate the distance between two points. Regardless of the order we look at the points, the distance should always be positive.
             </p>
             <p>
-              This page explains how to implement Excel's ABS function in Python, so you can automate Excel reports using Python and Pandas.
+              This page explains how to implement Excel&apos;s ABS function in Python, so you can automate Excel reports using Python and Pandas.
             </p>
           </section>
 
@@ -142,44 +147,37 @@ const PageContent = () => {
 
           {/* Equivalent Python Code Using Pandas */}
           <section>
-              <h2>Equivalent Python Code Using Pandas</h2>
+              <h2>Implementing the Absolute Value function in Pandas</h2>
               <p>
-                To replicate the functionality of the SUM function in Excel using Python and Pandas, you can use the `sum()` function available in Pandas. Below are examples of how to achieve the same functionality.
+                To replicate the ABS function in Excel using Python and Pandas, you can use the `abs()` function available in Pandas. Below are examples of how to achieve the same functionality.
               </p>
               
-              <h3>Using Pandas sum() to calculate the sum of a Pandas DataFrame column</h3>
+              <h3>Calculate the absolute value for every cell in a Pandas series</h3>
               <p>
-                The most common way to use the SUM function in Excel is to apply it to a column or series of numbers in a Pandas DataFrame.
+                The most common way to use the function in Excel is to apply it directly to a column or series of numbers in a Pandas DataFrame.
               </p>
-              <code>{`import pandas as pd
 
-  # Sample DataFrame
-  data = {'Numbers': [1, 2, 3, 4]}
-  df = pd.DataFrame(data)
-
-  # Calculate the sum using Pandas sum() function
-  total = df['Numbers'].sum()
-
-  # Display the total
-  print(total)`}</code>
-
-              <h3>Using Pandas sum() with filtering</h3>
+              <CodeBlock code={`# Calculate the absolute value of the Numbers column
+df['ABS_Result'] = df['Numbers'].abs()`}
+              />
+              <h3>Finding the absolute difference between two columns</h3>
               <p>
-                You can also use the SUM function in Excel to calculate the sum of specific rows in a Pandas DataFrame based on certain conditions.
+                To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
               </p>
-              <code>{`import pandas as pd
-
-  # Sample DataFrame
-  data = {'Category': ['A', 'B', 'A', 'C'],
-          'Value': [10, 20, 30, 40]}
-
-  df = pd.DataFrame(data)
-
-  # Calculate the sum of values where Category is 'A'
-  total_a = df[df['Category'] == 'A']['Value'].sum()
-
-  # Display the sum for 'A' category
-  print(total_a)`}</code>
+              <CodeBlock code = {`# Calculate the absolute difference between Column1 and Column2
+df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()`
+              }/>
+              <h3>Using ABS as part of a more complex operation</h3>
+              <p>
+                To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
+              </p>
+              <CodeBlock code = {`# Define a function to calculate the absolute sum of a row
+def abs_sum(row):
+  return row.abs().sum()
+                
+# Create a new column 'ABS_SUM' by applying the custom function 
+df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
+              }/>
           </section>
 
           {/* Common Pitfalls and Tips */}
@@ -229,10 +227,10 @@ const PageContent = () => {
           <section>
               <h2>Practical Example</h2>
               <p>
-                Let's consider a practical example where the SUM function is commonly used. Suppose you have a sales dataset with monthly sales figures, and you want to calculate the total annual sales.
+                Lets consider a practical example where the SUM function is commonly used. Suppose you have a sales dataset with monthly sales figures, and you want to calculate the total annual sales.
               </p>
               <p>
-                Here's how you can apply the SUM function in Python to achieve this:
+                Heres how you can apply the SUM function in Python to achieve this:
               </p>
               <code>{`import pandas as pd
 
@@ -252,7 +250,7 @@ const PageContent = () => {
           <section>
             <h2>Conclusion</h2>
             <p>
-              In this guide, we've shown you how to convert the Excel SUM function to Python using Pandas. By following the examples and tips provided, you can seamlessly transition from Excel to Python for data analysis and automation.
+              In this guide, weve shown you how to convert the Excel SUM function to Python using Pandas. By following the examples and tips provided, you can seamlessly transition from Excel to Python for data analysis and automation.
             </p>
             <p>
               We encourage you to explore other Excel-to-Python guides on our website to further enhance your data analysis skills with Python.
@@ -266,3 +264,4 @@ const PageContent = () => {
 };
 
 export default PageContent;
+

@@ -1,11 +1,22 @@
 import '../styles/globals.css'
 import '../styles/margins.css'
 import type { AppProps } from 'next/app'
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
+import Prism from 'prismjs';
+import 'prismjs/plugins/line-numbers/prism-line-numbers'; // Import line numbers plugin
+import '../styles/prism.module.css'; // Import your custom Prism.js theme
+
+const prism = require("prismjs")
+require('prismjs/components/prism-python');
 
 function MyApp({ Component, pageProps }: AppProps) {
+
+  useEffect(() => {
+    // Initialize Prism.js
+    Prism.highlightAll();
+  }, []);
 
   return (
     <>
