@@ -339,7 +339,6 @@ def test_transpiled_with_export_to_xlsx_format():
     mito.set_dataframe_format(0, DF_FORMAT_HEADER)
     filename = 'test_format.xlsx'
     mito.export_to_file('excel', [0], filename, export_formatting=True)
-    print(mito.transpiled_code)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 import pandas as pd
 

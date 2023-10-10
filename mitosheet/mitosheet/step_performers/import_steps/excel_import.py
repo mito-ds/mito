@@ -16,7 +16,7 @@ from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_dataframe_names
 
 
 class ExcelImportStepPerformer(StepPerformer):
@@ -40,10 +40,7 @@ class ExcelImportStepPerformer(StepPerformer):
             raise make_file_not_found_error(file_name)
         
         sheet_names: List[str] = get_param(params, 'sheet_names')
-        new_df_names = []
-        for sheet_name in sheet_names:
-            new_df_name = get_valid_dataframe_name(prev_state.df_names + new_df_names, sheet_name)
-            new_df_names.append(new_df_name)
+        new_df_names = get_valid_dataframe_names(prev_state.df_names, sheet_names)
 
         execution_data = {
             'new_df_names': new_df_names

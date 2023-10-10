@@ -18,6 +18,10 @@ class EmptyCodeChunk(CodeChunk):
 
     Notably, as they don't have generated code, we can still optimize out
     these steps in the code optimization process.
+
+    You can also set optimize_right to be False, which will make sure that 
+    this step does not get optimized out (e.g. see SetDataframeFormatCodeChunk
+    for why we might want this).
     """
 
     def __init__(self, prev_state: State, display_name: str, description_comment: str, optimize_right: bool=True):

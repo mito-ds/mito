@@ -88,8 +88,6 @@ def test_userdefinedimport(input_dfs, importer, importer_params, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
 
 

@@ -70,16 +70,19 @@ class SnowflakeImportStepPerformer(StepPerformer):
             'new_df_name': new_df_name
         }
 
-        return cls.execute_through_transpile(
-            prev_state,
-            params,
-            execution_data,
-            new_dataframe_params={
-                'df_source': DATAFRAME_SOURCE_IMPORTED,
-                'new_df_names': [new_df_name],
-                'sheet_indexes': None
-            }
-        )
+        try:
+            return cls.execute_through_transpile(
+                prev_state,
+                params,
+                execution_data,
+                new_dataframe_params={
+                    'df_source': DATAFRAME_SOURCE_IMPORTED,
+                    'new_df_names': [new_df_name],
+                    'sheet_indexes': None
+                }
+            )
+        except Exception as e:
+            raise make_invalid_snowflake_import_error(e)
 
     @classmethod
     def transpile(

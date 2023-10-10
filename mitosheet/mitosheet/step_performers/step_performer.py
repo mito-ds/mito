@@ -59,6 +59,12 @@ class StepPerformer(ABC, object):
     @abstractmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
+        1. Parse params
+        2. Error check (using no functions specific to Pandas)
+        3. Build necessary execution data - namely, new column header info or new dataframe info
+        3. Execute the transpiled code to make the new state
+        4. Build a result from this
+
         Execute always returns the post_state, and optionally returns a dictionary
         of execution_data, which is data that may be useful to the transpiler in
         transpiling the code.
@@ -103,8 +109,21 @@ class StepPerformer(ABC, object):
         use_deprecated_id_algorithm: Optional[bool]=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
-        Some steps can be executed through the transpiled code -- and in these cases, we can call this function
-        so that we don't have to duplicate the work we do
+        Previously, we had a ton of duplicated code in the execute and the code chunk functions. This was annoying 
+        for a few reasons:
+        1. Duplicated code introduced the possibility that things worked differently on our backend vs. in our generated code. 
+        2. It was more work to write, since you had to write everything twice.
+        3. It meant we were tied to a specific programming framework like pandas 
+
+        This function was introduced so that we can instead just do the `execute` method simply by executing the 
+        code that we would have generated for this step. Thus, the only thing `execute` ends up being responsible 
+        for is doing error handling, updating some metadata about the step, or computing a result to return to the
+        frontend. In other words: everything other than the actual execution, which is handled by this code here.
+
+        This code works similarly to the AI recon, in that it uses an exec statement and then looks at what changed 
+        between before and after the code is executed. However, this code has the additional benefit of knowing what
+        it expects to change, so the various parameters are how the caller of this method can tell this function what
+        should be different before and after in dataframes.
         """
         if execution_data is None:
             execution_data = {}
@@ -155,7 +174,6 @@ class StepPerformer(ABC, object):
                 # Check if there are any invalid column headers
                 c = Counter(new_df.columns)
                 most_common = c.most_common(1)
-                print(most_common)
                 for ch, count in most_common:
                     if count > 1:
                         raise make_column_exists_error(ch)
@@ -176,9 +194,6 @@ class StepPerformer(ABC, object):
 
                 new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
                 post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
-
-                print("NEW DF", new_df)
-
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,

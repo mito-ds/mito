@@ -40,7 +40,7 @@ class ColumnHeadersTransformCodeChunk(CodeChunk):
         else:
             raise ValueError(f'Unknown transformation type: {self.transformation["type"]}')
 
-        return code, []
+        return code, []        
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

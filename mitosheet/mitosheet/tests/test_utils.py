@@ -23,7 +23,7 @@ from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
 from mitosheet.step_performers.pivot import PCT_NO_OP
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import (
-    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
+    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code, get_globals_for_exec)
 from mitosheet.types import (CodeOptions, ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
                              ColumnIDWithFilter, ColumnIDWithPivotTransform,
@@ -70,8 +70,6 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
     # Then, construct code that is just the code we expect, except at the end
     # it compares the dataframe to the final dataframe we expect
     def check_final_dataframe(df_name, df):
-        print(final_dfs[df_name])
-        print(df)
         assert final_dfs[df_name].equals(df)
 
     code = "\n".join(
@@ -82,39 +80,16 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
         ]
     )
 
-    import mitosheet
+    final_state = test_wrapper.mito_backend.steps_manager.curr_step.final_defined_state
 
-    public_interface = test_wrapper.mito_backend.steps_manager.public_interface_version
-    if public_interface == 1:
-        import mitosheet.public.v1 as v1
-        local_vars = v1.__dict__
-    elif public_interface == 2:
-        import mitosheet.public.v2 as v2
-        local_vars = v2.__dict__
-    elif public_interface == 3:
-        import mitosheet.public.v3 as v3
-        local_vars = v3.__dict__
-    else:
-        import mitosheet as original
-        local_vars = original.__dict__
 
-    user_defined_functions = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
-    user_defined_importers = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_importers if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
-
-    local_vars = {
-        **local_vars,
-        **{f.__name__: f for f in user_defined_functions},
-        **{f.__name__: f for f in user_defined_importers},
-    }
+    
 
     try:
         exec(code, 
             {
                 'check_final_dataframe': check_final_dataframe,
-                # Make sure all the mitosheet functions are defined, which replaces the
-                # `from mitosheet import *` code that is at the top of all
-                # transpiled code 
-                **local_vars,
+                **get_globals_for_exec(final_state, final_state.public_interface_version),
             }, 
             original_args
         )

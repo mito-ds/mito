@@ -244,23 +244,6 @@ def get_full_applied_filter(
 
     return (full_applied_filter, pandas_processing_time)
 
-
-
-def _execute_filter(
-    df: pd.DataFrame,
-    column_header: ColumnHeader,
-    operator: OperatorType,
-    filters: List[Union[Filter, FilterGroup]],
-) -> Tuple[pd.DataFrame, float]:
-    """
-    Executes a filter on the given column, filtering by removing any rows who
-    don't meet the condition.
-    """
-
-    full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
-    return df[full_applied_filter], pandas_processing_time
-
-
 def check_filters_contain_condition_that_needs_full_df(filters: List[Union[Filter, FilterGroup]]) -> bool:
     """
     Returns true if any filter condition is a FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME

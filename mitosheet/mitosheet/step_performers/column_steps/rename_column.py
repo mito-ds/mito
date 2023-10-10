@@ -37,11 +37,7 @@ class RenameColumnStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
 
-        sheet_index = params['sheet_index']
         new_column_header = params['new_column_header']
-
-        if new_column_header in prev_state.dfs[sheet_index].columns:
-            raise make_column_exists_error(new_column_header)
 
         execution_data = {
             'column_ids_to_new_column_headers': {

@@ -96,7 +96,6 @@ class DeleteColumnsCodeChunk(CodeChunk):
             return None
 
         added_column_id = add_column_code_chunk.new_column_id
-        print("HERE!", added_column_id)
 
         if added_column_id in self.column_ids:
 

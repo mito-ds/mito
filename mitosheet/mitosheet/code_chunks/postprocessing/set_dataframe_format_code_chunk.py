@@ -290,7 +290,10 @@ def get_dataframe_format_code(state: State, sheet_index: int) -> Tuple[Optional[
 class SetDataframeFormatCodeChunk(CodeChunk):
     """
     This is the first postprocessing code chunk. Postprocessing code chunks are executed after all other code chunks,
-    and are given access to the final state. They have no parameters otherwise.
+    and are given access to the final state. This means, unlike other code chunks, it's fine for post-processing code 
+    chunks to get access to the final post_state. 
+    
+    TODO: Maybe they should only get the post state?
     """
 
     def __init__(self, prev_state: State, post_state: State):

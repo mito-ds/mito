@@ -25,7 +25,7 @@ from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ExcelRangeImport
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_dataframe_names
 
 
 class ExcelRangeImportStepPerformer(StepPerformer):
@@ -43,12 +43,9 @@ class ExcelRangeImportStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        
         range_imports: List[ExcelRangeImport] = get_param(params, 'range_imports')
-
-        new_df_names = []
-        for range_import in range_imports:
-            new_df_name = get_valid_dataframe_name(prev_state.df_names + new_df_names, range_import['df_name'])
-            new_df_names.append(new_df_name)
+        new_df_names = get_valid_dataframe_names(prev_state.df_names, list(map(lambda x: x['df_name'], range_imports)))
 
         execution_data = {
             'new_df_names': new_df_names

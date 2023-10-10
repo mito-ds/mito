@@ -27,18 +27,18 @@ class GraphRenameStepPerformer(StepPerformer):
     def step_type(cls) -> str:
         return 'graph_rename'
 
-    @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
-        graph_id = params['graph_id']
-        old_graph_tab_name = prev_state.graph_data_dict[graph_id]["graphTabName"]
-        params['old_graph_tab_name'] = old_graph_tab_name
-        return params
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
         graph_id: GraphID = get_param(params, 'graph_id')
         old_graph_tab_name: str = get_param(params, 'old_graph_tab_name')
         new_graph_tab_name: str = get_param(params, 'new_graph_tab_name')
+        
+        # Save the old_graph_tab_name
+        old_graph_tab_name = prev_state.graph_data_dict[graph_id]["graphTabName"]
+        params['old_graph_tab_name'] = old_graph_tab_name
+
 
         # Bail early, if there is no change or the new name is empty
         if old_graph_tab_name == new_graph_tab_name or new_graph_tab_name == '' :

@@ -66,7 +66,6 @@ class DataframeRenameStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        print(execution_data)
         return [
             DataframeRenameCodeChunk(
                 prev_state, 

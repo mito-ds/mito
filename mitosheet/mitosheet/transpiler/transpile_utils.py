@@ -354,6 +354,14 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
 
 
 def get_globals_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
+    """
+    Anytime you are exec'ing transpiled code, you need to pass some global variables including:
+    1. The public interface exported by Mito for this public interface code
+    2. The user defined functions and importers
+    3. The dataframe names
+
+    This function collects these all in one location, so they then can be exec'ed.
+    """
 
     df_names_to_df = {
         df_name: df for df, df_name in 
