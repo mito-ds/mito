@@ -550,6 +550,41 @@ def test_transpile_as_function_single_param_multiple_times(tmp_path):
         f"txt, txt_1 = function(var_name)"
     ]
 
+def test_transpile_fully_parameterized_function_string(tmp_path):
+    tmp_file1 = str(tmp_path / 'txt.csv')
+    tmp_file2 = str(tmp_path / 'file.csv')
+    df1 = pd.DataFrame({'A': [1], 'B': [2]})
+    df1.to_csv(tmp_file1, index=False)
+    df1.to_csv(tmp_file2, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([tmp_file1])
+    mito.simple_import([tmp_file2])
+    mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {'var_name1': f"r'{tmp_file1}'", 'var_name2': f"r'{tmp_file2}'"}})
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *',
+        "import pandas as pd",
+        "",
+        f"txt = pd.read_csv(r'{tmp_file1}')",
+        f"file = pd.read_csv(r'{tmp_file2}')",
+        ""
+    ]
+
+    print(mito.mito_backend.fully_parameterized_function)
+
+    assert mito.mito_backend.fully_parameterized_function == [
+        "",
+        "def function(file_name_import_csv_0, file_name_import_csv_1):",
+        f'{TAB}from mitosheet.public.v3 import *',
+        f"{TAB}import pandas as pd",
+        f"{TAB}",
+        f"{TAB}txt = pd.read_csv(file_name_import_csv_0)",
+        f"{TAB}file = pd.read_csv(file_name_import_csv_1)",
+        f'{TAB}',
+        f"{TAB}return txt, file",
+        "",
+    ]
+
 def test_transpile_as_function_multiple_params(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')
     tmp_file2 = str(tmp_path / 'file.csv')
