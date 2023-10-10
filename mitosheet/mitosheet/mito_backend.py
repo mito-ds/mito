@@ -119,20 +119,20 @@ class MitoBackend():
         self.theme = theme
 
     @property
-    def fully_parameterized_function(self) -> List[str]:
+    def fully_parameterized_function(self) -> str:
         """
         Returns the fully parameterized function string. This is used for
         cases where we want to get the function string regardless of the 
         code options the user provided. 
         """
-        return get_script_as_function(
+        return '\n'.join(get_script_as_function(
             self.steps_manager,
             [],
             transpile(self.steps_manager, add_comments=False),
             self.steps_manager.code_options['function_name'],
             'all',
             False
-        )
+        ))
 
     @property
     def analysis_name(self):

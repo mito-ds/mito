@@ -594,7 +594,7 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         '',
     ]
 
-    assert mito.mito_backend.fully_parameterized_function == [
+    assert mito.mito_backend.fully_parameterized_function == '\n'.join([
         "",
         "def function(import_dataframe_0, file_name_import_csv_0, "
         "file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):",
@@ -617,7 +617,7 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         f'{TAB}',
         f"{TAB}return import_dataframe_0, txt, Sheet1",
         "",
-    ]
+    ])
 
 def test_transpile_as_function_multiple_params(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')
