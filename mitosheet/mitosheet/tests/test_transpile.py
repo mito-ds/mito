@@ -570,8 +570,6 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         ""
     ]
 
-    print(mito.mito_backend.fully_parameterized_function)
-
     assert mito.mito_backend.fully_parameterized_function == [
         "",
         "def function(file_name_import_csv_0, file_name_import_csv_1):",
