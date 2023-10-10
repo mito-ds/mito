@@ -560,7 +560,7 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
     mito = create_mito_wrapper()
     mito.simple_import([tmp_file1])
     mito.simple_import([tmp_file2])
-    mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {'var_name1': f"r'{tmp_file1}'", 'var_name2': f"r'{tmp_file2}'"}})
+    mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {}})
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         "import pandas as pd",
