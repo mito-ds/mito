@@ -618,6 +618,33 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         f"{TAB}return import_dataframe_0, txt, Sheet1",
         "",
     ])
+    assert mito.mito_backend.param_metadata == [
+        {
+            'initial_value': 't',
+            'type': 'e',
+            'subtype': 's'
+        },
+        {
+            'initial_value': f"r'{tmp_file1}'",
+            'type': 'file_name',
+            'subtype': 'file_name_import_csv'
+        },
+        {
+            'initial_value': f"r'{tmp_file2}'",
+            'type': 'file_name',
+            'subtype': 'file_name_import_excel'
+        },
+        {
+            'initial_value': f"r'{tmp_exportfile1}'",
+            'type': 'file_name',
+            'subtype': 'file_name_export_csv'
+        },
+        {
+            'initial_value': f"r'{tmp_exportfile2}'",
+            'type': 'file_name',
+            'subtype': 'file_name_export_excel'
+        }
+    ]
 
 def test_transpile_as_function_multiple_params(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')

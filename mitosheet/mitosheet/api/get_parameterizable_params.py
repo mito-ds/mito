@@ -7,9 +7,8 @@
 import json
 from typing import Any, Dict, List, Tuple
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
-from mitosheet.types import ParamSubtype, ParamType, ParamValue, StepsManagerType
+from mitosheet.types import ParamSubtype, ParamType, ParamValue, StepsManagerType, ParamData
 from mitosheet.updates.args_update import is_string_arg_to_mitosheet_call
-
 
 def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
 
@@ -26,5 +25,29 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
         for code_chunk in code_chunks:
                 parameterizable_params = code_chunk.get_parameterizable_params()
                 all_parameterizable_params.extend(parameterizable_params)
+
+        return all_parameterizable_params
+
+def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List[ParamData]:
+
+        all_parameterizable_params: List[ParamData] = []
+
+        map_tuple_to_param_data = lambda param: {
+                'initial_value': param[0],
+                'type': param[1],
+                'subtype': param[2]
+        }
+
+        # First, get the original arguments to the mitosheet - we only let you parameterize df names for now
+        for arg in steps_manager.original_args_raw_strings:
+                if not is_string_arg_to_mitosheet_call(arg):
+                        all_parameterizable_params.append(map_tuple_to_param_data(arg)) # type: ignore
+    
+        # Get optimized code chunk, and get their parameterizable params
+        code_chunks = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=True)
+
+        for code_chunk in code_chunks:
+                parameterizable_params = code_chunk.get_parameterizable_params()
+                all_parameterizable_params.extend(map(map_tuple_to_param_data, parameterizable_params))
 
         return all_parameterizable_params

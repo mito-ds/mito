@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, MitoTheme
+from mitosheet.types import CodeOptions, MitoTheme, ParamData
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
@@ -42,6 +42,7 @@ from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_r
 from mitosheet.utils import get_new_id
 from mitosheet.transpiler.transpile_utils import get_script_as_function
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.step_performers.utils.user_defined_functionality import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
@@ -133,6 +134,10 @@ class MitoBackend():
             'all',
             False
         ))
+
+    @property
+    def param_metadata(self) -> str:
+        return get_parameterizable_params_metadata(self.steps_manager)
 
     @property
     def analysis_name(self):
