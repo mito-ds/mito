@@ -550,6 +550,8 @@ def test_transpile_as_function_single_param_multiple_times(tmp_path):
         f"txt, txt_1 = function(var_name)"
     ]
 
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_transpile_fully_parameterized_function_string(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')
     tmp_file2 = str(tmp_path / 'file.xlsx')
