@@ -346,7 +346,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     # For streamlit applications, when we want to display the parameters to the user, 
     # we need to know various metadata about the parameter
-    class ParamData(TypedDict):
+    class ParamMetadata(TypedDict):
         type: ParamType
         subtype: ParamSubtype
         required: bool

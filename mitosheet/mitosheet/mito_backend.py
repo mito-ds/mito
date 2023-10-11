@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, MitoTheme, ParamData
+from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
