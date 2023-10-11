@@ -15,6 +15,7 @@ continous integration
 import pandas as pd
 import numpy as np
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from collections import OrderedDict
 
 GraphID = str
 ColumnID = str
@@ -127,7 +128,7 @@ FC_DATETIME_LESS_THAN_OR_EQUAL = "datetime_less_than_or_equal"
 
 import sys
 if sys.version_info[:3] > (3, 8, 0):
-    from typing import TypedDict, Literal, OrderedDict
+    from typing import TypedDict, Literal
 
 
     BooleanFilterCondition = Literal[

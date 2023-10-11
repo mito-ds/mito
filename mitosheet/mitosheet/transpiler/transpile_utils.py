@@ -7,7 +7,8 @@
 from copy import copy
 import inspect
 import re
-from typing import Any, Dict, List, Optional, OrderedDict, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from collections import OrderedDict
 
 import pandas as pd
 import numpy as np
