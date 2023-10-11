@@ -29,6 +29,10 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
 
         return all_parameterizable_params
 
+# This function is used to get the parameterizable params for the UI in streamlit. 
+# It returns a list of ParamMetadata objects, which are defined in mitosheet/types.py
+# The ParamMetadata object includes various information that a streamlit developer might
+# need to display the parameterizable params in the UI.
 def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List[ParamMetadata]:
         # First, get all the parameterizable params and the function params
         all_parameterizable_params = get_parameterizable_params({}, steps_manager)
