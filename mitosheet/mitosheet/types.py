@@ -354,7 +354,7 @@ if sys.version_info[:3] > (3, 8, 0):
         name: str
         original_value: Optional[str]
 
-    CodeOptionsFunctionParams = Union[OrderedDict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+    CodeOptionsFunctionParams = Union[OrderedDict, ParamSubtype, List[ParamSubtype]]
 
     class CodeOptions(TypedDict):
         as_function: bool
