@@ -14,7 +14,7 @@ continous integration
 
 import pandas as pd
 import numpy as np
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from typing import TYPE_CHECKING, Dict, List, Optional, OrderedDict, Union, Tuple, Any
 
 GraphID = str
 ColumnID = str
@@ -353,7 +353,7 @@ if sys.version_info[:3] > (3, 8, 0):
         name: str
         original_value: Optional[str]
 
-    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+    CodeOptionsFunctionParams = Union[OrderedDict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
 
     class CodeOptions(TypedDict):
         as_function: bool
