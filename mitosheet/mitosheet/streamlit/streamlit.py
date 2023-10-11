@@ -11,5 +11,5 @@ def ADD_ONE():
 
 
 df = pd.DataFrame({'A': [1, 2, 3]})
-selection = spreadsheet(df, return_type='selection')
-st.write(selection)
+analysis = spreadsheet(df, return_type='analysis')
+st.write(analysis)
