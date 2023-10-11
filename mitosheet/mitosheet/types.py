@@ -347,7 +347,9 @@ if sys.version_info[:3] > (3, 8, 0):
     class ParamData(TypedDict):
         type: ParamType
         subtype: ParamSubtype
-        original_value: str
+        required: bool
+        name: str
+        original_value: Optional[str]
 
     CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
 
