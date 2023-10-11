@@ -15,6 +15,7 @@ continous integration
 import pandas as pd
 import numpy as np
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from collections import OrderedDict
 
 GraphID = str
 ColumnID = str
@@ -344,7 +345,16 @@ if sys.version_info[:3] > (3, 8, 0):
     ]
     ParamValue = str
 
-    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+    # For streamlit applications, when we want to display the parameters to the user, 
+    # we need to know various metadata about the parameter
+    class ParamMetadata(TypedDict):
+        type: ParamType
+        subtype: ParamSubtype
+        required: bool
+        name: str
+        original_value: Optional[str]
+
+    CodeOptionsFunctionParams = Union[OrderedDict, ParamSubtype, List[ParamSubtype]]
 
     class CodeOptions(TypedDict):
         as_function: bool
@@ -414,6 +424,7 @@ else:
     ParamType = str # type: ignore
     ParamSubtype = str # type: ignore
     ParamValue = str # type: ignore
+    ParamMetadata = Any # type: ignore
 
     CodeOptionsFunctionParams = Any # type: ignore
 
