@@ -423,6 +423,7 @@ else:
     ParamType = str # type: ignore
     ParamSubtype = str # type: ignore
     ParamValue = str # type: ignore
+    ParamMetadata = Any # type: ignore
 
     CodeOptionsFunctionParams = Any # type: ignore
 
