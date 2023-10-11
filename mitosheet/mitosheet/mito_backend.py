@@ -136,7 +136,7 @@ class MitoBackend():
         ))
 
     @property
-    def param_metadata(self) -> str:
+    def param_metadata(self) -> List[ParamMetadata]:
         return get_parameterizable_params_metadata(self.steps_manager)
 
     @property
