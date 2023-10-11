@@ -47,6 +47,8 @@ def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List
                         'initial_value': param[0],
                         'type': param[1],
                         'subtype': param[2],
+                        # If the param is a df_name, then it is required for the function
+                        # because we won't be able to store the initial value in the MitoAnalysis for streamlit.
                         'required': param[1] == 'df_name',
                         'name': param_name
                 }
