@@ -115,8 +115,8 @@ class MitoAnalysis:
     code: str
     code_options: CodeOptions
     def __init__(self, code, code_options, fully_parameterized_code, param_metadata):
-        self.code = code
-        self.code_options = code_options
+        self.__code = code
+        self.__code_options = code_options
         self.__fully_parameterized_code: str = fully_parameterized_code
         self.__param_metadata: List[ParamMetadata] = param_metadata
 
