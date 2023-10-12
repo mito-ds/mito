@@ -12,14 +12,7 @@ def ADD_ONE():
 df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
     import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
-    return_type='analysis',
-    code_options={
-        'as_function': False,
-        'function_name': 'analysis',
-        'function_params': {},
-        'import_custom_python_code': False,
-        'call_function': False
-    }
+    return_type='analysis'
 )
 st.code(analysis)
 run = st.button('Run')
