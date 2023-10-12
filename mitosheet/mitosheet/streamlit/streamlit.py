@@ -11,8 +11,7 @@ def ADD_ONE():
 
 df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
-    # import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
-    df,
+    import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
     return_type='analysis',
     code_options={
         'as_function': False,
@@ -22,8 +21,8 @@ analysis = spreadsheet(
         'call_function': False
     }
 )
-st.write(analysis)
-
+st.code(analysis.fully_parameterized_function)
+st.write(analysis.param_metadata)
 run = st.button('Run')
 if run:
     st.write(analysis.run())

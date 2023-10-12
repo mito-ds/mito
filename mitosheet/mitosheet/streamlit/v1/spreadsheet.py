@@ -112,10 +112,10 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 # It contains data that could be relevant to the streamlit developer, and is 
 # used for replaying analyses. 
 class MitoAnalysis:
-    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
+    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_function: str, param_metadata: List[ParamMetadata]):
         self.code = code
         self.code_options = code_options
-        self.fully_parameterized_code = fully_parameterized_code
+        self.fully_parameterized_function = fully_parameterized_function
         self.param_metadata = param_metadata
         
     def run(self):
@@ -124,7 +124,7 @@ class MitoAnalysis:
             if param['type'] == 'df_name':
                 raise NotImplementedError('Cannot run MitoAnalysis with df_name parameters.')
             params[param['name']] = param['initial_value'][2:-1]
-        return get_function_from_code_unsafe(self.fully_parameterized_code)(**params)
+        return get_function_from_code_unsafe(self.fully_parameterized_function)(**params)
 
 try:
     import streamlit.components.v1 as components
