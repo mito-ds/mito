@@ -21,8 +21,7 @@ analysis = spreadsheet(
         'call_function': False
     }
 )
-st.code(analysis.fully_parameterized_function)
-st.write(analysis.param_metadata)
+st.code(analysis)
 run = st.button('Run')
 if run:
     st.write(analysis.run())
