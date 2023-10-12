@@ -112,7 +112,7 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 # It contains data that could be relevant to the streamlit developer, and is 
 # used for replaying analyses. 
 class MitoAnalysis:
-    def __init__(self, code: str, code_options: CodeOptions | None, fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
+    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
         self.__code = code
         self.__code_options = code_options
         self.__fully_parameterized_code = fully_parameterized_code
