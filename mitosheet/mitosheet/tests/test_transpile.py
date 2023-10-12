@@ -594,30 +594,24 @@ def test_transpile_fully_parameterized_function_string(tmp_path):
         '',
     ]
 
-    assert mito.mito_backend.fully_parameterized_function == '\n'.join([
-        "",
-        "def function(import_dataframe_0, file_name_import_csv_0, "
-        "file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):",
-        f'{TAB}from mitosheet.public.v3 import *',
-        f"{TAB}import pandas as pd",
-        f"{TAB}",
-        f"{TAB}txt = pd.read_csv(file_name_import_csv_0)",
-        f"{TAB}",
-        f"{TAB}sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, "
-        "engine='openpyxl', sheet_name=[\n"
-        f"{TAB}    'Sheet1'{NEWLINE}"
-        f'{TAB}], skiprows=0)',
-        f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
-        f'{TAB}',
-        f'{TAB}import_dataframe_0.to_csv(file_name_export_csv_0, index=False)',
-        f'{TAB}',
-        f'{TAB}with pd.ExcelWriter(file_name_export_excel_0, engine="openpyxl") as '
-        'writer:',
-        f'{TAB}    txt.to_excel(writer, sheet_name="txt", index=False)',
-        f'{TAB}',
-        f"{TAB}return import_dataframe_0, txt, Sheet1",
-        "",
-    ])
+    assert mito.mito_backend.fully_parameterized_function == f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):
+    txt = pd.read_csv(file_name_import_csv_0)
+    
+    sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, engine='openpyxl', sheet_name=[
+        'Sheet1'
+    ], skiprows=0)
+    Sheet1 = sheet_df_dictonary['Sheet1']
+    
+    import_dataframe_0.to_csv(file_name_export_csv_0, index=False)
+    
+    with pd.ExcelWriter(file_name_export_excel_0, engine="openpyxl") as writer:
+        txt.to_excel(writer, sheet_name="txt", index=False)
+    
+    return import_dataframe_0, txt, Sheet1
+"""
     assert mito.mito_backend.param_metadata == [
         {
             'initial_value': 'test_df_name',

@@ -10,6 +10,19 @@ def ADD_ONE():
     return 1
 
 
-df = pd.DataFrame({'A': [1, 2, 3]})
-analysis = spreadsheet(df, return_type='analysis')
+analysis = spreadsheet(
+    import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
+    return_type='analysis',
+    code_options={
+        'as_function': False,
+        'function_name': 'analysis',
+        'function_params': {},
+        'import_custom_python_code': False,
+        'call_function': False
+    }
+)
 st.write(analysis)
+
+run = st.button('Run')
+if run:
+    st.write(analysis.run())
