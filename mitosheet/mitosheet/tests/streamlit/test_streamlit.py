@@ -62,7 +62,7 @@ SPREADSHEET_PARAMS = [
         'return type of analysis',
         [df1], {'return_type': 'analysis'},
         (
-            MitoAnalysis('', {}, '', [])
+            MitoAnalysis('', None, '', [])
         )
     )
 ]
