@@ -9,9 +9,10 @@ st.set_page_config(layout="wide")
 def ADD_ONE():
     return 1
 
-
+df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
-    import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
+    # import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
+    df,
     return_type='analysis',
     code_options={
         'as_function': False,
