@@ -122,7 +122,7 @@ class MitoAnalysis:
         params = {}
         for param in self.param_metadata:
             if param['type'] == 'df_name':
-                raise NotImplemented('Cannot run an analysis with a df_name parameter.')
+                raise NotImplementedError('Cannot run MitoAnalysis with df_name parameters.')
             params[param['name']] = param['initial_value'][2:-1]
         return get_function_from_code_unsafe(self.fully_parameterized_code)(**params)
 
