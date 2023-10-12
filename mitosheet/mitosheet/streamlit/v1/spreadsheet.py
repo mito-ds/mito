@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.types import CodeOptions
+from mitosheet.types import CodeOptions, ParamMetadata
 from mitosheet.utils import get_new_id
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
@@ -108,6 +108,15 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
         
     raise ValueError(f'No functions defined in code: {code}')
 
+# This is the class that is returned when the user sets return_type='analysis'
+# It contains data that could be relevant to the streamlit developer, and is 
+# used for replaying analyses. 
+class MitoAnalysis:
+    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
+        self.__code = code
+        self.__code_options = code_options
+        self.__fully_parameterized_code = fully_parameterized_code
+        self.__param_metadata = param_metadata
 
 try:
     import streamlit.components.v1 as components
@@ -311,6 +320,8 @@ try:
                 raise ValueError(f"""You must set code_options with `as_function=True` and `call_function=False` in order to return a function.""")
             
             return get_function_from_code_unsafe(code)
+        elif return_type == 'analysis':
+            return MitoAnalysis(code, code_options, mito_backend.fully_parameterized_function, mito_backend.param_metadata)
         else:
             raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
 
