@@ -165,3 +165,26 @@ def function(import_dataframe_0):
     with pytest.raises(NotImplementedError):
         analysis.run()
     
+
+@requires_streamlit
+def test_run_fail_incorrect_args():
+    fully_parameterized_function = f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+def function(import_dataframe_0):
+    return import_dataframe_0
+"""
+    param_metadata = [
+        {
+            'initial_value': "xyz",
+            'type': 'file_name',
+            'subtype': 'file_name_export_excel',
+            'name': 'file_name_export_excel_0',
+            'required': False
+        }
+    ]
+    
+    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    with pytest.raises(TypeError):
+        analysis.run(testing=1)
+    

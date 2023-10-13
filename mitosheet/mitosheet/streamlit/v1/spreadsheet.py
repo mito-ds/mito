@@ -130,6 +130,8 @@ class MitoAnalysis:
             params[param['name']] = param['initial_value'][2:-1]
         
         for name, value in kwargs.items():
+            if not any(param for param in self.__param_metadata if param['name'] == name):
+                raise TypeError(f'MitoAnalysis.run() got an unexpected keyword argument {name}')
             params[name] = value
         return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 
