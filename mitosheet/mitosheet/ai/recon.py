@@ -125,6 +125,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'prints': output_string_io.getvalue()
     }
 
+
 def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ModifiedDataframeReconData:
     """
     Given a dataframe and a modified dataframe, this function tries to figure out what has happened
@@ -202,6 +203,32 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
     
 
 
+def get_updated_state_from_reconed_dataframes(state: State, sheet_index: int, new_df: pd.DataFrame) -> State:
+    """
+    This function is the work-horse for modified dataframes. TODO: document this better
+    """
+    old_df = state.dfs[sheet_index]
+
+    modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
+
+    # Add new columns to the state
+    state.add_columns_to_state(sheet_index, modified_dataframe_recon['column_recon']['created_columns'])
+
+    # Delete removed columns from the state
+    deleted_column_ids = state.column_ids.get_column_ids_by_headers(sheet_index, modified_dataframe_recon['column_recon']['deleted_columns'])
+    delete_column_ids(state, sheet_index, deleted_column_ids)
+
+    # Rename renamed columns in the state
+    for old_ch, new_ch in modified_dataframe_recon['column_recon']['renamed_columns'].items():
+        column_id = state.column_ids.get_column_id_by_header(sheet_index, old_ch)
+        state.column_ids.set_column_header(sheet_index, column_id, new_ch)
+
+    # Then, actually set the dataframe
+    state.dfs[sheet_index] = new_df
+
+    return state
+
+
 def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
 
     # Fix up the code, so we can ensure that we execute it properly
@@ -226,24 +253,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
-        old_df = df_map[df_name]
-        modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
-        modified_dataframes_recons[df_name] = modified_dataframe_recon
-
-        # Add new columns to the state
-        new_state.add_columns_to_state(sheet_index, modified_dataframe_recon['column_recon']['created_columns'])
-
-        # Delete removed columns from the state
-        deleted_column_ids = new_state.column_ids.get_column_ids_by_headers(sheet_index, modified_dataframe_recon['column_recon']['deleted_columns'])
-        delete_column_ids(new_state, sheet_index, deleted_column_ids)
-
-        # Rename renamed columns in the state
-        for old_ch, new_ch in modified_dataframe_recon['column_recon']['renamed_columns'].items():
-            column_id = new_state.column_ids.get_column_id_by_header(sheet_index, old_ch)
-            new_state.column_ids.set_column_header(sheet_index, column_id, new_ch)
-
-        # Then, actually set the dataframe
-        new_state.dfs[sheet_index] = new_df
+        new_state = get_updated_state_from_reconed_dataframes(new_state, sheet_index, new_df)
 
     # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
     # is a _newly_ created dataframe that is already given a name
@@ -276,7 +286,3 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     }
 
     return (new_state, recon_data['last_line_expression_value'], frontend_result)
-
-        
-        
-

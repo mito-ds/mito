@@ -9,7 +9,7 @@ from typing import Any, Callable, Collection, List, Dict, Optional
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import FrontendFormulaAndLocation
+from mitosheet.types import FrontendFormulaAndLocation, ModifiedDataframeReconData
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import  get_first_unused_dataframe_name
@@ -69,6 +69,7 @@ class State:
         graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None,
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
+        user_defined_edits: Optional[List[Callable]]=None,
     ):
 
         # The dataframes that are in the state
@@ -139,6 +140,7 @@ class State:
 
         self.user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         self.user_defined_importers = user_defined_importers if user_defined_importers is not None else []
+        self.user_defined_edits = user_defined_edits if user_defined_edits is not None else []
 
     def copy(self, deep_sheet_indexes: Optional[List[int]]=None) -> "State":
         """
@@ -160,6 +162,7 @@ class State:
             graph_data_dict=deepcopy(self.graph_data_dict),
             user_defined_functions=deepcopy(self.user_defined_functions),
             user_defined_importers=deepcopy(self.user_defined_importers),
+            user_defined_edits=deepcopy(self.user_defined_edits),
         )
 
     def add_df_to_state(

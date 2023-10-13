@@ -82,6 +82,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                 userProfile={props.userProfile}
             >
                 <UserDefinedImportConfig 
+                    sheetDataArray={props.sheetDataArray}
                     params={params} 
                     setParams={setParams}
                     error={error}

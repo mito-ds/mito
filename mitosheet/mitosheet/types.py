@@ -355,7 +355,7 @@ if sys.version_info[:3] > (3, 8, 0):
         # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
 
-    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
+    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'pd.DataFrame']
 
     class MitoTheme(TypedDict):
         primaryColor: str
@@ -405,7 +405,7 @@ else:
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
-    UserDefinedImporterParamType = Any # type: ignore
+    UserDefinedFunctionParamType = Any # type: ignore
     MitoTheme = Any # type: ignore
     MitoFrontendSelection = Any # type: ignore
     MitoFrontendIndexAndSelections = Any # type: ignore

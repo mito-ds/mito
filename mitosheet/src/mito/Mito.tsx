@@ -75,6 +75,7 @@ import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
+import UserDefinedEditTaskpane from './components/taskpanes/UserDefinedEdit/UserDefinedEditTaskpane';
 import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
 import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
@@ -866,6 +867,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.USERDEFINEDIMPORT: return (
                 <UserDefinedImportTaskpane
+                    userProfile={userProfile}
+                    analysisData={analysisData}
+                    sheetDataArray={sheetDataArray}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                    selectedSheetIndex={uiState.selectedSheetIndex}
+                />
+            )
+            case TaskpaneType.USER_DEFINED_EDIT: return (
+                <UserDefinedEditTaskpane
                     userProfile={userProfile}
                     analysisData={analysisData}
                     sheetDataArray={sheetDataArray}

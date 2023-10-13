@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { AnalysisData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -18,7 +18,8 @@ interface UpdateUserDefinedImportTaskpaneProps {
     backCallback: () => void;
     notCloseable?: boolean;
     analysisData: AnalysisData;
-    userProfile: UserProfile
+    userProfile: UserProfile;
+    sheetDataArray: SheetData
 }
 
 /* 
@@ -44,6 +45,7 @@ const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpanePro
                 userProfile={props.userProfile}
             >
                 <UserDefinedImportConfig 
+                    sheetDataArray={props.sheetDataArray}
                     params={params} 
                     setParams={setParams}
                     error={undefined}

@@ -487,6 +487,7 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 notCloseable={updatePreReplay}
                 analysisData={props.analysisData}
                 userProfile={props.userProfile}
+                sheetDataArray={props.sheetDataArray}
             />
         )
     } else {
