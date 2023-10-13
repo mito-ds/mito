@@ -135,10 +135,10 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
     analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
-    result = analysis.run(file_name_export_csv_0=new_export_file_0, file_name_export_excel_0=new_export_file_1)
+    result = analysis.run(file_name_export_csv_0=new_export_file_0)
     assert result is not None
     assert os.path.exists(new_export_file_0)
-    assert os.path.exists(new_export_file_1)
+    assert not os.path.exists(new_export_file_1)
     pd.testing.assert_frame_equal(result[0], expected_df)
     pd.testing.assert_frame_equal(result[1], df1)
 
