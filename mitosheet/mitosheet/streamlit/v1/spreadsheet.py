@@ -118,12 +118,19 @@ class MitoAnalysis:
         self.__fully_parameterized_function = fully_parameterized_function
         self.__param_metadata = param_metadata
         
-    def run(self):
+    @property
+    def param_metadata(self) -> List[ParamMetadata]:
+        return self.__param_metadata
+
+    def run(self, **kwargs):
         params = {}
         for param in self.__param_metadata:
             if param['type'] == 'df_name':
                 raise NotImplementedError('Cannot run MitoAnalysis with df_name parameters.')
             params[param['name']] = param['initial_value'][2:-1]
+        
+        for name, value in kwargs.items():
+            params[name] = value
         return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 
 try:
