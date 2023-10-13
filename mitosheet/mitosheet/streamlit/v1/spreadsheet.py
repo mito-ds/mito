@@ -124,15 +124,25 @@ class MitoAnalysis:
 
     def run(self, **kwargs):
         params = {}
+
+        # Error handling for required arguments
+        required_args = [param['name'] for param in self.__param_metadata if param['required']]
+        for required_arg in required_args:
+            if required_arg not in kwargs.keys():
+                raise TypeError(f'MitoAnalysis.run() missing required argument {required_arg}')
+
+        # First, set the default values for all params.
         for param in self.__param_metadata:
-            if param['type'] == 'df_name':
-                raise NotImplementedError('Cannot run MitoAnalysis with df_name parameters.')
             params[param['name']] = param['initial_value'][2:-1]
         
+        # Then, overwrite the default values with the user provided values
         for name, value in kwargs.items():
+            # Raise an error if the user passes in an unexpected argument
             if not any(param for param in self.__param_metadata if param['name'] == name):
                 raise TypeError(f'MitoAnalysis.run() got an unexpected keyword argument {name}')
+
             params[name] = value
+
         return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 
 try:
