@@ -144,7 +144,7 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
 
 
 @requires_streamlit
-def test_run_fail():
+def test_run_fail_missing_required():
     fully_parameterized_function = f"""from mitosheet.public.v3 import *
 import pandas as pd
 
@@ -162,7 +162,7 @@ def function(import_dataframe_0):
     ]
     
     analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(TypeError):
         analysis.run()
     
 
