@@ -41,6 +41,8 @@ class UserDefinedEditStepPerformer(StepPerformer):
 
         edit_name: str = get_param(params, 'edit_name')
         edit_params: Any = get_param(params, 'edit_params')
+
+        print("EDIT PARAMS", edit_params)
         
         # We make a new state to modify it
         post_state = prev_state.copy() # TODO: update the deep copies

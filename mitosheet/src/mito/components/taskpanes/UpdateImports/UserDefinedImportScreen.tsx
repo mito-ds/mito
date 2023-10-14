@@ -19,7 +19,7 @@ interface UpdateUserDefinedImportTaskpaneProps {
     notCloseable?: boolean;
     analysisData: AnalysisData;
     userProfile: UserProfile;
-    sheetDataArray: SheetData
+    sheetDataArray: SheetData[]
 }
 
 /* 
@@ -28,7 +28,7 @@ interface UpdateUserDefinedImportTaskpaneProps {
 */
 const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.analysisData));
+    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.sheetDataArray, props.analysisData));
     
     return (
         <DefaultTaskpane>

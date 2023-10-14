@@ -16,7 +16,7 @@ export const getEmptyDefaultParamsForImporter = (
 ): UserDefinedImportParams => {
     return {
         importer: userDefinedImporter.name,
-        importer_params: getInitialEmptyParameters(sheetDataArray, selectedSheetIndex, userDefinedImporter.parameters)
+        importer_params: getInitialEmptyParameters(sheetDataArray, userDefinedImporter.parameters)
     }
 }
 

@@ -2,14 +2,13 @@ import {UserDefinedFunctionParamNameToType, UserDefinedFunctionParamType, SheetD
 
 export const getInitialEmptyParameters = (
     sheetDataArray: SheetData[], 
-    sheetIndex: number,
     paramNameToType: UserDefinedFunctionParamNameToType,
 ): Record<string, string> => {
 
     return Object.fromEntries(Object.entries(paramNameToType).map(([paramName, paramType]) => {
 
         if (paramType == 'pd.DataFrame') {
-            const sheetData = sheetDataArray[sheetIndex];
+            const sheetData = sheetDataArray[0];
             if (sheetData !== undefined) {
                 return [paramName, sheetData.dfName]
             }

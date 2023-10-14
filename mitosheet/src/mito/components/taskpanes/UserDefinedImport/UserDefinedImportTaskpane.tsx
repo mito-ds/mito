@@ -3,12 +3,12 @@ import { MitoAPI } from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 
 import useSendEditOnClickNoParams from "../../../hooks/useSendEditOnClickNoParams";
+import { isInDash, isInStreamlit } from "../../../utils/location";
 import TextButton from "../../elements/TextButton";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import { isInDash, isInStreamlit } from "../../../utils/location";
 import UserDefinedImportConfig, { getEmptyDefaultParamsForImporter } from "./UserDefinedImportConfig";
 
 
@@ -28,6 +28,7 @@ export interface UserDefinedImportParams {
 }
 
 export const getDefaultUserDefinedImportParams = (
+    sheetDataArray: SheetData[],
     analysisData: AnalysisData,
 ): UserDefinedImportParams | undefined => {
 
@@ -37,7 +38,7 @@ export const getDefaultUserDefinedImportParams = (
 
     // Otherwise, return the first importer
     const userDefinedImporter = analysisData.userDefinedImporters[0];
-    return getEmptyDefaultParamsForImporter(userDefinedImporter)
+    return getEmptyDefaultParamsForImporter(sheetDataArray, userDefinedImporter)
 }
 
 
@@ -59,7 +60,7 @@ export const getNoImportMessage = (): string => {
 */
 const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.analysisData));
+    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.sheetDataArray, props.analysisData));
     const [error, setError] = useState<string | undefined>(undefined);
 
     const {edit} = useSendEditOnClickNoParams<UserDefinedImportParams, undefined>(

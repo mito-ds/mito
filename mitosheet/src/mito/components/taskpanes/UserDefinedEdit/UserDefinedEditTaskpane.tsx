@@ -3,7 +3,7 @@ import { MitoAPI } from "../../../api/api";
 import useSendEditOnClickNoParams from '../../../hooks/useSendEditOnClickNoParams';
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { isInDash, isInStreamlit } from "../../../utils/location";
-import { getDisplayNameOfPythonVariable } from "../../../utils/userDefinedFunctionUtils";
+import { getDisplayNameOfPythonVariable, getInitialEmptyParameters } from "../../../utils/userDefinedFunctionUtils";
 
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -28,6 +28,7 @@ interface UserDefinedEditParams {
     edit_params: Record<string, string>,
 }
 const getDefaultParams = (
+    sheetDataArray: SheetData[],
     analyisData: AnalysisData
 ): UserDefinedEditParams | undefined => {
 
@@ -39,9 +40,7 @@ const getDefaultParams = (
 
     return {
         'edit_name': editor.name,
-        'edit_params': Object.fromEntries(Object.keys(editor.parameters).map((paramName) => {
-            return [paramName, '']})
-        )
+        'edit_params': getInitialEmptyParameters(sheetDataArray, editor.parameters)
     }
 }
 
@@ -63,7 +62,7 @@ export const getNoEditorMessage = (): string => {
 */
 const UserDefinedEditTaskpane = (props: UserDefinedEditTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultParams(props.analysisData));
+    const [params, setParams] = useState(() => getDefaultParams(props.sheetDataArray, props.analysisData));
     const {edit} = useSendEditOnClickNoParams<UserDefinedEditParams, undefined>(
         StepType.UserDefinedEdit, 
         props.mitoAPI,
