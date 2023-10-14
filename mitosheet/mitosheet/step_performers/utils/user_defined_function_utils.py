@@ -11,6 +11,7 @@ from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import \
     get_column_header_as_transpiled_code
 from mitosheet.types import UserDefinedFunctionParamType
+from mitosheet.extensions.v1 import ColumnHeader
 
 
 def check_valid_sheet_functions(
@@ -123,6 +124,8 @@ def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDe
         return 'bool'
     elif param_type == pd.DataFrame:
         return 'pd.DataFrame'
+    elif param_type == ColumnHeader:
+        return 'ColumnHeader'
     else:
         return 'any'
 
@@ -181,14 +184,25 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
     """
     user_defined_function_params: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]] = {}
 
+    sheet_index = None
     for param_name, (param_type, param_value) in get_importer_params_and_type_and_value(f, frontend_params).items():
         try:
             if param_type == 'pd.DataFrame':
-                df = state.dfs[state.df_names.index(param_value)]
+                sheet_index = state.df_names.index(param_value)
+                df = state.dfs[sheet_index]
                 # Because we want to just transpile the dataframe name, the third tuple value (the value to be transpiled) should
                 # not be wrapped in get_column_header_as_transpiled_code
                 # NOTE: we also make a copy of the DF to avoid issues with it being modified by the calling function
                 user_defined_function_params[param_name] = (param_type, df.copy(), param_value)
+            elif param_type == 'ColumnHeader':
+                # If it's a column header, then we should have already gotten the sheet index
+                if sheet_index is None:
+                    raise ValueError(f"Parameter {param_name} is a ColumnHeader, but is not directly preceeded by a pd.DataFrame argument. As such, it's referencing an ambigious dataframe.")
+                
+                # notably, the column header type will actually be provided as a column id? Does that make sense? I think so -- that's what we can 
+                # select on in the frontend. TODO: think about if this makes sense with the way replaying works...
+                column_header = state.column_ids.get_column_header_by_id(sheet_index, param_value)
+                user_defined_function_params[param_name] = (param_type, column_header, get_column_header_as_transpiled_code(param_value))
             elif param_type == 'str':
                 user_defined_function_params[param_name] = (param_type, param_value, get_column_header_as_transpiled_code(param_value))
             elif param_type == 'int':

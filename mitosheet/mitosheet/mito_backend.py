@@ -384,7 +384,7 @@ def sheet(
         # works by updating the getArgsFromCellContent function.
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
-        user_defined_edits: Optional[List[Callable]]=None, # TODO: we need a better name
+        editors: Optional[List[Callable]]=None, 
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -429,7 +429,7 @@ def sheet(
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
-            user_defined_edits=user_defined_edits
+            user_defined_edits=editors,
         )
 
         # Log they have personal data in the tool if they passed a dataframe

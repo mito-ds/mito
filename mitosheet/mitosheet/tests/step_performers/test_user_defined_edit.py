@@ -144,9 +144,6 @@ def test_userdefinedimport(input_dfs, edit_name, edit_params, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
-        print("CHECK")
-        print(actual)
-        print(expected)
         assert actual.equals(expected)
 
 # TODO: make sure we can do another edit after it
