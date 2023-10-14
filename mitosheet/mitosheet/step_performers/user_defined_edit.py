@@ -82,8 +82,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
                 f'Please ensure the editor {edit_name} takes a single dataframe as input. Otherwise, Mito cannot detect which dataframe you are editing.'
             )
         
-        print("RESULT", result)
-
         sheet_index = post_state.df_names.index(df_names.pop())
         post_state = get_updated_state_from_reconed_dataframes(post_state, sheet_index, result)
 

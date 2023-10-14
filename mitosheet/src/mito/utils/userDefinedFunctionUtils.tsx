@@ -35,5 +35,13 @@ export const getParamTypeDisplay = (
 }
 
 export const getDisplayNameOfPythonVariable = (pythonVariableName: string) => {
-    return pythonVariableName.replace('_', ' ').split(' ').filter(w => w.length > 0).map(w => w[0].toUpperCase() + w.substring(1)).join(' ');
+    const words = pythonVariableName.replace(/_/g, ' ').split(' ');
+
+    return words.map(word => {
+        if (word.length <= 1) {
+            return word;
+        }
+        
+        return word[0].toUpperCase() + word.substring(1)
+    }).join(' ');
 }

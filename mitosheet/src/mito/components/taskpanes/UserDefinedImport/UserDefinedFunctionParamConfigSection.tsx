@@ -7,6 +7,7 @@ import Row from '../../layout/Row';
 import { UserDefinedImportParams } from "./UserDefinedImportTaskpane";
 import DataframeSelect from "../../elements/DataframeSelect";
 import {getParamTypeDisplay, getDisplayNameOfPythonVariable, getInitialEmptyParameters} from '../../../utils/userDefinedFunctionUtils';
+import Tooltip from "../../elements/Tooltip";
 
 
 export const getEmptyDefaultParamsForImporter = (
@@ -70,7 +71,6 @@ const UserDefinedFunctionParamConfigSection = (props: {
                 } else if (paramType === 'str' || paramType === 'any' || paramType == 'int' || paramType == 'float') {
                     inputElement = (
                         <Input
-                            width="medium"
                             value={paramValue}
                             type={paramName.toLocaleLowerCase() =='password' ? 'password' : undefined}
                             onChange={(e) => {
@@ -95,18 +95,27 @@ const UserDefinedFunctionParamConfigSection = (props: {
                     )
                 }
 
-                const typeSpan = getParamTypeDisplay(paramType) !== undefined 
-                    ? <>: <span>{getParamTypeDisplay(paramType)}</span> </> 
+                const paramTypeDisplay = getParamTypeDisplay(paramType) !== undefined 
+                    ? ': ' + getParamTypeDisplay(paramType)
                     : undefined
 
+                const tooltip = `${paramName}${paramTypeDisplay}`;
+
                 return (
-                    <Row key={paramName} justify='space-between' align='center' title={`${paramName}`}>
-                        <Col>
-                            <p>
-                                <span className='text-header-3'>{paramDisplayName}</span> {typeSpan}
-                            </p>
+                    <Row key={paramName} justify='space-between' align='center' title={tooltip}>
+                        <Col span={14}>
+                            <Row justify="start" align="center" suppressTopBottomMargin>
+                                <Col>
+                                    <p className="text-overflow-hide">
+                                        <span className='text-header-3'>{paramDisplayName}</span>
+                                    </p>
+                                </Col>
+                                <Col>
+                                    <Tooltip title={tooltip}/>
+                                </Col>
+                            </Row>
                         </Col>
-                        <Col>
+                        <Col span={8}>
                             {inputElement}
                         </Col>
                     </Row>

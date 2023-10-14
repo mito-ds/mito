@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MitoAPI } from "../../../api/api";
 import useSendEditOnClickNoParams from '../../../hooks/useSendEditOnClickNoParams';
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
@@ -70,6 +70,11 @@ const UserDefinedEditTaskpane = (props: UserDefinedEditTaskpaneProps): JSX.Eleme
         props.analysisData,
     )
     const [error, setError] = useState<string | undefined>(undefined);
+
+    // Make sure the taskpane changes if the user selects another import
+    useEffect(() => {
+        setParams(getDefaultParams(props.edit_name, props.sheetDataArray, props.analysisData));
+    }, [props.edit_name])
 
     const editor = props.analysisData.userDefinedEdits.find(f => f.name === params?.edit_name);
 
