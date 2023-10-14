@@ -10,6 +10,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import { DataframeCreationData, ReplacingDataframeState } from './UpdateImportsTaskpane';
 import { getBaseOfPath } from './updateImportsUtils';
+import { getDisplayNameOfPythonVariable } from '../../../utils/userDefinedFunctionUtils';
 
 const getFileNameSpanFromFilePath = (filePath: string): JSX.Element => {
     const fileName = getBaseOfPath(filePath);
@@ -215,20 +216,27 @@ const UpdateImportCard = (props: {
             
         ])
 
-        if (props.analysisData.userDefinedImporters.length > 0) {
+        props.analysisData.userDefinedImporters.forEach(f => {
+            const displayName = getDisplayNameOfPythonVariable(f.name);
             dropdownItems.push(<DropdownItem
-                key='Replace with custom import'
-                title='Replace with custom import'
+                key={`Replace with ${displayName}`}
+                title={`Replace with ${displayName}`}
                 onClick={() => {
                     props.setReplacingDataframeState({
                         dataframeCreationIndex: props.dataframeCreationIndex,
-                        importState: {screen: 'user_defined_import'},
+                        importState: {
+                            screen: 'user_defined_import',
+                            importer_name: f.name
+                        },
                         params: undefined
                     });
                 }}
                 disabled={!props.userProfile.isEnterprise}
                 subtext={!props.userProfile.isEnterprise ? 'Requires Mito Enterprise' : undefined}
             />)
+        })
+
+        if (props.analysisData.userDefinedImporters.length > 0) {
         }
 
         return dropdownItems

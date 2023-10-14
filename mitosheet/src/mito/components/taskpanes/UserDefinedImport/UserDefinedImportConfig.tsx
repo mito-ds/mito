@@ -1,13 +1,8 @@
 import React from "react";
 import { AnalysisData, SheetData, UserDefinedFunction } from "../../../types";
 import { getInitialEmptyParameters } from '../../../utils/userDefinedFunctionUtils';
-import DropdownItem from "../../elements/DropdownItem";
-import LabelAndTooltip from "../../elements/LabelAndTooltip";
-import Select from "../../elements/Select";
-import Col from '../../layout/Col';
-import Row from '../../layout/Row';
 import UserDefinedFunctionParamConfigSection from "./UserDefinedFunctionParamConfigSection";
-import { getNoImportMessage, UserDefinedImportParams } from "./UserDefinedImportTaskpane";
+import { UserDefinedImportParams, getNoImportMessage } from "./UserDefinedImportTaskpane";
 
 
 export const getEmptyDefaultParamsForImporter = (
@@ -27,6 +22,7 @@ const UserDefinedImportImportConfig = (props: {
     setParams: React.Dispatch<React.SetStateAction<UserDefinedImportParams | undefined>>
     error: string | undefined
     analysisData: AnalysisData
+    importer_name: string;
 }): JSX.Element => {
 
     const params = props.params
@@ -42,41 +38,6 @@ const UserDefinedImportImportConfig = (props: {
             }
             {params !== undefined &&
                 <>
-                    <Row justify='space-between' align='center' title='Select the function with which to import data.'>
-                        <Col>
-                            <p className='text-header-3'>
-                                Import Method
-                            </p>
-                        </Col>
-                        <Col>
-                            <Select
-                                width='medium'
-                                value={params.importer}
-                                onChange={(newValue) => {                                    
-                                    props.setParams(prevParams => {
-                                        const userDefinedImporter = props.analysisData.userDefinedImporters.find(importer => importer.name === newValue);
-                                        if (userDefinedImporter === undefined) {
-                                            return prevParams
-                                        }
-                                        return getEmptyDefaultParamsForImporter(props.sheetDataArray, userDefinedImporter);
-                                    })
-                                }}
-                            >
-                                {props.analysisData.userDefinedImporters.map(importer => {
-                                    return (
-                                        <DropdownItem 
-                                            key={importer.name}
-                                            title={importer.name}
-                                            subtext={importer.docstring}
-                                        />
-                                    )
-                                })}
-                            </Select>
-                        </Col>
-                    </Row>
-                    {userDefinedImporter?.parameters !== undefined && Object.keys(userDefinedImporter?.parameters).length > 0 && 
-                        <LabelAndTooltip tooltip="Set parameters to the import method to configure how data is imported.">Import Parameters</LabelAndTooltip>
-                    }
                     <UserDefinedFunctionParamConfigSection
                         paramNameToType={userDefinedImporter?.parameters}
                         params={params.importer_params}
@@ -93,7 +54,6 @@ const UserDefinedImportImportConfig = (props: {
                         }}
                         sheetDataArray={props.sheetDataArray}
                     />
-
                     {props.error !== undefined && 
                         <p className="text-color-error">{props.error}</p>
                     }

@@ -1,25 +1,12 @@
 import React from "react";
-import { UserDefinedFunctionParamNameToType, UserDefinedFunction, SheetData } from "../../../types";
+import { SheetData, UserDefinedFunctionParamNameToType } from "../../../types";
+import { getDisplayNameOfPythonVariable, getParamTypeDisplay } from '../../../utils/userDefinedFunctionUtils';
+import DataframeSelect from "../../elements/DataframeSelect";
 import Input from "../../elements/Input";
 import Toggle from "../../elements/Toggle";
+import Tooltip from "../../elements/Tooltip";
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import { UserDefinedImportParams } from "./UserDefinedImportTaskpane";
-import DataframeSelect from "../../elements/DataframeSelect";
-import {getParamTypeDisplay, getDisplayNameOfPythonVariable, getInitialEmptyParameters} from '../../../utils/userDefinedFunctionUtils';
-import Tooltip from "../../elements/Tooltip";
-
-
-export const getEmptyDefaultParamsForImporter = (
-    sheetDataArray: SheetData[],
-    selectedSheetIndex: number,
-    userDefinedImporter: UserDefinedFunction
-): UserDefinedImportParams => {
-    return {
-        importer: userDefinedImporter.name,
-        importer_params: getInitialEmptyParameters(sheetDataArray, userDefinedImporter.parameters)
-    }
-}
 
 
 const UserDefinedFunctionParamConfigSection = (props: {

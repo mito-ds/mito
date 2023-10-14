@@ -119,7 +119,10 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.AITRANSFORMATION}
     | {type: TaskpaneType.CODEOPTIONS}
     | {type: TaskpaneType.COLUMN_HEADERS_TRANSFORM}
-    | {type: TaskpaneType.USERDEFINEDIMPORT}
+    | {
+        type: TaskpaneType.USERDEFINEDIMPORT,
+        importer_name: string,
+    }
     | {
         type: TaskpaneType.USER_DEFINED_EDIT,
         edit_name: string

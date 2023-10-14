@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MitoAPI } from "../../../api/api";
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 
@@ -10,6 +10,7 @@ import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
 import UserDefinedImportConfig, { getEmptyDefaultParamsForImporter } from "./UserDefinedImportConfig";
+import { getDisplayNameOfPythonVariable } from "../../../utils/userDefinedFunctionUtils";
 
 
 
@@ -20,6 +21,7 @@ interface UserDefinedImportTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    importer_name: string,
 }
 
 export interface UserDefinedImportParams {
@@ -28,16 +30,17 @@ export interface UserDefinedImportParams {
 }
 
 export const getDefaultUserDefinedImportParams = (
+    importer_name: string,
     sheetDataArray: SheetData[],
     analysisData: AnalysisData,
 ): UserDefinedImportParams | undefined => {
 
-    if (analysisData.userDefinedImporters.length === 0) {
+    let userDefinedImporter = analysisData.userDefinedImporters.find(f => f.name === importer_name);
+
+    if (userDefinedImporter === undefined) {
         return undefined
     }
 
-    // Otherwise, return the first importer
-    const userDefinedImporter = analysisData.userDefinedImporters[0];
     return getEmptyDefaultParamsForImporter(sheetDataArray, userDefinedImporter)
 }
 
@@ -60,19 +63,30 @@ export const getNoImportMessage = (): string => {
 */
 const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.sheetDataArray, props.analysisData));
+    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.importer_name, props.sheetDataArray, props.analysisData));
     const [error, setError] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        setParams(getDefaultUserDefinedImportParams(props.importer_name, props.sheetDataArray, props.analysisData));
+    }, [props.importer_name])
 
     const {edit} = useSendEditOnClickNoParams<UserDefinedImportParams, undefined>(
         StepType.UserDefinedImport,
         props.mitoAPI,
         props.analysisData,
     )
-    
+
+    const userDefinedImporter = params !== undefined ? props.analysisData.userDefinedImporters.find(importer => importer.name === params.importer) : undefined;
+
+    let header = 'Custom Import';
+    if (userDefinedImporter !== undefined) {
+        header = getDisplayNameOfPythonVariable(userDefinedImporter.name);
+    }
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Custom Import"
+                header={header}
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody
@@ -88,6 +102,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
                     setParams={setParams}
                     error={error}
                     analysisData={props.analysisData}
+                    importer_name={props.importer_name}
                 />
                 
             </DefaultTaskpaneBody>

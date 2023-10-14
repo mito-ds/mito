@@ -873,6 +873,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     selectedSheetIndex={uiState.selectedSheetIndex}
+                    importer_name={uiState.currOpenTaskpane.importer_name}
                 />
             )
             case TaskpaneType.USER_DEFINED_EDIT: return (
