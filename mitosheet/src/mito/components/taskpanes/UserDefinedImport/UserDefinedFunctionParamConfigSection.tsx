@@ -31,27 +31,26 @@ const UserDefinedFunctionParamConfigSection = (props: {
 }): JSX.Element => {
 
     const {paramNameToType, params} = props;
-
     if (paramNameToType === undefined || params === undefined) {
         return <></>
     }
+    const paramNameAndTypeTuples = Object.entries(paramNameToType);
 
-    const entries = Object.entries(paramNameToType);
-    console.log(entries);
-
-    const elements = []
+    // We generate a single row for each parameter, storing the previous sheet index
+    // so that we can use it for the column header dropdowns if they appear
+    const paramRowElements = []
     let previousSheetIndex = -1;
-    for (let paramIndex = 0; paramIndex < entries.length; paramIndex++) {
-        const [paramName, paramType] = entries[paramIndex];
+
+    for (let paramIndex = 0; paramIndex < paramNameAndTypeTuples.length; paramIndex++) {
+        const [paramName, paramType] = paramNameAndTypeTuples[paramIndex];
         const paramValue = params[paramName];
         const paramDisplayName = getDisplayNameOfPythonVariable(paramName)
         
         let inputElement = null;
-        if (paramType === 'pd.DataFrame') {
+        if (paramType === 'DataFrame') {
             const sheetIndex = paramValue !== '' ? props.sheetDataArray.findIndex(sheetData => sheetData.dfName === paramValue) : 0;
             previousSheetIndex = sheetIndex;
-
-            elements.push(
+            paramRowElements.push(
                 <DataframeSelect
                     sheetDataArray={props.sheetDataArray}
                     sheetIndex={sheetIndex}
@@ -68,6 +67,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
             if (paramType === 'ColumnHeader') {
                 const sheetData = props.sheetDataArray[previousSheetIndex];
                 if (sheetData === undefined) {
+                    // If there is no preceding dataframe, we can't allow users to set the column header
                     inputElement = <p className="text-color-error">
                         The parameter {paramName} of type Column Header has no preceding dataframe to reference, and as such cannot be set.
                     </p>
@@ -127,7 +127,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
 
             const tooltip = `${paramName}${paramTypeDisplay}`;
 
-            elements.push(
+            paramRowElements.push(
                 <Row key={paramName} justify='space-between' align='center' title={tooltip}>
                     <Col span={14}>
                         <Row justify="start" align="center" suppressTopBottomMargin>
@@ -151,10 +151,9 @@ const UserDefinedFunctionParamConfigSection = (props: {
 
     return (
         <>
-            {...elements}
+            {...paramRowElements}
         </>
     )
-    
 }
 
 export default UserDefinedFunctionParamConfigSection;

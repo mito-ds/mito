@@ -69,7 +69,12 @@ class UserDefinedImportStepPerformer(StepPerformer):
             )
 
         if not isinstance(result, pd.DataFrame):
-            raise Exception(f"User defined importer {importer} must return a single pandas dataframe.")
+            raise MitoError(
+                'user_defined_importer_error',
+                f"Importer {importer} raised an error.",
+                f"User defined importer {importer} must return a single pandas dataframe. Instead it returned a result of type {type(result)}",
+                error_modal=False
+            )
 
         post_state.add_df_to_state(
             result,

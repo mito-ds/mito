@@ -727,7 +727,7 @@ export enum MitoEnterpriseConfigKey {
 export type PublicInterfaceVersion = 1 | 2 | 3;
 
 type UserDefinedFunctionParamName = string;
-export type UserDefinedFunctionParamType = 'any' | 'str' | 'int' | 'float' | 'bool' | 'pd.DataFrame' | 'ColumnHeader';
+export type UserDefinedFunctionParamType = 'any' | 'str' | 'int' | 'float' | 'bool' | 'DataFrame' | 'ColumnHeader';
 export type UserDefinedFunctionParamNameToType = Record<UserDefinedFunctionParamName, UserDefinedFunctionParamType>
 
 export type UserDefinedFunction = {

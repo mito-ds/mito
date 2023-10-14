@@ -355,7 +355,7 @@ if sys.version_info[:3] > (3, 8, 0):
         # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
 
-    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'pd.DataFrame', 'ColumnHeader']
+    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
 
     class MitoTheme(TypedDict):
         primaryColor: str

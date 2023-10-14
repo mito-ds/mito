@@ -70,6 +70,7 @@ try:
                 df_names: Optional[List[str]]=None,
                 sheet_functions: Optional[List[Callable]]=None, 
                 importers: Optional[List[Callable]]=None,
+                editors: Optional[List[Callable]]=None,
                 theme: Optional[MitoTheme]=None
         ):     
             self.mito_id = id
@@ -84,6 +85,7 @@ try:
                 df_names=df_names,
                 sheet_functions=sheet_functions,
                 importers=importers,
+                editors=editors,
                 theme=theme
             )
 
@@ -107,6 +109,7 @@ try:
             self.df_names = df_names
             self.sheet_functions = sheet_functions
             self.importers = importers
+            self.editors = editors
             self.theme = theme
 
             @callback(
@@ -161,6 +164,7 @@ try:
                     df_names=self.df_names,
                     sheet_functions=self.sheet_functions,
                     importers=self.importers,
+                    editors=self.editors,
                     theme=self.theme
                 )
 
@@ -175,6 +179,7 @@ try:
                 df_names: Optional[List[str]]=None,
                 sheet_functions: Optional[List[Callable]]=None, 
                 importers: Optional[List[Callable]]=None,
+                editors: Optional[List[Callable]]=None,
                 theme: Optional[MitoTheme]=None
             ) -> None:
             """
@@ -187,6 +192,7 @@ try:
                 code_options=code_options,
                 user_defined_functions=sheet_functions,
                 user_defined_importers=importers,
+                user_defined_editors=editors,
                 theme=theme
             )
             self.responses: List[Dict[str, Any]] = []

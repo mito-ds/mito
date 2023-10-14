@@ -59,7 +59,7 @@ class MitoBackend():
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
-            user_defined_edits: Optional[List[Callable]]=None,
+            user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             theme: Optional[MitoTheme]=None,
         ):
@@ -100,7 +100,7 @@ class MitoBackend():
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,
             user_defined_importers=all_custom_importers,
-            user_defined_edits=user_defined_edits,
+            user_defined_editors=user_defined_editors,
             code_options=code_options,
             theme=theme
         )
@@ -322,7 +322,7 @@ def get_mito_backend(
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
-        user_defined_edits: Optional[List[Callable]]=None,
+        user_defined_editors: Optional[List[Callable]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
@@ -331,7 +331,7 @@ def get_mito_backend(
         analysis_to_replay=analysis_to_replay, 
         user_defined_functions=user_defined_functions, 
         user_defined_importers=user_defined_importers,
-        user_defined_edits=user_defined_edits
+        user_defined_editors=user_defined_editors
     ) 
 
     # We create a callback that runs when the comm is actually created on the frontend
@@ -429,7 +429,7 @@ def sheet(
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
-            user_defined_edits=editors,
+            user_defined_editors=editors,
         )
 
         # Log they have personal data in the tool if they passed a dataframe

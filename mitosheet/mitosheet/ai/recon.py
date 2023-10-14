@@ -203,9 +203,12 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
     
 
 
-def get_updated_state_from_reconed_dataframes(state: State, sheet_index: int, new_df: pd.DataFrame) -> State:
+def update_state_by_reconing_dataframes(state: State, sheet_index: int, new_df: pd.DataFrame) -> State:
     """
-    This function is the work-horse for modified dataframes. TODO: document this better
+    This function is the work-horse for modified dataframes. It compares the old dataframe at the index 
+    to the new dataframe, and then updates the state accordingly -- making sure all the metadata is correct.
+
+    This includes: handling deleted columns, added columns, renamed columns, and modified columns.
     """
     old_df = state.dfs[sheet_index]
 
@@ -253,7 +256,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
-        new_state = get_updated_state_from_reconed_dataframes(new_state, sheet_index, new_df)
+        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_df)
 
     # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
     # is a _newly_ created dataframe that is already given a name

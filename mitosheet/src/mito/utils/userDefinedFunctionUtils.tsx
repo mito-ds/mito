@@ -1,6 +1,6 @@
 import {UserDefinedFunctionParamNameToType, UserDefinedFunctionParamType, SheetData} from '../types';
 
-export const getInitialEmptyParameters = (
+export const getInitialParamNameToParamValueMap = (
     sheetDataArray: SheetData[], 
     paramNameToType: UserDefinedFunctionParamNameToType,
 ): Record<string, string> => {
@@ -9,7 +9,7 @@ export const getInitialEmptyParameters = (
     return Object.fromEntries(Object.entries(paramNameToType).map(([paramName, paramType]) => {
 
 
-        if (paramType == 'pd.DataFrame') {
+        if (paramType == 'DataFrame') {
             const sheetData = sheetDataArray[0];
             previousSheetData = sheetData;
             if (sheetData !== undefined) {
@@ -35,10 +35,10 @@ export const getParamTypeDisplay = (
         return 'int'
     } else if (paramType == 'bool') {
         return 'bool'
-    } else if (paramType == 'pd.DataFrame') {
-        return 'Pandas Dataframe'
+    } else if (paramType == 'DataFrame') {
+        return 'Dataframe'
     } else if (paramType == 'ColumnHeader') {
-        return 'Pandas Dataframe Column Header'
+        return 'Column Header'
     } else {
         return undefined;
     }

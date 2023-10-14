@@ -1,6 +1,6 @@
 import React from "react";
 import { AnalysisData, SheetData, UserDefinedFunction } from "../../../types";
-import { getInitialEmptyParameters } from '../../../utils/userDefinedFunctionUtils';
+import { getInitialParamNameToParamValueMap } from '../../../utils/userDefinedFunctionUtils';
 import UserDefinedFunctionParamConfigSection from "./UserDefinedFunctionParamConfigSection";
 import { UserDefinedImportParams, getNoImportMessage } from "./UserDefinedImportTaskpane";
 
@@ -11,7 +11,7 @@ export const getEmptyDefaultParamsForImporter = (
 ): UserDefinedImportParams => {
     return {
         importer: userDefinedImporter.name,
-        importer_params: getInitialEmptyParameters(sheetDataArray, userDefinedImporter.parameters)
+        importer_params: getInitialParamNameToParamValueMap(sheetDataArray, userDefinedImporter.parameters)
     }
 }
 

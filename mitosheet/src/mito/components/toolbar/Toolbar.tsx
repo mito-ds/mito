@@ -79,6 +79,7 @@ export const Toolbar = (
         )
     }
 
+    // Add all the user defined importers
     props.actions.runtimeImportActionsList.map(action => {
         const longTitle = action.longTitle
         importDropdownItems.push(

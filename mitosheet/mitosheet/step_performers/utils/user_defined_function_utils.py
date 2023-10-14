@@ -98,10 +98,16 @@ def validate_user_defined_editors(user_defined_editors: Optional[List[Callable]]
     for f in user_defined_editors:
         df_arguments = []
         parameters = inspect.signature(f).parameters
+        has_previous_dataframe_arg = False
         for param_name in parameters:
             annotation = parameters[param_name].annotation
             if annotation == pd.DataFrame:
                 df_arguments.append(param_name)
+                has_previous_dataframe_arg = True
+
+            if annotation == ColumnHeader:
+                if not has_previous_dataframe_arg:
+                    raise ValueError(f"Editor {f.__name__} has a ColumnHeader argument {param_name}, but does not have a pd.DataFrame argument preceeding it. Please ensure that the first argument is a pd.DataFrame.")
 
         if len(df_arguments) != 1:
             raise ValueError(f"Editor {f.__name__} must only have a single dataframe parameter, but instead got {df_arguments} as arguments")
@@ -123,7 +129,7 @@ def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDe
     elif param_type == bool:
         return 'bool'
     elif param_type == pd.DataFrame:
-        return 'pd.DataFrame'
+        return 'DataFrame'
     elif param_type == ColumnHeader:
         return 'ColumnHeader'
     else:
@@ -151,7 +157,7 @@ def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]
         for f in state.user_defined_importers
     ]
 
-def get_user_defined_edits_for_frontend(state: Optional[State]) -> List[Any]:
+def get_user_defined_editors_for_frontend(state: Optional[State]) -> List[Any]:
     if state is None:
         return []
 
@@ -161,7 +167,7 @@ def get_user_defined_edits_for_frontend(state: Optional[State]) -> List[Any]:
             'docstring': f.__doc__,
             'parameters': get_param_names_to_types_for_importer(f),
         }
-        for f in state.user_defined_edits
+        for f in state.user_defined_editors
     ]
 
 def get_importer_params_and_type_and_value(f: Callable, frontend_params: Dict[str, str]) -> Dict[str, Tuple[UserDefinedFunctionParamType, str]]:
@@ -180,14 +186,22 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
         frontend_params: Dict[str, str]
     ) -> Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]]: # TODO: document this type better
     """
-    TODO: explain this in a doc string
+    Given a current state, a user defined function f, and the frontend params that the user configured
+    for this function f, return a dictionary mapping the parameter name to a tuple:
+    1.  parameter type
+    2.  the value to be passed to the function when executing it in the step performer
+    3.  the value to be transpiled in the code chunk for the parameter
+
+    This function is responsible for casting the frontend params to the appropriate type, and for
+    transpiling the values to be passed to the function. It throws appropriate errors if the frontend
+    params cannot be cast to the appropriate type.
     """
     user_defined_function_params: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]] = {}
 
     sheet_index = None
     for param_name, (param_type, param_value) in get_importer_params_and_type_and_value(f, frontend_params).items():
         try:
-            if param_type == 'pd.DataFrame':
+            if param_type == 'DataFrame':
                 sheet_index = state.df_names.index(param_value)
                 df = state.dfs[sheet_index]
                 # Because we want to just transpile the dataframe name, the third tuple value (the value to be transpiled) should

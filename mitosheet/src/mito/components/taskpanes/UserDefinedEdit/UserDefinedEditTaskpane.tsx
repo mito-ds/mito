@@ -3,7 +3,7 @@ import { MitoAPI } from "../../../api/api";
 import useSendEditOnClickNoParams from '../../../hooks/useSendEditOnClickNoParams';
 import { AnalysisData, SheetData, StepType, UIState, UserProfile } from "../../../types";
 import { isInDash, isInStreamlit } from "../../../utils/location";
-import { getDisplayNameOfPythonVariable, getInitialEmptyParameters } from "../../../utils/userDefinedFunctionUtils";
+import { getDisplayNameOfPythonVariable, getInitialParamNameToParamValueMap } from "../../../utils/userDefinedFunctionUtils";
 
 import TextButton from "../../elements/TextButton";
 import DefaultEmptyTaskpane from "../DefaultTaskpane/DefaultEmptyTaskpane";
@@ -41,7 +41,7 @@ const getDefaultParams = (
 
     return {
         'edit_name': editor.name,
-        'edit_params': getInitialEmptyParameters(sheetDataArray, editor.parameters)
+        'edit_params': getInitialParamNameToParamValueMap(sheetDataArray, editor.parameters)
     }
 }
 

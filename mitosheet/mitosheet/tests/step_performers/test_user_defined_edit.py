@@ -157,6 +157,11 @@ def wrong_first_param(df: int) -> pd.DataFrame:
     import pandas as pd
     return pd.DataFrame({'A': [1, 2, 3]})
 
+from mitosheet.extensions.v1 import ColumnHeader
+def unqualified_column_header(ch: ColumnHeader) -> pd.DataFrame:
+    import pandas as pd
+    return pd.DataFrame({'A': [1, 2, 3]})
+
 def test_user_defined_edit_errors_with_no_params():
     with pytest.raises(ValueError) as e_info:
         create_mito_wrapper(editors=[no_params])
@@ -164,6 +169,10 @@ def test_user_defined_edit_errors_with_no_params():
 def test_user_defined_edit_errors_with_wrong_first_param_type():
     with pytest.raises(ValueError) as e_info:
         create_mito_wrapper(editors=[wrong_first_param])
+
+def test_user_defined_edit_with_unqualified_column_header_errors():
+    with pytest.raises(ValueError) as e_info:
+        create_mito_wrapper(editors=[unqualified_column_header])
 
 def test_user_defined_edit_optimizes():
 
@@ -177,3 +186,4 @@ def test_user_defined_edit_optimizes():
     mito.delete_dataframe(0)
 
     assert len(mito.transpiled_code) == 0
+

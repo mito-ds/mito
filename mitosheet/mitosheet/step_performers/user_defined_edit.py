@@ -17,7 +17,7 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.user_defined_function_utils import \
     get_user_defined_function_param_type_and_execute_value_and_transpile_value
-from mitosheet.ai.recon import get_updated_state_from_reconed_dataframes
+from mitosheet.ai.recon import update_state_by_reconing_dataframes
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnID
 import pandas as pd
@@ -25,7 +25,8 @@ import pandas as pd
 
 class UserDefinedEditStepPerformer(StepPerformer):
     """
-    Allows you to user defined edit.
+    Allows the user to make an edit to a dataframe with with a user 
+    defined function.
     """
 
     @classmethod
@@ -48,7 +49,7 @@ class UserDefinedEditStepPerformer(StepPerformer):
         pandas_start_time = perf_counter()
 
         try:
-            edit_function = next(f for f in post_state.user_defined_edits if f.__name__ == edit_name)
+            edit_function = next(f for f in post_state.user_defined_editors if f.__name__ == edit_name)
         except:
             raise MitoError(
                 'user_defined_importer_not_found',
@@ -62,7 +63,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
         try:
             result = edit_function(**{param_name: execute_param for param_name, (_, execute_param, _) in user_defined_function_params.items()})
         except:
-            print("HERE123")
             traceback_final_line = traceback.format_exc().splitlines()[-1]
 
             raise MitoError(
@@ -73,17 +73,22 @@ class UserDefinedEditStepPerformer(StepPerformer):
             )
 
         if not isinstance(result, pd.DataFrame):
-            raise Exception(f"User defined editor {edit_name} must return a single pandas dataframe.")
+            raise MitoError(
+                'user_defined_editor_error',
+                f"Editor {edit_name} raised an error.",
+                f"User defined editor {edit_name} must return a single pandas dataframe. Instead it returned a result of type {type(result)}",
+                error_modal=False
+            )
         
-        # Find the single dataframe param
-        df_names = {transpiled_param for _, (param_type, _, transpiled_param) in user_defined_function_params.items() if param_type == 'pd.DataFrame'}
+        # Find the single dataframe param - so that we can get the sheet index for transpilation and updating the state
+        df_names = {transpiled_param for _, (param_type, _, transpiled_param) in user_defined_function_params.items() if param_type == 'DataFrame'}
         if len(df_names) != 1:
             raise ValueError(
                 f'Please ensure the editor {edit_name} takes a single dataframe as input. Otherwise, Mito cannot detect which dataframe you are editing.'
             )
         
         sheet_index = post_state.df_names.index(df_names.pop())
-        post_state = get_updated_state_from_reconed_dataframes(post_state, sheet_index, result)
+        post_state = update_state_by_reconing_dataframes(post_state, sheet_index, result)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -91,9 +96,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
             'pandas_processing_time': pandas_processing_time,
             'sheet_index': sheet_index,
             'user_defined_function_params': user_defined_function_params,
-            'result': {
-                # TODO: fill in the result
-            }
         }
 
     @classmethod

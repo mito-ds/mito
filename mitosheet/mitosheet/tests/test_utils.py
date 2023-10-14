@@ -98,13 +98,13 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
 
     user_defined_functions = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_functions if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
     user_defined_importers = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_importers if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
-    user_defined_edits = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_edits if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
+    user_defined_editors = test_wrapper.mito_backend.steps_manager.curr_step.post_state.user_defined_editors if test_wrapper.mito_backend.steps_manager.curr_step.post_state is not None else []
 
     local_vars = {
         **local_vars,
         **{f.__name__: f for f in user_defined_functions},
         **{f.__name__: f for f in user_defined_importers},
-        **{f.__name__: f for f in user_defined_edits},
+        **{f.__name__: f for f in user_defined_editors},
     }
 
     try:
@@ -1704,7 +1704,7 @@ def create_mito_wrapper(
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers, user_defined_edits=editors)
+    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers, user_defined_editors=editors)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
     if arg_names is not None:

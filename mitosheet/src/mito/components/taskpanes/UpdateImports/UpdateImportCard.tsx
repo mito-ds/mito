@@ -216,6 +216,7 @@ const UpdateImportCard = (props: {
             
         ])
 
+        // Add the user defined importers
         props.analysisData.userDefinedImporters.forEach(f => {
             const displayName = getDisplayNameOfPythonVariable(f.name);
             dropdownItems.push(<DropdownItem
@@ -235,9 +236,6 @@ const UpdateImportCard = (props: {
                 subtext={!props.userProfile.isEnterprise ? 'Requires Mito Enterprise' : undefined}
             />)
         })
-
-        if (props.analysisData.userDefinedImporters.length > 0) {
-        }
 
         return dropdownItems
     }

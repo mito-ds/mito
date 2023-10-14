@@ -163,7 +163,7 @@ try:
         mito_backend = MitoBackend(
             *args, 
             import_folder=import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_edits=_editors,
+            user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
         )
 
