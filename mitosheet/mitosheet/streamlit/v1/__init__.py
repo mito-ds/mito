@@ -1,1 +1,1 @@
-from mitosheet.streamlit.v1.spreadsheet import spreadsheet
+from mitosheet.streamlit.v1.spreadsheet import spreadsheet, MitoAnalysis

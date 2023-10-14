@@ -11,10 +11,10 @@ const Footer = (): JSX.Element => {
     return (
         <footer className={footerStyle.footer_container}>
             <div className='flex-column'>
-                <div className='flex-row'>
-                    <h1>
-                        Mito
-                    </h1>
+                <div className={footerStyle.home_container}>
+                    <p className={footerStyle.footer_mito_text}>
+                        <b>Mito</b>
+                    </p>
                     <Link href='/'>
                         <a className={footerStyle.logo_container}> 
                             <Image src="/Mito.svg" alt="Mito Logo" width={50} height={30}/>
