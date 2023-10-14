@@ -35,7 +35,7 @@ export const getDefaultUserDefinedImportParams = (
     analysisData: AnalysisData,
 ): UserDefinedImportParams | undefined => {
 
-    let userDefinedImporter = analysisData.userDefinedImporters.find(f => f.name === importer_name);
+    const userDefinedImporter = analysisData.userDefinedImporters.find(f => f.name === importer_name);
 
     if (userDefinedImporter === undefined) {
         return undefined

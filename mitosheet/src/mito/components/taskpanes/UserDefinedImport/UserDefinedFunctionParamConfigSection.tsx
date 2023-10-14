@@ -82,15 +82,15 @@ const UserDefinedFunctionParamConfigSection = (props: {
                             }}
                             searchable
                         >
-                                {Object.entries(sheetData?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
-                                    return (
-                                        <DropdownItem
-                                            key={columnID}
-                                            id={columnID}
-                                            title={getDisplayColumnHeader(columnHeader)}
-                                        />
-                                    )
-                                })}
+                            {Object.entries(sheetData?.columnIDsMap || {}).map(([columnID, columnHeader]) => {
+                                return (
+                                    <DropdownItem
+                                        key={columnID}
+                                        id={columnID}
+                                        title={getDisplayColumnHeader(columnHeader)}
+                                    />
+                                )
+                            })}
                         </Select>
                     )
                 }
