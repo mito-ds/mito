@@ -183,7 +183,6 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
 
     for param_name, (param_type, param_value) in get_importer_params_and_type_and_value(f, frontend_params).items():
         try:
-            print("PARAM TYPE", param_name, param_type, param_value)
             if param_type == 'pd.DataFrame':
                 df = state.dfs[state.df_names.index(param_value)]
                 # Because we want to just transpile the dataframe name, the third tuple value (the value to be transpiled) should

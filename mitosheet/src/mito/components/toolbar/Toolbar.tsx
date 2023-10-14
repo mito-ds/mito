@@ -3,16 +3,19 @@
 import fscreen from 'fscreen';
 import React from 'react';
 import "../../../../css/toolbar.css";
-import { MitoAPI,  getRandomId } from '../../api/api';
-import { Action, ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { MitoAPI, getRandomId } from '../../api/api';
+import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import { getColumnFormatDropdownItems } from '../../utils/format';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import GetSupportButton from '../elements/GetSupportButton';
 import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
+import ToolbarCodeDropdown from './ToolbarCodeDropdown';
 import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
 import ToolbarDataframesDropdown from './ToolbarDataframesDropdown';
 import ToolbarMenu from './ToolbarDropdownSelector';
@@ -21,10 +24,8 @@ import ToolbarFormatDropdown from './ToolbarFormatDropdown';
 import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
 import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
-import GetSupportButton from '../elements/GetSupportButton';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
-import ToolbarCodeDropdown from './ToolbarCodeDropdown';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -37,7 +38,7 @@ export const Toolbar = (
         lastStepIndex: number;
         highlightPivotTableButton: boolean;
         highlightAddColButton: boolean;
-        actions: Record<ActionEnum, Action>;
+        actions: Actions;
         mitoContainerRef: React.RefObject<HTMLDivElement>;
         gridState: GridState;
         setGridState: React.Dispatch<React.SetStateAction<GridState>>;
@@ -186,28 +187,28 @@ export const Toolbar = (
                     <ToolbarButton
                         id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.UNDO}
-                        action={props.actions[ActionEnum.Undo]}
-                        disabledTooltip={props.actions[ActionEnum.Undo].isDisabled()}
+                        action={props.actions.buildTimeActions[ActionEnum.Undo]}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Undo].isDisabled()}
                     />
                     <ToolbarButton
                         id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.REDO}
-                        action={props.actions[ActionEnum.Redo]}
-                        disabledTooltip={props.actions[ActionEnum.Redo].isDisabled()}
+                        action={props.actions.buildTimeActions[ActionEnum.Redo]}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Redo].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.CLEAR}
-                        action={props.actions[ActionEnum.Clear]}
-                        disabledTooltip={props.actions[ActionEnum.Clear].isDisabled()}
+                        action={props.actions.buildTimeActions[ActionEnum.Clear]}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"/>
 
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.IMPORT}
-                        action={props.actions[ActionEnum.Import_Dropdown]}
+                        action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Import_Dropdown].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Import_Dropdown].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'import'}
@@ -230,9 +231,9 @@ export const Toolbar = (
                     </ToolbarButton>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.EXPORT}
-                        action={props.actions[ActionEnum.Export_Dropdown]}
+                        action={props.actions.buildTimeActions[ActionEnum.Export_Dropdown]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Export_Dropdown].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Export_Dropdown].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'export'}
@@ -277,23 +278,23 @@ export const Toolbar = (
 
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.ADD_COL}
-                        action={props.actions[ActionEnum.Add_Column]}
+                        action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
                         highlightToolbarButton={props.highlightAddColButton}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Add_Column].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Add_Column].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DEL_COL}
-                        action={props.actions[ActionEnum.Delete_Column]}
+                        action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Delete_Column].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Delete_Column].isDisabled()}
 
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.DTYPE}
-                        action={props.actions[ActionEnum.Change_Dtype]}
+                        action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Change_Dtype].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Change_Dtype].isDisabled()}
                     >  
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'dtype'}
@@ -326,22 +327,22 @@ export const Toolbar = (
                     <div className="toolbar-vertical-line"></div>
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.LESS}
-                        action={props.actions[ActionEnum.Precision_Decrease]}
+                        action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Precision_Decrease].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.MORE}
-                        action={props.actions[ActionEnum.Precision_Increase]}
+                        action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Precision_Increase].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Increase].isDisabled()}
                     />
                     
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.FORMAT}
-                        action={props.actions[ActionEnum.Format_Number_Columns]}
+                        action={props.actions.buildTimeActions[ActionEnum.Format_Number_Columns]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Format_Number_Columns].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Format_Number_Columns].isDisabled()}
                     >
                         <Dropdown
                             display={props.uiState.toolbarDropdown === 'format'}
@@ -366,31 +367,31 @@ export const Toolbar = (
 
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.PIVOT}
-                        action={props.actions[ActionEnum.Pivot]}
+                        action={props.actions.buildTimeActions[ActionEnum.Pivot]}
                         highlightToolbarButton={props.highlightPivotTableButton}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Pivot].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Pivot].isDisabled()}
                     />
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.GRAPH}
-                        action={props.actions[ActionEnum.Graph]}
+                        action={props.actions.buildTimeActions[ActionEnum.Graph]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions[ActionEnum.Graph].isDisabled()}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Graph].isDisabled()}
                     />
                     {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
                         <ToolbarButton
                             toolbarButtonType={ToolbarButtonType.AI_TRANSFORMATION}
-                            action={props.actions[ActionEnum.AI_TRANSFORMATION]}
+                            action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
                             setEditorState={props.setEditorState}
-                            disabledTooltip={props.actions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
+                            disabledTooltip={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
                         />
                     }
                     {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
                         <ToolbarButton
                             toolbarButtonType={ToolbarButtonType.CODE_SNIPPETS}
-                            action={props.actions[ActionEnum.CODESNIPPETS]}
+                            action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}
                             setEditorState={props.setEditorState}
-                            disabledTooltip={props.actions[ActionEnum.CODESNIPPETS].isDisabled()}
+                            disabledTooltip={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS].isDisabled()}
                         />
                     }
                 </div>
@@ -401,13 +402,13 @@ export const Toolbar = (
                     {props.currStepIdx !== props.lastStepIndex &&
                         <ToolbarButton
                             toolbarButtonType={ToolbarButtonType.CATCH_UP}
-                            action={props.actions[ActionEnum.Catch_Up]}
+                            action={props.actions.buildTimeActions[ActionEnum.Catch_Up]}
                         />
                     }
                     <ToolbarButton
                         toolbarButtonType={ToolbarButtonType.STEPS}
-                        action={props.actions[ActionEnum.Steps]}
-                        disabledTooltip={props.actions[ActionEnum.Steps].isDisabled()}
+                        action={props.actions.buildTimeActions[ActionEnum.Steps]}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Steps].isDisabled()}
                     />
 
                     <div className="toolbar-vertical-line"></div>
@@ -415,11 +416,11 @@ export const Toolbar = (
                     <ToolbarButton
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
-                        action={props.actions[ActionEnum.OpenSearch]}
+                        action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
                     />
                     <ToolbarButton
                         toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
-                        action={props.actions[ActionEnum.Fullscreen]}
+                        action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                     />
                 </div>
             </div>

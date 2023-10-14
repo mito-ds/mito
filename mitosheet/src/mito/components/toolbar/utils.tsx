@@ -1,27 +1,27 @@
 // Copyright (c) Mito
 import React from 'react';
 
-import UndoIcon from '../icons/UndoIcon';
-import ImportIcon from '../icons/ImportIcon';
-import ExportIcon from '../icons/ExportIcon';
-import PivotIcon from '../icons/PivotIcon';
-import DeleteColumnIcon from '../icons/DeleteColumnIcon';
-import AddColumnIcon from '../icons/AddColumnIcon';
-import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
-import StepsIcon from '../icons/StepsIcon';
-import CatchUpIcon from '../icons/CatchUpIcon';
-import GraphIcon from '../icons/GraphIcon';
-import RedoIcon from '../icons/RedoIcon';
-import ClearIcon from '../icons/ClearIcon';
-import FormatIcon from '../icons/FormatIcon';
-import DtypeIcon from '../icons/DtypeIcon';
-import DropdownItem from '../elements/DropdownItem';
 import { Action, UserProfile } from '../../types';
-import MoreIcon from '../icons/MoreIcon';
-import LessIcon from '../icons/LessIcon';
+import DropdownItem from '../elements/DropdownItem';
 import AIIcon from '../icons/AIIcon';
+import AddColumnIcon from '../icons/AddColumnIcon';
+import CatchUpIcon from '../icons/CatchUpIcon';
+import ClearIcon from '../icons/ClearIcon';
 import CodeSnippetIcon from '../icons/CodeSnippetIcon';
+import DeleteColumnIcon from '../icons/DeleteColumnIcon';
+import DtypeIcon from '../icons/DtypeIcon';
+import ExportIcon from '../icons/ExportIcon';
+import FormatIcon from '../icons/FormatIcon';
+import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
+import GraphIcon from '../icons/GraphIcon';
+import ImportIcon from '../icons/ImportIcon';
+import LessIcon from '../icons/LessIcon';
+import MoreIcon from '../icons/MoreIcon';
+import PivotIcon from '../icons/PivotIcon';
+import RedoIcon from '../icons/RedoIcon';
 import SearchIcon from '../icons/SearchIcon';
+import StepsIcon from '../icons/StepsIcon';
+import UndoIcon from '../icons/UndoIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 

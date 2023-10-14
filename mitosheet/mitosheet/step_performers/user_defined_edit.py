@@ -41,8 +41,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
 
         edit_name: str = get_param(params, 'edit_name')
         edit_params: Any = get_param(params, 'edit_params')
-
-        print("EDIT PARAMS", edit_params)
         
         # We make a new state to modify it
         post_state = prev_state.copy() # TODO: update the deep copies
@@ -51,7 +49,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
 
         try:
             edit_function = next(f for f in post_state.user_defined_edits if f.__name__ == edit_name)
-            print("EDIT FUNCION", edit_function)
         except:
             raise MitoError(
                 'user_defined_importer_not_found',
@@ -74,8 +71,6 @@ class UserDefinedEditStepPerformer(StepPerformer):
                 f"User defined editor {edit_name} raised an error: {traceback_final_line}",
                 error_modal=False
             )
-
-        print(result)
 
         if not isinstance(result, pd.DataFrame):
             raise Exception(f"User defined editor {edit_name} must return a single pandas dataframe.")

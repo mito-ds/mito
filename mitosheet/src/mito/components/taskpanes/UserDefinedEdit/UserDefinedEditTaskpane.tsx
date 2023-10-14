@@ -21,6 +21,7 @@ interface UserDefinedEditTaskpaneProps {
     analysisData: AnalysisData;
     sheetDataArray: SheetData[];
     selectedSheetIndex: number;
+    edit_name: string;
 }
 
 interface UserDefinedEditParams {
@@ -28,15 +29,15 @@ interface UserDefinedEditParams {
     edit_params: Record<string, string>,
 }
 const getDefaultParams = (
+    edit_name: string,
     sheetDataArray: SheetData[],
     analyisData: AnalysisData
 ): UserDefinedEditParams | undefined => {
 
-    if (analyisData.userDefinedEdits.length === 0) {
+    const editor = analyisData.userDefinedEdits.find(f => f.name === edit_name);
+    if (editor === undefined) {
         return undefined;
     }
-
-    const editor = analyisData.userDefinedEdits[0];
 
     return {
         'edit_name': editor.name,
@@ -62,7 +63,7 @@ export const getNoEditorMessage = (): string => {
 */
 const UserDefinedEditTaskpane = (props: UserDefinedEditTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultParams(props.sheetDataArray, props.analysisData));
+    const [params, setParams] = useState(() => getDefaultParams(props.edit_name, props.sheetDataArray, props.analysisData));
     const {edit} = useSendEditOnClickNoParams<UserDefinedEditParams, undefined>(
         StepType.UserDefinedEdit, 
         props.mitoAPI,

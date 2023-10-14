@@ -10,11 +10,35 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
+import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
+
+/**
+ * This is a wrapper class that holds all frontend actions. This allows us to create and register
+ * behavior in a single place, and be able to inject it across the entire app. 
+ * 
+ * There are two types of actions:
+ *  1.  Build-time actions. These include adding a column, opening a taskpane, etc. Things we know, as the developers, that
+ *      users are going to want to do. 
+ *  2.  Run-time actions. These are actions we want to create and register in one place, but we do not know as developers. 
+ *      For example, this might include user defined imports, or opening user defined edit taskpanes.  
+ */
+export class Actions {
+    buildTimeActions: Record<ActionEnum, BuildTimeAction>;
+    runTimeActionsList: RunTimeAction[]
+
+    constructor(
+        buildTimeActions: Record<ActionEnum, BuildTimeAction>,
+        runTimeActionsList: RunTimeAction[]
+    ) {
+        this.buildTimeActions = buildTimeActions;
+        this.runTimeActionsList = runTimeActionsList;
+    }
+}
 
 
 export const getDefaultActionsDisabledMessage = (
@@ -37,7 +61,7 @@ export const getDefaultActionsDisabledMessage = (
     return defaultActionDisabledMessage;
 }
 
-export const createActions = (
+export const getActions = (
     sheetDataArray: SheetData[], 
     gridState: GridState,
     dfSources: DFSource[],
@@ -51,7 +75,7 @@ export const createActions = (
     analysisData: AnalysisData,
     userProfile: UserProfile,
     sendFunctionStatus: SendFunctionStatus,
-): Record<ActionEnum, Action> => {
+): Actions => {
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
     const sheetData = sheetDataArray[sheetIndex];
@@ -76,9 +100,10 @@ export const createActions = (
         The actions are listed in 2 sections, both in alphabetical order: non-spreadsheet formulas, 
         followed by all of the spreadsheet formulas. 
     */
-    const actions: Record<ActionEnum, Action> = {
+    const buildTimeActions: Record<ActionEnum, BuildTimeAction> = {
         [ActionEnum.Add_Column]: {
-            type: ActionEnum.Add_Column,
+            type: 'build-time',
+            staticType: ActionEnum.Add_Column,
             shortTitle: 'Add Col',
             longTitle: 'Add column',
             actionFunction: () => {
@@ -107,7 +132,8 @@ export const createActions = (
             tooltip: "Add a new formula column to the right of your selection."
         },
         [ActionEnum.Catch_Up]: {
-            type: ActionEnum.Catch_Up,
+            type: 'build-time',
+            staticType: ActionEnum.Catch_Up,
             shortTitle: 'Catch Up',
             longTitle: 'Catch up',
             actionFunction: () => {
@@ -120,7 +146,8 @@ export const createActions = (
             tooltip: "Go to the current state of the analysis."
         },
         [ActionEnum.Change_Dtype]: {
-            type: ActionEnum.Change_Dtype,
+            type: 'build-time',
+            staticType: ActionEnum.Change_Dtype,
             shortTitle: 'Dtype',
             longTitle: 'Change column dtype',
             actionFunction: () => {
@@ -145,7 +172,8 @@ export const createActions = (
             tooltip: "Cast the dtype of your data column to a string, int, float, boolean, datetime, or timedelta."
         },
         [ActionEnum.Clear]: {
-            type: ActionEnum.Clear,
+            type: 'build-time',
+            staticType: ActionEnum.Clear,
             shortTitle: 'Clear',
             longTitle: "Clear all edits",
             actionFunction: () => {
@@ -170,7 +198,8 @@ export const createActions = (
             tooltip: "Removes all of the transformations you've made to imported dataframes."
         },
         [ActionEnum.Column_Summary]: {
-            type: ActionEnum.Column_Summary,
+            type: 'build-time',
+            staticType: ActionEnum.Column_Summary,
             shortTitle: 'Column Summary',
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
@@ -193,7 +222,8 @@ export const createActions = (
             tooltip: "Learn about the distribution of the data in the selected column."
         },
         [ActionEnum.Copy]: {
-            type: ActionEnum.Copy,
+            type: 'build-time',
+            staticType: ActionEnum.Copy,
             shortTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
@@ -234,7 +264,8 @@ export const createActions = (
             }
         },
         [ActionEnum.Delete_Column]: {
-            type: ActionEnum.Delete_Column,
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Column,
             shortTitle: 'Del Col',
             longTitle: 'Delete columns',
             actionFunction: async () => {
@@ -275,7 +306,8 @@ export const createActions = (
             tooltip: "Delete all of the selected columns from the sheet."
         },
         [ActionEnum.Delete_Dataframe]: {
-            type: ActionEnum.Delete_Dataframe,
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Dataframe,
             shortTitle: 'Delete dataframe',
             longTitle: 'Delete dataframe',
             actionFunction: async () => {
@@ -302,7 +334,8 @@ export const createActions = (
             tooltip: "Delete the selected sheet."
         },
         [ActionEnum.Delete_Graph]: {
-            type: ActionEnum.Delete_Graph,
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Graph,
             shortTitle: 'Delete Graph',
             longTitle: 'Delete graph',
             actionFunction: async () => {
@@ -317,7 +350,8 @@ export const createActions = (
             tooltip: "Delete the selected graph."
         },
         [ActionEnum.Delete_Row]: {
-            type: ActionEnum.Delete_Row,
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Row,
             shortTitle: 'Delete Row',
             longTitle: 'Delete row',
             actionFunction: async () => {
@@ -337,7 +371,8 @@ export const createActions = (
             tooltip: "Delete the selected rows."
         },
         [ActionEnum.Docs]: {
-            type: ActionEnum.Docs,
+            type: 'build-time',
+            staticType: ActionEnum.Docs,
             shortTitle: 'Docs',
             longTitle: 'Documentation',
             actionFunction: () => {
@@ -356,7 +391,8 @@ export const createActions = (
             tooltip: "Documentation, tutorials, and how-tos on all functionality in Mito."
         },
         [ActionEnum.Drop_Duplicates]: {
-            type: ActionEnum.Drop_Duplicates,
+            type: 'build-time',
+            staticType: ActionEnum.Drop_Duplicates,
             shortTitle: 'Dedup',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
@@ -380,7 +416,8 @@ export const createActions = (
             tooltip: "Remove duplicated rows from your dataframe."
         },
         [ActionEnum.Duplicate_Dataframe]: {
-            type: ActionEnum.Duplicate_Dataframe,
+            type: 'build-time',
+            staticType: ActionEnum.Duplicate_Dataframe,
             shortTitle: 'Duplicate Dataframe',
             longTitle: 'Duplicate dataframe',
             actionFunction: async () => {
@@ -396,7 +433,8 @@ export const createActions = (
             tooltip: "Make a copy of the selected sheet."
         },
         [ActionEnum.Duplicate_Graph]: {
-            type: ActionEnum.Duplicate_Graph,
+            type: 'build-time',
+            staticType: ActionEnum.Duplicate_Graph,
             shortTitle: 'Duplicate Graph',
             longTitle: 'Duplicate selected graph',
             actionFunction: async () => {
@@ -415,7 +453,8 @@ export const createActions = (
             tooltip: "Make a copy of the selected graph."
         },
         [ActionEnum.Export]: {
-            type: ActionEnum.Export,
+            type: 'build-time',
+            staticType: ActionEnum.Export,
             shortTitle: 'Download',
             longTitle: 'Download File Now',
             actionFunction: () => {
@@ -441,7 +480,8 @@ export const createActions = (
             tooltip: "Download dataframes as a .csv or .xlsx file."
         },
         [ActionEnum.Export_Dropdown]: {
-            type: ActionEnum.Export_Dropdown,
+            type: 'build-time',
+            staticType: ActionEnum.Export_Dropdown,
             shortTitle: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
@@ -462,7 +502,8 @@ export const createActions = (
             tooltip: "Export dataframes as a .csv or .xlsx file."
         },
         [ActionEnum.Fill_Na]: {
-            type: ActionEnum.Fill_Na,
+            type: 'build-time',
+            staticType: ActionEnum.Fill_Na,
             shortTitle: 'Fill NaN',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
@@ -489,7 +530,8 @@ export const createActions = (
             tooltip: "Fill all NaN values within a dataframe or list of columns."
         },
         [ActionEnum.Filter]: {
-            type: ActionEnum.Filter,
+            type: 'build-time',
+            staticType: ActionEnum.Filter,
             shortTitle: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
@@ -512,7 +554,8 @@ export const createActions = (
             tooltip: "Filter this dataframe based on the data in a column."
         },
         [ActionEnum.Format_Number_Columns]: {
-            type: ActionEnum.Format_Number_Columns,
+            type: 'build-time',
+            staticType: ActionEnum.Format_Number_Columns,
             shortTitle: 'Number',
             longTitle: 'Format number columns',
             actionFunction: () => {
@@ -541,7 +584,8 @@ export const createActions = (
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
         },
         [ActionEnum.Fullscreen]: {
-            type: ActionEnum.Fullscreen,
+            type: 'build-time',
+            staticType: ActionEnum.Fullscreen,
             shortTitle: 'Fullscreen',
             longTitle: 'Toggle fullscreen',
             actionFunction: () => {
@@ -570,7 +614,8 @@ export const createActions = (
             tooltip: "Enter fullscreen mode to see more of your data."
         },
         [ActionEnum.Graph]: {
-            type: ActionEnum.Graph,
+            type: 'build-time',
+            staticType: ActionEnum.Graph,
             shortTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
@@ -607,7 +652,8 @@ export const createActions = (
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
         [ActionEnum.Help]: {
-            type: ActionEnum.Help,
+            type: 'build-time',
+            staticType: ActionEnum.Help,
             shortTitle: 'Help',
             longTitle: 'Help',
             actionFunction: () => {
@@ -627,7 +673,8 @@ export const createActions = (
             tooltip: "Join our Discord for more help."
         },
         [ActionEnum.Import_Dropdown]: {
-            type: ActionEnum.Import_Dropdown,
+            type: 'build-time',
+            staticType: ActionEnum.Import_Dropdown,
             shortTitle: 'Import',
             longTitle: 'Open import dropdown',
             actionFunction: () => {
@@ -649,7 +696,8 @@ export const createActions = (
             tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
         },
         [ActionEnum.Import_Files]: {
-            type: ActionEnum.Import_Files,
+            type: 'build-time',
+            staticType: ActionEnum.Import_Files,
             shortTitle: 'Import',
             longTitle: 'Import files',
             actionFunction: () => {
@@ -673,7 +721,8 @@ export const createActions = (
             tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
         },
         [ActionEnum.Merge]: {
-            type: ActionEnum.Merge,
+            type: 'build-time',
+            staticType: ActionEnum.Merge,
             shortTitle: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
@@ -695,7 +744,8 @@ export const createActions = (
             tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
         [ActionEnum.Concat_Dataframes]: {
-            type: ActionEnum.Concat_Dataframes,
+            type: 'build-time',
+            staticType: ActionEnum.Concat_Dataframes,
             shortTitle: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
@@ -717,7 +767,8 @@ export const createActions = (
             tooltip: "Concatenate two or more dataframes by stacking them vertically on top of eachother."
         },
         [ActionEnum.Pivot]: {
-            type: ActionEnum.Pivot,
+            type: 'build-time',
+            staticType: ActionEnum.Pivot,
             shortTitle: 'Pivot',
             longTitle: 'Pivot table',
             actionFunction: async () => {
@@ -782,7 +833,8 @@ export const createActions = (
             tooltip: "Create a Pivot Table to summarise data by breaking the data into groups and calculating statistics about each group."
         },
         [ActionEnum.Precision_Decrease]: {
-            type: ActionEnum.Precision_Decrease,
+            type: 'build-time',
+            staticType: ActionEnum.Precision_Decrease,
             shortTitle: 'Less',
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
@@ -809,7 +861,8 @@ export const createActions = (
             tooltip: "Decrease the number of decimal places that are displayed in the selected number columns." 
         },
         [ActionEnum.Precision_Increase]: {
-            type: ActionEnum.Precision_Increase,
+            type: 'build-time',
+            staticType: ActionEnum.Precision_Increase,
             shortTitle: 'More',
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
@@ -835,7 +888,8 @@ export const createActions = (
             tooltip: "Increase the number of decimal places that are displayed in the selected number columns." 
         },
         [ActionEnum.Promote_Row_To_Header]: {
-            type: ActionEnum.Promote_Row_To_Header,
+            type: 'build-time',
+            staticType: ActionEnum.Promote_Row_To_Header,
             shortTitle: 'Promote to Header',
             longTitle: 'Promote Row to header',
             actionFunction: async () => {
@@ -855,7 +909,8 @@ export const createActions = (
             tooltip: "Promote the selected row to be the header of the dataframe, and delete it." 
         },
         [ActionEnum.Redo]: {
-            type: ActionEnum.Redo,
+            type: 'build-time',
+            staticType: ActionEnum.Redo,
             shortTitle: 'Redo',
             longTitle: 'Redo',
             actionFunction: () => {
@@ -876,7 +931,8 @@ export const createActions = (
             }
         },
         [ActionEnum.Rename_Column]: {
-            type: ActionEnum.Rename_Column,
+            type: 'build-time',
+            staticType: ActionEnum.Rename_Column,
             shortTitle: 'Rename Column',
             longTitle: 'Rename column',
             actionFunction: () => {
@@ -904,7 +960,8 @@ export const createActions = (
             tooltip: "Rename the selected column."
         },
         [ActionEnum.Rename_Dataframe]: {
-            type: ActionEnum.Rename_Dataframe,
+            type: 'build-time',
+            staticType: ActionEnum.Rename_Dataframe,
             shortTitle: 'Rename dataframe',
             longTitle: 'Rename dataframe',
             actionFunction: () => {
@@ -928,7 +985,8 @@ export const createActions = (
             tooltip: "Rename the selected sheet."
         },
         [ActionEnum.Rename_Graph]: {
-            type: ActionEnum.Rename_Graph,
+            type: 'build-time',
+            staticType: ActionEnum.Rename_Graph,
             shortTitle: 'Rename Graph',
             longTitle: 'Rename graph',
             actionFunction: () => {
@@ -950,7 +1008,8 @@ export const createActions = (
             tooltip: "Rename the selected graph."
         },
         [ActionEnum.See_All_Functionality]: {
-            type: ActionEnum.See_All_Functionality,
+            type: 'build-time',
+            staticType: ActionEnum.See_All_Functionality,
             shortTitle: 'See All Functionality',
             longTitle: 'See all functionality',
             actionFunction: () => {
@@ -969,7 +1028,8 @@ export const createActions = (
             tooltip: "Documentation, tutorials, and how-tos on all functionality in Mito."
         },
         [ActionEnum.Set_Cell_Value]: {
-            type: ActionEnum.Set_Cell_Value,
+            type: 'build-time',
+            staticType: ActionEnum.Set_Cell_Value,
             shortTitle: 'Set Cell Value',
             longTitle: 'Set cell value',
             actionFunction: async () => {
@@ -1005,7 +1065,8 @@ export const createActions = (
             tooltip: "Update the value of a specific cell in a data column."
         },
         [ActionEnum.Set_Column_Formula]: {
-            type: ActionEnum.Set_Column_Formula,
+            type: 'build-time',
+            staticType: ActionEnum.Set_Column_Formula,
             shortTitle: 'Set Column Formula',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
@@ -1034,7 +1095,8 @@ export const createActions = (
             tooltip: "Use one of Mito's spreadsheet formulas or basic math operators to set the column's values."
         },
         [ActionEnum.Sort]: {
-            type: ActionEnum.Sort,
+            type: 'build-time',
+            staticType: ActionEnum.Sort,
             shortTitle: 'Sort',
             longTitle: 'Sort column',
             actionFunction: () => {
@@ -1057,7 +1119,8 @@ export const createActions = (
             tooltip: "Sort a column in ascending or descending order."
         },
         [ActionEnum.Split_Text_To_Column]: {
-            type: ActionEnum.Split_Text_To_Column,
+            type: 'build-time',
+            staticType: ActionEnum.Split_Text_To_Column,
             shortTitle: 'Split',
             longTitle: 'Split text to columns',
             actionFunction: () => {
@@ -1076,7 +1139,8 @@ export const createActions = (
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {
-            type: ActionEnum.Steps,
+            type: 'build-time',
+            staticType: ActionEnum.Steps,
             shortTitle: 'Steps',
             longTitle: 'Step history',
             actionFunction: () => {
@@ -1095,7 +1159,8 @@ export const createActions = (
             tooltip: "View a list of all the edits you've made to your data."
         },
         [ActionEnum.OpenSearch]: {
-            type: ActionEnum.OpenSearch,
+            type: 'build-time',
+            staticType: ActionEnum.OpenSearch,
             shortTitle: 'Search',
             longTitle: 'Search',
             actionFunction: () => {
@@ -1127,7 +1192,8 @@ export const createActions = (
             }
         },
         [ActionEnum.Undo]: {
-            type: ActionEnum.Undo,
+            type: 'build-time',
+            staticType: ActionEnum.Undo,
             shortTitle: 'Undo',
             longTitle: 'Undo',
             actionFunction: () => {
@@ -1148,7 +1214,8 @@ export const createActions = (
             }
         },
         [ActionEnum.Unique_Values]: {
-            type: ActionEnum.Unique_Values,
+            type: 'build-time',
+            staticType: ActionEnum.Unique_Values,
             shortTitle: 'Unique Vals',
             longTitle: 'View unique values',
             actionFunction: () => {
@@ -1171,7 +1238,8 @@ export const createActions = (
             tooltip: "See a list of unique values in the column, and toggle to filter them."
         },
         [ActionEnum.Upgrade_To_Pro]: {
-            type: ActionEnum.Upgrade_To_Pro,
+            type: 'build-time',
+            staticType: ActionEnum.Upgrade_To_Pro,
             shortTitle: 'Upgrade to Pro',
             longTitle: 'Upgrade to Mito Pro',
             actionFunction: () => {
@@ -1191,7 +1259,8 @@ export const createActions = (
             tooltip: "Upgrade to a Mito Pro account and get access to all of Mito Pro's functionality."
         },
         [ActionEnum.Transpose]: {
-            type: ActionEnum.Transpose,
+            type: 'build-time',
+            staticType: ActionEnum.Transpose,
             shortTitle: 'Transpose Dataframe',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
@@ -1202,7 +1271,8 @@ export const createActions = (
             tooltip: "Switches rows and columns in a dataframe"
         },
         [ActionEnum.Melt]: {
-            type: ActionEnum.Melt,
+            type: 'build-time',
+            staticType: ActionEnum.Melt,
             shortTitle: 'Unpivot',
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
@@ -1222,7 +1292,8 @@ export const createActions = (
             tooltip: "Unpivot a DataFrame from wide to long format."
         },
         [ActionEnum.One_Hot_Encoding]: {
-            type: ActionEnum.One_Hot_Encoding,
+            type: 'build-time',
+            staticType: ActionEnum.One_Hot_Encoding,
             shortTitle: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
@@ -1236,7 +1307,8 @@ export const createActions = (
             tooltip: "One Hot Encoding"
         },
         [ActionEnum.Set_Dataframe_Format]: {
-            type: ActionEnum.Set_Dataframe_Format,
+            type: 'build-time',
+            staticType: ActionEnum.Set_Dataframe_Format,
             shortTitle: 'Set Dataframe Colors',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
@@ -1256,7 +1328,8 @@ export const createActions = (
             tooltip: "Change the styling of the header, rows, and border of the dataframe."
         },
         [ActionEnum.Conditional_Formatting]: {
-            type: ActionEnum.Conditional_Formatting,
+            type: 'build-time',
+            staticType: ActionEnum.Conditional_Formatting,
             shortTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {
@@ -1278,7 +1351,8 @@ export const createActions = (
             tooltip: "Set the background color and text color of the cell based on a condition."
         },
         [ActionEnum.Dataframe_Import]: {
-            type: ActionEnum.Dataframe_Import,
+            type: 'build-time',
+            staticType: ActionEnum.Dataframe_Import,
             shortTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
@@ -1302,7 +1376,8 @@ export const createActions = (
             tooltip: "Dataframe Import"
         },
         [ActionEnum.UPDATEIMPORTS]: {
-            type: ActionEnum.UPDATEIMPORTS,
+            type: 'build-time',
+            staticType: ActionEnum.UPDATEIMPORTS,
             shortTitle: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
@@ -1322,7 +1397,8 @@ export const createActions = (
             tooltip: "Change imported data to rerun the same edits on new data."
         },
         [ActionEnum.CODESNIPPETS]: {
-            type: ActionEnum.CODESNIPPETS,
+            type: 'build-time',
+            staticType: ActionEnum.CODESNIPPETS,
             shortTitle: 'Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
@@ -1342,7 +1418,8 @@ export const createActions = (
             tooltip: "CodeSnippets"
         },
         [ActionEnum.CODEOPTIONS]: {
-            type: ActionEnum.CODEOPTIONS,
+            type: 'build-time',
+            staticType: ActionEnum.CODEOPTIONS,
             shortTitle: 'Configure',
             longTitle: 'Configure Code',
             actionFunction: () => {
@@ -1362,7 +1439,8 @@ export const createActions = (
             tooltip: "Configure how the code is generated."
         },
         [ActionEnum.EXPORT_TO_FILE]: {
-            type: ActionEnum.EXPORT_TO_FILE,
+            type: 'build-time',
+            staticType: ActionEnum.EXPORT_TO_FILE,
             shortTitle: 'Download File when Executing Code',
             longTitle: 'Download File when Executing Code',
             actionFunction: () => {
@@ -1382,7 +1460,8 @@ export const createActions = (
             tooltip: "Generate code that exports dataframes to files."
         },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
-            type: ActionEnum.RESET_AND_KEEP_INDEX,
+            type: 'build-time',
+            staticType: ActionEnum.RESET_AND_KEEP_INDEX,
             shortTitle: 'Reset and Keep Index',
             longTitle: 'Reset and Keep Index',
             actionFunction: () => {
@@ -1393,7 +1472,8 @@ export const createActions = (
             tooltip: "Resets a dataframe's index to 0,1,2,3... Keeps the current index as a column in the dataframe."
         },
         [ActionEnum.RESET_AND_DROP_INDEX]: {
-            type: ActionEnum.RESET_AND_DROP_INDEX,
+            type: 'build-time',
+            staticType: ActionEnum.RESET_AND_DROP_INDEX,
             shortTitle: 'Reset and Drop Index',
             longTitle: 'Reset and Drop Index',
             actionFunction: () => {
@@ -1404,7 +1484,8 @@ export const createActions = (
             tooltip: "Resets a dataframe's index to 0,1,2,3... Removes current index entirely."
         },
         [ActionEnum.SNOWFLAKEIMPORT]: {
-            type: ActionEnum.SNOWFLAKEIMPORT,
+            type: 'build-time',
+            staticType: ActionEnum.SNOWFLAKEIMPORT,
             shortTitle: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {
@@ -1425,7 +1506,8 @@ export const createActions = (
             requiredPlan: 'enterprise',
         },
         [ActionEnum.AI_TRANSFORMATION]: {
-            type: ActionEnum.AI_TRANSFORMATION,
+            type: 'build-time',
+            staticType: ActionEnum.AI_TRANSFORMATION,
             shortTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
@@ -1444,7 +1526,8 @@ export const createActions = (
             tooltip: "AI Transformation"
         },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
-            type: ActionEnum.COLUMN_HEADERS_TRANSFORM,
+            type: 'build-time',
+            staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,
             shortTitle: 'Bulk column header transform',
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {
@@ -1464,7 +1547,8 @@ export const createActions = (
             tooltip: "Allows you to capitalize, lowercase, or replace column headers in bulk."
         },
         [ActionEnum.USERDEFINEDIMPORT]: {
-            type: ActionEnum.USERDEFINEDIMPORT,
+            type: 'build-time',
+            staticType: ActionEnum.USERDEFINEDIMPORT,
             shortTitle: 'Custom Import',
             longTitle: 'Custom Import',
             actionFunction: () => {
@@ -1483,10 +1567,17 @@ export const createActions = (
             searchTerms: ['import', 'custom import', 'user defined import'],
             tooltip: "Import data using the custom defined imports function "
         },
-        [ActionEnum.USER_DEFINED_EDIT]: {
-            type: ActionEnum.USER_DEFINED_EDIT,
-            shortTitle: 'User Defined Edit',
-            longTitle: 'User Defined Edit',
+        // AUTOGENERATED LINE: ACTION (DO NOT DELETE)    
+    }
+
+
+    const runTimeActionsList: RunTimeAction[] = analysisData.userDefinedEdits.map(f => {
+        const displayName = getDisplayNameOfPythonVariable(f.name)
+        return {
+            type: 'run-time',
+            staticType: f.name,
+            shortTitle: displayName,
+            longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1494,71 +1585,66 @@ export const createActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.USER_DEFINED_EDIT},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.USER_DEFINED_EDIT,
+                            edit_name: f.name
+                        },
                         selectedTabType: 'data'
                     }
                 })
             },
-            isDisabled: () => {return undefined}, // TODO
-            searchTerms: ['User Defined Edit'],
-            tooltip: "User Defined Edit"
-        },
-        // AUTOGENERATED LINE: ACTION (DO NOT DELETE)
-    
-    
-    
-    
-    }
+            isDisabled: () => {return undefined},
+            searchTerms: ['edit', 'custom edit', 'user defined edit', ], // TODO: maybe we can extract other terms?
+            tooltip: f.docstring
+        }
+    })
 
-    return actions
+    return new Actions(buildTimeActions, runTimeActionsList);
 }
 
-export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Action>): Record<string, ActionEnum[]> => {
+export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, BuildTimeAction>): Record<string, ActionEnum[]> => {
     const searchTermToActionMapping: Record<string, ActionEnum[]> = {};
     Object.values(actions).forEach(action => {
         action.searchTerms.forEach(searchTerm => {
             if (!(searchTerm in searchTermToActionMapping)) {
                 searchTermToActionMapping[searchTerm] = []
             }
-            searchTermToActionMapping[searchTerm].push(action.type)
+            searchTermToActionMapping[searchTerm].push(action.staticType)
         })
     })
     return searchTermToActionMapping
+}
+
+const sortActionHelper = function(actionOne: Action, actionTwo: Action) {
+    const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle
+    const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.shortTitle
+
+
+    // Sort alphabetically
+    if (titleOne < titleTwo) {
+        return -1;
+    }
+    if (titleOne > titleTwo) {
+        return 1;
+    }
+
+    return 0;
 }
 
 
 /*
     Sort the provided actions in alphabetical order.
 */
-export const getSortedActions = (actions: Record<ActionEnum, Action>): Action[] => {
+export const getSortedActions = (actions: Actions): Action[] => {
 
-    const actionsArray = Object.values(actions);
+    const buildTimeActions: Action[] = Object.values(actions.buildTimeActions);
+    const runTimeActions: Action[] = Object.values(actions.runTimeActionsList);
 
-    actionsArray.sort(function(actionOne, actionTwo) {
-        const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle
-        const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.shortTitle
+    // Sort build time actions
+    buildTimeActions.sort(sortActionHelper);
+    
+    // Then, sort runtime actions. As these are custom, we put them up top. 
+    runTimeActions.sort(sortActionHelper);
 
-
-        // Sort alphabetically
-        if (titleOne < titleTwo) {
-            return -1;
-        }
-        if (titleOne > titleTwo) {
-            return 1;
-        }
-
-        return 0;
-    });
-
-    // Make sure the last two actions are Search (depreciated for now), See_All_Functionality, reguardless of the search term
-    const actionEnumsToPutAtBottom: ActionEnum[] = [ActionEnum.See_All_Functionality]
-    actionEnumsToPutAtBottom.forEach(actionEnum => {
-        const actionIndex = actionsArray.findIndex(action => action.type === actionEnum)
-        if (actionIndex !== -1) {
-            actionsArray.splice(actionIndex, 1)
-        }
-        actionsArray.push(actions[actionEnum])
-    })
-
-    return actionsArray;
+    return runTimeActions.concat(buildTimeActions);
 }

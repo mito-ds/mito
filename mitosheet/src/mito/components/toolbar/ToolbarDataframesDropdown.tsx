@@ -1,14 +1,15 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarDataframesDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     userProfile: UserProfile
@@ -35,28 +36,28 @@ const ToolbarDataframesDropdown = (props: ToolbarDataframesDropdownProps): JSX.E
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Import_Files], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Dataframe_Import], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Import_Files], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Dataframe_Import], props.userProfile)}
                 {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT ?
-                    makeToolbarDropdownItem(props.actions[ActionEnum.SNOWFLAKEIMPORT], props.userProfile)
+                    makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.SNOWFLAKEIMPORT], props.userProfile)
                     : <></>
                 }
-                {makeToolbarDropdownItem(props.actions[ActionEnum.USERDEFINEDIMPORT], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.UPDATEIMPORTS], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.USERDEFINEDIMPORT], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.UPDATEIMPORTS], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Export], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.EXPORT_TO_FILE], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Export], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.EXPORT_TO_FILE], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Pivot], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Melt], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Drop_Duplicates], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Merge], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Concat_Dataframes], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Transpose], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Pivot], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Melt], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Drop_Duplicates], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Merge], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Concat_Dataframes], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Transpose], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Duplicate_Dataframe], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Dataframe], props.userProfile, true)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Dataframe], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Duplicate_Dataframe], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Rename_Dataframe], props.userProfile, true)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete_Dataframe], props.userProfile)}
             </Dropdown>
         </>
     );
