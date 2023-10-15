@@ -120,7 +120,7 @@ USER_DEFINED_IMPORT_TESTS = [
 ]
 @pytest.mark.parametrize("input_dfs, edit_name, edit_params, output_dfs", USER_DEFINED_IMPORT_TESTS)
 def test_userdefinedimport(input_dfs, edit_name, edit_params, output_dfs):
-    mito = create_mito_wrapper(*[df.copy(deep=True) for df in input_dfs], editors=[no_change, add_one, add_param, add_col, del_col, rename_all_columns, reorder_columns])
+    mito = create_mito_wrapper(*[df.copy(deep=True) for df in input_dfs], editors=[no_change, add_one, add_param, add_col, del_col, rename_all_columns])
     mito.user_defined_edit(edit_name, edit_params)
 
     assert len(mito.dfs) == len(output_dfs)
