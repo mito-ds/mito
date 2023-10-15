@@ -26,6 +26,7 @@ import ToolbarHelpDropdown from './ToolbarHelpDropdown';
 import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
 import ToolbarViewDropdown from './ToolbarViewDropdown';
 import { ToolbarButtonType } from './utils';
+import ToolbarUserDefinedEditsDropdown from './ToolbarUserDefinedEditsDropdown';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -164,6 +165,17 @@ export const Toolbar = (
                             userProfile={props.userProfile}
                         />
                     </ToolbarMenu>
+                    {props.actions.runtimeEditActionsList.length > 0 &&
+                        <ToolbarMenu type='Custom Edits' uiState={props.uiState} setUIState={props.setUIState}>
+                            <ToolbarUserDefinedEditsDropdown
+                                actions={props.actions}
+                                uiState={props.uiState}
+                                setUIState={props.setUIState}
+                                userProfile={props.userProfile}
+                            />
+                        </ToolbarMenu>
+                        
+                    }
                     <ToolbarMenu type='Help' uiState={props.uiState} setUIState={props.setUIState}>
                         <ToolbarHelpDropdown
                             actions={props.actions}
@@ -232,7 +244,8 @@ export const Toolbar = (
                                     }
                                 })
                             }
-                            width='medium'
+                            // If there are any custom importers, we want to make the dropdown wider
+                            width={props.actions.runtimeImportActionsList.length > 0 ? 'large' : 'medium'}
                         >
                             {importDropdownItems}
                         </Dropdown>

@@ -55,10 +55,24 @@ const UserDefinedFunctionParamConfigSection = (props: {
                     sheetDataArray={props.sheetDataArray}
                     sheetIndex={sheetIndex}
                     title={paramDisplayName}
+                    span={8}
                     onChange={(newSheetIndex) => {
-                        const newValue = props.sheetDataArray[newSheetIndex].dfName;
+                        const newSheetData = props.sheetDataArray[newSheetIndex];
+                        const newValue = newSheetData.dfName;
                         const newParams = window.structuredClone(params);
                         newParams[paramName] = newValue;
+
+                        // Find all later parameters that are ColumnHeader typed, before the next DataFrame typed parameter
+                        // And set them to the first column in this new dataframe
+                        for (let laterParamIndex = paramIndex + 1; laterParamIndex < paramNameAndTypeTuples.length; laterParamIndex++) {
+                            const [laterParamName, laterParamType] = paramNameAndTypeTuples[laterParamIndex];
+                            if (laterParamType === 'ColumnHeader') {
+                                newParams[laterParamName] = Object.keys(newSheetData.columnIDsMap)[0] || '';
+                            } else if (laterParamType === 'DataFrame') {
+                                break;
+                            }
+                        }
+
                         props.setParams(newParams);
                     }}
                 />
