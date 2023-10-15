@@ -17,6 +17,7 @@ import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg';
 import SecurityIcon from '../public/icon-squares/SecurityIcon.svg';
 import TelemetryIcon from '../public/icon-squares/TelemetryIcon.svg';
 import UpgradesIcon from '../public/icon-squares/UpgradesIcon.svg';
+import { classNames } from '../utils/classNames';
 
 const Security: NextPage = () => {
 
@@ -32,7 +33,7 @@ const Security: NextPage = () => {
     
       <div className={pageStyles.container}>
 
-        <main className={pageStyles.main}>
+        <main className={classNames(pageStyles.main, pageStyles.main_left_align)}>
 
           <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
             <h1 className={titleStyles.title}>

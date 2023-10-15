@@ -1,3 +1,15 @@
+.title_card {
+    padding-top: 4rem;
+}
+
+.section {
+    align-items: flex-start !important;
+}
+
+.section + .section {
+    margin-top: 4rem;
+}
+
 .related_functions_card {
     display: flex;
     flex-direction: row;
@@ -8,11 +20,22 @@
     margin-right: 10px;
 }
 
+.h3 {
+    font-family: Graphik;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 2rem;
+    font-size: 1.25rem;
+}
+
 .table {
     border-collapse: collapse;
     color: white;
     border-radius: 8px 8px 0 0; /* Round the top-left and top-right corners */
     overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
 }
 
 .table th,
@@ -26,4 +49,11 @@
 .table thead {
     background-color: black;
     border-radius: 10px;
+}
+
+@media only screen and (min-width: 50em) {
+
+    .table {
+        width: 80%;
+    }
 }

@@ -4,6 +4,8 @@ import Head from 'next/head';
 
 import pageStyles from '../../styles/Page.module.css';
 import excelToPythonStyles from '../../styles/ExcelToPython.module.css';
+import titleStyles from '../../styles/Title.module.css';
+
 import { classNames } from '../../utils/classNames';
 import TextButton from '../../components/TextButton/TextButton';
 import Header from '../../components/Header/Header';
@@ -62,29 +64,28 @@ const PageContent = () => {
       <Header/>
 
       <div className={pageStyles.container}>
-        <main>
-          <h1>{`How to Implement Excels: ${functionName} function in Pandas`}</h1>
-          <div className={classNames(excelToPythonStyles.related_functions_card)}>
-            <p>Related Functions</p>
-            <TextButton 
-              text="SUM"
-              variant='white'
-            />
-            <TextButton
-              text='ROUND'
-              variant='white'
-            />
-            <TextButton
-              text='CEIL'
-              variant='white'
-            />
+        <main className={classNames(pageStyles.main)}>
+          <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
+            <h1>{`How to Implement Excels: ${functionName} function in Pandas`}</h1>
+            <div className={classNames(excelToPythonStyles.related_functions_card)}>
+              <p>Related Functions</p>
+              <TextButton 
+                text="SUM"
+                variant='white'
+              />
+              <TextButton
+                text='ROUND'
+                variant='white'
+              />
+              <TextButton
+                text='CEIL'
+                variant='white'
+              />
+            </div>
+          </section>
 
-          </div>
-          <p>
-            Related Function
-          </p>
           
-          <section>
+          <section className={excelToPythonStyles.section}>
             <p>
               Excel&apos;s ABS function finds the absolute value of a number. The absolute value of a function is the non-negative value of a number. The absolute value function is commonly used, for example, to calculate the distance between two points. Regardless of the order we look at the points, the distance should always be positive.
             </p>
@@ -94,7 +95,7 @@ const PageContent = () => {
           </section>
 
           {/* Understanding the Excel Function */}
-          <section>
+          <section className={excelToPythonStyles.section}>
               <h2>Understanding the Excel Function</h2>
               <p>
                 The ABS function in Excel takes a single parameters and returns its absolute value.
@@ -102,7 +103,7 @@ const PageContent = () => {
               <p>
                 =ABS(<span className='text-highlight'>number</span>)
               </p>
-              <h3>ABS Excel Syntax</h3>
+              <h3 className={excelToPythonStyles.h3}>ABS Excel Syntax</h3>
               <table className={excelToPythonStyles.table}>
                 <thead>
                   <tr>
@@ -120,7 +121,7 @@ const PageContent = () => {
                 </tbody>
               </table>
 
-              <h3>ABS Examples</h3>
+              <h3 className={excelToPythonStyles.h3}>ABS Examples</h3>
               <table className={excelToPythonStyles.table}>
                 <thead>
                   <tr>
@@ -145,13 +146,13 @@ const PageContent = () => {
           </section>
 
           {/* Equivalent Python Code Using Pandas */}
-          <section>
+          <section className={excelToPythonStyles.section}>
               <h2>Implementing the Absolute Value function in Pandas</h2>
               <p>
                 To replicate the ABS function in Excel using Python and Pandas, you can use the `abs()` function available in Pandas. Below are examples of how to achieve the same functionality.
               </p>
               
-              <h3>Calculate the absolute value for every cell in a Pandas series</h3>
+              <h3 className={excelToPythonStyles.h3}>Calculate the absolute value for every cell in a Pandas series</h3>
               <p>
                 The most common way to use the function in Excel is to apply it directly to a column or series of numbers in a Pandas DataFrame.
               </p>
@@ -159,14 +160,14 @@ const PageContent = () => {
               <CodeBlock code={`# Calculate the absolute value of the Numbers column
 df['ABS_Result'] = df['Numbers'].abs()`}
               />
-              <h3>Finding the absolute difference between two columns</h3>
+              <h3 className={excelToPythonStyles.h3}>Finding the absolute difference between two columns</h3>
               <p>
                 To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
               </p>
               <CodeBlock code = {`# Calculate the absolute difference between Column1 and Column2
 df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()`
               }/>
-              <h3>Using ABS as part of a more complex operation</h3>
+              <h3 className={excelToPythonStyles.h3}>Using ABS as part of a more complex operation</h3>
               <p>
                 To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
               </p>
@@ -180,12 +181,12 @@ df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
           </section>
 
           {/* Common Pitfalls and Tips */}
-          <section>
+          <section className={excelToPythonStyles.section}>
             <h2>Common mistakes when implementing the ABS function in Python</h2>
             <p>
               When implementing the ABS function in Python, there are a few common challenges that you might run into.
             </p>
-            <h3>Handling Missing Values</h3>
+            <h3 className={excelToPythonStyles.h3}>Handling Missing Values</h3>
             <p>
               If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): 'NoneType'`</code>.
             </p>
@@ -197,7 +198,7 @@ df.fillna(0, inplace=True)
 
 # Calculate the absolute value
 df['ABS_SUM'] = df['A'].abs()`}/>          
-              <h3>Handling non-numeric values</h3>
+              <h3 className={excelToPythonStyles.h3}>Handling non-numeric values</h3>
               <p>
                 In Python, when you use the ABS function you don't have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.
               </p>
@@ -215,16 +216,6 @@ df.fillna(0, inplace=True)
 df['ABS_SUM'] = df['A'].abs()`}/>
           </section>
 
-          {/* Conclusion */}
-          <section>
-            <h2>Conclusion</h2>
-            <p>
-              In this guide, weve shown you how to convert the Excel SUM function to Python using Pandas. By following the examples and tips provided, you can seamlessly transition from Excel to Python for data analysis and automation.
-            </p>
-            <p>
-              We encourage you to explore other Excel-to-Python guides on our website to further enhance your data analysis skills with Python.
-            </p>
-          </section>
         </main>
       </div>
       <Footer/>
