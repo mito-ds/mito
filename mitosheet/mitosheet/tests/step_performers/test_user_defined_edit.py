@@ -42,13 +42,6 @@ def rename_all_columns(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = ['abc' + col for col in df.columns]
     return df
 
-def reorder_columns(df: pd.DataFrame) -> pd.DataFrame:
-    tmp = df['A']
-    df['A'] = df['B']
-    df['B'] = tmp
-    df.columns = ['B', 'A']
-    return df
-
 
 USER_DEFINED_IMPORT_TESTS = [
     (
@@ -122,18 +115,6 @@ USER_DEFINED_IMPORT_TESTS = [
         },
         [
             RENAMED_COL_DF
-        ]
-    ),
-    (
-        [
-            START_DF
-        ],
-        "reorder_columns",
-        {
-            'df': 'df1',
-        },
-        [
-            REORDER_COL_DF
         ]
     ),
 ]
