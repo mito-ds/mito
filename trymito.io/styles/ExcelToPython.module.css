@@ -2,12 +2,20 @@
     padding-top: 4rem;
 }
 
+.title_card > *:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
 .section {
     align-items: flex-start !important;
 }
 
 .section + .section {
     margin-top: 4rem;
+}
+
+.title_card  {
+    margin-bottom: 4rem;
 }
 
 .related_functions_card {

@@ -44,8 +44,13 @@
 }
 
 @media only screen and (min-width: 50em) {
-  .text_button {
+
+  .large {
     font-size: 1.5rem;
+  }
+
+  .small {
+    font-size: 1rem;
   }
 
   .text_button button,

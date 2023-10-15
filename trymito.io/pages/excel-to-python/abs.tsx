@@ -1,10 +1,12 @@
 // Import necessary React and Next.js modules and components
 import React from 'react';
 import Head from 'next/head';
+import Image from "next/image"
+import Link from "next/link"
+
 
 import pageStyles from '../../styles/Page.module.css';
 import excelToPythonStyles from '../../styles/ExcelToPython.module.css';
-import titleStyles from '../../styles/Title.module.css';
 
 import { classNames } from '../../utils/classNames';
 import TextButton from '../../components/TextButton/TextButton';
@@ -12,6 +14,8 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 
 import CodeBlock from '../../components/CodeBlock/CodeBlock';
+import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
+import HorizontalNavItem from '../../components/Glossary/HorizontalNavItem/HorizontalNavItem';
 
 
 // Define the specific function name
@@ -64,22 +68,32 @@ const PageContent = () => {
       <Header/>
 
       <div className={pageStyles.container}>
-        <main className={classNames(pageStyles.main)}>
+        <main className={classNames(pageStyles.main, excelToPythonStyles.main)}>
           <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
-            <h1>{`How to Implement Excels: ${functionName} function in Pandas`}</h1>
+            <div className={excelToPythonStyles.horizontal_navbar_container}>
+              <GlossayHorizontalNavbar>
+                <HorizontalNavItem title="functions" href='/spreadsheet-automation'/>
+                <HorizontalNavItem title="abs" href='/spreadsheet-automation'/>
+              </GlossayHorizontalNavbar>
+            </div>
+            
+            <h1>How to Implement Excels: <span className='text-highlight'>{functionName}</span> function in Pandas</h1>
             <div className={classNames(excelToPythonStyles.related_functions_card)}>
               <p>Related Functions</p>
               <TextButton 
                 text="SUM"
                 variant='white'
+                fontSize='small'
               />
               <TextButton
                 text='ROUND'
                 variant='white'
+                fontSize='small'
               />
               <TextButton
                 text='CEIL'
                 variant='white'
+                fontSize='small'
               />
             </div>
           </section>

@@ -7,13 +7,16 @@ const TextButton = (props : {
     href?: string
     action?: string
     variant?: 'white'
+    fontSize?: 'small'
 }): JSX.Element => {
 
     const colorStyle = props.variant === 'white' ? textButtonStyles.white : textButtonStyles.purple;
+    const fontStyle = props.fontSize === 'small' ? textButtonStyles.small : textButtonStyles.large;
+
     if (props.action === undefined) {
         return (
             <a 
-                className={classNames(textButtonStyles.text_button, colorStyle)} 
+                className={classNames(textButtonStyles.text_button, colorStyle, fontStyle)} 
                 href={props.href}
                 target="_blank"
                 rel="noreferrer"
@@ -25,7 +28,7 @@ const TextButton = (props : {
     } else {
         return (
             <form action={props.action} method="POST" target="_blank">
-                <button className={classNames(textButtonStyles.text_button, colorStyle)} type="submit">
+                <button className={classNames(textButtonStyles.text_button, colorStyle, fontStyle)} type="submit">
                     {props.text}
                 </button>
             </form>
