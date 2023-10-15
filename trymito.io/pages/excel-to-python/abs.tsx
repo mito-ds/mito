@@ -12,7 +12,6 @@ import Footer from '../../components/Footer/Footer';
 import CodeBlock from '../../components/CodeBlock/CodeBlock';
 
 
-
 // Define the specific function name
 const functionName = "ABS";
 
@@ -182,68 +181,38 @@ df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
 
           {/* Common Pitfalls and Tips */}
           <section>
-            <h2>Common Pitfalls and Tips</h2>
+            <h2>Common mistakes when implementing the ABS function in Python</h2>
             <p>
-              When implementing the SUM function in Python using Pandas, here are some common challenges and tips to keep in mind:
+              When implementing the ABS function in Python, there are a few common challenges that you might run into.
             </p>
             <h3>Handling Missing Values</h3>
             <p>
-              In Excel, the SUM function simply ignores empty cells. In Pandas, missing values (NaN) can affect the result. To handle missing values like Excel, use the `.sum()` function with the `skipna=True` parameter.
+              If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): 'NoneType'`</code>.
             </p>
-            <code>{`import pandas as pd
+            <p>
+              To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel.
+            </p>
+            <CodeBlock code={`# Fill missing values with 0 so it is handled the same was as Excel
+df.fillna(0, inplace=True)
 
-  # Sample DataFrame with missing values
-  data = {'Numbers': [1, 2, None, 4]}
-  df = pd.DataFrame(data)
-
-  # Calculate the sum, ignoring missing values
-  total = df['Numbers'].sum(skipna=True)
-
-  # Display the total
-  print(total)`}</code>
-          
-              <h3>Aggregating Data</h3>
+# Calculate the absolute value
+df['ABS_SUM'] = df['A'].abs()`}/>          
+              <h3>Handling non-numeric values</h3>
               <p>
-                The SUM function in Excel is often used to aggregate data. In Pandas, you can use the `.groupby()` function to group and sum data based on specific criteria.
-              </p>
-              <code>{`import pandas as pd
-
-  # Sample DataFrame
-  data = {'Category': ['A', 'B', 'A', 'C'],
-          'Value': [10, 20, 30, 40]}
-
-  df = pd.DataFrame(data)
-
-  # Group by 'Category' and calculate the sum for each group
-  grouped = df.groupby('Category')['Value'].sum()
-
-  # Display the grouped data
-  print(grouped)`}</code>
-
-          <p>If you want to automate Excel-based calculations using Python, understanding the SUM function in Pandas is a valuable skill.</p>
-          </section>
-
-          {/* Practical Example */}
-          <section>
-              <h2>Practical Example</h2>
-              <p>
-                Lets consider a practical example where the SUM function is commonly used. Suppose you have a sales dataset with monthly sales figures, and you want to calculate the total annual sales.
+                In Python, when you use the ABS function you don't have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.
               </p>
               <p>
-                Heres how you can apply the SUM function in Python to achieve this:
+                Python's .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula.
               </p>
-              <code>{`import pandas as pd
+              <CodeBlock code={`# Convert the columns to numeric data types (float)
+df[A] = df['A'].astype(float)
 
-  # Sample DataFrame with monthly sales data
-  data = {'Month': ['Jan', 'Feb', 'Mar', 'Apr'],
-          'Sales': [5000, 6000, 5500, 7000]}
-  df = pd.DataFrame(data)
+# Then, replace any cell that could not be converted to a float
+# with the value 0, so it’s handled the same as Excel.
+df.fillna(0, inplace=True)
 
-  # Calculate the total annual sales
-  annual_sales = df['Sales'].sum()
-
-  # Display the total annual sales
-  print(f"Total Annual Sales: \${annual_sales}")`}</code>
+# Calculate the absolute value
+df['ABS_SUM'] = df['A'].abs()`}/>
           </section>
 
           {/* Conclusion */}
