@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_analysis
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions
+from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
@@ -40,7 +40,10 @@ from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
 from mitosheet.utils import get_new_id
-from mitosheet.step_performers.utils.user_defined_functionality import get_functions_from_path, get_non_validated_custom_sheet_functions
+from mitosheet.transpiler.transpile_utils import get_script_as_function
+from mitosheet.transpiler.transpile import transpile
+from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
+from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 
@@ -57,7 +60,9 @@ class MitoBackend():
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
-            code_options: Optional[CodeOptions]=None
+            user_defined_editors: Optional[List[Callable]]=None,
+            code_options: Optional[CodeOptions]=None,
+            theme: Optional[MitoTheme]=None,
         ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
@@ -73,7 +78,6 @@ class MitoBackend():
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         if custom_sheet_functions_path is not None:
             all_user_defined_functions.extend(get_non_validated_custom_sheet_functions(custom_sheet_functions_path))
-
 
         custom_importers_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_IMPORTERS_PATH]
         all_custom_importers = user_defined_importers if user_defined_importers is not None else []
@@ -97,7 +101,9 @@ class MitoBackend():
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,
             user_defined_importers=all_custom_importers,
-            code_options=code_options
+            user_defined_editors=user_defined_editors,
+            code_options=code_options,
+            theme=theme
         )
 
         # And the api
@@ -112,6 +118,28 @@ class MitoBackend():
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
         self.mito_send: Callable = lambda x: None # type: ignore
+
+        self.theme = theme
+
+    @property
+    def fully_parameterized_function(self) -> str:
+        """
+        Returns the fully parameterized function string. This is used for
+        cases where we want to get the function string regardless of the 
+        code options the user provided. 
+        """
+        return '\n'.join(get_script_as_function(
+            self.steps_manager,
+            [],
+            transpile(self.steps_manager, add_comments=False),
+            self.steps_manager.code_options['function_name'],
+            'all',
+            False
+        ))
+
+    @property
+    def param_metadata(self) -> List[ParamMetadata]:
+        return get_parameterizable_params_metadata(self.steps_manager)
 
     @property
     def analysis_name(self):
@@ -299,10 +327,17 @@ def get_mito_backend(
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
+        user_defined_editors: Optional[List[Callable]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
-    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers) 
+    mito_backend = MitoBackend(
+        *args, 
+        analysis_to_replay=analysis_to_replay, 
+        user_defined_functions=user_defined_functions, 
+        user_defined_importers=user_defined_importers,
+        user_defined_editors=user_defined_editors
+    ) 
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -354,6 +389,7 @@ def sheet(
         # works by updating the getArgsFromCellContent function.
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
+        editors: Optional[List[Callable]]=None, 
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -397,7 +433,8 @@ def sheet(
             comm_target_id=comm_target_id, 
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
-            user_defined_importers=importers
+            user_defined_importers=importers,
+            user_defined_editors=editors,
         )
 
         # Log they have personal data in the tool if they passed a dataframe

@@ -37,6 +37,8 @@ const getParamDescriptionString = (paramSubtype: ParamSubType): string => {
         return 'CSV Export File Path'
     } else if (paramSubtype === 'file_name_export_excel') {
         return 'Excel Export File Path'
+    } else if (paramSubtype === 'all') {
+        return 'All Possible Parameters'
     } else {
         return paramSubtype;
     }

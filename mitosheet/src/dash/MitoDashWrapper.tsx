@@ -5,11 +5,15 @@ import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileF
 
 export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
 
+// When updating the props of the frontend component, we are either sending a message
+// to the MitoBackend, or we are just updating the selection. These are the two props names
+// we could be setting. 
+type PropNameForSetProps = 'message' | 'index_and_selections';
 
 interface State {
     responses: MitoResponse[],
     analysisName: string,
-    messageQueue: Record<string, any>[],
+    messageQueue: [PropNameForSetProps, Record<string, any>][],
     isSendingMessages: boolean,
 }
 
@@ -101,16 +105,16 @@ export default class MitoDashWrapper extends Component<Props, State> {
     processQueue = () => {
         if (this.state.messageQueue.length > 0) {
             // Send one message
-            const message = this.state.messageQueue[0];
+            const [messageType, message] = this.state.messageQueue[0];
             this.props.setProps({
-                'message': message
+                [messageType]: message
             })
 
             // Remove the processed message from the queue - making sure
             // to avoid merge conflicts by finding by value
             this.setState((prevState) => {
                 const messageQueue = [...prevState.messageQueue];
-                const index = messageQueue.findIndex((m) => m === message);
+                const index = messageQueue.findIndex((m) => m[1] === message);
                 messageQueue.splice(index, 1);
 
                 return { 
@@ -127,7 +131,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
         }
     };
     
-    handleMitoEvent = (message: Record<string, unknown>) => {
+    handleMitoEvent = (propName: PropNameForSetProps, message: Record<string, unknown>) => {
         // TODO: I think we have to check the origin here, but I'm not sure
         // how to do that.
 
@@ -139,7 +143,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
     
         // Add the message to the queue
         this.setState((prevState) => ({
-            messageQueue: [...prevState.messageQueue, message],
+            messageQueue: [...prevState.messageQueue, [propName, message]],
         }));
     
         // Do some work to make sure we avoid race conditions. Namely, we only want to
@@ -159,7 +163,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
 
 
     public async send(msg: Record<string, unknown>): Promise<SendFunctionReturnType<any>> {
-        this.handleMitoEvent(msg);
+        this.handleMitoEvent('message', msg);
         const response = await this.getResponseData(msg['id'] as string);        
         return response;
     }
@@ -201,14 +205,12 @@ export default class MitoDashWrapper extends Component<Props, State> {
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 
                 userProfile={userProfile}
+                theme={analysisData.theme ?? undefined}
                 onSelectionChange={(selectedDataframeIndex, selections) => {
-                    void this.send({
-                        'type': 'selection_event',
-                        'indexAndSelections': {
-                            selectedDataframeIndex, 
-                            selections
-                        }
-                    })
+                    this.handleMitoEvent('index_and_selections', {
+                        selectedDataframeIndex, 
+                        selections
+                    });
                 }}
             />  
         )

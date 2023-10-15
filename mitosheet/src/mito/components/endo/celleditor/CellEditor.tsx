@@ -105,7 +105,7 @@ const CellEditor = (props: {
             // If there is a pendingSelections, then we set the selection to be 
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, sheetData, props.editorState.sheetIndex).length;
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetDataArray[props.sheetIndex], props.editorState.sheetIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )

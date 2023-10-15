@@ -15,6 +15,7 @@ continous integration
 import pandas as pd
 import numpy as np
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Tuple, Any
+from collections import OrderedDict
 
 GraphID = str
 ColumnID = str
@@ -340,10 +341,20 @@ if sys.version_info[:3] > (3, 8, 0):
         'file_name_export_csv',
         'file_name_import_excel',
         'file_name_import_csv',
+        'all' # This represents all of the above
     ]
     ParamValue = str
 
-    CodeOptionsFunctionParams = Union[Dict[ParamName, ParamValue], ParamSubtype, List[ParamSubtype]]
+    # For streamlit applications, when we want to display the parameters to the user, 
+    # we need to know various metadata about the parameter
+    class ParamMetadata(TypedDict):
+        type: ParamType
+        subtype: ParamSubtype
+        required: bool
+        name: str
+        original_value: Optional[str]
+
+    CodeOptionsFunctionParams = Union[OrderedDict, ParamSubtype, List[ParamSubtype]]
 
     class CodeOptions(TypedDict):
         as_function: bool
@@ -354,7 +365,23 @@ if sys.version_info[:3] > (3, 8, 0):
         # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
 
-    UserDefinedImporterParamType = Literal['any', 'str', 'int', 'float', 'bool']
+    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
+
+    class MitoTheme(TypedDict):
+        primaryColor: str
+        backgroundColor: str
+        secondaryBackgroundColor: str
+        textColor: str
+
+    class MitoFrontendSelection(TypedDict):
+        startingRowIndex: int
+        endingRowIndex: int
+        startingColumnIndex: int
+        endingColumnIndex: int
+
+    class MitoFrontendIndexAndSelections(TypedDict):
+        selectedDataframeIndex: int
+        selections: List[MitoFrontendSelection]
 
 else:
     Filter = Any #type: ignore
@@ -388,12 +415,16 @@ else:
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
-    UserDefinedImporterParamType = Any # type: ignore
+    UserDefinedFunctionParamType = Any # type: ignore
+    MitoTheme = Any # type: ignore
+    MitoFrontendSelection = Any # type: ignore
+    MitoFrontendIndexAndSelections = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore
     ParamSubtype = str # type: ignore
     ParamValue = str # type: ignore
+    ParamMetadata = Any # type: ignore
 
     CodeOptionsFunctionParams = Any # type: ignore
 

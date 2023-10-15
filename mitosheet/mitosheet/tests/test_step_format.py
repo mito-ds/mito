@@ -37,6 +37,7 @@ from mitosheet.step_performers import (
     ResetIndexStepPerformer,
     SnowflakeImportStepPerformer,
     AITransformationStepPerformer,
+    UserDefinedEditStepPerformer,
 )
 from mitosheet.step_performers.column_headers_transform import ColumnHeadersTransformStepPerformer
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
@@ -323,12 +324,18 @@ def test_params_static():
     )
 
     check_step(
+        UserDefinedEditStepPerformer,
+        1,
+        'user_defined_edit'
+    )
+
+    check_step(
         ReplaceStepPerformer,
         1,
         'replace'
     )
 
-    assert len(STEP_PERFORMERS) == 40
+    assert len(STEP_PERFORMERS) == 41
 
 
 def test_upgraders_bump_step_number():

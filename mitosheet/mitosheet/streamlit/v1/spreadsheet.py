@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.types import CodeOptions
+from mitosheet.types import CodeOptions, ParamMetadata
 from mitosheet.utils import get_new_id
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
@@ -108,6 +108,15 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
         
     raise ValueError(f'No functions defined in code: {code}')
 
+# This is the class that is returned when the user sets return_type='analysis'
+# It contains data that could be relevant to the streamlit developer, and is 
+# used for replaying analyses. 
+class MitoAnalysis:
+    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
+        self.__code = code
+        self.__code_options = code_options
+        self.__fully_parameterized_code = fully_parameterized_code
+        self.__param_metadata = param_metadata
 
 try:
     import streamlit.components.v1 as components
@@ -151,6 +160,7 @@ try:
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
+            _editors: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
             import_folder: Optional[str]=None,
@@ -162,7 +172,7 @@ try:
         mito_backend = MitoBackend(
             *args, 
             import_folder=import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions,
+            user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
         )
 
@@ -200,6 +210,7 @@ try:
             *args: Union[pd.DataFrame, str, None], 
             sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
+            editors: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
@@ -222,6 +233,10 @@ try:
         importers: List[Callable]
             A list of functions that can be used to import dataframes. Each
             function should return a dataframe. 
+        editors: List[Callable]
+            A list of functions that can be used to edit dataframes. Each function
+            should have `df` as the first parameter, and then should return
+            a dataframe as a result.
         df_names: List[str]
             A list of names for the dataframes passed in. If None, the dataframes
             will be named df0, df1, etc.
@@ -242,6 +257,7 @@ try:
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
+            _editors=editors,
             _code_options=code_options,
             import_folder=import_folder,
             session_id=session_id,
@@ -311,6 +327,8 @@ try:
                 raise ValueError(f"""You must set code_options with `as_function=True` and `call_function=False` in order to return a function.""")
             
             return get_function_from_code_unsafe(code)
+        elif return_type == 'analysis':
+            return MitoAnalysis(code, code_options, mito_backend.fully_parameterized_function, mito_backend.param_metadata)
         else:
             raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
 

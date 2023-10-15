@@ -1,42 +1,44 @@
-
-from mitosheet.mito_dash.v1 import Spreadsheet, spreadsheet_callback
-from dash import Dash, html, Output, dash_table, html, callback, Input
-
+from dash import Dash, callback, Input, Output, html, dcc
+from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
 import pandas as pd
-
-df = pd.DataFrame({'A': [1, 2, 3]})
 
 app = Dash(__name__)
 
+df = pd.DataFrame({'A': [1, 2, 3]})
+
 app.layout = html.Div([
-    Spreadsheet(df, id='mito-dash-wrapper'),
-    Spreadsheet(df, id='output'),
-    html.Div(id='selection'),
-    html.Button('New Mito Data', id='new-mito-data')
+    html.H1("Stock Analysis", style={'color': 'black'}),
+    Spreadsheet(df, id='sheet', theme={
+        'primaryColor': '#00FF00',
+        'backgroundColor': '#111111',
+        'secondaryBackgroundColor': '#222222',
+        'textColor': '#FFFFFF',
+    }),
+    html.Div(id='output-code', style={'color': 'black'}),
+    html.Div(id='output-selection', style={'color': 'black'}),
 ])
 
-@spreadsheet_callback(
-    Output('output', 'data'),
-    input_id='mito-dash-wrapper',
+@mito_callback(
+    Output('output-code', 'children'),
+    Input('sheet', 'spreadsheet_result'),
 )
-def update_output(spreadsheet_result):
-    dfs = spreadsheet_result.dfs()
-    return dfs[0].to_dict('records')
+def update_code(spreadsheet_result):
+    print("NEW SPREADSHEET RESULT")
+    return html.Div([
+        html.Code(spreadsheet_result.code(), style={'color': 'black'})
+    ])
+    
 
-@spreadsheet_callback(
-    Output('selection', 'children'),
-    input_id='mito-dash-wrapper',
+@mito_callback(
+    Output('output-selection', 'children'),
+    Input('sheet', 'spreadsheet_selection'),
 )
-def update_selection(spreadsheet_result):
-    selection = spreadsheet_result.selection()
-    return str(selection)
-
-
-@callback(Output('mito-dash-wrapper', 'data'), Input('new-mito-data', 'n_clicks'), prevent_initial_call=True)
-def reset_data(n_clicks):
-    new_df = pd.DataFrame({'A': [i for i in range(n_clicks)]})
-    return new_df.to_json(orient='records')
-
+def update_selection(new_selection):
+    print("NEW SPREADSHEET SELECTION")
+    return html.Div([
+        html.Code(str(new_selection), style={'color': 'black'})
+    ])
+    
 
 if __name__ == '__main__':
     app.run_server(debug=True)

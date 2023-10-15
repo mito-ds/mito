@@ -9,7 +9,7 @@ export enum ModalEnum {
     ClearAnalysis = 'ClearAnalysis',
     Import = "Import",
     SignUp = "SignUp",
-    StreamlitSignUp = "StreamlitSignUp",
+    DashboardSignup = "DashboardSignup",
     Upgrade = 'Upgrade',
     Feedback = 'Feedback',
     DeleteGraphs = 'DeleteGraphs',
@@ -40,7 +40,7 @@ interface SignUpModalInfo {
     type: ModalEnum.SignUp;
 }
 interface StreamlitSignUpModalInfo {
-    type: ModalEnum.StreamlitSignUp;
+    type: ModalEnum.DashboardSignup;
 }
 
 interface UpgradeModalInfo {

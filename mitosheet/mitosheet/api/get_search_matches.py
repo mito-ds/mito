@@ -27,7 +27,7 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     matches = unique_value_counts.filter(regex=search_regex, axis=0)
 
     # Then, sum the matches:
-    total_number_matches = matches.sum()
+    total_number_matches = int(matches.sum())
 
     # Then, add the column names to the matches:
     total_number_matches += len([col for col in df.columns if re.search(search_regex,str(col)) is not None])
@@ -38,7 +38,7 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
 
     # Find the indices of cells containing the search value
     # Only search the first 1500 rows because the editor only shows the first 1500 rows. 
-    cell_matches = [{'rowIndex': i, 'colIndex': j} for i in range(min(1500,num_rows)) for j in range(num_cols) if (re.search(search_regex,str(df.iat[i, j])) is not None)]
+    cell_matches = [{'rowIndex': i, 'colIndex': j} for i in range(min(1500, num_rows)) for j in range(num_cols) if (re.search(search_regex,str(df.iat[i, j])) is not None)]
 
     # Find the indices of columns containing the search value
     column_matches = [{'rowIndex': -1, 'colIndex': j} for j, column in enumerate(df.columns) if (re.search(re.compile(search_value, re.IGNORECASE),str(column)) is not None)]

@@ -12,13 +12,13 @@ import { getDefaultCSVParams } from "../FileImport/CSVImportConfigTaskpane";
 import { FileElement, ImportState } from "../FileImport/FileImportTaskpane";
 import { getDefaultXLSXParams } from "../FileImport/XLSXImportConfigTaskpane";
 import { SnowflakeImportParams } from "../SnowflakeImport/SnowflakeImportTaskpane";
+import { UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
+import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
 import UpdateImportsPostReplayTaskpane from "./UpdateImportsPostReplayTaskpane";
 import UpdateImportsPreReplayTaskpane, { ImportDataAndImportErrors, PRE_REPLAY_IMPORT_ERROR_TEXT } from "./UpdateImportsPreReplayTaskpane";
 import UpdateSnowflakeCredentialsScreen from "./UpdateSnowflakeCredentialsScreen";
-import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
-import { UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
 import UserDefinedImportScreen from "./UserDefinedImportScreen";
-import UpdateDataframeImportScreen from "./UpdateDataframeImportTaskpane";
+import { getErrorTextFromToFix, isCSVImportParams, isDataframeImportParams, isExcelImportParams, updateAllSnowflakeImports, updateDataframeCreation } from "./updateImportsUtils";
 
 
 interface UpdateImportsTaskpaneProps {
@@ -487,6 +487,8 @@ const UpdateImportsTaskpane = (props: UpdateImportsTaskpaneProps): JSX.Element =
                 notCloseable={updatePreReplay}
                 analysisData={props.analysisData}
                 userProfile={props.userProfile}
+                sheetDataArray={props.sheetDataArray}
+                importer_name={replacingDataframeState.importState.importer_name}
             />
         )
     } else {

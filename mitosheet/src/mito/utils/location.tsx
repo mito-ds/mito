@@ -32,3 +32,23 @@ export const isInStreamlit = (): boolean => {
     }
     return false
 }
+
+export const isInDash = (): boolean => {
+    // Check if there is a div with the id _dash-app-content
+    const dashAppContent = document.getElementById('_dash-app-content')
+    if (dashAppContent) {
+        return true
+    }
+
+    // Check for _dash-global-error-container
+    const dashGlobalErrorContainer = document.getElementById('_dash-global-error-container')
+    if (dashGlobalErrorContainer) {
+        return true
+    }
+
+    return false;
+}
+
+export const isInDashboard = (): boolean => {
+    return isInStreamlit() || isInDash()
+}

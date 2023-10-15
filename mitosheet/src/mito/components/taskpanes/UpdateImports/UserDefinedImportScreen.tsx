@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MitoAPI } from "../../../api/api";
-import { AnalysisData, UIState, UserProfile } from "../../../types"
+import { AnalysisData, SheetData, UIState, UserProfile } from "../../../types"
 
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
@@ -9,6 +9,7 @@ import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import TextButton from "../../elements/TextButton";
 import { getDefaultUserDefinedImportParams, getNoImportMessage, UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
 import UserDefinedImportConfig from "../UserDefinedImport/UserDefinedImportConfig";
+import { getDisplayNameOfPythonVariable } from "../../../utils/userDefinedFunctionUtils";
 
 
 interface UpdateUserDefinedImportTaskpaneProps {
@@ -18,7 +19,9 @@ interface UpdateUserDefinedImportTaskpaneProps {
     backCallback: () => void;
     notCloseable?: boolean;
     analysisData: AnalysisData;
-    userProfile: UserProfile
+    userProfile: UserProfile;
+    sheetDataArray: SheetData[]
+    importer_name: string;
 }
 
 /* 
@@ -27,12 +30,23 @@ interface UpdateUserDefinedImportTaskpaneProps {
 */
 const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpaneProps): JSX.Element => {
 
-    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.analysisData));
+    const [params, setParams] = useState(() => getDefaultUserDefinedImportParams(props.importer_name, props.sheetDataArray, props.analysisData));
+
+    useEffect(() => {
+        setParams(getDefaultUserDefinedImportParams(props.importer_name, props.sheetDataArray, props.analysisData));
+    }, [props.importer_name])
+
+    const userDefinedImporter = params !== undefined ? props.analysisData.userDefinedImporters.find(importer => importer.name === params.importer) : undefined;
+
+    let header = 'Custom Import';
+    if (userDefinedImporter !== undefined) {
+        header = getDisplayNameOfPythonVariable(userDefinedImporter.name);
+    }
     
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header="Custom Import"
+                header={header}
                 setUIState={props.setUIState}       
                 backCallback={props.backCallback}    
             />
@@ -44,10 +58,12 @@ const UpdateUserDefinedImportScreen = (props: UpdateUserDefinedImportTaskpanePro
                 userProfile={props.userProfile}
             >
                 <UserDefinedImportConfig 
+                    sheetDataArray={props.sheetDataArray}
                     params={params} 
                     setParams={setParams}
                     error={undefined}
                     analysisData={props.analysisData}
+                    importer_name={props.importer_name}
                 />
                 
             </DefaultTaskpaneBody>

@@ -2,7 +2,7 @@ from collections import OrderedDict
 import os
 import pandas as pd
 import pytest
-from mitosheet.streamlit.v1 import spreadsheet
+from mitosheet.streamlit.v1 import spreadsheet, MitoAnalysis
 from mitosheet.tests.decorators import requires_streamlit
 
 df1 = pd.DataFrame({'A': [123]})
@@ -58,6 +58,13 @@ SPREADSHEET_PARAMS = [
             [df1]
         )
     ),
+    (
+        'return type of analysis',
+        [df1], {'return_type': 'analysis'},
+        (
+            MitoAnalysis('', None, '', [])
+        )
+    )
 ]
 
 @pytest.mark.parametrize('test, args, kwargs, expected', SPREADSHEET_PARAMS)
@@ -84,6 +91,8 @@ def test_creates_spreadsheet(test, args, kwargs, expected):
         assert len(result) == len(expected)
         for k in result:
             assert result[k].equals(expected[k])
+    elif isinstance(result, MitoAnalysis):
+        assert isinstance(expected, MitoAnalysis)
     else:
         assert result == expected
 

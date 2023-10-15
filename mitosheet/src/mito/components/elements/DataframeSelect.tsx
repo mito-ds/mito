@@ -29,6 +29,11 @@ interface DataframeSelectPros {
         * @param [sheetIndexToIgnore] - If there is a sheets you don't want displayed in the dropdown, then pass it here
     */
     sheetIndexToIgnore?: number;
+
+    /**
+     * @param [span] - The span of the select -- 
+     */
+    span?: number;
 }
 
 /**
@@ -53,9 +58,9 @@ const DataframeSelect = (props: DataframeSelectPros): JSX.Element => {
                     Dataframe
                 </p>
             </Col>
-            <Col>
+            <Col span={props.span}>
                 <Select
-                    width='medium'
+                    width={props.span === undefined ? 'medium' : undefined}
                     value={dfNames[props.sheetIndex]}
                     onChange={(newDfName: string) => {
                         const newSheetIndex = dfNames.findIndex((dfName) => dfName === newDfName);
