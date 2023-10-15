@@ -7,6 +7,8 @@ import Link from "next/link"
 
 import pageStyles from '../../styles/Page.module.css';
 import excelToPythonStyles from '../../styles/ExcelToPython.module.css';
+import titleStyles from '../../styles/Title.module.css'
+import textImageSplitStyles from '../../styles/TextImageSplit.module.css'
 
 import { classNames } from '../../utils/classNames';
 import TextButton from '../../components/TextButton/TextButton';
@@ -16,6 +18,7 @@ import Footer from '../../components/Footer/Footer';
 import CodeBlock from '../../components/CodeBlock/CodeBlock';
 import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
 import HorizontalNavItem from '../../components/Glossary/HorizontalNavItem/HorizontalNavItem';
+import CTAButtons from '../../components/CTAButtons/CTAButtons';
 
 
 // Define the specific function name
@@ -228,6 +231,35 @@ df.fillna(0, inplace=True)
 
 # Calculate the absolute value
 df['ABS_SUM'] = df['A'].abs()`}/>
+          </section>
+
+          <section className={pageStyles.background_card}>
+            <div>
+              <h2 className={titleStyles.title}>
+                Don&apos;t want to re-implement Excel&apos;s functionality in Python?
+              </h2>
+              <div className='center'>
+                  <CTAButtons variant='download' align='center'/>
+              </div> 
+            </div>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+              <div className={textImageSplitStyles.functionality_text}>
+                <h2>
+                  <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
+                  Generate Python.
+                </h2>
+                <p>
+                  Mito is the easiest way to write Excel formulas in Python. 
+                  Every edit you make in the Mito spreadsheet is automatically converted to Python code.
+                </p>
+                <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                  View all 100+ transformations →
+                </a>
+              </div>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                <Image src={'/excel-to-python/mito_code_gen.png'} alt='Automate analysis with Mito' width={560} height={379} layout='responsive'/>
+              </div>
+            </div>
           </section>
 
         </main>
