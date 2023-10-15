@@ -130,8 +130,8 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     // If there are no matches, display "No results." Otherwise, display the matches text.
     const finalMatchInfo =
         totalMatches === 0
-        ? <span>No results.</span>
-        : matchesInfo;
+            ? <span>No results.</span>
+            : matchesInfo;
 
     // This handles when the user clicks the up or down arrow to change the current match
     // or presses enter or shift+enter. 
@@ -204,7 +204,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
             onlySelectedColumns ?
                 getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData):
                 []
-            ).then(() => {
+        ).then(() => {
             getMatches();
         });
     }

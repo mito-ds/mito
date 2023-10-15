@@ -1,13 +1,13 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { ActionEnum, UIState, UserProfile } from '../../types';
+import { UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
 
 
-interface ToolbarViewDropdownProps {
+interface ToolbarUserDefinedEditDropdownProps {
     actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
@@ -15,18 +15,17 @@ interface ToolbarViewDropdownProps {
 }
 
 /**
- * Dropdown that displays the view options, which right now are just fullscreen
- * mode (but in the future might contain other options).
+ * Dropdown that displays all the actions that are available from user defined edits
  */ 
-const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
+const ToolbarUserDefinedEditsDropdown = (props: ToolbarUserDefinedEditDropdownProps): JSX.Element => {
 
     return (
         <>
             <Dropdown 
-                display={props.uiState.currOpenToolbarDropdown === 'View'}
+                display={props.uiState.currOpenToolbarDropdown === 'Custom Edits'}
                 closeDropdown={() => props.setUIState((prevUIState) => {
                     // Only close this dropdown if it's actually the one that is open, to avoid race conditions
-                    if (prevUIState.currOpenToolbarDropdown === 'View') {
+                    if (prevUIState.currOpenToolbarDropdown === 'Custom Edits') {
                         return {
                             ...prevUIState,
                             currOpenToolbarDropdown: undefined
@@ -34,13 +33,12 @@ const ToolbarViewDropdown = (props: ToolbarViewDropdownProps): JSX.Element => {
                     }
                     return prevUIState;
                 })}
-                width='medium'
+                width='large'
             >
-                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Fullscreen], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.OpenSearch], props.userProfile)}
+                {...props.actions.runtimeEditActionsList.map(action => makeToolbarDropdownItem(action, props.userProfile, undefined, action.tooltip))}
             </Dropdown>
         </>
     );
 }
 
-export default ToolbarViewDropdown;
+export default ToolbarUserDefinedEditsDropdown;

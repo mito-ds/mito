@@ -42,8 +42,8 @@ from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_r
 from mitosheet.utils import get_new_id
 from mitosheet.transpiler.transpile_utils import get_script_as_function
 from mitosheet.transpiler.transpile import transpile
+from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
-from mitosheet.step_performers.utils.user_defined_functionality import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 
@@ -60,6 +60,7 @@ class MitoBackend():
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
+            user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             theme: Optional[MitoTheme]=None,
         ):
@@ -100,6 +101,7 @@ class MitoBackend():
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,
             user_defined_importers=all_custom_importers,
+            user_defined_editors=user_defined_editors,
             code_options=code_options,
             theme=theme
         )
@@ -325,10 +327,17 @@ def get_mito_backend(
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
+        user_defined_editors: Optional[List[Callable]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
-    mito_backend = MitoBackend(*args, analysis_to_replay=analysis_to_replay, user_defined_functions=user_defined_functions, user_defined_importers=user_defined_importers) 
+    mito_backend = MitoBackend(
+        *args, 
+        analysis_to_replay=analysis_to_replay, 
+        user_defined_functions=user_defined_functions, 
+        user_defined_importers=user_defined_importers,
+        user_defined_editors=user_defined_editors
+    ) 
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -380,6 +389,7 @@ def sheet(
         # works by updating the getArgsFromCellContent function.
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
+        editors: Optional[List[Callable]]=None, 
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -423,7 +433,8 @@ def sheet(
             comm_target_id=comm_target_id, 
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
-            user_defined_importers=importers
+            user_defined_importers=importers,
+            user_defined_editors=editors,
         )
 
         # Log they have personal data in the tool if they passed a dataframe

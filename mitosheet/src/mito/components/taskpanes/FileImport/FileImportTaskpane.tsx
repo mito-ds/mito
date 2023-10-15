@@ -41,7 +41,8 @@ export type ImportState = {
 } | {
     screen: 'authenticate_to_snowflake'
 } | {
-    screen: 'user_defined_import'
+    screen: 'user_defined_import',
+    importer_name: string
 }
 
 

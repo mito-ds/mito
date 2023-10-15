@@ -142,6 +142,9 @@ const getDisplayMessageForMessageType = (messageType: StepType | UpdateType): st
         case StepType.UserDefinedImport: {
             return 'Importing'
         }
+        case StepType.UserDefinedEdit: {
+            return 'Editing'
+        }
         case UpdateType.Undo: {
             return 'Undoing previous edit'
         }
