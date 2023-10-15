@@ -187,3 +187,14 @@ def test_user_defined_edit_optimizes():
 
     assert len(mito.transpiled_code) == 0
 
+def test_user_defined_edit_with_other_operation_around_it():
+
+    def editor(df: pd.DataFrame) -> pd.DataFrame:
+        return df + 1
+    
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, editors=[editor])
+    mito.add_column(0, 'B')
+    mito.user_defined_edit('editor', {'df': 'df1'})
+    mito.delete_columns(0, ['B'])
+    assert mito.dfs[0].equals(df + 1)

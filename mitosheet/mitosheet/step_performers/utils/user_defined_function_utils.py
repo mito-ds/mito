@@ -64,7 +64,7 @@ def get_functions_from_path(path: str) -> List[Callable]:
     except Exception:
         raise ImportError(f"The file path {path} does not exist, and so this file cannot be read in for the custom sheet functions. Please have an admin update this file path and try again.")
     
-    # Get a list of functions defined in custom_functions.py
+    # Get a list of functions defined in custom functions file
     functions = [getattr(custom_functions_module, attr) for attr in dir(custom_functions_module) if callable(getattr(custom_functions_module, attr))]
 
     # Filter out private functions
@@ -73,7 +73,7 @@ def get_functions_from_path(path: str) -> List[Callable]:
     # Filter out functions imported from a different modules
     functions = [func for func in functions if func.__module__ == custom_functions_module.__name__]
 
-    # Now, function_list contains the callable objects (functions) defined in custom_functions.py
+    # Now, function_list contains the callable objects (functions) defined in custom functions file
     return functions
 
 
@@ -115,7 +115,7 @@ def validate_user_defined_editors(user_defined_editors: Optional[List[Callable]]
     return user_defined_editors
 
 
-def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDefinedFunctionParamType:
+def get_user_defined_function_param_type(f: Callable, param_name: str) -> UserDefinedFunctionParamType:
 
     parameters = inspect.signature(f).parameters
     param_type = parameters[param_name].annotation
@@ -136,11 +136,11 @@ def get_user_defined_importer_param_type(f: Callable, param_name: str) -> UserDe
         return 'any'
 
 
-def get_param_names_to_types_for_importer(f: Callable) -> Dict[str, UserDefinedFunctionParamType]:
+def get_param_names_to_types_for_user_defined_functon(f: Callable) -> Dict[str, UserDefinedFunctionParamType]:
     param_names_to_types = {}
 
     for name in inspect.signature(f).parameters:
-        param_names_to_types[name] = get_user_defined_importer_param_type(f, name)
+        param_names_to_types[name] = get_user_defined_function_param_type(f, name)
 
     return param_names_to_types
 
@@ -152,7 +152,7 @@ def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]
         {
             'name': f.__name__,
             'docstring': f.__doc__,
-            'parameters': get_param_names_to_types_for_importer(f),
+            'parameters': get_param_names_to_types_for_user_defined_functon(f),
         }
         for f in state.user_defined_importers
     ]
@@ -165,7 +165,7 @@ def get_user_defined_editors_for_frontend(state: Optional[State]) -> List[Any]:
         {
             'name': f.__name__,
             'docstring': f.__doc__,
-            'parameters': get_param_names_to_types_for_importer(f),
+            'parameters': get_param_names_to_types_for_user_defined_functon(f),
         }
         for f in state.user_defined_editors
     ]
@@ -174,7 +174,7 @@ def get_importer_params_and_type_and_value(f: Callable, frontend_params: Dict[st
     importer_params_and_type_and_value = {}
 
     for param_name, param_value in frontend_params.items():
-        param_type = get_user_defined_importer_param_type(f, param_name)
+        param_type = get_user_defined_function_param_type(f, param_name)
         importer_params_and_type_and_value[param_name] = (param_type, param_value)
     
     return importer_params_and_type_and_value
@@ -230,6 +230,8 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
                 user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
             else:
                 try:
+                    # If we don't know the type (it's untyped), we try and convert the value to a python object -- using an eval. If that fails, 
+                    # we just keep it as a string
                     execute_value = eval(param_value)
                     user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
                 except:
