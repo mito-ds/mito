@@ -621,28 +621,28 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
             'name': 'import_dataframe_0'
         },
         {
-            'initial_value': f"r'{tmp_file1}'",
+            'initial_value': tmp_file1,
             'type': 'file_name',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_file2}'",
+            'initial_value': tmp_file2,
             'type': 'file_name',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_exportfile1}'",
+            'initial_value': tmp_exportfile1,
             'type': 'file_name',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_exportfile2}'",
+            'initial_value': tmp_exportfile2,
             'type': 'file_name',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
@@ -715,28 +715,28 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
 """
     assert mito.mito_backend.param_metadata == [
         {
-            'initial_value': f"r'{tmp_file1}'",
+            'initial_value': tmp_file1,
             'type': 'file_name',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_file2}'",
+            'initial_value': tmp_file2,
             'type': 'file_name',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_exportfile1}'",
+            'initial_value': tmp_exportfile1,
             'type': 'file_name',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
-            'initial_value': f"r'{tmp_exportfile2}'",
+            'initial_value': tmp_exportfile2,
             'type': 'file_name',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
