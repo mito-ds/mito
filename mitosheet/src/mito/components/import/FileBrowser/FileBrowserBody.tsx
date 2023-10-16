@@ -54,15 +54,55 @@ const addImportFolderParamMessage = (): JSX.Element => {
     if (isInStreamlit()) {
         return (
             <>
-                This is configurable with the <code>import_folder</code> parameter in the <code>spreadsheet</code> component 
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    To use the file browser, configure the folder you want to allow users to 
+                    import from.
+                </p>
+                <Spacer px={10}/>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    This is configurable with the <code>import_folder</code> parameter in the <code>spreadsheet</code> component 
                         in your Streamlit application.
+                </p>
+                <Spacer px={10}/>
+                <p
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    See our <a className='text-body-link-1' href='https://docs.trymito.io/mito-for-streamlit/api-reference' target='_blank' rel='noreferrer'>docs</a> for more information.
+                </p>
             </>
         )
     } else {
         return (
             <>
-                This is configurable with the <code>import_folder</code> parameter in the <code>Spreadsheet</code> component 
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    To use the file browser, configure the folder you want to allow users to 
+                    import from.
+                </p>
+                <Spacer px={10}/>
+                <p 
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    This is configurable with the <code>import_folder</code> parameter in the <code>Spreadsheet</code> component 
                         in your Dash application.
+                </p>
+                <Spacer px={10}/>
+                <p
+                    className={classNames('text-body-1', 'text-overflow-wrap')}
+                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
+                >
+                    See our <a className='text-body-link-1' href='https://docs.trymito.io/mito-for-dash/api-reference' target='_blank' rel='noreferrer'>docs</a> for more information.
+                </p>
             </>
         )
     }
@@ -113,31 +153,7 @@ function FileBrowserBody(props: FileBrowserProps): JSX.Element {
      * data.
      */
     if (isInDashboard() && !props.analysisData.importFolderData) {
-        return (
-            <>
-                <p 
-                    className={classNames('text-body-1', 'text-overflow-wrap')}
-                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
-                >
-                    To use the file browser, configure the folder you want to allow users to 
-                    import from.
-                </p>
-                <Spacer px={10}/>
-                <p 
-                    className={classNames('text-body-1', 'text-overflow-wrap')}
-                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
-                >
-                    {addImportFolderParamMessage()}
-                </p>
-                <Spacer px={10}/>
-                <p
-                    className={classNames('text-body-1', 'text-overflow-wrap')}
-                    style={{whiteSpace:'pre-wrap'}} // So we handle new line and tabs correctly
-                >
-                    See our <a className='text-body-link-1' href='https://docs.trymito.io/mito-for-streamlit/api-reference' target='_blank' rel='noreferrer'>docs</a> for more information.
-                </p>
-            </>
-        )
+        return addImportFolderParamMessage();
 
     }
 
