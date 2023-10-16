@@ -44,7 +44,7 @@ def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List
                 param = args[0]
                 param_name = args[1] 
                 return {
-                        'initial_value': param[0],
+                        'initial_value': param[0][2:-1],
                         'type': param[1],
                         'subtype': param[2],
                         # If the param is a df_name, then it is required for the function

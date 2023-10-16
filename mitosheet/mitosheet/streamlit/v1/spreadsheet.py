@@ -122,19 +122,30 @@ class MitoAnalysis:
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
 
-    def run(self, **kwargs):
+    def run(self, *args, **kwargs):
         params = {}
-
-        # Error handling for required arguments
-        required_args = [param['name'] for param in self.__param_metadata if param['required']]
-        for required_arg in required_args:
-            if required_arg not in kwargs.keys():
-                raise TypeError(f'MitoAnalysis.run() missing required argument {required_arg}')
 
         # First, set the default values for all params.
         for param in self.__param_metadata:
-            params[param['name']] = param['initial_value'][2:-1]
-        
+            params[param['name']] = param['initial_value']
+
+        # Error handling for required arguments
+        required_args = [param['name'] for param in self.__param_metadata if param['required']]
+        for index, required_arg in enumerate(required_args):
+            is_kwarg = required_arg in kwargs.keys()
+            
+            # First, check if the arg was passed in as a positional argument
+            if index < len(args):
+                params[required_arg] = args[index]
+
+                # Check if the arg was passed in as a keyword argument as well. 
+                if is_kwarg:
+                    raise TypeError(f'MitoAnalysis.run() got multiple values for argument {required_arg}')
+
+            # If it wasn't passed as a positional argument, check if it was passed as a keyword argument
+            elif not is_kwarg:
+                raise TypeError(f'MitoAnalysis.run() missing required argument {required_arg}. You passed a dataframe to this analysis, but did not pass in a value for {required_arg}.')
+
         # Then, overwrite the default values with the user provided values
         for name, value in kwargs.items():
             # Raise an error if the user passes in an unexpected argument
