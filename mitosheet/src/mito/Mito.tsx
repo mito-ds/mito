@@ -82,7 +82,7 @@ import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
-import { isInDashboard } from './utils/location';
+import { isInDash, isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
@@ -118,7 +118,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
-        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
+        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDash() // no signup if no logs, or if on dash
             ? ((!isInDashboard())
                 ? {type: ModalEnum.SignUp} 
                 : {type: ModalEnum.DashboardSignup}   
