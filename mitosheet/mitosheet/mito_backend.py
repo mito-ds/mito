@@ -130,7 +130,7 @@ class MitoBackend():
             self.steps_manager,
             add_comments=False,
             optimize=True,
-            custom_code_options={
+            code_options_override={
                 'import_custom_python_code': False,
                 'as_function': True,
                 'call_function': False,

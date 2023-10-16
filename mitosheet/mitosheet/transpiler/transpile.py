@@ -33,7 +33,7 @@ def transpile(
         steps_manager: StepsManagerType, 
         add_comments: bool=True,
         optimize: bool=True,
-        custom_code_options: Optional[CodeOptions] = None
+        code_options_override: Optional[CodeOptions] = None
     ) -> List[str]:
     """
     Transpiles the code from the current steps in the steps_manager, 
@@ -45,7 +45,7 @@ def transpile(
 
     imports_code: List[str] = []
     code: List[str] = []
-    code_options = custom_code_options
+    code_options = code_options_override
     if code_options is None:
         code_options = steps_manager.code_options
 
