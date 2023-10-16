@@ -49,7 +49,8 @@ esbuild
       '.ttf': 'dataurl'
     },
     globalName: 'dash_spreadsheet_v1',
-    plugins: [useReactExternal()]
+    plugins: [useReactExternal()],
+    watch: process.argv.includes('--watch')
   }).then(() => {
     console.log("Built")
   }).catch(() => process.exit(1)
