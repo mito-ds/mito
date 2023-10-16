@@ -26,25 +26,27 @@ def add_diff_number_to_df_and_this_is_a_long_name(df: pd.DataFrame, number_to_ad
 df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
     df,
+    df_names=['df'],
     editors=[add_number_to_df],
     importers=[get_data_from_database, do_import_with_a_really_long_name],
     return_type='analysis'
 )
 
 st.write(analysis.param_metadata)
+st.code(analysis.fully_parameterized_function)
 updated_metadata = {}
 for param in analysis.param_metadata:
+    new_param = None
     if param['subtype'] in ['file_name_export_excel', 'file_name_export_csv']:
         new_param = st.text_input(param['name'], value=param['initial_value'])
     elif param['subtype'] in ['file_name_import_excel', 'file_name_import_csv']:
         new_param = st.file_uploader(param['name'])
-    else:
-        continue
-    if new_param:
+    if new_param is not None:
         updated_metadata[param['name']] = new_param
 
 
 run = st.button('Run')
 if run:
-    st.write(analysis.run(**updated_metadata))
+    result = analysis.run(df, **updated_metadata)
+    st.write(result)
 

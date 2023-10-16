@@ -57,7 +57,7 @@ def do_dynamic_imports(code: str) -> None:
     """
 
     # Extract import lines from the code_str
-    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from", "import"))]
+    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from ", "import "))]
 
     # Dynamically import modules and attributes in the global scope
     for import_line in import_lines:
@@ -121,6 +121,10 @@ class MitoAnalysis:
     @property
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
+    
+    @property
+    def fully_parameterized_function(self) -> str:
+        return self.__fully_parameterized_function
 
     def run(self, *args, **kwargs):
         params = {}
@@ -133,7 +137,8 @@ class MitoAnalysis:
         required_args = [param['name'] for param in self.__param_metadata if param['required']]
         for index, required_arg in enumerate(required_args):
             is_kwarg = required_arg in kwargs.keys()
-            
+            print('here')
+            print(required_arg, is_kwarg)
             # First, check if the arg was passed in as a positional argument
             if index < len(args):
                 params[required_arg] = args[index]

@@ -143,7 +143,32 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     pd.testing.assert_frame_equal(result[1], df1)
 
 
+@requires_streamlit
+def test_mito_analysis_run_with_import_var_in_code(tmp_path):
+    fully_parameterized_function = f"""from mitosheet.public.v3 import *
 
+def function_ctqm(import_dataframe_0):
+    import_dataframe_0.insert(1, 'Test', 0)
+    
+    return import_dataframe_0
+"""
+    df = pd.DataFrame({'A': [1], 'B': [2]})
+    param_metadata = [
+        {
+            'initial_value': 'test_df_name',
+            'type': 'df_name',
+            'subtype': 'import_dataframe',
+            'required': True,
+            'name': 'import_dataframe_0'
+        }
+    ]
+
+    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    result = analysis.run(df)
+    expected_df = pd.DataFrame({'A': [1], 'Test': [0], 'B': [2]})
+    assert result is not None
+    pd.testing.assert_frame_equal(result, expected_df)
+    
 @requires_streamlit
 def test_mito_analysis_run_with_positional_args(tmp_path):
     fully_parameterized_function = f"""from mitosheet.public.v3 import *
