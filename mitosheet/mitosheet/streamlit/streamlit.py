@@ -33,7 +33,6 @@ analysis = spreadsheet(
 )
 
 st.write(analysis.param_metadata)
-st.code(analysis.fully_parameterized_function)
 updated_metadata = {}
 for param in analysis.param_metadata:
     new_param = None
