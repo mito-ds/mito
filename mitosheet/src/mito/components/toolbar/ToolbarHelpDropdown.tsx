@@ -1,14 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
-import { getSortedActions } from '../../utils/actions';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions, getSortedActions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarHelpDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     userProfile: UserProfile
@@ -40,9 +40,9 @@ const ToolbarHelpDropdown = (props: ToolbarHelpDropdownProps): JSX.Element => {
                 width='large'
             >
                 {allActions.map((action) => {
-                    if (action.type == ActionEnum.AI_TRANSFORMATION && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+                    if (action.staticType == ActionEnum.AI_TRANSFORMATION && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
                         return <></>
-                    } else if (action.type == ActionEnum.SNOWFLAKEIMPORT && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
+                    } else if (action.staticType == ActionEnum.SNOWFLAKEIMPORT && !props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT) {
                         return <></>
                     } else {
                         return makeToolbarDropdownItem(action, props.userProfile)

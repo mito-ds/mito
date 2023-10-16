@@ -13,12 +13,12 @@ import Col from '../../layout/Col';
     A container for the main header of a taskpane, with some helpful props to 
     make common header actions easy. Usually wrapped in a DefaultTaskpane.
 */
-const DefaultTaskpane = (
+const DefaultTaskpaneHeader = (
     props: {
         /** 
             * @param header - The actual content to display in the header
         */
-        header: string | JSX.Element;
+        header: string;
         /** 
          * @param setUIState - sets the UI state of Mito
          */
@@ -38,27 +38,23 @@ const DefaultTaskpane = (
             set this prop to true
         */
         notCloseable?: boolean;
+        
     }): JSX.Element => {
 
     return (
         <div className='default-taskpane-header-div'>
             <Row suppressTopBottomMargin>
                 <Col span={23}>
-                    {typeof props.header !== 'string' &&
-                        props.header
-                    }
-                    {typeof props.header === 'string' &&
-                        <div className='default-taskpane-header-and-back-button'>
-                            {props.backCallback !== undefined &&
-                                <div onClick={props.backCallback} className='mt-5px mr-10px'>
-                                    <BackArrowIcon/>
-                                </div>
-                            }
-                            <p className='text-header-2 text-overflow-hide'>
-                                {props.header}
-                            </p>
-                        </div>
-                    }
+                    <div className='default-taskpane-header-and-back-button'>
+                        {props.backCallback !== undefined &&
+                            <div onClick={props.backCallback} className='mt-5px mr-10px'>
+                                <BackArrowIcon/>
+                            </div>
+                        }
+                        <p className='text-header-2 text-overflow-hide'>
+                            {props.header}
+                        </p>
+                    </div>
                 </Col>
                 <Col>
                     {!props.notCloseable &&
@@ -86,4 +82,4 @@ const DefaultTaskpane = (
     )
 };
 
-export default DefaultTaskpane;
+export default DefaultTaskpaneHeader;

@@ -1,10 +1,11 @@
 // Copyright (c) Mito
 import React, { useEffect, useState } from 'react';
-import { Action, ActionEnum, AnalysisData, SheetData, UIState, UserProfile } from '../../types';
+import { AnalysisData, SheetData, UIState, UserProfile } from '../../types';
 
-import LoadingIndicator from '../LoadingIndicator';
 import '../../../../css/elements/BottomLeftPopup.css';
 import { MitoAPI } from '../../api/api';
+import { Actions } from '../../utils/actions';
+import LoadingIndicator from '../LoadingIndicator';
 import { ModalInfo } from '../modals/modals';
 
 const BottomLeftPopup = (props: {
@@ -14,7 +15,7 @@ const BottomLeftPopup = (props: {
     loading: [string, string | undefined, string][],
     sheetDataArray: SheetData[],
     currOpenModal: ModalInfo,
-    actions: Record<ActionEnum, Action>
+    actions: Actions
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
 }): JSX.Element => {
     // We only display the loading indicator after .5 seconds, and we track

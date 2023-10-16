@@ -19,7 +19,7 @@ from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
-from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer, get_user_defined_importers_for_frontend
+from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
@@ -38,7 +38,8 @@ from mitosheet.types import CodeOptions, MitoTheme
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
-from mitosheet.step_performers.utils.user_defined_functionality import validate_and_wrap_sheet_functions
+from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
+from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
 
 def get_step_indexes_to_skip(step_list: List[Step]) -> Set[int]:
     """
@@ -180,6 +181,7 @@ class StepsManager:
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
             user_defined_importers: Optional[List[Callable]]=None,
+            user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             theme: Optional[MitoTheme]=None,
         ):
@@ -237,6 +239,11 @@ class StepsManager:
         self.user_defined_importers = user_defined_importers
         if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+        
+        self.user_defined_editors = validate_user_defined_editors(user_defined_editors)
+        if not is_running_test() and not is_enterprise() and self.user_defined_editors is not None and len(self.user_defined_editors) > 0:
+            raise ValueError("editors are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
@@ -246,7 +253,8 @@ class StepsManager:
                     args, 
                     df_names=df_names,
                     user_defined_functions=self.user_defined_functions, 
-                    user_defined_importers=self.user_defined_importers
+                    user_defined_importers=self.user_defined_importers,
+                    user_defined_editors=self.user_defined_editors
                 ), 
                 {}
             )
@@ -395,6 +403,7 @@ class StepsManager:
                 'codeOptions': self.code_options,
                 'userDefinedFunctions': get_user_defined_sheet_function_objects(self.curr_step.post_state),
                 'userDefinedImporters': get_user_defined_importers_for_frontend(self.curr_step.post_state),
+                'userDefinedEdits': get_user_defined_editors_for_frontend(self.curr_step.post_state),
                 "importFolderData": {
                     'path': self.import_folder,
                     'pathParts': get_path_parts(self.import_folder)

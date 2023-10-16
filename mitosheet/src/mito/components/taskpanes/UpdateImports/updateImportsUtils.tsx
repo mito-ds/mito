@@ -1,4 +1,5 @@
 import React from "react";
+import { UserDefinedImportParams } from "../UserDefinedImport/UserDefinedImportTaskpane";
 import { CSVImportParams } from "../../import/CSVImportConfigScreen";
 import { DataframeImportParams } from "../../import/DataframeImportScreen";
 import { ExcelImportParams } from "../../import/XLSXImportConfigScreen";
@@ -13,6 +14,9 @@ export function isExcelImportParams(params: CSVImportParams | ExcelImportParams 
 }
 export function isDataframeImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | undefined): params is DataframeImportParams {
     return params !== undefined && 'df_names' in params;
+}
+export function isUserDefinedImportParams(params: CSVImportParams | ExcelImportParams | DataframeImportParams | UserDefinedImportParams | undefined): params is UserDefinedImportParams {
+    return params !== undefined && 'importer' in params;
 }
 
 export const getBaseOfPath = (fullPath: string): string => {

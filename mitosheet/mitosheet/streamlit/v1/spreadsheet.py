@@ -198,6 +198,7 @@ try:
     def _get_mito_backend(
             *args: Union[pd.DataFrame, str, None], 
             _importers: Optional[List[Callable]]=None, 
+            _editors: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
             import_folder: Optional[str]=None,
@@ -209,7 +210,7 @@ try:
         mito_backend = MitoBackend(
             *args, 
             import_folder=import_folder,
-            user_defined_importers=_importers, user_defined_functions=_sheet_functions,
+            user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
         )
 
@@ -247,6 +248,7 @@ try:
             *args: Union[pd.DataFrame, str, None], 
             sheet_functions: Optional[List[Callable]]=None, 
             importers: Optional[List[Callable]]=None, 
+            editors: Optional[List[Callable]]=None, 
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
@@ -269,6 +271,10 @@ try:
         importers: List[Callable]
             A list of functions that can be used to import dataframes. Each
             function should return a dataframe. 
+        editors: List[Callable]
+            A list of functions that can be used to edit dataframes. Each function
+            should have `df` as the first parameter, and then should return
+            a dataframe as a result.
         df_names: List[str]
             A list of names for the dataframes passed in. If None, the dataframes
             will be named df0, df1, etc.
@@ -289,6 +295,7 @@ try:
             *args, 
             _sheet_functions=sheet_functions,
             _importers=importers, 
+            _editors=editors,
             _code_options=code_options,
             import_folder=import_folder,
             session_id=session_id,
