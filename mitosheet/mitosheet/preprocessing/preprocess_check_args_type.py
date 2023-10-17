@@ -10,7 +10,7 @@ from mitosheet.errors import make_duplicated_column_headers_error
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
-from mitosheet.types import CodeOptions, StepsManagerType
+from mitosheet.types import StepsManagerType
 
 
 class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
@@ -52,5 +52,5 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         return [arg for arg in args if arg is not None], None, None
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]], code_options_override: Optional[CodeOptions] = None) -> Tuple[List[str], List[str]]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         return [], []

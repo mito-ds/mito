@@ -17,7 +17,7 @@ from mitosheet.step_performers.import_steps.simple_import import \
     read_csv_get_delimiter_and_encoding
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import get_str_param_name
-from mitosheet.types import CodeOptions, StepsManagerType
+from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_valid_dataframe_name
 
 
@@ -80,20 +80,12 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
         }
 
     @classmethod
-    def transpile(
-        cls,
-        steps_manager: StepsManagerType,
-        execution_data: Optional[Dict[str, Any]],
-        code_options_override: CodeOptions = None,
-    ) -> Tuple[List[str], List[str]]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         Transpiles the reading in of passed file paths to dataframe names, 
         with a simple pd.read_csv call.
         """
         code = []
-        code_options = steps_manager.code_options
-        if code_options_override is not None:
-            code_options = code_options_override
         
         delimeters = execution_data['delimeters'] if execution_data is not None else []
         encodings = execution_data['encodings'] if execution_data is not None else []
@@ -104,9 +96,9 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
                 df_name = df_names[arg_index]
 
                 # Make sure to compile the path as a variable if the user is creating a function
-                file_name = arg if not code_options['as_function'] else get_str_param_name(steps_manager, arg_index)
+                file_name = arg if not steps_manager.code_options['as_function'] else get_str_param_name(steps_manager, arg_index)
                 read_csv_code = generate_read_csv_code(
-                    file_name, df_name, delimeters[arg_index], encodings[arg_index], None, None, None, file_name_is_variable=code_options['as_function']
+                    file_name, df_name, delimeters[arg_index], encodings[arg_index], None, None, None, file_name_is_variable=steps_manager.code_options['as_function']
                 )
 
                 code.append(

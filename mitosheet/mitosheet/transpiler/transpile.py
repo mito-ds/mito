@@ -54,7 +54,6 @@ def transpile(
         preprocess_code, preprocess_imports = preprocess_step_performer.transpile(
             steps_manager,
             steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()],
-            code_options_override=code_options_override
         )
         if len(preprocess_code) > 0:
             code.extend(preprocess_code)
