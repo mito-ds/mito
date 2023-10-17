@@ -119,7 +119,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
-            ? {type: ModalEnum.DashboardSignup}   
+            ? {type: ModalEnum.SignUp}   
             : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
