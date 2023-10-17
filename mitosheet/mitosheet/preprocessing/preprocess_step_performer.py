@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Collection, List, Optional, Tuple
 
-from mitosheet.types import StepsManagerType
+from mitosheet.types import CodeOptions, StepsManagerType
 
 
 class PreprocessStepPerformer(ABC, object):
@@ -40,7 +40,7 @@ class PreprocessStepPerformer(ABC, object):
 
     @classmethod
     @abstractmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]], code_options_override: Optional[CodeOptions] = None) -> Tuple[List[str], List[str]]:
         """
         Returns a list of the Python code lines that corresponds to this 
         preprocess step being executed

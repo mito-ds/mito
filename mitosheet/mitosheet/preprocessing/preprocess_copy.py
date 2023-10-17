@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd
 from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
-from mitosheet.types import StepsManagerType
+from mitosheet.types import CodeOptions, StepsManagerType
 
 
 class CopyPreprocessStepPerformer(PreprocessStepPerformer):
@@ -40,5 +40,5 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
         return new_args, None, None
 
     @classmethod
-    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+    def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]], code_options_override: Optional[CodeOptions] = None) -> Tuple[List[str], List[str]]:
         return [], []
