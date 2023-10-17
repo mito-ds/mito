@@ -41,6 +41,24 @@ VLOOKUP_VALID_TESTS = [
         ],
         'e'
     ),
+    # Tests for when the lookup value is a primitive, case insensitive
+    (
+        [
+            'A',
+            pd.DataFrame({0: ['c', 'a', 'b'], 1: ['d', 'e', 'f'], 2: ['h', 'i', 'j']}),
+            2
+        ],
+        'e'
+    ),
+    # Tests for when the lookup value is a primitive, case insensitive
+    (
+        [
+            'a',
+            pd.DataFrame({0: ['C', 'A', 'B'], 1: ['d', 'e', 'f'], 2: ['h', 'i', 'j']}),
+            2
+        ],
+        'e'
+    ),
     # Tests for when the index argument is a series
     (
         [
@@ -117,13 +135,51 @@ VLOOKUP_VALID_TESTS = [
         ],
         pd.Series([None, 'c', 'b'])
     ),
+    # Vlookup only returns first match
+    (
+        [
+            pd.Series(['A', 'A']),
+            pd.DataFrame({'Series to Look in': ['A', 'A'], 'Value to return': ['Match1', 'Match2']}),
+            2
+        ],
+        pd.Series(['Match1', 'Match1'])
+    ),
+    # Vlookup is case insensitive
+    (
+        [
+            pd.Series(['A', 'a']),
+            pd.DataFrame({'Series to Look in': ['a', 'A'], 'Value to return': ['Match1', 'Match2']}),
+            2
+        ],
+        pd.Series(['Match1', 'Match1'])
+    ),
+    # Vlookup is case insensitive, but the return value should be the original case
+    (
+        [
+            pd.Series(['A']),
+            pd.DataFrame({'Series to Look in': ['a']}),
+            1
+        ],
+        pd.Series(['a'])
+    ),
+    # Vlookup is case insensitive, but the return value should be the original case
+    (
+        [
+            pd.Series(['a']),
+            pd.DataFrame({'Series to Look in': ['A']}),
+            1
+        ],
+        pd.Series(['A'])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", VLOOKUP_VALID_TESTS)
 def test_vlookup_direct(_argv, expected):
     result = VLOOKUP(*_argv)
+    print(result)
+    print(expected)
     if isinstance(result, pd.Series):
-        pd.testing.assert_series_equal(result,expected, check_names=False, check_series_type=False, check_dtype=False)
+        pd.testing.assert_series_equal(result, expected, check_names=False, check_series_type=False, check_dtype=False)
     else: 
         assert result == expected
 
