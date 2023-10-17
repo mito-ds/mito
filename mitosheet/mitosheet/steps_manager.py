@@ -228,7 +228,7 @@ class StepsManager:
         # always have an args update, this is the best we can do at this point in time. Notably, 
         # these are required to be set for transpiling arguments
         self.original_args_raw_strings: List[str] = []
-        for index, arg in enumerate(args):
+        for index, arg in enumerate(self.original_args):
             if isinstance(arg, str):
                 self.original_args_raw_strings.append(f'"{arg}"')
             else:
