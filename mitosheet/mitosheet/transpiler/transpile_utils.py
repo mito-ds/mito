@@ -276,7 +276,11 @@ def get_script_as_function(
 
         # Then, for any additional function params we defined, we relace the internal param value. Note that 
         # we only replace for 
-        for param_name, param_value in function_params.items():
+        for index, (param_name, param_value) in enumerate(function_params.items()):
+            # The param value is empty string when a dataframe was passed in as a positional argument without a name
+            if param_value == '' and index < len(steps_manager.curr_step.df_sources) and steps_manager.curr_step.df_sources[index] == 'passed':
+                param_value = steps_manager.curr_step.df_names[index]
+                function_params[param_name] = param_value
             if "'" in param_value or '"' in param_value:
                 line = line.replace(param_value, param_name)
             else:
