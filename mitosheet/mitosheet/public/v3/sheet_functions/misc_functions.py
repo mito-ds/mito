@@ -214,11 +214,11 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         )
 
     # If the series is a string, convert it to lowercase because Excel's vlookup is case insensitive
-    if is_string_dtype(value.dtype):
+    if is_string_dtype(str(value.dtype)):
         value = value.str.lower()
         where_first_column_case_insensitive = where_first_column_case_insensitive.str.lower()
 
-    # Add the where_first_column_case_insensitive to the front of the dataframe so we can use the case insensitive merge 
+    # Add where_first_column_case_insensitive to the front of the dataframe so we can use the case insensitive merge 
     # without effecting the return values
     where = pd.concat([where_first_column_case_insensitive, where], axis=1)
     indices_to_return_from_range = indices_to_return_from_range + 1
