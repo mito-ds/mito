@@ -2,7 +2,7 @@ import React, { Component, ReactNode } from "react";
 import { MitoAPI } from "../../api/api";
 import { DISCORD_INVITE_LINK } from "../../data/documentationLinks";
 import { AnalysisData, SheetData, UserProfile } from "../../types";
-import { isInStreamlit } from "../../utils/location";
+import { isInDash, isInStreamlit } from "../../utils/location";
 
 interface Props {
     children: ReactNode;
@@ -44,6 +44,8 @@ class ErrorBoundary extends Component<Props, State> {
         let fixUpMessage = 'Rerun the Jupyter Cell above';
         if (isInStreamlit()) {
             fixUpMessage = 'Refresh the Streamlit app'
+        } else if (isInDash()) {
+            fixUpMessage = 'Refresh the Dash app'
         }
 
         if (this.state.hasError) {
