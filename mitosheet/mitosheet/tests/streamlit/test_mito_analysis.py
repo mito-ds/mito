@@ -371,6 +371,6 @@ def test_to_and_from_json():
     assert new_analysis.param_metadata == simple_param_metadata
     
     df = pd.DataFrame({'A': [1], 'B': [2]})
-    result = analysis.run(df)
+    result = new_analysis.run(df)
     assert result is not None
     pd.testing.assert_frame_equal(result, df)
