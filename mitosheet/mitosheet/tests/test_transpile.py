@@ -615,7 +615,7 @@ def function({expected_in_function}, file_name_import_csv_0, file_name_import_ex
 """
     assert mito.mito_backend.param_metadata == [
         {
-            'initial_value': 'test_df_name' if df_names else '',
+            'initial_value': 'test_df_name' if df_names else 'df1',
             'type': 'df_name',
             'subtype': 'import_dataframe',
             'required': True,

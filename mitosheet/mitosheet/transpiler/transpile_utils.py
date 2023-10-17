@@ -7,6 +7,7 @@
 from copy import copy
 import inspect
 import re
+import traceback
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
 
@@ -149,6 +150,7 @@ def get_param_dict_as_code(param_dict: Dict[str, Any], level: int=0, as_single_l
 
 def get_str_param_name(steps_manager: StepsManagerType, index: int) -> str:
     # We go and find the first state, and then get the name of the df at this index
+    traceback.print_stack()
     df_name = steps_manager.steps_including_skipped[0].final_defined_state.df_names[index]
     return df_name + '_path'
 
@@ -171,6 +173,7 @@ def _get_params_dict_for_function_call(steps_manager: StepsManagerType, function
             original_args_names.append(param_name)
         else:
             if is_string_arg_to_mitosheet_call(original_arg_value):
+                print(f'original_arg_value: {original_arg_value}')
                 original_args_names.append(get_str_param_name(steps_manager, index))
             else:
                 original_args_names.append(original_arg_value)
@@ -276,11 +279,7 @@ def get_script_as_function(
 
         # Then, for any additional function params we defined, we relace the internal param value. Note that 
         # we only replace for 
-        for index, (param_name, param_value) in enumerate(function_params.items()):
-            # The param value is empty string when a dataframe was passed in as a positional argument without a name
-            if param_value == '' and index < len(steps_manager.curr_step.df_sources) and steps_manager.curr_step.df_sources[index] == 'passed':
-                param_value = steps_manager.curr_step.df_names[index]
-                function_params[param_name] = param_value
+        for param_name, param_value in function_params.items():
             if "'" in param_value or '"' in param_value:
                 line = line.replace(param_value, param_name)
             else:
