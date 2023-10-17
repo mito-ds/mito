@@ -82,7 +82,7 @@ import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
-import { isInDash, isInDashboard } from './utils/location';
+import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 
 export type MitoProps = {
