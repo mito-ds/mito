@@ -7,7 +7,6 @@
 from copy import copy
 import inspect
 import re
-import traceback
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
 
@@ -150,7 +149,6 @@ def get_param_dict_as_code(param_dict: Dict[str, Any], level: int=0, as_single_l
 
 def get_str_param_name(steps_manager: StepsManagerType, index: int) -> str:
     # We go and find the first state, and then get the name of the df at this index
-    traceback.print_stack()
     df_name = steps_manager.steps_including_skipped[0].final_defined_state.df_names[index]
     return df_name + '_path'
 
@@ -173,7 +171,6 @@ def _get_params_dict_for_function_call(steps_manager: StepsManagerType, function
             original_args_names.append(param_name)
         else:
             if is_string_arg_to_mitosheet_call(original_arg_value):
-                print(f'original_arg_value: {original_arg_value}')
                 original_args_names.append(get_str_param_name(steps_manager, index))
             else:
                 original_args_names.append(original_arg_value)
