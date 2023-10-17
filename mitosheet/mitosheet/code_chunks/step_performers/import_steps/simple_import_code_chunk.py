@@ -58,7 +58,6 @@ def generate_read_csv_code(
     """
 
     params = get_read_csv_params(delimeter, encoding, decimal=decimal, skiprows=skiprows, error_bad_lines=error_bad_lines)
-    print(f'params: {params}')
     params_string = ', '.join(f'{key}={get_column_header_as_transpiled_code(value)}' for key, value in params.items())
 
     transpiled_file_path = 'r' + get_column_header_as_transpiled_code(file_name) if not file_name_is_variable else file_name
