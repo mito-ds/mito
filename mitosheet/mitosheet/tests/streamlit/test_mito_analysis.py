@@ -4,6 +4,24 @@ from mitosheet.streamlit.v1.spreadsheet import MitoAnalysis
 import pytest
 import pandas as pd
 
+
+simple_fn = f"""from mitosheet.public.v3 import *
+import pandas as pd
+
+def function(import_dataframe_0):
+    return import_dataframe_0
+"""
+
+simple_param_metadata = [
+    {
+        'initial_value': 'test_df_name',
+        'type': 'df_name',
+        'subtype': 'import_dataframe',
+        'required': True,
+        'name': 'import_dataframe_0'
+    },
+]
+
 @requires_streamlit
 def test_mito_analysis_run(tmp_path):
     fully_parameterized_function = f"""from mitosheet.public.v3 import *
@@ -327,46 +345,32 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
 
 @requires_streamlit
 def test_run_fail_missing_required():
-    fully_parameterized_function = f"""from mitosheet.public.v3 import *
-import pandas as pd
-
-def function(import_dataframe_0):
-    return import_dataframe_0
-"""
-    param_metadata = [
-        {
-            'initial_value': 'test_df_name',
-            'type': 'df_name',
-            'subtype': 'import_dataframe',
-            'required': True,
-            'name': 'import_dataframe_0'
-        },
-    ]
-    
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = MitoAnalysis('', None, simple_fn, simple_param_metadata)
     with pytest.raises(TypeError):
         analysis.run()
     
 
 @requires_streamlit
 def test_run_fail_incorrect_args():
-    fully_parameterized_function = f"""from mitosheet.public.v3 import *
-import pandas as pd
-
-def function(import_dataframe_0):
-    return import_dataframe_0
-"""
-    param_metadata = [
-        {
-            'initial_value': "xyz",
-            'type': 'file_name',
-            'subtype': 'file_name_export_excel',
-            'name': 'file_name_export_excel_0',
-            'required': False
-        }
-    ]
-    
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = MitoAnalysis('', None, simple_fn, simple_param_metadata)
     with pytest.raises(TypeError):
         analysis.run(testing=1)
     
+
+@requires_streamlit
+def test_to_and_from_json():
+    analysis = MitoAnalysis('', None, simple_fn, simple_param_metadata)
+    # Test that the to_json function 
+    json = analysis.to_json()
+    assert json is not None
+    assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"initial_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}]}'
+
+    # Test that the from_json function works
+    new_analysis = MitoAnalysis.from_json(json)
+    assert new_analysis is not None
+    assert new_analysis.param_metadata == simple_param_metadata
+    
+    df = pd.DataFrame({'A': [1], 'B': [2]})
+    result = analysis.run(df)
+    assert result is not None
+    pd.testing.assert_frame_equal(result, df)

@@ -122,6 +122,28 @@ class MitoAnalysis:
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
     
+    def to_json(self) -> str:
+        return json.dumps({
+            'code': self.__code,
+            'code_options': self.__code_options,
+            'fully_parameterized_function': self.__fully_parameterized_function,
+            'param_metadata': self.__param_metadata
+        })
+    
+    @staticmethod
+    def from_json(json_str: str) -> 'MitoAnalysis':
+        json_dict = json.loads(json_str)
+        required_keys = ['code', 'code_options', 'fully_parameterized_function', 'param_metadata']
+        for key in required_keys:
+            if key not in json_dict:
+                raise ValueError(f'Invalid json_str passed to MitoAnalysis.from_json. Missing key {key}.')
+        return MitoAnalysis(
+            json_dict['code'],
+            json_dict['code_options'],
+            json_dict['fully_parameterized_function'],
+            json_dict['param_metadata']
+        )
+    
     def run(self, *args, **kwargs):
         params = {}
 
