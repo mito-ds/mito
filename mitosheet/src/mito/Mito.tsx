@@ -118,11 +118,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
-        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled // no signup if no logs
-            ? ((!isInDashboard())
-                ? {type: ModalEnum.SignUp} 
-                : {type: ModalEnum.DashboardSignup}   
-            ) : {type: ModalEnum.None},
+        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
+            ? {type: ModalEnum.DashboardSignup}   
+            : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,

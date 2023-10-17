@@ -178,7 +178,9 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         ]
     }
     """
-    where_first_column = where.iloc[:,0]
+    where_first_column_case_insensitive = where.iloc[:,0].copy()
+    where_first_column_case_insensitive.name = str(where_first_column_case_insensitive.name) + 'MITO_CASE_INSENSITIVE'
+
     # If the lookup value and index are both a primitive, we don't need to merge. 
     if not isinstance(lookup_value, pd.Series) and isinstance(index, int):
         if type(lookup_value) != type(where.iloc[0,0]):
@@ -187,7 +189,13 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
                 'VLOOKUP',
                 f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {type(lookup_value)} and the first column of the where range is of type {type(where.iloc[0,0])}.'
             )
-        matching_row = where.loc[where_first_column == lookup_value]
+
+        # If the lookup value and the first column are strings, make them lowecase for case-insensitive matching
+        if isinstance(lookup_value, str) and isinstance(where.iloc[0,0], str):
+            lookup_value = lookup_value.lower()
+            where_first_column_case_insensitive = where_first_column_case_insensitive.str.lower()
+
+        matching_row = where.loc[where_first_column_case_insensitive == lookup_value]
         if matching_row.empty:
             return None
         else:
@@ -195,26 +203,37 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     
     value = get_series_from_primitive_or_series(lookup_value, where.index)
     value.name = 'lookup_value'
-    indices = get_series_from_primitive_or_series(index, value.index)
-
-    # Then we want to do a merge on the column we're looking up from, and the df we're looking up in.
-    where_deduplicated = where.drop_duplicates(subset=where_first_column.name)
-    
-    # Update first column to use the deduplicated version
-    where_first_column = where_deduplicated.iloc[:,0]
+    indices_to_return_from_range = get_series_from_primitive_or_series(index, value.index)
 
     # If the lookup value and the first column of the where range are different types, we raise an error
-    if value.dtype != where_first_column.dtype:
+    if value.dtype != where_first_column_case_insensitive.dtype:
         raise MitoError(
             'invalid_args_error',
             'VLOOKUP',
-            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_first_column.dtype}.'
+            f'VLOOKUP requires the lookup value and the first column of the where range to be the same type. The lookup value is of type {value.dtype} and the first column of the where range is of type {where_first_column_case_insensitive.dtype}.'
         )
+
+    # If the series is a string, convert it to lowercase because Excel's vlookup is case insensitive
+    if is_string_dtype(str(value.dtype)):
+        value = value.str.lower()
+        where_first_column_case_insensitive = where_first_column_case_insensitive.str.lower()
+
+    # Add where_first_column_case_insensitive to the front of the dataframe so we can use the case insensitive merge 
+    # without effecting the return values
+    where = pd.concat([where_first_column_case_insensitive, where], axis=1)
+    indices_to_return_from_range = indices_to_return_from_range + 1
+
+    where_deduplicated = where.drop_duplicates(subset=where_first_column_case_insensitive.name)
     
+    # Update first column to use the deduplicated version
+    where_first_column = where_deduplicated.iloc[:,0]
+    
+    # Then merge on the column we're looking up from, and the df we're looking up in.
     merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_first_column, how='left')
+
     def get_value_at_index_in_row(row):
         try:
-            return row.iloc[indices[row.name]]
+            return row.iloc[indices_to_return_from_range[row.name]]
         # Because we can't control what the user puts in the index, we need to catch any errors
         except Exception:
             return None

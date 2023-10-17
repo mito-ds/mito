@@ -166,6 +166,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
     return (
         <>
             {...paramRowElements}
+            {paramRowElements.length === 0 ? <p className="text-body-1">This function has no parameters to configure.</p> : <></>}
         </>
     )
 }
