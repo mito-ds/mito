@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - 'mitoinstaller/**'
+  workflow_dispatch:
+
 
 jobs:
   test-mitoinstaller:
