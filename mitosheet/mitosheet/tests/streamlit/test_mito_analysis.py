@@ -363,7 +363,7 @@ def test_to_and_from_json():
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
-    assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"initial_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}]}'
+    assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"initial_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}], "mito_analysis_version": 1}'
 
     # Test that the from_json function works
     new_analysis = MitoAnalysis.from_json(json)
