@@ -132,6 +132,10 @@ class MitoAnalysis:
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
     
+    @property
+    def fully_parameterized_function(self) -> str:
+        return self.__fully_parameterized_function
+    
     def to_json(self) -> str:
         return json.dumps({
             'code': self.__code,

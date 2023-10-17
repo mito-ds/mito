@@ -374,3 +374,31 @@ def test_to_and_from_json():
     result = new_analysis.run(df)
     assert result is not None
     pd.testing.assert_frame_equal(result, df)
+
+@requires_streamlit
+def test_to_and_from_json_special_characters():
+    special_characters_fn = """from mitosheet.public.v3 import *
+import pandas as pd
+
+def function(vari\abl"e_name{}):
+    return vari\abl"e_name{}
+"""
+    special_characters_metadata = [
+    {
+        'initial_value': 'test_df_name',
+        'type': 'df_name',
+        'subtype': 'import_dataframe',
+        'required': True,
+        'name': 'vari\ abl"e_name{}'
+    },
+]
+    analysis = MitoAnalysis('', None, special_characters_fn, special_characters_metadata)
+    # Test that the to_json function 
+    json = analysis.to_json()
+    assert json is not None
+
+    # Test that the from_json function works
+    new_analysis = MitoAnalysis.from_json(json)
+    assert new_analysis is not None
+    assert new_analysis.param_metadata == special_characters_metadata
+    assert new_analysis.fully_parameterized_function == special_characters_fn
