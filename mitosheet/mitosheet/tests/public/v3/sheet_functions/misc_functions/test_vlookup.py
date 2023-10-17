@@ -171,13 +171,29 @@ VLOOKUP_VALID_TESTS = [
         ],
         pd.Series(['A'])
     ),
+    # Vlookup is case insensitive, with a non-standard index
+    (
+        [
+            pd.Series(['a', 'b', 'a'], index=['i', 'j', 'k']),
+            pd.DataFrame({'A': ['a', 'b'], 'B': ['Match1', 'Match2']}, index=[10, 11]),
+            2
+        ],
+        pd.Series(['Match1', 'Match2', 'Match1'])
+    ),
+    # No matches
+    (
+        [
+            pd.Series(['C']),
+            pd.DataFrame({'Series to Look in': ['A']}),
+            1
+        ],
+        pd.Series([None])
+    ),
 ]
 
 @pytest.mark.parametrize("_argv, expected", VLOOKUP_VALID_TESTS)
 def test_vlookup_direct(_argv, expected):
     result = VLOOKUP(*_argv)
-    print(result)
-    print(expected)
     if isinstance(result, pd.Series):
         pd.testing.assert_series_equal(result, expected, check_names=False, check_series_type=False, check_dtype=False)
     else: 
