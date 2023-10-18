@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.types import CodeOptions, ParamMetadata
+from mitosheet.types import CodeOptions, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 
 CURRENT_MITO_ANALYSIS_VERSION = 1
@@ -128,9 +128,12 @@ class MitoAnalysis:
         self.__param_metadata = param_metadata
         self.mito_analysis_version = mito_analysis_version
         
-    @property
-    def param_metadata(self) -> List[ParamMetadata]:
-        return self.__param_metadata
+    def get_param_metadata(self, param_type: Optional[ParamType]=None) -> List[ParamMetadata]:
+        if param_type is None:
+            return self.__param_metadata
+        if param_type not in ['import', 'export']:
+            raise TypeError('Invalid args passed to get_param_metadata. Type must be "import" or "export"')
+        return [param for param in self.__param_metadata if param['type'] == param_type]
     
     @property
     def fully_parameterized_function(self) -> str:
