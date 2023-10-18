@@ -16,6 +16,8 @@ from mitosheet.selectionUtils import get_selected_element
 from mitosheet.types import CodeOptions, ParamMetadata
 from mitosheet.utils import get_new_id
 
+CURRENT_MITO_ANALYSIS_VERSION = 1
+
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
     """
     Returns a hash for a pandas dataframe that is consistent across runs, notably including:
@@ -112,15 +114,51 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 # It contains data that could be relevant to the streamlit developer, and is 
 # used for replaying analyses. 
 class MitoAnalysis:
-    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_function: str, param_metadata: List[ParamMetadata]):
+    def __init__(
+            self,
+            code: str,
+            code_options: Optional[CodeOptions],
+            fully_parameterized_function: str,
+            param_metadata: List[ParamMetadata],
+            mito_analysis_version: int=CURRENT_MITO_ANALYSIS_VERSION
+        ):
         self.__code = code
         self.__code_options = code_options
         self.__fully_parameterized_function = fully_parameterized_function
         self.__param_metadata = param_metadata
+        self.mito_analysis_version = mito_analysis_version
         
     @property
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
+    
+    @property
+    def fully_parameterized_function(self) -> str:
+        return self.__fully_parameterized_function
+    
+    def to_json(self) -> str:
+        return json.dumps({
+            'code': self.__code,
+            'code_options': self.__code_options,
+            'fully_parameterized_function': self.__fully_parameterized_function,
+            'param_metadata': self.__param_metadata,
+            'mito_analysis_version': self.mito_analysis_version
+        })
+    
+    @staticmethod
+    def from_json(json_str: str) -> 'MitoAnalysis':
+        json_dict = json.loads(json_str)
+        required_keys = ['code', 'code_options', 'fully_parameterized_function', 'param_metadata']
+        for key in required_keys:
+            if key not in json_dict:
+                raise ValueError(f'Invalid json_str passed to MitoAnalysis.from_json. Missing key {key}.')
+        return MitoAnalysis(
+            json_dict['code'],
+            json_dict['code_options'],
+            json_dict['fully_parameterized_function'],
+            json_dict['param_metadata'],
+            mito_analysis_version=json_dict['mito_analysis_version']
+        )
     
     def run(self, *args, **kwargs):
         params = {}
