@@ -333,7 +333,8 @@ if sys.version_info[:3] > (3, 8, 0):
     # function param specification - where you can pass the param subtype, to automatically generate params for all 
     # of that subtype
     ParamType = Literal[
-        'file_name'
+        'import',
+        'export'
     ]
     ParamSubtype = Literal[
         'import_dataframe',

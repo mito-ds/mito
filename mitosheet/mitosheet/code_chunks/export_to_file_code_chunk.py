@@ -88,9 +88,9 @@ class ExportToFileCodeChunk(CodeChunk):
     def get_parameterizable_params(self) -> List[Tuple[ParamValue, ParamType, ParamSubtype]]:
         if self.export_type == 'csv':
             return [
-                (f"r{get_column_header_as_transpiled_code(export_location)}", 'file_name', 'file_name_export_csv') for export_location in self.sheet_index_to_export_location.values()
+                (f"r{get_column_header_as_transpiled_code(export_location)}", 'export', 'file_name_export_csv') for export_location in self.sheet_index_to_export_location.values()
             ]
         elif self.export_type == 'excel':
-            return [(f"r{get_column_header_as_transpiled_code(self.file_name)}", 'file_name', 'file_name_export_excel')]
+            return [(f"r{get_column_header_as_transpiled_code(self.file_name)}", 'export', 'file_name_export_excel')]
         else:
             raise ValueError(f'Not a valid file type: {self.export_type}')

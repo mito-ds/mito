@@ -213,15 +213,6 @@ class StepsManager:
             for arg in args
         ]
 
-        # We set the original_args_raw_strings. If we later have an args update, then these
-        # are overwritten by the args update (and are actually correct). But since we don't 
-        # always have an args update, this is the best we can do at this point in time. Notably, 
-        # these are required to be set for transpiling arguments
-        self.original_args_raw_strings: List[str] = [
-            f'"{arg}"' if isinstance(arg, str) else ''
-            for arg in args
-        ]
-
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
@@ -231,6 +222,19 @@ class StepsManager:
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
             ] = execution_data       
+
+        # We set the original_args_raw_strings. If we later have an args update, then these
+        # are overwritten by the args update (and are actually correct). But since we don't 
+        # always have an args update, this is the best we can do at this point in time. Notably, 
+        # these are required to be set for transpiling arguments
+        self.original_args_raw_strings: List[str] = []
+        for index, arg in enumerate(self.original_args):
+            if isinstance(arg, str):
+                self.original_args_raw_strings.append(f'"{arg}"')
+            elif df_names is not None and len(df_names) > index:
+                self.original_args_raw_strings.append(df_names[index])
+            else:
+                self.original_args_raw_strings.append('')
 
         # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
         self.user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 

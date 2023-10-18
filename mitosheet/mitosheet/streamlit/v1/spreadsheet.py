@@ -13,8 +13,10 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.types import CodeOptions, ParamMetadata
+from mitosheet.types import CodeOptions, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
+
+CURRENT_MITO_ANALYSIS_VERSION = 1
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
     """
@@ -57,7 +59,7 @@ def do_dynamic_imports(code: str) -> None:
     """
 
     # Extract import lines from the code_str
-    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from", "import"))]
+    import_lines = [line.strip() for line in code.split("\n") if line.strip().startswith(("from ", "import "))]
 
     # Dynamically import modules and attributes in the global scope
     for import_line in import_lines:
@@ -112,11 +114,88 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 # It contains data that could be relevant to the streamlit developer, and is 
 # used for replaying analyses. 
 class MitoAnalysis:
-    def __init__(self, code: str, code_options: Optional[CodeOptions], fully_parameterized_code: str, param_metadata: List[ParamMetadata]):
+    def __init__(
+            self,
+            code: str,
+            code_options: Optional[CodeOptions],
+            fully_parameterized_function: str,
+            param_metadata: List[ParamMetadata],
+            mito_analysis_version: int=CURRENT_MITO_ANALYSIS_VERSION
+        ):
         self.__code = code
         self.__code_options = code_options
-        self.__fully_parameterized_code = fully_parameterized_code
+        self.__fully_parameterized_function = fully_parameterized_function
         self.__param_metadata = param_metadata
+        self.mito_analysis_version = mito_analysis_version
+        
+    def get_param_metadata(self, param_type: Optional[ParamType]=None) -> List[ParamMetadata]:
+        if param_type is None:
+            return self.__param_metadata
+        if param_type not in ['import', 'export']:
+            raise TypeError('Invalid args passed to get_param_metadata. Type must be "import" or "export"')
+        return [param for param in self.__param_metadata if param['type'] == param_type]
+    
+    @property
+    def fully_parameterized_function(self) -> str:
+        return self.__fully_parameterized_function
+    
+    def to_json(self) -> str:
+        return json.dumps({
+            'code': self.__code,
+            'code_options': self.__code_options,
+            'fully_parameterized_function': self.__fully_parameterized_function,
+            'param_metadata': self.__param_metadata,
+            'mito_analysis_version': self.mito_analysis_version
+        })
+    
+    @staticmethod
+    def from_json(json_str: str) -> 'MitoAnalysis':
+        json_dict = json.loads(json_str)
+        required_keys = ['code', 'code_options', 'fully_parameterized_function', 'param_metadata']
+        for key in required_keys:
+            if key not in json_dict:
+                raise ValueError(f'Invalid json_str passed to MitoAnalysis.from_json. Missing key {key}.')
+        return MitoAnalysis(
+            json_dict['code'],
+            json_dict['code_options'],
+            json_dict['fully_parameterized_function'],
+            json_dict['param_metadata'],
+            mito_analysis_version=json_dict['mito_analysis_version']
+        )
+    
+    def run(self, *args, **kwargs):
+        params = {}
+
+        # First, set the default values for all params.
+        for param in self.__param_metadata:
+            params[param['name']] = param['initial_value']
+
+        # Error handling for required arguments
+        required_args = [param['name'] for param in self.__param_metadata if param['required']]
+        for index, required_arg in enumerate(required_args):
+            is_kwarg = required_arg in kwargs.keys()
+
+            # First, check if the arg was passed in as a positional argument
+            if index < len(args):
+                params[required_arg] = args[index]
+
+                # Check if the arg was passed in as a keyword argument as well. 
+                if is_kwarg:
+                    raise TypeError(f'MitoAnalysis.run() got multiple values for argument {required_arg}')
+
+            # If it wasn't passed as a positional argument, check if it was passed as a keyword argument
+            elif not is_kwarg:
+                raise TypeError(f'MitoAnalysis.run() missing required argument {required_arg}. You passed a dataframe to this analysis, but did not pass in a value for {required_arg}.')
+
+        # Then, overwrite the default values with the user provided values
+        for name, value in kwargs.items():
+            # Raise an error if the user passes in an unexpected argument
+            if not any(param for param in self.__param_metadata if param['name'] == name):
+                raise TypeError(f'MitoAnalysis.run() got an unexpected keyword argument {name}')
+
+            params[name] = value
+
+        return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 
 try:
     import streamlit.components.v1 as components

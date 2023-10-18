@@ -18,7 +18,7 @@ def get_parameterizable_params(params: Dict[str, Any], steps_manager: StepsManag
         # First, get the original arguments to the mitosheet - we only let you parameterize df names for now
         for arg in steps_manager.original_args_raw_strings:
                 if not is_string_arg_to_mitosheet_call(arg):
-                        all_parameterizable_params.append((arg, 'df_name', "import_dataframe")) # type: ignore
+                        all_parameterizable_params.append((arg, 'import', "import_dataframe")) # type: ignore
     
         # Get optimized code chunk, and get their parameterizable params
         code_chunks = get_code_chunks(steps_manager.steps_including_skipped[:steps_manager.curr_step_idx + 1], optimize=True)
@@ -44,12 +44,13 @@ def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List
                 param = args[0]
                 param_name = args[1] 
                 return {
-                        'initial_value': param[0],
+                        # Removes the quotes and r-string from the param value because they aren't needed for streamlit. 
+                        'initial_value': param[0][2:-1] if param[0][:2] == "r'" else param[0],
                         'type': param[1],
                         'subtype': param[2],
                         # If the param is a df_name, then it is required for the function
                         # because we won't be able to store the initial value in the MitoAnalysis for streamlit.
-                        'required': param[1] == 'df_name',
+                        'required': param[2] == 'import_dataframe',
                         'name': param_name
                 }
 
