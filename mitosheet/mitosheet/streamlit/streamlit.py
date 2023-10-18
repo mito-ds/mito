@@ -33,9 +33,9 @@ analysis = spreadsheet(
     return_type='analysis'
 )
 
-st.write(analysis.param_metadata)
+st.write(analysis.get_param_metadata())
 updated_metadata = {}
-for param in analysis.param_metadata:
+for param in analysis.get_param_metadata():
     new_param = None
     if param['subtype'] in ['file_name_export_excel', 'file_name_export_csv']:
         new_param = st.text_input(param['name'], value=param['initial_value'])
