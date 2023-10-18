@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
-from mitosheet.types import CodeOptions, ParamMetadata
+from mitosheet.types import CodeOptions, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 
 def _get_dataframe_hash(df: pd.DataFrame) -> bytes:
@@ -121,6 +121,13 @@ class MitoAnalysis:
     @property
     def param_metadata(self) -> List[ParamMetadata]:
         return self.__param_metadata
+    
+    def get_param_metadata(self, type: Optional[ParamType]=None):
+        if type is None:
+            return self.__param_metadata
+        if type not in ['import', 'export']:
+            raise TypeError('Invalid args passed to get_param_metadata. Type must be "import" or "export"')
+        return [param for param in self.__param_metadata if param['type'] == type]
     
     def run(self, *args, **kwargs):
         params = {}

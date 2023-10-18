@@ -27,6 +27,7 @@ df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
     df,
     df_names=['df'],
+    import_folder='/Users/marthacryan/gitrepos/mito/mitosheet/datasets',
     editors=[add_number_to_df],
     importers=[get_data_from_database, do_import_with_a_really_long_name],
     return_type='analysis'

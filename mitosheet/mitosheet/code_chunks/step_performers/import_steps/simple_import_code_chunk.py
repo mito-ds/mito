@@ -138,7 +138,7 @@ class SimpleImportCodeChunk(CodeChunk):
         return list(
             zip(
                 map(lambda x: f"r{get_column_header_as_transpiled_code(x)}", self.file_names), 
-                ['file_name'] * len(self.file_names),
+                ['import'] * len(self.file_names),
                 ['file_name_import_csv'] * len(self.file_names),
             )
         )
