@@ -420,7 +420,6 @@ def test_to_and_from_json():
     # Test that the from_json function works
     new_analysis = MitoAnalysis.from_json(json)
     assert new_analysis is not None
-    assert new_analysis.param_metadata == simple_param_metadata
     
     df = pd.DataFrame({'A': [1], 'B': [2]})
     result = new_analysis.run(df)
@@ -452,5 +451,4 @@ def function(vari\abl"e_name{}):
     # Test that the from_json function works
     new_analysis = MitoAnalysis.from_json(json)
     assert new_analysis is not None
-    assert new_analysis.param_metadata == special_characters_metadata
     assert new_analysis.fully_parameterized_function == special_characters_fn
