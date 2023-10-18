@@ -37,28 +37,28 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     param_metadata = [
         {
             'initial_value': tmp_file1,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_file2,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile1,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile2,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
             'required': False
@@ -165,7 +165,7 @@ def function_ctqm(import_dataframe_0):
     param_metadata = [
         {
             'initial_value': 'test_df_name',
-            'type': 'df_name',
+            'type': 'import',
             'subtype': 'import_dataframe',
             'required': True,
             'name': 'import_dataframe_0'
@@ -173,6 +173,11 @@ def function_ctqm(import_dataframe_0):
     ]
 
     analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+
+    assert analysis.get_param_metadata() == param_metadata
+    assert analysis.get_param_metadata('import') == param_metadata
+    assert analysis.get_param_metadata('export') == []
+
     result = analysis.run(df)
     expected_df = pd.DataFrame({'A': [1], 'Test': [0], 'B': [2]})
     assert result is not None
@@ -211,35 +216,35 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     param_metadata = [
         {
             'initial_value': 'test_df_name',
-            'type': 'df_name',
+            'type': 'import',
             'subtype': 'import_dataframe',
             'required': True,
             'name': 'import_dataframe_0'
         },
         {
             'initial_value': tmp_file1,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_file2,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile1,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile2,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
             'required': False
@@ -249,6 +254,12 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
     analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+
+    # Test that get_param_metadata works
+    assert analysis.get_param_metadata() == param_metadata
+    assert analysis.get_param_metadata(type='import') == param_metadata[:3]
+    assert analysis.get_param_metadata(type='export') == param_metadata[3:]
+
     new_df = pd.DataFrame({'A': [1], 'B': [2]})
     result = analysis.run(df1, file_name_export_csv_0=new_export_file_0)
     assert result is not None
@@ -292,35 +303,35 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     param_metadata = [
         {
             'initial_value': 'test_df_name',
-            'type': 'df_name',
+            'type': 'import',
             'subtype': 'import_dataframe',
             'required': True,
             'name': 'import_dataframe_0'
         },
         {
             'initial_value': tmp_file1,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_file2,
-            'type': 'file_name',
+            'type': 'import',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile1,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
             'initial_value': tmp_exportfile2,
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
             'required': False
@@ -345,7 +356,7 @@ def function(import_dataframe_0):
     param_metadata = [
         {
             'initial_value': 'test_df_name',
-            'type': 'df_name',
+            'type': 'import',
             'subtype': 'import_dataframe',
             'required': True,
             'name': 'import_dataframe_0'
@@ -368,7 +379,7 @@ def function(import_dataframe_0):
     param_metadata = [
         {
             'initial_value': "xyz",
-            'type': 'file_name',
+            'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
             'required': False
