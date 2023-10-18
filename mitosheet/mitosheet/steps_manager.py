@@ -231,8 +231,10 @@ class StepsManager:
         for index, arg in enumerate(self.original_args):
             if isinstance(arg, str):
                 self.original_args_raw_strings.append(f'"{arg}"')
-            else:
+            elif df_names is not None and len(df_names) > index:
                 self.original_args_raw_strings.append(df_names[index])
+            else:
+                self.original_args_raw_strings.append('')
 
         # Then, we check user defined functions. Check them for validity, and wrap them in the correct wrappers,
         self.user_defined_functions = validate_and_wrap_sheet_functions(user_defined_functions) 
