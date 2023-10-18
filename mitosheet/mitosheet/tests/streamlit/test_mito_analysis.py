@@ -138,11 +138,11 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
-    assert analysis.get_param_metadata(type='import') == param_metadata[:2]
-    assert analysis.get_param_metadata(type='export') == param_metadata[2:]
+    assert analysis.get_param_metadata(param_type='import') == param_metadata[:2]
+    assert analysis.get_param_metadata(param_type='export') == param_metadata[2:]
 
     with pytest.raises(TypeError):
-        analysis.get_param_metadata(type='invalid')
+        analysis.get_param_metadata(param_type='invalid')
 
     result = analysis.run(file_name_export_csv_0=new_export_file_0)
     assert result is not None
@@ -257,8 +257,8 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
-    assert analysis.get_param_metadata(type='import') == param_metadata[:3]
-    assert analysis.get_param_metadata(type='export') == param_metadata[3:]
+    assert analysis.get_param_metadata(param_type='import') == param_metadata[:3]
+    assert analysis.get_param_metadata(param_type='export') == param_metadata[3:]
 
     new_df = pd.DataFrame({'A': [1], 'B': [2]})
     result = analysis.run(df1, file_name_export_csv_0=new_export_file_0)
