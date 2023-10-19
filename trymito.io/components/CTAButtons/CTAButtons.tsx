@@ -38,13 +38,13 @@ const CTAButtons = (props: {
             }
             
             {displayProCTA && 
-                <h2 className={ctaButtons.cta_subbutton}>
+                <div className={ctaButtons.cta_subbutton}>
                     <Link href='/plans'>
                         <a className={ctaButtons.pro_cta_text}>
                             or see Pro plans →
                         </a>
                     </Link>
-                </h2>
+                </div>
             }
         </div>
     )

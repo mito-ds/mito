@@ -1,3 +1,11 @@
+.main {
+    display: flex;
+    flex-direction: row;
+    padding: 3rem 0rem;
+    position: relative;
+    min-height: 100vh;
+}
+
 .title_card {
     padding-top: 4rem;
 }
@@ -61,7 +69,25 @@
 
 @media only screen and (min-width: 50em) {
 
+    .blog_content {
+        display: flex;
+        flex-direction: column;
+        padding: 0 1rem;
+        width: 80%;
+    }
+
+    .table_of_contents_container {
+        position: fixed;
+        top: 200px;
+        right: 0px;
+        width: 20%;
+        padding: 2rem 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+
     .table {
         width: 80%;
     }
+
 }
