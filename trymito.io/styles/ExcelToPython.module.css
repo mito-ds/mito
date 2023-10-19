@@ -65,9 +65,8 @@
 
 .link {
     position: relative;
-    padding-right: 30px;
+    padding-right: 30px; /* Leave room for the copy # to appear without overwriting the text */
     display: flex;
-    text-align: center;
     align-items: flex-start
 }
 
@@ -84,6 +83,17 @@
     margin-top: 4rem;
 }
 
+/* 
+    Don't dispaly the table of contents on mobile because there
+    is not enough space
+*/
+.table_of_contents_container {
+    display: none;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
 @media only screen and (min-width: 50em) {
 
     .content {
@@ -98,6 +108,7 @@
     }
 
     .table_of_contents_container {
+        display: block;
         position: fixed;
         top: 200px;
         right: 0px;

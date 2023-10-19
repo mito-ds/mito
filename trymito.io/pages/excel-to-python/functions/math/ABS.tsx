@@ -26,13 +26,6 @@ const functionName = "ABS";
 // Define your page content and metadata
 const PageContent = () => {
 
-  // Get the folders from the excel-to-python directory to this file
-  const router = useRouter();
-
-  // Get the current pathname
-  const { pathname } = router;
-  const folders = pathname.split('/');
-
   return (
     <>
       <Head>
@@ -74,7 +67,7 @@ const PageContent = () => {
         {/* Other SEO-related tags (structured data, robots meta, etc.) */}
         {/* Add other SEO-related tags here */}
       </Head>
-      <Header/>
+      <Header />
 
       <div className={pageStyles.container}>
         <main className={classNames(excelToPythonStyles.main)}>
@@ -89,7 +82,7 @@ const PageContent = () => {
                   </GlossayHorizontalNavbar>
                 </div>
                 
-                <h1>How to Implement Excel&aspos;s: <span className='text-highlight'>{functionName}</span> function in Pandas</h1>
+                <h1>How to Implement Excel&apos;s <span className='text-highlight'>{functionName}</span> function in Pandas</h1>
                 <div className={classNames(excelToPythonStyles.related_functions_card)}>
                   <p>Related Functions</p>
                   <TextButton 
@@ -327,8 +320,8 @@ df['ABS_SUM'] = df['A'].abs()`}/>
             </div>
           </section>
         </main>
+        <Footer/>
       </div>
-      <Footer/>
     </>
   );
 };
