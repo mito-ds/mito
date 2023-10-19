@@ -1,15 +1,14 @@
-// DynamicTableOfContents.js
 import React, { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames';
-import dynamicTableOfContentsStyles from './DynamicTableOfContents.module.css';
+import pageTOCStyles from './PageTOC.module.css';
 
 type Heading = {
-    text: string | null;
+    text: string;
     level: string;
     id: string;
 }
 
-const DynamicTableOfContents = () => {
+const PageTOC = () => {
     const [headings, setHeadings] = useState<Heading[]>([]);
     const [activeHeading, setActiveHeading] = useState<Heading | undefined>(undefined);
 
@@ -19,7 +18,7 @@ const DynamicTableOfContents = () => {
     
         // Extract text and level (e.g., "h1", "h2") from heading elements
         const headingsArray: Heading[] = Array.from(headingElements).map((heading) => ({
-            text: heading.textContent,
+            text: heading.textContent?.replace('#', '') ?? "",
             level: heading.tagName.toLowerCase(),
             id: heading.id,
         })).filter((heading) => heading.id !== "");
@@ -84,14 +83,14 @@ const DynamicTableOfContents = () => {
     };
 
     return (
-        <div className={dynamicTableOfContentsStyles.container}>
+        <div className={pageTOCStyles.container}>
             <p>On this Page</p>
             {headings.map((heading) => (
                 <p
                     onClick={(e) => handleItemClick(heading.id)}
                     className={classNames(
-                        dynamicTableOfContentsStyles.item, 
-                        {[dynamicTableOfContentsStyles.indent]: heading.level === 'h3'},
+                        pageTOCStyles.item, 
+                        {[pageTOCStyles.indent]: heading.level === 'h3'},
                         {'text-secondary': activeHeading?.id !== heading.id},
                         {'text-highlight': activeHeading?.id === heading.id}
                     )}
@@ -103,4 +102,4 @@ const DynamicTableOfContents = () => {
     );
 };
 
-export default DynamicTableOfContents;
+export default PageTOC;

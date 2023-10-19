@@ -67,6 +67,23 @@
     border-radius: 10px;
 }
 
+.link {
+    position: relative;
+    padding-right: 30px;
+    display: flex;
+    text-align: center;
+    align-items: flex-start
+}
+
+.section_copy {
+    display: none;
+    margin-left: 1rem;
+    color: var(--color-purple);
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 @media only screen and (min-width: 50em) {
 
     .blog_content {
@@ -90,4 +107,19 @@
         width: 80%;
     }
 
+    h2 .section_copy {
+        font-size: 2rem;
+    }
+
+    h3 .section_copy {
+        font-size: 1.5rem;
+    }
+
+    h2:hover .section_copy,
+    h3:hover .section_copy {
+        display: inline; 
+    }
+
 }
+
+

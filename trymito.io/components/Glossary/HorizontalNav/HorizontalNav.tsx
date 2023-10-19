@@ -9,7 +9,6 @@ import Image from 'next/image';
 const GlossayHorizontalNavbar = (props: {
   children: JSX.Element[];
 }) => {
-  // Apply syntax highlighting to the provided code
 
   const navItems = props.children.map(navBarItem => {
     return [<div>
