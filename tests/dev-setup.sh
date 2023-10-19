@@ -12,7 +12,7 @@ npx playwright install
 cd ../mitosheet
 
 # Install Python dependencies
-pip install -e ".[test, deploy]"
+pip install -e "."
 
 # Install the npm dependences
 npm install
