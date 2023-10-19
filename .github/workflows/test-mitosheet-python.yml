@@ -53,7 +53,7 @@ jobs:
       run: |
         cd mitosheet
         pip install -e ".[optional_feature_dependencies]"
-    - name: Test with pytest
+    - name: Test with pytest 
       run: |
         cd mitosheet
         pytest
