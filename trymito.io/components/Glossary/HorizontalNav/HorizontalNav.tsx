@@ -1,6 +1,6 @@
 import React from 'react';
 
-import horizontalNavStyles from './horizontalNav.module.css'
+import horizontalNavStyles from './HorizontalNav.module.css'
 import { classNames } from '../../../utils/classNames';
 import Link from 'next/link';
 import Image from 'next/image';
