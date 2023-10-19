@@ -89,7 +89,7 @@ const PageContent = () => {
                   </GlossayHorizontalNavbar>
                 </div>
                 
-                <h1>How to Implement Excel's: <span className='text-highlight'>{functionName}</span> function in Pandas</h1>
+                <h1>How to Implement Excel&aspos;s: <span className='text-highlight'>{functionName}</span> function in Pandas</h1>
                 <div className={classNames(excelToPythonStyles.related_functions_card)}>
                   <p>Related Functions</p>
                   <TextButton 
@@ -125,7 +125,7 @@ const PageContent = () => {
                     id="Understanding Excel's ABS Function"
                     className={excelToPythonStyles.link}
                   >
-                    Understanding Excel's ABS Function
+                    Understanding Excel&apos;s ABS Function
                     <a className={excelToPythonStyles.section_copy} href="#Understanding Excel's ABS Function">#</a>
                   </h2>
                   <p>
@@ -255,7 +255,7 @@ df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
                   <a className={excelToPythonStyles.section_copy} href="#Missing values">#</a>
                 </h3>
                 <p>
-                  If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): 'NoneType'`</code>.
+                  If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): &apos;NoneType&apos;`</code>.
                 </p>
                 <p>
                   To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel.
@@ -273,10 +273,10 @@ df['ABS_SUM'] = df['A'].abs()`}/>
                   <a className={excelToPythonStyles.section_copy} href="#Non-numeric values">#</a>
                 </h3>
                 <p>
-                  In Python, when you use the ABS function you don't have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.
+                  In Python, when you use the ABS function you don&apos;t have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.
                 </p>
                 <p>
-                  Python's .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula.
+                  Python&apos;s .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula.
                 </p>
                 <CodeBlock code={`# Convert the columns to numeric data types (float)
 df[A] = df['A'].astype(float)

@@ -85,6 +85,7 @@ const PageTOC = () => {
             <p>On this Page</p>
             {headings.map((heading) => (
                 <p
+                    key={heading.id}
                     onClick={(e) => handleItemClick(heading.id)}
                     className={classNames(
                         pageTOCStyles.item, 
