@@ -133,7 +133,7 @@ class MitoBackend():
             add_comments=False,
             optimize=True,
             code_options_override={
-                'import_custom_python_code': False,
+                'import_custom_python_code': True,
                 'as_function': True,
                 'call_function': False,
                 'function_name': self.steps_manager.code_options.get('function_name', 'automate'),
