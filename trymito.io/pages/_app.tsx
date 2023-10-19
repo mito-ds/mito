@@ -5,7 +5,8 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 import Prism from 'prismjs';
-import 'prism-themes/themes/prism-nord.css'
+import 'prism-themes/themes/prism-coldark-dark.css'
+
 
 require('prismjs/components/prism-python');
 
