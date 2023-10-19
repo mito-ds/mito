@@ -3,7 +3,6 @@ import { classNames } from '../../../utils/classNames';
 import pageTOCStyles from './PageTOC.module.css';
 
 type Heading = {
-    text: string;
     level: string;
     id: string;
 }
@@ -18,7 +17,6 @@ const PageTOC = () => {
     
         // Extract text and level (e.g., "h1", "h2") from heading elements
         const headingsArray: Heading[] = Array.from(headingElements).map((heading) => ({
-            text: heading.textContent?.replace('#', '') ?? "",
             level: heading.tagName.toLowerCase(),
             id: heading.id,
         })).filter((heading) => heading.id !== "");
@@ -95,7 +93,7 @@ const PageTOC = () => {
                         {'text-highlight': activeHeading?.id === heading.id}
                     )}
                 >
-                    {heading.text}
+                    {heading.id}
                 </p>
             ))}
         </div>

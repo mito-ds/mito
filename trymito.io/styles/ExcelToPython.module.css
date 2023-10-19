@@ -22,10 +22,6 @@
     margin-top: 4rem;
 }
 
-.title_card  {
-    margin-bottom: 4rem;
-}
-
 .related_functions_card {
     display: flex;
     flex-direction: row;

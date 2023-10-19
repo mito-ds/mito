@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Link from 'next/link';
-
+import horizontalNavItemStyles from './HorizontalNavItem.module.css'
 
 const HorizontalNavItem = (props: {
   title: string
@@ -10,9 +10,9 @@ const HorizontalNavItem = (props: {
 
   return (
     <Link href={props.href}>
-        <p>
-            {props.title}
-        </p>
+      <p className={horizontalNavItemStyles.item}>
+        {props.title}
+      </p>
     </Link>
   );
 };
