@@ -1,3 +1,10 @@
 .container {
     margin-top: 2rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 60rem;
+}
+
+.container code[class*=language-], .container pre[class*=language-] {
+    text-shadow: none !important;
 }

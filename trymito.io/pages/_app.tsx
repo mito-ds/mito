@@ -5,10 +5,8 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
 import Prism from 'prismjs';
-import 'prismjs/plugins/line-numbers/prism-line-numbers'; // Import line numbers plugin
-import '../styles/prism.module.css'; // Import your custom Prism.js theme
+import 'prism-themes/themes/prism-nord.css'
 
-const prism = require("prismjs")
 require('prismjs/components/prism-python');
 
 function MyApp({ Component, pageProps }: AppProps) {

@@ -200,7 +200,7 @@ const PageContent = () => {
                 </p>
 
                 <CodeBlock code={`# Calculate the absolute value of the Numbers column
-  df['ABS_Result'] = df['Numbers'].abs()`}
+df['ABS_Result'] = df['Numbers'].abs()`}
                 />
                 <h3 
                   id="Finding the absolute difference between two columns" 
@@ -213,7 +213,7 @@ const PageContent = () => {
                   To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
                 </p>
                 <CodeBlock code = {`# Calculate the absolute difference between Column1 and Column2
-  df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()`
+df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()`
                 }/>
                 <h3 
                   id="Using ABS as part of a more complex operation" 
@@ -226,11 +226,11 @@ const PageContent = () => {
                   To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
                 </p>
                 <CodeBlock code = {`# Define a function to calculate the absolute sum of a row
-  def abs_sum(row):
-    return row.abs().sum()
+def abs_sum(row):
+  return row.abs().sum()
                   
-  # Create a new column 'ABS_SUM' by applying the custom function 
-  df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
+# Create a new column 'ABS_SUM' by applying the custom function 
+df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
                 }/>
             </section>
 
@@ -260,10 +260,10 @@ const PageContent = () => {
                 To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel.
               </p>
               <CodeBlock code={`# Fill missing values with 0 so it is handled the same was as Excel
-  df.fillna(0, inplace=True)
+df.fillna(0, inplace=True)
 
-  # Calculate the absolute value
-  df['ABS_SUM'] = df['A'].abs()`}/>          
+# Calculate the absolute value
+df['ABS_SUM'] = df['A'].abs()`}/>          
                 <h3 
                   id="Handling non-numeric values" 
                   className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
@@ -278,14 +278,14 @@ const PageContent = () => {
                   Python's .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula.
                 </p>
                 <CodeBlock code={`# Convert the columns to numeric data types (float)
-  df[A] = df['A'].astype(float)
+df[A] = df['A'].astype(float)
 
-  # Then, replace any cell that could not be converted to a float
-  # with the value 0, so it’s handled the same as Excel.
-  df.fillna(0, inplace=True)
+# Then, replace any cell that could not be converted to a float
+# with the value 0, so it’s handled the same as Excel.
+df.fillna(0, inplace=True)
 
-  # Calculate the absolute value
-  df['ABS_SUM'] = df['A'].abs()`}/>
+# Calculate the absolute value
+df['ABS_SUM'] = df['A'].abs()`}/>
             </section>
 
             <section className={pageStyles.background_card}>

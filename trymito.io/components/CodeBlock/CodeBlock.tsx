@@ -1,6 +1,5 @@
 import React from 'react';
 
-import prismStlyes from '../../styles/prism.module.css';
 import codeBlockStyles from './CodeBlock.module.css'
 import { classNames } from '../../utils/classNames';
 
@@ -10,7 +9,7 @@ const CodeBlock = (props:{code: string}) => {
 
   return (
     <pre className={codeBlockStyles.container}>
-        <code className={classNames(prismStlyes.codeBlock, "language-python")}>{props.code}</code>
+        <code className={classNames("language-python")}>{props.code}</code>
     </pre>
   );
 };
