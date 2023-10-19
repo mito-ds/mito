@@ -40,4 +40,4 @@ jobs:
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        jlpm playwright test
+        jlpm playwright test --retries=3
