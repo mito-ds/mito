@@ -1,6 +1,6 @@
 .main {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     padding: 3rem 0rem;
     position: relative;
     min-height: 100vh;
@@ -43,8 +43,8 @@
 .table {
     border-collapse: collapse;
     color: white;
-    border-radius: 8px 8px 0 0; /* Round the top-left and top-right corners */
-    overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+    border-radius: 8px 8px 0 0;
+    overflow: hidden; 
     margin-top: 2rem;
     margin-bottom: 2rem;
     width: 100%;
@@ -54,8 +54,8 @@
 .table td {
   padding: 20px;
   text-align: left;
-  border: none; /* Remove the existing border */
-  border-bottom: 1.5px solid black; /* Add a black bottom border between rows */
+  border: none; 
+  border-bottom: 1.5px solid black; 
 }
 
 .table thead {
@@ -80,13 +80,21 @@
     right: 0;
 }
 
+.cta_card {
+    margin-top: 4rem;
+}
+
 @media only screen and (min-width: 50em) {
 
-    .blog_content {
+    .content {
         display: flex;
-        flex-direction: column;
-        padding: 0 1rem;
-        width: 80%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        height: max-content;
     }
 
     .table_of_contents_container {
@@ -95,10 +103,13 @@
         right: 0px;
         width: 20%;
         padding: 2rem 1rem;
-        display: flex;
-        flex-direction: column;
     }
 
+    .blog_content {
+        padding: 0 1rem;
+        width: 75%;
+    }
+    
     .table {
         width: 80%;
     }

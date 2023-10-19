@@ -81,7 +81,7 @@ const PageTOC = () => {
     };
 
     return (
-        <div className={pageTOCStyles.container}>
+        <aside className={pageTOCStyles.container}>
             <p>On this Page</p>
             {headings.map((heading) => (
                 <p
@@ -96,7 +96,7 @@ const PageTOC = () => {
                     {heading.id}
                 </p>
             ))}
-        </div>
+        </aside>
     );
 };
 
