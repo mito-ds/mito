@@ -6,7 +6,6 @@ import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/Sno
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 import { FunctionDocumentationObject } from "./data/function_documentation";
 
-
 /**
  * The different types of data manipulation that Mito supports.
  */
