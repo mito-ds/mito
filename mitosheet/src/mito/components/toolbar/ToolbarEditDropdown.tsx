@@ -1,14 +1,15 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarEditDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     userProfile: UserProfile
@@ -35,11 +36,11 @@ const ToolbarEditDropdown = (props: ToolbarEditDropdownProps): JSX.Element => {
                 })}
                 width='medium'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Undo], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Redo], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Clear], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Undo], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Redo], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Clear], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Copy], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.userProfile)}
             </Dropdown>
         </>
     );

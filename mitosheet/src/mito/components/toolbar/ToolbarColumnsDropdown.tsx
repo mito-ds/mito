@@ -1,14 +1,15 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarColumnsDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     userProfile: UserProfile;
@@ -37,27 +38,27 @@ const ToolbarColumnsDropdown = (props: ToolbarColumnsDropdownProps): JSX.Element
 
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Add_Column], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Rename_Column], props.userProfile, true)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Column], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.COLUMN_HEADERS_TRANSFORM], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Rename_Column], props.userProfile, true)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete_Column], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.COLUMN_HEADERS_TRANSFORM], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Column_Formula], props.userProfile, true)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Set_Cell_Value], props.userProfile, true)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Split_Text_To_Column], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Set_Column_Formula], props.userProfile, true)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Set_Cell_Value], props.userProfile, true)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Split_Text_To_Column], props.userProfile)}
                 {props.userProfile.isPro ?
-                    makeToolbarDropdownItem(props.actions[ActionEnum.One_Hot_Encoding], props.userProfile)
+                    makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.One_Hot_Encoding], props.userProfile)
                     : <></>
                 }
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Format_Number_Columns], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Format_Number_Columns], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Filter], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Sort], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Change_Dtype], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Fill_Na], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Filter], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Sort], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Change_Dtype], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Fill_Na], props.userProfile)}
                 <DropdownSectionSeperator isDropdownSectionSeperator/>
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Unique_Values], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Column_Summary], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Unique_Values], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Column_Summary], props.userProfile)}
             </Dropdown>
         </>
     );

@@ -1,13 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarCodeDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     userProfile: UserProfile
@@ -34,12 +35,12 @@ const ToolbarCodeDropdown = (props: ToolbarCodeDropdownProps): JSX.Element => {
                 })}
                 width='medium'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.CODEOPTIONS], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.CODEOPTIONS], props.userProfile)}
                 {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ?
-                    makeToolbarDropdownItem(props.actions[ActionEnum.AI_TRANSFORMATION], props.userProfile)
+                    makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION], props.userProfile)
                     : <></>
                 }
-                {makeToolbarDropdownItem(props.actions[ActionEnum.CODESNIPPETS], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.CODESNIPPETS], props.userProfile)}
             </Dropdown>
         </>
     );

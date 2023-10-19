@@ -82,9 +82,6 @@ def check_dataframes_equal(test_wrapper: "MitoWidgetTestWrapper") -> None:
 
     final_state = test_wrapper.mito_backend.steps_manager.curr_step.final_defined_state
 
-
-    
-
     try:
         exec(code, 
             {
@@ -702,6 +699,27 @@ class MitoWidgetTestWrapper:
                     'column_ids': column_ids,
                     'search_value': search_value,
                     'replace_value': replace_value,                    
+                }
+            }
+        )
+    
+
+    @check_transpiled_code_after_call
+    def user_defined_edit(
+            self, 
+            edit_name: str,
+            edit_params: Any,
+        ) -> bool:
+
+        return self.mito_backend.receive_message(
+            {
+                'event': 'edit_event',
+                'id': get_new_id(),
+                'type': 'user_defined_edit_edit',
+                'step_id': get_new_id(),
+                'params': {
+                    'edit_name': edit_name,
+                    'edit_params': edit_params,
                 }
             }
         )
@@ -1652,12 +1670,13 @@ def create_mito_wrapper(
         arg_names: Optional[List[str]]=None,
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
+        editors: Optional[List[Callable]]=None,
     ) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers)
+    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers, user_defined_editors=editors)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
     if arg_names is not None:

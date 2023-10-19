@@ -79,6 +79,7 @@
 .tab {
     /* Set background color and border of sheet tab*/
     background: var(--mito-background-highlight);
+    color: var(--mito-text);
 
     /* 
         We only set a right border so that we don't have a doubly thick border

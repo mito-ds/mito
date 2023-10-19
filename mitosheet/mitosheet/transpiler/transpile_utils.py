@@ -8,6 +8,7 @@ from copy import copy
 import inspect
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from collections import OrderedDict
 
 import pandas as pd
 import numpy as np
@@ -213,7 +214,7 @@ def replace_newlines_with_newline_and_tab(text: str) -> str:
 def get_final_function_params_with_subtypes_turned_to_parameters(
         steps_manager: StepsManagerType, 
         function_params: CodeOptionsFunctionParams # type: ignore
-    ) -> Dict[ParamName, ParamValue]:
+    ) -> OrderedDict:
     """
     It's often useful in Streamlit dashboards to allow app creators to specify things like: 
     1. Turn all of the imported CSV files into parameters
@@ -222,7 +223,7 @@ def get_final_function_params_with_subtypes_turned_to_parameters(
     As such, we let users specify the subtype they want to generate params for.
     """
     if isinstance(function_params, str) or isinstance(function_params, list):
-        final_params = {}
+        final_params = OrderedDict()
 
         from mitosheet.api.get_parameterizable_params import get_parameterizable_params
         parameterizable_params = get_parameterizable_params({}, steps_manager)
@@ -230,7 +231,7 @@ def get_final_function_params_with_subtypes_turned_to_parameters(
         number_of_params_of_subtype: Dict[ParamSubtype, int] = {}
         for param_value, param_type, param_subtype in parameterizable_params:
             param_index = number_of_params_of_subtype.get(param_subtype, 0)
-            if isinstance(function_params, str) and function_params == param_subtype:
+            if isinstance(function_params, str) and (function_params == param_subtype or function_params == 'all'):
                 final_params[f"{param_subtype}_{param_index}"] = param_value
                 number_of_params_of_subtype[param_subtype] = param_index + 1
             elif param_subtype in function_params:
@@ -348,7 +349,7 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
         'as_function': False,
         'call_function': True,
         'function_name': 'function_' + analysis_name[-4:], # Give it a random name, just so we don't overwrite them
-        'function_params': dict(),
+        'function_params': OrderedDict(),
         'import_custom_python_code': False
     }
 
@@ -386,12 +387,14 @@ def get_globals_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
 
     user_defined_functions = state.user_defined_functions
     user_defined_importers = state.user_defined_importers
+    user_defined_editors = state.user_defined_editors
 
     local_vars = {
         **local_vars,
         **df_names_to_df,
         **{f.__name__: f for f in user_defined_functions},
         **{f.__name__: f for f in user_defined_importers},
+        **{f.__name__: f for f in user_defined_editors},
     }
 
     return local_vars

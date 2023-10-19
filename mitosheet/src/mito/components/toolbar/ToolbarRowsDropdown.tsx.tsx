@@ -1,13 +1,14 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { Action, ActionEnum, UIState, UserProfile } from '../../types';
+import { ActionEnum, UIState, UserProfile } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import { makeToolbarDropdownItem } from './utils';
 
 
 interface ToolbarRowsDropdownProps {
-    actions: Record<ActionEnum, Action>;
+    actions: Actions;
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
     userProfile: UserProfile
@@ -34,8 +35,8 @@ const ToolbarRowsDropdown = (props: ToolbarRowsDropdownProps): JSX.Element => {
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Delete_Row], props.userProfile)}
-                {makeToolbarDropdownItem(props.actions[ActionEnum.Promote_Row_To_Header], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete_Row], props.userProfile)}
+                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Promote_Row_To_Header], props.userProfile)}
             </Dropdown>
         </>
     );

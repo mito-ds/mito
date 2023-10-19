@@ -39,6 +39,9 @@ class RenameColumnStepPerformer(StepPerformer):
 
         new_column_header = params['new_column_header']
 
+        if new_column_header in prev_state.dfs[params['sheet_index']].columns:
+            raise make_column_exists_error(new_column_header)
+
         execution_data = {
             'column_ids_to_new_column_headers': {
                 params['column_id']: new_column_header

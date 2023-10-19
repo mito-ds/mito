@@ -8,7 +8,7 @@ Exports the transpile function, which takes the backend widget
 container and generates transpiled Python code.
 """
 
-from typing import List
+from typing import List, Optional
 from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
@@ -16,7 +16,7 @@ from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
 
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.transpiler.transpile_utils import get_script_as_function, get_imports_for_custom_python_code
-from mitosheet.types import StepsManagerType
+from mitosheet.types import StepsManagerType, CodeOptions
 
 
 IN_PREVIOUS_STEP_COMMENT = '# You\'re viewing a previous step. Click fast forward in the Mitosheet above to see the full analysis.'
@@ -32,7 +32,8 @@ IMPORT_STATEMENTS = {
 def transpile(
         steps_manager: StepsManagerType, 
         add_comments: bool=True,
-        optimize: bool=True
+        optimize: bool=True,
+        code_options_override: Optional[CodeOptions] = None
     ) -> List[str]:
     """
     Transpiles the code from the current steps in the steps_manager, 
@@ -44,6 +45,9 @@ def transpile(
 
     imports_code: List[str] = []
     code: List[str] = []
+    code_options = code_options_override
+    if code_options is None:
+        code_options = steps_manager.code_options
 
     # First, we transpile all the preprocessing steps
     for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
@@ -89,7 +93,7 @@ def transpile(
     final_imports_code = deduplicate_array(imports_code)
 
     # If the user wants the custom imports to be included in the script, we include them here
-    if steps_manager.code_options.get('import_custom_python_code', False):
+    if code_options.get('import_custom_python_code', False):
         for import_line in get_imports_for_custom_python_code(code, steps_manager):
             final_imports_code.insert(0, import_line)
 
@@ -101,14 +105,14 @@ def transpile(
 
 
     # If we should transpile this as a function, we do so
-    if steps_manager.code_options['as_function']:
+    if code_options['as_function']:
         final_code = get_script_as_function(
             steps_manager,
             final_imports_code,
             code,
-            steps_manager.code_options['function_name'],
-            steps_manager.code_options['function_params'],
-            steps_manager.code_options['call_function']
+            code_options['function_name'],
+            code_options['function_params'],
+            code_options['call_function']
         )
         return final_code
 

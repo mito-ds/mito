@@ -1,9 +1,11 @@
-from typing import Any, List, Union
+from typing import Any, List, Union,Optional
 
 import pandas as pd
 
+from mitosheet.types import MitoFrontendIndexAndSelections
 
-def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Any) -> Union[pd.DataFrame, pd.Series, None]:
+
+def get_selected_element(dfs: List[pd.DataFrame], indexAndSelections: Optional[MitoFrontendIndexAndSelections]) -> Union[pd.DataFrame, pd.Series, None]:
 
     if indexAndSelections is None:
         return None

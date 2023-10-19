@@ -1,6 +1,7 @@
 import React from "react";
+import { ActionEnum, GridState } from "../types";
+import { Actions } from "../utils/actions";
 import { isInJupyterLab } from "../utils/location";
-import { Action, ActionEnum, GridState } from "../types";
 import { useDebouncedEffect } from "./useDebouncedEffect";
 
 
@@ -21,7 +22,7 @@ const JUPYTER_LAB_SHORTCUTS_DEFINED_ELSEWHERE = ['z', 'y', 'f'];
 /* 
     This effect actually does keyboard shortcuts.
 */
-export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivElement>, actions: Record<ActionEnum, Action>, setGridState: React.Dispatch<React.SetStateAction<GridState>>): void => {
+export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivElement>, actions: Actions, setGridState: React.Dispatch<React.SetStateAction<GridState>>): void => {
     // NOTE: this effect must be debounced so that we're not reregistering these event
     // listeners 100 times during every single scroll. In practice, this works perf!
     useDebouncedEffect(() => {
@@ -74,7 +75,7 @@ export const useKeyboardShortcuts = (mitoContainerRef: React.RefObject<HTMLDivEl
             e.stopPropagation();
             e.preventDefault();
 
-            actions[KEYBOARD_SHORTCUTS[e.key]].actionFunction();
+            actions.buildTimeActions[KEYBOARD_SHORTCUTS[e.key]].actionFunction();
         }
         document.addEventListener('keydown', checkKeyboardShortCut)
 
