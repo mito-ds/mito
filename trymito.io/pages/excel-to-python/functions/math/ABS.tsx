@@ -11,7 +11,7 @@ import textImageSplitStyles from '../../../../styles/TextImageSplit.module.css'
 
 import { classNames } from '../../../../utils/classNames';
 import TextButton from '../../../../components/TextButton/TextButton';
-import Header from '../../../../components/Header/Header';
+import Header, { MITO_INSTALLATION_DOCS_LINK } from '../../../../components/Header/Header';
 import Footer from '../../../../components/Footer/Footer';
 
 import CodeBlock from '../../../../components/CodeBlock/CodeBlock';
@@ -319,6 +319,10 @@ df['ABS_SUM'] = df['A'].abs()`}/>
           </div>
           <div className={excelToPythonStyles.table_of_contents_container}>
             <PageTOC />
+            <p className={classNames('text-primary', 'margin-bottom-1')}>
+              <b>Don&apos;t re-invent the wheel. Use Excel formulas in Python.</b> 
+            </p>
+            <TextButton text={'Install Mito'} href={MITO_INSTALLATION_DOCS_LINK} buttonSize='small'/>
           </div>
         </main>
       </div>
