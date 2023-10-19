@@ -1,4 +1,4 @@
-name: Run pytest Mitosheet tests
+name: Test - mitosheet pytest
 
 on:
   push:

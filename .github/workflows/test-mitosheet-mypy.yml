@@ -1,4 +1,4 @@
-name: Test mitosheet types
+name: Test - mitosheet mypy
 
 on:
   push:

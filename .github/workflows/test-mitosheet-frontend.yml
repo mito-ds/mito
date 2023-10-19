@@ -1,4 +1,4 @@
-name: Test mitosheet frontend
+name: Test - mitosheet frontend
 
 on:
   push:

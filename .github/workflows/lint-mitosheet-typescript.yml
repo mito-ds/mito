@@ -1,4 +1,4 @@
-name: Lint Mitosheet TypeScript
+name: Test - mitosheet src lint
 
 on:
   push:

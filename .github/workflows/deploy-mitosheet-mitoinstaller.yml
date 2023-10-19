@@ -1,4 +1,4 @@
-name: Deploy mitosheet and mitoinstaller
+name: Deploy - mitosheet and mitoinstaller
 on:
   push:
     branches:
