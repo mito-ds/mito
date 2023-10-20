@@ -12,10 +12,6 @@
     align-items: center;
 }
 
-.content {
-    width: 100%;
-}
-
 .main_left_align {
     align-items: flex-start;
 }

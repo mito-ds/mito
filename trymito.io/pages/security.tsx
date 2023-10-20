@@ -32,7 +32,6 @@ const Security: NextPage = () => {
       <Header/>
     
       <div className={pageStyles.container}>
-
         <main className={classNames(pageStyles.main, pageStyles.main_left_align)}>
 
           <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>

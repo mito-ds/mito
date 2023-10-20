@@ -40,7 +40,7 @@ const DataApp: NextPage = () => {
                     Convert one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='download' align='center' displayProCTA={false}/>
+                    <CTAButtons variant='download' align='center' displaySecondaryCTA={false}/>
                 </div>
                     
                 <div id='video'>

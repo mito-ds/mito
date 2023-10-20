@@ -17,8 +17,14 @@ const CodeBlock = (props:{code: string}) => {
   return (
     <div className={codeBlockStyles.container} >
       <pre className={codeBlockStyles.code_container} onClick={async () => {
-      await navigator.clipboard.writeText(props.code);
-      setCopied(true);
+
+        // Undefined on some mobile devices so we disable it as to not error
+        if (navigator.clipboard === undefined) {
+          return;
+        }
+        
+        await navigator.clipboard.writeText(props.code);
+        setCopied(true);
       }}>
         <code className={classNames("language-python")}>{props.code}</code>
       </pre>

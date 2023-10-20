@@ -1,9 +1,6 @@
 .main {
-    display: flex;
-    flex-direction: column;
-    padding: 3rem 0rem;
+    align-items: flex-start !important; 
     position: relative;
-    min-height: 100vh;
 }
 
 .title_card {
@@ -60,12 +57,12 @@
 
 .table thead {
     background-color: black;
-    border-radius: 10px;
+    border-radius: 1rem;
 }
 
 .link {
     position: relative;
-    padding-right: 30px; /* Leave room for the copy # to appear without overwriting the text */
+    padding-right: 3rem; /* Leave room for the copy # to appear without overwriting the text */
     display: flex;
     align-items: flex-start
 }
@@ -83,6 +80,10 @@
     margin-top: 4rem;
 }
 
+.blog_content {
+    width: 100%;
+}
+
 /* 
     Don't dispaly the table of contents on mobile because there
     is not enough space
@@ -96,7 +97,7 @@
 
 @media only screen and (min-width: 50em) {
 
-    .content {
+    .blog_content_and_table_of_contents_container {
         display: flex;
         flex-direction: row;
         justify-content: space-between;

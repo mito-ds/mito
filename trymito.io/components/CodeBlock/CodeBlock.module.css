@@ -4,13 +4,14 @@
     align-items: flex-start;
     position: relative;
     cursor: pointer;
+    width: 100%;
 }
 
 .code_container {
     margin-top: 2rem !important;
     border: none !important;
     box-shadow: none !important;
-    width: 60rem;
+    width: 100%;
 }
 
 .code_container code[class*=language-], .code_container pre[class*=language-] {

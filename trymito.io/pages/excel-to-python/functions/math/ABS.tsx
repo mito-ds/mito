@@ -19,27 +19,30 @@ import HorizontalNavItem from '../../../../components/Glossary/HorizontalNavItem
 import CTAButtons from '../../../../components/CTAButtons/CTAButtons';
 import PageTOC from '../../../../components/Glossary/PageTOC/PageTOC';
 import { useRouter } from 'next/router';
+import { NextPage } from 'next';
 
 // Define the specific function name
 const functionName = "ABS";
 
 // Define your page content and metadata
-const PageContent = () => {
+const PageContent: NextPage = () => {
 
   const router = useRouter();
   const path = router.asPath;
 
   return (
-    <div className={excelToPythonStyles.body}>
+    <>
       <Head>
         {/* Title Tag */}
-        <title>{`Excel to Python: ${functionName} - A Complete Guide`}</title>
+        <title>{`Excel to Python: ${functionName} - A Complete Guide | Mito`}</title>
         
         {/* Meta Description */}
         <meta
           name="description"
           content={`Learn how to convert Excel's ${functionName} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         {/* Canonical URL */}
         <link rel="canonical" href={`https://www.example.com/${path}`} />
@@ -73,8 +76,8 @@ const PageContent = () => {
       <Header />
 
       <div className={pageStyles.container}>
-        <main className={classNames(excelToPythonStyles.main)}>
-          <div className={excelToPythonStyles.content}>
+        <main className={classNames(pageStyles.main, excelToPythonStyles.main)}>
+          <div className={excelToPythonStyles.blog_content_and_table_of_contents_container}>
             <div className={excelToPythonStyles.blog_content}>
               <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
                 <div className={excelToPythonStyles.horizontal_navbar_container}>
@@ -301,10 +304,10 @@ df['ABS_SUM'] = df['A'].abs()`}/>
                 Don&apos;t want to re-implement Excel&apos;s functionality in Python?
               </h2>
               <div className='center'>
-                  <CTAButtons variant='download' align='center'/>
+                  <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
               </div> 
             </div>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, 'display-desktop-only-inline-block')}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
@@ -326,8 +329,8 @@ df['ABS_SUM'] = df['A'].abs()`}/>
         </main>
         <Footer/>
       </div>
-    </div>
-  );
-};
+    </>
+  )
+}
 
 export default PageContent;
