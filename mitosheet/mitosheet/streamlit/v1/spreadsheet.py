@@ -122,7 +122,6 @@ class MitoAnalysis:
             param_metadata: List[ParamMetadata],
             mito_analysis_version: int=CURRENT_MITO_ANALYSIS_VERSION
         ):
-        print(f'param_metadata: {param_metadata}')
         self.__code = code
         self.__code_options = code_options
         self.__fully_parameterized_function = fully_parameterized_function
@@ -196,7 +195,6 @@ class MitoAnalysis:
 
             params[name] = value
 
-        print(params)
         return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 
 try:
