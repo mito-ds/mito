@@ -42,7 +42,7 @@ class SpreadsheetResult():
         return get_selected_element(self.__dfs, self.__index_and_selections)
     
     def analysis(self) -> MitoAnalysis:
-        return MitoAnalysis(self.__code, self.__code_options, self.__fully_parameterized_function, self.__param_metadata)
+        return MitoAnalysis(self.code(), self.__code_options, self.__fully_parameterized_function, self.__param_metadata)
     
 WRONG_CALLBACK_ERROR_MESSAGE = """Error: Registering a callback with an Input or State referencing a Mito Spreadsheet requires using the @mito_callback decorator, rather than the @callback decorator.
 
