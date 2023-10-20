@@ -13,8 +13,6 @@ app.layout = html.Div([
     html.Div(id='output-run-analysis')
 ])
 
-analysis = None
-
 @mito_callback(
     Output('output', 'children'),
     Input('sheet', 'spreadsheet_result'),
@@ -22,7 +20,6 @@ analysis = None
 def update_code(spreadsheet_result):
     return html.Div([
         html.Code(spreadsheet_result.analysis().fully_parameterized_function),
-        html.Code(spreadsheet_result.analysis().get_param_metadata())
     ])
 
 @mito_callback(
@@ -33,6 +30,8 @@ def update_code(spreadsheet_result):
 )
 def update_output(n_clicks, spreadsheet_result):
     result = spreadsheet_result.analysis().run()
+    if result is None:
+        return None
     return html.Div([
         html.H3('Analysis Result'),
         dash_table.DataTable(result.to_dict('records'), [{"name": i, "id": i} for i in result.columns])
