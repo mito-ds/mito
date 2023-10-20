@@ -23,7 +23,7 @@ pip install -e ".[test, deploy]"
 
 # Install the npm dependences, and build the JS 
 npm install
-npm build
+npm run build
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
