@@ -28,7 +28,6 @@ jobs:
             pandas-version: '1.1.5'
           - python-version: 3.6
             optional_feature_dependencies: True
-
     steps:
     - name: Cancel Previous Runs
       uses: styfle/cancel-workflow-action@0.7.0

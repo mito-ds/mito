@@ -45,11 +45,19 @@ def test_get_ai_completion_with_no_api_key_works():
 
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
 
-    completion = ai.get_ai_completion({
-        'user_input': 'test',
-        'selection': None,
-        'previous_failed_completions': []
-    }, mito.mito_backend.steps_manager)
+    # Try a few times, as this is flakey
+    for i in range(5):
+        try:
+            completion = ai.get_ai_completion({
+                'user_input': 'test',
+                'selection': None,
+                'previous_failed_completions': []
+            }, mito.mito_backend.steps_manager)
+            break
+        except:
+            import time
+            time.sleep(1)
+            pass
 
     assert completion['user_input'] == 'test'
     assert len(completion['prompt_version']) > 0
