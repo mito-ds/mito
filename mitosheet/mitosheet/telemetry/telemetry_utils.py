@@ -29,10 +29,8 @@ from mitosheet.user.location import get_location, is_docker, is_jupyterlite
 from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
-WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-import analytics
-analytics.write_key = WRITE_KEY
+
 
 if is_jupyterlite():
     # If we are in JupyterLite, we have to do a few things to get telemetry working:
@@ -74,6 +72,8 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # Logging is off entirely, for all people
+    return False
 
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
