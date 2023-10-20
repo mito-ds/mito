@@ -10,8 +10,8 @@ import pandas as pd
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
-from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections
-
+from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
+from mitosheet.streamlit.v1 import MitoAnalysis
 
 
 class SpreadsheetResult():
@@ -20,11 +20,17 @@ class SpreadsheetResult():
         self, 
         dfs: List[pd.DataFrame],
         code: List[str],
+        fully_parameterized_function: str,
+        param_metadata: List[ParamMetadata],
+        code_options: CodeOptions,
         index_and_selections: Optional[MitoFrontendIndexAndSelections]=None
     ):
         self.__dfs = dfs
         self.__code = code
         self.__index_and_selections = index_and_selections
+        self.__fully_parameterized_function = fully_parameterized_function
+        self.__param_metadata = param_metadata
+        self.__code_options = code_options
 
     def dfs(self) -> List[pd.DataFrame]:
         return self.__dfs
@@ -34,6 +40,9 @@ class SpreadsheetResult():
     
     def selection(self) -> Optional[Union[pd.DataFrame, pd.Series]]:
         return get_selected_element(self.__dfs, self.__index_and_selections)
+    
+    def analysis(self) -> MitoAnalysis:
+        return MitoAnalysis(self.code(), self.__code_options, self.__fully_parameterized_function, self.__param_metadata)
     
 WRONG_CALLBACK_ERROR_MESSAGE = """Error: Registering a callback with an Input or State referencing a Mito Spreadsheet requires using the @mito_callback decorator, rather than the @callback decorator.
 
@@ -259,7 +268,10 @@ try:
             return SpreadsheetResult(
                 dfs=self.mito_backend.steps_manager.dfs,
                 code=self.mito_backend.steps_manager.code(),
-                index_and_selections=self.index_and_selections
+                index_and_selections=self.index_and_selections,
+                fully_parameterized_function=self.mito_backend.fully_parameterized_function,
+                param_metadata=self.mito_backend.param_metadata,
+                code_options=self.code_options
             )
         
 except ImportError:
