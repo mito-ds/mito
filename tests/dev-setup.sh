@@ -12,10 +12,11 @@ npx playwright install
 cd ../mitosheet
 
 # Install Python dependencies
-pip install -e "."
+pip install -e ".[test]"
 
-# Install the npm dependences
+# Install the npm dependences for Mitosheet, and build JS
 npm install
+npm run build
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
