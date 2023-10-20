@@ -44,6 +44,8 @@ def identify() -> None:
     have more feilds, then the user has already run the mitosheet.sheet
     call and thus been identified there.
     """
+    return 
+
     static_user_id = get_static_user_id()
     operating_system = platform.system()
 
@@ -117,6 +119,7 @@ def log(event: str, params: Optional[Dict[str, Any]]=None) -> None:
     """
     A utility that all logging should pass through
     """
+    return
     static_user_id = get_static_user_id()
 
     if params is None:
