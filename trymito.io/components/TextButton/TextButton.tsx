@@ -6,12 +6,12 @@ const TextButton = (props : {
     onClick?: () => void;
     href?: string
     action?: string
-    variant?: 'white'
+    variant?: 'primary'
     fontSize?: 'small'
-    buttonSize?: 'small'
+    buttonSize?: 'small' 
 }): JSX.Element => {
 
-    const colorStyle = props.variant === 'white' ? textButtonStyles.white : textButtonStyles.purple;
+    const colorStyle = props.variant === 'primary' ? textButtonStyles.primary : textButtonStyles.highlight;
     const fontStyle = props.fontSize === 'small' ? textButtonStyles.small : textButtonStyles.large;
     const widthStyle = props.buttonSize === 'small' ? textButtonStyles.button_size_small : undefined
 

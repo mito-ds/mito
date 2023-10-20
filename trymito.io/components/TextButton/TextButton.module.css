@@ -19,21 +19,21 @@
   display: inline-block;
 }
 
-.purple {
+.highlight {
   color: var(--color-text-primary);
   background-color: var(--color-purple);
 }
 
-.purple:hover {
+.highlight:hover {
   background-color: var(--color-light-purple);
 }
 
-.white {
+.primary {
   color: var(--color-background);
   background-color: var(--color-text-primary);
 }
 
-.white:hover {
+.primary:hover {
   background-color: var(--color-text-secondary);
 }
 

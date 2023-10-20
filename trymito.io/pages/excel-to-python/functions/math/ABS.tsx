@@ -2,7 +2,6 @@
 import React from 'react';
 import Head from 'next/head';
 import Image from "next/image"
-import { useRouter } from 'next/router';
 
 import pageStyles from '../../../../styles/Page.module.css';
 import excelToPythonStyles from '../../../../styles/ExcelToPython.module.css';
@@ -19,12 +18,16 @@ import GlossayHorizontalNavbar from '../../../../components/Glossary/HorizontalN
 import HorizontalNavItem from '../../../../components/Glossary/HorizontalNavItem/HorizontalNavItem';
 import CTAButtons from '../../../../components/CTAButtons/CTAButtons';
 import PageTOC from '../../../../components/Glossary/PageTOC/PageTOC';
+import { useRouter } from 'next/router';
 
 // Define the specific function name
 const functionName = "ABS";
 
 // Define your page content and metadata
 const PageContent = () => {
+
+  const router = useRouter();
+  const path = router.asPath;
 
   return (
     <div className={excelToPythonStyles.body}>
@@ -38,8 +41,8 @@ const PageContent = () => {
           content={`Learn how to convert Excel's ${functionName} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
         
-        {/* Canonical URL (if applicable) */}
-        {/* <link rel="canonical" href={`https://www.example.com/excel-to-python/${function-name}-guide`} /> */}
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://www.example.com/${path}`} />
         
         {/* Open Graph Tags (for social media sharing) */}
         <meta
@@ -76,6 +79,7 @@ const PageContent = () => {
               <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
                 <div className={excelToPythonStyles.horizontal_navbar_container}>
                   <GlossayHorizontalNavbar>
+                    {/* TODO: Update hrefs to actual path once we implement the correct pages */}
                     <HorizontalNavItem title={'Function'} href={'/spreadsheet-automation'} />
                     <HorizontalNavItem title={'Math'} href={'/spreadsheet-automation'} />
                     <HorizontalNavItem title={'ABS'} href={'/excel-to-python/functions/math/ABS'} />
@@ -87,17 +91,17 @@ const PageContent = () => {
                   <p>Related Functions</p>
                   <TextButton 
                     text="SUM"
-                    variant='white'
+                    variant='primary'
                     fontSize='small'
                   />
                   <TextButton
                     text='ROUND'
-                    variant='white'
+                    variant='primary'
                     fontSize='small'
                   />
                   <TextButton
                     text='CEIL'
-                    variant='white'
+                    variant='primary'
                     fontSize='small'
                   />
                 </div>
