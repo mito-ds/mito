@@ -27,7 +27,7 @@ const functionName = "ABS";
 const PageContent = () => {
 
   return (
-    <>
+    <div className={excelToPythonStyles.body}>
       <Head>
         {/* Title Tag */}
         <title>{`Excel to Python: ${functionName} - A Complete Guide`}</title>
@@ -322,7 +322,7 @@ df['ABS_SUM'] = df['A'].abs()`}/>
         </main>
         <Footer/>
       </div>
-    </>
+    </div>
   );
 };
 

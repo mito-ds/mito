@@ -69,12 +69,6 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: var(--color-background);
   font-size: 8px;
-
-  /* 
-    We ensure that there is no horizontal scrolling, 
-    especially useful for the tweets section!
-  */
-  overflow-x: hidden;
   width: 100vw;
 
   /* 
