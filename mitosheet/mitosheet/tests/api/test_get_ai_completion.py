@@ -45,28 +45,29 @@ def test_get_ai_completion_with_no_api_key_works():
 
     set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
 
-    # Try a few times, as this is flakey
-    for i in range(5):
+    for i in range(10):
         try:
             completion = ai.get_ai_completion({
                 'user_input': 'test',
                 'selection': None,
                 'previous_failed_completions': []
             }, mito.mito_backend.steps_manager)
+
+            assert completion['user_input'] == 'test'
+            assert len(completion['prompt_version']) > 0
+            assert len(completion['prompt']) > 0
+            assert len(completion['completion']) > 0
+
+            if key is not None:
+                os.environ['OPENAI_API_KEY'] = key
+            set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages)
             break
         except:
+            # This integrates with an external API, so if this doesn't work, we should try again
             import time
             time.sleep(1)
+            print("Trying again")
             pass
-
-    assert completion['user_input'] == 'test'
-    assert len(completion['prompt_version']) > 0
-    assert len(completion['prompt']) > 0
-    assert len(completion['completion']) > 0
-
-    if key is not None:
-        os.environ['OPENAI_API_KEY'] = key
-    set_user_field(UJ_AI_MITO_API_NUM_USAGES, num_usages)
 
 def test_get_ai_completion_with_no_api_key_errors_if_above_rate_limit():
 
