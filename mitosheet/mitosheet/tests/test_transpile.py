@@ -746,6 +746,8 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     ]
 
 
+@pandas_post_1_2_only
+@python_post_3_6_only
 def test_fully_parameterized_function_custom_imports():
     mito = create_mito_wrapper(sheet_functions=[ADDONE], importers=[custom_import])
     mito.user_defined_import('custom_import', {})
