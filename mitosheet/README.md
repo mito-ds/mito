@@ -14,7 +14,7 @@ The mitosheet package currently only works for JupyterLab 3.0.
 
 We have a setup script for Mac. Just run
 ```
-bash devsetup/macsetup.sh
+bash dev/macsetup.sh
 ```
 
 Then, in a seperate terminal, run

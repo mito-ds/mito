@@ -1,4 +1,5 @@
 #!/bin/bash -eu
+set -e
 
 echo "Setting up the mitosheet development env"
 echo "This might take a few moments..."
@@ -20,8 +21,9 @@ source venv/bin/activate
 # Install Python dependencies
 pip install -e ".[test, deploy]"
 
-# Install the npm dependences
+# Install the npm dependences, and build the JS 
 npm install
+npm run build
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
