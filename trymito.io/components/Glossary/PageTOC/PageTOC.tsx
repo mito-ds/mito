@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDebouncedEffect } from '../../../hooks/useDeboundedEffect';
 import { classNames } from '../../../utils/classNames';
 import pageTOCStyles from './PageTOC.module.css';
 
@@ -24,7 +25,8 @@ const PageTOC = () => {
         setHeadings(headingsArray);
     }, []); // This useEffect only runs once on component mount
     
-    useEffect(() => {
+
+    useDebouncedEffect(() => {
         // Function to handle scroll events
         const handleScroll = () => {
             // Check if the headings array is empty
@@ -44,7 +46,6 @@ const PageTOC = () => {
                 const rect = headingElement.getBoundingClientRect();
     
                 if (rect.top > 100) {
-                    console.log("Updating active heading: ", heading)
                     setActiveHeading(heading);
                     return;
                 }
@@ -63,7 +64,8 @@ const PageTOC = () => {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [headings]);
+    }, [headings], 200);
+        
 
     const handleItemClick = (headingId: string) => {
         const targetElement = document.getElementById(headingId);
