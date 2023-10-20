@@ -4,6 +4,8 @@ from mitosheet.streamlit.v1.spreadsheet import MitoAnalysis
 import pytest
 import pandas as pd
 
+from mitosheet.tests.test_transpile import custom_import
+
 
 simple_fn = f"""from mitosheet.public.v3 import *
 import pandas as pd
@@ -452,3 +454,19 @@ def function(vari\abl"e_name{}):
     new_analysis = MitoAnalysis.from_json(json)
     assert new_analysis is not None
     assert new_analysis.fully_parameterized_function == special_characters_fn
+
+@requires_streamlit
+def test_custom_imports():
+    fully_parameterized_code = """from mitosheet.public.v3 import *
+from mitosheet.tests.test_transpile import custom_import, ADDONE
+
+def function():
+    df1 = custom_import()
+    
+    df1.insert(1, 'B', ADDONE(df1['A']))
+    
+    return df1
+"""
+    analysis = MitoAnalysis('', None, fully_parameterized_code, [])
+    result = analysis.run()
+    pd.testing.assert_frame_equal(result, pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
