@@ -184,13 +184,11 @@ class StepPerformer(ABC, object):
             post_state.add_columns_to_state(sheet_index, list(new_column_headers_to_column_id.keys()), new_column_headers_to_column_id)
 
         if new_dataframe_params:
-            sheet_indexes = new_dataframe_params['sheet_indexes'] 
-            if sheet_indexes is None:
-                sheet_indexes = {}
+            sheet_index_to_overwrite = new_dataframe_params['sheet_index_to_overwrite'] 
 
             for new_df_name in new_dataframe_params['new_df_names']:
                 df_source = new_dataframe_params['df_source']
-                sheet_index = sheet_indexes.get(new_df_name, None)
+                sheet_index = sheet_index_to_overwrite
 
                 new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
                 post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)

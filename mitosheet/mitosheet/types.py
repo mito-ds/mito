@@ -387,7 +387,7 @@ if sys.version_info[:3] > (3, 8, 0):
     class ExecuteThroughTranspileNewDataframeParams(TypedDict):
         new_df_names: List[str]
         df_source: str
-        sheet_indexes: Optional[Dict[str, int]]
+        sheet_index_to_overwrite: Optional[int
 
     class ExecuteThroughTranspileNewColumnParams(TypedDict):
         new_column_headers_to_column_id: Dict[ColumnHeader, ColumnID]

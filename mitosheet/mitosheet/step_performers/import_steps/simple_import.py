@@ -118,7 +118,7 @@ class SimpleImportStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_IMPORTED,
                     'new_df_names': new_df_names,
-                    'sheet_indexes': None
+                    'sheet_index_to_overwrite': None
                 },
                 use_deprecated_id_algorithm=use_deprecated_id_algorithm
             )

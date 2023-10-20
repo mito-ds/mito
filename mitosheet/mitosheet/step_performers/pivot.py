@@ -120,9 +120,7 @@ class PivotStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_PIVOTED,
                     'new_df_names': [new_df_name],
-                    'sheet_indexes': {
-                        new_df_name: destination_sheet_index
-                    } if destination_sheet_index is not None else None
+                    'sheet_index_to_overwrite': destination_sheet_index
                 },
                 use_deprecated_id_algorithm=get_param(params, 'use_deprecated_id_algorithm')
             )

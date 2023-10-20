@@ -78,7 +78,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_IMPORTED,
                     'new_df_names': [new_df_name],
-                    'sheet_indexes': None
+                    'sheet_index_to_overwrite': None
                 }
             )
         except Exception as e:
