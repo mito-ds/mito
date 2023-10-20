@@ -1,5 +1,5 @@
 // Import necessary React and Next.js modules and components
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Image from "next/image"
 
@@ -21,6 +21,10 @@ import PageTOC from '../../../../components/Glossary/PageTOC/PageTOC';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 
+import Prism from 'prismjs';
+import 'prism-themes/themes/prism-coldark-dark.css'
+require('prismjs/components/prism-python');
+
 // Define the specific function name
 const functionName = "ABS";
 
@@ -29,6 +33,17 @@ const PageContent: NextPage = () => {
 
   const router = useRouter();
   const path = router.asPath;
+
+  useEffect(() => {
+    /* 
+      Apply prism styling to all of elements that have the class "language-XXXX" 
+      (ie: language-python in the CodeBlocks component)
+
+      TODO: Figure out if there is a better place to put this. 
+      When it was in the _app.tsx file, the formatting wasn't applied if I navigated to another page and then back to this one.
+    */
+    Prism.highlightAll();
+  }, []);
 
   return (
     <>
@@ -304,11 +319,11 @@ df['ABS_SUM'] = df['A'].abs()`}/>
                 Don&apos;t want to re-implement Excel&apos;s functionality in Python?
               </h2>
               <div className='center'>
-                  <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
+                <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
               </div> 
             </div>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, 'display-desktop-only-inline-block')}>
-              <div className={textImageSplitStyles.functionality_text}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, excelToPythonStyles.cta_functionality_card, 'display-desktop-only-flex')}>
+              <div className={classNames(textImageSplitStyles.functionality_text)}>
                 <h2>
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
@@ -322,7 +337,9 @@ df['ABS_SUM'] = df['A'].abs()`}/>
                 </a>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/excel-to-python/mito_code_gen.png'} alt='Automate analysis with Mito' width={560} height={379} layout='responsive'/>
+                <div className={'center'}>
+                  <Image src={'/excel-to-python/mito_code_gen.png'} alt='Automate analysis with Mito' width={373} height={364}/>
+                </div>
               </div>
             </div>
           </section>

@@ -4,18 +4,9 @@ import type { AppProps } from 'next/app'
 import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
-import Prism from 'prismjs';
-import 'prism-themes/themes/prism-coldark-dark.css'
 
-require('prismjs/components/prism-python');
 
 function MyApp({ Component, pageProps }: AppProps) {
-
-  useEffect(() => {
-    // Apply prism styling to all of elements that have the class "language-XXXX" 
-    // (ie: language-python in the CodeBlocks component)
-    Prism.highlightAll();
-  }, []);
 
   return (
     <>

@@ -135,6 +135,13 @@
         display: inline; 
     }
 
+    .cta_functionality_card {
+        flex-direction: row;
+        justify-content: space-evenly;
+        max-width: 80rem;
+
+    }
+
 }
 
 
