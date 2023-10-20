@@ -2,6 +2,7 @@ from distutils.core import setup
 from mitoinstaller import __version__
 from setuptools import find_packages
 
+
 setup(
     name                = 'mitoinstaller',
     version             = __version__,

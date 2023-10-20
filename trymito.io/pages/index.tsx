@@ -177,7 +177,7 @@ const Home: NextPage = () => {
             </div>
             <div className={homeStyles.metric_container}>
               <p className={homeStyles.metric_number_text}>
-                10,000+
+                100,000+
               </p>
               <p className={homeStyles.metrics_label}>
                 Hours saved through automation
@@ -185,7 +185,7 @@ const Home: NextPage = () => {
             </div>
             <div className={homeStyles.metric_container}>
               <p className={homeStyles.metric_number_text}>
-                250,000+
+                800,000+
               </p>
               <p className={homeStyles.metrics_label}>
                 Mito Sheets Created
