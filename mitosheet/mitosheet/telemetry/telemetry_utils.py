@@ -29,8 +29,10 @@ from mitosheet.user.location import get_location, is_docker, is_jupyterlite
 from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
 from mitosheet.user.utils import is_local_deployment, is_pro
 
+WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 
-
+import analytics
+analytics.write_key = WRITE_KEY
 
 if is_jupyterlite():
     # If we are in JupyterLite, we have to do a few things to get telemetry working:
@@ -360,6 +362,7 @@ def identify() -> None:
         UJ_FEEDBACKS: feedbacks,
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
+    print("IDENTIFYING")
 
 
     if not is_running_test():
@@ -416,6 +419,7 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
     # Finially, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on():
+        print("LOGGING")
 
         if is_jupyterlite():
             # We patch post function to use pyodide fetch
