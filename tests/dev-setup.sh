@@ -1,3 +1,4 @@
+set -e
 
 # Create venv and install requirements
 python3 -m venv venv;
