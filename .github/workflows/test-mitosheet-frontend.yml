@@ -79,12 +79,13 @@ jobs:
       run: |
         cd tests
         bash dev-setup.sh
+        source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
       run: |
         cd tests
         source venv/bin/activate
-        streamlit run streamlit.py --server.port 1001 &
+        streamlit run streamlit.py
         npm run test:streamlit
 
   test-mitosheet-frontend-dash:
@@ -118,6 +119,7 @@ jobs:
       run: |
         cd tests
         bash dev-setup.sh
+        source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
       run: |
