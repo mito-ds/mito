@@ -1,0 +1,147 @@
+.main {
+    align-items: flex-start !important; 
+    position: relative;
+}
+
+.title_card {
+    padding-top: 4rem;
+}
+
+.title_card > *:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
+.section {
+    align-items: flex-start !important;
+}
+
+.section + .section {
+    margin-top: 4rem;
+}
+
+.related_functions_card {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.related_functions_card * {
+    margin-right: 10px;
+}
+
+.h3 {
+    font-family: Graphik;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 2rem;
+    font-size: 1.25rem;
+}
+
+.table {
+    border-collapse: collapse;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden; 
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.table th,
+.table td {
+  padding: 20px;
+  text-align: left;
+  border: none; 
+  border-bottom: 1.5px solid black; 
+}
+
+.table thead {
+    background-color: black;
+    border-radius: 1rem;
+}
+
+.link {
+    position: relative;
+    padding-right: 3rem; /* Leave room for the copy # to appear without overwriting the text */
+    display: flex;
+    align-items: flex-start
+}
+
+.section_copy {
+    display: none;
+    margin-left: 1rem;
+    color: var(--color-purple);
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.cta_card {
+    margin-top: 4rem;
+}
+
+.blog_content {
+    width: 100%;
+}
+
+/* 
+    Don't dispaly the table of contents on mobile because there
+    is not enough space
+*/
+.table_of_contents_container {
+    display: none;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+@media only screen and (min-width: 50em) {
+
+    .blog_content_and_table_of_contents_container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .table_of_contents_container {
+        display: block;
+        position: sticky;
+        top: 200px;
+        right: 0px;
+        width: 20%;
+        padding: 2rem 1rem;
+        height: fit-content;
+    }
+
+    .blog_content {
+        padding: 0 1rem;
+        width: 75%;
+    }
+    
+    .table {
+        width: 80%;
+    }
+
+    h2 .section_copy {
+        font-size: 2rem;
+    }
+
+    h3 .section_copy {
+        font-size: 1.5rem;
+    }
+
+    h2:hover .section_copy,
+    h3:hover .section_copy {
+        display: inline; 
+    }
+
+    .cta_functionality_card {
+        flex-direction: row;
+        justify-content: space-evenly;
+        max-width: 80rem;
+
+    }
+
+}
+
+
