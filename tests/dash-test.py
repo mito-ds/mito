@@ -21,4 +21,4 @@ def update_code(spreadsheet_result):
     ])
     
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8444)
