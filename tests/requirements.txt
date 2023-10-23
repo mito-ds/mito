@@ -1,4 +1,2 @@
 notebook
 jupyterlab
-streamlit
-dash

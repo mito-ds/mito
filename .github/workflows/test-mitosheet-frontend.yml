@@ -69,6 +69,7 @@ jobs:
         cache-dependency-path: |
           mitosheet/setup.py
           tests/requirements.txt
+          tests/extra-requirements.txt
     - uses: actions/setup-node@v3
       with:
         node-version: 16
@@ -78,6 +79,7 @@ jobs:
       run: |
         cd tests
         bash dev-setup.sh
+        pip install -r extra-requirements.txt
     - name: Start a server and run tests
       run: |
         cd tests
@@ -106,6 +108,7 @@ jobs:
         cache-dependency-path: |
           mitosheet/setup.py
           tests/requirements.txt
+          tests/extra-requirements.txt
     - uses: actions/setup-node@v3
       with:
         node-version: 16
@@ -115,6 +118,7 @@ jobs:
       run: |
         cd tests
         bash dev-setup.sh
+        pip install -r extra-requirements.txt
     - name: Start a server and run tests
       run: |
         cd tests
