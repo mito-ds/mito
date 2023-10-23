@@ -4,7 +4,8 @@
   "description": "Tests for mitosheet",
   "main": "index.js",
   "scripts": {
-    "test:streamlit": "playwright test ui_tests/streamlit --retries=3 --headed"
+    "test:streamlit": "playwright test ui_tests/streamlit --retries=3",
+    "test:dash": "playwright test ui_tests/dash --retries=3 --headed"
   },
   "author": "",
   "license": "ISC",
