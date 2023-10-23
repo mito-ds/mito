@@ -85,7 +85,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
-        streamlit run streamlit-test.py
+        streamlit run streamlit-test.py --server.port 8555
         npm run test:streamlit
 
   test-mitosheet-frontend-dash:
