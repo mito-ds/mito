@@ -40,8 +40,7 @@ class ReplaceStepPerformer(StepPerformer):
         try:
             post_state, execution_data = cls.execute_through_transpile(
                 prev_state, 
-                params,
-                renamed_column_headers=True # This might be True, so we set it to be safe
+                params
             )
         except Exception as e:
             search_value: str = get_param(params, 'search_value')

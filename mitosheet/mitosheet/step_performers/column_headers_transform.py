@@ -30,14 +30,6 @@ class ColumnHeadersTransformStepPerformer(StepPerformer):
         return 'column_headers_transform'
 
     @classmethod
-    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        return cls.execute_through_transpile(
-            prev_state, 
-            params, 
-            renamed_column_headers=True
-        )
-
-    @classmethod
     def transpile(
         cls,
         prev_state: State,

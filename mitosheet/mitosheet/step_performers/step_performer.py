@@ -12,7 +12,7 @@ from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.transpiler.transpile_utils import get_globals_for_exec
-from mitosheet.types import ExecuteThroughTranspileNewDataframeParams, ExecuteThroughTranspileNewColumnParams
+from mitosheet.types import ColumnHeader, ColumnID, ExecuteThroughTranspileNewDataframeParams, ExecuteThroughTranspileNewColumnParams
  
 class StepPerformer(ABC, object):
     """
@@ -56,7 +56,6 @@ class StepPerformer(ABC, object):
         return params
 
     @classmethod
-    @abstractmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
         1. Parse params
@@ -104,9 +103,8 @@ class StepPerformer(ABC, object):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
-        renamed_column_headers: bool=False,
-        new_column_params: Optional[ExecuteThroughTranspileNewColumnParams]=None,
-        use_deprecated_id_algorithm: Optional[bool]=False
+        column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None,
+        use_deprecated_id_algorithm: bool=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
         Previously, we had a ton of duplicated code in the execute and the code chunk functions. This was annoying 
@@ -125,6 +123,8 @@ class StepPerformer(ABC, object):
         it expects to change, so the various parameters are how the caller of this method can tell this function what
         should be different before and after in dataframes.
         """
+        from mitosheet.ai.recon import update_state_by_reconing_dataframes
+
         if execution_data is None:
             execution_data = {}
 
@@ -153,45 +153,27 @@ class StepPerformer(ABC, object):
         exec(final_code, exec_globals, exec_locals)
         pandas_processing_time = perf_counter() - pandas_start_time
 
-
         for modified_dataframe_index in modified_dataframe_indexes:
             df_name = prev_state.df_names[modified_dataframe_index]
             new_df = exec_locals[df_name]
-            old_df = prev_state.dfs[modified_dataframe_index]
-            post_state.dfs[modified_dataframe_index] = new_df
-
-            if renamed_column_headers:
-                # If we renamed column headers, update them in the state
-                for old_header, new_header in zip(old_df.columns, new_df.columns):
-                    column_id = prev_state.column_ids.get_column_id_by_header(modified_dataframe_index, old_header)
-                    post_state.column_ids.set_column_header(modified_dataframe_index, column_id, new_header)
-
-            if len(new_df.columns) > len(old_df.columns):
-                # Find all the new column headers, and add them to the state
-                new_column_headers = [ch for ch in new_df.columns if ch not in old_df]
-                post_state.add_columns_to_state(modified_dataframe_index, new_column_headers)
-
-                # Check if there are any invalid column headers
-                c = Counter(new_df.columns)
-                most_common = c.most_common(1)
-                for ch, count in most_common:
-                    if count > 1:
-                        raise make_column_exists_error(ch)
-
-        if new_column_params:
-            sheet_index = new_column_params['sheet_index']
-            new_column_headers_to_column_id = new_column_params['new_column_headers_to_column_id']
-            post_state.add_columns_to_state(sheet_index, list(new_column_headers_to_column_id.keys()), new_column_headers_to_column_id)
+            print(new_df)
+            # TODO: add column_ids as a parameter below -- should be optional param to update state
+            post_state = update_state_by_reconing_dataframes(
+                post_state, 
+                modified_dataframe_index, 
+                prev_state.dfs[modified_dataframe_index],
+                new_df, 
+                column_headers_to_column_ids=column_headers_to_column_ids
+            )
 
         if new_dataframe_params:
             sheet_index_to_overwrite = new_dataframe_params['sheet_index_to_overwrite'] 
 
             for new_df_name in new_dataframe_params['new_df_names']:
                 df_source = new_dataframe_params['df_source']
-                sheet_index = sheet_index_to_overwrite
 
                 new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
-                post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
+                post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index_to_overwrite, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,

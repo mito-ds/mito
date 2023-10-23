@@ -51,10 +51,7 @@ class AddColumnStepPerformer(StepPerformer):
             prev_state,
             params,
             execution_data,
-            new_column_params={
-                'sheet_index': sheet_index,
-                'new_column_headers_to_column_id': {column_header: new_column_id}
-            }
+            column_headers_to_column_ids={column_header: new_column_id}
         )
 
     @classmethod

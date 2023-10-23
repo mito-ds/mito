@@ -1,4 +1,5 @@
 import ast
+from collections import Counter
 import traceback
 from copy import copy
 from typing import Any, Dict, List, Optional, Tuple
@@ -10,14 +11,12 @@ from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_l
 from io import StringIO
 from contextlib import redirect_stdout
 
-from mitosheet.errors import MitoError, make_exec_error
+from mitosheet.errors import MitoError, make_column_exists_error, make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
-from mitosheet.step_performers.column_steps.delete_column import \
-    delete_column_ids
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
-from mitosheet.types import (AITransformFrontendResult, ColumnHeader,
-                             ColumnReconData, DataframeReconData, ModifiedDataframeReconData)
+from mitosheet.types import (AITransformFrontendResult, ColumnHeader, ColumnID,
+                             ColumnReconData, DataframeReconData, ExecuteThroughTranspileNewColumnParams, ModifiedDataframeReconData)
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -182,9 +181,9 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
         try:
             if len(old_df) < len(new_df):
                 df1 = old_df
-                df2 = new_df.iloc[old_df.index]
+                df2 = new_df.loc[old_df.index]
             else:
-                df1 = old_df.iloc[new_df.index]
+                df1 = old_df.loc[new_df.index]
                 df2 = new_df
 
             modified_columns = [ch for ch in shared_columns if not df1[ch].equals(df2[ch])]
@@ -200,26 +199,61 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
         },
         'num_added_or_removed_rows': len(new_df) - len(old_df)
     }
+
+def delete_column_id_from_state_metadata(
+    state: State,
+    sheet_index: int,
+    column_id: ColumnID,
+) -> State:
     
+    # And then update all the state variables removing this column from the state
+    del state.column_formulas[sheet_index][column_id]
+    # TODO: do we want to remove the formulas
+    if column_id in state.df_formats[sheet_index]['columns']:
+        del state.df_formats[sheet_index]['columns'][column_id]
 
+    # Clean up the IDs
+    state.column_ids.delete_column_id(sheet_index, column_id)
+        
+    return state
 
-def update_state_by_reconing_dataframes(state: State, sheet_index: int, new_df: pd.DataFrame) -> State:
+def update_state_by_reconing_dataframes(
+        state: State, 
+        sheet_index: int, 
+        old_df: pd.DataFrame,
+        new_df: pd.DataFrame,
+        column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None
+    ) -> State:
     """
     This function is the work-horse for modified dataframes. It compares the old dataframe at the index 
     to the new dataframe, and then updates the state accordingly -- making sure all the metadata is correct.
 
     This includes: handling deleted columns, added columns, renamed columns, and modified columns.
     """
-    old_df = state.dfs[sheet_index]
+    # Check there aren't any duplicated columns in the new dataframe
+    c = Counter(new_df.columns)
+    most_common = c.most_common(1)
+    for ch, count in most_common:
+        if count > 1:
+            raise make_column_exists_error(ch)
 
     modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
+    print("HERE123", modified_dataframe_recon['column_recon'], old_df.columns, new_df.columns)
+    print(state.column_ids.column_header_to_column_id)
 
     # Add new columns to the state
-    state.add_columns_to_state(sheet_index, modified_dataframe_recon['column_recon']['created_columns'])
+    if len(modified_dataframe_recon['column_recon']['created_columns']) > 0:
+        print("CREATED", modified_dataframe_recon['column_recon']['created_columns'], column_headers_to_column_ids)
+        state.add_columns_to_state(
+            sheet_index, 
+            modified_dataframe_recon['column_recon']['created_columns'],
+            column_headers_to_column_ids=column_headers_to_column_ids
+        )
 
     # Delete removed columns from the state
     deleted_column_ids = state.column_ids.get_column_ids_by_headers(sheet_index, modified_dataframe_recon['column_recon']['deleted_columns'])
-    delete_column_ids(state, sheet_index, deleted_column_ids)
+    for column_id in deleted_column_ids:
+        delete_column_id_from_state_metadata(state, sheet_index, column_id)
 
     # Rename renamed columns in the state
     for old_ch, new_ch in modified_dataframe_recon['column_recon']['renamed_columns'].items():
@@ -256,7 +290,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
-        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_df)
+        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_state.dfs[sheet_index], new_df)
 
     # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
     # is a _newly_ created dataframe that is already given a name

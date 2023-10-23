@@ -48,8 +48,7 @@ class PromoteRowToHeaderStepPerformer(StepPerformer):
 
         post_state, execution_data = cls.execute_through_transpile(
             prev_state, 
-            params, 
-            renamed_column_headers=True
+            params
         )
 
         # We make sure that this making of headers will work, and not cause issues 

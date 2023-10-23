@@ -88,7 +88,7 @@ class UserDefinedEditStepPerformer(StepPerformer):
             )
         
         sheet_index = post_state.df_names.index(df_names.pop())
-        post_state = update_state_by_reconing_dataframes(post_state, sheet_index, result)
+        post_state = update_state_by_reconing_dataframes(post_state, sheet_index, post_state.dfs[sheet_index], result)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 

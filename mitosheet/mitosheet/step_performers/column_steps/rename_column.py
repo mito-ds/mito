@@ -51,8 +51,7 @@ class RenameColumnStepPerformer(StepPerformer):
         return cls.execute_through_transpile(
             prev_state, 
             params, 
-            execution_data,
-            renamed_column_headers=True
+            execution_data
         )
 
     @classmethod

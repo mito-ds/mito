@@ -30,29 +30,6 @@ class DeleteColumnStepPerformer(StepPerformer):
         return 'delete_column'
 
     @classmethod
-    def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        sheet_index: int = get_param(params, 'sheet_index')
-        column_ids: List[ColumnID] = get_param(params, 'column_ids')
-
-        post_state, execution_data = cls.execute_through_transpile(
-            prev_state,
-            params,
-            {}
-        )
-
-        for column_id in column_ids:
-            # And then update all the state variables removing this column from the state
-            del post_state.column_formulas[sheet_index][column_id]
-            # TODO: do we want to remove the formulas
-            if column_id in post_state.df_formats[sheet_index]['columns']:
-                del post_state.df_formats[sheet_index]['columns'][column_id]
-
-            # Clean up the IDs
-            post_state.column_ids.delete_column_id(sheet_index, column_id)
-
-        return post_state, execution_data
-
-    @classmethod
     def transpile(
         cls,
         prev_state: State,
@@ -70,43 +47,3 @@ class DeleteColumnStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {get_param(params, 'sheet_index')}
-
-def delete_column_ids(
-    state: State,
-    sheet_index: int,
-    column_ids: List[ColumnID],
-) -> Tuple[State, float]:
-
-    # Delete each column one by one
-    pandas_processing_time = 0.0
-    for column_id in column_ids:
-        state, partial_pandas_processing_time = _delete_column_id(state, sheet_index, column_id)
-        pandas_processing_time += partial_pandas_processing_time
-
-    return state, pandas_processing_time
-
-
-def _delete_column_id( 
-    state: State,
-    sheet_index: int,
-    column_id: ColumnID
-) -> Tuple[State, float]:
-    
-    column_header = state.column_ids.get_column_header_by_id(sheet_index, column_id)
-        
-    # Actually drop the column
-    df = state.dfs[sheet_index]
-    partial_pandas_start_time = perf_counter()
-    df.drop(column_header, axis=1, inplace=True)
-    partial_pandas_processing_time = perf_counter() - partial_pandas_start_time
-
-    # And then update all the state variables removing this column from the state
-    del state.column_formulas[sheet_index][column_id]
-    # TODO: do we want to remove the formulas
-    if column_id in state.df_formats[sheet_index]['columns']:
-        del state.df_formats[sheet_index]['columns'][column_id]
-
-    # Clean up the IDs
-    state.column_ids.delete_column_id(sheet_index, column_id)
-    
-    return state, partial_pandas_processing_time
