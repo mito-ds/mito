@@ -113,7 +113,7 @@ def get_function_from_code_unsafe(code: str) -> Optional[Callable]:
 # This is the class that is returned when the user sets return_type='analysis'
 # It contains data that could be relevant to the streamlit developer, and is 
 # used for replaying analyses. 
-class MitoAnalysis:
+class RunnableAnalysis:
     def __init__(
             self,
             code: str,
@@ -149,13 +149,13 @@ class MitoAnalysis:
         })
     
     @staticmethod
-    def from_json(json_str: str) -> 'MitoAnalysis':
+    def from_json(json_str: str) -> 'RunnableAnalysis':
         json_dict = json.loads(json_str)
         required_keys = ['code', 'code_options', 'fully_parameterized_function', 'param_metadata']
         for key in required_keys:
             if key not in json_dict:
-                raise ValueError(f'Invalid json_str passed to MitoAnalysis.from_json. Missing key {key}.')
-        return MitoAnalysis(
+                raise ValueError(f'Invalid json_str passed to RunnableAnalysis.from_json. Missing key {key}.')
+        return RunnableAnalysis(
             json_dict['code'],
             json_dict['code_options'],
             json_dict['fully_parameterized_function'],
@@ -181,17 +181,17 @@ class MitoAnalysis:
 
                 # Check if the arg was passed in as a keyword argument as well. 
                 if is_kwarg:
-                    raise TypeError(f'MitoAnalysis.run() got multiple values for argument {required_arg}')
+                    raise TypeError(f'RunnableAnalysis.run() got multiple values for argument {required_arg}')
 
             # If it wasn't passed as a positional argument, check if it was passed as a keyword argument
             elif not is_kwarg:
-                raise TypeError(f'MitoAnalysis.run() missing required argument {required_arg}. You passed a dataframe to this analysis, but did not pass in a value for {required_arg}.')
+                raise TypeError(f'RunnableAnalysis.run() missing required argument {required_arg}. You passed a dataframe to this analysis, but did not pass in a value for {required_arg}.')
 
         # Then, overwrite the default values with the user provided values
         for name, value in kwargs.items():
             # Raise an error if the user passes in an unexpected argument
             if not any(param for param in self.__param_metadata if param['name'] == name):
-                raise TypeError(f'MitoAnalysis.run() got an unexpected keyword argument {name}')
+                raise TypeError(f'RunnableAnalysis.run() got an unexpected keyword argument {name}')
 
             params[name] = value
 
@@ -407,7 +407,7 @@ try:
             
             return get_function_from_code_unsafe(code)
         elif return_type == 'analysis':
-            return MitoAnalysis(code, code_options, mito_backend.fully_parameterized_function, mito_backend.param_metadata)
+            return RunnableAnalysis(code, code_options, mito_backend.fully_parameterized_function, mito_backend.param_metadata)
         else:
             raise ValueError(f'Invalid value for return_type={return_type}. Must be "default", "default_list", "dfs", "code", "dfs_list", or "function".')
 

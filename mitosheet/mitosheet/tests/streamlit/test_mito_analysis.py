@@ -1,6 +1,6 @@
 import os
 from mitosheet.tests.decorators import requires_streamlit
-from mitosheet.streamlit.v1.spreadsheet import MitoAnalysis
+from mitosheet.streamlit.v1.spreadsheet import RunnableAnalysis
 import pytest
 import pandas as pd
 
@@ -85,7 +85,7 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
         }
     ]
     
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
     result = analysis.run()
     assert result is not None
     pd.testing.assert_frame_equal(result[0], expected_df)
@@ -154,7 +154,7 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
@@ -192,7 +192,7 @@ def function_ctqm(import_dataframe_0):
         }
     ]
 
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
 
     assert analysis.get_param_metadata() == param_metadata
     assert analysis.get_param_metadata('import') == param_metadata
@@ -273,7 +273,7 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
@@ -359,7 +359,7 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     ]
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run(df1, import_dataframe_0=df1, file_name_export_csv_0=new_export_file_0)
     
@@ -383,7 +383,7 @@ def function(import_dataframe_0):
         },
     ]
     
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run()
     
@@ -406,21 +406,21 @@ def function(import_dataframe_0):
         }
     ]
     
-    analysis = MitoAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run(testing=1)
     
 
 @requires_streamlit
 def test_to_and_from_json():
-    analysis = MitoAnalysis('', None, simple_fn, simple_param_metadata)
+    analysis = RunnableAnalysis('', None, simple_fn, simple_param_metadata)
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
     assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"initial_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}], "mito_analysis_version": 1}'
 
     # Test that the from_json function works
-    new_analysis = MitoAnalysis.from_json(json)
+    new_analysis = RunnableAnalysis.from_json(json)
     assert new_analysis is not None
     
     df = pd.DataFrame({'A': [1], 'B': [2]})
@@ -445,13 +445,13 @@ def function(vari\abl"e_name{}):
         'name': 'vari\ abl"e_name{}'
     },
 ]
-    analysis = MitoAnalysis('', None, special_characters_fn, special_characters_metadata)
+    analysis = RunnableAnalysis('', None, special_characters_fn, special_characters_metadata)
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
 
     # Test that the from_json function works
-    new_analysis = MitoAnalysis.from_json(json)
+    new_analysis = RunnableAnalysis.from_json(json)
     assert new_analysis is not None
     assert new_analysis.fully_parameterized_function == special_characters_fn
 
@@ -467,6 +467,6 @@ def function():
     
     return df1
 """
-    analysis = MitoAnalysis('', None, fully_parameterized_code, [])
+    analysis = RunnableAnalysis('', None, fully_parameterized_code, [])
     result = analysis.run()
     pd.testing.assert_frame_equal(result, pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))

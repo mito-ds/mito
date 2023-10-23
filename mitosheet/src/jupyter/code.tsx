@@ -94,7 +94,7 @@ export function isMitosheetCallCode(codeText: string): boolean {
 
 
 // Returns true iff a the given cell is a cell containing the generated code
-export function isMitoAnalysisCode(codeText: string): boolean {
+export function isRunnableAnalysisCode(codeText: string): boolean {
 
     // Check if it starts with any import statement from the versioned interface
     let startsWithPublicVersionImport = false;
@@ -137,7 +137,7 @@ export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): 
     Returns true if the cell contains the code generated for a specific analysis name
 */
 export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: string): boolean {
-    return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
+    return isRunnableAnalysisCode(codeText) && codeText.includes(analysisName);
 }
 
 // Removes all whitespace from a string, except for whitespace in quoted strings.
