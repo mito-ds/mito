@@ -163,13 +163,12 @@ class RunnableAnalysis:
             mito_analysis_version=json_dict['mito_analysis_version']
         )
     
-    def run(self, *args, **kwargs):
-        params = {}
-
-        # First, set the default values for all params.
-        for param in self.__param_metadata:
-            params[param['name']] = param['original_value']
-
+    def _check_correct_args_and_kwargs(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
+        """
+        Checks that all the required arguments are passed, and that
+        no unexpected arguments are passed, and that no arguments
+        are passed multiple times.
+        """
         # Error handling for required arguments
         required_args = [param['name'] for param in self.__param_metadata if param['required']]
         for index, required_arg in enumerate(required_args):
@@ -177,8 +176,6 @@ class RunnableAnalysis:
 
             # First, check if the arg was passed in as a positional argument
             if index < len(args):
-                params[required_arg] = args[index]
-
                 # Check if the arg was passed in as a keyword argument as well. 
                 if is_kwarg:
                     raise TypeError(f'RunnableAnalysis.run() got multiple values for argument {required_arg}')
@@ -187,13 +184,43 @@ class RunnableAnalysis:
             elif not is_kwarg:
                 raise TypeError(f'RunnableAnalysis.run() missing required argument {required_arg}. You passed a dataframe to this analysis, but did not pass in a value for {required_arg}.')
 
-        # Then, overwrite the default values with the user provided values
-        for name, value in kwargs.items():
+        # Then, check the correct kwargs were passed
+        for name in kwargs:
             # Raise an error if the user passes in an unexpected argument
             if not any(param for param in self.__param_metadata if param['name'] == name):
                 raise TypeError(f'RunnableAnalysis.run() got an unexpected keyword argument {name}')
 
+
+    
+    def run(self, *args, **kwargs):
+        params = {}
+
+        # First, set the default values for all params.
+        for param in self.__param_metadata:
+            params[param['name']] = param['original_value']
+
+        self._check_correct_args_and_kwargs(*args, **kwargs)
+
+        # Then, overwrite the default values with the user provided values
+        required_args = [param['name'] for param in self.__param_metadata if param['required']]
+
+        for index, required_arg in enumerate(required_args):
+            if index < len(args):
+                params[required_arg] = args[index]
+
+        # Then, overwrite the default values with the user provided values
+        for name, value in kwargs.items():
             params[name] = value
+
+        # Then, before we call the function, we make sure that the arguments are the correct types. 
+        # Notably, we want to allow users to pass in dataframes for file paths (as this is often very
+        # convenient), but we need to convert them to StringIO object before calling the function
+        for param_name, param_value in params.items():
+            param = next(param for param in self.__param_metadata if param['name'] == param_name)
+            # If the user passed in a dataframe, and the param subtype starts with file, we convert it to a StringIO object
+            if param['subtype'] == 'file_name_import_csv' and isinstance(param_value, pd.DataFrame):
+                from io import StringIO
+                params[param_name] = StringIO(param_value.to_csv(index=False))
 
         return get_function_from_code_unsafe(self.__fully_parameterized_function)(**params)
 

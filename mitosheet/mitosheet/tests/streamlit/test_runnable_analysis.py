@@ -470,3 +470,25 @@ def function():
     analysis = RunnableAnalysis('', None, fully_parameterized_code, [])
     result = analysis.run()
     pd.testing.assert_frame_equal(result, pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
+
+@requires_streamlit
+def test_can_pass_dataframe_to_file_path_in_run_auto_conversion():
+
+    analysis = RunnableAnalysis(
+        '',
+        None,
+        """from mitosheet.public.v3 import *
+import pandas as pd
+
+def function_srjr(file_name_import_csv_0):
+    df_export = pd.read_csv(file_name_import_csv_0)
+    
+    return df_export
+""",
+    [{"original_value": "datasets/df_export.csv", "type": "import", "subtype": "file_name_import_csv", "required": False, "name": "file_name_import_csv_0"}]
+)
+
+    # Run with a df rather than a file path
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    result = analysis.run(file_name_import_csv_0=df)
+    assert result.equals(df)
