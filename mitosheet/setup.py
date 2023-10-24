@@ -22,19 +22,18 @@ from setuptools import setup
 HERE = Path(__file__).parent.resolve()
 package_json = json.loads(open('package.json').read())
 
-
 package_json = json.loads(open('package.json').read())
 lab_path =  HERE / 'mitosheet' /'labextension'
 notebook_path = HERE / 'mitosheet' / 'nbextension'
 
 data_files_spec = [
     # Notebook extension data files
-    ('share/jupyter/nbextensions/mitosheet',  notebook_path / '**'),
+    ('share/jupyter/nbextensions/mitosheet',  str(notebook_path / '**')),
     ('etc/jupyter/nbconfig/notebook.d', 'mitosheet.json'),
 
     # Lab extension data files
-    ("share/jupyter/labextensions/mitosheet", lab_path / "**"),
-    ("share/jupyter/labextensions/mitosheet", HERE / "install.json"),
+    ("share/jupyter/labextensions/mitosheet", str(lab_path / "**")),
+    ("share/jupyter/labextensions/mitosheet", str(HERE / "install.json")),
 ]
 
 setup_args = dict(
