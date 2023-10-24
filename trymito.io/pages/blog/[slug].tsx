@@ -15,8 +15,6 @@ declare global {
   interface Window { Prism: any; }
 }
 
-
-
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
   // Render post title and content in the page from props
