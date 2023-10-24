@@ -486,7 +486,7 @@ def function_srjr(file_name_import_csv_0):
     return df_export
 """,
     [{"original_value": "datasets/df_export.csv", "type": "import", "subtype": "file_name_import_csv", "required": False, "name": "file_name_import_csv_0"}]
-    )
+)
 
     # Run with a df rather than a file path
     df = pd.DataFrame({'A': [1, 2, 3]})

@@ -218,7 +218,7 @@ class RunnableAnalysis:
         for param_name, param_value in params.items():
             param = next(param for param in self.__param_metadata if param['name'] == param_name)
             # If the user passed in a dataframe, and the param subtype starts with file, we convert it to a StringIO object
-            if param['subtype'].startswith('file') and isinstance(param_value, pd.DataFrame):
+            if param['subtype'] == 'file_name_import_csv' and isinstance(param_value, pd.DataFrame):
                 from io import StringIO
                 params[param_name] = StringIO(param_value.to_csv(index=False))
 
