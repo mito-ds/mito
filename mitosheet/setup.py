@@ -69,6 +69,7 @@ setup_args = dict(
     long_description_content_type = "text/markdown",
     packages                 = setuptools.find_packages(exclude=['deployment']),
     include_package_data     = True,
+    package_data             = {'': ['*.js', '*.css', '*.html']},
     data_files               = data_files,
     install_requires=[        
         "jupyterlab~=3.0",
