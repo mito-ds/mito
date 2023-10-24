@@ -28,12 +28,11 @@ notebook_path = HERE / 'mitosheet' / 'nbextension'
 
 data_files_spec = [
     # Notebook extension data files
-    ('share/jupyter/nbextensions/mitosheet',  str(notebook_path / '**')),
-    ('etc/jupyter/nbconfig/notebook.d', 'mitosheet.json'),
+    ('share/jupyter/nbextensions/mitosheet',  str(notebook_path) +'/**'),
+    ('etc/jupyter/nbconfig/notebook.d', str(HERE) + '/mitosheet.json'),
 
     # Lab extension data files
-    ("share/jupyter/labextensions/mitosheet", str(lab_path / "**")),
-    ("share/jupyter/labextensions/mitosheet", str(HERE / "install.json")),
+    ("share/jupyter/labextensions/mitosheet", str(lab_path) + "/**"),
 ]
 
 setup_args = dict(
