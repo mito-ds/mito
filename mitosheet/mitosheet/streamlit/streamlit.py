@@ -38,7 +38,7 @@ updated_metadata = {}
 for param in analysis.get_param_metadata():
     new_param = None
     if param['subtype'] in ['file_name_export_excel', 'file_name_export_csv']:
-        new_param = st.text_input(param['name'], value=param['initial_value'])
+        new_param = st.text_input(param['name'], value=param['original_value'])
     elif param['subtype'] in ['file_name_import_excel', 'file_name_import_csv']:
         new_param = st.file_uploader(param['name'])
     if new_param is not None:

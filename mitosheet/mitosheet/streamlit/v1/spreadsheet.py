@@ -168,7 +168,7 @@ class RunnableAnalysis:
 
         # First, set the default values for all params.
         for param in self.__param_metadata:
-            params[param['name']] = param['initial_value']
+            params[param['name']] = param['original_value']
 
         # Error handling for required arguments
         required_args = [param['name'] for param in self.__param_metadata if param['required']]

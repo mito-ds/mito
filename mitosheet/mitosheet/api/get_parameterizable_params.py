@@ -45,7 +45,7 @@ def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List
                 param_name = args[1] 
                 return {
                         # Removes the quotes and r-string from the param value because they aren't needed for streamlit. 
-                        'initial_value': param[0][2:-1] if param[0][:2] == "r'" else param[0],
+                        'original_value': param[0][2:-1] if param[0][:2] == "r'" else param[0],
                         'type': param[1],
                         'subtype': param[2],
                         # If the param is a df_name, then it is required for the function
