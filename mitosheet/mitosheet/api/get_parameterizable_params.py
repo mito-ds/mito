@@ -49,7 +49,7 @@ def get_parameterizable_params_metadata(steps_manager: StepsManagerType) -> List
                         'type': param[1],
                         'subtype': param[2],
                         # If the param is a df_name, then it is required for the function
-                        # because we won't be able to store the initial value in the MitoAnalysis for streamlit.
+                        # because we won't be able to store the initial value in the RunnableAnalysis for streamlit.
                         'required': param[2] == 'import_dataframe',
                         'name': param_name
                 }
