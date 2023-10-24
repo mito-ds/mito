@@ -13,38 +13,37 @@ As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
 
+from __future__ import print_function
+from glob import glob
+from os.path import join as pjoin
 import json
-import os
+import setuptools
 from pathlib import Path
 
-import setuptools
+
+from jupyter_packaging import (
+    get_data_files
+)
+
 from setuptools import setup
 
-HERE = Path(os.path.relpath(Path(__file__).parent.resolve(), '.'))
-package_json = json.loads(open('package.json').read())
+HERE = Path(__file__).parent.resolve()
 
 package_json = json.loads(open('package.json').read())
-lab_path =  HERE / 'mitosheet' /'labextension'
-notebook_path = HERE / 'mitosheet' / 'nbextension'
+lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
+notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
-def package_files(source_directory, target_directory):
-    paths = []
-    for (path, directories, filenames) in os.walk(source_directory):
-        for filename in filenames:
-            source_path = os.path.join(path, filename)
-            target_path = os.path.join(target_directory, os.path.relpath(source_path, source_directory))
-            paths.append((target_path, [source_path]))
-    return paths
+data_files_spec = [
+    # Notebook extension data files
+    ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
+    ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
 
-# Collect files for notebook extension
-notebook_files = package_files(str(notebook_path), 'share/jupyter/nbextensions/mitosheet')
-notebook_files = notebook_files + [('etc/jupyter/nbconfig/notebook.d', [str(HERE) + '/mitosheet.json'])]
+    # Lab extension data files
+    ("share/jupyter/labextensions/mitosheet", str(lab_path), "**"),
+    ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
+]
 
-# Collect files for lab extension
-lab_files = package_files(str(lab_path), "share/jupyter/labextensions/mitosheet")
-
-# Merge data files together
-data_files = notebook_files + lab_files
+data_files = get_data_files(data_files_spec)
 
 setup_args = dict(
     name                    = 'mitosheet',
@@ -69,8 +68,8 @@ setup_args = dict(
     """,
     long_description_content_type = "text/markdown",
     packages                 = setuptools.find_packages(exclude=['deployment']),
-    include_package_data    = True,
-    data_files              = data_files,
+    include_package_data     = True,
+    data_files               = data_files,
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
@@ -98,6 +97,7 @@ setup_args = dict(
         'deploy': [
             'wheel', 
             'twine',
+            "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
         ],
         'streamlit': [
