@@ -417,7 +417,7 @@ def test_to_and_from_json():
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
-    assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"initial_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}], "mito_analysis_version": 1}'
+    assert json == r'{"code": "", "code_options": null, "fully_parameterized_function": "from mitosheet.public.v3 import *\nimport pandas as pd\n\ndef function(import_dataframe_0):\n    return import_dataframe_0\n", "param_metadata": [{"original_value": "test_df_name", "type": "df_name", "subtype": "import_dataframe", "required": true, "name": "import_dataframe_0"}], "mito_analysis_version": 1}'
 
     # Test that the from_json function works
     new_analysis = RunnableAnalysis.from_json(json)
@@ -470,3 +470,25 @@ def function():
     analysis = RunnableAnalysis('', None, fully_parameterized_code, [])
     result = analysis.run()
     pd.testing.assert_frame_equal(result, pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
+
+@requires_streamlit
+def test_can_pass_dataframe_to_file_path_in_run_auto_conversion():
+
+    analysis = RunnableAnalysis(
+        '',
+        None,
+        """from mitosheet.public.v3 import *
+import pandas as pd
+
+def function_srjr(file_name_import_csv_0):
+    df_export = pd.read_csv(file_name_import_csv_0)
+    
+    return df_export
+""",
+    [{"original_value": "datasets/df_export.csv", "type": "import", "subtype": "file_name_import_csv", "required": False, "name": "file_name_import_csv_0"}]
+    )
+
+    # Run with a df rather than a file path
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    result = analysis.run(df)
+    assert result is not None
