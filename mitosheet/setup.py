@@ -45,7 +45,11 @@ setup_args = dict(
     """,
     long_description_content_type = "text/markdown",
     packages                 = setuptools.find_packages(exclude=['deployment']),
-    package_data             = {'': ['*.js', '*.css', '*.html']},
+    package_data             = {'mitosheet': [
+        'labextension/*',
+        'nbextension/*',
+        '*.js', '*.css', '*.html'
+    ]},
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
