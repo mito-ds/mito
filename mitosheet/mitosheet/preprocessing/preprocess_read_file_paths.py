@@ -22,14 +22,20 @@ from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_valid_dataframe_name
 
 
-class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
+class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
     """
-    This preprocessor reads in any arguments that are
-    strings, treats them as file paths, and attempts
-    to read them in a dataframes.
+    This preprocessing step is responsible for converting
+    all of the args to dataframes.
 
-    If the file path is actually a CSV of a dataframe, 
-    then we read it in as a dataframe by using StringIO.
+    It accepts the following arguments:
+    1. A dataframe
+    2. A string that is a path to a CSV file
+    3. A string that is a CSV of a dataframe
+    4. A string that is the JSON of a dataframe
+    5. A list that is the .to_dict('records') of a dataframe
+
+    If it fails to convert any of the arguments to a dataframe,
+    then it will throw an error.
     """
 
     @classmethod
@@ -38,7 +44,7 @@ class ReadFilePathsPreprocessStepPerformer(PreprocessStepPerformer):
 
     @classmethod
     def preprocess_step_type(cls) -> str:
-        return 'read_file_paths'
+        return 'convert_to_dataframe'
 
     @classmethod
     def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:

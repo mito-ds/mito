@@ -11,7 +11,7 @@ require no user input.
 
 from typing import List, Type
 from mitosheet.preprocessing.preprocess_step_performer import PreprocessStepPerformer
-from mitosheet.preprocessing.preprocess_read_file_paths import ReadFilePathsPreprocessStepPerformer
+from mitosheet.preprocessing.preprocess_read_file_paths import ConvertToDataframePreprocessStepPerformer
 from mitosheet.preprocessing.preprocess_check_args_type import CheckArgsTypePreprocessStepPerformer
 from mitosheet.preprocessing.preprocess_copy import CopyPreprocessStepPerformer
 
@@ -24,6 +24,6 @@ PREPROCESS_STEP_PERFORMERS: List[Type[PreprocessStepPerformer]] = [
    # Then, we copy the args to make sure we don't change them accidently
    CopyPreprocessStepPerformer,
    # Then, we read in the files
-   ReadFilePathsPreprocessStepPerformer,
+   ConvertToDataframePreprocessStepPerformer,
 ]
 

@@ -38,6 +38,9 @@ VALID_DATAFRAMES = [
 
     # Test can take a string of file content
     (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False)),
+
+    # Test can can a .to_dict('records') dataframe
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_dict('records')),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
 def test_df_creates_valid_df(df):
