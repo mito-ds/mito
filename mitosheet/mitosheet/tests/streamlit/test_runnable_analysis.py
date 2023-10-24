@@ -491,4 +491,4 @@ def function_srjr(file_name_import_csv_0):
     # Run with a df rather than a file path
     df = pd.DataFrame({'A': [1, 2, 3]})
     result = analysis.run(file_name_import_csv_0=df)
-    assert result is not None
+    assert result.equals(df)
