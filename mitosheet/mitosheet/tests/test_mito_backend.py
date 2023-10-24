@@ -3,6 +3,7 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
+from io import StringIO
 import json
 import os
 import pandas as pd
@@ -34,11 +35,16 @@ VALID_DATAFRAMES = [
     (pd.DataFrame(data={'NUMber': [1, 2, 3], '.,,': [1, 2, 3]})),
     (pd.DataFrame(data={'this is a possible ! column header that could be there': [1, 2, 3], '.,,': [1, 2, 3]})),
     (pd.DataFrame(data={1000.123123: [1, 2, 3], 52.100: [1, 2, 3]})),
+
+    # Test can take a string of file content
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False)),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
 def test_df_creates_valid_df(df):
     mito = get_mito_backend(df)
     assert mito is not None
+    if isinstance(df, str):
+        df = pd.read_csv(StringIO(df))
     assert list(mito.steps_manager.curr_step.dfs[0].keys()) == list(df.keys())
 
 def test_df_with_nan_creates_backend():
