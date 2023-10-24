@@ -19,7 +19,7 @@ import HorizontalNavItem from '../../components/Glossary/HorizontalNavItem/Horiz
 import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import { useRouter } from 'next/router';
-import { GetStaticProps, NextPage } from 'next';
+import { GetStaticProps } from 'next';
 import { PageContent } from './types';
 
 import Prism from 'prismjs';
@@ -27,8 +27,6 @@ import 'prism-themes/themes/prism-coldark-dark.css'
 import { getPageContentJsonArray } from '../../utils/glossary';
 import { arraysContainSameValues } from '../../utils/arrays';
 require('prismjs/components/prism-python');
-
-
 
 const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
 
@@ -132,26 +130,23 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
               
               <section className={excelToPythonStyles.section}>
                 {pageContent.titleCardParagraphs.map(text => {
-                    <p>{text}</p>
+                    return <p>{text}</p>
                 })}
               </section>
 
               {/* Understanding the Excel Function */}
               <section className={excelToPythonStyles.section}>
                   <h2 
-                    id="Understanding Excel's ABS Function"
+                    id={`Understanding Excel's ${functionNameShort} Function`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding Excel&apos;s ABS Function
-                    <a className={excelToPythonStyles.section_copy} href="#Understanding Excel's ABS Function">#</a>
+                    Understanding Excel&apos;s {functionNameShort} Function
+                    <a className={excelToPythonStyles.section_copy} href={`#Understanding Excel's ${functionNameShort} Function`}>#</a>
                   </h2>
-                  <p>
-                    The ABS function in Excel takes a single parameters and returns its absolute value.
-                  </p>
-                  <p>
-                    =ABS(<span className='text-highlight'>number</span>)
-                  </p>
-                  <h3 className={excelToPythonStyles.h3}>ABS Excel Syntax</h3>
+                  {pageContent.excelExplanation.paragraphs.map(text => {
+                    return <p>{text}</p>
+                  })}
+                  <h3 className={excelToPythonStyles.h3}>{functionNameShort} Excel Syntax</h3>
                   <table className={excelToPythonStyles.table}>
                     <thead>
                       <tr>
@@ -161,11 +156,15 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>number</td>
-                        <td>The number you want to take the absolute value of</td>
-                        <td>number</td>
-                      </tr>
+                      {pageContent.excelExplanation.syntaxTable.map(row => {
+                        return (
+                          <tr>
+                            <td>{row.parameter}</td>
+                            <td>{row.description}</td>
+                            <td>{row.dataType}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
 
@@ -179,77 +178,50 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>=ABS(-5)</td>
-                        <td>Calculate the absolute value of -5</td>
-                        <td>5</td>
-                      </tr>
-                      <tr>
-                        <td>=ABS(2*-2)</td>
-                        <td>Calculate the absolute value of 2 * -2</td>
-                        <td>4</td>
-                      </tr>
+                      {pageContent.excelExplanation.examplesTable.map(row => {
+                        return (
+                          <tr>
+                            <td>{row.formula}</td>
+                            <td>{row.description}</td>
+                            <td>{row.result}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
               </section>
 
               {/* Equivalent Python Code Using Pandas */}
               <section className={excelToPythonStyles.section}>
-                  <h2 
-                    id="Implementing ABS in Pandas"
-                    className={excelToPythonStyles.link}
-                  >
-                    Implementing the Absolute Value function in Pandas
-                    <a className={excelToPythonStyles.section_copy} href="#Implementing ABS in Pandas">#</a>
-                  </h2>
-                  <p>
-                    To replicate the ABS function in Excel using Python and Pandas, you can use the `abs()` function available in Pandas. Below are examples of how to achieve the same functionality.
-                  </p>
-                  
-                  <h3 
-                    id="ABS of every cell" 
-                    className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
-                  >
-                    Calculate the absolute value of every cell in a Pandas series
-                    <a className={excelToPythonStyles.section_copy} href="#ABS of every cell">#</a>
-                  </h3>
-                  <p>
-                    The most common way to use the function in Excel is to apply it directly to a column or series of numbers in a Pandas DataFrame.
-                  </p>
-
-                  <CodeBlock code={`# Calculate the absolute value of the Numbers column
-df['ABS_Result'] = df['Numbers'].abs()`}
-                  />
-                  <h3 
-                    id="ABS difference" 
-                    className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
-                  >
-                    Finding the absolute difference between two columns
-                    <a className={excelToPythonStyles.section_copy} href="#ABS difference">#</a>
-                  </h3>
-                  <p>
-                    To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
-                  </p>
-                  <CodeBlock code = {`# Calculate the absolute difference between Column1 and Column2
-df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()`
-                  }/>
-                  <h3 
-                    id="Complex ABS operations" 
-                    className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
-                  >
-                    Using ABS as part of a more complex operation
-                    <a className={excelToPythonStyles.section_copy} href="#Complex ABS operations">#</a>
-                  </h3>
-                  <p>
-                    To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column.
-                  </p>
-                  <CodeBlock code = {`# Define a function to calculate the absolute sum of a row
-def abs_sum(row):
-  return row.abs().sum()
-                    
-# Create a new column 'ABS_SUM' by applying the custom function 
-df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
-                  }/>
+                <h2 
+                  id={`Implementing ${functionNameShort} in Pandas`}
+                  className={excelToPythonStyles.link}
+                >
+                  Implementing the {pageContent.functioNameLong} function in Pandas
+                  <a className={excelToPythonStyles.section_copy} href={`#Implementing ${functionNameShort} in Pandas`}>#</a>
+                </h2>
+                {pageContent.equivalentCode.introParagraphs.map(text => {
+                  return <p>{text}</p>
+                })}
+                {pageContent.equivalentCode.codeSections.map(codeSection => {
+                  return (
+                    <>
+                      <h3 
+                        id={codeSection.shortTitle}
+                        className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
+                      >
+                        {codeSection.title}
+                        <a className={excelToPythonStyles.section_copy} href={`#${codeSection.shortTitle}`}>#</a>
+                      </h3>
+                      {codeSection.paragraphs.map(text => {
+                        return <p>{text}</p>
+                      })}
+                      <CodeBlock
+                        code={codeSection.codeLines.join('\n')}
+                      />
+                    </>
+                  )
+                })}
               </section>
 
               {/* Common Pitfalls and Tips */}
@@ -258,52 +230,29 @@ df['ABS_SUM'] = df.['ABS'].abs(), axis=1)`
                   id="Common mistakes"
                   className={excelToPythonStyles.link}
                 >
-                  Common mistakes when implementing the ABS function in Python
+                  Common mistakes when implementing the {functionNameShort} function in Python
                   <a className={excelToPythonStyles.section_copy} href="#Common mistakes">#</a>
                 </h2>
-                <p>
-                  When implementing the ABS function in Python, there are a few common challenges that you might run into.
-                </p>
-                <h3 
-                  id="Missing values" 
-                  className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
-                >
-                  Handling Missing Values
-                  <a className={excelToPythonStyles.section_copy} href="#Missing values">#</a>
-                </h3>
-                <p>
-                  If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): &apos;NoneType&apos;`</code>.
-                </p>
-                <p>
-                  To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel.
-                </p>
-                <CodeBlock code={`# Fill missing values with 0 so it is handled the same was as Excel
-df.fillna(0, inplace=True)
-
-# Calculate the absolute value
-df['ABS_SUM'] = df['A'].abs()`}/>          
-                <h3 
-                  id="Non-numeric values" 
-                  className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
-                >
-                  Handling Non-numeric Values
-                  <a className={excelToPythonStyles.section_copy} href="#Non-numeric values">#</a>
-                </h3>
-                <p>
-                  In Python, when you use the ABS function you don&apos;t have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.
-                </p>
-                <p>
-                  Python&apos;s .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula.
-                </p>
-                <CodeBlock code={`# Convert the columns to numeric data types (float)
-df[A] = df['A'].astype(float)
-
-# Then, replace any cell that could not be converted to a float
-# with the value 0, so it’s handled the same as Excel.
-df.fillna(0, inplace=True)
-
-# Calculate the absolute value
-df['ABS_SUM'] = df['A'].abs()`}/>
+                {pageContent.commonMistakes.introParagraphs.map(text => {
+                  return <p>{text}</p>
+                })}
+                {pageContent.commonMistakes.codeSections.map(codeSections => {
+                  return (
+                    <>
+                      <h3 
+                        id={codeSections.shortTitle} 
+                        className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
+                      >
+                        {codeSections.title}
+                        <a className={excelToPythonStyles.section_copy} href={`#{codeSections.shortTitle}`}>#</a>
+                      </h3>
+                      {codeSections.paragraphs.map(text => {
+                        return <p>{text}</p>
+                      })}
+                      <CodeBlock code={codeSections.codeLines.join('\n')}/>
+                    </>
+                  )
+                })}
               </section>
             </div>
             <div className={excelToPythonStyles.table_of_contents_container}>
@@ -358,6 +307,8 @@ export async function getStaticPaths() {
   // Get the paths we want to create based on posts
   const paths = pageContentsJsonArray.map((pageContentsJson) => {
     return {
+      // We allow the slug to be an array so we can support paths like /functions/math/abs
+      // https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#catch-all-segments
       params: { slug: [...pageContentsJson.slug] },
     }
   })

@@ -1,0 +1,10 @@
+{
+    "slug": ["functions", "math", "SUM"],
+    "functionNameShort": "SUM",
+    "functionNameLong": "Absolute Value",
+    "relatedFunctions": ["SUM", "ROUND", "CEIL"],
+    "titleCardParagraphs": [
+        "Excel's ABS function finds the absolute value of a number. The absolute value of a function is the non-negative value of a number. The absolute value function is commonly used, for example, to calculate the distance between two points. Regardless of the order we look at the points, the distance should always be positive.",
+        "This page explains how to implement Excel's ABS function in Python, so you can automate Excel reports using Python and Pandas."
+    ]
+}
