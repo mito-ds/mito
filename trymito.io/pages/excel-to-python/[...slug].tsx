@@ -20,12 +20,13 @@ import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import { useRouter } from 'next/router';
 import { GetStaticProps } from 'next';
-import { PageContent } from './types';
+
+import { getPageContentJsonArray } from '../../utils/excel-to-python';
+import { arraysContainSameValues } from '../../utils/arrays';
+import { PageContent } from '../../excel-to-python-page-contents/types';
 
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
-import { getPageContentJsonArray } from '../../utils/glossary';
-import { arraysContainSameValues } from '../../utils/arrays';
 require('prismjs/components/prism-python');
 
 const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
@@ -63,7 +64,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         {/* Canonical URL */}
-        <link rel="canonical" href={`https://www.example.com/${path}`} />
+        <link rel="canonical" href={`https://www.trymito.io/${path}`} />
         
         {/* Open Graph Tags (for social media sharing) */}
         <meta
