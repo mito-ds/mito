@@ -1,3 +1,5 @@
+import React from "react";
+
 export type PageContent = {
     slug: string[];
     functionNameShort: string;
