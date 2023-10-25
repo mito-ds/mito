@@ -130,7 +130,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
               
               <section className={excelToPythonStyles.section}>
                 {pageContent.titleCardParagraphs.map(text => {
-                    return <p>{text}</p>
+                    return <p key={text}>{text}</p>
                 })}
               </section>
 
@@ -144,7 +144,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     <a className={excelToPythonStyles.section_copy} href={`#Understanding Excel's ${functionNameShort} Function`}>#</a>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
-                    return <p>{text}</p>
+                    return <p key={text}>{text}</p>
                   })}
                   <h3 className={excelToPythonStyles.h3}>{functionNameShort} Excel Syntax</h3>
                   <table className={excelToPythonStyles.table}>
@@ -156,9 +156,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pageContent.excelExplanation.syntaxTable.map(row => {
+                      {pageContent.excelExplanation.syntaxTable.map((row, index) => {
                         return (
-                          <tr>
+                          <tr key={`syntax-table-row-${index}`}>
                             <td>{row.parameter}</td>
                             <td>{row.description}</td>
                             <td>{row.dataType}</td>
@@ -178,9 +178,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pageContent.excelExplanation.examplesTable.map(row => {
+                      {pageContent.excelExplanation.examplesTable.map((row, index) => {
                         return (
-                          <tr>
+                          <tr key={`examples-table-row-${index}`}>
                             <td>{row.formula}</td>
                             <td>{row.description}</td>
                             <td>{row.result}</td>
@@ -201,7 +201,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   <a className={excelToPythonStyles.section_copy} href={`#Implementing ${functionNameShort} in Pandas`}>#</a>
                 </h2>
                 {pageContent.equivalentCode.introParagraphs.map(text => {
-                  return <p>{text}</p>
+                  return <p key={text}>{text}</p>
                 })}
                 {pageContent.equivalentCode.codeSections.map(codeSection => {
                   return (
@@ -214,7 +214,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                         <a className={excelToPythonStyles.section_copy} href={`#${codeSection.shortTitle}`}>#</a>
                       </h3>
                       {codeSection.paragraphs.map(text => {
-                        return <p>{text}</p>
+                        return <p key={text}> {text}</p>
                       })}
                       <CodeBlock
                         code={codeSection.codeLines.join('\n')}
@@ -234,7 +234,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   <a className={excelToPythonStyles.section_copy} href="#Common mistakes">#</a>
                 </h2>
                 {pageContent.commonMistakes.introParagraphs.map(text => {
-                  return <p>{text}</p>
+                  return <p key={text}>{text}</p>
                 })}
                 {pageContent.commonMistakes.codeSections.map(codeSections => {
                   return (
@@ -244,10 +244,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                         className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
                       >
                         {codeSections.title}
-                        <a className={excelToPythonStyles.section_copy} href={`#{codeSections.shortTitle}`}>#</a>
+                        <a className={excelToPythonStyles.section_copy} href={`#${codeSections.shortTitle}`}>#</a>
                       </h3>
                       {codeSections.paragraphs.map(text => {
-                        return <p>{text}</p>
+                        return <p key={text}>{text}</p>
                       })}
                       <CodeBlock code={codeSections.codeLines.join('\n')}/>
                     </>
