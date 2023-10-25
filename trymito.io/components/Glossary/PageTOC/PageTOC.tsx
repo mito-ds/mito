@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useDebouncedEffect } from '../../../hooks/useDeboundedEffect';
 import { classNames } from '../../../utils/classNames';
 import pageTOCStyles from './PageTOC.module.css';
 
 type Heading = {
+    // We use the ID of the element as both the title we display in the TOC
+    // and how we find the element on the page to scroll to when the user clicks on the TOC item
+    id: string; 
+
+    // The level of the heading (e.g., "h2", "h3") is used to determine the indentation of the TOC item
     level: string;
-    id: string;
 }
 
 const PageTOC = () => {
@@ -26,33 +29,42 @@ const PageTOC = () => {
     }, []); // This useEffect only runs once on component mount
     
 
-    useDebouncedEffect(() => {
-        // Function to handle scroll events
+    useEffect(() => {
+        let scrollTimeout: NodeJS.Timeout | null = null;
+    
         const handleScroll = () => {
             // Check if the headings array is empty
             if (headings.length === 0) {
                 return;
             }
-    
-            // Find the heading that is currently in view
-            for (let i = 0; i < headings.length; i++) {
-                const heading = headings[i];
-
-                const headingElement = document.getElementById(heading.id);
-    
-                if (headingElement === null) {
-                    return;
-                }
-                const rect = headingElement.getBoundingClientRect();
-    
-                if (rect.top > 100) {
-                    setActiveHeading(heading);
-                    return;
-                }
+        
+            // Clear any existing timeout
+            if (scrollTimeout !== null) {
+                clearTimeout(scrollTimeout);
             }
-    
-            // If no heading is in view, clear the active heading
-            setActiveHeading(undefined);
+        
+            // Set a new timeout to debounce the scroll event
+            // so that we don't fire this event listener for every pixel scrolled
+            scrollTimeout = setTimeout(() => {
+                // Find the heading that is currently in view
+                for (let i = 0; i < headings.length; i++) {
+                    const heading = headings[i];
+                    const headingElement = document.getElementById(heading.id);
+            
+                    if (headingElement === null) {
+                        return;
+                    }
+                    const rect = headingElement.getBoundingClientRect();
+            
+                    if (rect.top > 50) {
+                        setActiveHeading(heading);
+                        return;
+                    }
+                }
+        
+                // If no heading is in view, clear the active heading
+                setActiveHeading(undefined);
+            }, 10);
         };
     
         // Attach the scroll event listener when headingsArray is populated
@@ -62,9 +74,12 @@ const PageTOC = () => {
     
         // Cleanup: Remove event listener on component unmount
         return () => {
+            if (scrollTimeout !== null) {
+                clearTimeout(scrollTimeout);
+            }
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [headings], 200);
+      }, [headings]);
         
 
     const handleItemClick = (headingId: string) => {
@@ -73,7 +88,7 @@ const PageTOC = () => {
         if (targetElement) {
             // Calculate the target position with a 200px offset from the top so it doesn't get blocked by the header
             const offset = 200;
-            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - offset;
+            const targetPosition = targetElement.getBoundingClientRect().bottom + window.scrollY - offset;
 
             window.scrollTo({
                 top: targetPosition,

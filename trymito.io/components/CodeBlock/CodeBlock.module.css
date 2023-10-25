@@ -1,4 +1,4 @@
-.container {
+.container_div {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -24,7 +24,7 @@
 
 @media only screen and (min-width: 50em) {
 
-    .container .clipboard_container {
+    .container_div .clipboard_container {
         position: absolute;
         display: flex;
         flex-direction: row;
@@ -44,7 +44,7 @@
         margin-right: 10px;
     }
 
-    .container:hover .copy_text {
+    .container_div:hover .copy_text {
         display: inline-block
     }
 }
