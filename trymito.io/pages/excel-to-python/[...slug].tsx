@@ -22,11 +22,11 @@ import { useRouter } from 'next/router';
 import { GetStaticProps } from 'next';
 
 import { getPageContentJsonArray } from '../../utils/excel-to-python';
-import { arraysContainSameValues } from '../../utils/arrays';
 import { PageContent } from '../../excel-to-python-page-contents/types';
 
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
+import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 require('prismjs/components/prism-python');
 
 const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
@@ -331,7 +331,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
     // If the slugs are both arrays, compare them
     if (Array.isArray(slug) && Array.isArray(pageContentsJson.slug)) {
-      return arraysContainSameValues(slug, pageContentsJson.slug)
+      return arraysContainSameValueAndOrder(slug, pageContentsJson.slug)
     }
 
     return false
