@@ -93,7 +93,8 @@ setup_args = dict(
             'types-chardet',
             'types-requests',
             'mypy',
-            'pytest_httpserver'
+            'pytest_httpserver',
+            "jupyter_packaging<=0.10.6",
         ],
         'deploy': [
             'wheel', 
