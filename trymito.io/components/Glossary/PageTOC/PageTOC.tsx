@@ -64,7 +64,7 @@ const PageTOC = () => {
         
                 // If no heading is in view, clear the active heading
                 setActiveHeading(undefined);
-            }, 100);
+            }, 10);
         };
     
         // Attach the scroll event listener when headingsArray is populated
