@@ -147,8 +147,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   {pageContent.excelExplanation.paragraphs.map(text => {
                     return <p key={text}>{text}</p>
                   })}
-                  <h3 className={excelToPythonStyles.h3}>{functionNameShort} Excel Syntax</h3>
-                  <table className={excelToPythonStyles.table}>
+                  <h3 className={excelToPythonStyles.section_h3_tag}>{functionNameShort} Excel Syntax</h3>
+                  <table className={excelToPythonStyles.excel_to_python_table}>
                     <thead>
                       <tr>
                         <th>Parameter</th>
@@ -169,8 +169,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     </tbody>
                   </table>
 
-                  <h3 className={excelToPythonStyles.h3}>ABS Examples</h3>
-                  <table className={excelToPythonStyles.table}>
+                  <h3 className={excelToPythonStyles.section_h3_tag}>ABS Examples</h3>
+                  <table className={excelToPythonStyles.excel_to_python_table}>
                     <thead>
                       <tr>
                         <th>Formula</th>
@@ -209,7 +209,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     <>
                       <h3 
                         id={codeSection.shortTitle}
-                        className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
+                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
                       >
                         {codeSection.title}
                         <a className={excelToPythonStyles.section_copy} href={`#${codeSection.shortTitle}`}>#</a>
@@ -242,7 +242,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     <>
                       <h3 
                         id={codeSections.shortTitle} 
-                        className={classNames(excelToPythonStyles.h3, excelToPythonStyles.link)}
+                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
                       >
                         {codeSections.title}
                         <a className={excelToPythonStyles.section_copy} href={`#${codeSections.shortTitle}`}>#</a>

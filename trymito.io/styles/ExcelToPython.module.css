@@ -29,15 +29,15 @@
     margin-right: 10px;
 }
 
-.h3 {
+.section_h3_tag {
     font-family: Graphik;
     font-style: normal;
     font-weight: 400;
     margin-top: 2rem;
-    font-size: 1.25rem;
+    font-size: 1.75rem;
 }
 
-.table {
+.excel_to_python_table {
     border-collapse: collapse;
     color: white;
     border-radius: 8px 8px 0 0;
@@ -45,17 +45,18 @@
     margin-top: 2rem;
     margin-bottom: 2rem;
     width: 100%;
+    font-size: 1.5rem;
 }
 
-.table th,
-.table td {
+.excel_to_python_table th,
+.excel_to_python_table td {
   padding: 20px;
   text-align: left;
   border: none; 
   border-bottom: 1.5px solid black; 
 }
 
-.table thead {
+.excel_to_python_table thead {
     background-color: black;
     border-radius: 1rem;
 }
@@ -118,8 +119,9 @@
         width: 75%;
     }
     
-    .table {
+    .excel_to_python_table {
         width: 80%;
+        font-size: 1rem;
     }
 
     h2 .section_copy {
@@ -139,7 +141,10 @@
         flex-direction: row;
         justify-content: space-evenly;
         max-width: 80rem;
+    }
 
+    .section_h3_tag {
+        font-size: 1.25rem;
     }
 
 }

@@ -15,7 +15,7 @@ const CodeBlock = (props:{code: string}) => {
   }, [copied])
 
   return (
-    <div className={codeBlockStyles.container} >
+    <div className={codeBlockStyles.container_div} >
       <pre className={codeBlockStyles.code_container} onClick={async () => {
 
         // Undefined on some mobile devices so we disable it as to not error
