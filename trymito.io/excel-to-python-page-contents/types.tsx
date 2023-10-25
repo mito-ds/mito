@@ -1,3 +1,9 @@
+
+/* 
+    The json data type expected by the ExcelToPythonGlossaryPage.
+
+    See examples of this in use in the excel-to-python-page-contents folder.
+*/
 export type PageContent = {
     slug: string[];
     functionNameShort: string;
