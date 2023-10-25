@@ -90,7 +90,7 @@
                 "title": "Handling Missing Values",
                 "shortTitle": "Missing values",
                 "paragraphs": [
-                    "If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error <code>`TypeError: bad operand type for abs(): 'NoneType'`</code>.",
+                    "If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error `TypeError: bad operand type for abs(): 'NoneType'`.",
                     "To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel."
                 ],
                 "codeLines": [
