@@ -21,7 +21,7 @@ from mitosheet.transpiler.transpile_utils import get_str_param_name
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_valid_dataframe_name
 
-def convert_arg_of_string_type_to_dataframe(arg: str, arg_index: int) -> Optional[Tuple[pd.DataFrame, str, str, Dict[str, Any]]]:
+def convert_arg_of_string_type_to_dataframe(arg: str, arg_index: int) -> Optional[Tuple[Any, pd.DataFrame, str, str, Dict[str, Any]]]:
     """
     Converts a string to a dataframe if possible. If not possible, then returns None.
     """
@@ -29,7 +29,7 @@ def convert_arg_of_string_type_to_dataframe(arg: str, arg_index: int) -> Optiona
     try:
         # We use the simple import 
         df, delimeter, encoding = read_csv_get_delimiter_and_encoding(arg)
-        return df, basename(normpath(arg)), 'file_path', {
+        return arg, df, basename(normpath(arg)), 'file_path', {
             'delimeter': delimeter,
             'encoding': encoding
         }
@@ -41,20 +41,20 @@ def convert_arg_of_string_type_to_dataframe(arg: str, arg_index: int) -> Optiona
     if not arg.startswith('{'): # Skip this as this means it's to_json converted
         try:
             df = pd.read_csv(StringIO(arg))
-            return df, 'df' + str(arg_index + 1), 'csv_string', {}
+            return arg, df, 'df' + str(arg_index + 1), 'csv_string', {}
         except:
             pass
             
     # If we still can't read that, then try this as a JSON string
     try:
         df = pd.read_json(arg)
-        return df, 'df' + str(arg_index + 1), 'json_string', {}
+        return arg, df, 'df' + str(arg_index + 1), 'json_string', {}
     except:
         pass
 
     return None
 
-def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Optional[Tuple[pd.DataFrame, str, str, Dict[str, Any]]]:
+def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Optional[List[Tuple[Any, pd.DataFrame, str, str, Dict[str, Any]]]]:
     """
     Accepts the following arguments:
     1. dataframe: A dataframe
@@ -63,6 +63,7 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
     3. csv_string: A string that is a CSV of a dataframe
     4. json_string: A string that is the JSON of a dataframe
     5. to_dict_records: A list that is the .to_dict('records') of a dataframe
+    6. list_of_csv_strings: A list of strings that are CSVs of dataframes
 
     TODO: 
     - Add support for Excel files
@@ -72,18 +73,17 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
     - Add support for Conn objects?
     - Add support for other types of dataframes?
 
-    Returns a tuple of the dataframe, dataframe name, type being converted from, and extra data
+    Returns a list of tuples of the dataframe, dataframe name, type being converted from, and extra data
     """
-
     if isinstance(arg, pd.DataFrame):
-        return arg, 'df' + str(arg_index + 1), 'dataframe', {}
+        return [(arg, arg, 'df' + str(arg_index + 1), 'dataframe', {})]
     
     if isinstance(arg, pd.Series):
         # If this is a series, then we can convert it to a dataframe
-        return pd.DataFrame(arg), 'df' + str(arg_index + 1), 'series', {}
+        return [(arg, pd.DataFrame(arg), 'df' + str(arg_index + 1), 'series', {})]
     
     if isinstance(arg, str):
-        return convert_arg_of_string_type_to_dataframe(arg, arg_index)
+        return [convert_arg_of_string_type_to_dataframe(arg, arg_index)]
 
     if isinstance(arg, list):
         # If this is a list, then it could be the .to_dict('records') of a dataframe
@@ -93,10 +93,20 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
         if isinstance(arg[0], dict):
             try:
                 # If this is a list of dicts, then it could be the .to_dict('records') of a dataframe
-                return pd.DataFrame(arg), 'df' + str(arg_index + 1), 'to_dict_records', {}
+                return [(arg, pd.DataFrame(arg), 'df' + str(arg_index + 1), 'to_dict_records', {})]
             except:
                 pass
         
+        if isinstance(arg[0], str):
+            # If this is a list of strings, then it could be a list of CSV strings
+            results = []
+            for arg_index, arg in enumerate(arg):
+                result = convert_arg_of_string_type_to_dataframe(arg, arg_index)
+                if result is None:
+                    return None
+                results.append(result)
+            return results
+
     return None
 
 
@@ -123,22 +133,23 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         df_names: List[str] = []
 
         # Keep all the information we need to convert each arg, 
-        # mapped from index -> (type, extra_data)
-        conversion_params: Dict[int, Tuple[str, Dict[str, Any]]] = {}
+        # A list of (original_arg, df_name, type, conversion_data)
+        conversion_params: List[int, Tuple[Any, str, str, Dict[str, Any]]] = []
 
         for arg_index, arg in enumerate(args):
-            result = convert_arg_of_unknown_type_to_dataframe(arg, arg_index)
-            if result is None:
+            results = convert_arg_of_unknown_type_to_dataframe(arg, arg_index)
+            if results is None:
                 error_message = f'Invalid argument passed to sheet: {arg}. Please pass all dataframes, paths to CSV files, or types that can be converted to Pandas dataframes.'
                 log('mitosheet_sheet_call_failed', {'error': error_message}, failed=True)
                 raise ValueError(error_message)
 
-            df, df_name, type_converted_from, extra_data = result
-            # If the dataframe name is already taken, then we need to change it
-            df_name = get_valid_dataframe_name(df_names, df_name)
-            df_args.append(df)
-            df_names.append(df_name)
-            conversion_params[arg_index] = (type_converted_from, extra_data)                
+            for result in results:
+                original_arg, df, df_name, type_converted_from, extra_data = result
+                # If the dataframe name is already taken, then we need to change it
+                df_name = get_valid_dataframe_name(df_names, df_name)
+                df_args.append(df)
+                df_names.append(df_name)
+                conversion_params.append((original_arg, df_name, type_converted_from, extra_data))                
                 
         return df_args, df_names, {
             'df_names': df_names,
@@ -153,13 +164,9 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         """
         code = []
         
-        conversion_params = execution_data['conversion_params'] if execution_data is not None else {}
-        df_names = execution_data['df_names'] if execution_data is not None else []
+        conversion_params = execution_data['conversion_params'] if execution_data is not None else []
 
-        for arg_index, arg in enumerate(steps_manager.original_args):
-            df_name = df_names[arg_index]
-            type_converted_from, extra_data = conversion_params[arg_index]
-
+        for arg, df_name, type_converted_from, extra_data in conversion_params:
             if type_converted_from == 'dataframe':
                 # If this is a dataframe, then we don't need to do anything
                 continue
@@ -195,7 +202,6 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
                 )
             else:
                 raise ValueError(f'Unknown type converted from: {type_converted_from}')
-
 
         if len(code) > 0:
             code.insert(0, '# Read in filepaths as dataframes')

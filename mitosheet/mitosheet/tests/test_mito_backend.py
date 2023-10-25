@@ -44,6 +44,8 @@ VALID_DATAFRAMES = [
     (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_json(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
     # to_dict of file content
     (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_dict('records'), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
+    # a list of strings (which are to_csv of file content)
+    ([pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False)], pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
 def test_df_creates_valid_df(df):

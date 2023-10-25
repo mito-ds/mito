@@ -155,19 +155,10 @@ try:
                 Input(self.mito_id, 'data'), 
                 prevent_initial_call=True
             )
-            def handle_data_change_data(df_in_json):
+            def handle_data_change_data(data):
                 
-                # TODO: we should handle more data types. Namely, those that dash_table does...
-                # TO
-                if isinstance(df_in_json, str):
-                    df = pd.read_json(StringIO(df_in_json))
-                elif isinstance(df_in_json, list):
-                    df = pd.DataFrame(df_in_json)
-                else:
-                    raise Exception(f"Unsupported data type {type(df_in_json)}")
-
                 self._set_new_mito_backend(
-                    df, 
+                    data, 
                     import_folder=self.import_folder, 
                     code_options=self.code_options,
                     df_names=self.df_names,
