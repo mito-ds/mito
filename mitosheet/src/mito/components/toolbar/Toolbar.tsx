@@ -166,7 +166,7 @@ export const Toolbar = (
                     return <button
                         key={tab}
                         onClick={() => setCurrentTab(tab)}
-                        className={classNames('mito-toolbar-tabbar-button', currentTab === tab ? 'mito-toolbar-tabbar-button-selected' : '')}
+                        className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
                     >
                         <span>{tab}</span>
                         {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}

@@ -185,14 +185,14 @@
 
 
 /* Tab Bar Style */
-.mito-toolbar-tabbar-button {
+.mito-toolbar-tabbar-tabname {
   border: none;
   background: none;
   color: var(--mito-text-medium);
   margin-bottom: 2px;
 }
 
-.mito-toolbar-tabbar-button-selected {
+.mito-toolbar-tabbar-tabname-selected {
   display: flex;
   flex-direction: column;
   color: var(--mito-gray);
