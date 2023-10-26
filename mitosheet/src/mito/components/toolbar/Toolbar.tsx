@@ -164,6 +164,7 @@ export const Toolbar = (
             <div className='mito-toolbar-tabbar'>
                 {Object.keys(tabs).map((tab) => {
                     return <button
+                        key={tab}
                         onClick={() => setCurrentTab(tab)}
                         className={classNames('mito-toolbar-tabbar-button', currentTab === tab ? 'mito-toolbar-tabbar-button-selected' : '')}
                     >
