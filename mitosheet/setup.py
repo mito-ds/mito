@@ -13,14 +13,37 @@ As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
 
+from __future__ import print_function
+from glob import glob
+from os.path import join as pjoin
 import json
+import setuptools
 from pathlib import Path
 
-import setuptools
+
+from jupyter_packaging import (
+    get_data_files
+)
+
 from setuptools import setup
 
 HERE = Path(__file__).parent.resolve()
+
 package_json = json.loads(open('package.json').read())
+lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
+notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
+
+data_files_spec = [
+    # Notebook extension data files
+    ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
+    ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
+
+    # Lab extension data files
+    ("share/jupyter/labextensions/mitosheet", str(lab_path), "**"),
+    ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
+]
+
+data_files = get_data_files(data_files_spec)
 
 setup_args = dict(
     name                    = 'mitosheet',
@@ -45,7 +68,9 @@ setup_args = dict(
     """,
     long_description_content_type = "text/markdown",
     packages                 = setuptools.find_packages(exclude=['deployment']),
+    include_package_data     = True,
     package_data             = {'': ['*.js', '*.css', '*.html']},
+    data_files               = data_files,
     install_requires=[        
         "jupyterlab~=3.0",
         # We allow users to have many versions of pandas installed. All functionality should
@@ -68,11 +93,13 @@ setup_args = dict(
             'types-chardet',
             'types-requests',
             'mypy',
-            'pytest_httpserver'
+            'pytest_httpserver',
+            "jupyter_packaging<=0.10.6",
         ],
         'deploy': [
             'wheel', 
             'twine',
+            "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
         ],
         'streamlit': [
@@ -87,7 +114,6 @@ setup_args = dict(
         ]
     },
     zip_safe                = False,
-    include_package_data    = True,
     python_requires         = ">=3.6",
     platforms               = "Linux, Mac OS X, Windows",
     keywords                = ["Jupyter", "JupyterLab", "JupyterLab3"],
