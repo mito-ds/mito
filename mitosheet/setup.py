@@ -13,25 +13,19 @@ As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
 
-from __future__ import print_function
 from glob import glob
-from os.path import join as pjoin
+import os
 import json
 import setuptools
 from pathlib import Path
-
-
-from jupyter_packaging import (
-    get_data_files
-)
 
 from setuptools import setup
 
 HERE = Path(__file__).parent.resolve()
 
 package_json = json.loads(open('package.json').read())
-lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
-notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
+lab_path = Path(HERE, 'mitosheet', 'labextension')
+notebook_path = Path(HERE, 'mitosheet', 'nbextension')
 
 data_files_spec = [
     # Notebook extension data files
@@ -43,7 +37,25 @@ data_files_spec = [
     ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
 ]
 
-data_files = get_data_files(data_files_spec)
+def get_data_files_from_data_files_spec(data_specs):
+    """
+    Given tuples of (share path, location, glob pattern), turns 
+    this into a correct list of data_files items with the pattern
+    of (share path, [final paths])
+    """
+    cwd = os.getcwd()
+    
+    data_files = []
+    for (path, directory, pattern) in data_specs or []:
+        directory = os.path.abspath(directory)
+        data_files.append((path, [
+            f[len(cwd) + 1:] for f in 
+            glob(os.path.join(directory, pattern))
+        ]))
+    
+    return data_files
+
+data_files = get_data_files_from_data_files_spec(data_files_spec)
 
 setup_args = dict(
     name                    = 'mitosheet',
@@ -93,13 +105,11 @@ setup_args = dict(
             'types-chardet',
             'types-requests',
             'mypy',
-            'pytest_httpserver',
-            "jupyter_packaging<=0.10.6",
+            'pytest_httpserver'
         ],
         'deploy': [
             'wheel', 
             'twine',
-            "jupyter_packaging<=0.10.6",
             "setuptools==56.0.0"
         ],
         'streamlit': [
