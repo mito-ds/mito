@@ -17,7 +17,7 @@ from mitosheet.preprocessing.preprocess_step_performer import \
 from mitosheet.step_performers.import_steps.simple_import import \
     read_csv_get_delimiter_and_encoding
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.transpiler.transpile_utils import get_str_param_name
+from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code, get_column_header_list_as_transpiled_code, get_str_param_name
 from mitosheet.types import StepsManagerType
 from mitosheet.utils import get_valid_dataframe_name
 
@@ -58,7 +58,6 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
     """
     Accepts the following arguments:
     1. dataframe: A dataframe
-    2. series: A series
     2. file_path: A string that is a path to a CSV file
     3. csv_string: A string that is a CSV of a dataframe
     4. json_string: A string that is the JSON of a dataframe
@@ -66,6 +65,7 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
     6. list_of_csv_strings: A list of strings that are CSVs of dataframes
 
     TODO: 
+    - series: A series
     - Add support for Excel files
     - Add support for JSON files
     - Add support for URLs that have multiple tables on them
@@ -77,10 +77,6 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
     """
     if isinstance(arg, pd.DataFrame):
         return [(arg, arg, 'df' + str(arg_index + 1), 'dataframe', {})]
-    
-    if isinstance(arg, pd.Series):
-        # If this is a series, then we can convert it to a dataframe
-        return [(arg, pd.DataFrame(arg), 'df' + str(arg_index + 1), 'series', {})]
     
     if isinstance(arg, str):
         return [convert_arg_of_string_type_to_dataframe(arg, arg_index)]
@@ -163,6 +159,7 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         with a simple pd.read_csv call.
         """
         code = []
+        imports = []
         
         conversion_params = execution_data['conversion_params'] if execution_data is not None else []
 
@@ -171,11 +168,14 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
                 # If this is a dataframe, then we don't need to do anything
                 continue
             elif type_converted_from == 'series':
+                imports += ['import pandas as pd']
                 # If this is a series, then we can convert it to a dataframe
                 code.append(
                     f'{df_name} = pd.DataFrame({arg})'
                 )
             elif type_converted_from == 'file_path':
+                imports += ['import pandas as pd']
+
                 # Make sure to compile the path as a variable if the user is creating a function
                 file_name: str = arg if not steps_manager.code_options['as_function'] else get_str_param_name(steps_manager, arg_index) # type: ignore
                 delimeter = extra_data['delimeter']
@@ -188,17 +188,20 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
                     read_csv_code
                 )
             elif type_converted_from == 'csv_string':
+                imports += ['from io import StringIO']
                 # If this is a CSV string, then we can read it in with StringIO
                 code.append(
-                    f'{df_name} = pd.read_csv(StringIO({arg}))'
+                    f'{df_name} = pd.read_csv(StringIO({get_column_header_as_transpiled_code(arg)}))'
                 )
             elif type_converted_from == 'json_string':
+                imports += ['import pandas as pd']
                 code.append(
-                    f'{df_name} = pd.read_json({arg})'
+                    f'{df_name} = pd.read_json({get_column_header_as_transpiled_code(arg)})'
                 )
             elif type_converted_from == 'to_dict_records':
+                imports += ['import pandas as pd']
                 code.append(
-                    f'{df_name} = pd.DataFrame({arg})'
+                    f'{df_name} = pd.DataFrame({get_column_header_list_as_transpiled_code(arg)})'
                 )
             else:
                 raise ValueError(f'Unknown type converted from: {type_converted_from}')
@@ -206,4 +209,4 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         if len(code) > 0:
             code.insert(0, '# Read in filepaths as dataframes')
                 
-        return code, ['import pandas as pd'] if len(code) > 0 else []
+        return code, imports

@@ -1693,6 +1693,7 @@ def create_mito_wrapper_with_data(sheet_one_A_data: List[Any], sheet_two_A_data:
     mito_backend = get_mito_backend(*dfs)
     return MitoWidgetTestWrapper(mito_backend)
 
+
 def create_mito_wrapper(
         *args: Union[pd.DataFrame, str], 
         arg_names: Optional[List[str]]=None,
@@ -1709,6 +1710,9 @@ def create_mito_wrapper(
 
     if arg_names is not None:
         test_wrapper.argsUpdate(arg_names)
+
+    # Check generated code for preprocessing is correct
+    check_dataframes_equal(test_wrapper)
 
     return test_wrapper
 
