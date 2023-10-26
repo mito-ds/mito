@@ -163,7 +163,7 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         
         conversion_params = execution_data['conversion_params'] if execution_data is not None else []
 
-        for arg, df_name, type_converted_from, extra_data in conversion_params:
+        for arg_index, (arg, df_name, type_converted_from, extra_data) in enumerate(conversion_params):
             if type_converted_from == 'dataframe':
                 # If this is a dataframe, then we don't need to do anything
                 continue
@@ -177,6 +177,8 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
                 imports += ['import pandas as pd']
 
                 # Make sure to compile the path as a variable if the user is creating a function
+                # TODO: fix this arg_index in the case that someone passes a list. Luckily, this 
+                # rarely happens, but you can see the issue here: https://github.com/mito-ds/mito/issues/985
                 file_name: str = arg if not steps_manager.code_options['as_function'] else get_str_param_name(steps_manager, arg_index) # type: ignore
                 delimeter = extra_data['delimeter']
                 encoding = extra_data['encoding']
