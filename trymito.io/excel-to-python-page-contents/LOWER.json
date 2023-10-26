@@ -24,7 +24,7 @@
                 "formula": "=LOWER(\"Hello World\")",
                 "description": "Convert the string 'Hello World' to lowercase.",
                 "result": "hello world"
-            }
+            },
             {
                 "formula": "=LOWER(123)",
                 "description": "Convert the number 123 to a lowercase string.",
