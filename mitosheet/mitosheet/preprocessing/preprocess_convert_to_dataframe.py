@@ -79,7 +79,10 @@ def convert_arg_of_unknown_type_to_dataframe(arg: Any, arg_index: int) -> Option
         return [(arg, arg, 'df' + str(arg_index + 1), 'dataframe', {})]
     
     if isinstance(arg, str):
-        return [convert_arg_of_string_type_to_dataframe(arg, arg_index)]
+        result = convert_arg_of_string_type_to_dataframe(arg, arg_index)
+        if result is not None:
+            return [result]
+        return None
 
     if isinstance(arg, list):
         # If this is a list, then it could be the .to_dict('records') of a dataframe
@@ -130,7 +133,7 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
 
         # Keep all the information we need to convert each arg, 
         # A list of (original_arg, df_name, type, conversion_data)
-        conversion_params: List[int, Tuple[Any, str, str, Dict[str, Any]]] = []
+        conversion_params: List[Tuple[Any, str, str, Dict[str, Any]]] = []
 
         for arg_index, arg in enumerate(args):
             results = convert_arg_of_unknown_type_to_dataframe(arg, arg_index)
