@@ -124,6 +124,61 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'prints': output_string_io.getvalue()
     }
 
+def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_headers: List[ColumnHeader]) -> bool:
+
+    # First, check for NA
+    if column_header is pd.NA:
+        return any(c is pd.NA for c in column_headers)
+        
+    # Then, check for NaT
+    if column_header is pd.NaT:
+        return any(c is pd.NaT for c in column_headers)
+    
+    # Then, check for NaN
+    if column_header is np.NaN:
+        return any(c is np.NaN for c in column_headers)
+    
+    # Then, check None
+    if column_header is None and None in column_headers:
+        return True
+    
+    return False
+
+def is_possibly_null_column_header_in_column_headers_with_no_nans(column_header: ColumnHeader, column_headers_with_no_nans: List[ColumnHeader]) -> bool:
+    """
+    Checks if the column header is in the list of column headers, taking special care to handle if the column
+    header is null. Notably, assumes that the column_headers have no null values.
+    """
+    if not pd.isna(column_header):
+        return column_header in column_headers_with_no_nans
+    
+    return is_null_column_header_in_column_headers(column_header, column_headers_with_no_nans)
+
+
+def get_added_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: List[ColumnHeader]) -> List[ColumnHeader]:
+
+    old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
+    new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
+    added_non_null = list(filter(lambda ch: ch not in old_non_null, new_non_null))
+
+    new_null = list(filter(lambda ch: pd.isna(ch), new_column_headers))
+    old_null = list(filter(lambda ch: pd.isna(ch), old_column_headers))
+    added_null = list(filter(lambda ch: not is_null_column_header_in_column_headers(ch, old_null), new_null))
+
+    return added_non_null + added_null
+
+def get_shared_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: List[ColumnHeader]) -> List[ColumnHeader]:
+
+    old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
+    new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
+    shared_non_null = list(filter(lambda ch: ch in old_non_null, new_non_null))
+
+    new_null = list(filter(lambda ch: pd.isna(ch), new_column_headers))
+    old_null = list(filter(lambda ch: pd.isna(ch), old_column_headers))
+    shared_null = list(filter(lambda ch: is_null_column_header_in_column_headers(ch, old_null), new_null))
+
+    return shared_non_null + shared_null
+
 
 def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ModifiedDataframeReconData:
     """
@@ -152,8 +207,8 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
 
     # First, preserving the order, we remove any columns that are in both the old
     # and the new dataframe
-    old_columns_without_shared = list(filter(lambda ch: ch not in new_columns, old_columns))
-    new_columns_without_shared = list(filter(lambda ch: ch not in old_columns, new_columns))
+    old_columns_without_shared = get_added_column_headers(new_columns, old_columns)
+    new_columns_without_shared = get_added_column_headers(old_columns, new_columns)
     
     # Then, we look through to find any columns that have been simply renamed - simply
     # by comparing to see of column are identical between the two values. We do this 
@@ -166,10 +221,10 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
             if old_column.equals(new_column) and new_ch not in renamed_columns.values():
                 renamed_columns[old_ch] = new_ch
 
-    added_columns = [ch for ch in new_columns_without_shared if ch not in renamed_columns.values()]
-    removed_columns = [ch for ch in old_columns_without_shared if ch not in renamed_columns]
+    added_columns = [ch for ch in new_columns_without_shared if not is_possibly_null_column_header_in_column_headers_with_no_nans(ch, renamed_columns.values())]
+    removed_columns = [ch for ch in old_columns_without_shared if not is_possibly_null_column_header_in_column_headers_with_no_nans(ch, renamed_columns)]
 
-    shared_columns = list(filter(lambda ch: ch in new_columns, old_columns))
+    shared_columns = get_shared_column_headers(old_columns, new_columns)
 
     if not rows_added_or_removed:
         modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
