@@ -1,0 +1,196 @@
+{
+    "slug": ["functions", "conditional", "IF"],
+    "functionNameShort": "IF",
+    "functionNameLong": "IF",
+    "relatedFunctions": ["VLOOKUP", "AND", "OR"],
+    "titleCardParagraphs": [
+        "Excel's IF function allows you to make logical comparisons between a value and what you expect. It's a way to make dynamic decisions in your data analysis, often used in financial modeling, and many other analytical tasks.",
+        "This page explains how to implement Excel's IF function in Python using pandas, providing a way to bring the power of conditional logic into your Python automation."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The IF function in Excel is used to make conditional decisions based on a given expression or value.",
+            "=IF(logical_test, value_if_true, value_if_false)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "logical_test",
+                "description": "The condition you want to test.",
+                "dataType": "logical"
+            },
+            {
+                "parameter": "value_if_true",
+                "description": "The value to return if the logical_test is TRUE.",
+                "dataType": "any"
+            },
+            {
+                "parameter": "value_if_false",
+                "description": "The value to return if the logical_test is FALSE.",
+                "dataType": "any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=IF(A1 > 10, \"Yes\", \"No\")",
+                "description": "Check if the value in cell A1 is greater than 10. Return 'Yes' if true, otherwise 'No'.",
+                "result": "Yes or No"
+            },
+            {
+                "formula": "=IF(A2=B2, \"Match\", \"No Match\")",
+                "description": "Check if the value in cell A2 matches the value in B2. Return 'Match' if true, otherwise 'No Match'.",
+                "result": "Match or No Match"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To implement the functionality of the Excel IF function in pandas, there are various methods available depending on the specific requirements. Let's explore some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Creating a New Column Based on Conditions",
+                "shortTitle": "New Column",
+                "paragraphs": [
+                    "Using the `np.where` function from the `numpy` library is a convenient method to create new columns based on conditions in pandas. It is similar to the Excel IF function."
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "df['New_Column'] = np.where(df['Existing_Column'] > 10, 'Greater than 10', 'Less or equal to 10')"
+                ]
+            },
+            {
+                "title": "Checking for equivalent values",
+                "shortTitle": "Equivalent Values",
+                "paragraphs": [
+                    "To check if two values are equivalent, you can use the `==` operator in pandas. This is equivalent to the `=` operator in Excel. Not using a double == is one of the most common errors that users make when transitioning from Excel to Python!"
+                ],
+                "codeLines": [
+                    "# Check if A is equal to 10",
+                    "df['Result'] = np.where(df['A'] == 10, 'A is 10', 'A is not 10')"
+                ]
+            },
+            {
+                "title": "Checking for non-equivalent values",
+                "shortTitle": "Non-equivalent Values",
+                "paragraphs": [
+                    "To check if two values are different from eachother, you can use the `!=` operator in pandas. This is equivalent to the `<>` operator in Excel."
+                ],
+                "codeLines": [
+                    "# Check if A is not equal to 10",
+                    "df['Result'] = np.where(df['A'] != 10, 'A is not 10', 'A is 10')"
+                ]
+            },
+            {
+                "title": "Using Multiple Conditions with & (AND)",
+                "shortTitle": "AND Operator",
+                "paragraphs": [
+                    "When you want to combine multiple conditions with an AND logic in Excel, you use the `=AND` formula. In pandas, use the '&' operator and wrap each condition in parentheses."
+                ],
+                "codeLines": [
+                    "# Check if A > 20 and B < 20",
+                    "df['Result'] = np.where((df['A'] > 10) & (df['B'] < 20), 'Both conditions true', 'At least one condition false')"
+                ]
+            },
+            {
+                "title": "Using Multiple Conditions with | (OR)",
+                "shortTitle": "OR Operator",
+                "paragraphs": [
+                    "When you want to combine multiple conditions with an OR logic in Excel, you the `=OR` formula. In pandas, use the '|' operator. Again, make sure to enclose each condition in parentheses."
+                ],
+                "codeLines": [
+                    "# Check if A is equal to 10 or B is equal to 20",
+                    "df['Result'] = np.where((df['A'] == 10) | (df['B'] == 20), 'Either A is 10 or B is 20', 'Neither condition met')"
+                ]
+            },
+            {
+                "title": "Simple Nested Conditions",
+                "shortTitle": "Simple Nested Conditions",
+                "paragraphs": [
+                    "You can also nest the `np.where` function to handle multiple layers of conditions, similar to nested IF functions in Excel."
+                ],
+                "codeLines": [
+                    "# If A > 20, label it 'A is greater than 20, otherwise check if B < 20, label it 'B is less than 20', otherwise label it 'Other'",
+                    "df['Result'] = np.where(df['A'] > 10, 'A is greater than 20', np.where(df['B'] < 20, 'B is less than 20', 'Other'))"
+                ]
+            },
+            {
+                "title": "Complex Nested Conditions",
+                "shortTitle": "Complex Nested Conditions",
+                "paragraphs": [
+                    "Using `np.where` is a good approach if we're only writing simple conditionals. However, if we need to construct a conditional check with lots of layers, writing them all in one nested line becomes incredibly confusing, incredibly quickly. In these cases, it's best to use `if` `else` statements instead.",
+                    "`If` statements are a core part of Python, and they're used to control the flow of your code. They're also used to implement conditional logic, similar to the Excel IF function.",
+                    "For example, if we wanted check if each cell contained 'New York', 'Philadelphia', 'San Francisco', or 'Austin', we could write the following `if` `else` statement and use an `apply` function:"
+                ],
+                "codeLines": [
+                    "Create a function to check the city",
+                    "def city_check(city):",
+                    "    if city == 'New York':",
+                    "        return 'East Coast'",
+                    "    elif city == 'Philadelphia':",
+                    "        return 'East Coast'",
+                    "    elif city == 'San Francisco':",
+                    "        return 'West Coast'",
+                    "    elif city == 'Austin':",
+                    "        return 'Central'",
+                    "    else:",
+                    "        return 'Other'",
+                    "",
+                    "df['Result'] = df['City'].apply(city_check)"
+                ]
+            },
+            {
+                "title": "Filtering Rows Based on Condition",
+                "shortTitle": "Filtering Rows",
+                "paragraphs": [
+                    "To filter rows in a DataFrame based on a condition, you don't need `np.where`. Instead, simply use the DataFrame indexing mechanism."
+                ],
+                "codeLines": [
+                    "filtered_df = df[df['A'] > 10]"
+                ]
+            }
+        ]        
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using pandas to implement conditional operations similar to Excel's IF function, there are a few pitfalls that users often fall into. Here are some common mistakes and their remedies."
+        ],
+        "codeSections": [
+            {
+                "title": "Misuse of the == Operator",
+                "shortTitle": "= instead of ==",
+                "paragraphs": [
+                    "Using a single '=' is for assignment in Python, not for comparison. For comparing values, you should use '=='.",
+                    "In Excel, you might use `=IF(A1=10, 'Yes', 'No')`. In pandas, ensure you use '==' for comparison."
+                ],
+                "codeLines": [
+                    "# Correct usage",
+                    "df['Result'] = np.where(df['Column1'] == 10, 'Yes', 'No')"
+                ]
+            },
+            {
+                "title": "Incorrect Use of Boolean Operators",
+                "shortTitle": "Boolean Operators",
+                "paragraphs": [
+                    "In pandas, you should use '&' for AND, '|' for OR, and '~' for NOT. Avoid using 'and', 'or', and 'not' directly as they don't work element-wise on series.",
+                    "In Excel, `=IF(AND(A1>10, B1<20), 'Yes', 'No')`. In pandas, ensure you use '&' and enclose conditions in parentheses."
+                ],
+                "codeLines": [
+                    "# Correct usage",
+                    "df['Result'] = np.where((df['A'] > 10) & (df['B'] < 20), 'Yes', 'No')"
+                ]
+            },
+            {
+                "title": "Forgetting Parentheses Around Conditions",
+                "shortTitle": "Missing Parentheses",
+                "paragraphs": [
+                    "When combining multiple conditions, it's crucial to enclose each condition in parentheses to ensure the logic is evaluated correctly.",
+                    "In Excel, `=IF(OR(A1=10, A1=20), 'Match', 'No Match')`. In pandas, remember to use parentheses for each condition."
+                ],
+                "codeLines": [
+                    "# Correct usage",
+                    "df['Result'] = np.where((df['A'] == 10) | (df['A'] == 20), 'Match', 'No Match')"
+                ]
+            }
+        ]
+    }
+}

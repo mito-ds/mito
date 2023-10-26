@@ -2,7 +2,7 @@
     "slug": ["functions", "conditionals", "ISNA"],
     "functionNameShort": "ISNA",
     "functionNameLong": "Detecting Missing Data",
-    "relatedFunctions": ["fillna", "dropna", "notna"],
+    "relatedFunctions": ["FILLNA", "IF", "COUNT"],
     "titleCardParagraphs": [
         "Excel's ISNA function checks if a value is #N/A (not available). In Python, the equivalent concept of missing data is represented by NaN (Not a Number). Knowing how to detect and handle missing data is crucial for data cleaning and analysis.",
         "This page explains how to identify and manage missing data in Python using pandas, making it easier to transition and automate Excel processes in Python."
