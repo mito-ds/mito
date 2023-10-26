@@ -293,12 +293,9 @@ def update_state_by_reconing_dataframes(
             raise make_column_exists_error(ch)
 
     modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
-    print("HERE123", modified_dataframe_recon['column_recon'], old_df.columns, new_df.columns)
-    print(state.column_ids.column_header_to_column_id)
 
     # Add new columns to the state
     if len(modified_dataframe_recon['column_recon']['created_columns']) > 0:
-        print("CREATED", modified_dataframe_recon['column_recon']['created_columns'], column_headers_to_column_ids)
         state.add_columns_to_state(
             sheet_index, 
             modified_dataframe_recon['column_recon']['created_columns'],
