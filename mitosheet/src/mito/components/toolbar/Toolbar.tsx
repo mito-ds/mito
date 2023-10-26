@@ -46,21 +46,14 @@ export const Toolbar = (
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
 
-    const [currentTab, setCurrentTab] = React.useState('Home');
-    const tabs = ['Home', 'Test'];
+    const [currentTab, setCurrentTab] = React.useState<string>('Home');
+    const tabs: {[ tab: string ]: React.ReactElement } = {
+        'Home': <HomeTabContents {...props}/>,
+        'Test': <div> Testing </div>
+    };
 
     const renderTabContents = () => {
-        switch(currentTab) {
-            case 'Home':{
-                return <HomeTabContents {...props}/>
-            }
-            case 'Test': {
-                return <div>Testing</div>
-            }
-            default: {
-                return <HomeTabContents {...props}/>
-            }
-        }
+        return tabs[currentTab] ?? <div> No tab found </div>;
     }
 
     return (
@@ -169,7 +162,7 @@ export const Toolbar = (
             </div>
             <div className='mito-toolbar-top-bottom-seperator'/>
             <div className='mito-toolbar-tabbar'>
-                {tabs.map((tab) => {
+                {Object.keys(tabs).map((tab) => {
                     return <button
                         onClick={() => setCurrentTab(tab)}
                         className={classNames('mito-toolbar-tabbar-button', currentTab === tab ? 'mito-toolbar-tabbar-button-selected' : '')}
