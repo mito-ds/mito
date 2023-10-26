@@ -615,35 +615,35 @@ def function({expected_in_function}, file_name_import_csv_0, file_name_import_ex
 """
     assert mito.mito_backend.param_metadata == [
         {
-            'initial_value': 'test_df_name' if df_names else 'df1',
+            'original_value': 'test_df_name' if df_names else 'df1',
             'type': 'import',
             'subtype': 'import_dataframe',
             'required': True,
             'name': expected_in_function
         },
         {
-            'initial_value': tmp_file1,
+            'original_value': tmp_file1,
             'type': 'import',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
-            'initial_value': tmp_file2,
+            'original_value': tmp_file2,
             'type': 'import',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
-            'initial_value': tmp_exportfile1,
+            'original_value': tmp_exportfile1,
             'type': 'export',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
-            'initial_value': tmp_exportfile2,
+            'original_value': tmp_exportfile2,
             'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
@@ -716,28 +716,28 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
 """
     assert mito.mito_backend.param_metadata == [
         {
-            'initial_value': tmp_file1,
+            'original_value': tmp_file1,
             'type': 'import',
             'subtype': 'file_name_import_csv',
             'name': 'file_name_import_csv_0',
             'required': False
         },
         {
-            'initial_value': tmp_file2,
+            'original_value': tmp_file2,
             'type': 'import',
             'subtype': 'file_name_import_excel',
             'name': 'file_name_import_excel_0',
             'required': False
         },
         {
-            'initial_value': tmp_exportfile1,
+            'original_value': tmp_exportfile1,
             'type': 'export',
             'subtype': 'file_name_export_csv',
             'name': 'file_name_export_csv_0',
             'required': False
         },
         {
-            'initial_value': tmp_exportfile2,
+            'original_value': tmp_exportfile2,
             'type': 'export',
             'subtype': 'file_name_export_excel',
             'name': 'file_name_export_excel_0',
@@ -745,6 +745,32 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
         }
     ]
 
+
+@pandas_post_1_2_only
+@python_post_3_6_only
+def test_fully_parameterized_function_custom_imports():
+    mito = create_mito_wrapper(sheet_functions=[ADDONE], importers=[custom_import])
+    mito.user_defined_import('custom_import', {})
+    mito.set_formula('=ADDONE(A)', 0, 'B', add_column=True)
+
+    mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {}})
+    assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
+
+df1 = custom_import()
+
+df1.insert(1, 'B', ADDONE(df1['A']))
+"""
+
+    assert mito.mito_backend.fully_parameterized_function == """from mitosheet.public.v3 import *
+from mitosheet.tests.test_transpile import custom_import, ADDONE
+
+def function():
+    df1 = custom_import()
+    
+    df1.insert(1, 'B', ADDONE(df1['A']))
+    
+    return df1
+"""
 
 def test_transpile_as_function_multiple_params(tmp_path):
     tmp_file1 = str(tmp_path / 'txt.csv')
