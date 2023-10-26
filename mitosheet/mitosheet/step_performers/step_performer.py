@@ -145,7 +145,8 @@ class StepPerformer(ABC, object):
 
         final_code = "\n".join(code)
 
-        # NOTE; this is all wrong, but it's just b/c it's hard to get things out of exec. We do our best
+        # TODO: this is weird. This will not always be updated, accoring to exec documentation, 
+        # but in practice is seems to work...
         exec_globals = get_globals_for_exec(post_state, post_state.public_interface_version)
         exec_locals = {**exec_globals}
         
@@ -156,8 +157,6 @@ class StepPerformer(ABC, object):
         for modified_dataframe_index in modified_dataframe_indexes:
             df_name = prev_state.df_names[modified_dataframe_index]
             new_df = exec_locals[df_name]
-            print(new_df)
-            # TODO: add column_ids as a parameter below -- should be optional param to update state
             post_state = update_state_by_reconing_dataframes(
                 post_state, 
                 modified_dataframe_index, 
@@ -172,7 +171,7 @@ class StepPerformer(ABC, object):
             for new_df_name in new_dataframe_params['new_df_names']:
                 df_source = new_dataframe_params['df_source']
 
-                new_df = exec_locals[new_df_name] # TODO: this is wrong. This will not always be updated, accoring to exec documentation
+                new_df = exec_locals[new_df_name] 
                 post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index_to_overwrite, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
 
         return post_state, {
