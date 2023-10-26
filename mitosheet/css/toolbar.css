@@ -189,13 +189,24 @@
   border: none;
   background: none;
   color: var(--mito-text-medium);
+  margin-bottom: 2px;
 }
 
-.mito-toolbar-tabbar-button-selected span {
-  border-bottom: 3px solid var(--mito-highlight);
+.mito-toolbar-tabbar-button-selected {
+  display: flex;
+  flex-direction: column;
   color: var(--mito-gray);
+  margin-bottom: 0;
 }
 
 .mito-toolbar-tabbar {
   margin-bottom: 5px;
+  display: flex;
+}
+
+.mito-toolbar-tabbar-selected-underline {
+  width: 100%;
+  height: 2px;
+  background: var(--mito-highlight);
+  border-radius: 2px;
 }

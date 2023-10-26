@@ -169,6 +169,7 @@ export const Toolbar = (
                         className={classNames('mito-toolbar-tabbar-button', currentTab === tab ? 'mito-toolbar-tabbar-button-selected' : '')}
                     >
                         <span>{tab}</span>
+                        {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
                     </button>
                 })}
             </div>
