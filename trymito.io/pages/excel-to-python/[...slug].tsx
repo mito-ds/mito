@@ -141,7 +141,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     id={`Excel's ${functionNameShort} Function`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding the {pageContent.functioNameLong} Function in Excel
+                    Understanding the {pageContent.functionNameLong} Function in Excel
                     <a className={excelToPythonStyles.section_copy} href={`#Excel's ${functionNameShort} Function`}>#</a>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
@@ -198,7 +198,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   id={`Implementing ${functionNameShort} in Pandas`}
                   className={excelToPythonStyles.link}
                 >
-                  Implementing the {pageContent.functioNameLong} function in Pandas
+                  Implementing the {pageContent.functionNameLong} function in Pandas
                   <a className={excelToPythonStyles.section_copy} href={`#Implementing ${functionNameShort} in Pandas`}>#</a>
                 </h2>
                 {pageContent.equivalentCode.introParagraphs.map(text => {
