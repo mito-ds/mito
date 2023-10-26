@@ -2,7 +2,7 @@ import ast
 from collections import Counter
 import traceback
 from copy import copy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -124,7 +124,7 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'prints': output_string_io.getvalue()
     }
 
-def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_headers: List[ColumnHeader]) -> bool:
+def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_headers: Iterable[ColumnHeader]) -> bool:
 
     # First, check for NA
     if column_header is pd.NA:
@@ -144,7 +144,7 @@ def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_
     
     return False
 
-def is_possibly_null_column_header_in_column_headers_with_no_nans(column_header: ColumnHeader, column_headers_with_no_nans: List[ColumnHeader]) -> bool:
+def is_possibly_null_column_header_in_column_headers_with_no_nans(column_header: ColumnHeader, column_headers_with_no_nans: Iterable[ColumnHeader]) -> bool:
     """
     Checks if the column header is in the list of column headers, taking special care to handle if the column
     header is null. Notably, assumes that the column_headers have no null values.
@@ -155,7 +155,7 @@ def is_possibly_null_column_header_in_column_headers_with_no_nans(column_header:
     return is_null_column_header_in_column_headers(column_header, column_headers_with_no_nans)
 
 
-def get_added_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: List[ColumnHeader]) -> List[ColumnHeader]:
+def get_added_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: Iterable[ColumnHeader]) -> List[ColumnHeader]:
 
     old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
     new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
@@ -167,7 +167,7 @@ def get_added_column_headers(old_column_headers: List[ColumnHeader], new_column_
 
     return added_non_null + added_null
 
-def get_shared_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: List[ColumnHeader]) -> List[ColumnHeader]:
+def get_shared_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: Iterable[ColumnHeader]) -> List[ColumnHeader]:
 
     old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
     new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
