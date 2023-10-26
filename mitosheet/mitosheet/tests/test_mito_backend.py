@@ -39,7 +39,7 @@ VALID_DATAFRAMES = [
     # to_csv of file content
     (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
     # to_json of file content
-    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_json(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_json(), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
     # to_dict of file content
     (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_dict('records'), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
     # a list of strings (which are to_csv of file content)
