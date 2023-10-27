@@ -46,7 +46,7 @@ jobs:
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        jlpm playwright test ui_tests --retries=3
+        npm run test:jupyter
 
   test-mitosheet-frontend-streamlit:
     runs-on: ubuntu-20.04
