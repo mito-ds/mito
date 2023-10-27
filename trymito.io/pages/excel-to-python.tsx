@@ -59,7 +59,7 @@ const GlossaryPageCard = (props: {glossaryPageInfo: GlossaryPageInfo}) => {
                     {props.glossaryPageInfo.functionNameShort}
                 </p>
                 <p>
-                    &nbsp;&nbsp;{props.glossaryPageInfo.purpose}
+                    {props.glossaryPageInfo.purpose}
                 </p>
             </div>
         </Link>

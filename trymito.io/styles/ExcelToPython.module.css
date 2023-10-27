@@ -98,7 +98,7 @@
 
 .glossary_page_card_container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: baseline;
     background-color: var(--color-light-background);
     border-radius: 5px;
@@ -115,7 +115,7 @@
 
 .glossary_page_card_function_name {
     color: var(--color-purple);
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     margin-top: 0rem;
 }
 
@@ -177,6 +177,16 @@
 
     .section_h3_tag {
         font-size: 1.25rem;
+    }
+
+    .glossary_page_card_container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .glossary_page_card_function_name {
+        font-size: 1.5rem;
+        margin-right: 10px;
     }
 
 }
