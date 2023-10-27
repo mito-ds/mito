@@ -7,7 +7,7 @@
 export type PageContent = {
     slug: string[];
     functionNameShort: string;
-    functioNameLong: string;
+    functionNameLong: string;
     relatedFunctions: string[];
     titleCardParagraphs: string[];
     excelExplanation: {

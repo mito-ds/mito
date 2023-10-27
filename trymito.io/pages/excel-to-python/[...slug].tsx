@@ -53,7 +53,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
     <>
       <Head>
         {/* Title Tag */}
-        <title>{`Excel to Python: ${functionNameShort} - A Complete Guide | Mito`}</title>
+        <title>{`Excel to Python: ${functionNameShort} Function - A Complete Guide | Mito`}</title>
         
         {/* Meta Description */}
         <meta
@@ -108,7 +108,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   </GlossayHorizontalNavbar>
                 </div>
                 
-                <h1>How to Implement Excel&apos;s <span className='text-highlight'>{functionNameShort}</span> function in Pandas</h1>
+                <h1>How to Use Excel&apos;s <span className='text-highlight'>{functionNameShort}</span> Function in Pandas</h1>
                 <div className={classNames(excelToPythonStyles.related_functions_card)}>
                   <p>Related Functions</p>
                   {pageContent.relatedFunctions.length > 0 && 
@@ -144,11 +144,11 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
               {/* Understanding the Excel Function */}
               <section className={excelToPythonStyles.section}>
                   <h2 
-                    id={`Understanding Excel's ${functionNameShort} Function`}
+                    id={`Excel's ${functionNameShort} Function`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding Excel&apos;s {functionNameShort} Function
-                    <a className={excelToPythonStyles.section_copy} href={`#Understanding Excel's ${functionNameShort} Function`}>#</a>
+                    Understanding the {pageContent.functionNameLong} Function in Excel
+                    <a className={excelToPythonStyles.section_copy} href={`#Excel's ${functionNameShort} Function`}>#</a>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
                     return <p key={text}>{text}</p>
@@ -175,7 +175,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                     </tbody>
                   </table>
 
-                  <h3 className={excelToPythonStyles.section_h3_tag}>ABS Examples</h3>
+                  <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
                   <table className={excelToPythonStyles.excel_to_python_table}>
                     <thead>
                       <tr>
@@ -204,7 +204,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   id={`Implementing ${functionNameShort} in Pandas`}
                   className={excelToPythonStyles.link}
                 >
-                  Implementing the {pageContent.functioNameLong} function in Pandas
+                  Implementing the {pageContent.functionNameLong} function in Pandas
                   <a className={excelToPythonStyles.section_copy} href={`#Implementing ${functionNameShort} in Pandas`}>#</a>
                 </h2>
                 {pageContent.equivalentCode.introParagraphs.map(text => {
@@ -240,7 +240,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                   id="Common mistakes"
                   className={excelToPythonStyles.link}
                 >
-                  Common mistakes when implementing the {functionNameShort} function in Python
+                  Common mistakes when using {functionNameShort} in Python
                   <a className={excelToPythonStyles.section_copy} href="#Common mistakes">#</a>
                 </h2>
                 {pageContent.commonMistakes.introParagraphs.map(text => {
@@ -259,7 +259,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       {codeSections.paragraphs.map(text => {
                         return <p key={text}>{text}</p>
                       })}
-                      {codeSections.codeLines.length > 0 &&
+                      {codeSections.codeLines.length > 0 && 
                         <CodeBlock code={codeSections.codeLines.join('\n')}/>
                       }
                     </>

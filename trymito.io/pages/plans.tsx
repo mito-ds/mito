@@ -349,33 +349,11 @@ const SUPPORT_FEATURES: Feature[] = [
     }
   },
 ]
-// Make Intercom accessible globally
-declare global {
-  interface Window {
-      Intercom: any;
-  }
-}
 
 const Plans: NextPage = () => {
 
   const [displayDropdown, setDisplayDropdown] = useState<boolean>(false)
   const [mobilePlanDisplayed, setMobilePlanDisplayed] = useState<PlanType>('Pro')
-
-  useEffect(() => {
-    if (window.Intercom) {
-      window.Intercom("boot", {
-        api_base: "https://api-iam.intercom.io",
-        app_id: "mu6azgiv"
-      });
-    }
-  }, [])
-
-  // Update intercom whenever we rerender
-  useEffect(() => {
-    if (window.Intercom) {
-      window.Intercom("update");
-    }
-  })
 
   return (
     <>
