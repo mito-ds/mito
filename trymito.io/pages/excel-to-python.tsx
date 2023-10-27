@@ -54,14 +54,14 @@ const GlossaryPageCard = (props: {glossaryPageInfo: GlossaryPageInfo}) => {
 
     return (
         <Link href={slug}>
-            <div className={excelToPythonStyles.glossary_page_card_container}>
+            <a className={excelToPythonStyles.glossary_page_card_container}>
                 <p className={excelToPythonStyles.glossary_page_card_function_name}>
                     {props.glossaryPageInfo.functionNameShort}
                 </p>
                 <p>
                     {props.glossaryPageInfo.purpose}
                 </p>
-            </div>
+            </a>
         </Link>
     )
 }
