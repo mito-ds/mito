@@ -129,31 +129,31 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                             </section>
                             <section style={{marginTop: '2rem'}}>
                                 <h2 id="Functions" style={{marginBottom: '2rem'}}>Functions</h2>
-                                <h3 id="Math Functions" className={excelToPythonStyles.glossary_function_category_header}>Math Functions</h3>
+                                <h3 id="Math" className={excelToPythonStyles.glossary_function_category_header}>Math Functions</h3>
                                 {mathFucntionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
-                                <h3 id="Text Functions" className={excelToPythonStyles.glossary_function_category_header}>Text Functions</h3>
+                                <h3 id="Text" className={excelToPythonStyles.glossary_function_category_header}>Text Functions</h3>
                                 {textFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
-                                <h3 id="Date Functions" className={excelToPythonStyles.glossary_function_category_header}>Date Functions</h3>
+                                <h3 id="Date" className={excelToPythonStyles.glossary_function_category_header}>Date Functions</h3>
                                 {dateFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
-                                <h3 id="Conditional Functions" className={excelToPythonStyles.glossary_function_category_header}>Conditional Functions</h3>
+                                <h3 id="Conditional" className={excelToPythonStyles.glossary_function_category_header}>Conditional Functions</h3>
                                 {conditionalFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
-                                <h3 id="Misc. Functions" className={excelToPythonStyles.glossary_function_category_header}>Misc. Functions</h3>
+                                <h3 id="Misc" className={excelToPythonStyles.glossary_function_category_header}>Misc. Functions</h3>
                                 {miscFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
                                 })}

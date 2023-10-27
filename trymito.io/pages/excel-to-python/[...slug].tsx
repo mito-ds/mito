@@ -49,6 +49,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
     Prism.highlightAll();
   }, []);
 
+  // Make first character uppercase
+  const slugComponent0 = pageContent.slug[0].charAt(0).toUpperCase() + pageContent.slug[0].slice(1);
+  const slugComponent1 = pageContent.slug[1].charAt(0).toUpperCase() + pageContent.slug[1].slice(1);
+
   return (
     <>
       <Head>
@@ -102,9 +106,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                 <div className={excelToPythonStyles.horizontal_navbar_container}>
                   <GlossayHorizontalNavbar>
                     {/* TODO: Update hrefs to actual path once we implement the correct pages */}
-                    <HorizontalNavItem title={'Function'} href={'/spreadsheet-automation'} />
-                    <HorizontalNavItem title={'Math'} href={'/spreadsheet-automation'} />
-                    <HorizontalNavItem title={'ABS'} href={'/excel-to-python/functions/math/ABS'} />
+                    <HorizontalNavItem title={slugComponent0} href={'/excel-to-python'} />
+                    <HorizontalNavItem title={slugComponent1} href={`/excel-to-python#${slugComponent1}`} />
+                    <HorizontalNavItem title={props.pageContent.slug[2]} href={path} />
                   </GlossayHorizontalNavbar>
                 </div>
                 
