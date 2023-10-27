@@ -96,6 +96,38 @@
     padding: 0;
 }
 
+.glossary_page_card_container {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    background-color: var(--color-light-background);
+    border-radius: 5px;
+    padding: 2rem;
+    width: 100%;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+.glossary_page_card_container:hover {
+    background-color: var(--color-light-background-accent);
+}
+
+
+.glossary_page_card_function_name {
+    color: var(--color-purple);
+    font-size: 1.5rem;
+    margin-top: 0rem;
+}
+
+.glossary_page_card_container p {
+    margin-top: 0;
+}
+
+.glossary_function_category_header {
+    width: 100%;
+    margin-left: 5px;
+}
+
 @media only screen and (min-width: 50em) {
 
     .blog_content_and_table_of_contents_container {

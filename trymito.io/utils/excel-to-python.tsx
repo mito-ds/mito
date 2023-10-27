@@ -2,9 +2,8 @@ import path from 'path'
 import fs from 'fs'
 import { PageContent } from '../excel-to-python-page-contents/types'
 
-
 export async function getPageContentJsonArray() {
-    const relativePath = '/excel-to-python-page-contents/'
+    const relativePath = './excel-to-python-page-contents/'
 
     const fileNames = fs.readdirSync(path.join(process.cwd(), relativePath))
     const jsonFileNames = fileNames.filter(fileName => fileName.endsWith('.json'))

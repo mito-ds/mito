@@ -316,7 +316,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
 export async function getStaticPaths() {
   const pageContentsJsonArray = await getPageContentJsonArray()
 
-  // Get the paths we want to create based on posts
+  // Get the paths we want to create based on json files in the excel-to-python-page-content directory 
   const paths = pageContentsJsonArray.map((pageContentsJson) => {
     return {
       // We allow the slug to be an array so we can support paths like /functions/math/abs
@@ -325,7 +325,8 @@ export async function getStaticPaths() {
     }
   })
 
-  // { fallback: false } means posts not found should 404.
+  // { fallback: false } means posts not found should 404. 
+  // TODO: Update the fallback so if they entire an invalid URL with the /excel-to-python/ prefix, it returns them to the excel-to-python page
   return { paths, fallback: false }
 }
 
