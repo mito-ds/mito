@@ -129,38 +129,38 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                                     Excel to Python Glossary
                                 </h1>
                                 <p className={titleStyles.description}>
-                                    Looking to use Excel formulas in Python? You've come to the right place. Click on a function below to learn how to use it in Python.
+                                    Looking to use Excel formulas in Python? You&apos;ve come to the right place. Click on a function below to learn how to use it in Python.
                                 </p>
                             </section>
                             <section style={{marginTop: '2rem'}}>
                                 <h2 id="Functions" style={{marginBottom: '2rem'}}>Functions</h2>
                                 <h3 id="Math" className={excelToPythonStyles.glossary_function_category_header}>Math Functions</h3>
                                 {mathFucntionsPageInfo.map((glossaryPageInfo) => {
-                                    return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
                                 <h3 id="Text" className={excelToPythonStyles.glossary_function_category_header}>Text Functions</h3>
                                 {textFunctionsPageInfo.map((glossaryPageInfo) => {
-                                    return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
                                 <h3 id="Date" className={excelToPythonStyles.glossary_function_category_header}>Date Functions</h3>
                                 {dateFunctionsPageInfo.map((glossaryPageInfo) => {
-                                    return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
                                 <h3 id="Conditional" className={excelToPythonStyles.glossary_function_category_header}>Conditional Functions</h3>
                                 {conditionalFunctionsPageInfo.map((glossaryPageInfo) => {
-                                    return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                             <section>
                                 <h3 id="Misc" className={excelToPythonStyles.glossary_function_category_header}>Misc. Functions</h3>
                                 {miscFunctionsPageInfo.map((glossaryPageInfo) => {
-                                    return <GlossaryPageCard glossaryPageInfo={glossaryPageInfo} />
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
                         </div>
