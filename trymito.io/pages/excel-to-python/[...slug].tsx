@@ -111,21 +111,27 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                 <h1>How to Use Excel&apos;s <span className='text-highlight'>{functionNameShort}</span> Function in Pandas</h1>
                 <div className={classNames(excelToPythonStyles.related_functions_card)}>
                   <p>Related Functions</p>
-                  <TextButton 
-                    text={pageContent.relatedFunctions[0]}
-                    variant='primary'
-                    fontSize='small'
-                  />
-                  <TextButton
-                    text={pageContent.relatedFunctions[1]}
-                    variant='primary'
-                    fontSize='small'
-                  />
-                  <TextButton
-                    text={pageContent.relatedFunctions[2]}
-                    variant='primary'
-                    fontSize='small'
-                  />
+                  {pageContent.relatedFunctions.length > 0 && 
+                    <TextButton 
+                      text={pageContent.relatedFunctions[0]}
+                      variant='primary'
+                      fontSize='small'
+                    />
+                  }
+                  {pageContent.relatedFunctions.length > 1 && 
+                    <TextButton
+                      text={pageContent.relatedFunctions[1]}
+                      variant='primary'
+                      fontSize='small'
+                    />
+                  } 
+                  {pageContent.relatedFunctions.length > 2 && 
+                    <TextButton
+                      text={pageContent.relatedFunctions[2]}
+                      variant='primary'
+                      fontSize='small'
+                    />
+                  }
                 </div>
               </section>
               
@@ -217,9 +223,12 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       {codeSection.paragraphs.map(text => {
                         return <p key={text}> {text}</p>
                       })}
-                      <CodeBlock
-                        code={codeSection.codeLines.join('\n')}
-                      />
+                      {codeSection.codeLines.length > 0 &&
+                        <CodeBlock
+                          code={codeSection.codeLines.join('\n')}
+                        />
+                      }
+                      
                     </>
                   )
                 })}

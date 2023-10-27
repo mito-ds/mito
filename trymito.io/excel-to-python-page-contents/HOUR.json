@@ -1,5 +1,5 @@
 {
-    "slug": ["functions", "dates", "HOUR"],
+    "slug": ["functions", "date", "HOUR"],
     "functionNameShort": "HOUR",
     "functionNameLong": "Hour Extraction",
     "relatedFunctions": ["MINUTE", "SECOND", "DATE"],
