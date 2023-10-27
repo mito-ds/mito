@@ -124,10 +124,13 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'prints': output_string_io.getvalue()
     }
 
+PANDAS_HAS_NA = hasattr(pd, 'NA')
+
 def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_headers: Iterable[ColumnHeader]) -> bool:
 
-    # First, check for NA
-    if column_header is pd.NA:
+    # First, check for NA. Notably, we need to check that NA is
+    # is a attribute of pandas, as it's only available in pandas 1.0+
+    if PANDAS_HAS_NA and column_header is pd.NA:
         return any(c is pd.NA for c in column_headers)
         
     # Then, check for NaT
