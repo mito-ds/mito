@@ -276,21 +276,6 @@ export const HomeTabContents = (
                 action={props.actions.buildTimeActions[ActionEnum.Clear]}
                 disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
             />
-
-            {/* 
-                Only when we are not caught up do we display the fast forward button
-            */}
-            {props.currStepIdx !== props.lastStepIndex &&
-                <ToolbarButton
-                    toolbarButtonType={ToolbarButtonType.CATCH_UP}
-                    action={props.actions.buildTimeActions[ActionEnum.Catch_Up]}
-                />
-            }
-            <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.STEPS}
-                action={props.actions.buildTimeActions[ActionEnum.Steps]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Steps].isDisabled()}
-            />
         </div>
     </div>);
 }
