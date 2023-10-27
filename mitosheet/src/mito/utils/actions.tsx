@@ -838,7 +838,6 @@ export const getActions = (
         [ActionEnum.Precision_Decrease]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Decrease,
-            shortTitle: 'Less',
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -866,7 +865,6 @@ export const getActions = (
         [ActionEnum.Precision_Increase]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Increase,
-            shortTitle: 'More',
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -1631,7 +1629,7 @@ const sortActionHelper = function(actionOne: Action, actionTwo: Action) {
 
 
     // Sort alphabetically
-    if (titleOne < titleTwo) {
+    if (!titleOne || !titleTwo || titleOne < titleTwo) {
         return -1;
     }
     if (titleOne > titleTwo) {

@@ -135,8 +135,8 @@
   font-family: Roboto;
 }
 
-.mito-toolbar-button-container-enabled:hover {
-  background-color: var(--mito-highlight-light);
+.mito-toolbar-button-container-enabled:hover .mito-toolbar-button-icon-container {
+  background-color: var(--mito-light-gray);
 }
 
 .mito-toolbar-button-container-disabled {
@@ -146,6 +146,10 @@
 .mito-toolbar-button-icon-container {
   margin: auto;
   height: 18px;
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 .mito-toolbar-button-label {
@@ -209,4 +213,31 @@
   height: 2px;
   background: var(--mito-highlight);
   border-radius: 2px;
+}
+
+.mito-toolbar-button-dropdown-icon {
+  display: flex;
+  margin-left: 5px;
+  font-size: 7px;
+  align-self: center;
+}
+
+.mito-toolbar-number-precision {
+  display: flex;
+}
+
+.mito-toolbar-container .select-container {
+  display: flex;
+  flex-direction: row;
+  height: 22px;
+  box-sizing: border-box;
+  width: 150px;
+}
+
+.mito-toolbar-container .select-dropdown-icon-container {
+  width: 18px;
+}
+
+.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
+  background-color: var(--mito-text-light)!important;
 }

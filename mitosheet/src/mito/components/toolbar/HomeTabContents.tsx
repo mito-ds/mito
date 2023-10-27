@@ -8,7 +8,8 @@ import ToolbarButton from './ToolbarButton';
 import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
 import Dropdown from '../elements/Dropdown';
-import { getColumnFormatDropdownItems } from '../../utils/format';
+import Select from '../elements/Select';
+import { getColumnAppliedFormat, getColumnFormatDropdownItems } from '../../utils/format';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import fscreen from 'fscreen';
 import { MitoAPI, getRandomId } from '../../api/api';
@@ -82,26 +83,6 @@ export const HomeTabContents = (
     return (<div className='mito-toolbar-bottom'>
         <div className='mito-toolbar-bottom-left-half'>
             <ToolbarButton
-                id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
-                toolbarButtonType={ToolbarButtonType.UNDO}
-                action={props.actions.buildTimeActions[ActionEnum.Undo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Undo].isDisabled()}
-            />
-            <ToolbarButton
-                id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
-                toolbarButtonType={ToolbarButtonType.REDO}
-                action={props.actions.buildTimeActions[ActionEnum.Redo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Redo].isDisabled()}
-            />
-            <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.CLEAR}
-                action={props.actions.buildTimeActions[ActionEnum.Clear]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
-            />
-
-            <div className="toolbar-vertical-line"/>
-
-            <ToolbarButton
                 toolbarButtonType={ToolbarButtonType.IMPORT}
                 action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
                 setEditorState={props.setEditorState}
@@ -174,6 +155,31 @@ export const HomeTabContents = (
 
             <div className="toolbar-vertical-line"/>
 
+            <div className='mito-toolbar-number-format'>
+                <Select
+                    className='mito-toolbar-number-format-select'
+                    disabled={!!props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
+                    value={getColumnAppliedFormat(props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData))}
+                >
+                    {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI, props.closeOpenEditingPopups)}
+                </Select>
+                <div className='mito-toolbar-number-precision'>
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.LESS}
+                        action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
+                    />
+                    <ToolbarButton
+                        toolbarButtonType={ToolbarButtonType.MORE}
+                        action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
+                        setEditorState={props.setEditorState}
+                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Increase].isDisabled()}
+                    />
+                </div>
+            </div>
+            <div className="toolbar-vertical-line" style={{ marginLeft: '3px'}}></div>
+
             <ToolbarButton
                 toolbarButtonType={ToolbarButtonType.ADD_COL}
                 action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
@@ -224,46 +230,6 @@ export const HomeTabContents = (
             </ToolbarButton>
             <div className="toolbar-vertical-line"></div>
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.LESS}
-                action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
-                setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
-            />
-            <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.MORE}
-                action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
-                setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Increase].isDisabled()}
-            />
-            
-            <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.FORMAT}
-                action={props.actions.buildTimeActions[ActionEnum.Format_Number_Columns]}
-                setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Format_Number_Columns].isDisabled()}
-            >
-                <Dropdown
-                    display={props.uiState.toolbarDropdown === 'format'}
-                    closeDropdown={() => 
-                        props.setUIState(prevUIState => {
-                            if (prevUIState.toolbarDropdown !== 'format') {
-                                return prevUIState;
-                            }
-
-                            return {
-                                ...prevUIState,
-                                toolbarDropdown: undefined
-                            }
-                        })
-                    }
-                >
-                    {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI, props.closeOpenEditingPopups)}
-                </Dropdown>
-            </ToolbarButton>
-
-            <div className="toolbar-vertical-line"></div>
-
-            <ToolbarButton
                 toolbarButtonType={ToolbarButtonType.PIVOT}
                 action={props.actions.buildTimeActions[ActionEnum.Pivot]}
                 highlightToolbarButton={props.highlightPivotTableButton}
@@ -294,6 +260,24 @@ export const HomeTabContents = (
             }
         </div>
         <div className='mito-toolbar-bottom-right-half'>
+            <ToolbarButton
+                id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
+                toolbarButtonType={ToolbarButtonType.UNDO}
+                action={props.actions.buildTimeActions[ActionEnum.Undo]}
+                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Undo].isDisabled()}
+            />
+            <ToolbarButton
+                id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
+                toolbarButtonType={ToolbarButtonType.REDO}
+                action={props.actions.buildTimeActions[ActionEnum.Redo]}
+                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Redo].isDisabled()}
+            />
+            <ToolbarButton
+                toolbarButtonType={ToolbarButtonType.CLEAR}
+                action={props.actions.buildTimeActions[ActionEnum.Clear]}
+                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
+            />
+
             {/* 
                 Only when we are not caught up do we display the fast forward button
             */}
