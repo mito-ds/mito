@@ -134,6 +134,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       variant='primary'
                       fontSize='small'
                       href={getRelatedFunctionHref(pageContent.relatedFunctions[0], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   }
                   {pageContent.relatedFunctions.length > 1 && 
@@ -142,6 +143,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       variant='primary'
                       fontSize='small'
                       href={getRelatedFunctionHref(pageContent.relatedFunctions[1], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   } 
                   {pageContent.relatedFunctions.length > 2 && 
@@ -150,6 +152,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       variant='primary'
                       fontSize='small'
                       href={getRelatedFunctionHref(pageContent.relatedFunctions[2], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   }
                 </div>
