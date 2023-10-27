@@ -22,6 +22,11 @@
                 "parameter": "text2",
                 "description": "(Optional) Additional text values to concatenate.",
                 "dataType": "string"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 text values.",
+                "dataType": "string"
             }
         ],
         "examplesTable": [

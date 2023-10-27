@@ -22,6 +22,11 @@
                 "parameter": "number2",
                 "description": "(Optional) The second number you want to sum. You can input up to 255 numbers.",
                 "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers in total.",
+                "dataType": "number"
             }
         ],
         "examplesTable": [
