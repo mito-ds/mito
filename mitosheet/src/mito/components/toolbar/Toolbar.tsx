@@ -25,6 +25,12 @@ export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
+type TabName = 'Home' | 'Test';
+type TabContents = JSX.Element;
+type Tabs = {
+    [ tab: string ]: TabContents
+}
+
 export const Toolbar = (
     props: {
         mitoAPI: MitoAPI
@@ -46,8 +52,8 @@ export const Toolbar = (
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
 
-    const [currentTab, setCurrentTab] = React.useState<string>('Home');
-    const tabs: {[ tab: string ]: React.ReactElement } = {
+    const [currentTab, setCurrentTab] = React.useState<TabName>('Home');
+    const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Test': <div> Testing </div>
     };
@@ -165,7 +171,7 @@ export const Toolbar = (
                 {Object.keys(tabs).map((tab) => {
                     return <button
                         key={tab}
-                        onClick={() => setCurrentTab(tab)}
+                        onClick={() => setCurrentTab(tab as TabName)}
                         className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
                     >
                         <span>{tab}</span>
