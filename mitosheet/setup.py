@@ -13,9 +13,12 @@ As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
 
+from __future__ import print_function
 from glob import glob
 import os
+from os.path import join as pjoin
 import json
+from typing import List, Tuple
 import setuptools
 from pathlib import Path
 
@@ -24,38 +27,63 @@ from setuptools import setup
 HERE = Path(__file__).parent.resolve()
 
 package_json = json.loads(open('package.json').read())
-lab_path = Path(HERE, 'mitosheet', 'labextension')
-notebook_path = Path(HERE, 'mitosheet', 'nbextension')
+lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
+notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
 
 data_files_spec = [
     # Notebook extension data files
     ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
-    ('etc/jupyter/nbconfig/notebook.d', '.', 'mitosheet.json'),
+    ('etc/jupyter/nbconfig/notebook.d', str(HERE), 'mitosheet.json'),
 
     # Lab extension data files
     ("share/jupyter/labextensions/mitosheet", str(lab_path), "**"),
     ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
 ]
 
-def get_data_files_from_data_files_spec(data_specs):
+
+def get_data_files_from_data_files_spec(
+    data_specs: List[Tuple[str, str, str]],
+):
     """
-    Given tuples of (share path, location, glob pattern), turns 
-    this into a correct list of data_files items with the pattern
-    of (share path, [final paths])
+    Given tuples of (data_file_path, directory_to_search, pattern_to_find),
+    this function will return a list of tuples of (data_file_path, [files])
+    in the format that setuptools expects.
     """
-    cwd = os.getcwd()
-    
-    data_files = []
-    for (path, directory, pattern) in data_specs or []:
-        directory = os.path.abspath(directory)
-        data_files.append((path, [
-            f[len(cwd) + 1:] for f in 
-            glob(os.path.join(directory, pattern))
-        ]))
+
+    file_data = {}
+
+    for (data_file_path, directory_to_search, pattern_to_find) in data_specs or []:
+
+        # Get the directory to search ready
+        if os.path.isabs(directory_to_search):
+            directory_to_search = os.path.relpath(directory_to_search)
+        directory_to_search = directory_to_search.rstrip("/")
+
+        # Get all non-directory files that match the pattern, searching recursively
+        files = [
+            f for f in glob(
+                Path().joinpath(directory_to_search, pattern_to_find).as_posix(), 
+                recursive=True
+            ) if not os.path.isdir(f)
+        ]
+
+        offset = len(directory_to_search) + 1
+
+        for fname in files:
+            relative_path = str(Path(fname).parent)[offset:]
+            full_data_file_path = Path().joinpath(data_file_path, relative_path).as_posix()
+
+            if full_data_file_path not in file_data:
+                file_data[full_data_file_path] = []
+
+            file_data[full_data_file_path].append(fname)
+
+    # Turn to list and sort by length, to be consistent (and maybe cuz we need to for folder creation?)
+    data_files = sorted(file_data.items(), key=lambda x: len(x[0]))
     
     return data_files
 
-data_files = get_data_files_from_data_files_spec(data_files_spec)
+data_files = get_data_files_from_data_files_spec(data_files_spec)   
 
 setup_args = dict(
     name                    = 'mitosheet',
@@ -105,7 +133,7 @@ setup_args = dict(
             'types-chardet',
             'types-requests',
             'mypy',
-            'pytest_httpserver'
+            'pytest_httpserver',
         ],
         'deploy': [
             'wheel', 
