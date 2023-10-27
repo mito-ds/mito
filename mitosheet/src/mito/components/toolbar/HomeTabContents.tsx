@@ -11,12 +11,11 @@ import Dropdown from '../elements/Dropdown';
 import Select from '../elements/Select';
 import { getColumnAppliedFormat, getColumnFormatDropdownItems } from '../../utils/format';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
-import fscreen from 'fscreen';
 import { MitoAPI, getRandomId } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './Toolbar';
+import { MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './Toolbar';
 
 export const HomeTabContents = (
     props: {
@@ -291,18 +290,6 @@ export const HomeTabContents = (
                 toolbarButtonType={ToolbarButtonType.STEPS}
                 action={props.actions.buildTimeActions[ActionEnum.Steps]}
                 disabledTooltip={props.actions.buildTimeActions[ActionEnum.Steps].isDisabled()}
-            />
-
-            <div className="toolbar-vertical-line"></div>
-
-            <ToolbarButton
-                id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
-                toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
-                action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
-            />
-            <ToolbarButton
-                toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
-                action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
             />
         </div>
     </div>);

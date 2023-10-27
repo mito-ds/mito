@@ -589,7 +589,6 @@ export const getActions = (
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
             staticType: ActionEnum.Fullscreen,
-            shortTitle: 'Fullscreen',
             longTitle: 'Toggle fullscreen',
             actionFunction: () => {
                 // We toggle to the opposite of whatever the fullscreen actually is (as detected by the
@@ -1162,7 +1161,6 @@ export const getActions = (
         [ActionEnum.OpenSearch]: {
             type: 'build-time',
             staticType: ActionEnum.OpenSearch,
-            shortTitle: 'Search',
             longTitle: 'Search',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
