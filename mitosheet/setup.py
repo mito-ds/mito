@@ -13,22 +13,19 @@ As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
 
-from __future__ import print_function
-from glob import glob
-import os
-from os.path import join as pjoin
 import json
-from typing import List, Tuple
-import setuptools
+import os
+from glob import glob
 from pathlib import Path
+from typing import List, Tuple
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 HERE = Path(__file__).parent.resolve()
 
 package_json = json.loads(open('package.json').read())
-lab_path = Path(pjoin(HERE, 'mitosheet', 'labextension'))
-notebook_path = Path(pjoin(HERE, 'mitosheet', 'nbextension'))
+lab_path = Path(HERE, 'mitosheet', 'labextension')
+notebook_path = Path(HERE, 'mitosheet', 'nbextension')
 
 data_files_spec = [
     # Notebook extension data files
@@ -107,7 +104,7 @@ setup_args = dict(
     mitosheet.sheet()\n\n
     """,
     long_description_content_type = "text/markdown",
-    packages                 = setuptools.find_packages(exclude=['deployment']),
+    packages                 = find_packages(exclude=['deployment']),
     include_package_data     = True,
     package_data             = {'': ['*.js', '*.css', '*.html']},
     data_files               = data_files,
