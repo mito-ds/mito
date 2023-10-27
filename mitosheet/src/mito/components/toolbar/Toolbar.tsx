@@ -58,10 +58,6 @@ export const Toolbar = (
         'Test': <div> Testing </div>
     };
 
-    const renderTabContents = () => {
-        return tabs[currentTab] ?? <div> No tab found </div>;
-    }
-
     return (
         <div className='mito-toolbar-container'>
             <div className='mito-toolbar-top'>
@@ -179,7 +175,7 @@ export const Toolbar = (
                     </button>
                 })}
             </div>
-            {renderTabContents()}
+            {tabs[currentTab] ?? <div> No tab found </div>}
         </div>
     );
 };
