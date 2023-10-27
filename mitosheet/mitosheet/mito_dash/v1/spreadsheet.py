@@ -11,7 +11,7 @@ from mitosheet.mito_backend import MitoBackend
 from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
 from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
-from mitosheet.streamlit.v1 import MitoAnalysis
+from mitosheet.streamlit.v1 import RunnableAnalysis
 
 
 class SpreadsheetResult():
@@ -41,8 +41,8 @@ class SpreadsheetResult():
     def selection(self) -> Optional[Union[pd.DataFrame, pd.Series]]:
         return get_selected_element(self.__dfs, self.__index_and_selections)
     
-    def analysis(self) -> MitoAnalysis:
-        return MitoAnalysis(self.code(), self.__code_options, self.__fully_parameterized_function, self.__param_metadata)
+    def analysis(self) -> RunnableAnalysis:
+        return RunnableAnalysis(self.code(), self.__code_options, self.__fully_parameterized_function, self.__param_metadata)
     
 WRONG_CALLBACK_ERROR_MESSAGE = """Error: Registering a callback with an Input or State referencing a Mito Spreadsheet requires using the @mito_callback decorator, rather than the @callback decorator.
 
@@ -80,7 +80,9 @@ try:
                 sheet_functions: Optional[List[Callable]]=None, 
                 importers: Optional[List[Callable]]=None,
                 editors: Optional[List[Callable]]=None,
-                theme: Optional[MitoTheme]=None
+                theme: Optional[MitoTheme]=None,
+                track_selection: bool=False,
+                
         ):     
             self.mito_id = id
             # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
@@ -97,6 +99,8 @@ try:
                 editors=editors,
                 theme=theme
             )
+
+            self.track_selection = track_selection
 
             super(Spreadsheet, self).__init__(
                 id=id,
@@ -135,18 +139,22 @@ try:
                 self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
                 return self.get_all_json(), self.spreadsheet_result
             
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                Input(self.mito_id, 'index_and_selections'), prevent_initial_call=True
-            )
-            def handle_selection_change(index_and_selections):
-                self.num_messages += 1
+            # Because this has a performance impact, we only register this callback if
+            # the user actually uses the track_selection parameter
+            # TODO: improve the selection error message in this case...
+            if track_selection:
+                @callback(
+                    Output(self.mito_id, 'all_json', allow_duplicate=True), 
+                    Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
+                    Input(self.mito_id, 'index_and_selections'), prevent_initial_call=True
+                )
+                def handle_selection_change(index_and_selections):
+                    self.num_messages += 1
 
-                self.index_and_selections = index_and_selections
-                
-                self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
-                return self.get_all_json(), self.spreadsheet_selection
+                    self.index_and_selections = index_and_selections
+                    
+                    self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
+                    return self.get_all_json(), self.spreadsheet_selection
 
             @callback(
                 Output(self.mito_id, 'all_json', allow_duplicate=True), 
@@ -155,19 +163,10 @@ try:
                 Input(self.mito_id, 'data'), 
                 prevent_initial_call=True
             )
-            def handle_data_change_data(df_in_json):
+            def handle_data_change_data(data):
                 
-                # TODO: we should handle more data types. Namely, those that dash_table does...
-                # TO
-                if isinstance(df_in_json, str):
-                    df = pd.read_json(StringIO(df_in_json))
-                elif isinstance(df_in_json, list):
-                    df = pd.DataFrame(df_in_json)
-                else:
-                    raise Exception(f"Unsupported data type {type(df_in_json)}")
-
                 self._set_new_mito_backend(
-                    df, 
+                    data, 
                     import_folder=self.import_folder, 
                     code_options=self.code_options,
                     df_names=self.df_names,
@@ -261,7 +260,8 @@ try:
             return json.dumps({
                 **self.mito_backend.get_shared_state_variables(),
                 'responses_json': json.dumps(self.responses),
-                'key': self.mito_frontend_key
+                'key': self.mito_frontend_key,
+                'track_selection': self.track_selection
             })
         
         def get_result(self):

@@ -77,3 +77,14 @@ def test_mito_callback_component_callable_with_spreadsheet_in_state():
     )
     def func(input_value, spreadsheet_data, state_value):
             return input_value
+    
+@requires_dash
+def test_can_pass_track_selection():
+    from dash import Input, Output, State, Dash, html, dcc
+
+     # Make a dash app
+    app = Dash(__name__)
+
+    app.layout = html.Div([
+        Spreadsheet(id='spreadsheet', track_selection=False)
+    ])
