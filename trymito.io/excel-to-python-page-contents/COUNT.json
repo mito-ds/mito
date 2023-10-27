@@ -22,6 +22,11 @@
                 "parameter": "value2",
                 "description": "(Optional) Additional cells or ranges to count.",
                 "dataType": "cell/range"
+            }, 
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 additional cells or ranges to count.",
+                "dataType": "cell/range"
             }
         ],
         "examplesTable": [

@@ -1,5 +1,5 @@
 {
-    "slug": ["functions", "conditionals", "ISNA"],
+    "slug": ["functions", "conditional", "ISNA"],
     "functionNameShort": "ISNA",
     "functionNameLong": "Detecting Missing Data",
     "relatedFunctions": ["FILLNA", "IF", "COUNT"],

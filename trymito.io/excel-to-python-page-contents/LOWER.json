@@ -123,11 +123,11 @@
                     "For instance, if filtering rows based on a keyword after converting to lowercase, ensure `str.lower()` comes before `str.contains()`."
                 ],
                 "codeLines": [
-                    "# Correct order: str.lower() before str.contains()",
-                    "df[df['Text'].str.lower().str.contains('keyword')]",
-                    "",
                     "# Incorrect order: str.contains() before str.lower()",
-                    "df[df['Text'].str.contains('keyword').str.lower()]"
+                    "df[df['Text'].str.contains('keyword').str.lower()]", 
+                    "",
+                    "# Correct order: str.lower() before str.contains()",
+                    "df[df['Text'].str.lower().str.contains('keyword')]"
                 ]
             },
             {

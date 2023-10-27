@@ -110,9 +110,7 @@
                 "title": "Expecting Rank to Start from Zero",
                 "shortTitle": "Starting from Zero",
                 "paragraphs": [
-                    "In pandas, ranks start from 1, similar to Excel. If you're expecting 0-based indexing, this can cause confusion.",
-                    "Excel's RANK function starts ranking from 1.",
-                    "Remember that the default behavior in both Excel and pandas is to start ranking from 1."
+                    "In pandas, ranks start from 1, similar to Excel. If you're expecting 0-based indexing, this can cause confusion."
                 ],
                 "codeLines": [
                     "df['Rank'] = df['Column1'].rank()"
@@ -122,9 +120,7 @@
                 "title": "Misinterpreting NaN Ranks",
                 "shortTitle": "NaN Ranks",
                 "paragraphs": [
-                    "In pandas, NaN values in the data result in NaN ranks. If not anticipated, this can lead to unexpected results.",
-                    "Excel's RANK function ignores blank cells, giving them no rank.",
-                    "Understand how both platforms treat missing values and adjust your code or analysis accordingly."
+                    "In pandas, NaN values in the data result in NaN ranks. This is similar in Excel to how blank cells or #N/A values are given #N/A ranks."
                 ],
                 "codeLines": []
             }
