@@ -27,9 +27,22 @@ import { PageContent } from '../../excel-to-python-page-contents/types';
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
+import { getGlossaryPageInfo, GlossaryPageInfo } from '../excel-to-python';
 require('prismjs/components/prism-python');
 
-const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
+const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
+  const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
+    return glossaryPageInfo.functionNameShort === relatedFunctionShortName
+  })[0]
+
+  if (relatedFunction == null) {
+    return '/excel-to-python/'
+  }
+
+  return '/excel-to-python/' + relatedFunction.slug.join('/')
+}
+
+const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPageInfo: GlossaryPageInfo[]}) => {
 
   const pageContent = props.pageContent
 
@@ -120,6 +133,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[0]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[0], props.glossaryPageInfo)}
                     />
                   }
                   {pageContent.relatedFunctions.length > 1 && 
@@ -127,6 +141,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[1]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[1], props.glossaryPageInfo)}
                     />
                   } 
                   {pageContent.relatedFunctions.length > 2 && 
@@ -134,6 +149,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[2]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[2], props.glossaryPageInfo)}
                     />
                   }
                 </div>
@@ -353,6 +369,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return false
   })
 
+  const glossaryPageInfo = await getGlossaryPageInfo(pageContentsJsonArray)
+
   if (!pageContent) {
     return {
       notFound: true,
@@ -360,7 +378,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 
   return {
-    props: { pageContent }
+    props: { 
+      pageContent: pageContent,
+      glossaryPageInfo: glossaryPageInfo
+    }
   }
 }
 

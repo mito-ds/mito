@@ -145,6 +145,12 @@ const Header = (): JSX.Element => {
                     iconSrc='/blog.svg'
                     altText="Blog"
                   />
+                  <HeaderDropdownItem
+                    title='Excel to Python Glossary'
+                    href='/excel-to-python'
+                    iconSrc='/blog.svg'
+                    altText="Excel to Python Glossary"
+                  />
                 </HeaderDropdown>
 
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
@@ -225,6 +231,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/blog'>Blog</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/excel-to-python'>Excel to Python Glossary</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>

@@ -12,6 +12,7 @@ import { getPageContentJsonArray } from '../utils/excel-to-python';
 import Link from 'next/link';
 import PageTOC from '../components/Glossary/PageTOC/PageTOC';
 import TextButton from '../components/TextButton/TextButton';
+import { PageContent } from '../excel-to-python-page-contents/types';
 
 export type GlossaryPageInfo = {
     functionNameShort: string,
@@ -19,23 +20,27 @@ export type GlossaryPageInfo = {
     slug: string[],
 }
 
-export const getGlossaryPageInfo = (glossaryPageInfo: GlossaryPageInfo[], section: string) => {
+export const getGlossaryPageInfoForSection = (glossaryPageInfo: GlossaryPageInfo[], section: string) => {
     return glossaryPageInfo.filter((glossaryPageInfo) => {
         return glossaryPageInfo.slug[1] === section
     })
 }
 
-export const getStaticProps: GetStaticProps<{glossaryPageInfo: GlossaryPageInfo[]}> = async () => {
-    const pageContentsJsonArray = await getPageContentJsonArray()
+export const getGlossaryPageInfo = async (pageContentsJsonArray: PageContent[]): Promise<GlossaryPageInfo[]> => {
   
     // Get information about each glossay page
-    const glossaryPageInfo: GlossaryPageInfo[] = pageContentsJsonArray.map((pageContentsJson) => {
+    return pageContentsJsonArray.map((pageContentsJson) => {
       return {
         functionNameShort: pageContentsJson.functionNameShort,
         purpose: pageContentsJson.purpose,
         slug: [...pageContentsJson.slug]
       }
     })
+}
+
+export const getStaticProps: GetStaticProps<{glossaryPageInfo: GlossaryPageInfo[]}> = async () => {
+    const pageContentsJsonArray = await getPageContentJsonArray()
+    const glossaryPageInfo = await getGlossaryPageInfo(pageContentsJsonArray)
     
     return {
         props: { glossaryPageInfo },
@@ -63,11 +68,11 @@ const GlossaryPageCard = (props: {glossaryPageInfo: GlossaryPageInfo}) => {
 
 const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) => {
 
-    const mathFucntionsPageInfo = getGlossaryPageInfo(props.glossaryPageInfo, 'math')
-    const textFunctionsPageInfo = getGlossaryPageInfo(props.glossaryPageInfo, 'text')
-    const dateFunctionsPageInfo = getGlossaryPageInfo(props.glossaryPageInfo, 'date')
-    const conditionalFunctionsPageInfo = getGlossaryPageInfo(props.glossaryPageInfo, 'conditional')
-    const miscFunctionsPageInfo = getGlossaryPageInfo(props.glossaryPageInfo, 'misc')
+    const mathFucntionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'math')
+    const textFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'text')
+    const dateFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'date')
+    const conditionalFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'conditional')
+    const miscFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'misc')
 
     return (
         <>
