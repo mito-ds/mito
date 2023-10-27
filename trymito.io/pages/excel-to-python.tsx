@@ -71,10 +71,48 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
 
     return (
         <>
-            <Head>      
-                {/* TODO: Add meta tags */}
+            <Head>
+                {/* Title Tag */}
+                <title>{`Excel to Python: Using Excel's functions in Python - A Complete Guide | Mito`}</title>
+                
+                {/* Meta Description */}
+                <meta
+                    name="description"
+                    content={`Learn how to convert Excel's functions to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples for every Excel formula.`}
+                />
+
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href={`https://www.trymito.io/excel-to-python`} />
+                
+                {/* Open Graph Tags (for social media sharing) */}
+                <meta
+                    property="og:title"
+                    content={`Excel to Python: Using Excel's functions in Python - A Complete Guide`}
+                />
+                <meta
+                    property="og:description"
+                    content={`Learn how to convert Excel's function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+                />
+                {/* Add more Open Graph tags as needed */}
+                
+                {/* Twitter Card Tags (for Twitter sharing) */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta
+                    name="twitter:title"
+                    content={`Excel to Python: Using Excel's function in Python - A Complete Guide`}
+                />
+                <meta
+                    name="twitter:description"
+                    content={`Learn how to convert Excel's function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+                />
+                {/* Add more Twitter Card tags as needed */}
+                
+                {/* Other SEO-related tags (structured data, robots meta, etc.) */}
+                {/* Add other SEO-related tags here */}
             </Head>
-            
+                    
             <Header/>
 
             <div className={pageStyles.container}>
