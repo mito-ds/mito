@@ -46,7 +46,7 @@ jobs:
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        npm run test:jupyter
+        npm run test:jupyterlab
 
   test-mitosheet-frontend-streamlit:
     runs-on: ubuntu-20.04
