@@ -250,7 +250,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       {codeSections.paragraphs.map(text => {
                         return <p key={text}>{text}</p>
                       })}
-                      <CodeBlock code={codeSections.codeLines.join('\n')}/>
+                      {codeSections.codeLines.length > 0 && 
+                        <CodeBlock code={codeSections.codeLines.join('\n')}/>
+                      }
                     </>
                   )
                 })}
