@@ -177,7 +177,7 @@ export const HomeTabContents = (
                     />
                 </div>
             </div>
-            <div className="toolbar-vertical-line" style={{ marginLeft: '3px'}}></div>
+            <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
 
             <ToolbarButton
                 toolbarButtonType={ToolbarButtonType.ADD_COL}
