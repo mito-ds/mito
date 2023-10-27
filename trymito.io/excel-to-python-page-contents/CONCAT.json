@@ -3,6 +3,7 @@
     "functionNameShort": "CONCAT",
     "functionNameLong": "String Concatenation",
     "relatedFunctions": ["JOIN", "MERGE", "APPEND"],
+    "purpose": "Join text together",
     "titleCardParagraphs": [
         "Excel's CONCAT function combines two or more strings into one. It's a powerful tool in text-based data analysis, and is often used to combine fields or create unique identifiers.",
         "This page explains how to implement Excel's CONCAT function in Python using pandas."

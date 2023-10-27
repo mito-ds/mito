@@ -3,6 +3,7 @@
     "functionNameShort": "LOWER",
     "functionNameLong": "Convert to Lowercase",
     "relatedFunctions": ["UPPER", "CAPITALIZE", "LEN"],
+    "purpose": "Converts a text string to lowercase.",
     "titleCardParagraphs": [
         "Excel users often rely on the LOWER function to convert text to lowercase. While Pandas doesn't have a direct function named LOWER, it offers a method called `str.lower()` that performs the same operation.",
         "This page explains how to use the `str.lower()` method in pandas to emulate Excel's LOWER function, guiding you in automating your Excel tasks with Python."

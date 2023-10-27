@@ -27,9 +27,22 @@ import { PageContent } from '../../excel-to-python-page-contents/types';
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
+import { getGlossaryPageInfo, GlossaryPageInfo } from '../excel-to-python';
 require('prismjs/components/prism-python');
 
-const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
+const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
+  const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
+    return glossaryPageInfo.functionNameShort === relatedFunctionShortName
+  })[0]
+
+  if (relatedFunction == null) {
+    return '/excel-to-python/'
+  }
+
+  return '/excel-to-python/' + relatedFunction.slug.join('/')
+}
+
+const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPageInfo: GlossaryPageInfo[]}) => {
 
   const pageContent = props.pageContent
 
@@ -48,6 +61,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
     */
     Prism.highlightAll();
   }, []);
+
+  // Make first character uppercase
+  const slugComponent0 = pageContent.slug[0].charAt(0).toUpperCase() + pageContent.slug[0].slice(1);
+  const slugComponent1 = pageContent.slug[1].charAt(0).toUpperCase() + pageContent.slug[1].slice(1);
 
   return (
     <>
@@ -96,15 +113,15 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
 
       <div className={pageStyles.container}>
         <main className={classNames(pageStyles.main, excelToPythonStyles.main)}>
-          <div className={excelToPythonStyles.blog_content_and_table_of_contents_container}>
-            <div className={excelToPythonStyles.blog_content}>
+          <div className={excelToPythonStyles.content_and_table_of_contents_container}>
+            <div className={excelToPythonStyles.excel_to_python_glossary_content}>
               <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
                 <div className={excelToPythonStyles.horizontal_navbar_container}>
                   <GlossayHorizontalNavbar>
                     {/* TODO: Update hrefs to actual path once we implement the correct pages */}
-                    <HorizontalNavItem title={'Function'} href={'/spreadsheet-automation'} />
-                    <HorizontalNavItem title={'Math'} href={'/spreadsheet-automation'} />
-                    <HorizontalNavItem title={'ABS'} href={'/excel-to-python/functions/math/ABS'} />
+                    <HorizontalNavItem title={slugComponent0} href={'/excel-to-python'} />
+                    <HorizontalNavItem title={slugComponent1} href={`/excel-to-python#${slugComponent1}`} />
+                    <HorizontalNavItem title={props.pageContent.slug[2]} href={path} />
                   </GlossayHorizontalNavbar>
                 </div>
                 
@@ -116,6 +133,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[0]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[0], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   }
                   {pageContent.relatedFunctions.length > 1 && 
@@ -123,6 +142,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[1]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[1], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   } 
                   {pageContent.relatedFunctions.length > 2 && 
@@ -130,6 +151,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
                       text={pageContent.relatedFunctions[2]}
                       variant='primary'
                       fontSize='small'
+                      href={getRelatedFunctionHref(pageContent.relatedFunctions[2], props.glossaryPageInfo)}
+                      openInNewTab={false}
                     />
                   }
                 </div>
@@ -316,7 +339,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
 export async function getStaticPaths() {
   const pageContentsJsonArray = await getPageContentJsonArray()
 
-  // Get the paths we want to create based on posts
+  // Get the paths we want to create based on json files in the excel-to-python-page-content directory 
   const paths = pageContentsJsonArray.map((pageContentsJson) => {
     return {
       // We allow the slug to be an array so we can support paths like /functions/math/abs
@@ -325,7 +348,8 @@ export async function getStaticPaths() {
     }
   })
 
-  // { fallback: false } means posts not found should 404.
+  // { fallback: false } means posts not found should 404. 
+  // TODO: Update the fallback so if they entire an invalid URL with the /excel-to-python/ prefix, it returns them to the excel-to-python page
   return { paths, fallback: false }
 }
 
@@ -348,6 +372,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return false
   })
 
+  const glossaryPageInfo = await getGlossaryPageInfo(pageContentsJsonArray)
+
   if (!pageContent) {
     return {
       notFound: true,
@@ -355,7 +381,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 
   return {
-    props: { pageContent }
+    props: { 
+      pageContent: pageContent,
+      glossaryPageInfo: glossaryPageInfo
+    }
   }
 }
 

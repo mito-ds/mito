@@ -3,6 +3,7 @@
     "functionNameShort": "RANK",
     "functionNameLong": "Ranking",
     "relatedFunctions": ["COUNT", "SUM"],
+    "purpose": "Returns the rank of a number in a list of numbers.",
     "titleCardParagraphs": [
         "Excel's RANK function assigns a rank to a number from a list. The rank can be either in ascending or descending order and can handle ties and missing values.",
         "This page demonstrates how to replicate the RANK function from Excel in Python using pandas"

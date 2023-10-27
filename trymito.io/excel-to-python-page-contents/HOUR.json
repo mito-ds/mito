@@ -3,6 +3,7 @@
     "functionNameShort": "HOUR",
     "functionNameLong": "Hour Extraction",
     "relatedFunctions": ["MINUTE", "SECOND", "DATE"],
+    "purpose": "Extract the hour from a datetime",
     "titleCardParagraphs": [
         "Excel's HOUR function extracts the hour as a number from a time value. It's especially useful when working with large datasets where you need to analyze data at an hourly granularity.",
         "This page explains how to implement Excel's HOUR function in Python using pandas, easing the transition from Excel to Python and helping automate Excel reports."

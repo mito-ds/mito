@@ -3,6 +3,7 @@
     "functionNameShort": "COUNT",
     "functionNameLong": "COUNT",
     "relatedFunctions": ["IFNA", "AVERAGE", "PRODUCT"],
+    "purpose": "Count number of cells that contain numbers",
     "titleCardParagraphs": [
         "Excel's COUNT function calculates the number of cells that contain numbers. It's a pivotal function for various data analysis tasks, from understanding data distribution to ensuring data quality.",
         "This page explains how to implement Excel's COUNT function in Python using pandas, making the transition to automating Excel reports in Python smoother."
