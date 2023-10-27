@@ -96,8 +96,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent}) => {
 
       <div className={pageStyles.container}>
         <main className={classNames(pageStyles.main, excelToPythonStyles.main)}>
-          <div className={excelToPythonStyles.blog_content_and_table_of_contents_container}>
-            <div className={excelToPythonStyles.blog_content}>
+          <div className={excelToPythonStyles.content_and_table_of_contents_container}>
+            <div className={excelToPythonStyles.excel_to_python_glossary_content}>
               <section className={classNames(excelToPythonStyles.title_card, excelToPythonStyles.section)}>
                 <div className={excelToPythonStyles.horizontal_navbar_container}>
                   <GlossayHorizontalNavbar>

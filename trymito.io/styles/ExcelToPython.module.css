@@ -81,7 +81,7 @@
     margin-top: 4rem;
 }
 
-.blog_content {
+.excel_to_python_glossary_content {
     width: 100%;
 }
 
@@ -130,7 +130,7 @@
 
 @media only screen and (min-width: 50em) {
 
-    .blog_content_and_table_of_contents_container {
+    .content_and_table_of_contents_container {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -146,7 +146,7 @@
         height: fit-content;
     }
 
-    .blog_content {
+    .excel_to_python_glossary_content {
         padding: 0 1rem;
         width: 75%;
     }
