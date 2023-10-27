@@ -1,4 +1,4 @@
-name: Test mitosheet types
+name: Test - mitosheet mypy
 
 on:
   push:
@@ -26,14 +26,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
+        cache: pip
+        cache-dependency-path: mitosheet/setup.py
     - name: Install dependencies
       run: |
         cd mitosheet
-        python -m pip install --upgrade pip
-        pip install -e ".[test, deploy]"
+        pip install -e ".[test]"
     - name: Check types with MyPY
       run: |
         mypy mitosheet/mitosheet/ --ignore-missing-imports --disallow-untyped-calls --disallow-incomplete-defs --no-implicit-optional

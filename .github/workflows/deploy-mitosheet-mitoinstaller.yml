@@ -1,4 +1,4 @@
-name: Deploy mitosheet and mitoinstaller
+name: Deploy - mitosheet and mitoinstaller
 on:
   push:
     branches:
@@ -49,7 +49,9 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python ../deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
-          python -m pip install -e ".[test, deploy]"          
+          python -m pip install -e ".[deploy]"    
+          npm install
+          npm run build      
       - name: Deploy mitosheet
         run: |
           cd mitosheet

@@ -128,13 +128,17 @@ class MitoBackend():
         cases where we want to get the function string regardless of the 
         code options the user provided. 
         """
-        return '\n'.join(get_script_as_function(
+        return '\n'.join(transpile(
             self.steps_manager,
-            [],
-            transpile(self.steps_manager, add_comments=False),
-            self.steps_manager.code_options['function_name'],
-            'all',
-            False
+            add_comments=False,
+            optimize=True,
+            code_options_override={
+                'import_custom_python_code': True,
+                'as_function': True,
+                'call_function': False,
+                'function_name': self.steps_manager.code_options.get('function_name', 'automate'),
+                'function_params': 'all'
+            }
         ))
 
     @property

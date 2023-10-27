@@ -1,4 +1,4 @@
-name: Lint Mitosheet TypeScript
+name: Test - mitosheet src lint
 
 on:
   push:
@@ -25,6 +25,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+          cache: 'npm'
+          cache-dependency-path: mitosheet/package-lock.json
       - name: Install Node.js dependencies
         run: | 
           cd mitosheet
