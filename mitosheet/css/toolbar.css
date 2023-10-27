@@ -143,6 +143,15 @@
   font-size: 14px;
 }
 
+.mito-toolbar-number-format .mito-toolbar-button-icon-container {
+  padding: 2px;
+  height: 100%;
+}
+
+.mito-toolbar-number-precision .mito-toolbar-button-container {
+  width: fit-content;
+}
+
 .mito-toolbar-button-container-disabled {
   opacity: 50%;
 }
