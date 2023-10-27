@@ -3,6 +3,7 @@
     "functionNameShort": "REPLACE",
     "functionNameLong": "replace",
     "relatedFunctions": ["SUBSTITUTE", "FILLNA", "FIND"],
+    "purpose": "Replaces characters in a string by location.",
     "titleCardParagraphs": [
         "There are several formulas in Excel designed to help you replace characters in a string.", 
         "The REPLACE function in Excel replaces characters in a string by location.",

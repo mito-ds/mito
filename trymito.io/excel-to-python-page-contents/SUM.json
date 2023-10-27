@@ -3,6 +3,7 @@
     "functionNameShort": "SUM",
     "functionNameLong": "Addition",
     "relatedFunctions": ["ABS", "AVERAGE", "PRODUCT"],
+    "purpose": "Calculates the sum of numbers",
     "titleCardParagraphs": [
         "Excel's SUM function calculates the sum of a range of values. This simple yet powerful function is essential in many analytical tasks, ranging from financial modeling to scientific data analysis.",
         "This page explains how to implement Excel's SUM function in Python using pandas, thus helping automate Excel reports with the power of Python."

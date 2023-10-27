@@ -3,6 +3,7 @@
     "functionNameShort": "IF",
     "functionNameLong": "IF",
     "relatedFunctions": ["VLOOKUP", "AND", "OR"],
+    "purpose": "Use a conditional check to return one of two values.",
     "titleCardParagraphs": [
         "Excel's IF function allows you take different actions depending on the value of your data. It's a way to make dynamic decisions in your data analysis, and is often used in financial modeling and other analytical tasks.",
         "This page explains how to implement Excel's IF function in Python using pandas."

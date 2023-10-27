@@ -9,6 +9,7 @@ export type PageContent = {
     functionNameShort: string;
     functionNameLong: string;
     relatedFunctions: string[];
+    purpose: string;
     titleCardParagraphs: string[];
     excelExplanation: {
         paragraphs: string[],
