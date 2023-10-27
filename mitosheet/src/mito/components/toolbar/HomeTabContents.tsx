@@ -26,7 +26,6 @@ export const HomeTabContents = (
         highlightAddColButton: boolean;
         actions: Actions;
         gridState: GridState;
-        setGridState: React.Dispatch<React.SetStateAction<GridState>>;
         uiState: UIState;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
