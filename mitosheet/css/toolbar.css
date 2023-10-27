@@ -272,3 +272,7 @@
 .mito-toolbar-tabbar-right .mito-toolbar-button-container {
   height: 26px;
 }
+
+.mito-toolbar-tabbar .mito-toolbar-button-icon-container {
+  height: 100%;
+}
