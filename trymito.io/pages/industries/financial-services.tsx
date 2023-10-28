@@ -105,7 +105,7 @@ const Security: NextPage = () => {
                                     Managers love Mito because it reduces key person risk.
                                 </p>
                                 <p className={pageStyles.link}>
-                                    <Link href="/data-apps" >
+                                    <Link href="/data-app" >
                                         Learn more about Mito in Streamlit →
                                     </Link>
                                 </p>
