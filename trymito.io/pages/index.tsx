@@ -156,7 +156,7 @@ const Home: NextPage = () => {
                   Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
                 </p>
                 <p className={pageStyles.link}>
-                  <Link href="/data-apps" >
+                  <Link href="/data-app" >
                     Learn more about Mito in Streamlit →
                   </Link>
                 </p>
