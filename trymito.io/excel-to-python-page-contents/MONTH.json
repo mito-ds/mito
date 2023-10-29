@@ -5,7 +5,7 @@
     "relatedFunctions": ["HOUR", "MINUTE", "DAY"],
     "purpose": "Extract the month from a datetime",
     "titleCardParagraphs": [
-        "Excel's MONTH function extracts the month as a number from a time value. It's especially useful when working with large datasets where you need to analyze data at daily granularity.",
+        "Excel's MONTH function extracts the month as a number from a time value. It's especially useful when working with large datasets where you need to analyze data at monthly granularity.",
         "This page explains how to implement Excel's MONTH function in Python using pandas."
     ],
     "excelExplanation": {
@@ -45,7 +45,7 @@
         "codeSections": [
             {
                 "title": "Extracting Month from Datetime",
-                "shortTitle": "Datetime Extraction",
+                "shortTitle": "Month Extraction",
                 "paragraphs": [
                     "In Excel, if you have a datetime value, you might use the MONTH function directly to get the month. Similarly, in pandas, you use the `.dt` accessor followed by the `month` attribute.",
                     "For example, in Excel you might use =MONTH(A2). In pandas:"
