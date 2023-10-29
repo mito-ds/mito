@@ -176,28 +176,32 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   {pageContent.excelExplanation.paragraphs.map(text => {
                     return <p key={text}>{text}</p>
                   })}
-                  <h3 className={excelToPythonStyles.section_h3_tag}>{functionNameShort} Excel Syntax</h3>
-                  <table className={excelToPythonStyles.excel_to_python_table}>
-                    <thead>
-                      <tr>
-                        <th>Parameter</th>
-                        <th>Description</th>
-                        <th>Data Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pageContent.excelExplanation.syntaxTable.map((row, index) => {
-                        return (
-                          <tr key={`syntax-table-row-${index}`}>
-                            <td>{row.parameter}</td>
-                            <td>{row.description}</td>
-                            <td>{row.dataType}</td>
+                  {pageContent.excelExplanation.syntaxTable.length > 0 &&
+                    <>
+                      <h3 className={excelToPythonStyles.section_h3_tag}>{functionNameShort} Excel Syntax</h3>
+                      <table className={excelToPythonStyles.excel_to_python_table}>
+                        <thead>
+                          <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Data Type</th>
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-
+                        </thead>
+                        <tbody>
+                          {pageContent.excelExplanation.syntaxTable.map((row, index) => {
+                            return (
+                              <tr key={`syntax-table-row-${index}`}>
+                                <td>{row.parameter}</td>
+                                <td>{row.description}</td>
+                                <td>{row.dataType}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </>
+                  }
+                  
                   <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
                   <table className={excelToPythonStyles.excel_to_python_table}>
                     <thead>
