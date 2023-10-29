@@ -1,0 +1,148 @@
+{
+    "slug": ["functions", "text", "FIND"],
+    "functionNameShort": "FIND",
+    "functionNameLong": "Find substring position",
+    "relatedFunctions": ["REPLACE", "MID", "LOWER"],
+    "purpose": "Find the position of a substring in a string",
+    "titleCardParagraphs": [
+        "Excel's FIND function returns the position of a substring within a string. It's used in various scenarios like string parsing, pattern detection, and string manipulation.",
+        "This page explains how to replicate Excel's FIND function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The FIND function in Excel takes a substring and a string as arguments and returns the starting position of the first occurrence of the substring in the string.",
+            "=FIND(find_text, within_text, [start_num])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "find_text",
+                "description": "The substring you want to find.",
+                "dataType": "text"
+            },
+            {
+                "parameter": "within_text",
+                "description": "The text in which you want to search.",
+                "dataType": "text"
+            },
+            {
+                "parameter": "start_num",
+                "description": "(Optional) The position in the string to start the search.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=FIND(\"M\", \"Mito\")",
+                "description": "Find the position of 'M' in 'Mito'.",
+                "result": "1"
+            },
+            {
+                "formula": "=FIND(\"o\", \"Mito\")",
+                "description": "Find the position of 'o' in 'Mito'.",
+                "result": "4"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the FIND function in Excel using Python and pandas, we use the `.str.find()` method. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Finding the position of a substring in a string column",
+                "shortTitle": "Basic Find",
+                "paragraphs": [
+                    "Just like how you would use `=FIND(\"M\", A1)` in Excel to find the position of 'M' in cell A1, in pandas you can find the position of a substring in a string column using the `.str.find()` method.",
+                    "Keep in mind, however, that there are two important differences between Excel's FIND function and pandas' `.str.find()` method:",
+                    "Firstly, the `.str.find()` method returns -1 if the substring is not found, whereas Excel's FIND function returns a #VALUE!. That means the way you handle strings that don't contain your substring will be different in pandas and Excel.",
+                    "Secondly, the `.str.find()` method is 0 indexed, whereas Excel's FIND function is 1 indexed. In other words, if you are searching for 'M' in the string 'Mito', pandas' `.str.find()` method will return 0 wherease Excel's FIND method will return 1. That means you'll need to adjust the result of the `.str.find()` method by adding 1 to it to get the same result as Excel's FIND function."
+                ],
+                "codeLines": [
+                    "# Find the position of 'M' in a string column",
+                    "df['position'] = df['text'].str.find('M')"
+                ]
+            },
+            {
+                "title": "Implementing Excel's FIND function in pandas",
+                "shortTitle": "Excel's FIND",
+                "paragraphs": [
+                    "Remember that there are two important differences between Excel's FIND function and pandas' `.str.find()` method: 1) the `.str.find()` method returns -1 if the substring is not found, whereas Excel's FIND function returns a #VALUE! 2) the `.str.find()` method is 0 indexed, whereas Excel's FIND function is 1 indexed.", 
+                    "To recreate Excel's FIND behavior in Python, you can use the following approach:"
+                ],
+                "codeLines": [
+                    "# Create a function that replicates Excel's FIND function",
+                    "def excel_find(substring, series):",
+                    "    # Use the .str.find() method to get the position",
+                    "    positions = series.str.find(substring).replace(-1, None)",
+                    "",    
+                    "    # Adjust for 1-based indexing",
+                    "    positions += 1",
+                    "",    
+                    "    return positions",
+                    "",
+                    "# Use the function to find the position of 'M' in a string column",
+                    "df['position'] = excel_find('M', df['text'])"
+                ]
+            },
+            {
+                "title": "Finding the position of a substring, starting from the end",
+                "shortTitle": "Start from the end",
+                "paragraphs": [
+                    "To start looking for the substring from the end of the string, you can use the `.str.rfind()` method instead of `.str.find()`.",
+                    "If there is only one occurence of the substring in the string, `.str.rfind()` will return the same result as `.str.find()`. However, if there are multiple occurences of the substring in the string, `.str.rfind()` will return the position of the last occurence of the substring, whereas `.str.find()` will return the position of the first occurence of the substring."
+                ],
+                "codeLines": [
+                    "# Find the first occurence of 'o' in each row of the ", 
+                    "# text column, starting from the end of the string",
+                    "df['position'] = df['text'].str.rfind('o')"
+                ]
+            },
+            {
+                "title": "Finding the position of a substring with case insensitivity",
+                "shortTitle": "Case-insensitive Find",
+                "paragraphs": [
+                    "By default, both Excel's FIND function and pandas' `.str.find()` method are case-sensitive. However, in pandas, if you want to perform a case-insensitive search, you can convert both the DataFrame column and the substring to lowercase (or uppercase) before searching.",
+                    "Here's how you perform a case-insensitive search for 'mito' in a DataFrame column:"
+                ],
+                "codeLines": [
+                    "df[position'] = df['text'].str.lower().find('mito')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Using the `.str.find()` method in pandas requires careful attention to some nuances. Here are common pitfalls and how to address them:"
+        ],
+        "codeSections": [
+            {
+                "title": "Expecting 1-indexed results",
+                "shortTitle": "Indexing Issues",
+                "paragraphs": [
+                    "In Excel, the FIND function starts counting from 1. In Python and pandas, the count starts from 0."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Not handling -1 values properly",
+                "shortTitle": "Handling -1 values",
+                "paragraphs": [
+                    "If `.str.find()` doesn't find the substring, it returns -1. This can be surprising if you're expecting an error or a different value."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Case sensitivity surprises",
+                "shortTitle": "Case Sensitivity",
+                "paragraphs": [
+                    "The `.str.find()` method is case-sensitive by default -- just like Excel. This is a common source of errors when not realizing that your data has both uppercase and lowercase versions of the text you're searching for.",
+                    "The easiest way to perform a case-insensitive search is to convert both the DataFrame column and the substring to lowercase (or uppercase) before searching."
+                ],
+                "codeLines": [
+                    "# Performing a case-insensitive search",
+                    "df['position'] = df['ColumnName'].str.lower().find('mito')"
+                ]
+            }
+        ]
+    }
+}
