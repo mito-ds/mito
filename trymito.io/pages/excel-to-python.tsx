@@ -72,6 +72,7 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
     const textFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'text')
     const dateFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'date')
     const conditionalFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'conditional')
+    const financialFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'financial')
     const miscFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'misc')
 
     return (
@@ -154,6 +155,12 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                             <section>
                                 <h3 id="Conditional" className={excelToPythonStyles.glossary_function_category_header}>Conditional Functions</h3>
                                 {conditionalFunctionsPageInfo.map((glossaryPageInfo) => {
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
+                                })}
+                            </section>
+                            <section>
+                                <h3 id="Financial" className={excelToPythonStyles.glossary_function_category_header}>Financial Functions</h3>
+                                {financialFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>
