@@ -2,11 +2,11 @@
     "slug": ["functions", "date", "HOUR"],
     "functionNameShort": "HOUR",
     "functionNameLong": "Hour Extraction",
-    "relatedFunctions": ["MINUTE", "SECOND", "DATE"],
+    "relatedFunctions": ["DAY", "MINUTE", "SECOND"],
     "purpose": "Extract the hour from a datetime",
     "titleCardParagraphs": [
         "Excel's HOUR function extracts the hour as a number from a time value. It's especially useful when working with large datasets where you need to analyze data at an hourly granularity.",
-        "This page explains how to implement Excel's HOUR function in Python using pandas, easing the transition from Excel to Python and helping automate Excel reports."
+        "This page explains how to implement Excel's HOUR function in Python using pandas."
     ],
     "excelExplanation": {
         "paragraphs": [
@@ -59,7 +59,7 @@
                 "shortTitle": "String to Hour",
                 "paragraphs": [
                     "Often, Pandas will infer the data type of your column as string, even if the data to you looks like a date, ie: 1/2/23. In these cases, you need to convert the string to datetime before extracting the hour.",
-                    "To do this in pandas, first convert use `pd.to_datetime` to convert the column to a datetime columns, and then extract the hour:"
+                    "To do this in pandas, first use `pd.to_datetime` to convert the column to a datetime column, and then extract the hour:"
                 ],
                 "codeLines": [
                     "# Convert the string to datetime",
