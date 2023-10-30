@@ -49,6 +49,7 @@ const ToolbarButton = (
     }): JSX.Element => {
 
     const disabled = props.disabledTooltip !== undefined;
+    const disabledTooltip = props.disabledTooltip ?? props.action.isDisabled();
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     
@@ -78,7 +79,7 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={props.disabledTooltip || props.action.tooltip}>
+                <span title={disabledTooltip || props.action.tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
                         {props.iconOverride ?? getToolbarItemIcon(props.action)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}

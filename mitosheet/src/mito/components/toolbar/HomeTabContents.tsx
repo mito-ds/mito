@@ -83,7 +83,6 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Import_Dropdown].isDisabled()}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'import'}
@@ -108,7 +107,6 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Export_Dropdown]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Export_Dropdown].isDisabled()}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'export'}
@@ -163,12 +161,10 @@ export const HomeTabContents = (
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                     />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Increase].isDisabled()}
                     />
                 </div>
             </div>
@@ -178,18 +174,15 @@ export const HomeTabContents = (
                 action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
                 highlightToolbarButton={props.highlightAddColButton}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Add_Column].isDisabled()}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Delete_Column].isDisabled()}
 
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Change_Dtype].isDisabled()}
             >  
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'dtype'}
@@ -224,25 +217,21 @@ export const HomeTabContents = (
                 action={props.actions.buildTimeActions[ActionEnum.Pivot]}
                 highlightToolbarButton={props.highlightPivotTableButton}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Pivot].isDisabled()}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Graph].isDisabled()}
             />
             {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
                     setEditorState={props.setEditorState}
-                    disabledTooltip={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
                 />
             }
             {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}
                     setEditorState={props.setEditorState}
-                    disabledTooltip={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS].isDisabled()}
                 />
             }
         </div>
@@ -250,16 +239,13 @@ export const HomeTabContents = (
             <ToolbarButton
                 id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
                 action={props.actions.buildTimeActions[ActionEnum.Undo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Undo].isDisabled()}
             />
             <ToolbarButton
                 id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
                 action={props.actions.buildTimeActions[ActionEnum.Redo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Redo].isDisabled()}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Clear]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
             />
         </div>
     </div>);
