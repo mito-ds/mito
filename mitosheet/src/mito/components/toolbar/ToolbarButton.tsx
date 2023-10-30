@@ -32,6 +32,11 @@ const ToolbarButton = (
         setEditorState?: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         
         /**
+         * Optional override of the action's title. 
+         */
+        toolbarTitle?: string;
+
+        /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
         */ 
         highlightToolbarButton?: boolean; 
@@ -84,8 +89,8 @@ const ToolbarButton = (
                         {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
-                    {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
-                        {props.action.toolbarTitle}
+                    {(props.toolbarTitle ?? props.action.toolbarTitle) && <p className='mito-toolbar-button-label'> 
+                        {props.toolbarTitle ?? props.action.toolbarTitle}
                     </p>}
                 </span>
             </button>

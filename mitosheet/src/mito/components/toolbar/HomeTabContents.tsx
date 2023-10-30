@@ -192,8 +192,17 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
                 setEditorState={props.setEditorState}
-
             />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+                setEditorState={props.setEditorState}
+                toolbarTitle='Find and Replace'
+            />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Filter]}
+                setEditorState={props.setEditorState}
+            />
+
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
                 setEditorState={props.setEditorState}
