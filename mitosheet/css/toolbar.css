@@ -252,22 +252,6 @@
   display: flex;
 }
 
-.mito-toolbar-number-precision .select-text {
-  font-size: 11px;
-}
-
-.mito-toolbar-container .select-container {
-  display: flex;
-  flex-direction: row;
-  height: 22px;
-  box-sizing: border-box;
-  width: 150px;
-}
-
-.mito-toolbar-container .select-dropdown-icon-container {
-  width: 18px;
-}
-
 .mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
   background-color: var(--mito-text-light)!important;
 }
