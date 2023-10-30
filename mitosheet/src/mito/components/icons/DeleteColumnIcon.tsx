@@ -20,16 +20,16 @@ const DeleteColumnIcon = (): JSX.Element => {
             <line x1="0.656738" y1="17.0703" x2="0.656738" y2="11.0703" stroke="black"/>
             <line x1="0.656738" y1="6.07031" x2="0.656738" y2="0.0703125" stroke="black"/>
             <line x1="23.6567" y1="6.07031" x2="23.6567" y2="0.0703125" stroke="black"/>
-            <g clip-path="url(#clip0_7142_764)">
-            <rect x="21.8418" y="2.07031" width="3.46154" height="15" rx="1" transform="rotate(45 21.8418 2.07031)" fill="#FAFAFA"/>
-            <rect x="11.2362" y="4.51953" width="3.46154" height="15" rx="1" transform="rotate(-45 11.2362 4.51953)" fill="#FAFAFA"/>
-            <rect x="12.8676" y="4.51562" width="1.15385" height="12.6923" transform="rotate(-45 12.8676 4.51562)" fill="#C33725"/>
-            <rect x="21.8435" y="3.69922" width="1.15385" height="12.6923" transform="rotate(45 21.8435 3.69922)" fill="#C33725"/>
+            <g clipPath="url(#clip0_7142_764)">
+                <rect x="21.8418" y="2.07031" width="3.46154" height="15" rx="1" transform="rotate(45 21.8418 2.07031)" fill="#FAFAFA"/>
+                <rect x="11.2362" y="4.51953" width="3.46154" height="15" rx="1" transform="rotate(-45 11.2362 4.51953)" fill="#FAFAFA"/>
+                <rect x="12.8676" y="4.51562" width="1.15385" height="12.6923" transform="rotate(-45 12.8676 4.51562)" fill="#C33725"/>
+                <rect x="21.8435" y="3.69922" width="1.15385" height="12.6923" transform="rotate(45 21.8435 3.69922)" fill="#C33725"/>
             </g>
             <defs>
-            <clipPath id="clip0_7142_764">
-            <rect width="13" height="11" fill="white" transform="translate(11.1567 2.99609)"/>
-            </clipPath>
+                <clipPath id="clip0_7142_764">
+                    <rect width="13" height="11" fill="white" transform="translate(11.1567 2.99609)"/>
+                </clipPath>
             </defs>
         </svg>
     )
