@@ -1,0 +1,117 @@
+{
+    "slug": ["functions", "math", "MODE"],
+    "functionNameShort": "MODE",
+    "functionNameLong": "Mode",
+    "relatedFunctions": ["SUM", "MEDIAN", "AVERAGE"],
+    "purpose": "Calculate the mode value of a set of numbers",
+    "titleCardParagraphs": [
+        "Excel's MODE function finds the most common value in a set of numbers. This guide explains how to replicate Excel's MODE functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MODE function in Excel takes one or more arguments (ranges of numbers) and returns their mode.",
+            "=MODE(number1, [number2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The first number you want to include in the mode.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) Additional numbers you want to include in the mode.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers you want to include in the mode.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MODE(1, 2, 3, 3, 3)",
+                "description": "Calculate the mode of provided values.",
+                "result": "3"
+            },
+            {
+                "formula": "=MODE(A1:A10)",
+                "description": "Calculate the mode of values from A1 to A10.",
+                "result": "Mode of A1 to A10"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the MODE function from Excel in pandas, there are several approaches depending on your specific needs. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Mode value in each row",
+                "shortTitle": "Row-wise mode",
+                "paragraphs": [
+                    "In Excel, to mode values in cells A1, B1, and C1, you'd use =MODE(A1, B1, C1).",
+                    "In pandas, finding the mode of values across columns for a given row can be done similarly. Below is how you'd compute the mode of 'Col1', 'Col2', and 'Col3' for each row:"
+                ],
+                "codeLines": [
+                    "# Calculate the mode of Col1, Col2, Col3",
+                    "df['Mode'] = df[['Col1', 'Col2', 'Col3']].mode(axis=1)[0]"
+                ]
+            },
+            {
+                "title": "Entire column mode",
+                "shortTitle": "Column mode",
+                "paragraphs": [
+                    "In Excel, to find the mode of an entire column, you'd use =MODE(A:A).",
+                    "In pandas, you can use the mode method on the desired column to get a similar result:"
+                ],
+                "codeLines": [
+                    "# Calculate the mode of the entire column",
+                    "col_median = df['Col1'].mode()[0]"
+                ]
+            },
+            {
+                "title": "Entire dataframe mode",
+                "shortTitle": "Dataframe mode",
+                "paragraphs": [
+                    "In Excel, to find the mode of an entire table, you'd use =MODE(A1:D10).",
+                    "In pandas, you can use the mode method on the entire dataframe to get a similar result:"
+                ],
+                "codeLines": [
+                    "# Flatten the DataFrame and get the mode",
+                    "df_values = df.values.flatten().tolist()",
+                    "mode_value = pd.Series(df_values).mode()[0]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) that you might run into while calculating the mode in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Expecting a Single Value",
+                "shortTitle": "Expecting a Single Value",
+                "paragraphs": [
+                    "In Excel, the MODE function always returns a single value. For example, =MODE(1, 1, 2, 2) returns 1 even though 1 and 2 occur the same number of times.", 
+                    "However, in pandas, the mode method returns a Series object. This is because there can be multiple values that occur the same number of times. For example, if you have a dataframe with the following values: [1, 1, 2, 2], the mode method will return a series with values [1, 2].",
+                    "If you want to return a single value, you can use the iloc method to get the first value in the series:"
+                ],
+                "codeLines": [
+                    "# Calculate the mode of the entire column",
+                    "df['Mode'] = df[['Col1', 'Col2', 'Col3']].mode(axis=1)[0]"
+                ]
+            },
+            {
+                "title": "Ignoring Missing Values",
+                "shortTitle": "Handling NaNs",
+                "paragraphs": [
+                    "The `.mode()` function ignores NaN values similar to how Excel's MODE function disregards blank cells. That means that even if NaN is the most common value, it will not be returned by the mode method."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

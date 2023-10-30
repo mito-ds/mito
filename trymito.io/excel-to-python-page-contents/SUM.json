@@ -55,7 +55,7 @@
         "codeSections": [
             {
                 "title": "Summing values in the same row",
-                "shortTitle": "Cells in row",
+                "shortTitle": "Row sum",
                 "paragraphs": [
                     "Calculating the sum of values in a row is as simple as entering =SUM(A1, B1) in Excel.",
                     "The syntax for summing values in the same row in pandas is similar to Excel. The following code creates a new column called Total that contains the sum of values in columns Col1 and Col2:"
@@ -66,12 +66,22 @@
             },
             {
                 "title": "Summing a single column",
-                "shortTitle": "Single column",
+                "shortTitle": "Column sum",
                 "paragraphs": [
                     "Calculating the sum of a column in Excel is as simple as entering =SUM(A:A). To calculate the sum of a single column in pandas, use the sum method on the column:"
                 ],
                 "codeLines": [
                     "total = df['Column1'].sum()"
+                ]
+            },
+            {
+                "title": "Summing an entire dataframe",
+                "shortTitle": "Dataframe sum",
+                "paragraphs": [
+                    "Calculating the sum of an entire table in Excel is as simple as entering =SUM(A1:D10). To calculate the sum of a single an entire pandas dataframe, use the following code:"
+                ],
+                "codeLines": [
+                    "total = df.sum().sum()"
                 ]
             },
             {

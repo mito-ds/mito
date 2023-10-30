@@ -79,8 +79,9 @@
                     "In pandas, you can use the median method on the entire dataframe to get a similar result:"
                 ],
                 "codeLines": [
-                    "# Calculate the median of the dataframe",
-                    "df_median = df.median()"
+                    "# Flatten the DataFrame and get the median value",
+                    "df_values = df.values.flatten().tolist()",
+                    "median_value = pd.Series(df_values).median()"
                 ]
             }
         ]

@@ -79,8 +79,8 @@
                     "In pandas, you can use the mean method on the entire dataframe to get a similar result:"
                 ],
                 "codeLines": [
-                    "# Calculate the average of the dataframe",
-                    "df_avg = df.mean()"
+                    "# Calculate the average of the entire dataframe",
+                    "df.fillna(0).mean().mean()"
                 ]
             },
             {
