@@ -3,7 +3,6 @@
 
 import React from 'react'
 
-import { ToolbarButtonType } from './utils';
 import ToolbarButton from './ToolbarButton';
 import { getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs } from '../endo/selectionUtils';
 import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
@@ -82,10 +81,8 @@ export const HomeTabContents = (
     return (<div className='mito-toolbar-bottom'>
         <div className='mito-toolbar-bottom-left-half'>
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.IMPORT}
                 action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Import_Dropdown].isDisabled()}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'import'}
@@ -108,10 +105,8 @@ export const HomeTabContents = (
                 </Dropdown>
             </ToolbarButton>
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.EXPORT}
                 action={props.actions.buildTimeActions[ActionEnum.Export_Dropdown]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Export_Dropdown].isDisabled()}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'export'}
@@ -166,40 +161,30 @@ export const HomeTabContents = (
                 </Select>
                 <div className='mito-toolbar-number-precision'>
                     <ToolbarButton
-                        toolbarButtonType={ToolbarButtonType.LESS}
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                     />
                     <ToolbarButton
-                        toolbarButtonType={ToolbarButtonType.MORE}
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
                         setEditorState={props.setEditorState}
-                        disabledTooltip={props.actions.buildTimeActions[ActionEnum.Precision_Increase].isDisabled()}
                     />
                 </div>
             </div>
             <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
 
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.ADD_COL}
                 action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
                 highlightToolbarButton={props.highlightAddColButton}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Add_Column].isDisabled()}
             />
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.DEL_COL}
                 action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Delete_Column].isDisabled()}
 
             />
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.DTYPE}
                 action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Change_Dtype].isDisabled()}
             >  
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'dtype'}
@@ -231,52 +216,38 @@ export const HomeTabContents = (
             </ToolbarButton>
             <div className="toolbar-vertical-line"></div>
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.PIVOT}
                 action={props.actions.buildTimeActions[ActionEnum.Pivot]}
                 highlightToolbarButton={props.highlightPivotTableButton}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Pivot].isDisabled()}
             />
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.GRAPH}
                 action={props.actions.buildTimeActions[ActionEnum.Graph]}
                 setEditorState={props.setEditorState}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Graph].isDisabled()}
             />
             {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
                 <ToolbarButton
-                    toolbarButtonType={ToolbarButtonType.AI_TRANSFORMATION}
                     action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
                     setEditorState={props.setEditorState}
-                    disabledTooltip={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION].isDisabled()}
                 />
             }
             {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
                 <ToolbarButton
-                    toolbarButtonType={ToolbarButtonType.CODE_SNIPPETS}
                     action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}
                     setEditorState={props.setEditorState}
-                    disabledTooltip={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS].isDisabled()}
                 />
             }
         </div>
         <div className='mito-toolbar-bottom-right-half'>
             <ToolbarButton
                 id={MITO_TOOLBAR_UNDO_ID} // NOTE: this is used to click the undo button in plugin.tsx
-                toolbarButtonType={ToolbarButtonType.UNDO}
                 action={props.actions.buildTimeActions[ActionEnum.Undo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Undo].isDisabled()}
             />
             <ToolbarButton
                 id={MITO_TOOLBAR_REDO_ID} // NOTE: this is used to click the redo button in plugin.tsx
-                toolbarButtonType={ToolbarButtonType.REDO}
                 action={props.actions.buildTimeActions[ActionEnum.Redo]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Redo].isDisabled()}
             />
             <ToolbarButton
-                toolbarButtonType={ToolbarButtonType.CLEAR}
                 action={props.actions.buildTimeActions[ActionEnum.Clear]}
-                disabledTooltip={props.actions.buildTimeActions[ActionEnum.Clear].isDisabled()}
             />
         </div>
     </div>);

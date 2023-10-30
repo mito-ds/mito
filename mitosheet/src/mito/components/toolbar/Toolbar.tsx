@@ -21,8 +21,8 @@ import ToolbarUserDefinedEditsDropdown from './ToolbarUserDefinedEditsDropdown';
 import { HomeTabContents } from './HomeTabContents';
 import { classNames } from '../../utils/classNames';
 import ToolbarButton from './ToolbarButton';
-import { ToolbarButtonType } from './utils';
 import fscreen from 'fscreen';
+import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -188,11 +188,10 @@ export const Toolbar = (
                 <div className='mito-toolbar-tabbar-right'>
                     <ToolbarButton
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
-                        toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
                         action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
                     />
                     <ToolbarButton
-                        toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
+                        iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
                         action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                     />
                 </div>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { BuildTimeAction, EditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getToolbarItemIcon, ToolbarButtonType } from './utils';
+import StepsIcon from '../icons/StepsIcon';
 
 /**
  * The ToolbarButton component is used to create each
@@ -15,10 +15,11 @@ const ToolbarButton = (
         * @param id - An option id to put on the element, so we can grab it elsewhere 
         */
         id?: string;
-        /** 
-        * @param toolbarButtonType - The toolbaryItemType is used to determine the correct icon to display. 
-        */
-        toolbarButtonType: ToolbarButtonType;
+
+        /**
+         * If there is a special case for the icon (see FullScreen)
+         */
+        iconOverride?: JSX.Element;
 
         /** 
         * @param action - The action to run when the toolbar button is clicked
@@ -48,6 +49,7 @@ const ToolbarButton = (
     }): JSX.Element => {
 
     const disabled = props.disabledTooltip !== undefined;
+    const disabledTooltip = props.disabledTooltip ?? props.action.isDisabled();
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     
@@ -77,9 +79,9 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={props.disabledTooltip || props.action.tooltip}>
+                <span title={disabledTooltip || props.action.tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
-                        {getToolbarItemIcon(props.toolbarButtonType)}
+                        {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
                     {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
