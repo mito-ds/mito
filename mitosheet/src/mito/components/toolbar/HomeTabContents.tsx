@@ -170,6 +170,18 @@ export const HomeTabContents = (
                     />
                 </div>
             </div>
+
+            <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
+
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Conditional_Formatting]}
+                setEditorState={props.setEditorState}
+            />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format]}
+                setEditorState={props.setEditorState}
+            />
+
             <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
 
             <ToolbarButton

@@ -203,6 +203,10 @@
   height: 18px;
 }
 
+p.mito-toolbar-button-label {
+  width: min-content;
+}
+
 
 /* Tab Bar Style */
 .mito-toolbar-tabbar-tabname {
