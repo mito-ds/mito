@@ -264,7 +264,7 @@ def delete_column_id_from_state_metadata(
     column_id: ColumnID,
 ) -> State:
     
-    # And then update all the state variables removing this column from the state
+    # Update all the state variables removing this column from the state
     del state.column_formulas[sheet_index][column_id]
     # TODO: do we want to remove the formulas
     if column_id in state.df_formats[sheet_index]['columns']:

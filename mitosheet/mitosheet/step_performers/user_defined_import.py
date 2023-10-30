@@ -47,8 +47,6 @@ class UserDefinedImportStepPerformer(StepPerformer):
             'user_defined_function_params': get_user_defined_function_param_type_and_execute_value_and_transpile_value(prev_state, importer_function, importer_params),
             'new_df_names': [new_df_name],
         }
-
-        print(execution_data)
         
         try:
             return cls.execute_through_transpile(
