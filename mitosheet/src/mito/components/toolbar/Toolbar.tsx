@@ -3,7 +3,7 @@
 import React from 'react';
 import "../../../../css/toolbar.css";
 import { MitoAPI } from '../../api/api';
-import { AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import GetSupportButton from '../elements/GetSupportButton';
 import PlanButton from './PlanButton';
@@ -20,6 +20,9 @@ import ToolbarViewDropdown from './ToolbarViewDropdown';
 import ToolbarUserDefinedEditsDropdown from './ToolbarUserDefinedEditsDropdown';
 import { HomeTabContents } from './HomeTabContents';
 import { classNames } from '../../utils/classNames';
+import ToolbarButton from './ToolbarButton';
+import { ToolbarButtonType } from './utils';
+import fscreen from 'fscreen';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -164,22 +167,35 @@ export const Toolbar = (
             </div>
             <div className='mito-toolbar-top-bottom-seperator'/>
             <div className='mito-toolbar-tabbar'>
-                {Object.keys(tabs).map((tab) => {
-                    return <button
-                        key={tab}
-                        onClick={() => {
-                            if (currentTab === tab) {
-                                setCurrentTab(undefined)
-                                return
-                            }
-                            setCurrentTab(tab as TabName)
-                        }}
-                        className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
-                    >
-                        <span>{tab}</span>
-                        {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
-                    </button>
-                })}
+                <div className='mito-toolbar-tabbar-left'>
+                    {Object.keys(tabs).map((tab) => {
+                        return <button
+                            key={tab}
+                            onClick={() => {
+                                if (currentTab === tab) {
+                                    setCurrentTab(undefined)
+                                    return
+                                }
+                                setCurrentTab(tab as TabName)
+                            }}
+                            className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
+                        >
+                            <span>{tab}</span>
+                            {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
+                        </button>
+                    })}
+                </div>
+                <div className='mito-toolbar-tabbar-right'>
+                    <ToolbarButton
+                        id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
+                        toolbarButtonType={ToolbarButtonType.OPEN_SEARCH}
+                        action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+                    />
+                    <ToolbarButton
+                        toolbarButtonType={fscreen.fullscreenElement ? ToolbarButtonType.CLOSE_FULLSCREEN : ToolbarButtonType.OPEN_FULLSCREEN}
+                        action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
+                    />
+                </div>
             </div>
             {currentTab !== undefined ? tabs[currentTab] ?? <div> No tab found </div> : undefined}
         </div>

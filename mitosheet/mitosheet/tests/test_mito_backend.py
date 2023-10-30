@@ -3,6 +3,7 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
+from io import StringIO
 import json
 import os
 import pandas as pd
@@ -22,24 +23,38 @@ def test_example_creation_blank():
     w = MitoBackend(df)
 
 VALID_DATAFRAMES = [
-    (pd.DataFrame()),
-    (pd.DataFrame(data={'A': [1, 2, 3]})),
-    (pd.DataFrame(data={'A0123': [1, 2, 3]})),
-    (pd.DataFrame(data={0: [1, 2, 3]})),
-    (pd.DataFrame(data={0.1: [1, 2, 3]})),
-    (pd.DataFrame(data={'A A A A': [1, 2, 3], 0: [1, 2, 3]})),
-    (pd.DataFrame(data={'         a         ': [1, 2, 3], '123': [1, 2, 3]})),
-    (pd.DataFrame(data={'## this is a test': [1, 2, 3], ' !': [1, 2, 3]})),
-    (pd.DataFrame(data={'TOTAL': [1, 2, 3], '#123': [1, 2, 3]})),
-    (pd.DataFrame(data={'NUMber': [1, 2, 3], '.,,': [1, 2, 3]})),
-    (pd.DataFrame(data={'this is a possible ! column header that could be there': [1, 2, 3], '.,,': [1, 2, 3]})),
-    (pd.DataFrame(data={1000.123123: [1, 2, 3], 52.100: [1, 2, 3]})),
+    (pd.DataFrame(), None),
+    (pd.DataFrame(data={'A': [1, 2, 3]}), None),
+    (pd.DataFrame(data={'A0123': [1, 2, 3]}), None),
+    (pd.DataFrame(data={0: [1, 2, 3]}), None),
+    (pd.DataFrame(data={0.1: [1, 2, 3]}), None),
+    (pd.DataFrame(data={'A A A A': [1, 2, 3], 0: [1, 2, 3]}), None),
+    (pd.DataFrame(data={'         a         ': [1, 2, 3], '123': [1, 2, 3]}), None),
+    (pd.DataFrame(data={'## this is a test': [1, 2, 3], ' !': [1, 2, 3]}), None),
+    (pd.DataFrame(data={'TOTAL': [1, 2, 3], '#123': [1, 2, 3]}), None),
+    (pd.DataFrame(data={'NUMber': [1, 2, 3], '.,,': [1, 2, 3]}), None),
+    (pd.DataFrame(data={'this is a possible ! column header that could be there': [1, 2, 3], '.,,': [1, 2, 3]}), None),
+    (pd.DataFrame(data={1000.123123: [1, 2, 3], 52.100: [1, 2, 3]}), None),
+
+    # to_csv of file content
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
+    # to_json of file content
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_json(), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
+    # to_dict of file content
+    (pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_dict('records'), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
+    # a list of strings (which are to_csv of file content)
+    ([pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False), pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]}).to_csv(index=False)], pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})),
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
 def test_df_creates_valid_df(df):
-    mito = get_mito_backend(df)
-    assert mito is not None
-    assert list(mito.steps_manager.curr_step.dfs[0].keys()) == list(df.keys())
+    print(type(df[0]))
+    mito = create_mito_wrapper(df[0])
+    assert mito.mito_backend is not None
+
+    if df[1] is None:
+        assert mito.mito_backend.steps_manager.curr_step.dfs[0].equals(df[0])
+    else:
+        assert mito.mito_backend.steps_manager.curr_step.dfs[0].equals(df[1])
 
 def test_df_with_nan_creates_backend():
     df = pd.DataFrame(data={np.nan: [1, 2, 3], 52.100: [1, 2, 3]})

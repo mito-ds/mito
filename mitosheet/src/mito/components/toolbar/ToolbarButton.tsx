@@ -49,7 +49,8 @@ const ToolbarButton = (
 
     const disabled = props.disabledTooltip !== undefined;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
-
+    const hasDropdown = props.children !== undefined;
+    
     return (
         <div 
             className={classNames('mito-toolbar-button-container', disabled ? 'mito-toolbar-button-container-disabled' : 'mito-toolbar-button-container-enabled')} 
@@ -79,10 +80,11 @@ const ToolbarButton = (
                 <span title={props.disabledTooltip || props.action.tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
                         {getToolbarItemIcon(props.toolbarButtonType)}
+                        {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
-                    <p className='mito-toolbar-button-label'> 
-                        {props.action.shortTitle}
-                    </p>
+                    {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
+                        {props.action.toolbarTitle}
+                    </p>}
                 </span>
             </button>
             {props.children !== undefined && props.children}

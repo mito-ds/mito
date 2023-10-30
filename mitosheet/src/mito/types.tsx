@@ -997,7 +997,8 @@ export interface BaseAction<Type, StaticType> {
     type: Type;
     staticType: StaticType;
     // The short title for the action. Should be title case, as you want to display it.
-    shortTitle: string
+    // If undefined, the toolbar will not display a title in the toolbar. 
+    toolbarTitle?: string
 
     // The optional long title for the action.
     longTitle: string

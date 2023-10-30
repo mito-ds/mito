@@ -94,7 +94,6 @@
   max-width: 45px;
   min-width: max-content;
   width: 100%;
-  height: 35px;
 
   margin: 0px 1px;
 
@@ -135,8 +134,25 @@
   font-family: Roboto;
 }
 
-.mito-toolbar-button-container-enabled:hover {
-  background-color: var(--mito-highlight-light);
+.mito-toolbar-button-container-enabled:hover .mito-toolbar-button-icon-container {
+  background-color: var(--mito-light-gray);
+}
+
+.mito-toolbar-tabbar-tabname span {
+  font-size: 14px;
+}
+
+.mito-toolbar-tabbar-tabname:hover span {
+  font-weight: 550;
+}
+
+.mito-toolbar-number-format .mito-toolbar-button-icon-container {
+  padding: 2px;
+  height: 100%;
+}
+
+.mito-toolbar-number-precision .mito-toolbar-button-container {
+  width: fit-content;
 }
 
 .mito-toolbar-button-container-disabled {
@@ -145,7 +161,11 @@
 
 .mito-toolbar-button-icon-container {
   margin: auto;
-  height: 18px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 .mito-toolbar-button-label {
@@ -190,6 +210,9 @@
   background: none;
   color: var(--mito-text-medium);
   margin-bottom: 2px;
+  height: max-content;
+  display: flex;
+  align-self: center;
 }
 
 .mito-toolbar-tabbar-tabname-selected {
@@ -200,8 +223,15 @@
 }
 
 .mito-toolbar-tabbar {
-  margin-bottom: 5px;
   display: flex;
+  justify-content: space-between;
+}
+
+.mito-toolbar-tabbar-right, .mito-toolbar-tabbar-left {
+  display: flex;
+  align-content: center;
+  flex-direction: row;
+  height: 26px;
 }
 
 .mito-toolbar-tabbar-selected-underline {
@@ -209,4 +239,27 @@
   height: 2px;
   background: var(--mito-highlight);
   border-radius: 2px;
+}
+
+.mito-toolbar-button-dropdown-icon {
+  display: flex;
+  margin-left: 5px;
+  font-size: 7px;
+  align-self: center;
+}
+
+.mito-toolbar-number-precision {
+  display: flex;
+}
+
+.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
+  background-color: var(--mito-text-light)!important;
+}
+
+.mito-toolbar-tabbar-right .mito-toolbar-button-container {
+  height: 26px;
+}
+
+.mito-toolbar-tabbar .mito-toolbar-button-icon-container {
+  height: 100%;
 }
