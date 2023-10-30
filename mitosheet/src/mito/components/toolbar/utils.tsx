@@ -3,7 +3,6 @@ import React from 'react';
 
 import { Action, UserProfile } from '../../types';
 import DropdownItem from '../elements/DropdownItem';
-import StepsIcon from '../icons/StepsIcon';
 
 /* 
     Each toolbar button icon has both a light and dark option. 
@@ -12,14 +11,6 @@ import StepsIcon from '../icons/StepsIcon';
     on a light background (ie: at rest). 
 */
 export type IconVariant = 'light' | 'dark'
-
-/* 
-    Helper function for getting the light and dark version of each 
-    toolbar icon. 
-*/
-export const getToolbarItemIcon = (action: Action): JSX.Element => {
-    return action.icon !== undefined ? <action.icon /> : <StepsIcon />
-}
 
 /**
  * A helper function that makes dropdown items for the toolbar menus. This is

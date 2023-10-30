@@ -3,7 +3,7 @@
 import React from 'react';
 import { BuildTimeAction, EditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getToolbarItemIcon } from './utils';
+import StepsIcon from '../icons/StepsIcon';
 
 /**
  * The ToolbarButton component is used to create each
@@ -81,7 +81,7 @@ const ToolbarButton = (
                 */}
                 <span title={disabledTooltip || props.action.tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
-                        {props.iconOverride ?? getToolbarItemIcon(props.action)}
+                        {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
                     {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
