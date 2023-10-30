@@ -142,6 +142,10 @@
   font-size: 14px;
 }
 
+.mito-toolbar-tabbar-tabname:hover span {
+  font-weight: 550;
+}
+
 .mito-toolbar-number-format .mito-toolbar-button-icon-container {
   padding: 2px;
   height: 100%;
