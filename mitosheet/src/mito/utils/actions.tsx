@@ -31,6 +31,9 @@ import MoreIcon from "../components/icons/MoreIcon";
 import GraphIcon from "../components/icons/GraphIcon";
 import SearchIcon from "../components/icons/SearchIcon";
 import RedoIcon from "../components/icons/RedoIcon";
+import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
+import { FilterIcon } from "../components/icons/FilterIcons";
+import FormatIcon from "../components/icons/FormatIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -123,7 +126,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Add_Column,
             icon: AddColumnIcon,
-            toolbarTitle: 'Add Col',
+            toolbarTitle: 'Insert',
             longTitle: 'Add column',
             actionFunction: () => {
                 if (sheetDataArray.length === 0) {
@@ -289,7 +292,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Delete_Column,
             icon: DeleteColumnIcon,
-            toolbarTitle: 'Del Col',
+            toolbarTitle: 'Delete',
             longTitle: 'Delete columns',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -557,6 +560,7 @@ export const getActions = (
         [ActionEnum.Filter]: {
             type: 'build-time',
             staticType: ActionEnum.Filter,
+            icon: FilterIcon,
             toolbarTitle: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
@@ -1338,7 +1342,8 @@ export const getActions = (
         [ActionEnum.Set_Dataframe_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Dataframe_Format,
-            toolbarTitle: 'Set Dataframe Colors',
+            icon: FormatIcon,
+            toolbarTitle: 'Format',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1359,6 +1364,7 @@ export const getActions = (
         [ActionEnum.Conditional_Formatting]: {
             type: 'build-time',
             staticType: ActionEnum.Conditional_Formatting,
+            icon: ConditionalFormatIcon,
             toolbarTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {

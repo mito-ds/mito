@@ -99,7 +99,7 @@
 
   border-radius: 3px;
 
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
 
   /* Make input blend in with formula bar */
@@ -205,6 +205,7 @@
 
 p.mito-toolbar-button-label {
   width: min-content;
+  height: auto;
 }
 
 
