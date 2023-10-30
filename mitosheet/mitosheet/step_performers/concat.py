@@ -14,6 +14,7 @@ from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeCh
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
+from mitosheet.utils import get_first_unused_dataframe_name
 
 
 class ConcatStepPerformer(StepPerformer):
@@ -31,45 +32,36 @@ class ConcatStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-
-        join = get_param(params, 'join') # inner | outter
-        ignore_index: bool = get_param(params, 'ignore_index')
-        sheet_indexes: List[int] = get_param(params, 'sheet_indexes')
-
-        post_state = prev_state.copy()
-
-        to_concat = [post_state.dfs[sheet_index] for sheet_index in sheet_indexes]
-
-        if len(to_concat) == 0:
-            new_df = pd.DataFrame()
-            pandas_processing_time = 0.0
-        else:
-            pandas_start_time = perf_counter()
-            new_df = pd.concat(to_concat, join=join, ignore_index=ignore_index)
-            pandas_processing_time = perf_counter() - pandas_start_time
-
-        # Add this dataframe to the new post state
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_CONCAT)
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, "df_concat")
+        execution_data = {
+            'new_df_name': new_df_name
         }
+
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            execution_data,
+            new_dataframe_params={
+                'df_source': DATAFRAME_SOURCE_CONCAT,
+                'new_df_names': [new_df_name],
+                'sheet_index_to_overwrite': None
+            }
+        )
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             ConcatCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'join'),
                 get_param(params, 'ignore_index'),
                 get_param(params, 'sheet_indexes'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name')
             )
         ]
     

@@ -31,10 +31,8 @@ class GraphDeleteStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         graph_id: GraphID = get_param(params, 'graph_id')
 
-        # Create a new step and save the parameters
         post_state = prev_state.copy()
 
-        # Execute the graph delete
         del post_state.graph_data_dict[graph_id]
 
         return post_state, {
@@ -45,7 +43,6 @@ class GraphDeleteStepPerformer(StepPerformer):
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
@@ -54,7 +51,6 @@ class GraphDeleteStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Deleted graph',
                 'Deleted a graph',
             )

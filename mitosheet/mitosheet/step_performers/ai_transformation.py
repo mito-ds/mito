@@ -58,14 +58,12 @@ class AITransformationStepPerformer(StepPerformer):
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             AITransformationCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'user_input'),
                 get_param(execution_data if execution_data is not None else {}, 'final_code')
             )

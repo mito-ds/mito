@@ -24,12 +24,12 @@ else:
 
 class DeleteColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID]):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Deleted columns'
@@ -65,7 +65,6 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
         return DeleteColumnsCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             self.sheet_index,
             new_column_ids
         )
@@ -86,18 +85,17 @@ class DeleteColumnsCodeChunk(CodeChunk):
         if reordered_column_id in column_ids:
             return DeleteColumnsCodeChunk(
                 other_code_chunk.prev_state,
-                self.post_state,
                 self.sheet_index,
                 self.column_ids
             )
 
         return None
 
-    def _combine_left_add_column_code_chunk(self, other_code_chunk: "AddColumnCodeChunk") -> Optional["CodeChunk"]:
-        if not self.params_match(other_code_chunk, ['sheet_index']):
+    def _combine_left_add_column_code_chunk(self, add_column_code_chunk: "AddColumnCodeChunk") -> Optional["CodeChunk"]:
+        if not self.params_match(add_column_code_chunk, ['sheet_index']):
             return None
 
-        added_column_id = other_code_chunk.column_id
+        added_column_id = add_column_code_chunk.new_column_id
 
         if added_column_id in self.column_ids:
 
@@ -107,15 +105,11 @@ class DeleteColumnsCodeChunk(CodeChunk):
 
             # If there's nothing new, then we return a noop
             if len(new_column_ids) == 0:
-                return NoOpCodeChunk(
-                    other_code_chunk.prev_state,
-                    self.post_state,
-                )
+                return NoOpCodeChunk(add_column_code_chunk.prev_state)
             else:
                 # Otherwise, just delete what else is deleted in this step
                 return DeleteColumnsCodeChunk(
-                    other_code_chunk.prev_state,
-                    self.post_state,
+                    add_column_code_chunk.prev_state,
                     self.sheet_index,
                     new_column_ids
                 )
@@ -143,7 +137,6 @@ class DeleteColumnsCodeChunk(CodeChunk):
         if len(to_remove_from_rename) == len(column_ids_to_new_column_headers):    
             return DeleteColumnsCodeChunk(
                 other_code_chunk.prev_state,
-                self.post_state,
                 self.sheet_index,
                 self.column_ids
             )

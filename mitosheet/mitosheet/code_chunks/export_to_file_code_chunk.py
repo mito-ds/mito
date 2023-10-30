@@ -57,11 +57,12 @@ def get_format_code(state: State, sheet_index_to_export_location: Dict[int, str]
 
 class ExportToFileCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str], export_formatting: bool=False):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, export_type: str, file_name: str, sheet_index_to_export_location: Dict[int, str], sheet_index_to_df_name: Dict[int, str], export_formatting: bool=False):
+        super().__init__(prev_state)
         self.export_type = export_type
         self.file_name = file_name
         self.sheet_index_to_export_location = sheet_index_to_export_location
+        self.sheet_index_to_df_name = sheet_index_to_df_name
         self.export_formatting = export_formatting
 
     def get_display_name(self) -> str:
@@ -73,13 +74,15 @@ class ExportToFileCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
         if self.export_type == 'csv':
             return [
-                f"{self.post_state.df_names[sheet_index]}.to_csv(r{get_column_header_as_transpiled_code(export_location)}, index=False)"
+                f"{self.sheet_index_to_df_name[sheet_index]}.to_csv(r{get_column_header_as_transpiled_code(export_location)}, index=False)"
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ], []
+        
         elif self.export_type == 'excel':
-            format_code = get_format_code(self.post_state, self.sheet_index_to_export_location) if self.export_formatting else []
+            format_code = get_format_code(self.prev_state, self.sheet_index_to_export_location) if self.export_formatting else []
+
             return [f"with pd.ExcelWriter(r{get_column_header_as_transpiled_code(self.file_name)}, engine=\"openpyxl\") as writer:"] + [
-                f'{TAB}{self.post_state.df_names[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
+                f'{TAB}{self.sheet_index_to_df_name[sheet_index]}.to_excel(writer, sheet_name="{export_location}", index={False})'
                 for sheet_index, export_location in self.sheet_index_to_export_location.items()
             ] + format_code, ['import pandas as pd']
         else:

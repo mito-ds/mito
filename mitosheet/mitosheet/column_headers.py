@@ -165,7 +165,7 @@ class ColumnIDMap():
         self.column_id_to_column_header.pop(sheet_index)
         self.column_header_to_column_id.pop(sheet_index)
     
-    def add_column_header(self, sheet_index: int, column_header: ColumnHeader) -> str:
+    def add_column_header(self, sheet_index: int, column_header: ColumnHeader, column_id: Optional[ColumnID]=None) -> str:
         """
         NOTE: this should only be called when adding a column to the dataframe,
         and not when renaming a column, as it creates a new id for the column
@@ -178,7 +178,9 @@ class ColumnIDMap():
             column_header
         )
 
-        column_id = get_column_header_id(column_header)
+        if column_id is None:
+            column_id = get_column_header_id(column_header)
+            
         self.column_id_to_column_header[sheet_index][column_id] = column_header
         self.column_header_to_column_id[sheet_index][column_header] = column_id
 

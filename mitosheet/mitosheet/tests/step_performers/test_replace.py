@@ -794,7 +794,7 @@ REPLACE_INVALID_TESTS = [
         "3", 
         "4",
         ['A', 'E'],
-        KeyError
+        MitoError
     ),
 ]
 

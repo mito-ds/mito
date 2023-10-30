@@ -14,26 +14,25 @@ from mitosheet.types import ColumnID
 
 class ReorderColumnCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, new_column_index: int):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, new_column_index: int):
+        super().__init__(prev_state)
         self.sheet_index: int = sheet_index
         self.column_id: ColumnID = column_id
         self.new_column_index: int = new_column_index
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
 
     def get_display_name(self) -> str:
         return 'Reordered column'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        return f'Reordered column {column_header}'
+        return f'Reordered column {self.column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         from mitosheet.step_performers.column_steps.reorder_column import get_valid_index
 
-        column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
-        transpiled_column_header = get_column_header_as_transpiled_code(column_header)
+        transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
 
         new_column_index = get_valid_index(self.prev_state.dfs, self.sheet_index, self.new_column_index)
 

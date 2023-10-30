@@ -10,12 +10,12 @@ from mitosheet.state import State
 
 class ResetIndexCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, drop: bool):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, drop: bool):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.drop = drop
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Reset Index'

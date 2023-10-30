@@ -13,8 +13,8 @@ from mitosheet.state import State
 
 class DataframeDeleteCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_indexes: List[int], old_dataframe_names: List[str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_indexes: List[int], old_dataframe_names: List[str]):
+        super().__init__(prev_state)
         self.sheet_indexes = sheet_indexes
         self.old_dataframe_names = old_dataframe_names
 
@@ -47,7 +47,6 @@ class DataframeDeleteCodeChunk(CodeChunk):
 
         return DataframeDeleteCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             sheet_indexes,
             old_dataframe_names
         )
@@ -72,7 +71,7 @@ class DataframeDeleteCodeChunk(CodeChunk):
 
         if created_sheet_indexes is not None and set(deleted_sheet_indexes) == set(created_sheet_indexes):
             # If all we did was create the dfs we deleted, we can just return a no op
-            return NoOpCodeChunk(other_code_chunk.prev_state, self.post_state)
+            return NoOpCodeChunk(other_code_chunk.prev_state)
             
         elif created_sheet_indexes is not None and set(deleted_sheet_indexes).issuperset(set(created_sheet_indexes)):
             # If the set we are deleting is a superset of the the dataframes that we created
@@ -90,7 +89,6 @@ class DataframeDeleteCodeChunk(CodeChunk):
             
             return DataframeDeleteCodeChunk(
                 other_code_chunk.prev_state,
-                self.post_state,
                 new_deleted_sheet_indexes,
                 new_old_dataframe_names,
             )

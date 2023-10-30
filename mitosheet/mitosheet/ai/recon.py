@@ -1,7 +1,8 @@
 import ast
+from collections import Counter
 import traceback
 from copy import copy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -10,14 +11,12 @@ from mitosheet.ai.ai_utils import fix_up_missing_imports, get_code_string_from_l
 from io import StringIO
 from contextlib import redirect_stdout
 
-from mitosheet.errors import MitoError, make_exec_error
+from mitosheet.errors import MitoError, make_column_exists_error, make_exec_error
 from mitosheet.state import DATAFRAME_SOURCE_AI, State
-from mitosheet.step_performers.column_steps.delete_column import \
-    delete_column_ids
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
-from mitosheet.types import (AITransformFrontendResult, ColumnHeader,
-                             ColumnReconData, DataframeReconData, ModifiedDataframeReconData)
+from mitosheet.types import (AITransformFrontendResult, ColumnHeader, ColumnID,
+                             ColumnReconData, DataframeReconData, ExecuteThroughTranspileNewColumnParams, ModifiedDataframeReconData)
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:
@@ -125,6 +124,64 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
         'prints': output_string_io.getvalue()
     }
 
+PANDAS_HAS_NA = hasattr(pd, 'NA')
+
+def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_headers: Iterable[ColumnHeader]) -> bool:
+
+    # First, check for NA. Notably, we need to check that NA is
+    # is a attribute of pandas, as it's only available in pandas 1.0+
+    if PANDAS_HAS_NA and column_header is pd.NA:
+        return any(c is pd.NA for c in column_headers)
+        
+    # Then, check for NaT
+    if column_header is pd.NaT:
+        return any(c is pd.NaT for c in column_headers)
+    
+    # Then, check for NaN
+    if column_header is np.NaN:
+        return any(c is np.NaN for c in column_headers)
+    
+    # Then, check None
+    if column_header is None and None in column_headers:
+        return True
+    
+    return False
+
+def is_possibly_null_column_header_in_column_headers_with_no_nans(column_header: ColumnHeader, column_headers_with_no_nans: Iterable[ColumnHeader]) -> bool:
+    """
+    Checks if the column header is in the list of column headers, taking special care to handle if the column
+    header is null. Notably, assumes that the column_headers have no null values.
+    """
+    if not pd.isna(column_header):
+        return column_header in column_headers_with_no_nans
+    
+    return is_null_column_header_in_column_headers(column_header, column_headers_with_no_nans)
+
+
+def get_added_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: Iterable[ColumnHeader]) -> List[ColumnHeader]:
+
+    old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
+    new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
+    added_non_null = list(filter(lambda ch: ch not in old_non_null, new_non_null))
+
+    new_null = list(filter(lambda ch: pd.isna(ch), new_column_headers))
+    old_null = list(filter(lambda ch: pd.isna(ch), old_column_headers))
+    added_null = list(filter(lambda ch: not is_null_column_header_in_column_headers(ch, old_null), new_null))
+
+    return added_non_null + added_null
+
+def get_shared_column_headers(old_column_headers: List[ColumnHeader], new_column_headers: Iterable[ColumnHeader]) -> List[ColumnHeader]:
+
+    old_non_null = list(filter(lambda ch: not pd.isna(ch), old_column_headers))
+    new_non_null = list(filter(lambda ch: not pd.isna(ch), new_column_headers))
+    shared_non_null = list(filter(lambda ch: ch in old_non_null, new_non_null))
+
+    new_null = list(filter(lambda ch: pd.isna(ch), new_column_headers))
+    old_null = list(filter(lambda ch: pd.isna(ch), old_column_headers))
+    shared_null = list(filter(lambda ch: is_null_column_header_in_column_headers(ch, old_null), new_null))
+
+    return shared_non_null + shared_null
+
 
 def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame) -> ModifiedDataframeReconData:
     """
@@ -153,8 +210,8 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
 
     # First, preserving the order, we remove any columns that are in both the old
     # and the new dataframe
-    old_columns_without_shared = list(filter(lambda ch: ch not in new_columns, old_columns))
-    new_columns_without_shared = list(filter(lambda ch: ch not in old_columns, new_columns))
+    old_columns_without_shared = get_added_column_headers(new_columns, old_columns)
+    new_columns_without_shared = get_added_column_headers(old_columns, new_columns)
     
     # Then, we look through to find any columns that have been simply renamed - simply
     # by comparing to see of column are identical between the two values. We do this 
@@ -167,10 +224,10 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
             if old_column.equals(new_column) and new_ch not in renamed_columns.values():
                 renamed_columns[old_ch] = new_ch
 
-    added_columns = [ch for ch in new_columns_without_shared if ch not in renamed_columns.values()]
-    removed_columns = [ch for ch in old_columns_without_shared if ch not in renamed_columns]
+    added_columns = [ch for ch in new_columns_without_shared if not is_possibly_null_column_header_in_column_headers_with_no_nans(ch, renamed_columns.values())]
+    removed_columns = [ch for ch in old_columns_without_shared if not is_possibly_null_column_header_in_column_headers_with_no_nans(ch, renamed_columns)]
 
-    shared_columns = list(filter(lambda ch: ch in new_columns, old_columns))
+    shared_columns = get_shared_column_headers(old_columns, new_columns)
 
     if not rows_added_or_removed:
         modified_columns = [ch for ch in shared_columns if not old_df[ch].equals(new_df[ch])]
@@ -182,9 +239,9 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
         try:
             if len(old_df) < len(new_df):
                 df1 = old_df
-                df2 = new_df.iloc[old_df.index]
+                df2 = new_df.loc[old_df.index]
             else:
-                df1 = old_df.iloc[new_df.index]
+                df1 = old_df.loc[new_df.index]
                 df2 = new_df
 
             modified_columns = [ch for ch in shared_columns if not df1[ch].equals(df2[ch])]
@@ -200,26 +257,58 @@ def get_modified_dataframe_recon_data(old_df: pd.DataFrame, new_df: pd.DataFrame
         },
         'num_added_or_removed_rows': len(new_df) - len(old_df)
     }
+
+def delete_column_id_from_state_metadata(
+    state: State,
+    sheet_index: int,
+    column_id: ColumnID,
+) -> State:
     
+    # Update all the state variables removing this column from the state
+    del state.column_formulas[sheet_index][column_id]
+    # TODO: do we want to remove the formulas
+    if column_id in state.df_formats[sheet_index]['columns']:
+        del state.df_formats[sheet_index]['columns'][column_id]
 
+    # Clean up the IDs
+    state.column_ids.delete_column_id(sheet_index, column_id)
+        
+    return state
 
-def update_state_by_reconing_dataframes(state: State, sheet_index: int, new_df: pd.DataFrame) -> State:
+def update_state_by_reconing_dataframes(
+        state: State, 
+        sheet_index: int, 
+        old_df: pd.DataFrame,
+        new_df: pd.DataFrame,
+        column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None
+    ) -> State:
     """
     This function is the work-horse for modified dataframes. It compares the old dataframe at the index 
     to the new dataframe, and then updates the state accordingly -- making sure all the metadata is correct.
 
     This includes: handling deleted columns, added columns, renamed columns, and modified columns.
     """
-    old_df = state.dfs[sheet_index]
+    # Check there aren't any duplicated columns in the new dataframe
+    c = Counter(new_df.columns)
+    most_common = c.most_common(1)
+    for ch, count in most_common:
+        if count > 1:
+            raise make_column_exists_error(ch)
 
     modified_dataframe_recon = get_modified_dataframe_recon_data(old_df, new_df)
 
     # Add new columns to the state
-    state.add_columns_to_state(sheet_index, modified_dataframe_recon['column_recon']['created_columns'])
+    if len(modified_dataframe_recon['column_recon']['created_columns']) > 0:
+        state.add_columns_to_state(
+            sheet_index, 
+            modified_dataframe_recon['column_recon']['created_columns'],
+            column_headers_to_column_ids=column_headers_to_column_ids
+        )
 
     # Delete removed columns from the state
     deleted_column_ids = state.column_ids.get_column_ids_by_headers(sheet_index, modified_dataframe_recon['column_recon']['deleted_columns'])
-    delete_column_ids(state, sheet_index, deleted_column_ids)
+    for column_id in deleted_column_ids:
+        delete_column_id_from_state_metadata(state, sheet_index, column_id)
 
     # Rename renamed columns in the state
     for old_ch, new_ch in modified_dataframe_recon['column_recon']['renamed_columns'].items():
@@ -256,7 +345,7 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
-        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_df)
+        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_state.dfs[sheet_index], new_df)
 
     # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
     # is a _newly_ created dataframe that is already given a name

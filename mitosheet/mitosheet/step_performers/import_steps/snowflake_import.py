@@ -47,16 +47,10 @@ class SnowflakeImportStepPerformer(StepPerformer):
         table_loc_and_warehouse: SnowflakeTableLocationAndWarehouse = get_param(params, 'table_loc_and_warehouse')
         query_params: SnowflakeQueryParams = get_param(params, 'query_params')
 
-        # If the credentials are not defined, then raise an error 
         if credentials is None:
-            raise make_invalid_snowflake_credentials_error()
-
-        # We make a new state to modify it
-        post_state = prev_state.copy()
-
-        pandas_start_time = perf_counter()
+            raise make_invalid_snowflake_credentials_error()    
+            
         table_or_view = table_loc_and_warehouse['table_or_view']
-
         connection_params_dict = get_connection_param_dict(credentials, table_loc_and_warehouse)
         
         try: 
@@ -67,47 +61,42 @@ class SnowflakeImportStepPerformer(StepPerformer):
             # When we do the frontend, we can figure out exactly what we want to raise here
             raise make_invalid_snowflake_import_error(e)
         
-        try:
-            # Second execute the query
-            cur = con.cursor()
-            sql_query = create_query(table_or_view, query_params)
-            cur.execute(sql_query)
-            df = cur.fetch_pandas_all()
-        except Exception as e: 
-            raise make_invalid_snowflake_import_error(e)
-        finally:
-           # If we've created the connection, then make sure to close it
-           con.close() # type: ignore
+        sql_query = create_query(table_or_view, query_params)
+        new_df_name = get_valid_dataframe_name(prev_state.df_names, table_or_view.lower())
 
-        new_df_name = get_valid_dataframe_name(post_state.df_names, table_or_view.lower())
-        post_state.add_df_to_state(
-            df, 
-            DATAFRAME_SOURCE_IMPORTED, 
-            df_name=new_df_name,
-        )
-
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
+        execution_data = {
             'connection_params_dict': connection_params_dict,
             'sql_query': sql_query,
+            'new_df_name': new_df_name
         }
+
+        try:
+            return cls.execute_through_transpile(
+                prev_state,
+                params,
+                execution_data,
+                new_dataframe_params={
+                    'df_source': DATAFRAME_SOURCE_IMPORTED,
+                    'new_df_names': [new_df_name],
+                    'sheet_index_to_overwrite': None
+                }
+            )
+        except Exception as e:
+            raise make_invalid_snowflake_import_error(e)
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             SnowflakeImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(execution_data if execution_data is not None else {}, 'connection_params_dict'),
                 [get_param(execution_data if execution_data is not None else {}, 'sql_query')],
+                [get_param(execution_data if execution_data is not None else {}, 'new_df_name')],
             )
         ]
 
