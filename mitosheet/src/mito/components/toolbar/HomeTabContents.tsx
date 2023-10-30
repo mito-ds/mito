@@ -196,7 +196,7 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
                 setEditorState={props.setEditorState}
-                toolbarTitle='Find and Replace'
+                toolbarTitle='Find & Replace'
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Filter]}
