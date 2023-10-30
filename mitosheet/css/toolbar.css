@@ -151,6 +151,10 @@
   height: 100%;
 }
 
+.mito-toolbar-number-format {
+  margin-top: 5px;
+}
+
 .mito-toolbar-number-precision .mito-toolbar-button-container {
   width: fit-content;
 }

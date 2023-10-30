@@ -146,6 +146,10 @@ export const HomeTabContents = (
                         }}/>
                 </Dropdown>
             </ToolbarButton>
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Copy]}
+                setEditorState={props.setEditorState}
+            />
 
             <div className="toolbar-vertical-line"/>
 

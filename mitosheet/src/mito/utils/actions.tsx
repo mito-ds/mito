@@ -34,6 +34,7 @@ import RedoIcon from "../components/icons/RedoIcon";
 import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
 import { FilterIcon } from "../components/icons/FilterIcons";
 import FormatIcon from "../components/icons/FormatIcon";
+import CopyIcon from "../components/icons/CopyIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -249,6 +250,7 @@ export const getActions = (
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,
+            icon: CopyIcon,
             toolbarTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
