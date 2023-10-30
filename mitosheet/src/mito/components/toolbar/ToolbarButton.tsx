@@ -82,8 +82,8 @@ const ToolbarButton = (
                         {getToolbarItemIcon(props.toolbarButtonType)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
-                    {props.action.shortTitle && <p className='mito-toolbar-button-label'> 
-                        {props.action.shortTitle}
+                    {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
+                        {props.action.toolbarTitle}
                     </p>}
                 </span>
             </button>
