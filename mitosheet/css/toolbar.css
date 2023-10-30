@@ -142,6 +142,10 @@
   font-size: 14px;
 }
 
+.mito-toolbar-tabbar-tabname:hover span {
+  font-weight: 550;
+}
+
 .mito-toolbar-number-format .mito-toolbar-button-icon-container {
   padding: 2px;
   height: 100%;
@@ -246,22 +250,6 @@
 
 .mito-toolbar-number-precision {
   display: flex;
-}
-
-.mito-toolbar-number-precision .select-text {
-  font-size: 11px;
-}
-
-.mito-toolbar-container .select-container {
-  display: flex;
-  flex-direction: row;
-  height: 22px;
-  box-sizing: border-box;
-  width: 150px;
-}
-
-.mito-toolbar-container .select-dropdown-icon-container {
-  width: 18px;
 }
 
 .mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
