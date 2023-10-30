@@ -1,0 +1,128 @@
+{
+    "slug": ["functions", "date", "TODAY"],
+    "functionNameShort": "TODAY",
+    "functionNameLong": "Get Current Date",
+    "relatedFunctions": ["DAY", "MONTH", "YEAR"],
+    "purpose": "Retrieve the current date without the time component",
+    "titleCardParagraphs": [
+        "Excel's TODAY function returns the current date, which is useful for tasks ranging from financial projections to date-based filters.",
+        "This page explains how to replicate Excel's TODAY function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The TODAY function in Excel doesn't take any arguments and returns the current date.",
+            "=TODAY()"
+        ],
+        "syntaxTable": [],
+        "examplesTable": [
+            {
+                "formula": "=TODAY()",
+                "description": "Get the current date.",
+                "result": "10/28/23"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Here are some common implementations and use cases for the TODAY function in Python and pandas"
+        ],
+        "codeSections": [
+            {
+                "title": "Retrieve Current Date",
+                "shortTitle": "Retrieve Date",
+                "paragraphs": [
+                    "Getting the current date in pandas is straightforward. In Excel, you would use =TODAY(). In Python, use the `datetime` module's `date.today()` method"
+                ],
+                "codeLines": [
+                    "from datetime import date",
+                    "current_date = date.today()"
+                ]
+            },
+            {
+                "title": "Difference between today and other date",
+                "shortTitle": "Days between dates",
+                "paragraphs": [
+                    "To calculate the number of days between today and another date, you would use the Excel formula `=TODAY() - A1` where A1 contains a date.",
+                    "In pandas, you can perform a similar calculation. Notice in the code below that before subtracting the dates, you need to convert the date.today() value to a datetime. This is because the `date.today()` method returns a date object, while the `Datetime` column is a datetime object.",
+                    "In addition, by default the subtracting two dates in pandas returns a `Timedelta` object, so to get the number of days difference, you can use the `dt.days` attribute."
+                ],
+                "codeLines": [
+                    "# Find the number of days between today and the date in the Datetime column",
+                    "from datetime import date",
+                    "df['days_since'] = (pd.to_datetime(date.today()) - df['Datetime_Column']).dt.days"
+                ]
+            },
+            {
+                "title": "Difference between today and other date",
+                "shortTitle": "Time between dates",
+                "paragraphs": [
+                    "To calculate the exact amount of time between this exact moment and another date, you would use the Excel formula `=NOW() - A1` where A1 contains a date.",
+                    "In pandas, you can perform a similar calculation, however, this time, we'll use the `datetime.now()` method, which returns a datetime object, ie:  `2023-10-28 12:30:00`.",
+                    "The result of subtracting two datetimes is a `Timedelta` object, which is displayed in the dataframe like: 299 days 02:40:44.169789. Timedelta objects can be tricky to worth with, but they allow you to access a number of different attributes like: `days`, `seconds`, and `microseconds`."
+                ],
+                "codeLines": [
+                    "# Find the exact amount of time between now and the date in the Datetime column",
+                    "from datetime import datetime",
+                    "df['time_since'] = (datetime.now() - df['Datetime_Column'])"
+                ]
+            },
+            {
+                "title": "Filter dates to today",
+                "shortTitle": "Filter Date",
+                "paragraphs": [
+                    "Filtering a dataset to show only rows with today's date is a common operation. In Excel, you might use a filter and select today's date.",
+                    "In pandas, compare the date column with today's date:"
+                ],
+                "codeLines": [
+                    "# Filter the dataframe to only show rows where the date is today",
+                    "filtered_df = df[df['Datetime_Column'].dt.date == pd.Timestamp(date.today()).date()]"
+                ]
+            },
+            {
+                "title": "Year-to-Date Analysis",
+                "shortTitle": "YTD Analysis",
+                "paragraphs": [
+                    "YTD analysis involves analyzing data from the beginning of the current year up to today. In Excel, you might use a combination of filters.",
+                    "In pandas, create a mask to filter rows from the start of the year to today:"
+                ],
+                "codeLines": [
+                    "# Filter the dataframe to only show rows where the date is today",
+                    "# Calculate the start of the year and today's date",
+                    "start_of_year = pd.Timestamp(date.today().year, 1, 1)",
+                    "end_of_today = pd.Timestamp(date.today())",
+                    "",
+                    "# Use the start_of_year and end_of_today variables to filter the dataframe",
+                    "df = df[(df['Datetime_Column'] >= start_of_year) & (df['Datetime_Column'] <= end_of_today)]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Working with dates in pandas can be confusing. When using Excel's TODAY function in pandas, here are some common mistakes you might run into and how to correct them."
+        ],
+        "codeSections": [
+            {
+                "title": "Confusing TODAY with NOW",
+                "shortTitle": "TODAY vs NOW",
+                "paragraphs": [
+                    "In Excel, the `TODAY()` function returns only the date, while `NOW()` returns both the date and time. The same distinction exists in Python.",
+                    "Avoid using `datetime.now()` when you only need the date. This will give you the current datetime, including hours, minutes, and seconds."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Misunderstanding Output Format",
+                "shortTitle": "Output Format",
+                "paragraphs": [
+                    "While Excel's TODAY function outputs in a standard date format, Python's `date.today()` outputs a date object. Users often expect a string output.",
+                    "To get a formatted string, you can use the `strftime` method on the date object."
+                ],
+                "codeLines": [
+                    "# Get the current date in a formatted string",
+                    "formatted_date = date.today().strftime('%Y-%m-%d')"
+                ]
+            }
+        ]
+    }
+}

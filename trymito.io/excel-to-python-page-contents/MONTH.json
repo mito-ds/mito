@@ -1,0 +1,130 @@
+{
+    "slug": ["functions", "date", "MONTH"],
+    "functionNameShort": "MONTH",
+    "functionNameLong": "Month Extraction",
+    "relatedFunctions": ["HOUR", "MINUTE", "DAY"],
+    "purpose": "Extract the month from a datetime",
+    "titleCardParagraphs": [
+        "Excel's MONTH function extracts the month as a number from a time value. It's especially useful when working with large datasets where you need to analyze data at monthly granularity.",
+        "This page explains how to implement Excel's MONTH function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MONTH function in Excel returns the month of a time value, ranging from 1 to 12.",
+            "=MONTH(serial_number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "serial_number",
+                "description": "The time value from which you want to extract the month.",
+                "dataType": "A valid Excel time"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MONTH(\"5/21/2021 9:30 PM\")",
+                "description": "Extracts the month from the given time.",
+                "result": "5"
+            },
+            {
+                "formula": "=MONTH(\"21-May-2021 6:00 AM\")",
+                "description": "Extracts the month from the given time.",
+                "result": "5"
+            },
+            {
+                "formula": "=MONTH(\"5/21/2021\")",
+                "description": "Extracts the month from the given time.",
+                "result": "5"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Recreating Excel's MONTH function behavior in Python requires a combination of pandas operations. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting Month from Datetime",
+                "shortTitle": "Month Extraction",
+                "paragraphs": [
+                    "In Excel, if you have a datetime value, you might use the MONTH function directly to get the month. Similarly, in pandas, you use the `.dt` accessor followed by the `month` attribute.",
+                    "For example, in Excel you might use =MONTH(A2). In pandas:"
+                ],
+                "codeLines": [
+                    "df['Month'] = df['Datetime_Column'].dt.month"
+                ]
+            },
+            {
+                "title": "Converting string to datetime and then extracting month",
+                "shortTitle": "String to Month",
+                "paragraphs": [
+                    "Often, Pandas will infer the data type of your column as string, even if the data to you looks like a date, ie: 1/2/23. In these cases, you need to convert the string to datetime before extracting the month.",
+                    "To do this in pandas, first use `pd.to_datetime` to convert the column to a datetime column, and then extract the month:"
+                ],
+                "codeLines": [
+                    "# Convert the string to datetime",
+                    "df['Datetime_Column'] = pd.to_datetime(df['String_Column'])",
+                    "",
+                    "# Extract the month from the datetime column",
+                    "df['Month'] = df['Datetime_Column'].dt.month"
+                ]
+            },
+            {
+                "title": "Extract the month as January, February, etc.",
+                "shortTitle": "January, February, etc.",
+                "paragraphs": [
+                    "Instead of returning the month as a number, you might want to return the month as January, February, etc.",
+                    "To do so, use the `month_name` attribute instead of `month`. It will return the month as a word."
+                ],
+                "codeLines": [
+                    "# Extract the month as January, February, etc.",
+                    "df['Month'] = df['Date'].dt.month_name()"
+                ]
+            },
+            {
+                "title": "Grouping Data by Month",
+                "shortTitle": "Grouping by Month",
+                "paragraphs": [
+                    "There are situations where you want to aggregate data based on month. In Excel, you might use a pivot table after extracting the month. Similarly, in pandas, after extracting the month, you can use the `groupby` method",
+                    "For example, if you have a column called 'Date' and a column called 'Website Traffic', you might want to group the data by month and sum the traffic for each month."
+                ],
+                "codeLines": [
+                    "df['Month'] = df['Date'].dt.month",
+                    "grouped_data = df.groupby('Month').agg({'Website Traffic': 'sum'}).reset_index()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the MONTH function equivalent in pandas, a few common pitfalls might occur. Here's how to navigate them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect datatypes",
+                "shortTitle": "Incorrect datatypes",
+                "paragraphs": [
+                    "The `.dt` accessor is exclusive to pandas Series with datetime64 data types. Using it on non-datetime columns will raise an AttributeError.",
+                    "For example, if you have a column called 'Date', but it actually has an object data type, you'll need to convert it to datetime before using the `.dt` accessor. You can check the data type of a column using `df.dtypes`."
+                ],
+                "codeLines": [
+                    "# Ensure the column is of datetime dtype",
+                    "df['Datetime_Column'] = pd.to_datetime(df['Datetime_Column'])",
+                    "df['Month'] = df['Datetime_Column'].dt.month"
+                ]
+            },
+            {
+                "title": "Forgetting to Handle Null Values",
+                "shortTitle": "Handling NaTs",
+                "paragraphs": [
+                    "If your dataset has missing or NaT (Not-a-Timestamp) values in the datetime column, trying to extract the month from them will result in NaN (Not a Number) values. Make sure to handle or filter them out as necessary."
+                ],
+                "codeLines": [
+                    "# Drop rows with NaT values before extracting month",
+                    "df.dropna(subset=['Datetime_Column'], inplace=True)",
+                    "df['Month'] = df['Datetime_Column'].dt.month"
+                ]
+            }
+        ]
+    }
+}

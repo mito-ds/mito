@@ -1,0 +1,92 @@
+{
+    "slug": ["functions", "math", "SIGN"],
+    "functionNameShort": "SIGN",
+    "functionNameLong": "Determine the Sign of a Value",
+    "relatedFunctions": ["ABS", "SUM"],
+    "purpose": "Determine whether numbers are positive, negative, or zero",
+    "titleCardParagraphs": [
+        "In Excel, the SIGN function is used to determine the sign of a number. It returns 1 for positive numbers, -1 for negative numbers, and 0 for zero.",
+        "This page explains how to replicate Excel's SIGN functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SIGN function in Excel simply requires one argument, which is the number you want to determine the sign for.",
+            "=SIGN(number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number you want to determine the sign for.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SIGN(5)",
+                "description": "Determine the sign of the number 5.",
+                "result": "1"
+            },
+            {
+                "formula": "=SIGN(-10)",
+                "description": "Determine the sign of the number -10.",
+                "result": "-1"
+            },
+            {
+                "formula": "=SIGN(0)",
+                "description": "Determine the sign of the number 0.",
+                "result": "0"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In Python's pandas library, determining the sign of values can be accomplished in various ways based on specific needs. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Identifying the Sign of Values",
+                "shortTitle": "Sign of values",
+                "paragraphs": [
+                    "Just like in Excel where you'd use =SIGN(A1) to determine the sign of a value in cell A1, in pandas, you can use the `sign` method.",
+                    "The following code determines the sign of each value in the 'Column1' and stores the result in a new column 'Sign':"
+                ],
+                "codeLines": [
+                    "df['Sign'] = df['Column1'].apply(np.sign)"
+                ]
+            },
+            {
+                "title": "Creating Indicator Variables",
+                "shortTitle": "Indicator variables",
+                "paragraphs": [
+                    "In some analytical scenarios, you might want to create binary indicator variable based on the sign of values.",
+                    "For example, in Excel, you might use a formula like =IF(SIGN(A1) = 1, 1, 0) to create an indicator for positive values. To create the same bevahior in pandas, you can use the following code:"
+                ],
+                "codeLines": [
+                    "# If the number in Column1 is negative, 0 or NaN, label it 0.",
+                    "# Otherwise, label it 1.",
+                    "df['Is_Positive'] = (df['Column1'].apply(np.sign) == 1).astype(int)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Implementing the SIGN function in pandas has some potential pitfalls. Here's a common mistake and how to avoid it."
+        ],
+        "codeSections": [
+            {
+                "title": "Not Handling NaN Values",
+                "shortTitle": "NaN values",
+                "paragraphs": [
+                    "When working with datasets, there may be missing values (`NaN`). It's essential to be aware that the sign function in pandas will return NaN for these values, whereas Excel will return 0 for blank cells.",
+                    "To implement the same behavior in pandas, you can use the `fillna` method to convert NaN values to 0 before determining the sign."
+                ],
+                "codeLines": [
+                    "# Convert NaN values to 0 before determining the sign",
+                    "df['Column1'].fillna(0, inplace=True)",
+                    "df['Sign'] = df['Column1'].apply(np.sign)"
+                ]
+            }
+        ]
+    }
+}
