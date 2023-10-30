@@ -1002,6 +1002,9 @@ export interface BaseAction<Type, StaticType> {
     // The optional long title for the action.
     longTitle: string
 
+    // The optional icon to display for the action
+    icon?: React.FC<any>;
+
     /* 
         The function to call if the action is taken by the user. This should
         not require any parameters to be called, as all the necessary data

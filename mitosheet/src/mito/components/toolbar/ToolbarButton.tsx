@@ -3,7 +3,7 @@
 import React from 'react';
 import { BuildTimeAction, EditorState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import { getToolbarItemIcon, ToolbarButtonType } from './utils';
+import { getToolbarItemIcon } from './utils';
 
 /**
  * The ToolbarButton component is used to create each
@@ -15,10 +15,11 @@ const ToolbarButton = (
         * @param id - An option id to put on the element, so we can grab it elsewhere 
         */
         id?: string;
-        /** 
-        * @param toolbarButtonType - The toolbaryItemType is used to determine the correct icon to display. 
-        */
-        toolbarButtonType: ToolbarButtonType;
+
+        /**
+         * If there is a special case for the icon (see FullScreen)
+         */
+        iconOverride?: JSX.Element;
 
         /** 
         * @param action - The action to run when the toolbar button is clicked
@@ -79,7 +80,7 @@ const ToolbarButton = (
                 */}
                 <span title={props.disabledTooltip || props.action.tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
-                        {getToolbarItemIcon(props.toolbarButtonType)}
+                        {props.iconOverride ?? getToolbarItemIcon(props.action)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                     </div>
                     {props.action.shortTitle && <p className='mito-toolbar-button-label'> 

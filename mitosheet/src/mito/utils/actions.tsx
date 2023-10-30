@@ -16,6 +16,21 @@ import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
 import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
+import UndoIcon from "../components/icons/UndoIcon";
+import AddColumnIcon from "../components/icons/AddColumnIcon";
+import CatchUpIcon from "../components/icons/CatchUpIcon";
+import DtypeIcon from "../components/icons/DtypeIcon";
+import ClearIcon from "../components/icons/ClearIcon";
+import DeleteColumnIcon from "../components/icons/DeleteColumnIcon";
+import PivotIcon from "../components/icons/PivotIcon";
+import AIIcon from "../components/icons/AIIcon";
+import ImportIcon from "../components/icons/ImportIcon";
+import ExportIcon from "../components/icons/ExportIcon";
+import LessIcon from "../components/icons/LessIcon";
+import MoreIcon from "../components/icons/MoreIcon";
+import GraphIcon from "../components/icons/GraphIcon";
+import SearchIcon from "../components/icons/SearchIcon";
+import RedoIcon from "../components/icons/RedoIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -107,6 +122,7 @@ export const getActions = (
         [ActionEnum.Add_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Add_Column,
+            icon: AddColumnIcon,
             shortTitle: 'Add Col',
             longTitle: 'Add column',
             actionFunction: () => {
@@ -137,6 +153,7 @@ export const getActions = (
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
             staticType: ActionEnum.Catch_Up,
+            icon: CatchUpIcon,
             shortTitle: 'Catch Up',
             longTitle: 'Catch up',
             actionFunction: () => {
@@ -151,6 +168,7 @@ export const getActions = (
         [ActionEnum.Change_Dtype]: {
             type: 'build-time',
             staticType: ActionEnum.Change_Dtype,
+            icon: DtypeIcon,
             shortTitle: 'Dtype',
             longTitle: 'Change column dtype',
             actionFunction: () => {
@@ -177,6 +195,7 @@ export const getActions = (
         [ActionEnum.Clear]: {
             type: 'build-time',
             staticType: ActionEnum.Clear,
+            icon: ClearIcon,
             shortTitle: 'Clear',
             longTitle: "Clear all edits",
             actionFunction: () => {
@@ -270,6 +289,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Delete_Column,
             shortTitle: 'Del Col',
+            icon: DeleteColumnIcon,
             longTitle: 'Delete columns',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -458,6 +478,7 @@ export const getActions = (
         [ActionEnum.Export]: {
             type: 'build-time',
             staticType: ActionEnum.Export,
+            icon: ExportIcon,
             shortTitle: 'Download',
             longTitle: 'Download File Now',
             actionFunction: () => {
@@ -486,6 +507,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Export_Dropdown,
             shortTitle: 'Export',
+            icon: ExportIcon,
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -618,6 +640,7 @@ export const getActions = (
         [ActionEnum.Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Graph,
+            icon: GraphIcon,
             shortTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
@@ -677,6 +700,7 @@ export const getActions = (
         [ActionEnum.Import_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Dropdown,
+            icon: ImportIcon,
             shortTitle: 'Import',
             longTitle: 'Open import dropdown',
             actionFunction: () => {
@@ -771,6 +795,7 @@ export const getActions = (
         [ActionEnum.Pivot]: {
             type: 'build-time',
             staticType: ActionEnum.Pivot,
+            icon: PivotIcon,
             shortTitle: 'Pivot',
             longTitle: 'Pivot table',
             actionFunction: async () => {
@@ -837,6 +862,7 @@ export const getActions = (
         [ActionEnum.Precision_Decrease]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Decrease,
+            icon: LessIcon,
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -864,6 +890,7 @@ export const getActions = (
         [ActionEnum.Precision_Increase]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Increase,
+            icon: MoreIcon,
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -911,6 +938,7 @@ export const getActions = (
         [ActionEnum.Redo]: {
             type: 'build-time',
             staticType: ActionEnum.Redo,
+            icon: RedoIcon,
             shortTitle: 'Redo',
             longTitle: 'Redo',
             actionFunction: () => {
@@ -1161,6 +1189,7 @@ export const getActions = (
         [ActionEnum.OpenSearch]: {
             type: 'build-time',
             staticType: ActionEnum.OpenSearch,
+            icon: SearchIcon,
             longTitle: 'Search',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1193,6 +1222,7 @@ export const getActions = (
         [ActionEnum.Undo]: {
             type: 'build-time',
             staticType: ActionEnum.Undo,
+            icon: UndoIcon,
             shortTitle: 'Undo',
             longTitle: 'Undo',
             actionFunction: () => {
@@ -1507,6 +1537,7 @@ export const getActions = (
         [ActionEnum.AI_TRANSFORMATION]: {
             type: 'build-time',
             staticType: ActionEnum.AI_TRANSFORMATION,
+            icon: AIIcon,
             shortTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
