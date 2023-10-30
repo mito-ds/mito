@@ -650,13 +650,12 @@
     "@lumino/signaling" "^1.10.2"
     "@lumino/virtualdom" "^1.14.2"
 
-"@playwright/test@^1.16.2":
-  "integrity" "sha512-mrL2q0an/7tVqniQQF6RBL2saskjljXzqNcCOVMUjRIgE6Y38nCNaP+Dc2FBW06bcpD3tqIws/HT9qiMHbNU0A=="
-  "resolved" "https://registry.npmjs.org/@playwright/test/-/test-1.27.1.tgz"
-  "version" "1.27.1"
+"@playwright/test@^1.16.2", "@playwright/test@^1.39.0":
+  "integrity" "sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ=="
+  "resolved" "https://registry.npmjs.org/@playwright/test/-/test-1.39.0.tgz"
+  "version" "1.39.0"
   dependencies:
-    "@types/node" "*"
-    "playwright-core" "1.27.1"
+    "playwright" "1.39.0"
 
 "@rjsf/core@^3.1.0":
   "integrity" "sha512-dk8ihvxFbcuIwU7G+HiJbFgwyIvaumPt5g5zfnuC26mwTUPlaDGFXKK2yITp8tJ3+hcwS5zEXtAN9wUkfuM4jA=="
@@ -1022,10 +1021,12 @@
   "resolved" "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.11.tgz"
   "version" "7.0.11"
 
-"@types/node@*":
-  "integrity" "sha512-fNjDQzzOsZeKZu5NATgXUPsaFaTxeRgFXoosrHivTl8RGeV733OLawXsGfEk9a8/tySyZUyiZ6E8LcjPFZ2y1A=="
-  "resolved" "https://registry.npmjs.org/@types/node/-/node-18.11.3.tgz"
-  "version" "18.11.3"
+"@types/node@^20.8.7":
+  "integrity" "sha512-21TKHHh3eUHIi2MloeptJWALuCu5H7HQTdTrWIFReA8ad+aggoX+lRes3ex7/FtpC+sVUpFMQ+QTfYr74mruiQ=="
+  "resolved" "https://registry.npmjs.org/@types/node/-/node-20.8.7.tgz"
+  "version" "20.8.7"
+  dependencies:
+    "undici-types" "~5.25.1"
 
 "@types/prop-types@*":
   "integrity" "sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w=="
@@ -1522,6 +1523,11 @@
     "jsonfile" "^6.0.1"
     "universalify" "^2.0.0"
 
+"fsevents@2.3.2":
+  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  "version" "2.3.2"
+
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
   "resolved" "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz"
@@ -1985,10 +1991,19 @@
   "resolved" "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
   "version" "1.0.0"
 
-"playwright-core@1.27.1":
-  "integrity" "sha512-9EmeXDncC2Pmp/z+teoVYlvmPWUC6ejSSYZUln7YaP89Z6lpAaiaAnqroUt/BoLo8tn7WYShcfaCh+xofZa44Q=="
-  "resolved" "https://registry.npmjs.org/playwright-core/-/playwright-core-1.27.1.tgz"
-  "version" "1.27.1"
+"playwright-core@1.39.0":
+  "integrity" "sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw=="
+  "resolved" "https://registry.npmjs.org/playwright-core/-/playwright-core-1.39.0.tgz"
+  "version" "1.39.0"
+
+"playwright@1.39.0":
+  "integrity" "sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw=="
+  "resolved" "https://registry.npmjs.org/playwright/-/playwright-1.39.0.tgz"
+  "version" "1.39.0"
+  dependencies:
+    "playwright-core" "1.39.0"
+  optionalDependencies:
+    "fsevents" "2.3.2"
 
 "popper.js@^1.14.4", "popper.js@^1.16.1":
   "integrity" "sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ=="
@@ -2293,6 +2308,11 @@
   dependencies:
     "csstype" "3.0.10"
     "free-style" "3.1.0"
+
+"undici-types@~5.25.1":
+  "integrity" "sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA=="
+  "resolved" "https://registry.npmjs.org/undici-types/-/undici-types-5.25.3.tgz"
+  "version" "5.25.3"
 
 "union@~0.5.0":
   "integrity" "sha512-N6uOhuW6zO95P3Mel2I2zMsbsanvvtgn6jVqJv4vbVcz/JN0OkL9suomjQGmWtxJQXOCqUJvquc1sMeNz/IwlA=="

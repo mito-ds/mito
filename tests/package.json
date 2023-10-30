@@ -4,11 +4,15 @@
   "description": "Tests for mitosheet",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:streamlit": "playwright test streamlit_ui_tests --retries=3",
+    "test:dash": "playwright test dash_ui_tests --retries=3",
+    "test:jupyterlab": "playwright test jupyterlab_ui_tests --retries=3"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@jupyterlab/galata": "^4.3.8"
+    "@jupyterlab/galata": "^4.3.8",
+    "@playwright/test": "^1.39.0",
+    "@types/node": "^20.8.7"
   }
 }
