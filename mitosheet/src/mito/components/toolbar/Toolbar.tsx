@@ -165,7 +165,6 @@ export const Toolbar = (
                     />
                 </div>
             </div>
-            <div className='mito-toolbar-top-bottom-seperator'/>
             <div className='mito-toolbar-tabbar'>
                 <div className='mito-toolbar-tabbar-left'>
                     {Object.keys(tabs).map((tab) => {
