@@ -56,7 +56,7 @@ export const Toolbar = (
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
 
-    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Insert');
+    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Home');
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>
