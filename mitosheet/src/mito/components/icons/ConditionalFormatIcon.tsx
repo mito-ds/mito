@@ -3,9 +3,7 @@
 
 import React from 'react';
 
-const ConditionalFormatIcon = (props: {backgroundColor: string, color: string}): JSX.Element => {
-    // TODO: use the props. Including this console log so that the linter doesn't complain
-    console.log(props)
+const ConditionalFormatIcon = (): JSX.Element => {
     return (
         <svg width="38" height="30" viewBox="0 0 38 30" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect y="0.0703125" width="38" height="29" rx="3" fill="#D7D7D7"/>

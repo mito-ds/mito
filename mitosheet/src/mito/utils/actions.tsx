@@ -614,7 +614,7 @@ export const getActions = (
                 closeOpenEditingPopups();
 
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-                changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.CURRENCY }, mitoAPI)
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.CURRENCY }, mitoAPI)
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
@@ -635,7 +635,7 @@ export const getActions = (
                 closeOpenEditingPopups();
 
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-                changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PERCENTAGE }, mitoAPI)
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PERCENTAGE }, mitoAPI)
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
