@@ -122,6 +122,9 @@ setup_args = dict(
         # xlsxwriter is needed for adding formatting to exported Excel sheets. 
         # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
         'xlsxwriter>=0.6.9,<=3.1.3',
+        # If we are on Python 3.12, we overwrite pyzmq - for as long as `notebook<7` pins it
+        # See relevant issue here: https://github.com/mito-ds/mito/issues/1000
+        "pyzmq>=25;python_version>'3.12'"
     ],
     extras_require = {
         'test': [
@@ -131,6 +134,7 @@ setup_args = dict(
             'types-requests',
             'mypy',
             'pytest_httpserver',
+
         ],
         'deploy': [
             'wheel', 
@@ -162,6 +166,7 @@ setup_args = dict(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Framework :: Jupyter",
     ],
 )
