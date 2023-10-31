@@ -50,14 +50,12 @@ class DataframeDeleteStepPerformer(StepPerformer):
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             DataframeDeleteCodeChunk(
                 prev_state, 
-                post_state, 
                 [params['sheet_index']],
                 [params['old_dataframe_name']]
             )

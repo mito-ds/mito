@@ -69,34 +69,26 @@ class SetCellValueStepPerformer(StepPerformer):
         if old_value == new_value:
             return prev_state, None
 
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
+        column_header = prev_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
         # Update the value of the cell, we handle it differently depending on the type of the column
-        column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)
+        column_dtype = str(prev_state.dfs[sheet_index][column_header].dtype)
         type_corrected_new_value = cast_value_to_type(new_value, column_dtype)
 
-        # If the series is an int, but the new value is a float, convert the series to floats before adding the new value
-        column_dtype = str(post_state.dfs[sheet_index][column_header].dtype)
-        if new_value is not None and '.' in new_value and is_int_dtype(column_dtype):
-            post_state.dfs[sheet_index][column_header] = post_state.dfs[sheet_index][column_header].astype('float')
-        
-        # Actually update the cell's value
-        pandas_start_time = perf_counter()
-        post_state.dfs[sheet_index].at[row_index, column_header] = type_corrected_new_value
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        return post_state, {
+        execution_data = {
             'type_corrected_new_value': type_corrected_new_value,
-            'pandas_processing_time': pandas_processing_time
         }
+
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            execution_data,
+        )
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
@@ -104,7 +96,6 @@ class SetCellValueStepPerformer(StepPerformer):
         return [
             SetCellValueCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'), 
                 get_param(params, 'column_id'), 
                 get_param(params, 'row_index'), 

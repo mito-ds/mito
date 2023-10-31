@@ -12,15 +12,15 @@ from mitosheet.types import ColumnID
 
 class MeltCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, id_var_column_ids: List[ColumnID], value_var_column_ids: List[ColumnID], include_value_vars: bool):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, id_var_column_ids: List[ColumnID], value_var_column_ids: List[ColumnID], include_value_vars: bool, new_df_name: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.id_var_column_ids = id_var_column_ids
         self.value_var_column_ids = value_var_column_ids
         self.include_value_vars = include_value_vars
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
-        self.new_df_name = self.post_state.df_names[-1]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.new_df_name = new_df_name
 
     def get_display_name(self) -> str:
         return 'Melt'
@@ -41,5 +41,5 @@ class MeltCodeChunk(CodeChunk):
         return [f'{self.new_df_name} = {self.df_name}.melt({param_string})'], []
     
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs) - 1]
+        return [len(self.prev_state.dfs)]
     

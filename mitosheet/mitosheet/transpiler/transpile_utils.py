@@ -12,6 +12,7 @@ from collections import OrderedDict
 
 import pandas as pd
 import numpy as np
+from mitosheet.state import State
 from mitosheet.types import CodeOptions, CodeOptionsFunctionParams, ColumnHeader, ParamName, ParamSubtype, ParamValue, StepsManagerType
 from mitosheet.utils import is_prev_version
 
@@ -351,3 +352,49 @@ def get_default_code_options(analysis_name: str) -> CodeOptions:
         'function_params': OrderedDict(),
         'import_custom_python_code': False
     }
+
+
+def get_globals_for_exec(state: State, public_interface: int) -> Dict[str, Any]:
+    """
+    Anytime you are exec'ing transpiled code, you need to pass some global variables including:
+    1. The public interface exported by Mito for this public interface code
+    2. The user defined functions and importers
+    3. The dataframe names
+
+    This function collects these all in one location, so they then can be exec'ed.
+    """
+
+    df_names_to_df = {
+        df_name: df for df, df_name in 
+        zip(
+            state.dfs,
+            state.df_names
+        )
+    }
+    
+    if public_interface == 1:
+        import mitosheet.public.v1 as v1
+        local_vars = v1.__dict__
+    elif public_interface == 2:
+        import mitosheet.public.v2 as v2
+        local_vars = v2.__dict__
+    elif public_interface == 3:
+        import mitosheet.public.v3 as v3
+        local_vars = v3.__dict__
+    else:
+        import mitosheet as original
+        local_vars = original.__dict__
+
+    user_defined_functions = state.user_defined_functions
+    user_defined_importers = state.user_defined_importers
+    user_defined_editors = state.user_defined_editors
+
+    local_vars = {
+        **local_vars,
+        **df_names_to_df,
+        **{f.__name__: f for f in user_defined_functions},
+        **{f.__name__: f for f in user_defined_importers},
+        **{f.__name__: f for f in user_defined_editors},
+    }
+
+    return local_vars

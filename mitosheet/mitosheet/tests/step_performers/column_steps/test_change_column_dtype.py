@@ -146,8 +146,6 @@ COMPLEX_DATE_STRINGS = [
     
     # YYYY-MM-DD (seen from users, specifically MB)
     (['2020-12-20', '2020-12-1'], [ts(y=2020, m=12, d=20), ts(y=2020, m=12, d=1)], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], infer_datetime_format=True, errors=\'coerce\')'),
-    # A more complex YYYY-MM-DD, also from MB
-    (['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'], [pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC'), pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC')], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], infer_datetime_format=True, errors=\'coerce\')'),
     # M/DD/YYY
     (['4/14/2015', '4/15/2015'], [ts(y=2015, m=4, d=14), ts(y=2015, m=4, d=15)], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], infer_datetime_format=True, errors=\'coerce\')'),
 ]
@@ -160,6 +158,14 @@ def test_complex_date_strings(strings, result, code):
         assert len(mito.transpiled_code) > 0
     else:
         assert len(mito.transpiled_code) == 0
+
+@pandas_post_1_only
+def test_complex_date_strings_pandas_post_one():
+    # A more complex YYYY-MM-DD, also from MB
+    mito = create_mito_wrapper_with_data(['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'])
+    mito.change_column_dtype(0, ['A'], 'datetime')
+    assert mito.get_column(0, 'A', as_list=True) == [pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC'), pd.Timestamp(year=2016, month=1, day=31, hour=19, minute=29, second=50, tz='UTC')]
+    assert len(mito.transpiled_code) > 0
 
 
 DATETIME_TESTS = [

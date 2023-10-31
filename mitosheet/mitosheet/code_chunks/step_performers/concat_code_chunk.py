@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -12,14 +12,14 @@ from mitosheet.state import State
 
 class ConcatCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, join: str, ignore_index: bool, sheet_indexes: List[int]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, join: str, ignore_index: bool, sheet_indexes: List[int], new_df_name: str):
+        super().__init__(prev_state)
         self.join = join
         self.ignore_index = ignore_index
         self.sheet_indexes = sheet_indexes
 
-        self.df_names_to_concat = [self.post_state.df_names[sheet_index] for sheet_index in self.sheet_indexes]
-        self.new_df_name = self.post_state.df_names[len(self.post_state.df_names) - 1]
+        self.df_names_to_concat = [self.prev_state.df_names[sheet_index] for sheet_index in self.sheet_indexes]
+        self.new_df_name = new_df_name
 
     def get_display_name(self) -> str:
         return 'Concatenated'
@@ -37,4 +37,4 @@ class ConcatCodeChunk(CodeChunk):
             ], ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [len(self.post_state.dfs) - 1]
+        return [len(self.prev_state.dfs)]

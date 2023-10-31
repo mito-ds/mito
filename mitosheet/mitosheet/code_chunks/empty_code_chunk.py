@@ -18,12 +18,17 @@ class EmptyCodeChunk(CodeChunk):
 
     Notably, as they don't have generated code, we can still optimize out
     these steps in the code optimization process.
+
+    You can also set optimize_right to be False, which will make sure that 
+    this step does not get optimized out (e.g. see SetDataframeFormatCodeChunk
+    for why we might want this).
     """
 
-    def __init__(self, prev_state: State, post_state: State, display_name: str, description_comment: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, display_name: str, description_comment: str, optimize_right: bool=True):
+        super().__init__(prev_state)
         self.display_name = display_name
         self.description_comment = description_comment
+        self.optimize_right = optimize_right
 
     def get_display_name(self) -> str:
         return self.display_name
@@ -35,6 +40,9 @@ class EmptyCodeChunk(CodeChunk):
         return [], []
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
+        if not self.optimize_right:
+            return None
+        
         # We just return the other code chunk, while also updating the prev_state. To avoid
         # causing issues by modifying data, we make a copy of this object
         new_other_code_chunk = deepcopy(other_code_chunk)

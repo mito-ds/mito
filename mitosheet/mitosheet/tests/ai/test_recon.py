@@ -721,7 +721,7 @@ df.drop(labels=[0], inplace=True)
 
 @pytest.mark.parametrize("old_dfs_map, code, new_df_map", EXEC_AND_GET_NEW_STATE_TESTS)
 def test_exec_and_get_new_state(old_dfs_map, code, new_df_map):
-    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
+    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()), public_interface_version=3)
     new_state, _, _ = exec_and_get_new_state_and_result(prev_state, code)
 
     # Check all dataframes are equal
@@ -755,7 +755,7 @@ INVALID_CODE = [
 @pytest.mark.parametrize('code, error', INVALID_CODE)
 def test_invalid_code_execute(code, error):
     old_dfs_map = {'df': pd.DataFrame({'a': [123]})}
-    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()))
+    prev_state = State(df_names=list(old_dfs_map.keys()), dfs=list(old_dfs_map.values()), public_interface_version=3)
     with pytest.raises(MitoError) as e:
         exec_and_get_new_state_and_result(prev_state, code)
     assert error in str(e)

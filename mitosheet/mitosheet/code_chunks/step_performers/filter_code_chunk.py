@@ -380,25 +380,26 @@ def get_entire_filter_string(state: State, sheet_index: int, operator: OperatorT
 
 class FilterCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids_with_filter_groups: List[ColumnIDWithFilterGroup]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids_with_filter_groups: List[ColumnIDWithFilterGroup]):
+        super().__init__(prev_state)
         self.sheet_index: int = sheet_index
         self.column_ids_with_filter_groups = column_ids_with_filter_groups
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
+        self.column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
+
 
 
     def get_display_name(self) -> str:
         return 'Filtered'
     
     def get_description_comment(self) -> str:
-        column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
-        column_headers = self.post_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
-        return f'Filtered {", ".join(map(str, column_headers))}'
+        return f'Filtered {", ".join(map(str, self.column_headers))}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         all_filter_strings_with_none = [
-            get_entire_filter_string(self.post_state, self.sheet_index, f['filter']["operator"], f['filter']["filters"], f['column_id'])
+            get_entire_filter_string(self.prev_state, self.sheet_index, f['filter']["operator"], f['filter']["filters"], f['column_id'])
             for f in self.column_ids_with_filter_groups
         ]
         all_filter_strings = [fs for fs in all_filter_strings_with_none if fs is not None]
@@ -407,9 +408,10 @@ class FilterCodeChunk(CodeChunk):
             return [], []
         else:
             entire_filter_string = combine_filter_strings('And', all_filter_strings, split_lines=True)
+            includes_pandas = 'pd.' in entire_filter_string
             return [
                 f"{self.df_name} = {self.df_name}[{entire_filter_string}]",
-            ], []
+            ], [] if not includes_pandas else ['import pandas as pd']
 
     def _combine_right_with_filter_code_chunk(self, filter_code_chunk: "FilterCodeChunk") -> Optional['CodeChunk']:
         if not self.params_match(filter_code_chunk, ['sheet_index']):
@@ -420,7 +422,6 @@ class FilterCodeChunk(CodeChunk):
 
         return FilterCodeChunk(
             self.prev_state,
-            filter_code_chunk.post_state,
             self.sheet_index,
             column_ids_with_filter_groups
         )

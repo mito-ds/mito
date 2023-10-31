@@ -16,10 +16,12 @@ from mitosheet.types import ColumnHeader, ColumnID
 
 class RenameColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids_to_new_column_headers: Dict[ColumnID, str]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids_to_new_column_headers: Dict[ColumnID, str]):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids_to_new_column_headers = column_ids_to_new_column_headers
+
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Renamed columns'
@@ -31,12 +33,11 @@ class RenameColumnsCodeChunk(CodeChunk):
     def get_code(self) -> Tuple[List[str], List[str]]:
 
         old_column_header_to_new_column_header_map: Dict[ColumnHeader, ColumnHeader] = dict()
-        df_name = self.post_state.df_names[self.sheet_index]
         for column_id, new_column_header in self.column_ids_to_new_column_headers.items():
             old_column_header_to_new_column_header_map[self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, column_id)] = new_column_header
 
         rename_dict = get_column_header_map_as_code_string(old_column_header_to_new_column_header_map)
-        rename_string = f'{df_name}.rename(columns={rename_dict}, inplace=True)'
+        rename_string = f'{self.df_name}.rename(columns={rename_dict}, inplace=True)'
         return [rename_string], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
@@ -53,7 +54,6 @@ class RenameColumnsCodeChunk(CodeChunk):
 
         return RenameColumnsCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             self.sheet_index,
             new_rename_dict
         )
@@ -71,7 +71,6 @@ class RenameColumnsCodeChunk(CodeChunk):
             # the rename step and just do the deletion of these columns
             return DeleteColumnsCodeChunk(
                 self.prev_state,
-                other_code_chunk.post_state,
                 other_code_chunk.sheet_index,
                 other_code_chunk.column_ids,
             )

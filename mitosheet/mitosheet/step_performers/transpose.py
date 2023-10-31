@@ -31,32 +31,37 @@ class TransposeStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
         sheet_index: int = get_param(params, 'sheet_index')
-
-        # We make a new state to modify it
-        post_state = prev_state.copy()
-
-        pandas_start_time = perf_counter()
-        new_df = post_state.dfs[sheet_index].T
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        new_df_name = get_first_unused_dataframe_name(post_state.df_names, f'{post_state.df_names[sheet_index]}_transposed')
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_TRANSPOSED, df_name=new_df_name)
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time,
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, f'{prev_state.df_names[sheet_index]}_transposed')
+        execution_data = {
+            'new_df_name': new_df_name,
         }
+
+        return cls.execute_through_transpile(
+            prev_state, 
+            params, 
+            execution_data, 
+            {
+                'df_source': DATAFRAME_SOURCE_TRANSPOSED,
+                'new_df_names': [new_df_name],
+                'sheet_index_to_overwrite': None
+            }
+        )
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
-            TransposeCodeChunk(prev_state, post_state, get_param(params, 'sheet_index'))
+            TransposeCodeChunk(
+                prev_state, 
+                get_param(params, 'sheet_index'), 
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name')
+            )
         ]
 
     @classmethod

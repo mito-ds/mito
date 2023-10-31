@@ -11,8 +11,8 @@ from mitosheet.step_performers.utils.user_defined_function_utils import get_tran
 
 class UserDefinedEditCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, edit_name: str, sheet_index: int, user_defined_function_params: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, edit_name: str, sheet_index: int, user_defined_function_params: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]]):
+        super().__init__(prev_state)
         self.edit_name = edit_name
         self.sheet_index = sheet_index
         self.user_defined_function_params = user_defined_function_params

@@ -16,6 +16,7 @@ from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
+from mitosheet.utils import get_first_unused_dataframe_name
 
 LOOKUP = 'lookup'
 UNIQUE_IN_LEFT = 'unique in left'
@@ -36,146 +37,70 @@ class MergeStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
-        how: str = get_param(params, 'how')
-        sheet_index_one: int = get_param(params, 'sheet_index_one')
-        sheet_index_two: int = get_param(params, 'sheet_index_two')
-        merge_key_column_ids: List[List[ColumnID]] = get_param(params, 'merge_key_column_ids')
-        selected_column_ids_one: List[ColumnID] = get_param(params, 'selected_column_ids_one')
-        selected_column_ids_two: List[ColumnID] = get_param(params, 'selected_column_ids_two')
 
-        merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
-        merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, "df_merge")
 
-        selected_columns_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, selected_column_ids_one)
-        selected_columns_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, selected_column_ids_two)
-
-        # We create a shallow copy to make the new post state
-        post_state = prev_state.copy()
-
-        pandas_start_time = perf_counter()
-        new_df = _execute_merge(
-            prev_state.dfs,
-            prev_state.df_names,
-            how,
-            sheet_index_one,
-            merge_keys_one,
-            selected_columns_one,
-            sheet_index_two,
-            merge_keys_two,
-            selected_columns_two
-        )
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        # Add this dataframe to the new post state
-        post_state.add_df_to_state(new_df, DATAFRAME_SOURCE_MERGED)
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
+        execution_data = {
+            'new_df_name': new_df_name
         }
+        try:
+            return cls.execute_through_transpile(
+                prev_state, 
+                params, 
+                execution_data,
+                new_dataframe_params={
+                    'df_source': DATAFRAME_SOURCE_MERGED,
+                    'new_df_names': [new_df_name],
+                    'sheet_index_to_overwrite': None
+                }
+            )
+
+        except ValueError:
+
+            sheet_index_one: int = get_param(params, 'sheet_index_one')
+            sheet_index_two: int = get_param(params, 'sheet_index_two')
+            merge_key_column_ids: List[List[ColumnID]] = get_param(params, 'merge_key_column_ids')
+            merge_keys_one = prev_state.column_ids.get_column_headers_by_ids(sheet_index_one, list(map(lambda x: x[0], merge_key_column_ids)))
+            merge_keys_two = prev_state.column_ids.get_column_headers_by_ids(sheet_index_two, list(map(lambda x: x[1], merge_key_column_ids)))
+
+            # If we get a value error from merging two incompatible columns, we go through and check 
+            # to see which of the columns this is, so our error can be maximally informative
+            for merge_key_one, merge_key_two in zip(merge_keys_one, merge_keys_two):
+                merge_key_one_dtype = str(prev_state.dfs[sheet_index_one][merge_key_one].dtype)
+                merge_key_two_dtype = str(prev_state.dfs[sheet_index_two][merge_key_two].dtype)
+
+                if merge_key_one_dtype != merge_key_two_dtype:
+                    raise make_incompatible_merge_key_error(
+                        merge_key_one=merge_key_one, 
+                        merge_key_one_dtype=merge_key_one_dtype,
+                        merge_key_two=merge_key_two, 
+                        merge_key_two_dtype=merge_key_two_dtype,
+                        error_modal=False
+                    )
+
+            raise make_incompatible_merge_key_error(error_modal=False)
+
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             MergeCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'how'),
                 get_param(params, 'sheet_index_one'),
                 get_param(params, 'sheet_index_two'),
                 get_param(params, 'merge_key_column_ids'),
                 get_param(params, 'selected_column_ids_one'),
                 get_param(params, 'selected_column_ids_two'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name') 
             )
         ]
     
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {-1}
-
-def _execute_merge(
-        dfs: List[pd.DataFrame], 
-        df_names: List[str],
-        how: str,
-        sheet_index_one: int,
-        merge_keys_one: List[ColumnHeader], 
-        selected_columns_one: List[ColumnHeader],
-        sheet_index_two: int,
-        merge_keys_two: List[ColumnHeader],
-        selected_columns_two: List[ColumnHeader]
-    ) -> pd.DataFrame:
-    """
-    Executes a merge on the sheets with the given indexes, merging on the 
-    given keys, and only keeping the selection columns from each df.
-    """
-    print("HERE123")
-    # We currently error if you try and merge two dataframes where they
-    # have different levels to the multi-index in the column headers. Aka, 
-    # you cannot merge a multi-index dataframe into a regular dataframe
-    if dfs[sheet_index_one].columns.nlevels != dfs[sheet_index_two].columns.nlevels:
-        raise make_incompatible_merge_headers_error(error_modal=False)
-
-    # If there's no merge keys, we return an empty dataframe
-    if len(merge_keys_one) == 0 and len(merge_keys_two) == 0:
-        return pd.DataFrame()
-
-    if how == LOOKUP:
-        # We drop duplicates to avoid pairwise duplication on the merge.
-        temp_df = dfs[sheet_index_two].drop_duplicates(subset=merge_keys_two)
-        # We overwrite the how variable to 'left' so it can be used in the merge
-        how_to_use = 'left'
-    else:
-        temp_df = dfs[sheet_index_two]
-        how_to_use = how
-
-    # Then we delete all the columns from each we don't wanna keep (making sure to keep the merge keys)
-    deleted_columns_one = set(dfs[sheet_index_one].keys()).difference(set(selected_columns_one).union(set(merge_keys_one)))
-    deleted_columns_two = set(dfs[sheet_index_two].keys()).difference(set(selected_columns_two).union(set(merge_keys_two)))
-
-    df_one_cleaned = dfs[sheet_index_one].drop(deleted_columns_one, axis=1)
-    df_two_cleaned = temp_df.drop(deleted_columns_two, axis=1)
-
-    # Finially, we perform the merge!
-    df_one_name = df_names[sheet_index_one]
-    df_two_name = df_names[sheet_index_two]
-    # We make sure the suffixes aren't the same, as otherwise we might end up with 
-    # one df with duplicated column headers
-    suffix_one = df_one_name
-    suffix_two = df_two_name if df_two_name != df_one_name else f'{df_two_name}_2'
-
-    try:
-        if how == UNIQUE_IN_LEFT:
-            result = df_one_cleaned.merge(df_two_cleaned[merge_keys_two], left_on=merge_keys_one, right_on=merge_keys_two, how='left', indicator=True, suffixes=(None, '_y'))
-            result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
-            result = result[df_one_cleaned.columns]
-            return result
-        if how == UNIQUE_IN_RIGHT:
-            result = df_two_cleaned.merge(df_one_cleaned[merge_keys_one], left_on=merge_keys_two, right_on=merge_keys_one, how='left', indicator=True, suffixes=(None, '_y'))
-            result = result[result['_merge'] == 'left_only'].drop(columns='_merge').reset_index(drop=True)
-            result = result[df_two_cleaned.columns]
-            return result
-        else:
-            return df_one_cleaned.merge(df_two_cleaned, left_on=merge_keys_one, right_on=merge_keys_two, how=how_to_use, suffixes=[f'_{suffix_one}', f'_{suffix_two}'])
-    except ValueError:
-        # If we get a value error from merging two incompatible columns, we go through and check 
-        # to see which of the columns this is, so our error can be maximally informative
-        for merge_key_one, merge_key_two in zip(merge_keys_one, merge_keys_two):
-            merge_key_one_dtype = str(dfs[sheet_index_one][merge_key_one].dtype)
-            merge_key_two_dtype = str(dfs[sheet_index_two][merge_key_two].dtype)
-
-            if merge_key_one_dtype != merge_key_two_dtype:
-                raise make_incompatible_merge_key_error(
-                    merge_key_one=merge_key_one, 
-                    merge_key_one_dtype=merge_key_one_dtype,
-                    merge_key_two=merge_key_two, 
-                    merge_key_two_dtype=merge_key_two_dtype,
-                    error_modal=False
-                )
-
-        raise make_incompatible_merge_key_error(error_modal=False)
-

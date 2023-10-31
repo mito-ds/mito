@@ -384,6 +384,15 @@ if sys.version_info[:3] > (3, 8, 0):
         selectedDataframeIndex: int
         selections: List[MitoFrontendSelection]
 
+    class ExecuteThroughTranspileNewDataframeParams(TypedDict):
+        new_df_names: List[str]
+        df_source: str
+        sheet_index_to_overwrite: Optional[int]
+
+    class ExecuteThroughTranspileNewColumnParams(TypedDict):
+        new_column_headers_to_column_id: Dict[ColumnHeader, ColumnID]
+        sheet_index: int
+
 else:
     Filter = Any #type: ignore
     FilterGroup = Any #type: ignore
@@ -416,6 +425,9 @@ else:
     ModifiedDataframeReconData = Any # type: ignore
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
+    UserDefinedImporterParamType = Any # type: ignore
+    ExecuteThroughTranspileNewDataframeParams = Any # type: ignore
+    ExecuteThroughTranspileNewColumnParams = Any # type: ignore
     UserDefinedFunctionParamType = Any # type: ignore
     MitoTheme = Any # type: ignore
     MitoFrontendSelection = Any # type: ignore

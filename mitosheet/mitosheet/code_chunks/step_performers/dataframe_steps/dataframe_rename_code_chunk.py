@@ -19,8 +19,8 @@ from mitosheet.state import State
 
 class DataframeRenameCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, old_dataframe_name: str, new_dataframe_name: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.old_dataframe_name = old_dataframe_name
         self.new_dataframe_name = new_dataframe_name
@@ -35,7 +35,7 @@ class DataframeRenameCodeChunk(CodeChunk):
         if self.old_dataframe_name == self.new_dataframe_name:
             return [], []
 
-        return [f'{self.post_state.df_names[self.sheet_index]} = {self.old_dataframe_name}'], []
+        return [f'{self.new_dataframe_name} = {self.old_dataframe_name}'], []
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]
@@ -46,7 +46,6 @@ class DataframeRenameCodeChunk(CodeChunk):
         
         return DataframeRenameCodeChunk(
             dataframe_rename_code_chunk.prev_state,
-            self.post_state,
             dataframe_rename_code_chunk.sheet_index,
             dataframe_rename_code_chunk.old_dataframe_name,
             self.new_dataframe_name
@@ -55,14 +54,13 @@ class DataframeRenameCodeChunk(CodeChunk):
     def _combine_left_with_pivot_code_chunk(self, pivot_code_chunk: PivotCodeChunk) -> Optional[CodeChunk]:
         destination_sheet_index = pivot_code_chunk.destination_sheet_index
         if destination_sheet_index is None:
-            destination_sheet_index = len(pivot_code_chunk.post_state.dfs) - 1
+            destination_sheet_index = len(pivot_code_chunk.prev_state.dfs)
 
         if destination_sheet_index != self.sheet_index:
             return None
 
         return PivotCodeChunk(
             pivot_code_chunk.prev_state,
-            self.post_state,
             pivot_code_chunk.sheet_index,
             pivot_code_chunk.destination_sheet_index,
             pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -70,24 +68,24 @@ class DataframeRenameCodeChunk(CodeChunk):
             pivot_code_chunk.pivot_filters_ids,
             pivot_code_chunk.values_column_ids_map,
             pivot_code_chunk.flatten_column_headers,
-            pivot_code_chunk.was_series,
-            pivot_code_chunk.public_interface_version
+            pivot_code_chunk.public_interface_version,
+            self.new_dataframe_name
         )
 
     def _combine_left_with_merge_code_chunk(self, merge_code_chunk: MergeCodeChunk) -> Optional[CodeChunk]:
-        destination_sheet_index = len(merge_code_chunk.post_state.dfs) - 1
+        destination_sheet_index = len(merge_code_chunk.prev_state.dfs)
         if destination_sheet_index != self.sheet_index:
             return None
 
         return MergeCodeChunk(
             merge_code_chunk.prev_state,
-            self.post_state,
             merge_code_chunk.how,
             merge_code_chunk.sheet_index_one,
             merge_code_chunk.sheet_index_two,
             merge_code_chunk.merge_key_column_ids,
             merge_code_chunk.selected_column_ids_one,
             merge_code_chunk.selected_column_ids_two,
+            self.new_dataframe_name
         )
 
     def _combine_left_with_import_code_chunk(
@@ -99,20 +97,25 @@ class DataframeRenameCodeChunk(CodeChunk):
             return None
 
         new_import_chunk = deepcopy(import_code_chunk)
-        new_import_chunk.post_state = self.post_state
+        
+        # Update the new_df_names in these code chunks
+        index_to_update = self.sheet_index - len(new_import_chunk.prev_state.dfs) 
+        new_import_chunk.new_df_names[index_to_update] = self.new_dataframe_name
+
+
         return new_import_chunk
 
     def _combine_left_with_dataframe_duplicate(
         self, 
         dataframe_duplicate_code_chunk: DataframeDuplicateCodeChunk
     ) -> Optional[CodeChunk]:
-        if self.sheet_index != len(dataframe_duplicate_code_chunk.post_state.dfs) - 1:
+        if self.sheet_index != len(dataframe_duplicate_code_chunk.prev_state.dfs):
             return None
         
         return DataframeDuplicateCodeChunk(
             dataframe_duplicate_code_chunk.prev_state,
-            self.post_state,
-            dataframe_duplicate_code_chunk.sheet_index
+            dataframe_duplicate_code_chunk.sheet_index,
+            self.new_dataframe_name
         )
 
     def combine_left(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:

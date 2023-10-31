@@ -36,23 +36,24 @@ def get_split_param_dict() -> Dict[str, Optional[Union[bool, int]]]:
 
 class SplitTextToColumnsCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_id: ColumnID, delimiters: List[str], new_column_headers: List[ColumnHeader]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_id: ColumnID, delimiters: List[str], new_column_headers: List[ColumnHeader]):
+        super().__init__(prev_state)
         self.sheet_index: int = sheet_index
         self.column_id: ColumnID = column_id
         self.delimiters: List[str] = delimiters
         self.new_column_headers: List[ColumnHeader] = new_column_headers
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
+        self.column_header = self.prev_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
+        self.column_dtype = str(self.prev_state.dfs[self.sheet_index][self.column_header].dtype) # type: ignore
 
 
     def get_display_name(self) -> str:
         return 'Split text to columns'
     
     def get_description_comment(self) -> str:
-        column_header = self.post_state.column_ids.get_column_header_by_id(self.sheet_index, self.column_id)
         delimiters_string = (', ').join(map(lambda x: f'"{x}"', self.delimiters))
-        return f'Split {column_header} on {delimiters_string}'
+        return f'Split {self.column_header} on {delimiters_string}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         delimiter_string = repr('|'.join(self.delimiters))
@@ -63,12 +64,11 @@ class SplitTextToColumnsCodeChunk(CodeChunk):
         column_idx = self.prev_state.column_ids.get_column_ids(self.sheet_index).index(self.column_id)
 
         # Split column
-        dtype_string = str(self.prev_state.dfs[self.sheet_index][column_header].dtype)
-        if is_string_dtype(dtype_string):
+        if is_string_dtype(self.column_dtype):
             string_conversion = ''
-        elif is_datetime_dtype(dtype_string):
+        elif is_datetime_dtype(self.column_dtype):
             string_conversion = ".dt.strftime('%Y-%m-%d %X')"
-        elif is_timedelta_dtype(dtype_string):
+        elif is_timedelta_dtype(self.column_dtype):
             string_conversion = ".apply(lambda x: str(x))"
         else:
             string_conversion = ".astype('str')"

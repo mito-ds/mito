@@ -120,12 +120,13 @@ def get_table_range_params(sheet: Dict[str, Union[str, int]], start_condition: A
 
 class ExcelRangeImportCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, file_path: str, sheet: Dict[str, Union[int, str]], range_imports: List[ExcelRangeImport], convert_csv_to_xlsx: bool):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, file_path: str, sheet: Dict[str, Union[int, str]], range_imports: List[ExcelRangeImport], convert_csv_to_xlsx: bool, new_df_names: List[str]):
+        super().__init__(prev_state)
         self.file_path = file_path
         self.sheet = sheet
         self.range_imports = range_imports
         self.convert_csv_to_xlsx = convert_csv_to_xlsx
+        self.new_df_names = new_df_names
 
     def get_display_name(self) -> str:
         return 'Excel Range Import'
@@ -153,8 +154,7 @@ class ExcelRangeImportCodeChunk(CodeChunk):
 
         for idx, range_import in enumerate(self.range_imports):
 
-            sheet_index = len(self.prev_state.dfs) + idx
-            df_name = self.post_state.df_names[sheet_index]
+            df_name = self.new_df_names[idx]
 
             # If it's an explicit range, then just import that exact range
             if range_import['type'] == EXCEL_RANGE_IMPORT_TYPE_RANGE:
@@ -188,20 +188,23 @@ class ExcelRangeImportCodeChunk(CodeChunk):
         return code, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
-        return [i for i in range(len(self.post_state.dfs) - len(self.range_imports), len(self.post_state.dfs))]
+        return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
     def _combine_right_with_excel_range_import_code_chunk(self, excel_range_import_code_chunk: "ExcelRangeImportCodeChunk") -> Optional[CodeChunk]:
         if excel_range_import_code_chunk.file_path == self.file_path and excel_range_import_code_chunk.sheet == self.sheet:
             new_range_imports = copy(self.range_imports)
             new_range_imports.extend(excel_range_import_code_chunk.range_imports)
 
+            new_df_names = copy(self.new_df_names)
+            new_df_names.extend(excel_range_import_code_chunk.new_df_names)
+
             return ExcelRangeImportCodeChunk(
                 self.prev_state,
-                excel_range_import_code_chunk.post_state,
                 self.file_path,
                 self.sheet,
                 new_range_imports,
-                self.convert_csv_to_xlsx
+                self.convert_csv_to_xlsx,
+                new_df_names
             )
 
         return None
