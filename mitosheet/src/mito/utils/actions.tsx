@@ -5,7 +5,7 @@ import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedCol
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
+import { openGraphEditor } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
@@ -692,33 +692,7 @@ export const getActions = (
             toolbarTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -730,33 +704,7 @@ export const getActions = (
             icon: GraphIcon,
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.BAR)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -768,33 +716,7 @@ export const getActions = (
             icon: ScatterPlotIcon,
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.SCATTER)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -806,33 +728,7 @@ export const getActions = (
             icon: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.LINE)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
