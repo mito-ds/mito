@@ -10,10 +10,10 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
-import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
+import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
 import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
 import UndoIcon from "../components/icons/UndoIcon";
@@ -35,6 +35,8 @@ import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
 import { FilterIcon } from "../components/icons/FilterIcons";
 import FormatIcon from "../components/icons/FormatIcon";
 import CopyIcon from "../components/icons/CopyIcon";
+import PercentIcon from "../components/icons/PercentIcon";
+import CurrencyIcon from "../components/icons/CurrencyIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -602,6 +604,48 @@ export const getActions = (
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
+        },
+        [ActionEnum.Currency_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Currency_Format,
+            icon: CurrencyIcon,
+            longTitle: 'Format as currency',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.CURRENCY }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['currency', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Percent_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Percent_Format,
+            icon: PercentIcon,
+            longTitle: 'Format as percentage',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PERCENTAGE }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['percent', '%', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',

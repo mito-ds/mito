@@ -957,6 +957,8 @@ export enum ActionEnum {
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
+    Currency_Format = 'set format to currency',
+    Percent_Format = 'set format to percent',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',

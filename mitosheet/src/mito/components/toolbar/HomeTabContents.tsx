@@ -165,6 +165,14 @@ export const HomeTabContents = (
                 </Select>
                 <div className='mito-toolbar-number-precision'>
                     <ToolbarButton
+                        action={props.actions.buildTimeActions[ActionEnum.Currency_Format]}
+                        setEditorState={props.setEditorState}
+                    />
+                    <ToolbarButton
+                        action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
+                        setEditorState={props.setEditorState}
+                    />
+                    <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
                     />

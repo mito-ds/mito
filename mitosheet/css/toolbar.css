@@ -159,6 +159,9 @@
 
 .mito-toolbar-number-precision .mito-toolbar-button-container {
   width: fit-content;
+  height: auto;
+  display: flex;
+  align-items: center;
 }
 
 .mito-toolbar-button-container-disabled {
