@@ -929,6 +929,8 @@ export const enum FeedbackID {
 */
 export enum ActionEnum {
     Add_Column = 'add column',
+    AntiMerge = 'anti merge',
+    Bar_Graph = 'bar graph',
     Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
@@ -951,6 +953,7 @@ export enum ActionEnum {
     Help = 'help',
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',
+    Line_Chart = 'line graph',
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     OpenSearch = 'open search',
@@ -964,6 +967,7 @@ export enum ActionEnum {
     Rename_Column = 'rename column',
     Rename_Dataframe = 'rename dataframe',
     Rename_Graph = 'rename graph',
+    Scatter_Plot = 'scatter graph',
     See_All_Functionality = 'see all functionality',
     //Search = 'search',
     Set_Cell_Value = 'set cell value',

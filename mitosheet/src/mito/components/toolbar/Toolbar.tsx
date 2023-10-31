@@ -23,12 +23,13 @@ import { classNames } from '../../utils/classNames';
 import ToolbarButton from './ToolbarButton';
 import fscreen from 'fscreen';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
+import { InsertTabContents } from './InsertTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
-type TabName = 'Home' | 'Test';
+type TabName = 'Home' | 'Insert';
 type TabContents = JSX.Element;
 type Tabs = {
     [ tab: string ]: TabContents
@@ -55,10 +56,10 @@ export const Toolbar = (
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
 
-    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Home');
+    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Insert');
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
-        'Test': <div> Testing </div>
+        'Insert': <InsertTabContents {...props}/>
     };
 
     return (

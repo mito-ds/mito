@@ -4,11 +4,23 @@ import React from 'react';
 
 const MergeIcon = (): JSX.Element => {
     return (
-        <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7.17099 14.267C10.7582 14.267 13.6662 11.359 13.6662 7.77182C13.6662 4.18462 10.7582 1.27661 7.17099 1.27661C3.58378 1.27661 0.675781 4.18462 0.675781 7.77182C0.675781 11.359 3.58378 14.267 7.17099 14.267Z" stroke="#343434" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M11.6671 14.267C15.2543 14.267 18.1623 11.359 18.1623 7.77182C18.1623 4.18462 15.2543 1.27661 11.6671 1.27661C8.07988 1.27661 5.17188 4.18462 5.17188 7.77182C5.17188 11.359 8.07988 14.267 11.6671 14.267Z" stroke="#343434" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="23" height="30" viewBox="0 0 23 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect y="0.0703125" width="23" height="29" rx="3" fill="#D7D7D7"/>
+            <rect x="4.5" y="6.57031" width="6" height="16" fill="white" stroke="black"/>
+            <line x1="5" y1="10.5703" x2="10" y2="10.5703" stroke="#797775"/>
+            <line x1="5" y1="14.5703" x2="10" y2="14.5703" stroke="#797775"/>
+            <line x1="5" y1="18.5703" x2="10" y2="18.5703" stroke="#797775"/>
+            <rect x="5" y="7.07031" width="5" height="3" fill="#9D6CFF"/>
+            <rect x="12.5" y="6.57031" width="6" height="16" fill="white" stroke="black"/>
+            <line x1="13" y1="10.5703" x2="18" y2="10.5703" stroke="#797775"/>
+            <line x1="13" y1="14.5703" x2="18" y2="14.5703" stroke="#797775"/>
+            <line x1="13" y1="18.5703" x2="18" y2="18.5703" stroke="#797775"/>
+            <rect x="13" y="7.07031" width="5" height="3" fill="#9D6CFF"/>
+            <rect width="2.30767" height="9.9999" rx="1" transform="matrix(1 -1.05367e-05 -1.05367e-05 1 10.4167 10.1406)" fill="#FAFAFA"/>
+            <rect width="2.30767" height="9.9999" rx="1" transform="matrix(1.04103e-05 -1 1 -1.04103e-05 6.5708 16.293)" fill="#FAFAFA"/>
+            <rect width="0.769223" height="8.46145" transform="matrix(1.04524e-05 -1 1 -1.04524e-05 7.33936 15.5234)" fill="#3A714A"/>
+            <rect width="0.769223" height="8.46145" transform="matrix(1 -1.04524e-05 -1.04524e-05 1 11.1863 10.9102)" fill="#3A714A"/>
         </svg>
-
     )
 }
 
