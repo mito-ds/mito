@@ -45,6 +45,7 @@ import AntiMergeIcon from "../components/icons/AntiMergeIcon";
 import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
 import LineChartIcon from "../components/icons/LineChartIcon";
 import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
+import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -747,7 +748,7 @@ export const getActions = (
                 }
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.BAR)
 
                 await mitoAPI.editGraph(
                     newGraphID,
@@ -785,7 +786,7 @@ export const getActions = (
                 }
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.SCATTER)
 
                 await mitoAPI.editGraph(
                     newGraphID,
@@ -823,7 +824,7 @@ export const getActions = (
                 }
 
                 const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
+                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, GraphType.LINE)
 
                 await mitoAPI.editGraph(
                     newGraphID,
