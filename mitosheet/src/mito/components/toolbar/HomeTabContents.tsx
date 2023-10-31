@@ -194,7 +194,7 @@ export const HomeTabContents = (
                 setEditorState={props.setEditorState}
             />
             <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
+                action={props.actions.buildTimeActions[ActionEnum.Delete]}
                 setEditorState={props.setEditorState}
             />
             <ToolbarButton

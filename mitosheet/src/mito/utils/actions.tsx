@@ -290,18 +290,23 @@ export const getActions = (
                 windows: 'Ctrl+C'
             }
         },
-        [ActionEnum.Delete_Column]: {
+        [ActionEnum.Delete]: {
             type: 'build-time',
-            staticType: ActionEnum.Delete_Column,
+            staticType: ActionEnum.Delete,
             icon: DeleteColumnIcon,
             toolbarTitle: 'Delete',
-            longTitle: 'Delete columns',
+            longTitle: 'Delete column / row',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
@@ -317,7 +322,12 @@ export const getActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns to delete. Import data.';
+                    return 'There are no columns or rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
                 }
 
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
@@ -327,11 +337,11 @@ export const getActions = (
                         return "The selection contains individual cells. Click on column headers to select entire columns only."
                     }
                 } else {
-                    return "There are no columns in the dataframe to delete. Add data to the sheet."
+                    return "There are no rows or columns in the dataframe to delete. Add data to the sheet."
                 }
             },
-            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
-            tooltip: "Delete all of the selected columns from the sheet."
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete all of the selected columns or rows from the sheet."
         },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
@@ -376,27 +386,6 @@ export const getActions = (
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
-        },
-        [ActionEnum.Delete_Row]: {
-            type: 'build-time',
-            staticType: ActionEnum.Delete_Row,
-            toolbarTitle: 'Delete Row',
-            longTitle: 'Delete row',
-            actionFunction: async () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
-                }
-            },
-            isDisabled: () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    return defaultActionDisabledMessage;
-                }
-                return "There are no selected rows to delete."
-            },
-            searchTerms: ['delete', 'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
-            tooltip: "Delete the selected rows."
         },
         [ActionEnum.Docs]: {
             type: 'build-time',
