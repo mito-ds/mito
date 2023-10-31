@@ -32,6 +32,11 @@ const ToolbarButton = (
         setEditorState?: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         
         /**
+         * Optional override of the action's title. 
+         */
+        toolbarTitle?: string;
+
+        /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
         */ 
         highlightToolbarButton?: boolean; 
@@ -48,8 +53,8 @@ const ToolbarButton = (
 
     }): JSX.Element => {
 
-    const disabled = props.disabledTooltip !== undefined;
     const disabledTooltip = props.disabledTooltip ?? props.action.isDisabled();
+    const disabled = !!disabledTooltip;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     
@@ -83,13 +88,13 @@ const ToolbarButton = (
                     <div className='mito-toolbar-button-icon-container'>
                         {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
+                        {props.children !== undefined && props.children}
                     </div>
-                    {props.action.toolbarTitle && <p className='mito-toolbar-button-label'> 
-                        {props.action.toolbarTitle}
+                    {(props.toolbarTitle ?? props.action.toolbarTitle) && <p className='mito-toolbar-button-label'> 
+                        {props.toolbarTitle ?? props.action.toolbarTitle}
                     </p>}
                 </span>
             </button>
-            {props.children !== undefined && props.children}
         </div>
     );
 }

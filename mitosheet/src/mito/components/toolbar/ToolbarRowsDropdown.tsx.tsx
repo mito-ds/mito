@@ -35,7 +35,6 @@ const ToolbarRowsDropdown = (props: ToolbarRowsDropdownProps): JSX.Element => {
                 })}
                 width='large'
             >
-                {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete_Row], props.userProfile)}
                 {makeToolbarDropdownItem(props.actions.buildTimeActions[ActionEnum.Promote_Row_To_Header], props.userProfile)}
             </Dropdown>
         </>

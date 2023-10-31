@@ -146,12 +146,15 @@ export const HomeTabContents = (
                         }}/>
                 </Dropdown>
             </ToolbarButton>
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Copy]}
+                setEditorState={props.setEditorState}
+            />
 
             <div className="toolbar-vertical-line"/>
 
             <div className='mito-toolbar-number-format'>
                 <Select
-                    className='mito-toolbar-number-format-select'
                     style={{ height: '22px', fontSize: '11px', width: '150px' }}
                     iconStyle={{ width: '18px' }}
                     disabled={!!props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
@@ -160,6 +163,14 @@ export const HomeTabContents = (
                     {getColumnFormatDropdownItems(props.gridState.sheetIndex, props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData), props.mitoAPI, props.closeOpenEditingPopups)}
                 </Select>
                 <div className='mito-toolbar-number-precision'>
+                    <ToolbarButton
+                        action={props.actions.buildTimeActions[ActionEnum.Currency_Format]}
+                        setEditorState={props.setEditorState}
+                    />
+                    <ToolbarButton
+                        action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
+                        setEditorState={props.setEditorState}
+                    />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                         setEditorState={props.setEditorState}
@@ -170,6 +181,18 @@ export const HomeTabContents = (
                     />
                 </div>
             </div>
+
+            <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
+
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Conditional_Formatting]}
+                setEditorState={props.setEditorState}
+            />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format]}
+                setEditorState={props.setEditorState}
+            />
+
             <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
 
             <ToolbarButton
@@ -178,10 +201,19 @@ export const HomeTabContents = (
                 setEditorState={props.setEditorState}
             />
             <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.Delete_Column]}
+                action={props.actions.buildTimeActions[ActionEnum.Delete]}
                 setEditorState={props.setEditorState}
-
             />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+                setEditorState={props.setEditorState}
+                toolbarTitle='Find & Replace'
+            />
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Filter]}
+                setEditorState={props.setEditorState}
+            />
+
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
                 setEditorState={props.setEditorState}

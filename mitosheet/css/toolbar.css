@@ -72,6 +72,7 @@
 .mito-toolbar-bottom {
   display: flex;
   flex-direction: row;
+  overflow-x: scroll;
 }
 
 .mito-toolbar-bottom-left-half {
@@ -94,12 +95,13 @@
   max-width: 45px;
   min-width: max-content;
   width: 100%;
+  height: min-content;
 
   margin: 0px 1px;
 
   border-radius: 3px;
 
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
 
   /* Make input blend in with formula bar */
@@ -151,8 +153,15 @@
   height: 100%;
 }
 
+.mito-toolbar-number-format {
+  margin-top: 5px;
+}
+
 .mito-toolbar-number-precision .mito-toolbar-button-container {
   width: fit-content;
+  height: auto;
+  display: flex;
+  align-items: center;
 }
 
 .mito-toolbar-button-container-disabled {
@@ -201,6 +210,17 @@
   padding: 0px 5px;
   color: var(--mito-background);
   height: 18px;
+}
+
+.mito-toolbar-button-label {
+  width: min-content;
+  height: auto;
+}
+
+.mito-toolbar-button span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 

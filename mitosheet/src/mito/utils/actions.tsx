@@ -10,10 +10,10 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
-import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
+import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
 import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
 import UndoIcon from "../components/icons/UndoIcon";
@@ -31,6 +31,12 @@ import MoreIcon from "../components/icons/MoreIcon";
 import GraphIcon from "../components/icons/GraphIcon";
 import SearchIcon from "../components/icons/SearchIcon";
 import RedoIcon from "../components/icons/RedoIcon";
+import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
+import { FilterIcon } from "../components/icons/FilterIcons";
+import FormatIcon from "../components/icons/FormatIcon";
+import CopyIcon from "../components/icons/CopyIcon";
+import PercentIcon from "../components/icons/PercentIcon";
+import CurrencyIcon from "../components/icons/CurrencyIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -123,7 +129,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Add_Column,
             icon: AddColumnIcon,
-            toolbarTitle: 'Add Col',
+            toolbarTitle: 'Insert',
             longTitle: 'Add column',
             actionFunction: () => {
                 if (sheetDataArray.length === 0) {
@@ -246,6 +252,7 @@ export const getActions = (
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,
+            icon: CopyIcon,
             toolbarTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
@@ -285,18 +292,23 @@ export const getActions = (
                 windows: 'Ctrl+C'
             }
         },
-        [ActionEnum.Delete_Column]: {
+        [ActionEnum.Delete]: {
             type: 'build-time',
-            staticType: ActionEnum.Delete_Column,
+            staticType: ActionEnum.Delete,
             icon: DeleteColumnIcon,
-            toolbarTitle: 'Del Col',
-            longTitle: 'Delete columns',
+            toolbarTitle: 'Delete',
+            longTitle: 'Delete column / row',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
@@ -312,7 +324,12 @@ export const getActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns to delete. Import data.';
+                    return 'There are no columns or rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
                 }
 
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
@@ -322,11 +339,11 @@ export const getActions = (
                         return "The selection contains individual cells. Click on column headers to select entire columns only."
                     }
                 } else {
-                    return "There are no columns in the dataframe to delete. Add data to the sheet."
+                    return "There are no rows or columns in the dataframe to delete. Add data to the sheet."
                 }
             },
-            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
-            tooltip: "Delete all of the selected columns from the sheet."
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete all of the selected columns or rows from the sheet."
         },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
@@ -371,27 +388,6 @@ export const getActions = (
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
-        },
-        [ActionEnum.Delete_Row]: {
-            type: 'build-time',
-            staticType: ActionEnum.Delete_Row,
-            toolbarTitle: 'Delete Row',
-            longTitle: 'Delete row',
-            actionFunction: async () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
-                }
-            },
-            isDisabled: () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    return defaultActionDisabledMessage;
-                }
-                return "There are no selected rows to delete."
-            },
-            searchTerms: ['delete', 'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
-            tooltip: "Delete the selected rows."
         },
         [ActionEnum.Docs]: {
             type: 'build-time',
@@ -557,6 +553,7 @@ export const getActions = (
         [ActionEnum.Filter]: {
             type: 'build-time',
             staticType: ActionEnum.Filter,
+            icon: FilterIcon,
             toolbarTitle: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
@@ -607,6 +604,48 @@ export const getActions = (
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
+        },
+        [ActionEnum.Currency_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Currency_Format,
+            icon: CurrencyIcon,
+            longTitle: 'Format as currency',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.CURRENCY }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['currency', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Percent_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Percent_Format,
+            icon: PercentIcon,
+            longTitle: 'Format as percentage',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PERCENTAGE }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['percent', '%', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
@@ -1211,7 +1250,7 @@ export const getActions = (
                     })
                 }
             },
-            isDisabled: () => {return defaultActionDisabledMessage},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
             tooltip: "Search for a value in your data.",
             displayKeyboardShortcuts: {
@@ -1338,7 +1377,8 @@ export const getActions = (
         [ActionEnum.Set_Dataframe_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Dataframe_Format,
-            toolbarTitle: 'Set Dataframe Colors',
+            icon: FormatIcon,
+            toolbarTitle: 'Format',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1359,6 +1399,7 @@ export const getActions = (
         [ActionEnum.Conditional_Formatting]: {
             type: 'build-time',
             staticType: ActionEnum.Conditional_Formatting,
+            icon: ConditionalFormatIcon,
             toolbarTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {

@@ -5,10 +5,19 @@ import React from 'react';
 
 const AddColumnIcon = (): JSX.Element => {
     return (
-        <svg width="15" height="15" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7.44262 12.3725V13.6741C7.44262 14.0686 7.12049 14.3907 6.72604 14.3907H1.71657C1.32213 14.3907 1 14.0686 1 13.6741V2.07742C1 1.68297 1.32213 1.36084 1.71657 1.36084H6.72604C7.12049 1.36084 7.44262 1.68297 7.44262 2.07742V3.24103" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M7.44141 5.41052V10.3411" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M9.91371 7.87573H4.97656" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="32" height="18" viewBox="0 0 32 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4.82837" y="0.570312" width="23" height="16" fill="white" stroke="black"/>
+            <rect x="4.82837" y="5.57031" width="23" height="6" fill="white" stroke="#797774"/>
+            <rect x="4.82837" y="0.570312" width="23" height="16" stroke="black"/>
+            <rect x="4.82837" y="5.57031" width="23" height="6" stroke="#797774"/>
+            <rect x="4.82837" y="0.570312" width="23" height="16" stroke="black"/>
+            <line x1="20.8284" y1="1.07031" x2="20.8284" y2="16.0703" stroke="#797775"/>
+            <line x1="12.8284" y1="1.07031" x2="12.8284" y2="16.0703" stroke="#797775"/>
+            <rect x="4.82837" y="5.57031" width="26" height="6" fill="#9D6CFF" stroke="#6229AB"/>
+            <path d="M6.42463 5.06938L2.32837 8.58938M2.32837 8.58938L6.42463 12.1094M2.32837 8.58938H9.82837" stroke="white" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round"/>
+            <path d="M6.42463 5.06938L2.32837 8.58938M2.32837 8.58938L6.42463 12.1094M2.32837 8.58938H9.82837" stroke="#9D6CFF" strokeMiterlimit="10" strokeLinecap="round"/>
+            <line x1="22.8284" y1="6.07031" x2="22.8284" y2="11.0703" stroke="#6229AB"/>
+            <line x1="14.8284" y1="6.07031" x2="14.8284" y2="12.0703" stroke="#6229AB"/>
         </svg>
     )
 }
