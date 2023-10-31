@@ -6,7 +6,7 @@
     "purpose": "Count the number of cells that match a condition or criteria",
     "titleCardParagraphs": [
         "Excel's COUNTIF function is used to count the number of cells that meet a single condition within a range. It's a fundamental function for basic data analysis tasks.",
-        "This page will guide you on how to achieve COUNTIF's functionality in Python using pandas, which is essential for automating your Excel reporting tasks."
+        "This page provides examples on using Excem's COUNTIF's functionality in Python using pandas."
     ],
     "excelExplanation": {
         "paragraphs": [
@@ -62,7 +62,7 @@
                 ]
             },
             {
-                "title": "Counting the number of each value appears in a column",
+                "title": "Counting the number of times each value appears in a column",
                 "shortTitle": "Creating a table",
                 "paragraphs": [
                     "Let's say that you have the columns 'Category', 'Price', and 'Food'. You want to count how many times each category appears",
@@ -135,6 +135,21 @@
                     "The pivot table will return a new dataframe with the count applied to each bucket of grouped data, while the .count method will return a single value."
                 ],
                 "codeLines": []
+            },
+            {
+                "title": "Expecting case insensitivity",
+                "shortTitle": "Case insensitivity",
+                "paragraphs": [
+                    "In Excel, COUNTIF is case insensitive. For instance, the formula =COUNTIF(A:A, \"apple\") will count both \"apple\" and \"Apple\".",
+                    "In pandas, however, the comparison is case sensitive. If you want to replicate the case insensitivity, you'll need to convert the column to lowercase before comparing it to the value you're looking for."
+                ],
+                "codeLines": [
+                    "# Convert to lowercase before comparing",
+                    "df['A'] = df['A'].str.lower()",
+                    "",
+                    "# Find the number of cells that contain 'apple'",
+                    "count = (df['A'] == 'apple').sum()"
+                ]
             }
         ]
     }
