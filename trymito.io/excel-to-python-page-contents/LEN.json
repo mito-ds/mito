@@ -1,0 +1,110 @@
+{
+    "slug": ["functions", "text", "LEN"],
+    "functionNameShort": "LEN",
+    "functionNameLong": "String Length",
+    "relatedFunctions": ["MID", "FIND", "LEFT"],
+    "purpose": "Calculate the length of a string",
+    "titleCardParagraphs": [
+        "Excel's LEN function returns the number of characters in a text string. This is commonly used in string processing tasks, like data validation or cleaning.",
+        "This page explains how to use Excel's LEN function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The LEN function in Excel is quite straightforward. It takes a single argument which is the text string you want to measure, and returns its length.",
+            "=LEN(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text string you want to measure.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=LEN(\"Hello World\")",
+                "description": "Calculate the length of the string 'Hello World'.",
+                "result": "11"
+            },
+            {
+                "formula": "=LEN(A1)",
+                "description": "Calculate the length of the value in cell A1.",
+                "result": "Length of the value in A1"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the LEN function in Excel using Python and pandas, you have the following common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Finding the length of a single string",
+                "shortTitle": "Single string",
+                "paragraphs": [
+                    "In Excel, you would use =LEN(\"Your String\"). In pandas, to find the length of a single string, you can use Python's built-in len function",
+                    "A common use for this is to validate the length of a string. For example, if you want to ensure that a string is exactly 10 characters long, you could use the following code:"
+                ],
+                "codeLines": [
+                    "# Create a string",
+                    "my_string = \"Hello World\"",
+                    "",
+                    "# Find the length of the string",
+                    "if len(my_string) == 10:",
+                    "    print(\"String is 10 characters long\")",
+                    "else:",
+                    "    print(\"String is not 10 characters long\")"
+                ]
+            },
+            {
+                "title": "Calculating the length of each value in a column",
+                "shortTitle": "Column values",
+                "paragraphs": [
+                    "Assuming you want to calculate the length of each string in column 'A' in Excel, you would use the function LEN(A1) and drag it down the entire dataset.",
+                    "In pandas, you can do the same using the `str` accessor followed by the `len` function on the desired column:"
+                ],
+                "codeLines": [
+                    "# Calculate the length of each value in column A",
+                    "df['B'] = df['A'].str.len()"
+                ]
+            },
+            {
+                "title": "Using length in a IF statement for a column",
+                "shortTitle": "Length in IF",
+                "paragraphs": [
+                    "In Excel, you might use a formula like =IF(LEN(A1)>10, \"Long\", \"Short\") to classify strings based on length.",
+                    "In pandas, you can use the `numpy.where` method combined with the `str` accessor and `len` function to achieve the same result:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "df['classification'] = np.where(df['column_name'].str.len() > 10, 'Long', 'Short')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using the LEN function in pandas, it's common to run into a few pitfalls. Here are some mistakes to be aware of and how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrectly placing the len function",
+                "shortTitle": "Incorrect len placement",
+                "paragraphs": [
+                    "Pandas requires you to use the `str` accessor to apply string-specific methods to a Series.",
+                    "If you attempt to use `len()` directly on a pandas Series without the `str` accessor, you'll calculate the get unexpected results. See the example below."
+                ],
+                "codeLines": [
+                    "# Calculate the length of each string in column A",
+                    "df['length'] = df['A'].str.len()",
+                    "",
+                    "# This will error because you forgot the str accessor",
+                    "df['length'] = df['A'].len()",
+                    "",
+                    "# Find the number of rows in the DataFrame",
+                    "df['length'] = len(df['A'])"
+                ]
+            }
+        ]
+    }
+}
