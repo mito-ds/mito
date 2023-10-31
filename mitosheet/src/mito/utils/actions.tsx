@@ -44,6 +44,7 @@ import ConcatIcon from "../components/icons/ConcatIcon";
 import AntiMergeIcon from "../components/icons/AntiMergeIcon";
 import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
 import LineChartIcon from "../components/icons/LineChartIcon";
+import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -945,7 +946,7 @@ export const getActions = (
                     return {
                         ...prevUIState,
                         currOpenModal: {type: ModalEnum.None},
-                        currOpenTaskpane: {type: TaskpaneType.MERGE},
+                        currOpenTaskpane: {type: TaskpaneType.MERGE, defaultMergeType: MergeType.UNIQUE_IN_LEFT},
                         selectedTabType: 'data'
                     }
                 })
