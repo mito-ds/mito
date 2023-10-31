@@ -53,8 +53,8 @@ const ToolbarButton = (
 
     }): JSX.Element => {
 
-    const disabled = props.disabledTooltip !== undefined;
     const disabledTooltip = props.disabledTooltip ?? props.action.isDisabled();
+    const disabled = !!disabledTooltip;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     

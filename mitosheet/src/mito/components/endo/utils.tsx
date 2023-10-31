@@ -190,6 +190,5 @@ export const getGraphIsSelected = (uiState: UIState): boolean => {
     Determines if a data tab is selected in the sheet
 */
 export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetData[]): boolean => {
-    console.log(uiState.selectedTabType, sheetDataArray.length)
     return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
 }
