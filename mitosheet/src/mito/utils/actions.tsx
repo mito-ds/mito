@@ -1250,7 +1250,7 @@ export const getActions = (
                     })
                 }
             },
-            isDisabled: () => {return defaultActionDisabledMessage},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
             tooltip: "Search for a value in your data.",
             displayKeyboardShortcuts: {
