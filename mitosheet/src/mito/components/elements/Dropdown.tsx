@@ -468,7 +468,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                     className={dropdownClassNames} 
                     style={{
                         position: 'fixed',
-                        top: boundingRect.top, 
+                        top: (boundingRect.top ?? 0) - 12, 
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
                         left: boundingRect.left, 

@@ -94,6 +94,7 @@
   max-width: 45px;
   min-width: max-content;
   width: 100%;
+  height: min-content;
 
   margin: 0px 1px;
 
