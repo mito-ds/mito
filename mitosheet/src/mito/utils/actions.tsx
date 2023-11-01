@@ -1258,7 +1258,7 @@ export const getActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
-                mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1279,7 +1279,7 @@ export const getActions = (
                     return 
                 }
 
-                mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
