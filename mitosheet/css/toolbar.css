@@ -204,7 +204,7 @@
 .toolbar-vertical-line {
   border-left: 1px solid var(--toolbar-seperator-color);
   height: 100%;
-  margin-right: 2px;
+  margin: 0 4px;
   padding-right: 2px;
 }
 
