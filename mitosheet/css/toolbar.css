@@ -92,9 +92,7 @@
 .mito-toolbar-button-container {
   /* Keep items evenly spaced */
   display: flex;
-  max-width: 45px;
-  min-width: max-content;
-  width: 100%;
+  width: fit-content;
   height: min-content;
 
   margin: 0px 1px;
