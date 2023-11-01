@@ -143,7 +143,7 @@
 }
 
 .horizontal-align-content .mito-toolbar-button-label {
-  text-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .mito-toolbar-tabbar-tabname span {
