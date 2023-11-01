@@ -54,11 +54,11 @@ export const DataTabContents = (
 
         <div>
             <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.SortAlphabetically]}
+                action={props.actions.buildTimeActions[ActionEnum.SortAscending]}
                 setEditorState={props.setEditorState}
             />
             <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.SortAlphabeticallyReverse]}
+                action={props.actions.buildTimeActions[ActionEnum.SortDescending]}
                 setEditorState={props.setEditorState}
             />
         </div>

@@ -53,6 +53,11 @@ import GearIcon from "../components/icons/GearIcon";
 import SnowflakeIcon from "../components/icons/SnowflakeIcon";
 import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
 import FileImportIcon from "../components/icons/FileImportIcon";
+import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
+import FillNanIcon from "../components/icons/FillNanIcon";
+import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
+import ResetIcon from "../components/icons/ResetIcon";
+import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -428,7 +433,8 @@ export const getActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: 'build-time',
             staticType: ActionEnum.Drop_Duplicates,
-            toolbarTitle: 'Dedup',
+            icon: RemoveDuplicatesIcon,
+            toolbarTitle: 'Remove Duplicates',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -541,6 +547,7 @@ export const getActions = (
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
+            icon: FillNanIcon,
             toolbarTitle: 'Fill NaN',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
@@ -1239,9 +1246,9 @@ export const getActions = (
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
         },
-        [ActionEnum.SortAlphabetically]: {
+        [ActionEnum.SortAscending]: {
             type: 'build-time',
-            staticType: ActionEnum.SortAlphabetically,
+            staticType: ActionEnum.SortAscending,
             icon: SortAscendingIcon,
             longTitle: 'Sort column alphabetically',
             actionFunction: () => {
@@ -1263,9 +1270,9 @@ export const getActions = (
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
         },
-        [ActionEnum.SortAlphabeticallyReverse]: {
+        [ActionEnum.SortDescending]: {
             type: 'build-time',
-            staticType: ActionEnum.SortAlphabeticallyReverse,
+            staticType: ActionEnum.SortDescending,
             icon: SortDescendingIcon,
             longTitle: 'Sort column alphabetically reverse',
             actionFunction: () => {
@@ -1290,7 +1297,8 @@ export const getActions = (
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Split_Text_To_Column,
-            toolbarTitle: 'Split',
+            icon: TextToColumnsIcon,
+            toolbarTitle: 'Text to Columns',
             longTitle: 'Split text to columns',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -1466,6 +1474,7 @@ export const getActions = (
         [ActionEnum.One_Hot_Encoding]: {
             type: 'build-time',
             staticType: ActionEnum.One_Hot_Encoding,
+            icon: OneHotEncodingIcon,
             toolbarTitle: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
@@ -1639,7 +1648,7 @@ export const getActions = (
         [ActionEnum.RESET_INDEX_DROPDOWN]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_INDEX_DROPDOWN,
-            icon: ExportIcon,
+            icon: ResetIcon,
             toolbarTitle: 'Reset Index',
             longTitle: 'Reset Index Dropdown',
             actionFunction: () => {
@@ -1656,8 +1665,8 @@ export const getActions = (
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
             },
-            searchTerms: ['export', 'download', 'excel', 'csv'],
-            tooltip: "Export dataframes as a .csv or .xlsx file."
+            searchTerms: ['reset', 'download', 'excel', 'csv'],
+            tooltip: "Reset index"
         },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
