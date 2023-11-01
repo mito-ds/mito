@@ -1635,6 +1635,30 @@ export const getActions = (
             searchTerms: ['export', 'download', 'file'],
             tooltip: "Generate code that exports dataframes to files."
         },
+
+        [ActionEnum.RESET_INDEX_DROPDOWN]: {
+            type: 'build-time',
+            staticType: ActionEnum.RESET_INDEX_DROPDOWN,
+            icon: ExportIcon,
+            toolbarTitle: 'Reset Index',
+            longTitle: 'Reset Index Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'reset-index'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Export dataframes as a .csv or .xlsx file."
+        },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_KEEP_INDEX,
