@@ -46,6 +46,13 @@ import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
 import LineChartIcon from "../components/icons/LineChartIcon";
 import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
+import SortIcon from "../components/icons/SortIcon";
+import SortDescendingIcon from "../components/icons/SortDescendingIcon";
+import SortAscendingIcon from "../components/icons/SortAscendingIcon";
+import GearIcon from "../components/icons/GearIcon";
+import SnowflakeIcon from "../components/icons/SnowflakeIcon";
+import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
+import FileImportIcon from "../components/icons/FileImportIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -782,7 +789,8 @@ export const getActions = (
         [ActionEnum.Import_Files]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Files,
-            toolbarTitle: 'Import',
+            toolbarTitle: 'Import Files',
+            icon: FileImportIcon,
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1209,8 +1217,57 @@ export const getActions = (
         [ActionEnum.Sort]: {
             type: 'build-time',
             staticType: ActionEnum.Sort,
+            icon: SortIcon,
             toolbarTitle: 'Sort',
             longTitle: 'Sort column',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
+            tooltip: "Sort a column in ascending or descending order."
+        },
+        [ActionEnum.SortAlphabetically]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortAlphabetically,
+            icon: SortAscendingIcon,
+            longTitle: 'Sort column alphabetically',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
+                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
+            tooltip: "Sort a column in ascending or descending order."
+        },
+        [ActionEnum.SortAlphabeticallyReverse]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortAlphabeticallyReverse,
+            icon: SortDescendingIcon,
+            longTitle: 'Sort column alphabetically reverse',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1470,6 +1527,7 @@ export const getActions = (
         [ActionEnum.Dataframe_Import]: {
             type: 'build-time',
             staticType: ActionEnum.Dataframe_Import,
+            icon: DataFrameImportIcon,
             toolbarTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
@@ -1495,6 +1553,7 @@ export const getActions = (
         [ActionEnum.UPDATEIMPORTS]: {
             type: 'build-time',
             staticType: ActionEnum.UPDATEIMPORTS,
+            icon: GearIcon,
             toolbarTitle: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
@@ -1603,6 +1662,7 @@ export const getActions = (
         [ActionEnum.SNOWFLAKEIMPORT]: {
             type: 'build-time',
             staticType: ActionEnum.SNOWFLAKEIMPORT,
+            icon: SnowflakeIcon,
             toolbarTitle: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {
