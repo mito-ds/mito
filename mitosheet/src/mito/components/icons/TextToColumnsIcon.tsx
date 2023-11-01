@@ -4,7 +4,7 @@ import React from 'react';
 
 const TextToColumnsIcon = (): JSX.Element => {
     return (
-        <svg width="31" height="30" viewBox="0 0 31 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="31" height="30" viewBox="5 3 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="19.771" y="6.57031" width="5.95455" height="5.18182" fill="white" stroke="black"/>
             <line x1="20.8169" y1="8.66016" x2="24.6805" y2="8.66016" stroke="#9D6CFF"/>
             <rect x="19.7715" y="11.9766" width="5.95455" height="5.18182" fill="white" stroke="black"/>
