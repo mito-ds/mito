@@ -146,13 +146,6 @@
   text-wrap: nowrap;
 }
 
-.mito-toolbar-graph-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .mito-toolbar-tabbar-tabname span {
   font-size: 14px;
 }

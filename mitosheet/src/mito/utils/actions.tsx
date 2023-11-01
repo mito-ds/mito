@@ -1251,7 +1251,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.SortAscending,
             icon: SortAscendingIcon,
-            longTitle: 'Sort column alphabetically',
+            longTitle: 'Sort column ascending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1270,7 +1270,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.SortDescending,
             icon: SortDescendingIcon,
-            longTitle: 'Sort column alphabetically reverse',
+            longTitle: 'Sort column descending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);

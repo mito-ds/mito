@@ -71,10 +71,6 @@ export const DataTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Filter]}
             setEditorState={props.setEditorState}
         />
-        <ToolbarButton
-            action={props.actions.buildTimeActions[ActionEnum.Clear]}
-            setEditorState={props.setEditorState}
-        />
 
         <div className='toolbar-vertical-line' />
 
