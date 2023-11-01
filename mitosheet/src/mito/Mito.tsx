@@ -662,6 +662,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     analysisData={analysisData}
+                    defaultMergeType={uiState.currOpenTaskpane.defaultMergeType}
                 />
             )
             case TaskpaneType.CONCAT: return (

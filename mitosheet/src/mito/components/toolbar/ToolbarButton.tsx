@@ -51,17 +51,23 @@ const ToolbarButton = (
         */
         children?: JSX.Element
 
+        /**
+         * When displaying the button, the text and icon can be displayed either horizontally or vertically
+         */
+        orientation?: 'horizontal' | 'vertical'
+
     }): JSX.Element => {
 
     const disabledTooltip = props.disabledTooltip ?? props.action.isDisabled();
     const disabled = !!disabledTooltip;
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
+    const orientation = props.orientation ?? 'vertical';
     
     return (
         <div 
-            className={classNames('mito-toolbar-button-container', disabled ? 'mito-toolbar-button-container-disabled' : 'mito-toolbar-button-container-enabled')} 
-            id={props.id}
+            className={classNames('mito-toolbar-button-container', orientation === 'vertical' ? 'vertical-align-content' : 'horizontal-align-content', disabled ? 'mito-toolbar-button-container-disabled' : 'mito-toolbar-button-container-enabled')} 
+            id={props.id ?? `mito-toolbar-button-${props.action.staticType}`}
             onClick={() => {
                 if (disabled) {
                     return
@@ -74,7 +80,7 @@ const ToolbarButton = (
             }}
         >
             <button 
-                className={classNames('mito-toolbar-button', 'vertical-align-content', highlightToobarItemClass)} 
+                className={classNames('mito-toolbar-button', highlightToobarItemClass)} 
                 type="button"
             >
                 {/* 

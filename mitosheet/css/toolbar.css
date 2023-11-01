@@ -92,9 +92,7 @@
 .mito-toolbar-button-container {
   /* Keep items evenly spaced */
   display: flex;
-  max-width: 45px;
-  min-width: max-content;
-  width: 100%;
+  width: fit-content;
   height: min-content;
 
   margin: 0px 1px;
@@ -136,8 +134,28 @@
   font-family: Roboto;
 }
 
-.mito-toolbar-button-container-enabled:hover .mito-toolbar-button-icon-container {
+.mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container {
   background-color: var(--mito-light-gray);
+}
+
+.mito-toolbar-button-container-enabled.horizontal-align-content:hover {
+  background-color: var(--mito-light-gray);
+}
+
+.horizontal-align-content .mito-toolbar-button-icon-container {
+  padding: 0 5px;
+}
+
+.mito-toolbar-graph-buttons .mito-toolbar-button-icon-container {
+  height: 12px;
+  padding: 2px;
+}
+
+.mito-toolbar-graph-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .mito-toolbar-tabbar-tabname span {
@@ -186,7 +204,7 @@
 .toolbar-vertical-line {
   border-left: 1px solid var(--toolbar-seperator-color);
   height: 100%;
-  margin-right: 2px;
+  margin: 0 4px;
   padding-right: 2px;
 }
 
@@ -219,7 +237,16 @@
 
 .mito-toolbar-button span {
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vertical-align-content .mito-toolbar-button span {
   flex-direction: column;
+}
+
+.horizontal-align-content .mito-toolbar-button span {
+  flex-direction: row;
   align-items: center;
 }
 

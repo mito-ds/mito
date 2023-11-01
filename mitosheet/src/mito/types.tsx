@@ -929,6 +929,7 @@ export const enum FeedbackID {
 */
 export enum ActionEnum {
     Add_Column = 'add column',
+    AntiMerge = 'anti merge',
     Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
@@ -948,6 +949,9 @@ export enum ActionEnum {
     Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',
+    Graph_Bar = 'bar chart',
+    Graph_Line = 'line graph',
+    Graph_Scatter = 'scatter plot',
     Help = 'help',
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',

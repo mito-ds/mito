@@ -5,7 +5,7 @@ import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedCol
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
+import { openGraphEditor } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
@@ -37,6 +37,15 @@ import FormatIcon from "../components/icons/FormatIcon";
 import CopyIcon from "../components/icons/CopyIcon";
 import PercentIcon from "../components/icons/PercentIcon";
 import CurrencyIcon from "../components/icons/CurrencyIcon";
+import MergeIcon from "../components/icons/MergeIcon";
+import UnpivotIcon from "../components/icons/UnpivotIcon";
+import TransposeIcon from "../components/icons/TransposeIcon";
+import ConcatIcon from "../components/icons/ConcatIcon";
+import AntiMergeIcon from "../components/icons/AntiMergeIcon";
+import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
+import LineChartIcon from "../components/icons/LineChartIcon";
+import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
+import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -683,33 +692,43 @@ export const getActions = (
             toolbarTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+        },
+        [ActionEnum.Graph_Bar]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Bar,
+            icon: GraphIcon,
+            longTitle: 'Create new graph',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+        },
+        [ActionEnum.Graph_Line]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Line,
+            icon: LineChartIcon,
+            longTitle: 'Create new line graph',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+        },
+        [ActionEnum.Graph_Scatter]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Scatter,
+            icon: ScatterPlotIcon,
+            longTitle: 'Create new graph',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -788,6 +807,7 @@ export const getActions = (
         [ActionEnum.Merge]: {
             type: 'build-time',
             staticType: ActionEnum.Merge,
+            icon: MergeIcon,
             toolbarTitle: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
@@ -808,9 +828,34 @@ export const getActions = (
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
+        [ActionEnum.AntiMerge]: {
+            type: 'build-time',
+            staticType: ActionEnum.AntiMerge,
+            icon: AntiMergeIcon,
+            toolbarTitle: 'Anti-Merge',
+            longTitle: 'Merge dataframes unique in left',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.MERGE, defaultMergeType: MergeType.UNIQUE_IN_LEFT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
+            searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
+            tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
+        },
         [ActionEnum.Concat_Dataframes]: {
             type: 'build-time',
             staticType: ActionEnum.Concat_Dataframes,
+            icon: ConcatIcon,
             toolbarTitle: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
@@ -1329,7 +1374,8 @@ export const getActions = (
         [ActionEnum.Transpose]: {
             type: 'build-time',
             staticType: ActionEnum.Transpose,
-            toolbarTitle: 'Transpose Dataframe',
+            icon: TransposeIcon,
+            toolbarTitle: 'Transpose',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
                 void mitoAPI.editTranspose(sheetIndex);
@@ -1341,6 +1387,7 @@ export const getActions = (
         [ActionEnum.Melt]: {
             type: 'build-time',
             staticType: ActionEnum.Melt,
+            icon: UnpivotIcon,
             toolbarTitle: 'Unpivot',
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
