@@ -4,7 +4,7 @@ import React from 'react';
 
 const RemoveDuplicatesIcon = (): JSX.Element => {
     return (
-        <svg width="23" height="30" viewBox="4 5 14 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="23" height="30" viewBox="4 3 14 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="4.64795" y="6.57031" width="10.8323" height="4.7001" fill="#9D6CFF" stroke="black"/>
             <rect x="4.64795" y="11.5586" width="10.8323" height="4.7001" fill="#D9D9D9" stroke="black"/>
             <rect x="4.64795" y="16.543" width="10.8323" height="4.7001" fill="#9D6CFF" stroke="black"/>

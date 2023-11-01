@@ -7,7 +7,7 @@ import React from 'react';
 
 const SortIcon = (): JSX.Element => {
     return (
-        <svg width="26" height="30" viewBox="0 0 26 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="26" height="30" viewBox="2 2 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="4.5" y="6.57031" width="16.6071" height="16" fill="#D9D9D9" stroke="black"/>
             <rect x="4.5" y="9" width="16.6071" height="13.5714" fill="white" stroke="black"/>
             <rect x="4.5" y="6.57031" width="16.6071" height="2.03571" fill="#D9D9D9" stroke="black"/>

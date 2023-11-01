@@ -142,16 +142,8 @@
   background-color: var(--mito-light-gray);
 }
 
-.horizontal-align-content .mito-toolbar-button-icon-container {
-  padding: 0 5px;
-}
 .horizontal-align-content .mito-toolbar-button-label {
   text-wrap: nowrap;
-}
-
-.mito-toolbar-graph-buttons .mito-toolbar-button-icon-container {
-  height: 12px;
-  padding: 2px;
 }
 
 .mito-toolbar-graph-buttons {
@@ -194,7 +186,7 @@
   height: 25px;
   display: flex;
   justify-content: center;
-  padding: 5px;
+  padding: 1px 5px;
   border-radius: 5px;
 }
 
