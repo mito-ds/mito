@@ -32,7 +32,7 @@ export const InsertTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Pivot]}
             setEditorState={props.setEditorState}
         />
-        <div className='mito-pivot-buttons'>
+        <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Melt]}
                 setEditorState={props.setEditorState}
