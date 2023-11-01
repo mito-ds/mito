@@ -698,9 +698,9 @@ export const getActions = (
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
-        [ActionEnum.Bar_Graph]: {
+        [ActionEnum.Graph_Bar]: {
             type: 'build-time',
-            staticType: ActionEnum.Bar_Graph,
+            staticType: ActionEnum.Graph_Bar,
             icon: GraphIcon,
             longTitle: 'Create new graph',
             actionFunction: async () => {
@@ -710,25 +710,25 @@ export const getActions = (
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
-        [ActionEnum.Scatter_Plot]: {
+        [ActionEnum.Graph_Line]: {
             type: 'build-time',
-            staticType: ActionEnum.Scatter_Plot,
-            icon: ScatterPlotIcon,
-            longTitle: 'Create new graph',
+            staticType: ActionEnum.Graph_Line,
+            icon: LineChartIcon,
+            longTitle: 'Create new line graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
-        [ActionEnum.Line_Chart]: {
+        [ActionEnum.Graph_Scatter]: {
             type: 'build-time',
-            staticType: ActionEnum.Line_Chart,
-            icon: LineChartIcon,
-            longTitle: 'Create new line graph',
+            staticType: ActionEnum.Graph_Scatter,
+            icon: ScatterPlotIcon,
+            longTitle: 'Create new graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
