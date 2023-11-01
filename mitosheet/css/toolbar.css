@@ -145,6 +145,9 @@
 .horizontal-align-content .mito-toolbar-button-icon-container {
   padding: 0 5px;
 }
+.horizontal-align-content .mito-toolbar-button-label {
+  text-wrap: nowrap;
+}
 
 .mito-toolbar-graph-buttons .mito-toolbar-button-icon-container {
   height: 12px;

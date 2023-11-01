@@ -58,6 +58,7 @@ import FillNanIcon from "../components/icons/FillNanIcon";
 import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
 import ResetIcon from "../components/icons/ResetIcon";
 import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
+import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -548,7 +549,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
             icon: FillNanIcon,
-            toolbarTitle: 'Fill NaN',
+            toolbarTitle: 'Fill Missing Values',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1254,21 +1255,16 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
-                        selectedTabType: 'data'
-                    }
-                })
+                if (startingColumnID === undefined) {
+                    return 
+                }
+                mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
             },
-            searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
-            tooltip: "Sort a column in ascending or descending order."
+            searchTerms: ['sort', 'ascending', 'arrange'],
+            tooltip: "Sort a column in ascending order."
         },
         [ActionEnum.SortDescending]: {
             type: 'build-time',
@@ -1279,20 +1275,17 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                        selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
-                        selectedTabType: 'data'
-                    }
-                })
+                if (startingColumnID === undefined) {
+                    return 
+                }
+
+                mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
             },
-            searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
-            tooltip: "Sort a column in ascending or descending order."
+            searchTerms: ['sort', 'descending', 'arrange'],
+            tooltip: "Sort a column in descending order."
         },
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
