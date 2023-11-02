@@ -10,6 +10,7 @@ import { MitoAPI } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { functionDocumentationObjects } from '../../data/function_documentation';
+import { getStartingFormula } from '../endo/celleditor/cellEditorUtils';
 
 export const FormulaTabContents = (
     props: {
@@ -24,12 +25,12 @@ export const FormulaTabContents = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
+        editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
         sheetIndex: number,
         closeOpenEditingPopups: () => void
     }): JSX.Element => {
-
 
     const getFormulaDropdownItems = (category?: string): JSX.Element[] => {
         const functionsInCategory = functionDocumentationObjects.filter(
@@ -40,6 +41,21 @@ export const FormulaTabContents = (
                 <DropdownItem
                     title={functionObject.function}
                     key={functionObject.function}
+                    onClick={() => {
+                        const rowIndex = props.gridState.selections[0].startingRowIndex;
+                        const columnIndex = props.gridState.selections[0].startingColumnIndex;
+                        const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex);
+
+                        props.setEditorState({
+                            rowIndex: rowIndex,
+                            columnIndex: columnIndex,
+                            formula: `=${functionObject.function}(${startingColumnFormula}`,
+                            arrowKeysScrollInFormula: arrowKeysScrollInFormula,
+                            editorLocation: 'cell',
+                            editingMode: editingMode,
+                            sheetIndex: props.gridState.selections[0].sheetIndex,
+                        })
+                    }}
                 />
             )
         });
