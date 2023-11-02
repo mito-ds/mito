@@ -3,7 +3,7 @@ from dash import Dash, html, Input, Output
 import pandas as pd
 
 app = Dash(__name__)
-activate_mito(app)
+activate_mito(app, 'df-editing-secret-key')
 
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
 
