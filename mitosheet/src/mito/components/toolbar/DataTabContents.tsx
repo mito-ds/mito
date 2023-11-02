@@ -9,6 +9,7 @@ import { Actions } from '../../utils/actions';
 import ToolbarButton from './ToolbarButton';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
+import ImportIcon from '../icons/ImportIcon';
 
 export const DataTabContents = (
     props: {
@@ -46,6 +47,7 @@ export const DataTabContents = (
             return (<ToolbarButton
                 action={action}
                 setEditorState={props.setEditorState}
+                iconOverride={<ImportIcon />}
             />)
         })}
 
