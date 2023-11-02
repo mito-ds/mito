@@ -77,7 +77,7 @@ try:
         _base_nodes = ['children']
         _namespace = 'dash_spreadsheet_v1'
         _type = 'MitoDashWrapper'
-        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection', 'mito_id']
+        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection', 'mito_id', 'session_key']
         _valid_wildcard_attributes: List[str] = []
         available_properties = ['id', 'all_json', 'data', 'import_folder']
         available_wildcard_properties: List[str] = []
@@ -121,6 +121,7 @@ try:
             # and spreadsheet_selection error strings change. This way, we can correctly trigger callbacks that correspond
             # to these values in all cases
             self.num_messages=0
+            self.args = args
             self._set_new_mito_backend(
                 *args, 
                 session_key='',
@@ -163,7 +164,7 @@ try:
                 self.__class__.instances[self.mito_id] = (self, dict())
 
         @classmethod
-        def get_instance(cls, mito_id: str, session_key:Optional[str]=None) -> Optional[Any]:
+        def get_instance(cls, mito_id: str, session_key: Optional[str]=None) -> Optional[Any]:
 
             # First, lookup the instance by mito_id
             instance = cls.instances.get(mito_id, None)
@@ -184,6 +185,7 @@ try:
         def copy(self):
 
             return self.__class__(
+                *self.args,
                 id=self.id,
                 import_folder=self.import_folder,
                 code_options=self.code_options,

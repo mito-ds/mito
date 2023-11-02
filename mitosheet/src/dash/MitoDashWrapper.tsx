@@ -48,6 +48,11 @@ export default class MitoDashWrapper extends Component<Props, State> {
         super(props);
         this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false, session_key: "" + Math.floor(Math.random() * 100)};
         this.processMessageQueueTimer = null; // Variable to store the timer
+
+
+        this.props.setProps({
+            'session_key': this.state.session_key
+        })
     }
 
     public getResponseData<ResultType>(messageID: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
@@ -107,8 +112,6 @@ export default class MitoDashWrapper extends Component<Props, State> {
         if (this.state.messageQueue.length > 0) {
             // Send one message
             const [messageType, message] = this.state.messageQueue[0];
-
-            message['session_key'] = this.state.session_key;
 
             this.props.setProps({
                 [messageType]: message
