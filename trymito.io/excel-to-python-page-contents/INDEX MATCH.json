@@ -1,5 +1,5 @@
 {
-    "slug": ["functions", "misc", "INDEX MATCH"],
+    "slug": ["functions", "lookup", "INDEX MATCH"],
     "functionNameShort": "INDEX MATCH",
     "functionNameLong": "Lookup and Match",
     "relatedFunctions": ["VLOOKUP", "HLOOKUP", "MATCH", "INDEX"],
@@ -241,7 +241,6 @@
                     "# Drop duplicates from df2 on the Food and Store columns",
                     "df2 = df2.drop_duplicates(subset=['Food'])",
                     "",
-                    "# Merge df1 and df2 on the Food and Store columns",
                     "# For each row in df1, find the best match in df2",
                     "df1['best_match'] = df1['Food'].apply(lambda x: process.extractOne(x, df2['Food'].tolist()))",
                     "df1['best_match'] = df1['best_match'].apply(lambda x: x[0])",

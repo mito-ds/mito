@@ -1,9 +1,9 @@
 {
-    "slug": ["functions", "misc", "HLOOKUP"],
+    "slug": ["functions", "lookup", "HLOOKUP"],
     "functionNameShort": "HLOOKUP",
     "functionNameLong": "Horizontal Lookup",
     "relatedFunctions": ["VLOOKUP", "INDEX MATCH"],
-    "purpose": "Search for a value in the first row and return a value in the same column from a specified row.",
+    "purpose": "Search for a value in the first row and return a value in the same column from a specified row",
     "titleCardParagraphs": [
         "Excel's HLOOKUP function searches for a value in the first row of a table and returns a value in the same column from a specified row. It's essential for horizontal data lookups, especially when working with wide data sets.",
         "This page explains how to use Excel's HLOOKUP function in Python using pandas."
