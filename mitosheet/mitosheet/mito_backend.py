@@ -34,7 +34,7 @@ from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
-from mitosheet.user.location import is_in_google_colab, is_in_vs_code
+from mitosheet.user.location import is_dash, is_in_google_colab, is_in_vs_code, is_streamlit
 from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
                                     UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
@@ -415,10 +415,16 @@ def sheet(
     # We throw a custom error message if we're sure the user is in
     # vs code or google collab (these conditions are more secure than
     # the conditons for checking if we're in JLab or JNotebook).
+    # Then, check if we're in Dash or in Streamlit. If so, tell user to use the correct component
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
-
+    elif is_dash():
+        log('mitosheet_sheet_call_location_failed', failed=True)
+        raise Exception("To create a Mito spreadsheet in Dash, please use the `Spreadsheet` component. See documentation here: https://docs.trymito.io/mito-for-dash/getting-started")
+    elif is_streamlit():
+        log('mitosheet_sheet_call_location_failed', failed=True)
+        raise Exception("To create a Mito spreadsheet in Streamlit, please use the `spreadsheet` component. See documentation here: https://docs.trymito.io/mito-for-streamlit/getting-started")
 
     # If the user.json does not exist, we create it. This ensures if the file is deleted in between
     # when the package is imported and mitosheet.sheet is called, the user still gets a user.json. 
