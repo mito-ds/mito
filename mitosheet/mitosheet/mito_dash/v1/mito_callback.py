@@ -54,6 +54,7 @@ try:
                         session_key = arg.split('\n')[-1].strip()
 
                         spreadsheet = get_component_with_mito_id(mito_id, session_key)
+
                         if spreadsheet is None:
                             # TODO: use a more dash exception?
                             raise Exception(f"Could not find spreadsheet with mito_id {mito_id}")
@@ -91,11 +92,10 @@ try:
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
             Input({'type': ID_TYPE, 'id': MATCH}, 'message'),
             State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'session_key'),
             prevent_initial_call=True
         )
-        def handle_message(msg, mito_id):
-            session_key = msg['session_key']
-
+        def handle_message(msg, mito_id, session_key):
             spreadsheet = get_component_with_mito_id(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
@@ -120,10 +120,10 @@ try:
                 Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
                 Input({'type': ID_TYPE, 'id': MATCH}, 'index_and_selections'),
                 State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+                State({'type': ID_TYPE, 'id': MATCH}, 'session_key'),
                 prevent_initial_call=True
             )
-            def handle_selection_change(index_and_selections, mito_id):
-                session_key = index_and_selections['session_key']
+            def handle_selection_change(index_and_selections, mito_id, session_key):
                 spreadsheet = get_component_with_mito_id(mito_id, session_key)
                 if spreadsheet is None:
                     # TODO: should we print some error here
@@ -148,16 +148,16 @@ try:
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
             Input({'type': ID_TYPE, 'id': MATCH}, 'data'),
             State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'session_key'),
             prevent_initial_call=True
         )
-        def handle_data_change_data(data, mito_id):
-            session_key = '' # TODO: fix this
+        def handle_data_change_data(data, mito_id, session_key):
             spreadsheet = get_component_with_mito_id(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
                 # TODO: should we print some error here
                 raise PreventUpdate
-            
+                        
             spreadsheet._set_new_mito_backend(
                 data,
                 session_key=session_key,
