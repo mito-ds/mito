@@ -1,9 +1,4 @@
-import gc
-from io import StringIO
-import json
-import time
-from queue import Queue
-from typing import Any, Callable, Dict, List, Optional, Union, Tuple
+from typing import Optional
 
 from mitosheet.mito_dash.v1.spreadsheet import Spreadsheet, WRONG_CALLBACK_ERROR_MESSAGE, ID_TYPE
 
@@ -15,15 +10,7 @@ try:
     from dash.exceptions import PreventUpdate
         
     def get_component_with_mito_id(id: str) -> Optional[Spreadsheet]:
-        components = [
-            obj for obj in gc.get_objects()
-            if isinstance(obj, Spreadsheet) and getattr(obj, 'mito_id', None) == id
-        ]
-
-        if len(components) > 0:
-            return components[0]
-        else:
-            return None        
+        return Spreadsheet.instances.get(id, None)    
 
     def mito_callback(*args, **kwargs):
         """
@@ -88,7 +75,7 @@ try:
         TODO: we could make this patch the callback function (but it might already be imported)...
         """
 
-        @callback(
+        @app.callback(
             Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
             Input({'type': ID_TYPE, 'id': MATCH}, 'message'),
@@ -117,7 +104,7 @@ try:
         # the user actually uses the track_selection parameter
         # TODO: improve the selection error message in this case...
         if track_selection:
-            @callback(
+            @app.callback(
                 Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
                 Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
                 Input({'type': ID_TYPE, 'id': MATCH}, 'index_and_selections'),
@@ -142,7 +129,7 @@ try:
                 return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
             
     
-        @callback(
+        @app.callback(
             Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
@@ -171,7 +158,6 @@ try:
 
             
             return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result, spreadsheet.spreadsheet_selection
-
         
 except ImportError:
 
