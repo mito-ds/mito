@@ -38,6 +38,7 @@ def ABS(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
         "function": "ABS",
         "description": "Returns the absolute value of the passed number or series.",
         "search_terms": ["abs", "absolute value"],
+        "category": "MATH",
         "examples": [
             "ABS(-1.3)",
             "ABS(A)"
@@ -64,6 +65,7 @@ def AVG(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         "function": "AVG",
         "description": "Returns the numerical mean value of the passed numbers and series.",
         "search_terms": ["avg", "average", "mean"],
+        "category": "MATH",
         "examples": [
             "AVG(1, 2)",
             "AVG(A, B)",
@@ -119,6 +121,7 @@ def CORR(s1: NumberRestrictedInputType, s2: NumberRestrictedInputType) -> Number
         "function": "CORR",
         "description": "Computes the correlation between two series, excluding missing values.",
         "search_terms": ["corr", "correlation", "r^2"],
+        "category": "MATH",
         "examples": [
             "=CORR(A, B)",
             "=CORR(B, A)"
@@ -148,6 +151,7 @@ def EXP(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
         "function": "EXP",
         "description": "Returns e, the base of the natural logarithm, raised to the power of passed series.",
         "search_terms": ["exp", "exponent", "log", "natural log"],
+        "category": "MATH",
         "examples": [
             "=EXP(data)",
             "=EXP(A)"
@@ -174,6 +178,7 @@ def FLOAT(arg: NumberRestrictedInputType) -> FloatFunctonReturnType:
         "function": "FLOAT",
         "description": "Converts a string series to a float series. Any values that fail to convert will return NaN.",
         "search_terms": ["number", "to number"],
+        "category": "MATH",
         "examples": [
             "=FLOAT(Prices_string)",
             "=FLOAT('123.123')"
@@ -199,6 +204,7 @@ def INT(arg: IntRestrictedInputType) -> IntFunctionReturnType:
         "function": "INT",
         "description": "Converts a string series to a int series. Any values that fail to convert will return 0.",
         "search_terms": ["number", "to integer"],
+        "category": "MATH",
         "examples": [
             "=INT(Prices_string)",
             "=INT('123')"
