@@ -48,6 +48,7 @@ export const DataTabContents = (
                 action={action}
                 setEditorState={props.setEditorState}
                 iconOverride={<ImportIcon />}
+                key={action.staticType}
             />)
         })}
 
