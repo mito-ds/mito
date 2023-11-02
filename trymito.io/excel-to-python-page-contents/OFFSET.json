@@ -1,0 +1,153 @@
+{
+    "slug": ["functions", "misc", "OFFSET"],
+    "functionNameShort": "OFFSET",
+    "functionNameLong": "Data Offset",
+    "relatedFunctions": ["SUM", "FILLNA"],
+    "purpose": "Shift the placement of data within a dataframe",
+    "titleCardParagraphs": [
+        "In data analysis, the ability to offset data provides a means to compare changes over time or create derivative features. This is commonly used in financial analyses, time series forecasting, and when preparing data for machine learning algorithms.",
+        "This page explains how to replicate Excel's OFFSET function within a pandas DataFrame, a common task for analysts transitioning from Excel to Python."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The OFFSET function in Excel is used to return a reference to a range that is a certain number of rows and columns from a cell or range of cells. The syntax is: =OFFSET(reference, rows, cols, [height], [width]).",
+            "It is often used in dynamic formulas where the range of data needs to adjust based on other conditions or inputs."
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "reference",
+                "description": "The starting point from which you count the offset rows and columns.",
+                "dataType": "reference"
+            },
+            {
+                "parameter": "rows",
+                "description": "The number of rows to offset up or down from the starting reference.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "cols",
+                "description": "The number of columns to offset to the left or right of the starting reference.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "height",
+                "description": "(Optional) The number of rows you want the returned reference to cover. Defaults to the height of the reference.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "width",
+                "description": "(Optional) The number of columns you want the returned reference to cover. Defaults to teh width of the reference.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=OFFSET(A1, 1, 1)",
+                "description": "Returns the reference of the cell that is one row down and one column to the right of cell A1.",
+                "result": "B2"
+            },
+            {
+                "formula": "=OFFSET(B2, -1, -1)",
+                "description": "Returns the reference of the cell that is one row up and one column to the left of cell B2.",
+                "result": "A1"
+            },
+            {
+                "formula": "=OFFSET(A1, -1, -1)",
+                "description": "Returns the reference of the cell that is one row up and one column to the left of cell A1, which would be invalid as it is out of range.",
+                "result": "Error"
+            },
+            {
+                "formula": "=OFFSET(A1, 2, 0, 3, 1)",
+                "description": "Returns a reference to a range that starts two rows below A1 and covers a height of 3 rows and a width of 1 column.",
+                "result": "A3:A5"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, the `shift()` function is equivalent to Excel's OFFSET function. It allows shifting the index of a DataFrame or a Series vertically. The examples below showcase how to use `shift()` in scenarios equivalent to Excel's OFFSET."
+        ],
+        "codeSections": [
+            {
+                "title": "Offset with Specific Column",
+                "shortTitle": "Column offset",
+                "paragraphs": [
+                    "If you wanted to reference the data in B2 that was in A1, you would use =OFFSET(A1, 1, 1) in Excel or simply, =A1",
+                    "In pandas, offsetting a specific column involves shifting the data in that column up or down, which can be done with the `shift()` method.",
+                    "The following code offsets the data in 'Column1' by 1 place downwards, filling the vacant top row with NaN."
+                ],
+                "codeLines": [
+                    "df['Column1_offset'] = df['Column1'].shift(1)"
+                ]
+            },
+            {
+                "title": "Calculating the Difference Between Two Rows",
+                "shortTitle": "Difference between rows",
+                "paragraphs": [
+                    "A common use case for referencing a previous row is to calculate the difference between two rows. For instance, if you wanted to calculate the difference between the values in A2 and A1, you would write the formula in B2 =OFFSET(B2, 0, -1) - OFFSET(B2, -1, -1) in Excel or simply, =B2-A1.",
+                    "In pandas, this can be achieved by shifting the data in the column by 1 place upwards and subtracting it from the original column."
+                ],
+                "codeLines": [
+                    "# Calculate the difference between consecutive rows",
+                    "df['Column1_offset'] = df['Column1'] - df['Column1'].shift(1)"
+                ]
+            },
+            {
+                "title": "Forward Fill after Offset",
+                "shortTitle": "Forward fill",
+                "paragraphs": [
+                    "After offsetting, you may want to fill the missing values that appear. In pandas, this can be achieved by using the `fillna()` method with a method argument set to 'ffill' which propagates the last valid observation forward."
+                ],
+                "codeLines": [
+                    "# Fill the missing values with the last valid observation",
+                    "df['Column1_offset'] = df['Column1'].shift(1).fillna(method='ffill')"
+                ]
+            },
+            {
+                "title": "Fill Missing Values with 0",
+                "shortTitle": "Fill with 0",
+                "paragraphs": [
+                    "Another common use case is to offset and then fill the missing values with 0 so you can calculate rolling metrics without throwing off the calculation.",
+                    " In pandas, this can be achieved by using the `fillna()` method with a value argument set to 0."
+                ],
+                "codeLines": [
+                    "# Fill the missing values with 0",
+                    "df['Column1_offset'] = df['Column1'].shift(1).fillna(0)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While shifting data in pandas, here are a few common mistakes to watch out for."
+        ],
+        "codeSections": [
+            {
+                "title": "Misunderstanding Offset Direction",
+                "shortTitle": "Offset direction",
+                "paragraphs": [
+                    "Just like in Excel, it can be confusing whether using an offset of -1 will move the reference up or down. In both Pandas and Excel, positive values move data downwards, while negative values move it upwards."
+                ],
+                "codeLines": [
+                    "# Offset the data in 'Column1' by 1 place downwards",
+                    "df['Column1_offset_down'] = df['Column1'].shift(1)",
+                    "",
+                    "# Offset the data in 'Column1' by 1 place upwards",
+                    "df['Column1_offset_up'] = df['Column1'].shift(-1)"
+                ] 
+            },
+            {
+                "title": "Not Handling NaN Values After Offset",
+                "shortTitle": "Handling NaN values",
+                "paragraphs": [
+                    "After offsetting data in pandas using `shift()`, NaN values (Not a Number) can appear in the dataframe, indicating missing data. This happens because the offsetting operation can shift data out of the dataframe's boundaries, leaving 'empty' positions filled with NaN.",
+                    "After offsetting, handle NaN values using methods like .fillna() or .dropna() based on the specific use case. For instance, fill NaN values with 0 or replace them with the mean or median of the column."
+                ],
+                "codeLines": [
+                    "# Fill the missing values with 0",
+                    "df['Column1_offset'] = df['Column1'].shift(1).fillna(0)"
+                ]
+            }
+        ]
+    }
+}

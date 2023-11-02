@@ -3,7 +3,7 @@
     "functionNameShort": "PRICE",
     "functionNameLong": "Security Pricing",
     "relatedFunctions": ["YIELD", "DURATION", "PV"],
-    "purpose": "Calculate the present value or price of a security based on its coupon payments, yield, and other parameters.",
+    "purpose": "Calculate the present value or price of a security based on its coupon payments, yield, and other parameters",
     "titleCardParagraphs": [
         "Excel's PRICE function calculates the price of a security based on its coupon, yield, and other parameters. Understanding security pricing is essential for investors, analysts, and finance professionals.",
         "This page explains how to calculate security prices in Python using pandas and other finance-related libraries."
