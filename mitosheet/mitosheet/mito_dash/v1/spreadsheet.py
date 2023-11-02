@@ -62,15 +62,8 @@ try:
 
 
     class Spreadsheet(Component):
-        """
-        We store a map from the ID of the spreadsheet to the spreadsheet instance, so we can look it up later.
-
-        When multiple users are using the same spreadsheet, we will have multiple instances of the same spreadsheet
-        in a dict from mito_id -> sessionKey -> Spreadsheet. This is because Mito is not stateless yet, so we need
-        to duplicate the spreadsheet for each sessionKey. When Mito is stateless, we can remove the sessionKey and 
-        not need to store instances at all
-        """
-
+        
+        # See documentation in the get_instance method
         instances: Dict[str, Tuple[Any, Dict[str, Any]]] = dict()
 
         _children_props: List[str] = []
@@ -165,6 +158,17 @@ try:
 
         @classmethod
         def get_instance(cls, mito_id: str, session_key: Optional[str]=None) -> Optional[Any]:
+            """
+            The Spreadsheet component stores a map from the mito_id of the spreadsheet to a tuple of the 
+            original Spreadsheet instances, as well as a map from session key to the session instance.
+
+            This is because Mito is not properly stateless yet. As a result, to work around limitaitons of Dash, 
+            we have the frontend keep track of the session key of the Mito spreadsheet, and then we duplicate the
+            spreadsheet for each session key.
+
+            This way every user gets a new and unique Mito backend. When Mito is stateless, we can remove this, 
+            but it will require larger refactors to the Mito app.
+            """
 
             # First, lookup the instance by mito_id
             instance = cls.instances.get(mito_id, None)
@@ -178,11 +182,17 @@ try:
             
             # If we don't have a session_instance, then we need to create one
             # We do this by copying the instance, and then saving it
-            session_instance = instance[0].copy()
+            session_instance = instance[0].safe_copy()
             cls.instances[mito_id][1][session_key] = session_instance
             return session_instance
         
-        def copy(self):
+        def safe_copy(self):
+            """
+            Make a safe copy of this Spreadsheet component. Should be called 
+            on the original instance of the Spreadsheet component, and not on
+            the session instance -- so the user starts with the original starting
+            values.
+            """
 
             return self.__class__(
                 *self.args,
@@ -198,7 +208,6 @@ try:
                 mito_frontend_key=self.mito_frontend_key
             )
 
-            
         def _set_new_mito_backend(
                 self, 
                 *args: Union[pd.DataFrame, str, None], 

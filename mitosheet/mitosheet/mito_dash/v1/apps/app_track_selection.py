@@ -8,7 +8,7 @@ from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback, activate_mito
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder_unfiltered.csv')
 
 app = Dash(__name__)
-activate_mito(app, track_selection=True)
+activate_mito(app)
 
 app.layout = html.Div([
     Spreadsheet(df, id={'type': 'spreadsheet', 'id': 'sheet'}, track_selection=True),
