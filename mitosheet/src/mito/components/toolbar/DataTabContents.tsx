@@ -42,6 +42,12 @@ export const DataTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.SNOWFLAKEIMPORT]}
             setEditorState={props.setEditorState}
         />
+        {props.actions.runtimeImportActionsList.map(action => {
+            return (<ToolbarButton
+                action={action}
+                setEditorState={props.setEditorState}
+            />)
+        })}
 
         <div className='toolbar-vertical-line' />
         
@@ -112,8 +118,7 @@ export const DataTabContents = (
                         }
                     })
                 }
-                // If there are any custom importers, we want to make the dropdown wider
-                width={props.actions.runtimeImportActionsList.length > 0 ? 'large' : 'medium'}
+                width={'medium'}
             >
                 <DropdownItem
                     title='Reset and Keep Index'

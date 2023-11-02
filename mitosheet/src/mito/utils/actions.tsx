@@ -1656,7 +1656,7 @@ export const getActions = (
                 })
             },
             isDisabled: () => {
-                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'Import data before resetting an index.'
             },
             searchTerms: ['reset', 'download', 'excel', 'csv'],
             tooltip: "Reset index"
