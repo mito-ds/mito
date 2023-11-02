@@ -53,6 +53,10 @@ See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and
 {num_messages}
 {prop_name}
 {id}"""
+
+SPREADSHEETS = dict()
+
+ID_TYPE = 'mito-dash-spreadsheet'
          
 try:
     from dash.development.base_component import Component
@@ -65,7 +69,7 @@ try:
         _base_nodes = ['children']
         _namespace = 'dash_spreadsheet_v1'
         _type = 'MitoDashWrapper'
-        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection']
+        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection', 'mito_id']
         _valid_wildcard_attributes: List[str] = []
         available_properties = ['id', 'all_json', 'data', 'import_folder']
         available_wildcard_properties: List[str] = []
@@ -83,7 +87,11 @@ try:
                 theme: Optional[MitoTheme]=None,
                 track_selection: bool=False,
                 
-        ):     
+        ):    
+            self.id = {
+                'type': ID_TYPE,
+                'id': id
+            }
             self.mito_id = id
             # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
             # and spreadsheet_selection error strings change. This way, we can correctly trigger callbacks that correspond
@@ -102,9 +110,8 @@ try:
 
             self.track_selection = track_selection
 
+            # TODO: we somehow have to get the ID to the frontend, it's currently undefined
             super(Spreadsheet, self).__init__(
-                id=id,
-                all_json=self.get_all_json(),
             )
 
             # We save the unprocessed messages in a list -- so that we can process them
@@ -125,59 +132,8 @@ try:
             self.editors = editors
             self.theme = theme
 
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
-                Input(self.mito_id, 'message'), prevent_initial_call=True
-            )
-            def handle_message(msg):
-                self.num_messages += 1
+            self.all_json = self.get_all_json()
 
-                self.unprocessed_messages.put(msg)
-                self.process_single_message()
-                
-                self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
-                return self.get_all_json(), self.spreadsheet_result
-            
-            # Because this has a performance impact, we only register this callback if
-            # the user actually uses the track_selection parameter
-            # TODO: improve the selection error message in this case...
-            if track_selection:
-                @callback(
-                    Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                    Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                    Input(self.mito_id, 'index_and_selections'), prevent_initial_call=True
-                )
-                def handle_selection_change(index_and_selections):
-                    self.num_messages += 1
-
-                    self.index_and_selections = index_and_selections
-                    
-                    self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
-                    return self.get_all_json(), self.spreadsheet_selection
-
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                Input(self.mito_id, 'data'), 
-                prevent_initial_call=True
-            )
-            def handle_data_change_data(data):
-                
-                self._set_new_mito_backend(
-                    data, 
-                    import_folder=self.import_folder, 
-                    code_options=self.code_options,
-                    df_names=self.df_names,
-                    sheet_functions=self.sheet_functions,
-                    importers=self.importers,
-                    editors=self.editors,
-                    theme=self.theme
-                )
-
-                
-                return self.get_all_json(), self.spreadsheet_result, self.spreadsheet_selection
             
         def _set_new_mito_backend(
                 self, 

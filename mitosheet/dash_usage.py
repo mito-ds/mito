@@ -1,44 +1,30 @@
-from dash import Dash, callback, Input, Output, html, dcc
-from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
-import pandas as pd
+from dash import Dash, dcc, html, Input, Output, State, MATCH, Patch, callback
+from mitosheet.mito_dash.v1 import Spreadsheet, activate_mito
 
 app = Dash(__name__)
-
-df = pd.DataFrame({'A': [1, 2, 3]})
+activate_mito(app)
 
 app.layout = html.Div([
-    html.H1("Stock Analysis", style={'color': 'black'}),
-    Spreadsheet(df, id='sheet', theme={
-        'primaryColor': '#00FF00',
-        'backgroundColor': '#111111',
-        'secondaryBackgroundColor': '#222222',
-        'textColor': '#FFFFFF',
-    }),
-    html.Div(id='output-code', style={'color': 'black'}),
-    html.Div(id='output-selection', style={'color': 'black'}),
+    html.Button("Add Spreadsheet", id="dynamic-add-spreadsheet-btn", n_clicks=0),
+    html.Div(id='dynamic-spreadsheet-container-div', children=[]),
 ])
 
-@mito_callback(
-    Output('output-code', 'children'),
-    Input('sheet', 'spreadsheet_result'),
+@callback(
+    Output('dynamic-spreadsheet-container-div', 'children'),
+    Input('dynamic-add-spreadsheet-btn', 'n_clicks')
 )
-def update_code(spreadsheet_result):
-    print("NEW SPREADSHEET RESULT")
-    return html.Div([
-        html.Code(spreadsheet_result.code(), style={'color': 'black'})
-    ])
-    
+def display_dropdowns(n_clicks):
+    patched_children = Patch()
 
-@mito_callback(
-    Output('output-selection', 'children'),
-    Input('sheet', 'spreadsheet_selection'),
-)
-def update_selection(new_selection):
-    print("NEW SPREADSHEET SELECTION")
-    return html.Div([
-        html.Code(str(new_selection), style={'color': 'black'})
+    new_element = html.Div([
+        Spreadsheet(
+            id='spreadsheet' + str(n_clicks),
+            import_folder='datasets'
+        ),
     ])
-    
+    patched_children.append(new_element)
+    return patched_children
+
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
