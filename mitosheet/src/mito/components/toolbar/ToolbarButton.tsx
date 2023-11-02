@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { BuildTimeAction, EditorState } from '../../types';
+import { BuildTimeAction, EditorState, RunTimeAction } from '../../types';
 import { classNames } from '../../utils/classNames';
 import StepsIcon from '../icons/StepsIcon';
 
@@ -24,7 +24,7 @@ const ToolbarButton = (
         /** 
         * @param action - The action to run when the toolbar button is clicked
         */
-        action: BuildTimeAction;
+        action: BuildTimeAction | RunTimeAction;
 
         /** 
         * @param [setEditorState] - pass this if you want to close an open editor

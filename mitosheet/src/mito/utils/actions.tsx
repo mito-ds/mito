@@ -46,6 +46,19 @@ import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
 import LineChartIcon from "../components/icons/LineChartIcon";
 import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
+import SortIcon from "../components/icons/SortIcon";
+import SortDescendingIcon from "../components/icons/SortDescendingIcon";
+import SortAscendingIcon from "../components/icons/SortAscendingIcon";
+import GearIcon from "../components/icons/GearIcon";
+import SnowflakeIcon from "../components/icons/SnowflakeIcon";
+import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
+import FileImportIcon from "../components/icons/FileImportIcon";
+import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
+import FillNanIcon from "../components/icons/FillNanIcon";
+import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
+import ResetIcon from "../components/icons/ResetIcon";
+import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
+import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -421,7 +434,8 @@ export const getActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: 'build-time',
             staticType: ActionEnum.Drop_Duplicates,
-            toolbarTitle: 'Dedup',
+            icon: RemoveDuplicatesIcon,
+            toolbarTitle: 'Remove Duplicates',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -534,7 +548,8 @@ export const getActions = (
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
-            toolbarTitle: 'Fill NaN',
+            icon: FillNanIcon,
+            toolbarTitle: 'Fill Missing Values',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -782,7 +797,8 @@ export const getActions = (
         [ActionEnum.Import_Files]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Files,
-            toolbarTitle: 'Import',
+            toolbarTitle: 'Import Files',
+            icon: FileImportIcon,
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1209,6 +1225,7 @@ export const getActions = (
         [ActionEnum.Sort]: {
             type: 'build-time',
             staticType: ActionEnum.Sort,
+            icon: SortIcon,
             toolbarTitle: 'Sort',
             longTitle: 'Sort column',
             actionFunction: () => {
@@ -1230,10 +1247,51 @@ export const getActions = (
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
         },
+        [ActionEnum.SortAscending]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortAscending,
+            icon: SortAscendingIcon,
+            longTitle: 'Sort column ascending',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (startingColumnID === undefined) {
+                    return 
+                }
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'ascending', 'arrange'],
+            tooltip: "Sort a column in ascending order."
+        },
+        [ActionEnum.SortDescending]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortDescending,
+            icon: SortDescendingIcon,
+            longTitle: 'Sort column descending',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                if (startingColumnID === undefined) {
+                    return 
+                }
+
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'descending', 'arrange'],
+            tooltip: "Sort a column in descending order."
+        },
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Split_Text_To_Column,
-            toolbarTitle: 'Split',
+            icon: TextToColumnsIcon,
+            toolbarTitle: 'Text to Columns',
             longTitle: 'Split text to columns',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -1409,6 +1467,7 @@ export const getActions = (
         [ActionEnum.One_Hot_Encoding]: {
             type: 'build-time',
             staticType: ActionEnum.One_Hot_Encoding,
+            icon: OneHotEncodingIcon,
             toolbarTitle: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
@@ -1470,6 +1529,7 @@ export const getActions = (
         [ActionEnum.Dataframe_Import]: {
             type: 'build-time',
             staticType: ActionEnum.Dataframe_Import,
+            icon: DataFrameImportIcon,
             toolbarTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
@@ -1495,6 +1555,7 @@ export const getActions = (
         [ActionEnum.UPDATEIMPORTS]: {
             type: 'build-time',
             staticType: ActionEnum.UPDATEIMPORTS,
+            icon: GearIcon,
             toolbarTitle: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
@@ -1576,6 +1637,30 @@ export const getActions = (
             searchTerms: ['export', 'download', 'file'],
             tooltip: "Generate code that exports dataframes to files."
         },
+
+        [ActionEnum.RESET_INDEX_DROPDOWN]: {
+            type: 'build-time',
+            staticType: ActionEnum.RESET_INDEX_DROPDOWN,
+            icon: ResetIcon,
+            toolbarTitle: 'Reset Index',
+            longTitle: 'Reset Index Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'reset-index'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'Import data before resetting an index.'
+            },
+            searchTerms: ['reset', 'download', 'excel', 'csv'],
+            tooltip: "Reset index"
+        },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_KEEP_INDEX,
@@ -1603,6 +1688,7 @@ export const getActions = (
         [ActionEnum.SNOWFLAKEIMPORT]: {
             type: 'build-time',
             staticType: ActionEnum.SNOWFLAKEIMPORT,
+            icon: SnowflakeIcon,
             toolbarTitle: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {

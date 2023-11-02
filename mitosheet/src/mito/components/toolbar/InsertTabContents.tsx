@@ -62,11 +62,7 @@ export const InsertTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
             setEditorState={props.setEditorState}
         />
-        <div className='mito-toolbar-graph-buttons'>
-            <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.Graph_Bar]}
-                setEditorState={props.setEditorState}
-            />
+        <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph_Scatter]}
                 setEditorState={props.setEditorState}

@@ -890,7 +890,7 @@ export interface UIState {
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -973,6 +973,8 @@ export enum ActionEnum {
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    SortAscending = 'sort ascending',
+    SortDescending = 'sort descending',
     Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
@@ -988,6 +990,7 @@ export enum ActionEnum {
     CODESNIPPETS = 'CodeSnippets',
     CODEOPTIONS = 'CodeOptions',
     EXPORT_TO_FILE = 'Export_To_File',
+    RESET_INDEX_DROPDOWN = 'reset index dropdown',
     RESET_AND_KEEP_INDEX = 'reset and keep index',
     RESET_AND_DROP_INDEX = 'reset and drop index',
     SNOWFLAKEIMPORT = 'SnowflakeImport',

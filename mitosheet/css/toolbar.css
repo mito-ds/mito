@@ -142,20 +142,8 @@
   background-color: var(--mito-light-gray);
 }
 
-.horizontal-align-content .mito-toolbar-button-icon-container {
-  padding: 0 5px;
-}
-
-.mito-toolbar-graph-buttons .mito-toolbar-button-icon-container {
-  height: 12px;
-  padding: 2px;
-}
-
-.mito-toolbar-graph-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+.horizontal-align-content .mito-toolbar-button-label {
+  white-space: nowrap;
 }
 
 .mito-toolbar-tabbar-tabname span {
@@ -191,7 +179,7 @@
   height: 25px;
   display: flex;
   justify-content: center;
-  padding: 5px;
+  padding: 1px 5px;
   border-radius: 5px;
 }
 
