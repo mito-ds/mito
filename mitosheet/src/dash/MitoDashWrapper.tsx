@@ -2,6 +2,7 @@ import Mito from '../mito/Mito';
 import React, { Component } from "react"
 import { MitoResponse, SendFunctionReturnType } from "../mito";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
+import { getRandomId } from '../mito/api/api';
 
 export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
 
@@ -46,10 +47,11 @@ export default class MitoDashWrapper extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false, session_key: "" + Math.floor(Math.random() * 100)};
+        this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false, session_key: getRandomId()};
         this.processMessageQueueTimer = null; // Variable to store the timer
 
-
+        // Set the session key so that the backend can identify this session, and create a unique
+        // Mito backend for this session
         this.props.setProps({
             'session_key': this.state.session_key
         })
@@ -175,18 +177,13 @@ export default class MitoDashWrapper extends Component<Props, State> {
         return response;
     }
 
-    componentDidMount() {
-        this.processResponses();
-    }
-
-
     componentDidUpdate(prevProps: Props) {
-        // Only call processResponses if all_json has changed
+        // When the component updates, we check for new responses. Notably, we do this here
+        // rather than in the render function as the render function should be pure
         if (this.props.all_json !== prevProps.all_json) {
             this.processResponses();
         }
     }
-
 
     processResponses = () => {
         const { all_json } = this.props;

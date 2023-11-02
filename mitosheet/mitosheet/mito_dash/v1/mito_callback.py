@@ -1,24 +1,14 @@
-from typing import Optional
-
-from mitosheet.mito_dash.v1.spreadsheet import Spreadsheet, WRONG_CALLBACK_ERROR_MESSAGE, ID_TYPE
+from mitosheet.mito_dash.v1.spreadsheet import (ID_TYPE,
+                                                WRONG_CALLBACK_ERROR_MESSAGE,
+                                                Spreadsheet)
 
 WRONG_CALLBACK_ERROR_MESSAGE_FIRST_LINE = WRONG_CALLBACK_ERROR_MESSAGE.split('\n')[0]
 
 try:
 
-    from dash import callback, Dash, Output, Input, MATCH, State
     from dash.exceptions import PreventUpdate
 
-        
-    def get_component_with_mito_id(mito_id: str, session_key: str) -> Optional[Spreadsheet]:
-        """
-        Mito does not work statelessly currently. To work around this limitation of our 
-        Dash integration, we duplicate Spreadsheet instances (from the start?) when we 
-        we get a new sessionKey from the frontend. 
-
-        When we make Mito properly stateless, this can all go away. 
-        """
-        return Spreadsheet.get_instance(mito_id, session_key)
+    from dash import MATCH, Dash, Input, Output, State, callback
 
     def mito_callback(*args, **kwargs):
         """
@@ -32,8 +22,6 @@ try:
         To see the documentation for this decorator, see the @mito_callback decorator documentation:
         https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and-types
         """
-        
-
         def function_wrapper(original_function):
             # TODO: do we need an @wraps
             def new_function(*_args, **_kwargs):
@@ -53,7 +41,7 @@ try:
                         mito_id = arg.split('\n')[-2].strip()
                         session_key = arg.split('\n')[-1].strip()
 
-                        spreadsheet = get_component_with_mito_id(mito_id, session_key)
+                        spreadsheet = Spreadsheet.get_instance(mito_id, session_key)
 
                         if spreadsheet is None:
                             # TODO: use a more dash exception?
@@ -78,13 +66,22 @@ try:
             track_selection=False
         ) -> None:
         """
-        This function must be called right after instatiated your Dash application, so that it 
-        can register the mito_callback decorator with Dash.
+        This function must be called right after instatiated your Dash application, so that 
+        Mito can correctly hook-up message handling for all Mito spreadsheet components.
 
-        TODO: make the Spreadsheet throw an error if the user has not called this function. I wonder
-        if we can just edit a global variable.
+        Correct usage
+        ```
+        from dash import Dash
+        from mitosheet.mito_dash.v1 import activate_mito, Spreadsheet
 
-        TODO: we could make this patch the callback function (but it might already be imported)...
+        app = Dash(__name__)
+        activate_mito(app)
+
+        # Go on to create layout, register callbacks, etc
+        ```
+
+        If this function is not called, then the Mito Spreadsheet component will not work, and will throw
+        an error if you try to use it.
         """
 
         @app.callback(
@@ -96,7 +93,7 @@ try:
             prevent_initial_call=True
         )
         def handle_message(msg, mito_id, session_key):
-            spreadsheet = get_component_with_mito_id(mito_id, session_key)
+            spreadsheet = Spreadsheet.get_instance(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
                 # TODO: should we print some error here
@@ -111,35 +108,31 @@ try:
             return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result
         
 
-        # Because this has a performance impact, we only register this callback if
-        # the user actually uses the track_selection parameter
-        # TODO: improve the selection error message in this case...
-        if track_selection:
-            @app.callback(
-                Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
-                Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
-                Input({'type': ID_TYPE, 'id': MATCH}, 'index_and_selections'),
-                State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
-                State({'type': ID_TYPE, 'id': MATCH}, 'session_key'),
-                prevent_initial_call=True
+        @app.callback(
+            Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
+            Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
+            Input({'type': ID_TYPE, 'id': MATCH}, 'index_and_selections'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'session_key'),
+            prevent_initial_call=True
+        )
+        def handle_selection_change(index_and_selections, mito_id, session_key):
+            spreadsheet = Spreadsheet.get_instance(mito_id, session_key)
+            if spreadsheet is None:
+                # TODO: should we print some error here
+                raise PreventUpdate
+
+            spreadsheet.num_messages += 1
+
+            spreadsheet.index_and_selections = index_and_selections
+            
+            spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(
+                prop_name='spreadsheet_selection', 
+                num_messages=spreadsheet.num_messages, 
+                id=spreadsheet.mito_id,
+                session_key=session_key
             )
-            def handle_selection_change(index_and_selections, mito_id, session_key):
-                spreadsheet = get_component_with_mito_id(mito_id, session_key)
-                if spreadsheet is None:
-                    # TODO: should we print some error here
-                    raise PreventUpdate
-
-                spreadsheet.num_messages += 1
-
-                spreadsheet.index_and_selections = index_and_selections
-                
-                spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(
-                    prop_name='spreadsheet_selection', 
-                    num_messages=spreadsheet.num_messages, 
-                    id=spreadsheet.mito_id,
-                    session_key=session_key
-                )
-                return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
+            return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
             
     
         @app.callback(
@@ -152,7 +145,7 @@ try:
             prevent_initial_call=True
         )
         def handle_data_change_data(data, mito_id, session_key):
-            spreadsheet = get_component_with_mito_id(mito_id, session_key)
+            spreadsheet = Spreadsheet.get_instance(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
                 # TODO: should we print some error here
@@ -170,9 +163,9 @@ try:
                 theme=spreadsheet.theme
             )
 
-            
             return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result, spreadsheet.spreadsheet_selection
         
+
 except ImportError:
 
     def mito_callback(*args, **kwargs): # type: ignore
