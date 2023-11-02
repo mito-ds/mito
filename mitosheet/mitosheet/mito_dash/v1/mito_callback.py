@@ -1,3 +1,4 @@
+from typing import Any, Callable
 from mitosheet.mito_dash.v1.spreadsheet import (ID_TYPE,
                                                 WRONG_CALLBACK_ERROR_MESSAGE,
                                                 Spreadsheet)
@@ -10,7 +11,7 @@ try:
 
     from dash import MATCH, Dash, Input, Output, State, callback
 
-    def mito_callback(*args, **kwargs):
+    def mito_callback(*args: Any, **kwargs: Any) -> Callable:
         """
         This is a replacement for the @callback decorator that improves the developer experience
         with using the Mito Spreadsheet component. 
@@ -61,10 +62,7 @@ try:
         
         return function_wrapper
     
-    def activate_mito(
-            app: Dash,
-            track_selection=False
-        ) -> None:
+    def activate_mito(app: Dash) -> None:
         """
         This function must be called right after instatiated your Dash application, so that 
         Mito can correctly hook-up message handling for all Mito spreadsheet components.
