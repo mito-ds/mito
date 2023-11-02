@@ -7,7 +7,7 @@ activate_mito(app)
 
 app.layout = html.Div([
     html.H1('Empty Mito Spreadsheet'),
-    Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'})
+    Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'}, import_folder='datasets')
 ])
 
 if __name__ == '__main__':

@@ -8,9 +8,17 @@ try:
 
     from dash import callback, Dash, Output, Input, MATCH, State
     from dash.exceptions import PreventUpdate
+
         
-    def get_component_with_mito_id(id: str) -> Optional[Spreadsheet]:
-        return Spreadsheet.instances.get(id, None)    
+    def get_component_with_mito_id(mito_id: str, session_key: str) -> Optional[Spreadsheet]:
+        """
+        Mito does not work statelessly currently. To work around this limitation of our 
+        Dash integration, we duplicate Spreadsheet instances (from the start?) when we 
+        we get a new sessionKey from the frontend. 
+
+        When we make Mito properly stateless, this can all go away. 
+        """
+        return Spreadsheet.get_instance(mito_id, session_key)
 
     def mito_callback(*args, **kwargs):
         """
@@ -24,6 +32,8 @@ try:
         To see the documentation for this decorator, see the @mito_callback decorator documentation:
         https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and-types
         """
+        
+
         def function_wrapper(original_function):
             # TODO: do we need an @wraps
             def new_function(*_args, **_kwargs):
@@ -40,9 +50,10 @@ try:
 
                     if isinstance(arg, str) and arg.startswith(WRONG_CALLBACK_ERROR_MESSAGE_FIRST_LINE):
                         # Get the ID from the final line 
-                        mito_id = arg.split('\n')[-1].strip()
+                        mito_id = arg.split('\n')[-2].strip()
+                        session_key = arg.split('\n')[-1].strip()
 
-                        spreadsheet = get_component_with_mito_id(mito_id)
+                        spreadsheet = get_component_with_mito_id(mito_id, session_key)
                         if spreadsheet is None:
                             # TODO: use a more dash exception?
                             raise Exception(f"Could not find spreadsheet with mito_id {mito_id}")
@@ -83,9 +94,9 @@ try:
             prevent_initial_call=True
         )
         def handle_message(msg, mito_id):
-            mito_id = msg['mito_id']
+            session_key = msg['session_key']
 
-            spreadsheet = get_component_with_mito_id(mito_id)
+            spreadsheet = get_component_with_mito_id(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
                 # TODO: should we print some error here
@@ -94,9 +105,9 @@ try:
             spreadsheet.num_messages += 1
 
             spreadsheet.unprocessed_messages.put(msg)
-            spreadsheet.process_single_message()
+            spreadsheet.process_single_message(session_key)
             
-            spreadsheet.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=spreadsheet.num_messages, id=spreadsheet.mito_id)
+            spreadsheet.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=spreadsheet.num_messages, id=spreadsheet.mito_id, session_key=session_key)
             return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result
         
 
@@ -112,7 +123,8 @@ try:
                 prevent_initial_call=True
             )
             def handle_selection_change(index_and_selections, mito_id):
-                spreadsheet = get_component_with_mito_id(mito_id)
+                session_key = index_and_selections['session_key']
+                spreadsheet = get_component_with_mito_id(mito_id, session_key)
                 if spreadsheet is None:
                     # TODO: should we print some error here
                     raise PreventUpdate
@@ -124,7 +136,8 @@ try:
                 spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(
                     prop_name='spreadsheet_selection', 
                     num_messages=spreadsheet.num_messages, 
-                    id=spreadsheet.mito_id
+                    id=spreadsheet.mito_id,
+                    session_key=session_key
                 )
                 return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
             
@@ -138,15 +151,16 @@ try:
             prevent_initial_call=True
         )
         def handle_data_change_data(data, mito_id):
-
-            spreadsheet = get_component_with_mito_id(mito_id)
+            session_key = '' # TODO: fix this
+            spreadsheet = get_component_with_mito_id(mito_id, session_key)
             if spreadsheet is None:
                 print("No spreadsheet found for id", mito_id)
                 # TODO: should we print some error here
                 raise PreventUpdate
             
             spreadsheet._set_new_mito_backend(
-                data, 
+                data,
+                session_key=session_key,
                 import_folder=spreadsheet.import_folder, 
                 code_options=spreadsheet.code_options,
                 df_names=spreadsheet.df_names,

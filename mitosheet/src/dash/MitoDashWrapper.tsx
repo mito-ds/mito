@@ -15,6 +15,7 @@ interface State {
     analysisName: string,
     messageQueue: [PropNameForSetProps, Record<string, any>][],
     isSendingMessages: boolean,
+    session_key: string
 }
 
 type AllJson = {
@@ -27,7 +28,6 @@ type AllJson = {
 }
 
 interface Props {
-    id: string,
     all_json: string,
     setProps: (props: Record<string, unknown>) => void
 }
@@ -46,11 +46,11 @@ export default class MitoDashWrapper extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false };
+        this.state = { responses: [], analysisName: '', messageQueue: [], isSendingMessages: false, session_key: "" + Math.floor(Math.random() * 100)};
         this.processMessageQueueTimer = null; // Variable to store the timer
     }
 
-    public getResponseData<ResultType>(id: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
+    public getResponseData<ResultType>(messageID: string, maxRetries = MAX_RETRIES): Promise<SendFunctionReturnType<ResultType>> {
 
         return new Promise((resolve) => {
             let tries = 0;
@@ -61,18 +61,18 @@ export default class MitoDashWrapper extends Component<Props, State> {
                 tries++;
 
                 if (tries > maxRetries) {
-                    console.error(`No response on message: {id: ${id}}`);
+                    console.error(`No response on message: {id: ${messageID}}`);
                     clearInterval(interval);
                     // If we fail, we return an empty response
                     return resolve({
-                        error: `No response on message: {id: ${id}}`,
+                        error: `No response on message: {id: ${messageID}}`,
                         errorShort: `No response received`,
                         showErrorModal: false
                     })
                 }
 
                 // See if there is an API response to this one specificially
-                const index = unconsumedResponses.findIndex((response) =>  response['id'] === id)
+                const index = unconsumedResponses.findIndex((response) =>  response['id'] === messageID)
 
                 if (index !== -1) {
                     // Clear the interval
@@ -107,6 +107,9 @@ export default class MitoDashWrapper extends Component<Props, State> {
         if (this.state.messageQueue.length > 0) {
             // Send one message
             const [messageType, message] = this.state.messageQueue[0];
+
+            message['session_key'] = this.state.session_key;
+
             this.props.setProps({
                 [messageType]: message
             })
@@ -168,36 +171,49 @@ export default class MitoDashWrapper extends Component<Props, State> {
         const response = await this.getResponseData(msg['id'] as string);        
         return response;
     }
-    
-    
+
+    componentDidMount() {
+        this.processResponses();
+    }
+
+
+    componentDidUpdate(prevProps: Props) {
+        // Only call processResponses if all_json has changed
+        if (this.props.all_json !== prevProps.all_json) {
+            this.processResponses();
+        }
+    }
+
+
+    processResponses = () => {
+        const { all_json } = this.props;
+        const { responses_json } = JSON.parse(all_json);
+
+        const responses = JSON.parse(responses_json);
+
+        // Handling append-only responses
+        if (responses.length > this.state.responses.length) {
+            const newResponses = responses.slice(this.state.responses.length);
+            this.setState(prevState => ({
+                responses: [...prevState.responses, ...newResponses],
+            }));
+        }
+
+        // Handling reset scenario
+        if (responses.length < this.state.responses.length) {
+            this.setState({ responses });
+        }
+    };
+
+
     render = () => {
 
         const {all_json} = this.props;
-        const {sheet_data_json, analysis_data_json, user_profile_json, responses_json, key, track_selection} = JSON.parse(all_json) as AllJson;
-    
+        const {sheet_data_json, analysis_data_json, user_profile_json, key, track_selection} = JSON.parse(all_json) as AllJson;
 
         const sheetDataArray = getSheetDataArrayFromString(sheet_data_json);
         const analysisData = getAnalysisDataFromString(analysis_data_json);
         const userProfile = getUserProfileFromString(user_profile_json);
-        const responses = JSON.parse(responses_json);
-
-
-        // If we have new responses, add them to the state. Note that this
-        // implies that responses are append-only for a given Mito instance.
-        if (responses.length > this.state.responses.length) {
-            const newResponses = responses.slice(this.state.responses.length);
-            
-            this.setState(prevState => {
-                return {
-                    responses: [...prevState.responses, ...newResponses],
-                }
-            });
-        }
-        // If we have less responses, this means we have reset the Mito instance,
-        // so we update the responses. TODO: can the Mito widget handle this?
-        if (responses.length < this.state.responses.length) {
-            this.setState({responses: responses});
-        }
 
         return (
             <Mito 
