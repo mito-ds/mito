@@ -13,7 +13,7 @@ except Exception as e:
 activate_mito(app)
 
 try:
-    Spreadsheet(id='sheet')
+    Spreadsheet(id='sheet') # type: ignore
     assert False
 except Exception as e:
     incorrect_id_error = e

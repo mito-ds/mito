@@ -52,8 +52,6 @@ See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and
 {id}
 {session_key}"""
 
-SPREADSHEETS = dict()
-
 ID_TYPE = 'spreadsheet'
          
 try:
@@ -157,7 +155,7 @@ try:
                 self.__class__.instances[self.mito_id] = (self, dict())
 
         @classmethod
-        def get_instance(cls, mito_id: str, session_key: Optional[str]=None) -> Optional[Any]:
+        def get_instance(cls, mito_id: str, session_key: str) -> Optional[Any]:
             """
             The Spreadsheet component stores a map from the mito_id of the spreadsheet to a tuple of the 
             original Spreadsheet instances, as well as a map from session key to the session instance.
@@ -262,7 +260,7 @@ try:
             self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id, session_key=session_key)
 
                 
-        def process_single_message(self, session_key: str):
+        def process_single_message(self, session_key: str) -> None:
 
             # If we are already processing messages -- then wait until it is
             if self.processing_messages:

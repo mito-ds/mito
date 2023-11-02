@@ -2,7 +2,7 @@ from dash import Dash, html, Input, Output, Patch, callback
 from mitosheet.mito_dash.v1 import Spreadsheet, activate_mito
 
 app = Dash(__name__)
-activate_mito(app, track_selection=True)
+activate_mito(app)
 
 app.layout = html.Div([
     html.Button("Add Spreadsheet", id="dynamic-add-spreadsheet-btn", n_clicks=0),
