@@ -101,6 +101,13 @@ try:
             if id['type'] != ID_TYPE:
                 raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
             
+            # Get the current Dash app, and check that Mito has been activated on it
+            from dash import get_app
+            current_app = get_app()
+            if len(current_app.callback_map) == 0:
+                raise Exception("You must activate Mito on your Dash app before using the Spreadsheet component. See https://docs.trymito.io/mito-for-dash/api-reference#activate_mito")
+
+
             self.id = id
             self.mito_id = id['id'] # TODO: document this
             # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
