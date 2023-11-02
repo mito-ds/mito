@@ -1,10 +1,7 @@
-import gc
-from io import StringIO
 import json
 import time
 from queue import Queue
-from typing import Any, Callable, Dict, List, Optional, Union, Tuple
-from unittest.mock import patch
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd
 from mitosheet.mito_backend import MitoBackend
@@ -12,7 +9,6 @@ from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
 from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
 from mitosheet.streamlit.v1 import RunnableAnalysis
-
 
 class SpreadsheetResult():
 
@@ -64,6 +60,7 @@ try:
 
 
     class Spreadsheet(Component):
+        instances: Dict[str, Any] = dict()
 
         _children_props: List[str] = []
         _base_nodes = ['children']
@@ -127,9 +124,7 @@ try:
 
             self.track_selection = track_selection
 
-            # TODO: we somehow have to get the ID to the frontend, it's currently undefined
-            super(Spreadsheet, self).__init__(
-            )
+            super(Spreadsheet, self).__init__()
 
             # We save the unprocessed messages in a list -- so that we can process them
             # in the callback in the order that they were received -- without them interrupting
@@ -150,6 +145,15 @@ try:
             self.theme = theme
 
             self.all_json = self.get_all_json()
+
+            # Save the instance, so we can look it up later
+            self.__class__.instances[self.mito_id] = self
+
+        @classmethod
+        def get_instances(cls):
+            # Filter out instances that were garbage collected
+            cls.instances = [instance for instance in cls.instances if isinstance(instance, cls)]
+            return cls.instances
 
             
         def _set_new_mito_backend(
