@@ -5,15 +5,16 @@ import time
 from queue import Queue
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 
-from mitosheet.mito_dash.v1.spreadsheet import Spreadsheet, WRONG_CALLBACK_ERROR_MESSAGE
+from mitosheet.mito_dash.v1.spreadsheet import Spreadsheet, WRONG_CALLBACK_ERROR_MESSAGE, ID_TYPE
 
 WRONG_CALLBACK_ERROR_MESSAGE_FIRST_LINE = WRONG_CALLBACK_ERROR_MESSAGE.split('\n')[0]
 
 try:
 
-    from dash import callback
+    from dash import callback, Dash, Output, Input, MATCH, State
+    from dash.exceptions import PreventUpdate
         
-    def get_component_with_id(id: str) -> Optional[Spreadsheet]:
+    def get_component_with_mito_id(id: str) -> Optional[Spreadsheet]:
         components = [
             obj for obj in gc.get_objects()
             if isinstance(obj, Spreadsheet) and getattr(obj, 'mito_id', None) == id
@@ -54,7 +55,7 @@ try:
                         # Get the ID from the final line 
                         id = arg.split('\n')[-1].strip()
 
-                        spreadsheet = get_component_with_id(id)
+                        spreadsheet = get_component_with_mito_id(id)
                         if spreadsheet is None:
                             # TODO: use a more dash exception?
                             raise Exception(f"Could not find spreadsheet with id {id}")
@@ -72,8 +73,110 @@ try:
             return callback(*args, **kwargs)(new_function)
         
         return function_wrapper
+    
+    def activate_mito(
+            app: Dash,
+            track_selection=False
+        ) -> None:
+        """
+        This function must be called right after instatiated your Dash application, so that it 
+        can register the mito_callback decorator with Dash.
+
+        TODO: make the Spreadsheet throw an error if the user has not called this function. I wonder
+        if we can just edit a global variable.
+
+        TODO: we could make this patch the callback function (but it might already be imported)...
+        """
+
+
+
+        @callback(
+            Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
+            Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
+            Input({'type': ID_TYPE, 'id': MATCH}, 'message'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+            prevent_initial_call=True
+        )
+        def handle_message(msg, mito_id):
+            print("HANDLING MESSAGE", mito_id)
+            mito_id = msg['mito_id']
+
+            spreadsheet = get_component_with_mito_id(mito_id)
+            if spreadsheet is None:
+                print("No spreadsheet found for id", mito_id)
+                # TODO: should we print some error here
+                raise PreventUpdate
+            
+            spreadsheet.num_messages += 1
+
+            spreadsheet.unprocessed_messages.put(msg)
+            spreadsheet.process_single_message()
+            
+            spreadsheet.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=spreadsheet.num_messages, id=spreadsheet.mito_id)
+            return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result
+        
+
+        # Because this has a performance impact, we only register this callback if
+        # the user actually uses the track_selection parameter
+        # TODO: improve the selection error message in this case...
+        if track_selection:
+            @callback(
+                Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
+                Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
+                Input({'type': ID_TYPE, 'index': MATCH}, 'index_and_selections'),
+                State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+                prevent_initial_call=True
+            )
+            def handle_selection_change(index_and_selections, mito_id):
+                spreadsheet = get_component_with_mito_id(mito_id)
+                if spreadsheet is None:
+                    # TODO: should we print some error here
+                    raise PreventUpdate
+
+                spreadsheet.num_messages += 1
+
+                spreadsheet.index_and_selections = index_and_selections
+                
+                spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
+                return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
+            
+
+        """
+        
+            
+
+            @callback(
+                Output(self.mito_id, 'all_json', allow_duplicate=True), 
+                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
+                Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
+                Input(self.mito_id, 'data'), 
+                prevent_initial_call=True
+            )
+            def handle_data_change_data(data):
+                
+                self._set_new_mito_backend(
+                    data, 
+                    import_folder=self.import_folder, 
+                    code_options=self.code_options,
+                    df_names=self.df_names,
+                    sheet_functions=self.sheet_functions,
+                    importers=self.importers,
+                    editors=self.editors,
+                    theme=self.theme
+                )
+
+                
+                return self.get_all_json(), self.spreadsheet_result, self.spreadsheet_selection
+        
+        """
+
+        return None
+
         
 except ImportError:
 
     def mito_callback(*args, **kwargs): # type: ignore
+        raise Exception("You must install dash to use the @mito_callback decorator component")
+    
+    def activate_mito(*args, **kwargs): # type: ignore
         raise Exception("You must install dash to use the @mito_callback decorator component")
