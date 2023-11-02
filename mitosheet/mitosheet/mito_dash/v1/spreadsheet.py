@@ -56,7 +56,7 @@ See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and
 
 SPREADSHEETS = dict()
 
-ID_TYPE = 'mito-dash-spreadsheet'
+ID_TYPE = 'spreadsheet'
          
 try:
     from dash.development.base_component import Component
@@ -77,7 +77,7 @@ try:
         def __init__(
                 self, 
                 *args: Union[pd.DataFrame, str, None],
-                id: str,
+                id: Dict[str, str],
                 import_folder: Optional[str]=None,
                 code_options: Optional[CodeOptions]=None,
                 df_names: Optional[List[str]]=None,
@@ -88,11 +88,21 @@ try:
                 track_selection: bool=False,
                 
         ):    
-            self.id = {
-                'type': ID_TYPE,
-                'id': id
-            }
-            self.mito_id = id
+            
+            # First, we check that the user has passed an ID in the appropriate format
+            # as this is required for the component to work. It must be a dict with the 
+            # keys type and id, where type == ID_TYPE and id is a unique string
+            if not isinstance(id, dict):
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if 'type' not in id:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if 'id' not in id:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if id['type'] != ID_TYPE:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            
+            self.id = id
+            self.mito_id = id['id'] # TODO: document this
             # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
             # and spreadsheet_selection error strings change. This way, we can correctly trigger callbacks that correspond
             # to these values in all cases

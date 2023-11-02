@@ -53,12 +53,12 @@ try:
 
                     if isinstance(arg, str) and arg.startswith(WRONG_CALLBACK_ERROR_MESSAGE_FIRST_LINE):
                         # Get the ID from the final line 
-                        id = arg.split('\n')[-1].strip()
+                        mito_id = arg.split('\n')[-1].strip()
 
-                        spreadsheet = get_component_with_mito_id(id)
+                        spreadsheet = get_component_with_mito_id(mito_id)
                         if spreadsheet is None:
                             # TODO: use a more dash exception?
-                            raise Exception(f"Could not find spreadsheet with id {id}")
+                            raise Exception(f"Could not find spreadsheet with mito_id {mito_id}")
                         
                         if 'spreadsheet_result' in arg:
                             # If the user is getting the result, give them the result
@@ -88,8 +88,6 @@ try:
         TODO: we could make this patch the callback function (but it might already be imported)...
         """
 
-
-
         @callback(
             Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
             Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
@@ -98,7 +96,6 @@ try:
             prevent_initial_call=True
         )
         def handle_message(msg, mito_id):
-            print("HANDLING MESSAGE", mito_id)
             mito_id = msg['mito_id']
 
             spreadsheet = get_component_with_mito_id(mito_id)
@@ -123,7 +120,7 @@ try:
             @callback(
                 Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
                 Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
-                Input({'type': ID_TYPE, 'index': MATCH}, 'index_and_selections'),
+                Input({'type': ID_TYPE, 'id': MATCH}, 'index_and_selections'),
                 State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
                 prevent_initial_call=True
             )
@@ -137,40 +134,43 @@ try:
 
                 spreadsheet.index_and_selections = index_and_selections
                 
-                spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
+                spreadsheet.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(
+                    prop_name='spreadsheet_selection', 
+                    num_messages=spreadsheet.num_messages, 
+                    id=spreadsheet.mito_id
+                )
                 return spreadsheet.get_all_json(), spreadsheet.spreadsheet_selection
             
+    
+        @callback(
+            Output({'type': ID_TYPE, 'id': MATCH}, 'all_json', allow_duplicate=True), 
+            Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_result', allow_duplicate=True), 
+            Output({'type': ID_TYPE, 'id': MATCH}, 'spreadsheet_selection', allow_duplicate=True), 
+            Input({'type': ID_TYPE, 'id': MATCH}, 'data'),
+            State({'type': ID_TYPE, 'id': MATCH}, 'mito_id'),
+            prevent_initial_call=True
+        )
+        def handle_data_change_data(data, mito_id):
 
-        """
-        
+            spreadsheet = get_component_with_mito_id(mito_id)
+            if spreadsheet is None:
+                print("No spreadsheet found for id", mito_id)
+                # TODO: should we print some error here
+                raise PreventUpdate
             
-
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                Input(self.mito_id, 'data'), 
-                prevent_initial_call=True
+            spreadsheet._set_new_mito_backend(
+                data, 
+                import_folder=spreadsheet.import_folder, 
+                code_options=spreadsheet.code_options,
+                df_names=spreadsheet.df_names,
+                sheet_functions=spreadsheet.sheet_functions,
+                importers=spreadsheet.importers,
+                editors=spreadsheet.editors,
+                theme=spreadsheet.theme
             )
-            def handle_data_change_data(data):
-                
-                self._set_new_mito_backend(
-                    data, 
-                    import_folder=self.import_folder, 
-                    code_options=self.code_options,
-                    df_names=self.df_names,
-                    sheet_functions=self.sheet_functions,
-                    importers=self.importers,
-                    editors=self.editors,
-                    theme=self.theme
-                )
 
-                
-                return self.get_all_json(), self.spreadsheet_result, self.spreadsheet_selection
-        
-        """
-
-        return None
+            
+            return spreadsheet.get_all_json(), spreadsheet.spreadsheet_result, spreadsheet.spreadsheet_selection
 
         
 except ImportError:
