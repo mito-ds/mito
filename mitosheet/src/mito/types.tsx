@@ -5,6 +5,7 @@ import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 import { FunctionDocumentationObject } from "./data/function_documentation";
+import { TabName } from "./components/toolbar/Toolbar";
 
 /**
  * The different types of data manipulation that Mito supports.
@@ -889,7 +890,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
-    toolbarOpen: boolean;
+    currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
     toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
     currOpenPopups: {

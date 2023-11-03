@@ -129,7 +129,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenToolbarDropdown: undefined,
         toolbarDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        toolbarOpen: true,
+        currentToolbarTab: 'Home',
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },

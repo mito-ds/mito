@@ -31,7 +31,7 @@ export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
-type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas';
+export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas';
 type TabContents = JSX.Element;
 type Tabs = {
     [ tab: string ]: TabContents
@@ -58,8 +58,8 @@ export const Toolbar = (
         sheetIndex: number,
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
-
-    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Home');
+    
+    const currentTab = props.uiState.currentToolbarTab;
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>,
@@ -178,11 +178,10 @@ export const Toolbar = (
                             key={tab}
                             onClick={() => {
                                 if (currentTab === tab) {
-                                    setCurrentTab(undefined)
                                     props.setUIState(prevUIState => {
                                         return {
                                             ...prevUIState,
-                                            toolbarOpen: false
+                                            currentToolbarTab: undefined
                                         }
                                     })
                                     return
@@ -190,10 +189,9 @@ export const Toolbar = (
                                 props.setUIState(prevUIState => {
                                     return {
                                         ...prevUIState,
-                                        toolbarOpen: true
+                                        currentToolbarTab: tab as TabName
                                     }
                                 })
-                                setCurrentTab(tab as TabName)
                             }}
                             className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
                         >
