@@ -66,6 +66,7 @@ import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
 import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
 import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
 import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
+import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -320,6 +321,25 @@ export const getActions = (
                 mac: 'Cmd+C',
                 windows: 'Ctrl+C'
             }
+        },
+        [ActionEnum.CopyCode]: {
+            type: 'build-time',
+            staticType: ActionEnum.CopyCode,
+            icon: CopyIcon,
+            toolbarTitle: 'Copy Code to Clipboard',
+            longTitle: 'Copy Code to Clipboard',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const stringToCopy = analysisData.code.join('\n');
+
+                void writeTextToClipboard(stringToCopy);
+            },
+            isDisabled: () => {
+                return getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
+            },
+            searchTerms: ['copy', 'paste', 'export'],
+            tooltip: "Copy the generated code to the clipboard.",
         },
         [ActionEnum.Delete]: {
             type: 'build-time',
@@ -1731,7 +1751,8 @@ export const getActions = (
         [ActionEnum.CODESNIPPETS]: {
             type: 'build-time',
             staticType: ActionEnum.CODESNIPPETS,
-            toolbarTitle: 'Snippets',
+            icon: CodeSnippetIcon,
+            toolbarTitle: 'Code Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1752,7 +1773,8 @@ export const getActions = (
         [ActionEnum.CODEOPTIONS]: {
             type: 'build-time',
             staticType: ActionEnum.CODEOPTIONS,
-            toolbarTitle: 'Configure',
+            icon: GearIcon,
+            toolbarTitle: 'Configure Code',
             longTitle: 'Configure Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
