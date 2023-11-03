@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { BuildTimeAction, EditorState, RunTimeAction } from '../../types';
+import { BuildTimeAction, RunTimeAction } from '../../types';
 import { classNames } from '../../utils/classNames';
 import StepsIcon from '../icons/StepsIcon';
 
@@ -26,11 +26,6 @@ const ToolbarButton = (
         */
         action: BuildTimeAction | RunTimeAction;
 
-        /** 
-        * @param [setEditorState] - pass this if you want to close an open editor
-        */
-        setEditorState?: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        
         /**
          * Optional override of the action's title. 
          */
@@ -73,9 +68,6 @@ const ToolbarButton = (
                     return
                 }
 
-                if (props.setEditorState) {
-                    props.setEditorState(undefined);
-                }
                 props.action.actionFunction();
             }}
         >

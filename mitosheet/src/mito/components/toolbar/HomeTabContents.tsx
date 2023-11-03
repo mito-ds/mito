@@ -82,7 +82,6 @@ export const HomeTabContents = (
         <div className='mito-toolbar-bottom-left-half'>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
-                setEditorState={props.setEditorState}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'import'}
@@ -106,7 +105,6 @@ export const HomeTabContents = (
             </ToolbarButton>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Export_Dropdown]}
-                setEditorState={props.setEditorState}
             >
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'export'}
@@ -148,7 +146,6 @@ export const HomeTabContents = (
             </ToolbarButton>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Copy]}
-                setEditorState={props.setEditorState}
             />
 
             <div className="toolbar-vertical-line"/>
@@ -165,20 +162,16 @@ export const HomeTabContents = (
                 <div className='mito-toolbar-number-precision'>
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Currency_Format]}
-                        setEditorState={props.setEditorState}
-                    />
+                            />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
-                        setEditorState={props.setEditorState}
-                    />
+                            />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
-                        setEditorState={props.setEditorState}
-                    />
+                            />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
-                        setEditorState={props.setEditorState}
-                    />
+                            />
                 </div>
             </div>
 
@@ -186,11 +179,9 @@ export const HomeTabContents = (
 
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Conditional_Formatting]}
-                setEditorState={props.setEditorState}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format]}
-                setEditorState={props.setEditorState}
             />
 
             <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
@@ -198,25 +189,20 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
                 highlightToolbarButton={props.highlightAddColButton}
-                setEditorState={props.setEditorState}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Delete]}
-                setEditorState={props.setEditorState}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
-                setEditorState={props.setEditorState}
                 toolbarTitle='Find & Replace'
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Filter]}
-                setEditorState={props.setEditorState}
             />
 
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
-                setEditorState={props.setEditorState}
             >  
                 <Dropdown
                     display={props.uiState.toolbarDropdown === 'dtype'}
@@ -250,23 +236,19 @@ export const HomeTabContents = (
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Pivot]}
                 highlightToolbarButton={props.highlightPivotTableButton}
-                setEditorState={props.setEditorState}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph]}
-                setEditorState={props.setEditorState}
             />
             {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
-                    setEditorState={props.setEditorState}
-                />
+                    />
             }
             {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}
-                    setEditorState={props.setEditorState}
-                />
+                    />
             }
         </div>
         <div className='mito-toolbar-bottom-right-half'>

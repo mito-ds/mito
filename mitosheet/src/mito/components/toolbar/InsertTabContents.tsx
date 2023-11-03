@@ -30,46 +30,37 @@ export const InsertTabContents = (
     return (<div className='mito-toolbar-bottom'>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Pivot]}
-            setEditorState={props.setEditorState}
         />
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Melt]}
-                setEditorState={props.setEditorState}
                 orientation='horizontal'
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Transpose]}
-                setEditorState={props.setEditorState}
                 orientation='horizontal'
             />
         </div>
         <div className='toolbar-vertical-line' />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Merge]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Concat_Dataframes]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.AntiMerge]}
-            setEditorState={props.setEditorState}
         />
         <div className='toolbar-vertical-line' />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
-            setEditorState={props.setEditorState}
         />
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph_Scatter]}
-                setEditorState={props.setEditorState}
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph_Line]}
-                setEditorState={props.setEditorState}
             />
         </div>
     </div>);

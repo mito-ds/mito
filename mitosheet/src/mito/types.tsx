@@ -890,7 +890,7 @@ export interface UIState {
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE' | 'MORE' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.

@@ -33,21 +33,17 @@ export const DataTabContents = (
     return (<div className='mito-toolbar-bottom'>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Import_Files]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Dataframe_Import]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.SNOWFLAKEIMPORT]}
-            setEditorState={props.setEditorState}
         />
         {props.actions.runtimeImportActionsList.map(action => {
             return (<ToolbarButton
                 action={action}
-                setEditorState={props.setEditorState}
-                iconOverride={<ImportIcon />}
+                    iconOverride={<ImportIcon />}
                 key={action.staticType}
             />)
         })}
@@ -56,7 +52,6 @@ export const DataTabContents = (
         
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.UPDATEIMPORTS]}
-            setEditorState={props.setEditorState}
         />
         
         <div className='toolbar-vertical-line' />
@@ -64,48 +59,39 @@ export const DataTabContents = (
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.SortAscending]}
-                setEditorState={props.setEditorState}
-            />
+                />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.SortDescending]}
-                setEditorState={props.setEditorState}
-            />
+                />
         </div>
 
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Sort]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Filter]}
-            setEditorState={props.setEditorState}
         />
 
         <div className='toolbar-vertical-line' />
 
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Split_Text_To_Column]}
-            setEditorState={props.setEditorState}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Drop_Duplicates]}
-            setEditorState={props.setEditorState}
         />
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Fill_Na]}
-                setEditorState={props.setEditorState}
-                orientation='horizontal'
+                    orientation='horizontal'
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.One_Hot_Encoding]}
-                setEditorState={props.setEditorState}
-                orientation='horizontal'
+                    orientation='horizontal'
             />
         </div>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.RESET_INDEX_DROPDOWN]}
-            setEditorState={props.setEditorState}
         >
             <Dropdown
                 display={props.uiState.toolbarDropdown === 'reset-index'}

@@ -74,16 +74,14 @@ export const FormulaTabContents = (
     }
 
     const getFormulaDropdown = (action: ActionEnum, category?: string) => {
+        const toolbarDropdown = `formula-${(category ?? 'more').toLocaleLowerCase()}`;
         return (
-            <ToolbarButton
-                action={props.actions.buildTimeActions[action]}
-                setEditorState={props.setEditorState}
-            > 
+            <ToolbarButton action={props.actions.buildTimeActions[action]}> 
                 <Dropdown
-                    display={props.uiState.toolbarDropdown === (category ?? 'MORE')}
+                    display={props.uiState.toolbarDropdown === toolbarDropdown}
                     closeDropdown={() => 
                         props.setUIState(prevUIState => {
-                            if (prevUIState.toolbarDropdown !== (category ?? 'MORE')) {
+                            if (prevUIState.toolbarDropdown !== toolbarDropdown) {
                                 return prevUIState;
                             }
 
@@ -93,8 +91,7 @@ export const FormulaTabContents = (
                             }
                         })
                     }
-                    // If there are any custom importers, we want to make the dropdown wider
-                    width={props.actions.runtimeImportActionsList.length > 0 ? 'large' : 'medium'}
+                    width={'medium'}
                 >
                     {getFormulaDropdownItems(category)}
                 </Dropdown>

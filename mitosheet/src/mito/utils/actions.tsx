@@ -652,7 +652,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'MATH'
+                        toolbarDropdown: 'formula-math'
                     }
                 })
             },
@@ -679,7 +679,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'LOGIC'
+                        toolbarDropdown: 'formula-logic'
                     }
                 })
             },
@@ -706,7 +706,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'TEXT'
+                        toolbarDropdown: 'formula-text'
                     }
                 })
             },
@@ -733,7 +733,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'DATE'
+                        toolbarDropdown: 'formula-date'
                     }
                 })
             },
@@ -760,7 +760,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'REFERENCE'
+                        toolbarDropdown: 'formula-reference'
                     }
                 })
             },
@@ -787,7 +787,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'MORE'
+                        toolbarDropdown: 'formula-more'
                     }
                 })
             },
