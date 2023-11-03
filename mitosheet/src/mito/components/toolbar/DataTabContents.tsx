@@ -43,7 +43,7 @@ export const DataTabContents = (
         {props.actions.runtimeImportActionsList.map(action => {
             return (<ToolbarButton
                 action={action}
-                    iconOverride={<ImportIcon />}
+                iconOverride={<ImportIcon />}
                 key={action.staticType}
             />)
         })}
@@ -59,10 +59,10 @@ export const DataTabContents = (
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.SortAscending]}
-                />
+            />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.SortDescending]}
-                />
+            />
         </div>
 
         <ToolbarButton
@@ -83,11 +83,11 @@ export const DataTabContents = (
         <div>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Fill_Na]}
-                    orientation='horizontal'
+                orientation='horizontal'
             />
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.One_Hot_Encoding]}
-                    orientation='horizontal'
+                orientation='horizontal'
             />
         </div>
         <ToolbarButton

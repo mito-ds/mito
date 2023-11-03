@@ -162,16 +162,16 @@ export const HomeTabContents = (
                 <div className='mito-toolbar-number-precision'>
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Currency_Format]}
-                            />
+                    />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
-                            />
+                    />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
-                            />
+                    />
                     <ToolbarButton
                         action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
-                            />
+                    />
                 </div>
             </div>
 
@@ -243,12 +243,12 @@ export const HomeTabContents = (
             {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
-                    />
+                />
             }
             {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}
-                    />
+                />
             }
         </div>
         <div className='mito-toolbar-bottom-right-half'>
