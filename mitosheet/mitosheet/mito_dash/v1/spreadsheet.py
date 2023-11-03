@@ -1,10 +1,8 @@
-import gc
-from io import StringIO
+from copy import deepcopy
 import json
 import time
 from queue import Queue
-from typing import Any, Callable, Dict, List, Optional, Union, Tuple
-from unittest.mock import patch
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from mitosheet.mito_backend import MitoBackend
@@ -12,7 +10,6 @@ from mitosheet.selectionUtils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
 from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
 from mitosheet.streamlit.v1 import RunnableAnalysis
-
 
 class SpreadsheetResult():
 
@@ -52,7 +49,10 @@ See more: https://docs.trymito.io/mito-for-dash/api-reference#callback-props-and
 
 {num_messages}
 {prop_name}
-{id}"""
+{id}
+{session_key}"""
+
+ID_TYPE = 'spreadsheet'
          
 try:
     from dash.development.base_component import Component
@@ -60,52 +60,75 @@ try:
 
 
     class Spreadsheet(Component):
+        
+        # See documentation in the get_instance method
+        instances: Dict[str, Tuple[Any, Dict[str, Any]]] = dict()
 
         _children_props: List[str] = []
         _base_nodes = ['children']
         _namespace = 'dash_spreadsheet_v1'
         _type = 'MitoDashWrapper'
-        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection']
+        _prop_names = ['id', 'all_json', 'data', 'import_folder', 'spreadsheet_result', 'spreadsheet_selection', 'mito_id', 'session_key']
         _valid_wildcard_attributes: List[str] = []
         available_properties = ['id', 'all_json', 'data', 'import_folder']
         available_wildcard_properties: List[str] = []
 
         def __init__(
-                self, 
-                *args: Union[pd.DataFrame, str, None],
-                id: str,
-                import_folder: Optional[str]=None,
-                code_options: Optional[CodeOptions]=None,
-                df_names: Optional[List[str]]=None,
-                sheet_functions: Optional[List[Callable]]=None, 
-                importers: Optional[List[Callable]]=None,
-                editors: Optional[List[Callable]]=None,
-                theme: Optional[MitoTheme]=None,
-                track_selection: bool=False,
-                
-        ):     
-            self.mito_id = id
+            self, 
+            *args: Union[pd.DataFrame, str, None],
+            id: Dict[str, str],
+            import_folder: Optional[str]=None,
+            code_options: Optional[CodeOptions]=None,
+            df_names: Optional[List[str]]=None,
+            sheet_functions: Optional[List[Callable]]=None, 
+            importers: Optional[List[Callable]]=None,
+            editors: Optional[List[Callable]]=None,
+            theme: Optional[MitoTheme]=None,
+            track_selection: bool=False,
+            mito_frontend_key: Optional[str]=None
+        ):    
+            
+            # First, we check that the user has passed an ID in the appropriate format
+            # as this is required for the component to work. It must be a dict with the 
+            # keys type and id, where type == ID_TYPE and id is a unique string
+            if not isinstance(id, dict):
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if 'type' not in id:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if 'id' not in id:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            if id['type'] != ID_TYPE:
+                raise Exception("You must pass an ID to the Spreadsheet component as a dict with the keys type and id")
+            
+            # Get the current Dash app, and check that Mito has been activated on it
+            from dash import get_app
+            current_app = get_app()
+            if len(current_app.callback_map) == 0:
+                raise Exception("You must activate Mito on your Dash app before using the Spreadsheet component. See https://docs.trymito.io/mito-for-dash/api-reference#activate_mito")
+
+            self.id = id
+            self.mito_id = id['id'] # TODO: document this
             # Note: num_messages must be ever increasing, so that whenever we get a new message, the spreadsheet_result
             # and spreadsheet_selection error strings change. This way, we can correctly trigger callbacks that correspond
             # to these values in all cases
             self.num_messages=0
+            self.args = args
             self._set_new_mito_backend(
                 *args, 
+                session_key='',
                 import_folder=import_folder, 
                 code_options=code_options,
                 df_names=df_names,
                 sheet_functions=sheet_functions,
                 importers=importers,
                 editors=editors,
-                theme=theme
+                theme=theme,
+                mito_frontend_key=mito_frontend_key
             )
 
             self.track_selection = track_selection
 
-            super(Spreadsheet, self).__init__(
-                id=id,
-                all_json=self.get_all_json(),
-            )
+            super(Spreadsheet, self).__init__()
 
             # We save the unprocessed messages in a list -- so that we can process them
             # in the callback in the order that they were received -- without them interrupting
@@ -125,75 +148,81 @@ try:
             self.editors = editors
             self.theme = theme
 
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
-                Input(self.mito_id, 'message'), prevent_initial_call=True
-            )
-            def handle_message(msg):
-                self.num_messages += 1
+            self.all_json = self.get_all_json()
 
-                self.unprocessed_messages.put(msg)
-                self.process_single_message()
-                
-                self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
-                return self.get_all_json(), self.spreadsheet_result
+            # Save the instance, so we can look it up later
+            if self.mito_id not in self.__class__.instances:
+                self.__class__.instances[self.mito_id] = (self, dict())
+
+        @classmethod
+        def get_instance(cls, mito_id: str, session_key: str) -> Optional[Any]:
+            """
+            The Spreadsheet component stores a map from the mito_id of the spreadsheet to a tuple of the 
+            original Spreadsheet instances, as well as a map from session key to the session instance.
+
+            This is because Mito is not properly stateless yet. As a result, to work around limitaitons of Dash, 
+            we have the frontend keep track of the session key of the Mito spreadsheet, and then we duplicate the
+            spreadsheet for each session key.
+
+            This way every user gets a new and unique Mito backend. When Mito is stateless, we can remove this, 
+            but it will require larger refactors to the Mito app.
+            """
+
+            # First, lookup the instance by mito_id
+            instance = cls.instances.get(mito_id, None)
+
+            if instance is None:
+                return None
+
+            session_instance = instance[1].get(session_key, None)
+            if session_instance is not None:
+                return session_instance
             
-            # Because this has a performance impact, we only register this callback if
-            # the user actually uses the track_selection parameter
-            # TODO: improve the selection error message in this case...
-            if track_selection:
-                @callback(
-                    Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                    Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                    Input(self.mito_id, 'index_and_selections'), prevent_initial_call=True
-                )
-                def handle_selection_change(index_and_selections):
-                    self.num_messages += 1
+            # If we don't have a session_instance, then we need to create one
+            # We do this by copying the instance, and then saving it
+            session_instance = instance[0].safe_copy()
+            cls.instances[mito_id][1][session_key] = session_instance
+            return session_instance
+        
+        def safe_copy(self):
+            """
+            Make a safe copy of this Spreadsheet component. Should be called 
+            on the original instance of the Spreadsheet component, and not on
+            the session instance -- so the user starts with the original starting
+            values.
+            """
 
-                    self.index_and_selections = index_and_selections
-                    
-                    self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
-                    return self.get_all_json(), self.spreadsheet_selection
-
-            @callback(
-                Output(self.mito_id, 'all_json', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_result', allow_duplicate=True), 
-                Output(self.mito_id, 'spreadsheet_selection', allow_duplicate=True), 
-                Input(self.mito_id, 'data'), 
-                prevent_initial_call=True
+            return self.__class__(
+                *self.args,
+                id=self.id,
+                import_folder=self.import_folder,
+                code_options=self.code_options,
+                df_names=self.df_names,
+                sheet_functions=self.sheet_functions, 
+                importers=self.importers,
+                editors=self.editors,
+                theme=self.theme,
+                track_selection=self.track_selection,
+                mito_frontend_key=self.mito_frontend_key
             )
-            def handle_data_change_data(data):
-                
-                self._set_new_mito_backend(
-                    data, 
-                    import_folder=self.import_folder, 
-                    code_options=self.code_options,
-                    df_names=self.df_names,
-                    sheet_functions=self.sheet_functions,
-                    importers=self.importers,
-                    editors=self.editors,
-                    theme=self.theme
-                )
 
-                
-                return self.get_all_json(), self.spreadsheet_result, self.spreadsheet_selection
-            
         def _set_new_mito_backend(
                 self, 
                 *args: Union[pd.DataFrame, str, None], 
+                session_key:Optional[str]=None,
                 import_folder: Optional[str]=None,
                 code_options: Optional[CodeOptions]=None,
                 df_names: Optional[List[str]]=None,
                 sheet_functions: Optional[List[Callable]]=None, 
                 importers: Optional[List[Callable]]=None,
                 editors: Optional[List[Callable]]=None,
-                theme: Optional[MitoTheme]=None
+                theme: Optional[MitoTheme]=None,
+                mito_frontend_key: Optional[str]=None
             ) -> None:
             """
             Called when the component is created, or when the input data is changed.
             """
-            self.mito_frontend_key = get_new_id()
+            self.mito_frontend_key = get_new_id() if mito_frontend_key is None else mito_frontend_key
             self.mito_backend = MitoBackend(
                 *args, 
                 import_folder=import_folder, 
@@ -227,11 +256,11 @@ try:
             # 1.    The num_messages so it triggers callbacks correct in the all cases
             # 2.    The prop name and the id of the spreadsheet so the `@mito_callback` function can inspect this string and replace this arg with the
             #       actual value the user really wants
-            self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
-            self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id)
+            self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id, session_key=session_key)
+            self.spreadsheet_selection = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_selection', num_messages=self.num_messages, id=self.mito_id, session_key=session_key)
 
                 
-        def process_single_message(self):
+        def process_single_message(self, session_key: str) -> None:
 
             # If we are already processing messages -- then wait until it is
             if self.processing_messages:
@@ -253,7 +282,7 @@ try:
             # Set the processing flag to false
             self.processing_messages = False
 
-            self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id)
+            self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id, session_key=session_key)
             
             
         def get_all_json(self) -> str:
