@@ -336,6 +336,9 @@ export const getActions = (
                 void writeTextToClipboard(stringToCopy);
             },
             isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There is no code to copy. Import data.';
+                }
                 return getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
             },
             searchTerms: ['copy', 'paste', 'export'],
