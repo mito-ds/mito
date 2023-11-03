@@ -1048,7 +1048,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                     userProfile={userProfile}
-                    editorState={editorState}
                     setEditorState={setEditorState}
                     analysisData={analysisData}
                     sheetIndex={uiState.selectedSheetIndex}
