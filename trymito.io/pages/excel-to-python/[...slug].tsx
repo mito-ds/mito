@@ -76,7 +76,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         {/* Meta Description */}
         <meta
           name="description"
-          content={`Learn how to convert Excel's ${functionNameShort} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+          content={`Learn how to convert Excel's ${functionNameShort} formula to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -168,11 +168,11 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               {/* Understanding the Excel Function */}
               <section className={excelToPythonStyles.section}>
                   <h2 
-                    id={`Excel's ${functionNameShort} Function`}
+                    id={`Excel's ${functionNameShort} formula`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding the {pageContent.functionNameLong} Function in Excel
-                    <Link href={`#Excel's ${functionNameShort} Function`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
+                    Understanding the {pageContent.functionNameLong} Formula in Excel
+                    <Link href={`#Excel's ${functionNameShort} formula`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
                     return <p key={text}>{text}</p>
