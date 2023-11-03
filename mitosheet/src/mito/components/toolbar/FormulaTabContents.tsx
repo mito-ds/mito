@@ -32,6 +32,17 @@ export const FormulaTabContents = (
         closeOpenEditingPopups: () => void
     }): JSX.Element => {
 
+    /**
+     * Maps the formula categories to the corresponding action enum
+     */
+    const formulaCategories: { [category: string]: ActionEnum } = {
+        'MATH': ActionEnum.Formulas_Dropdown_Math,
+        'LOGIC': ActionEnum.Formulas_Dropdown_Logic,
+        'TEXT': ActionEnum.Formulas_Dropdown_Text,
+        'DATE': ActionEnum.Formulas_Dropdown_DateTime,
+        'REFERENCE': ActionEnum.Formulas_Dropdown_Reference,
+    };
+
     const getFormulaDropdownItems = (category?: string): JSX.Element[] => {
         const functionsInCategory = functionDocumentationObjects.filter(
             functionObject => functionObject.category === category
@@ -61,14 +72,6 @@ export const FormulaTabContents = (
             )
         });
     }
-
-    const formulaCategories: { [category: string]: ActionEnum } = {
-        'MATH': ActionEnum.Formulas_Dropdown_Math,
-        'LOGIC': ActionEnum.Formulas_Dropdown_Logic,
-        'TEXT': ActionEnum.Formulas_Dropdown_Text,
-        'DATE': ActionEnum.Formulas_Dropdown_DateTime,
-        'REFERENCE': ActionEnum.Formulas_Dropdown_Reference,
-    };
 
     const getFormulaDropdown = (action: ActionEnum, category?: string) => {
         return (
