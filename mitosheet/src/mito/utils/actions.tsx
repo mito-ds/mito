@@ -65,6 +65,7 @@ import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
 import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
 import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
 import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
+import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -642,12 +643,6 @@ export const getActions = (
             longTitle: 'Math Formulas',
             toolbarTitle: 'Math & Trig',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
@@ -660,7 +655,7 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
             searchTerms: ['math', 'functions'],
-            tooltip: "Perform logical functions on the selected columns."
+            tooltip: "Perform math on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_Logic]: {
             type: 'build-time',
@@ -669,12 +664,6 @@ export const getActions = (
             longTitle: 'Logic Formulas',
             toolbarTitle: 'Logical',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
@@ -687,7 +676,7 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
             searchTerms: ['logic', 'functions'],
-            tooltip: "Perform math on the selected columns."
+            tooltip: "Perform logic on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_Text]: {
             type: 'build-time',
@@ -696,12 +685,6 @@ export const getActions = (
             longTitle: 'Text Formulas',
             toolbarTitle: 'Text',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
@@ -714,7 +697,7 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
             searchTerms: ['text', 'functions'],
-            tooltip: "Perform math on the selected columns."
+            tooltip: "Perform text operations on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_DateTime]: {
             type: 'build-time',
@@ -723,12 +706,6 @@ export const getActions = (
             longTitle: 'Date and Time Formulas',
             toolbarTitle: 'Date & Time',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
@@ -741,7 +718,7 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
             searchTerms: ['date', 'time', 'datetime', 'functions'],
-            tooltip: "Perform math on the selected columns."
+            tooltip: "Perform date / time operations on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_Reference]: {
             type: 'build-time',
@@ -750,12 +727,6 @@ export const getActions = (
             longTitle: 'Lookup & Reference Formulas',
             toolbarTitle: 'Lookup & Reference',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
@@ -768,7 +739,28 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
             searchTerms: ['reference', 'lookup', 'functions'],
-            tooltip: "Perform math on the selected columns."
+            tooltip: "Perform lookups on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Finance]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Finance,
+            icon: FinancialFunctionsIcon,
+            longTitle: 'Finance Formulas',
+            toolbarTitle: 'Finance',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-finance'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['financial', 'finance', 'functions'],
+            tooltip: "Perform finance operations on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_More]: {
             type: 'build-time',
@@ -777,12 +769,6 @@ export const getActions = (
             longTitle: 'More Formulas',
             toolbarTitle: 'More',
             actionFunction: () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // We close editing taskpanes
-                closeOpenEditingPopups()
-
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {

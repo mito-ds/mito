@@ -55,19 +55,29 @@ export const FormulaTabContents = (
                     key={functionObject.function}
                     onClick={(e) => {
                         e?.stopPropagation();
-                        const rowIndex = props.gridState.selections[0].startingRowIndex;
-                        const columnIndex = props.gridState.selections[0].startingColumnIndex;
-                        const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex);
-                        const newFormula = `=${functionObject.function}(${startingColumnFormula.startsWith('=') ? startingColumnFormula.substring(1) : startingColumnFormula}`;
-                        props.setEditorState({
-                            rowIndex: Math.max(rowIndex, 0),
-                            columnIndex: Math.max(columnIndex, 0),
-                            formula: newFormula,
-                            arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                            editorLocation: 'cell',
-                            editingMode: editingMode,
-                            sheetIndex: props.gridState.selections[0].sheetIndex,
-                        })
+                        // If the user is currently editing a cell, we only want to update the formula
+                        if (props.editorState !== undefined) {
+                            const currentFormula = props.editorState.formula;
+                            props.setEditorState({
+                                ...props.editorState,
+                                formula: `=${functionObject.function}(${currentFormula.startsWith('=') ? currentFormula.substring(1) : currentFormula}`,
+                            })
+                        } else {
+                            const rowIndex = props.gridState.selections[0].startingRowIndex;
+                            const columnIndex = props.gridState.selections[0].startingColumnIndex;
+                            let {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex);
+                            const newFormula = `=${functionObject.function}(${startingColumnFormula.startsWith('=') ? startingColumnFormula.substring(1) : startingColumnFormula}`;
+
+                            props.setEditorState({
+                                rowIndex: Math.max(rowIndex, 0),
+                                columnIndex: Math.max(columnIndex, 0),
+                                formula: newFormula,
+                                arrowKeysScrollInFormula: arrowKeysScrollInFormula,
+                                editorLocation: 'cell',
+                                editingMode: editingMode,
+                                sheetIndex: props.gridState.selections[0].sheetIndex,
+                            })
+                        }
                     }}
                 />
             )
