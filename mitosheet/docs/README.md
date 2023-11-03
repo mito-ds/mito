@@ -35,7 +35,7 @@ As a TypeScript type:
 interface FunctionDocumentationObject {
     function: string;
     description: string;
-    category?: 'LOGIC', 'MATH', 'FINANCE';
+    category?: 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
     examples?: (string)[] | null;
     syntax: string;
     syntax_elements?: (SyntaxElementsEntity)[] | null;
