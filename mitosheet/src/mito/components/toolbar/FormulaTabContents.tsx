@@ -41,15 +41,16 @@ export const FormulaTabContents = (
                 <DropdownItem
                     title={functionObject.function}
                     key={functionObject.function}
-                    onClick={() => {
+                    onClick={(e) => {
+                        e?.stopPropagation();
                         const rowIndex = props.gridState.selections[0].startingRowIndex;
                         const columnIndex = props.gridState.selections[0].startingColumnIndex;
                         const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex);
-
+                        const newFormula = `=${functionObject.function}(${startingColumnFormula.startsWith('=') ? startingColumnFormula.substring(1) : startingColumnFormula}`;
                         props.setEditorState({
-                            rowIndex: rowIndex,
-                            columnIndex: columnIndex,
-                            formula: `=${functionObject.function}(${startingColumnFormula}`,
+                            rowIndex: Math.max(rowIndex, 0),
+                            columnIndex: Math.max(columnIndex, 0),
+                            formula: newFormula,
                             arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                             editorLocation: 'cell',
                             editingMode: editingMode,
