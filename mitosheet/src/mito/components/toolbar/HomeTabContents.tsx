@@ -9,7 +9,7 @@ import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTa
 import Dropdown from '../elements/Dropdown';
 import Select from '../elements/Select';
 import { getColumnAppliedFormat, getColumnFormatDropdownItems } from '../../utils/format';
-import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { ActionEnum, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { MitoAPI, getRandomId } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
