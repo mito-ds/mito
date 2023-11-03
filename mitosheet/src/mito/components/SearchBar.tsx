@@ -209,7 +209,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
         });
     }
 
-    return (<div className='mito-search-bar'>
+    return (<div className='mito-search-bar' style={{ top: uiState.currentToolbarTab !== undefined ? '117px': '57px'}}>
         <button
             onClick={() => {
                 setIsExpanded(!isExpanded);

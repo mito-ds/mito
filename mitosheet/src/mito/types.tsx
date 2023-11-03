@@ -5,6 +5,7 @@ import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 import { FunctionDocumentationObject } from "./data/function_documentation";
+import { TabName } from "./components/toolbar/Toolbar";
 
 /**
  * The different types of data manipulation that Mito supports.
@@ -889,8 +890,9 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -957,6 +959,13 @@ export enum ActionEnum {
     Import_Files = 'import files',
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
+    Formulas_Dropdown_DateTime = 'date time formulas dropdown',
+    Formulas_Dropdown_Finance = 'finance formulas dropdown',
+    Formulas_Dropdown_Math = 'math formulas dropdown',
+    Formulas_Dropdown_Logic = 'logical formulas dropdown',
+    Formulas_Dropdown_Text = 'text formulas dropdown',
+    Formulas_Dropdown_Reference = 'reference formulas dropdown',
+    Formulas_Dropdown_More = 'more formulas dropdown',
     OpenSearch = 'open search',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',

@@ -129,6 +129,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenToolbarDropdown: undefined,
         toolbarDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
+        currentToolbarTab: 'Home',
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
@@ -1048,6 +1049,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
                     userProfile={userProfile}
+                    editorState={editorState}
                     setEditorState={setEditorState}
                     analysisData={analysisData}
                     sheetIndex={uiState.selectedSheetIndex}

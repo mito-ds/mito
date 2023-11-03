@@ -187,6 +187,7 @@
   font-size: 11px;
   height: 13px;
   text-align: center !important;
+  min-width: 35px;
 }
 
 .toolbar-vertical-line {

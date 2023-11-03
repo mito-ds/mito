@@ -59,6 +59,13 @@ import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
 import ResetIcon from "../components/icons/ResetIcon";
 import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import MathFunctionsIcon from "../components/icons/MathFunctionsIcon";
+import LogicalFunctionsIcon from "../components/icons/LogicalFunctionsIcon";
+import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
+import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
+import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
+import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
+import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -628,6 +635,153 @@ export const getActions = (
             },
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
+        },
+        [ActionEnum.Formulas_Dropdown_Math]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Math,
+            icon: MathFunctionsIcon,
+            longTitle: 'Math Formulas',
+            toolbarTitle: 'Math & Trig',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-math'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['math', 'functions'],
+            tooltip: "Perform math on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Logic]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Logic,
+            icon: LogicalFunctionsIcon,
+            longTitle: 'Logic Formulas',
+            toolbarTitle: 'Logical',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-logic'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['logic', 'functions'],
+            tooltip: "Perform logic on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Text]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Text,
+            icon: TextFunctionsIcon,
+            longTitle: 'Text Formulas',
+            toolbarTitle: 'Text',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-text'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['text', 'functions'],
+            tooltip: "Perform text operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_DateTime]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_DateTime,
+            icon: DateTimeFunctionsIcon,
+            longTitle: 'Date and Time Formulas',
+            toolbarTitle: 'Date & Time',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-date'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['date', 'time', 'datetime', 'functions'],
+            tooltip: "Perform date / time operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Reference]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Reference,
+            icon: LookupFunctionsIcon,
+            longTitle: 'Lookup & Reference Formulas',
+            toolbarTitle: 'Lookup & Reference',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-reference'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['reference', 'lookup', 'functions'],
+            tooltip: "Perform lookups on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Finance]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Finance,
+            icon: FinancialFunctionsIcon,
+            longTitle: 'Finance Formulas',
+            toolbarTitle: 'Finance',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-finance'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['financial', 'finance', 'functions'],
+            tooltip: "Perform finance operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_More]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_More,
+            icon: MoreFunctionsIcon,
+            longTitle: 'More Formulas',
+            toolbarTitle: 'More',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-more'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['logic', 'functions'],
+            tooltip: "Perform math on the selected columns."
         },
         [ActionEnum.Currency_Format]: {
             type: 'build-time',

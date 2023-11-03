@@ -25,12 +25,13 @@ import fscreen from 'fscreen';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import { InsertTabContents } from './InsertTabContents';
 import { DataTabContents } from './DataTabContents';
+import { FormulaTabContents } from './FormulaTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
-type TabName = 'Home' | 'Insert' | 'Data';
+export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas';
 type TabContents = JSX.Element;
 type Tabs = {
     [ tab: string ]: TabContents
@@ -51,17 +52,19 @@ export const Toolbar = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
+        editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
         sheetIndex: number,
         closeOpenEditingPopups: () => void
     }): JSX.Element => {  
-
-    const [currentTab, setCurrentTab] = React.useState<TabName | undefined>('Home');
+    
+    const currentTab = props.uiState.currentToolbarTab;
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>,
-        'Data': <DataTabContents {...props}/>
+        'Data': <DataTabContents {...props}/>,
+        'Formulas': <FormulaTabContents {...props}/>
     };
 
     return (
@@ -175,10 +178,20 @@ export const Toolbar = (
                             key={tab}
                             onClick={() => {
                                 if (currentTab === tab) {
-                                    setCurrentTab(undefined)
+                                    props.setUIState(prevUIState => {
+                                        return {
+                                            ...prevUIState,
+                                            currentToolbarTab: undefined
+                                        }
+                                    })
                                     return
                                 }
-                                setCurrentTab(tab as TabName)
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currentToolbarTab: tab as TabName
+                                    }
+                                })
                             }}
                             className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
                         >
