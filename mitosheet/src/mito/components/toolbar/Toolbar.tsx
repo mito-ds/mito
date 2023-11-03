@@ -179,8 +179,20 @@ export const Toolbar = (
                             onClick={() => {
                                 if (currentTab === tab) {
                                     setCurrentTab(undefined)
+                                    props.setUIState(prevUIState => {
+                                        return {
+                                            ...prevUIState,
+                                            toolbarOpen: false
+                                        }
+                                    })
                                     return
                                 }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        toolbarOpen: true
+                                    }
+                                })
                                 setCurrentTab(tab as TabName)
                             }}
                             className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}

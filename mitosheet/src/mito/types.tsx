@@ -889,6 +889,7 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    toolbarOpen: boolean;
     highlightedColumnIndex?: number;
     toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
     currOpenPopups: {
