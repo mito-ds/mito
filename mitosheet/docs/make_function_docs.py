@@ -88,6 +88,8 @@ def main():
     See mitosheet/docs/make_function_docs.py for more information.
 */
 
+export type FunctionCategory = 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
+
 export interface FunctionDocumentationObject {
     function: string;
     description: string;

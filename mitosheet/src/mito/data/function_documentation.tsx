@@ -4,11 +4,13 @@
     See mitosheet/docs/make_function_docs.py for more information.
 */
 
+export type FunctionCategory = 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
+
 export interface FunctionDocumentationObject {
     function: string;
     description: string;
     search_terms: string[];
-    category?: 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
+    category?: FunctionCategory;
     examples?: (string)[] | null;
     syntax: string;
     syntax_elements?: (SyntaxElementsEntity)[] | null;

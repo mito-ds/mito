@@ -9,7 +9,7 @@ import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, U
 import { MitoAPI } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
-import { functionDocumentationObjects } from '../../data/function_documentation';
+import { functionDocumentationObjects, FunctionCategory } from '../../data/function_documentation';
 import { getStartingFormula } from '../endo/celleditor/cellEditorUtils';
 
 export const FormulaTabContents = (
@@ -35,9 +35,10 @@ export const FormulaTabContents = (
     /**
      * Maps the formula categories to the corresponding action enum
      */
-    const formulaCategories: { [category: string]: ActionEnum } = {
+    const formulaCategories: { [category in FunctionCategory]: ActionEnum } = {
         'MATH': ActionEnum.Formulas_Dropdown_Math,
         'LOGIC': ActionEnum.Formulas_Dropdown_Logic,
+        'FINANCE': ActionEnum.Formulas_Dropdown_Finance,
         'TEXT': ActionEnum.Formulas_Dropdown_Text,
         'DATE': ActionEnum.Formulas_Dropdown_DateTime,
         'REFERENCE': ActionEnum.Formulas_Dropdown_Reference,
@@ -100,7 +101,7 @@ export const FormulaTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
-        {Object.keys(formulaCategories).map(category => {
+        {(Object.keys(formulaCategories) as FunctionCategory[]).map((category: FunctionCategory) => {
             return getFormulaDropdown(formulaCategories[category], category)
         })}
         {getFormulaDropdown(ActionEnum.Formulas_Dropdown_More)}

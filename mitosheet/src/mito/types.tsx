@@ -957,10 +957,11 @@ export enum ActionEnum {
     Import_Files = 'import files',
     Merge = 'merge',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
+    Formulas_Dropdown_DateTime = 'date time formulas dropdown',
+    Formulas_Dropdown_Finance = 'finance formulas dropdown',
     Formulas_Dropdown_Math = 'math formulas dropdown',
     Formulas_Dropdown_Logic = 'logical formulas dropdown',
     Formulas_Dropdown_Text = 'text formulas dropdown',
-    Formulas_Dropdown_DateTime = 'date time formulas dropdown',
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
     OpenSearch = 'open search',
