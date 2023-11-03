@@ -157,7 +157,7 @@ class StepPerformer(ABC, object):
         for modified_dataframe_index in modified_dataframe_indexes:
             df_name = prev_state.df_names[modified_dataframe_index]
             new_df = exec_locals[df_name]
-            post_state = update_state_by_reconing_dataframes(
+            post_state, _ = update_state_by_reconing_dataframes(
                 post_state, 
                 modified_dataframe_index, 
                 prev_state.dfs[modified_dataframe_index],
