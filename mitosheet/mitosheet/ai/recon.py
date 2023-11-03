@@ -281,7 +281,7 @@ def update_state_by_reconing_dataframes(
         old_df: pd.DataFrame,
         new_df: pd.DataFrame,
         column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None
-    ) -> State:
+    ) -> Tuple[State, ModifiedDataframeReconData]:
     """
     This function is the work-horse for modified dataframes. It compares the old dataframe at the index 
     to the new dataframe, and then updates the state accordingly -- making sure all the metadata is correct.
@@ -318,7 +318,7 @@ def update_state_by_reconing_dataframes(
     # Then, actually set the dataframe
     state.dfs[sheet_index] = new_df
 
-    return state
+    return state, modified_dataframe_recon
 
 
 def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, Optional[Any], AITransformFrontendResult]:
@@ -345,7 +345,8 @@ def exec_and_get_new_state_and_result(state: State, code: str) -> Tuple[State, O
     modified_dataframes_recons: Dict[str, ModifiedDataframeReconData] = {}
     for df_name, new_df in recon_data['modified_dataframes'].items():
         sheet_index = new_state.df_names.index(df_name)
-        new_state = update_state_by_reconing_dataframes(new_state, sheet_index, new_state.dfs[sheet_index], new_df)
+        new_state, modified_dataframes_recon = update_state_by_reconing_dataframes(new_state, sheet_index, new_state.dfs[sheet_index], new_df)
+        modified_dataframes_recons[df_name] = modified_dataframes_recon
 
     # For the last value, if is a dataframe, then add it to the state as well -- unless this dataframe
     # is a _newly_ created dataframe that is already given a name
