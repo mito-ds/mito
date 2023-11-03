@@ -222,7 +222,7 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                                             Learn how to <span className='text-highlight'>automate Excel files</span> using Excel formulas in Python and pandas
                                         </h2>
                                         <p>
-                                            We've implemented all of Excel's most powerful features in Python so you don't have to look through documentation like this!
+                                            We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to look through documentation like this!
                                             Use Excel formulas, create pivot tables, filter your data, build graphs, and more. 
                                         </p>
                                         <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
