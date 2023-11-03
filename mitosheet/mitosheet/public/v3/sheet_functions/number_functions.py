@@ -229,6 +229,7 @@ def KURT(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
         "function": "KURT",
         "description": "Computes the unbiased kurtosis, a measure of tailedness, of a series, excluding missing values.",
         "search_terms": ["kurtosis"],
+        "category": "MATH",
         "examples": [
             "=KURT(A)",
             "=KURT(A * B)"
@@ -256,6 +257,7 @@ def LOG(arg: NumberRestrictedInputType, base: Optional[NumberRestrictedInputType
         "function": "LOG",
         "description": "Calculates the logarithm of the passed series with an optional base.",
         "search_terms": ["log", "logarithm", "natural log"],
+        "category": "MATH",
         "examples": [
             "LOG(10) = 1",
             "LOG(100, 10) = 2"
@@ -294,6 +296,7 @@ def MAX(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
         "function": "MAX",
         "description": "Returns the maximum value among the passed arguments.",
         "search_terms": ["max", "maximum", "minimum"],
+        "category": "MATH",
         "examples": [
             "MAX(10, 11)",
             "MAX(Old_Data, New_Data)"
@@ -355,6 +358,7 @@ def MIN(*argv: Union[NumberInputType, None, DatetimeRestrictedInputType]) -> Uni
         "function": "MIN",
         "description": "Returns the minimum value among the passed arguments.",
         "search_terms": ["min", "minimum", "maximum"],
+        "category": "MATH",
         "examples": [
             "MIN(10, 11)",
             "MIN(Old_Data, New_Data)"
@@ -413,6 +417,7 @@ def MULTIPLY(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         "function": "MULTIPLY",
         "description": "Returns the product of two numbers.",
         "search_terms": ["multiply", "product"],
+        "category": "MATH",
         "examples": [
             "MULTIPLY(2,3)",
             "MULTIPLY(A,3)"
@@ -448,6 +453,7 @@ def POWER(arg: NumberRestrictedInputType, power: NumberRestrictedInputType) -> N
         "function": "POWER",
         "description": "The POWER function can be used to raise a number to a given power.",
         "search_terms": ["power", "raise", "exponent", "square", "cube"],
+        "category": "MATH",
         "examples": [
             "POWER(4, 1/2)",
             "POWER(Dose, 2)"
@@ -478,6 +484,7 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
         "function": "ROUND",
         "description": "Rounds a number to a given number of decimals.",
         "search_terms": ["round", "decimal", "integer"],
+        "category": "MATH",
         "examples": [
             "ROUND(1.3)",
             "ROUND(A, 2)"
@@ -530,6 +537,7 @@ def SKEW(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
         "function": "SKEW",
         "description": "Computes the skew of a series, excluding missing values.",
         "search_terms": [],
+        "category": "MATH",
         "examples": [
             "=SKEW(A)",
             "=SKEW(A * B)"
@@ -555,6 +563,7 @@ def STDEV(arg: NumberInputType) -> NumberFunctionReturnType:
         "function": "STDEV",
         "description": "Computes the standard deviation of a series, excluding missing values.",
         "search_terms": ["standard", "deviation", "standard", "distribution"],
+        "category": "MATH",
         "examples": [
             "=STDEV(A)",
             "=STDEV(A * B)"
@@ -585,6 +594,7 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         "function": "SUM",
         "description": "Returns the sum of the given numbers and series.",
         "search_terms": ["add"],
+        "category": "MATH",
         "examples": [
             "SUM(10, 11)",
             "SUM(A, B, D, F)",
@@ -619,6 +629,7 @@ def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnTyp
         "function": "SUMPRODUCT",
         "description": "Returns the sum of the product of the passed arguments.",
         "search_terms": ["sum product", "sumproduct", "sum", "product", "weighted average"],
+        "category": "MATH",
         "examples": [
             "SUMPRODUCT(A:A, B:B)",
             "SUMPRODUCT(A:B)"
@@ -675,6 +686,7 @@ def VALUE(arg: NumberRestrictedInputType) -> NumberFunctionReturnType:
         "function": "VALUE",
         "description": "Converts a string series to a number series. Any values that fail to convert will return an NaN.",
         "search_terms": ["number", "to number", "dtype", "convert", "parse"],
+        "category": "MATH",
         "examples": [
             "=VALUE(A)",
             "=VALUE('123')"
@@ -701,6 +713,7 @@ def VAR(arg: NumberInputType) -> NumberFunctionReturnType:
         "function": "VAR",
         "description": "Computes the variance of a series, excluding missing values.",
         "search_terms": ["variance"],
+        "category": "MATH",
         "examples": [
             "=VAR(A)",
             "=VAR(A - B)"

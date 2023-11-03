@@ -733,7 +733,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'DATETIME'
+                        toolbarDropdown: 'DATE'
                     }
                 })
             },

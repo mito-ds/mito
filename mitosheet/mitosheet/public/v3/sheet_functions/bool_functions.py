@@ -196,6 +196,7 @@ def OR(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
         "function": "OR",
         "description": "Returns True if any of the provided arguments are True, and False if all of the provided arguments are False.",
         "search_terms": ["or", "if", "conditional"],
+        "category": "LOGIC",
         "examples": [
             "OR(True, False)",
             "OR(Status == 'success', Status == 'pass', Status == 'passed')"
