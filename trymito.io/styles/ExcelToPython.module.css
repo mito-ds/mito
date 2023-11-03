@@ -75,6 +75,7 @@
     position: absolute;
     top: 0;
     right: 0;
+    cursor: pointer;
 }
 
 .cta_card {
@@ -187,6 +188,10 @@
     .glossary_page_card_function_name {
         font-size: 1.5rem;
         margin-right: 10px;
+    }
+
+    .cta_card_title_text {
+        font-size: 2rem;
     }
 
 }

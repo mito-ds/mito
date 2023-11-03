@@ -28,6 +28,7 @@ import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import { getGlossaryPageInfo, GlossaryPageInfo } from '../excel-to-python';
+import Link from 'next/link';
 require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
@@ -75,7 +76,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         {/* Meta Description */}
         <meta
           name="description"
-          content={`Learn how to convert Excel's ${functionNameShort} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+          content={`Learn how to convert Excel's ${functionNameShort} formula to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -167,11 +168,11 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               {/* Understanding the Excel Function */}
               <section className={excelToPythonStyles.section}>
                   <h2 
-                    id={`Excel's ${functionNameShort} Function`}
+                    id={`Excel's ${functionNameShort} formula`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding the {pageContent.functionNameLong} Function in Excel
-                    <a className={excelToPythonStyles.section_copy} href={`#Excel's ${functionNameShort} Function`}>#</a>
+                    Understanding the {pageContent.functionNameLong} Formula in Excel
+                    <Link href={`#Excel's ${functionNameShort} formula`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
                     return <p key={text}>{text}</p>
@@ -232,7 +233,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   className={excelToPythonStyles.link}
                 >
                   Implementing the {pageContent.functionNameLong} function in Pandas
-                  <a className={excelToPythonStyles.section_copy} href={`#Implementing ${functionNameShort} in Pandas`}>#</a>
+                  <Link href={`#Implementing ${functionNameShort} in Pandas`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                 </h2>
                 {pageContent.equivalentCode.introParagraphs.map(text => {
                   return <p key={text}>{text}</p>
@@ -245,7 +246,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                         className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
                       >
                         {codeSection.title}
-                        <a className={excelToPythonStyles.section_copy} href={`#${codeSection.shortTitle}`}>#</a>
+                        <Link href={`#${codeSection.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                       </h3>
                       {codeSection.paragraphs.map(text => {
                         return <p key={text}> {text}</p>
@@ -268,7 +269,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   className={excelToPythonStyles.link}
                 >
                   Common mistakes when using {functionNameShort} in Python
-                  <a className={excelToPythonStyles.section_copy} href="#Common mistakes">#</a>
+                  <Link href="#Common mistakes"><span className={excelToPythonStyles.section_copy}>#</span></Link>
                 </h2>
                 {pageContent.commonMistakes.introParagraphs.map(text => {
                   return <p key={text}>{text}</p>
@@ -281,7 +282,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                         className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
                       >
                         {codeSections.title}
-                        <a className={excelToPythonStyles.section_copy} href={`#${codeSections.shortTitle}`}>#</a>
+                        <Link href={`#${codeSections.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                       </h3>
                       {codeSections.paragraphs.map(text => {
                         return <p key={text}>{text}</p>

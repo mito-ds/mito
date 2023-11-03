@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from "next/image"
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css';
@@ -13,6 +14,8 @@ import Link from 'next/link';
 import PageTOC from '../components/Glossary/PageTOC/PageTOC';
 import TextButton from '../components/TextButton/TextButton';
 import { PageContent } from '../excel-to-python-page-contents/types';
+import textImageSplitStyles from '../styles/TextImageSplit.module.css';
+import CTAButtons from '../components/CTAButtons/CTAButtons';
 
 export type GlossaryPageInfo = {
     functionNameShort: string,
@@ -80,12 +83,12 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
         <>
             <Head>
                 {/* Title Tag */}
-                <title>{`Excel to Python: Using Excel's functions in Python - A Complete Guide | Mito`}</title>
+                <title>{`Complete Guide to Excel Functions in Python | Mito`}</title>
                 
                 {/* Meta Description */}
                 <meta
                     name="description"
-                    content={`Learn how to convert Excel's functions to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples for every Excel formula.`}
+                    content={`Learn how to convert Excel's functions to Python using Pandas. Step-by-step instructions and practical examples for every Excel formula.`}
                 />
 
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -128,11 +131,11 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                         <div className={excelToPythonStyles.excel_to_python_glossary_content}>
                             <section className={classNames(titleStyles.title_card)}>
                                 <h1 className={titleStyles.title}>
-                                    Excel to Python Glossary
+                                    Excel to Python Guide
                                 </h1>
-                                <p className={titleStyles.description}>
-                                    Looking to use Excel formulas in Python? You&apos;ve come to the right place. Click on a function below to learn how to use it in Python.
-                                </p>
+                                <h2 className={titleStyles.description}>
+                                    Looking to use Excel formulas in Python? You&apos;ve come to the right place. Click on a function below to learn how to use Excel formulas in Python and pandas.
+                                </h2>
                             </section>
                             <section style={{marginTop: '2rem'}}>
                                 <h2 id="Functions" style={{marginBottom: '2rem'}}>Functions</h2>
@@ -176,6 +179,62 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                                 {miscFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
+                            </section>
+                            <section className={classNames(pageStyles.background_card, excelToPythonStyles.cta_card)}>
+                                <div>
+                                    <h2 className={excelToPythonStyles.cta_card_title_text}>
+                                        Mito Is a Powerful No-Code Tool for Excel Users
+                                    </h2>
+                                    <div className='center'>
+                                        <p>
+                                            Autoamte your spreadsheet workflows without spending months learning Python.
+                                        </p>
+                                    </div>
+                                    <div className='center'>
+                                        <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
+                                    </div> 
+                                </div>
+                                <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, excelToPythonStyles.cta_functionality_card, 'display-desktop-only-flex')}>
+                                    <div className={classNames(textImageSplitStyles.functionality_text)}>
+                                        <h2>
+                                        <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
+                                        Generate Python.
+                                        </h2>
+                                        <p>
+                                        Mito is the easiest way to write Excel formulas in Python. 
+                                        Every edit you make in the Mito spreadsheet is automatically converted to Python code.
+                                        </p>
+                                        <Link href='/spreadsheet-automation'>
+                                            <a className={pageStyles.link_with_p_tag_margins}>
+                                                Learn more about the Mito Spreadsheet →
+                                            </a>
+                                        </Link>
+                                    </div>
+                                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                                        <div className={'center'}>
+                                            <Image src={'/excel-to-python/mito_code_gen.png'} alt='Automate analysis with Mito' width={373} height={364}/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, excelToPythonStyles.cta_functionality_card, 'display-desktop-only-flex')}>
+                                    <div className={classNames(textImageSplitStyles.functionality_text)}>
+                                        <h2>
+                                            Learn how to <span className='text-highlight'>automate Excel files</span> using Excel formulas in Python and pandas
+                                        </h2>
+                                        <p>
+                                            We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to look through documentation like this!
+                                            Use Excel formulas, create pivot tables, filter your data, build graphs, and more. 
+                                        </p>
+                                        <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                                            View all 100+ transformations →
+                                        </a>
+                                    </div>
+                                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                                        <div className={'center'}>
+                                            <Image src={'/pivot_table_vertical.png'} alt='Create pivot tables with Mito' width={344} height={373}/>
+                                        </div>
+                                    </div>
+                                </div>
                             </section>
                         </div>
                         <div className={excelToPythonStyles.table_of_contents_container}>
