@@ -5,8 +5,7 @@ import React from 'react'
 
 import ToolbarButton from './ToolbarButton';
 import Dropdown from '../elements/Dropdown';
-import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
-import { MitoAPI } from '../../api/api';
+import { ActionEnum, EditorState, GridState, SheetData, UIState } from '../../types';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { functionDocumentationObjects, FunctionCategory } from '../../data/function_documentation';
@@ -14,22 +13,13 @@ import { getStartingFormula } from '../endo/celleditor/cellEditorUtils';
 
 export const FormulaTabContents = (
     props: {
-        mitoAPI: MitoAPI
-        currStepIdx: number;
-        lastStepIndex: number;
-        highlightPivotTableButton: boolean;
-        highlightAddColButton: boolean;
         actions: Actions;
         gridState: GridState;
         uiState: UIState;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
-        userProfile: UserProfile;
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData,
-        sheetIndex: number,
-        closeOpenEditingPopups: () => void
     }): JSX.Element => {
 
     /**

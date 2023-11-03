@@ -19,8 +19,6 @@ import { MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './Toolbar';
 export const HomeTabContents = (
     props: {
         mitoAPI: MitoAPI
-        currStepIdx: number;
-        lastStepIndex: number;
         highlightPivotTableButton: boolean;
         highlightAddColButton: boolean;
         actions: Actions;
@@ -29,8 +27,6 @@ export const HomeTabContents = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData,
         sheetIndex: number,
         closeOpenEditingPopups: () => void
     }): JSX.Element => {
