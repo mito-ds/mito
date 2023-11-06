@@ -102,6 +102,10 @@ export const FormulaTabContents = (
 
     return (<div className='mito-toolbar-bottom'>
         {(Object.keys(formulaCategories) as FunctionCategory[]).map((category: FunctionCategory) => {
+            // We don't want to display the finance category in the toolbar because we don't currently have any finance functions
+            if (category === 'FINANCE') {
+                return null;
+            }
             return getFormulaDropdown(formulaCategories[category], category)
         })}
         {getFormulaDropdown(ActionEnum.Formulas_Dropdown_More)}
