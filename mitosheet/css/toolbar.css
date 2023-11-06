@@ -280,6 +280,11 @@
   background-color: var(--mito-highlight-medium);
 }
 
+.mito-toolbar-top svg path {
+  stroke: var(--mito-very-light-gray);
+  stroke-width: 0.78x;
+}
+
 .mito-toolbar-tabbar-selected-underline {
   width: 100%;
   height: 2px;
