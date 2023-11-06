@@ -102,7 +102,10 @@ try:
             
             # Get the current Dash app, and check that Mito has been activated on it
             from dash import get_app
-            current_app = get_app()
+            try:
+                current_app = get_app()
+            except:
+                raise Exception("You must create a Dash app before using the Spreadsheet component. See https://docs.trymito.io/mito-for-dash/api-reference#activate_mito")
             if len(current_app.callback_map) == 0:
                 raise Exception("You must activate Mito on your Dash app before using the Spreadsheet component. See https://docs.trymito.io/mito-for-dash/api-reference#activate_mito")
 
