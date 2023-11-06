@@ -326,7 +326,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.CopyCode,
             icon: CopyIcon,
-            toolbarTitle: 'Copy Code to Clipboard',
+            toolbarTitle: 'Copy Code',
             longTitle: 'Copy Code to Clipboard',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -336,8 +336,8 @@ export const getActions = (
                 void writeTextToClipboard(stringToCopy);
             },
             isDisabled: () => {
-                if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There is no code to copy. Import data.';
+                if (!analysisData.code || analysisData.code.length === 0) {
+                    return 'There is no code to copy.';
                 }
                 return getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
             },

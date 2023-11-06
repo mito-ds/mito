@@ -46,6 +46,8 @@ const ToolbarButton = (
         */
         children?: JSX.Element
 
+        onClick?: () => void;
+
         /**
          * When displaying the button, the text and icon can be displayed either horizontally or vertically
          */
@@ -66,6 +68,10 @@ const ToolbarButton = (
             onClick={() => {
                 if (disabled) {
                     return
+                }
+
+                if (props.onClick !== undefined) {
+                    props.onClick();
                 }
 
                 props.action.actionFunction();
