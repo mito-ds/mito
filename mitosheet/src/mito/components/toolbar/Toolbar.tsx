@@ -26,6 +26,14 @@ type Tabs = {
     [ tab: string ]: TabContents
 }
 
+/* 
+    Each toolbar button icon has both a light and dark option. 
+    We use the light version when its on a dark background (ie: when 
+    the toolbar button is hovered over), and the dark version when its 
+    on a light background (ie: at rest). 
+*/
+export type IconVariant = 'light' | 'dark'
+
 export const Toolbar = (
     props: {
         mitoAPI: MitoAPI
