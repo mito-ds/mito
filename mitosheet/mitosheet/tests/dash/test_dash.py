@@ -1,11 +1,20 @@
 import pytest
 from mitosheet.tests.decorators import requires_dash
-from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
+from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback, activate_mito
 
 @requires_dash
-def test_can_create_dash_spreadsheet_component():
-    s = Spreadsheet(id='an id')
-    assert s is not None
+def test_cannot_create_dash_spreadsheet_component_outside_dash():
+    with pytest.raises(Exception):
+        Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'})
+    
+@requires_dash
+def test_cannot_create_dash_spreadsheet_component_without_activating():
+    from dash import Input, Output, State, Dash, html, dcc
+    app = Dash(__name__)
+
+    with pytest.raises(Exception):
+        Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'})
+    
 
 
 @requires_dash
@@ -16,6 +25,7 @@ def test_mito_callback_component_callable_with_no_mito():
 
     # Make a dash app
     app = Dash(__name__)
+    activate_mito(app)
 
     app.layout = html.Div([
         dcc.Input(id='input', value='initial value'),
@@ -37,18 +47,19 @@ def test_mito_callback_component_callable_with_spreadsheet_as_input():
 
     # Make a dash app
     app = Dash(__name__)
+    activate_mito(app)
 
     app.layout = html.Div([
         dcc.Input(id='input', value='initial value'),
         html.Div(id='output'),
         dcc.Store(id='state'),
-        Spreadsheet(id='spreadsheet')
+        Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'})
     ])
     
     @mito_callback(
         Output('output', 'value'),
         Input('input', 'value'),
-        Input('spreadsheet', 'mito_spreadsheet_result'),
+        Input({'type': 'spreadsheet', 'id': 'sheet'}, 'mito_spreadsheet_result'),
         State('state', 'value'),
     )
     def func(input_value, spreadsheet_data, state_value):
@@ -61,18 +72,19 @@ def test_mito_callback_component_callable_with_spreadsheet_in_state():
 
     # Make a dash app
     app = Dash(__name__)
+    activate_mito(app)
 
     app.layout = html.Div([
         dcc.Input(id='input', value='initial value'),
         html.Div(id='output'),
         dcc.Store(id='state'),
-        Spreadsheet(id='spreadsheet')
+        Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'})
     ])
     
     @mito_callback(
         Output('output', 'value'),
         Input('input', 'value'),
-        State('spreadsheet', 'mito_spreadsheet_result'),
+        State({'type': 'spreadsheet', 'id': 'sheet'}, 'mito_spreadsheet_result'),
         State('state', 'value'),
     )
     def func(input_value, spreadsheet_data, state_value):
@@ -84,7 +96,8 @@ def test_can_pass_track_selection():
 
      # Make a dash app
     app = Dash(__name__)
+    activate_mito(app)
 
     app.layout = html.Div([
-        Spreadsheet(id='spreadsheet', track_selection=False)
+        Spreadsheet(id={'type': 'spreadsheet', 'id': 'sheet'}, track_selection=False)
     ])
