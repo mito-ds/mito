@@ -6,7 +6,6 @@ import React from 'react';
 const ConditionalFormatIcon = (): JSX.Element => {
     return (
         <svg width="38" height="30" viewBox="0 0 38 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect y="0.0703125" width="38" height="29" rx="3" fill="#D7D7D7"/>
             <rect x="4.5" y="6.57031" width="29" height="16" fill="#F4F4F4" stroke="black"/>
             <rect x="4.5" y="11.5703" width="29" height="6" stroke="#797774"/>
             <rect x="4.5" y="6.57031" width="29" height="16" stroke="black"/>
