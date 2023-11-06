@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconVariant } from '../toolbar/utils';
+import { IconVariant } from '../toolbar/Toolbar';
 
 const GraphIcon = (props: {variant?: IconVariant}): JSX.Element => {
     if (props.variant === 'light') {
