@@ -5,19 +5,6 @@ import "../../../../css/toolbar.css";
 import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
-import GetSupportButton from '../elements/GetSupportButton';
-import PlanButton from './PlanButton';
-import ToolbarCodeDropdown from './ToolbarCodeDropdown';
-import ToolbarColumnsDropdown from './ToolbarColumnsDropdown';
-import ToolbarDataframesDropdown from './ToolbarDataframesDropdown';
-import ToolbarMenu from './ToolbarDropdownSelector';
-import ToolbarEditDropdown from './ToolbarEditDropdown';
-import ToolbarFormatDropdown from './ToolbarFormatDropdown';
-import ToolbarGraphsDropdown from './ToolbarGraphsDropdown';
-import ToolbarHelpDropdown from './ToolbarHelpDropdown';
-import ToolbarRowsDropdown from './ToolbarRowsDropdown.tsx';
-import ToolbarViewDropdown from './ToolbarViewDropdown';
-import ToolbarUserDefinedEditsDropdown from './ToolbarUserDefinedEditsDropdown';
 import { HomeTabContents } from './HomeTabContents';
 import { classNames } from '../../utils/classNames';
 import ToolbarButton from './ToolbarButton';
@@ -26,6 +13,8 @@ import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcon
 import { InsertTabContents } from './InsertTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
+import GetSupportButton from '../elements/GetSupportButton';
+import PlanButton from './PlanButton';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -71,103 +60,18 @@ export const Toolbar = (
         <div className='mito-toolbar-container'>
             <div className='mito-toolbar-top'>
                 <div className='mito-toolbar-top-left'>
-                    <ToolbarMenu type='Edit' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarEditDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Dataframes' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarDataframesDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Columns' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarColumnsDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Rows' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarRowsDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Graphs' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarGraphsDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Format' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarFormatDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='Code' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarCodeDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    <ToolbarMenu type='View' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarViewDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
-                    {props.actions.runtimeEditActionsList.length > 0 &&
-                        <ToolbarMenu type='Custom Edits' uiState={props.uiState} setUIState={props.setUIState}>
-                            <ToolbarUserDefinedEditsDropdown
-                                actions={props.actions}
-                                uiState={props.uiState}
-                                setUIState={props.setUIState}
-                                userProfile={props.userProfile}
-                            />
-                        </ToolbarMenu>
-                        
-                    }
-                    <ToolbarMenu type='Help' uiState={props.uiState} setUIState={props.setUIState}>
-                        <ToolbarHelpDropdown
-                            actions={props.actions}
-                            uiState={props.uiState}
-                            setUIState={props.setUIState}
-                            userProfile={props.userProfile}
-                        />
-                    </ToolbarMenu>
+                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Undo]} />
+                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Redo]} />
+                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Clear]} />
                 </div>
                 <div className='mito-toolbar-top-right'>
-                    <GetSupportButton 
-                        userProfile={props.userProfile} 
-                        setUIState={props.setUIState} 
-                        mitoAPI={props.mitoAPI} 
-                        width='hug-contents'
-                        className='mito-plan-button'
+                    <ToolbarButton
+                        id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
+                        action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
                     />
-                    <PlanButton
-                        uiState={props.uiState}
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
+                    <ToolbarButton
+                        iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
+                        action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                     />
                 </div>
             </div>
@@ -201,13 +105,18 @@ export const Toolbar = (
                     })}
                 </div>
                 <div className='mito-toolbar-tabbar-right'>
-                    <ToolbarButton
-                        id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
-                        action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+                    <GetSupportButton 
+                        userProfile={props.userProfile} 
+                        setUIState={props.setUIState} 
+                        mitoAPI={props.mitoAPI} 
+                        width='hug-contents'
+                        className='mito-plan-button'
                     />
-                    <ToolbarButton
-                        iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
-                        action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
+                    <PlanButton
+                        uiState={props.uiState}
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
                     />
                 </div>
             </div>
