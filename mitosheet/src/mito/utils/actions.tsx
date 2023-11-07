@@ -232,7 +232,6 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Clear,
             icon: ClearIcon,
-            toolbarTitle: 'Clear',
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1216,7 +1215,6 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Redo,
             icon: RedoIcon,
-            toolbarTitle: 'Redo',
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1542,7 +1540,6 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Undo,
             icon: UndoIcon,
-            toolbarTitle: 'Undo',
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on

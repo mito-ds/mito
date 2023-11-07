@@ -1,7 +1,6 @@
 .mito-toolbar-container {
   width: 100%;
   height: min-content;
-  padding: 4px;
 
   /* We make the toolbar a flexbox, for the toolbar icons/actions */
   display: flex;
@@ -22,6 +21,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  background-color: var(--mito-highlight);
 }
 
 .mito-toolbar-top-left {
@@ -73,6 +73,7 @@
   display: flex;
   flex-direction: row;
   overflow-x: scroll;
+  margin-bottom: 4px;
 }
 
 .mito-toolbar-bottom-left-half {
@@ -261,6 +262,7 @@
 .mito-toolbar-tabbar {
   display: flex;
   justify-content: space-between;
+  padding: 4px;
 }
 
 .mito-toolbar-tabbar-right, .mito-toolbar-tabbar-left {
@@ -268,6 +270,19 @@
   align-content: center;
   flex-direction: row;
   height: 26px;
+}
+
+.mito-toolbar-tabbar-right a {
+  margin-right: 3px;
+}
+
+.mito-toolbar-top .mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container {
+  background-color: var(--mito-highlight-medium);
+}
+
+.mito-toolbar-top svg path {
+  stroke: var(--mito-very-light-gray);
+  stroke-width: 0.78x;
 }
 
 .mito-toolbar-tabbar-selected-underline {
