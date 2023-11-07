@@ -12,7 +12,7 @@ const DataFrameImportIcon = (): JSX.Element => {
             <rect x="4.82812" y="11.8828" width="20.3438" height="5.375" stroke="#797774"/>
             <path d="M18.5957 7.13281V22.0078" stroke="#797775"/>
             <path d="M11.8394 7.13281L11.8394 22.0078" stroke="#797775"/>
-            <rect x="4.82812" y="6.57031" width="20.3438" height="16" stroke="black"/>
+            <rect x="4.82812" y="6.57031" width="20.3438" height="16" stroke="var(--mito-text)"/>
         </svg>        
     )
 }

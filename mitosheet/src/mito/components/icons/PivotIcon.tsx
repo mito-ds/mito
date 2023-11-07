@@ -5,7 +5,7 @@ import React from 'react';
 const PivotIcon = (): JSX.Element => {
     return (
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1.43689" y="0.570312" width="16" height="16" fill="white" stroke="black"/>
+            <rect x="1.43689" y="0.570312" width="16" height="16" fill="white" stroke="var(--mito-text)"/>
             <rect x="3.18689" y="2.32031" width="2.5" height="2.5" fill="#C7C6C4" stroke="#797775" strokeWidth="0.5"/>
             <rect x="7.18689" y="2.32031" width="8.5" height="2.5" fill="#C7C6C4" stroke="#797775" strokeWidth="0.5"/>
             <rect x="3.18689" y="6.32031" width="2.5" height="8.5" fill="#C7C6C4" stroke="#797775" strokeWidth="0.5"/>

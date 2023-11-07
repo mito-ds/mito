@@ -285,6 +285,10 @@
   stroke-width: 0.78x;
 }
 
+.mito-toolbar-top .mito-toolbar-button-icon-container {
+  align-items: center;
+}
+
 .mito-toolbar-tabbar-selected-underline {
   width: 100%;
   height: 2px;

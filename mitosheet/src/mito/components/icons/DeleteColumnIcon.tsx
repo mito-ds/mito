@@ -10,16 +10,16 @@ const DeleteColumnIcon = (): JSX.Element => {
             <line x1="8.65674" y1="1.07031" x2="8.65674" y2="16.0703" stroke="#797775"/>
             <rect x="4.65674" y="5.57031" width="14" height="6" fill="#9D6CFF" stroke="#6229AB"/>
             <line x1="11.6567" y1="6.07031" x2="11.6567" y2="12.0703" stroke="#6229AB"/>
-            <line x1="0.156738" y1="11.5703" x2="4.15674" y2="11.5703" stroke="black"/>
-            <line x1="0.156738" y1="5.57031" x2="4.15674" y2="5.57031" stroke="black"/>
-            <line x1="19.1567" y1="5.57031" x2="23.1567" y2="5.57031" stroke="black"/>
-            <line x1="19.1567" y1="11.5703" x2="23.1567" y2="11.5703" stroke="black"/>
-            <line x1="1.15674" y1="0.570312" x2="24.1567" y2="0.570312" stroke="black"/>
-            <line x1="1.15674" y1="16.5703" x2="24.1567" y2="16.5703" stroke="black"/>
-            <line x1="23.6567" y1="17.0703" x2="23.6567" y2="11.0703" stroke="black"/>
-            <line x1="0.656738" y1="17.0703" x2="0.656738" y2="11.0703" stroke="black"/>
-            <line x1="0.656738" y1="6.07031" x2="0.656738" y2="0.0703125" stroke="black"/>
-            <line x1="23.6567" y1="6.07031" x2="23.6567" y2="0.0703125" stroke="black"/>
+            <line x1="0.156738" y1="11.5703" x2="4.15674" y2="11.5703" stroke="var(--mito-text)"/>
+            <line x1="0.156738" y1="5.57031" x2="4.15674" y2="5.57031" stroke="var(--mito-text)"/>
+            <line x1="19.1567" y1="5.57031" x2="23.1567" y2="5.57031" stroke="var(--mito-text)"/>
+            <line x1="19.1567" y1="11.5703" x2="23.1567" y2="11.5703" stroke="var(--mito-text)"/>
+            <line x1="1.15674" y1="0.570312" x2="24.1567" y2="0.570312" stroke="var(--mito-text)"/>
+            <line x1="1.15674" y1="16.5703" x2="24.1567" y2="16.5703" stroke="var(--mito-text)"/>
+            <line x1="23.6567" y1="17.0703" x2="23.6567" y2="11.0703" stroke="var(--mito-text)"/>
+            <line x1="0.656738" y1="17.0703" x2="0.656738" y2="11.0703" stroke="var(--mito-text)"/>
+            <line x1="0.656738" y1="6.07031" x2="0.656738" y2="0.0703125" stroke="var(--mito-text)"/>
+            <line x1="23.6567" y1="6.07031" x2="23.6567" y2="0.0703125" stroke="var(--mito-text)"/>
             <g clipPath="url(#clip0_7142_764)">
                 <rect x="21.8418" y="2.07031" width="3.46154" height="15" rx="1" transform="rotate(45 21.8418 2.07031)" fill="#FAFAFA"/>
                 <rect x="11.2362" y="4.51953" width="3.46154" height="15" rx="1" transform="rotate(-45 11.2362 4.51953)" fill="#FAFAFA"/>

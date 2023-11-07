@@ -5,9 +5,9 @@ import React from 'react';
 const FormatIcon = (): JSX.Element => {
     return (
         <svg width="27" height="18" viewBox="0 0 27 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.857544" y="0.570312" width="23" height="14.3942" fill="#F4F4F4" stroke="black"/>
+            <rect x="0.857544" y="0.570312" width="23" height="14.3942" fill="#F4F4F4" stroke="var(--mito-text)"/>
             <rect x="0.857544" y="5.09766" width="23" height="5.33878" stroke="#797774"/>
-            <rect x="0.857544" y="0.570312" width="23" height="14.3942" stroke="black"/>
+            <rect x="0.857544" y="0.570312" width="23" height="14.3942" stroke="var(--mito-text)"/>
             <line x1="16.8575" y1="0.976562" x2="16.8575" y2="14.5597" stroke="#797775"/>
             <line x1="8.85754" y1="0.976562" x2="8.85754" y2="14.5597" stroke="#797775"/>
             <rect x="8.85754" y="5.09766" width="15" height="9.86648" fill="#9D6CFF" stroke="#6229AB"/>
