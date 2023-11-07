@@ -1,20 +1,21 @@
 // Copyright (c) Mito
 
+import fscreen from 'fscreen';
 import React from 'react';
 import "../../../../css/toolbar.css";
 import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
-import { HomeTabContents } from './HomeTabContents';
 import { classNames } from '../../utils/classNames';
-import ToolbarButton from './ToolbarButton';
-import fscreen from 'fscreen';
+import GetSupportButton from '../elements/GetSupportButton';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
-import { InsertTabContents } from './InsertTabContents';
+import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
-import GetSupportButton from '../elements/GetSupportButton';
+import { HomeTabContents } from './HomeTabContents';
+import { InsertTabContents } from './InsertTabContents';
 import PlanButton from './PlanButton';
+import ToolbarButton from './ToolbarButton';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
