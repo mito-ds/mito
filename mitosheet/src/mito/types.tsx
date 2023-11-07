@@ -937,6 +937,7 @@ export enum ActionEnum {
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',
     Copy = 'copy',
+    CopyCode = 'copy code',
     Delete = 'delete',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',

@@ -9,7 +9,7 @@ import { getDtypeSelectOptions } from '../taskpanes/ControlPanel/FilterAndSortTa
 import Dropdown from '../elements/Dropdown';
 import Select from '../elements/Select';
 import { getColumnAppliedFormat, getColumnFormatDropdownItems } from '../../utils/format';
-import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
+import { ActionEnum, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { MitoAPI, getRandomId } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
@@ -18,8 +18,6 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 export const HomeTabContents = (
     props: {
         mitoAPI: MitoAPI
-        currStepIdx: number;
-        lastStepIndex: number;
         highlightPivotTableButton: boolean;
         highlightAddColButton: boolean;
         actions: Actions;
@@ -28,8 +26,6 @@ export const HomeTabContents = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
         userProfile: UserProfile;
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData,
         sheetIndex: number,
         closeOpenEditingPopups: () => void
     }): JSX.Element => {
