@@ -1,7 +1,8 @@
 from dash import Dash, callback, Input, Output, html, dcc
-from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback
+from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback, activate_mito
 
 app = Dash(__name__)
+activate_mito(app)
 
 CSV_URL = 'https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv'
 
