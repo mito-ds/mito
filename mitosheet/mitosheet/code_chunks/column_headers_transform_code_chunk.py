@@ -7,17 +7,16 @@
 from typing import Any, List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code
-from mitosheet.types import ColumnID
 from mitosheet.state import State
 
 class ColumnHeadersTransformCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, transformation: Any):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, transformation: Any):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.transformation = transformation
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Column Headers Transform'
@@ -41,7 +40,7 @@ class ColumnHeadersTransformCodeChunk(CodeChunk):
         else:
             raise ValueError(f'Unknown transformation type: {self.transformation["type"]}')
 
-        return code, []
+        return code, []        
 
     def get_edited_sheet_indexes(self) -> List[int]:
         return [self.sheet_index]

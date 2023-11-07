@@ -57,22 +57,22 @@ class DataframeDuplicateStepPerformer(StepPerformer):
         post_state.add_df_to_state(df_copy, DATAFRAME_SOURCE_DUPLICATED, df_name=new_name, df_format=new_df_format)
 
         return post_state, {
-            'pandas_processing_time': pandas_processing_time
+            'pandas_processing_time': pandas_processing_time,
+            'new_df_name': new_name
         }
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             DataframeDuplicateCodeChunk(
                 prev_state, 
-                post_state, 
-                get_param(params, 'sheet_index')
+                get_param(params, 'sheet_index'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name')
             )
         ]
     

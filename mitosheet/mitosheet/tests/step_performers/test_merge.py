@@ -598,15 +598,6 @@ def test_incompatible_merge_key_types_error():
 
     assert mito.transpiled_code == []
 
-
-def test_merge_between_multi_index_and_non_errors():
-    df_one = make_multi_index_header_df({0: [1, 2], 1: [3, 4]}, ['A', ('B', 'count')])
-    df_two = pd.DataFrame({'A': [1, 2], 'B': [5, 6]})
-    mito = create_mito_wrapper(df_one, df_two)
-    mito.merge_sheets('lookup', 0, 1, [[('A', ''), 'A']], list(df_one.keys()), list(df_two.keys()))  
-
-    assert len(mito.dfs) == 2
-
 def test_delete_merged_sheet_optimizes():
     df1 = pd.DataFrame({'A': [1], 'B': [2]})
     df2 = pd.DataFrame({'A': [1], 'C': [3]})

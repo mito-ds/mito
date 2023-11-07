@@ -5,6 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
+from distutils.version import LooseVersion
 from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -23,6 +24,18 @@ from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
 from mitosheet.utils import is_prev_version
 
 USE_INPLACE_PIVOT = tuple([int(i) for i in pd.__version__.split('.')]) < (1, 5, 0)
+
+
+def get_new_column_header_from_column_header_with_pivot_transform(chwpt: ColumnHeaderWithPivotTransform) -> ColumnHeader:
+    from mitosheet.step_performers.pivot import PCT_NO_OP
+
+    column_header, transformation = chwpt['column_header'], chwpt['transformation']
+    # We need to turn the column header into a string before creating the new one, so that we can
+    # append to it for the new temporary transformation column
+    if transformation == PCT_NO_OP:
+        return column_header
+
+    return f'{str(column_header)} ({transformation})'
 
 
 def get_flatten_code(use_inplace_pivot: bool) -> str:
@@ -56,8 +69,6 @@ def build_args_code(
     Helper function for building an arg string, while leaving
     out empty arguments. 
     """
-    from mitosheet.step_performers.pivot import \
-        get_new_column_header_from_column_header_with_pivot_transform
 
     # Because there might have been temporary columns created by the pivot
     # transformations, we need to use these in our final args usage. NOTE: as in 
@@ -85,7 +96,6 @@ class PivotCodeChunk(CodeChunk):
     def __init__(
         self, 
         prev_state: State, 
-        post_state: State, 
         sheet_index: int,
         destination_sheet_index: Optional[int],
         pivot_rows_column_ids_with_transforms: List[ColumnIDWithPivotTransform],
@@ -93,10 +103,10 @@ class PivotCodeChunk(CodeChunk):
         pivot_filters: List[ColumnIDWithFilter],
         values_column_ids_map: Dict[ColumnID, Collection[str]],
         flatten_column_headers: Optional[bool],
-        was_series: Optional[bool],
-        public_interface_version: int
+        public_interface_version: int,
+        new_df_name: str
     ):
-        super().__init__(prev_state, post_state)
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.destination_sheet_index = destination_sheet_index
         self.pivot_rows_column_ids_with_transforms = pivot_rows_column_ids_with_transforms
@@ -104,17 +114,16 @@ class PivotCodeChunk(CodeChunk):
         self.pivot_filters_ids = pivot_filters
         self.values_column_ids_map = values_column_ids_map
         self.flatten_column_headers = flatten_column_headers
-        self.was_series = was_series
         self.public_interface_version = public_interface_version
 
-        self.old_df_name = self.post_state.df_names[self.sheet_index]
-        if self.destination_sheet_index is None:
-            self.new_df_name = self.post_state.df_names[-1]
-        else:
-            # If we're repivoting an existing pivot table, we have
-            # to make sure to overwrite the correct pivot table 
-            # by using the right name
-            self.new_df_name = self.post_state.df_names[self.destination_sheet_index]
+        # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
+        # a series from the above function call. Thus, we need to move it to a df for
+        # all our other code run properly on it. This code should only run in early 
+        # versions of pandas
+        self.was_series = LooseVersion(pd.__version__) <= LooseVersion('1.0.0')
+
+        self.old_df_name = self.prev_state.df_names[self.sheet_index]
+        self.new_df_name = new_df_name
 
 
     def get_display_name(self) -> str:
@@ -202,7 +211,6 @@ class PivotCodeChunk(CodeChunk):
         if destination_sheet_index is not None and destination_sheet_index == other_destination_sheet_index:
             return PivotCodeChunk(
                 self.prev_state,
-                pivot_code_chunk.post_state,
                 pivot_code_chunk.sheet_index,
                 pivot_code_chunk.destination_sheet_index,
                 pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -210,8 +218,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series,
-                pivot_code_chunk.public_interface_version
+                pivot_code_chunk.public_interface_version,
+                pivot_code_chunk.new_df_name
             )
 
         # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
@@ -220,7 +228,6 @@ class PivotCodeChunk(CodeChunk):
         if created_sheet_index is not None and created_sheet_index[0] == other_destination_sheet_index:
             return PivotCodeChunk(
                 self.prev_state,
-                pivot_code_chunk.post_state,
                 pivot_code_chunk.sheet_index,
                 pivot_code_chunk.destination_sheet_index,
                 pivot_code_chunk.pivot_rows_column_ids_with_transforms,
@@ -228,8 +235,8 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.pivot_filters_ids,
                 pivot_code_chunk.values_column_ids_map,
                 pivot_code_chunk.flatten_column_headers,
-                pivot_code_chunk.was_series,
-                pivot_code_chunk.public_interface_version
+                pivot_code_chunk.public_interface_version,
+                pivot_code_chunk.new_df_name
             )
 
         return None
@@ -251,7 +258,6 @@ class PivotCodeChunk(CodeChunk):
         if edited_sheet_indexes is not None and len(edited_sheet_indexes) == 1 and edited_sheet_indexes[0] == destination_sheet_index:
             return PivotCodeChunk(
                 other_code_chunk.prev_state,
-                self.post_state,
                 self.sheet_index,
                 self.destination_sheet_index,
                 self.pivot_rows_column_ids_with_transforms,
@@ -259,15 +265,15 @@ class PivotCodeChunk(CodeChunk):
                 self.pivot_filters_ids,
                 self.values_column_ids_map,
                 self.flatten_column_headers,
-                self.was_series,
-                self.public_interface_version
+                self.public_interface_version,
+                self.new_df_name
             )
 
         return None
 
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         if self.destination_sheet_index is None:
-            return [len(self.post_state.dfs) - 1]
+            return [len(self.prev_state.dfs)]
         else:
             # Note: editing a dataframe does not create a sheet index, it 
             # overwrites it instead. See get_edited_sheet_indexes below
@@ -286,8 +292,7 @@ def get_code_for_transform_columns(df_name: str, column_headers_with_transforms:
         PCT_DATE_MONTH_DAY, PCT_DATE_QUARTER, PCT_DATE_SECOND, PCT_DATE_WEEK,
         PCT_DATE_YEAR, PCT_DATE_YEAR_MONTH, PCT_DATE_YEAR_MONTH_DAY,
         PCT_DATE_YEAR_MONTH_DAY_HOUR, PCT_DATE_YEAR_MONTH_DAY_HOUR_MINUTE,
-        PCT_DATE_YEAR_QUARTER, PCT_NO_OP,
-        get_new_column_header_from_column_header_with_pivot_transform)        
+        PCT_DATE_YEAR_QUARTER, PCT_NO_OP)        
 
     code = []
     for chwpt in column_headers_with_transforms:

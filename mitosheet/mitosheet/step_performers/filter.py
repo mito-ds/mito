@@ -74,45 +74,24 @@ class FilterStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+
+        post_state, execution_data = cls.execute_through_transpile(prev_state, params)
+
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         operator: OperatorType = get_param(params, 'operator')
         filters: Any = get_param(params, 'filters')
 
-        raise_error_if_column_ids_do_not_exist(
-            'filter',
-            prev_state,
-            sheet_index,
-            column_id
-        )
-
-        # Get the correct column_header
-        column_header = prev_state.column_ids.get_column_header_by_id(
-            sheet_index, column_id
-        )
-
-        # If no errors we create a new step for this filter
-        post_state = prev_state.copy(deep_sheet_indexes=[sheet_index])
-
-        # Execute the filter
-        final_df, pandas_processing_time = _execute_filter(
-            prev_state.dfs[sheet_index], column_header, operator, filters
-        )
-        post_state.dfs[sheet_index] = final_df
-
         # Keep track of which columns are filtered
         post_state.column_filters[sheet_index][column_id]["operator"] = operator
         post_state.column_filters[sheet_index][column_id]["filters"] = filters
 
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
-        }
+        return post_state, execution_data
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
@@ -121,7 +100,6 @@ class FilterStepPerformer(StepPerformer):
         return [
             FilterCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'sheet_index'),
                 [{
                     'column_id': get_param(params, 'column_id'),
@@ -265,23 +243,6 @@ def get_full_applied_filter(
     pandas_processing_time = perf_counter() - pandas_start_time
 
     return (full_applied_filter, pandas_processing_time)
-
-
-
-def _execute_filter(
-    df: pd.DataFrame,
-    column_header: ColumnHeader,
-    operator: OperatorType,
-    filters: List[Union[Filter, FilterGroup]],
-) -> Tuple[pd.DataFrame, float]:
-    """
-    Executes a filter on the given column, filtering by removing any rows who
-    don't meet the condition.
-    """
-
-    full_applied_filter, pandas_processing_time = get_full_applied_filter(df, column_header, operator, filters)
-    return df[full_applied_filter], pandas_processing_time
-
 
 def check_filters_contain_condition_that_needs_full_df(filters: List[Union[Filter, FilterGroup]]) -> bool:
     """

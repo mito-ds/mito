@@ -88,7 +88,7 @@ class UserDefinedEditStepPerformer(StepPerformer):
             )
         
         sheet_index = post_state.df_names.index(df_names.pop())
-        post_state = update_state_by_reconing_dataframes(post_state, sheet_index, result)
+        post_state, _ = update_state_by_reconing_dataframes(post_state, sheet_index, post_state.dfs[sheet_index], result)
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -102,14 +102,12 @@ class UserDefinedEditStepPerformer(StepPerformer):
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             UserDefinedEditCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'edit_name'),
                 get_param(execution_data if execution_data is not None else dict(), 'sheet_index'),
                 get_param(execution_data if execution_data is not None else dict(), 'user_defined_function_params')

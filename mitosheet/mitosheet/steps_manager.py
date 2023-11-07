@@ -244,10 +244,14 @@ class StepsManager:
         if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
         
+
+        
         self.user_defined_editors = validate_user_defined_editors(user_defined_editors)
         if not is_running_test() and not is_enterprise() and self.user_defined_editors is not None and len(self.user_defined_editors) > 0:
             raise ValueError("editors are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
-
+        
+        # The version of the public interface used by this analysis
+        self.public_interface_version = 3
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
@@ -255,6 +259,7 @@ class StepsManager:
                 "initialize", "initialize", {}, None, 
                 State(
                     args, 
+                    self.public_interface_version,
                     df_names=df_names,
                     user_defined_functions=self.user_defined_functions, 
                     user_defined_importers=self.user_defined_importers,
@@ -321,9 +326,6 @@ class StepsManager:
 
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
-
-        # The version of the public interface used by this analysis
-        self.public_interface_version = 3
 
         # The options for the transpiled code. The user can optionally pass these 
         # in, but if they don't, we use the default options
@@ -447,7 +449,6 @@ class StepsManager:
             # rely on getting data out of them is to label the steps correctly
             code_chunks = step.step_performer.transpile(
                 step.prev_state, # type: ignore
-                step.post_state, # type: ignore
                 step.params,
                 step.execution_data,
             )

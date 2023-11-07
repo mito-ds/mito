@@ -5,11 +5,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import re
+from distutils.version import LooseVersion
 from typing import List, Tuple, Any
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
 from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code, get_column_header_map_as_code_string
 from mitosheet.state import State
+
 import pandas as pd
 
 from mitosheet.errors import MitoError
@@ -24,8 +26,8 @@ def convert_to_original_type_or_str(column: str, original_type: type) -> Any:
 
 class ReplaceCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], search_value: str, replace_value: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], search_value: str, replace_value: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.search_value = search_value
@@ -64,7 +66,7 @@ class ReplaceCodeChunk(CodeChunk):
             f'{df_name_with_selected_columns} = {df_name_with_selected_columns}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name_with_selected_columns}.dtypes.to_dict())',
         ]
 
-        if (any(df.dtypes == 'timedelta') and pd.__version__ < 1.4):
+        if (any(df.dtypes == 'timedelta') and LooseVersion(pd.__version__) < LooseVersion("1.4")):
             raise MitoError(
                 'version_error',
                 'Pandas version error',

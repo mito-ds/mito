@@ -11,8 +11,8 @@ from mitosheet.state import State
 
 class AITransformationCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, user_input: str, final_code: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, user_input: str, final_code: str):
+        super().__init__(prev_state)
         self.user_input = user_input
         self.final_code = final_code
 

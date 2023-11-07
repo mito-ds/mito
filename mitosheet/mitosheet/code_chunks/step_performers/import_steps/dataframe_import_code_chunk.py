@@ -16,8 +16,8 @@ class DataframeImportCodeChunk(CodeChunk):
     so we make it it's own code chunk
     """
 
-    def __init__(self, prev_state: State, post_state: State, display_name: str, description_comment: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, display_name: str, description_comment: str):
+        super().__init__(prev_state)
         self.display_name = display_name
         self.description_comment = description_comment
 

@@ -158,7 +158,7 @@ def test_removes_unedited_formulas_for_unedited_sheets():
 
     mito.merge_sheets('lookup', 0, 1, [['A', 'A']], ['A', 'B', 'C', 'D'], ['A', 'B', 'C', 'D'])
 
-    mito.set_formula('=C + 1', 1, 'D', add_column=True)
+    mito.set_formula('=C + 1', 1, 'D')
 
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
@@ -168,7 +168,7 @@ def test_removes_unedited_formulas_for_unedited_sheets():
         "df2.insert(3, 'D', df2[\'C\'])", 
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
         'df2[\'D\'] = df2[\'C\'] + 1',
         '',
@@ -188,13 +188,13 @@ def test_mulitple_merges_no_formula_steps():
         'from mitosheet.public.v3 import *',
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df4 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge_1 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df5 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge_2 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
     ]
 
@@ -214,7 +214,7 @@ def test_optimization_with_other_edits():
         "df1.insert(3, 'D', df1[\'A\'])", 
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
-        'df3 = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
     ]
 
@@ -284,9 +284,9 @@ def test_transpile_merge_then_sort():
         'from mitosheet.public.v3 import *',
         '',
         'temp_df = df2.drop_duplicates(subset=[\'Name\']) # Remove duplicates so lookup merge only returns first match',
-        'df3 = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
+        'df_merge = df1.merge(temp_df, left_on=[\'Name\'], right_on=[\'Name\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
         '',
-        'df3 = df3.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
+        'df_merge = df_merge.sort_values(by=\'Number\', ascending=True, na_position=\'first\')',
         '',
     ]
 
@@ -756,20 +756,20 @@ def test_fully_parameterized_function_custom_imports():
     mito.code_options_update({'as_function': False, 'import_custom_python_code': False, 'call_function': False, 'function_name': 'function', 'function_params': {}})
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
 
-df1 = custom_import()
+df0 = custom_import()
 
-df1.insert(1, 'B', ADDONE(df1['A']))
+df0.insert(1, 'B', ADDONE(df0['A']))
 """
 
     assert mito.mito_backend.fully_parameterized_function == """from mitosheet.public.v3 import *
 from mitosheet.tests.test_transpile import custom_import, ADDONE
 
 def function():
-    df1 = custom_import()
+    df0 = custom_import()
     
-    df1.insert(1, 'B', ADDONE(df1['A']))
+    df0.insert(1, 'B', ADDONE(df0['A']))
     
-    return df1
+    return df0
 """
 
 def test_transpile_as_function_multiple_params(tmp_path):
@@ -1086,13 +1086,13 @@ def test_code_options_include_functions():
 from mitosheet.tests.test_transpile import custom_import, ADDONE
 
 def function():
-    df1 = custom_import()
+    df0 = custom_import()
     
-    df1.insert(1, 'B', ADDONE(df1['A']))
+    df0.insert(1, 'B', ADDONE(df0['A']))
     
-    return df1
+    return df0
 
-df1 = function()"""
+df0 = function()"""
 
 
 def test_transpile_handles_new_line_character():

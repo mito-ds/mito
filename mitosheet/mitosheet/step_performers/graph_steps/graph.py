@@ -224,7 +224,6 @@ class GraphStepPerformer(StepPerformer):
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
@@ -232,7 +231,6 @@ class GraphStepPerformer(StepPerformer):
         return [
             EmptyCodeChunk(
                 prev_state, 
-                post_state, 
                 'Edited graph',
                 'Edited a graph',
             )

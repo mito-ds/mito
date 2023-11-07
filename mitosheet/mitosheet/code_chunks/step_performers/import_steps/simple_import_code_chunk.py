@@ -68,14 +68,15 @@ def generate_read_csv_code(
 class SimpleImportCodeChunk(CodeChunk):
 
     
-    def __init__(self, prev_state: State, post_state: State, file_names: List[str], file_delimeters: List[str], file_encodings: List[str], file_decimals: List[str], file_skiprows: List[int], file_error_bad_lines: List[bool]):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, file_names: List[str], file_delimeters: List[str], file_encodings: List[str], file_decimals: List[str], file_skiprows: List[int], file_error_bad_lines: List[bool], new_df_names: List[str]):
+        super().__init__(prev_state)
         self.file_names = file_names
         self.file_delimeters = file_delimeters
         self.file_encodings = file_encodings
         self.file_decimals = file_decimals
         self.file_skiprows = file_skiprows
         self.file_error_bad_lines = file_error_bad_lines
+        self.new_df_names = new_df_names
 
     def get_display_name(self) -> str:
         return 'Imported'
@@ -89,7 +90,7 @@ class SimpleImportCodeChunk(CodeChunk):
         code = []
 
         index = 0
-        for file_name, df_name in zip(self.file_names, self.post_state.df_names[len(self.post_state.df_names) - len(self.file_names):]):
+        for file_name, df_name in zip(self.file_names, self.new_df_names):
 
             delimeter = self.file_delimeters[index]
             encoding = self.file_encodings[index]
@@ -106,7 +107,7 @@ class SimpleImportCodeChunk(CodeChunk):
         return code, ['import pandas as pd']
 
     def get_created_sheet_indexes(self) -> List[int]:
-        return [i for i in range(len(self.post_state.dfs) - len(self.file_names), len(self.post_state.dfs))]
+        return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
     def _combine_right_simple_import(self, other_code_chunk: "SimpleImportCodeChunk") -> Optional["CodeChunk"]:
         # We can easily combine simple imports, so we do so
@@ -116,16 +117,17 @@ class SimpleImportCodeChunk(CodeChunk):
         new_file_decimals = self.file_decimals + other_code_chunk.file_decimals
         new_file_skiprows = self.file_skiprows + other_code_chunk.file_skiprows
         new_error_bad_lines = self.file_error_bad_lines + other_code_chunk.file_error_bad_lines
+        new_df_names = self.new_df_names + other_code_chunk.new_df_names
 
         return SimpleImportCodeChunk(
             self.prev_state,
-            other_code_chunk.post_state,
             file_names,
             new_file_delimeters,
             new_file_encodings,
             new_file_decimals,
             new_file_skiprows,
-            new_error_bad_lines
+            new_error_bad_lines,
+            new_df_names
         )
 
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:

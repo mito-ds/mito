@@ -63,6 +63,7 @@ class Step:
         # work if it has already been done. See simple_import for an example
         self.execution_data = execution_data if execution_data is not None else {}
 
+
     @property
     def dfs(self):
         return self.post_state.dfs
@@ -118,7 +119,7 @@ class Step:
         state are optional, but we also need a step to have a defined state
         """
         return self.prev_state if self.prev_state is not None else \
-            (self.post_state if self.post_state is not None else State([]))
+            (self.post_state if self.post_state is not None else State([], public_interface_version=1))
 
     @property
     def final_defined_state(self) -> State:
@@ -127,7 +128,7 @@ class Step:
         state are optional, but we also need a step to have a defined state
         """
         return self.post_state if self.post_state is not None else \
-            (self.prev_state if self.prev_state is not None else State([]))
+            (self.prev_state if self.prev_state is not None else State([], 1))
 
     def set_prev_state_and_execute(self, new_prev_state: State) -> bool:
         """
@@ -144,6 +145,8 @@ class Step:
         execution actually occured.
         """        
         # Saturate the event to get up to date parameters
+        # TODO: this should fill in the execution data - hopefully
+        # we can get all of it without executing. I think we probably can
         params = self.step_performer.saturate(new_prev_state, self.params)
 
         # Actually execute the data transformation

@@ -13,13 +13,13 @@ from mitosheet.types import ColumnID
 
 class DropDuplicatesCodeChunk(CodeChunk):
 
-    def __init__(self, prev_state: State, post_state: State, sheet_index: int, column_ids: List[ColumnID], keep: str):
-        super().__init__(prev_state, post_state)
+    def __init__(self, prev_state: State, sheet_index: int, column_ids: List[ColumnID], keep: str):
+        super().__init__(prev_state)
         self.sheet_index = sheet_index
         self.column_ids = column_ids
         self.keep = keep
 
-        self.df_name = self.post_state.df_names[self.sheet_index]
+        self.df_name = self.prev_state.df_names[self.sheet_index]
 
     def get_display_name(self) -> str:
         return 'Dropped duplicates'
@@ -40,7 +40,7 @@ class DropDuplicatesCodeChunk(CodeChunk):
         
         # We leave subset and keep empty if they are not used
         param_string = ''
-        if len(column_headers) != len(self.post_state.dfs[self.sheet_index].keys()):
+        if len(column_headers) != len(self.prev_state.dfs[self.sheet_index].keys()):
             param_string += 'subset=' + get_column_header_list_as_transpiled_code(column_headers) + ', '
         
         param_string += 'keep=' + get_column_header_as_transpiled_code(self.keep) # not a column header, but we can use the same utility

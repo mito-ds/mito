@@ -28,10 +28,8 @@ class CodeChunk:
 
     def __init__(self, 
         prev_state: State,
-        post_state: State,
     ):
         self.prev_state = prev_state
-        self.post_state = post_state
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -133,3 +131,5 @@ class CodeChunk:
         The tuple is (param_name, param_type, param_subtype).
         """
         return []
+    
+

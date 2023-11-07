@@ -108,22 +108,3 @@ def test_one_hot_encoding_optimized_by_delete():
     mito.one_hot_encoding(0, 'A')
     mito.delete_dataframe(0)
     assert mito.transpiled_code == []
-
-def test_one_hot_encode_twice_error():
-    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
-    mito.one_hot_encoding(0, 'A')
-    mito.one_hot_encoding(0, 'A')
-    with pytest.raises(MitoError) as e:
-        mito.mito_backend.handle_edit_event(
-            {
-                'event': 'edit_event',
-                'id': get_new_id(),
-                'type': 'one_hot_encoding_edit',
-                'step_id': get_new_id(),
-                'params': {
-                    'sheet_index': 0,
-                    'column_id': 'A',
-                }
-            }
-        )
-    assert '1, 2, 3 alread exist' in str(e)

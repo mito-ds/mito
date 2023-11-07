@@ -169,3 +169,10 @@ def test_ai_transformation(input_dfs, edited_completion, output_dfs):
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
         assert actual.equals(expected) 
+
+def test_get_modified_dataframe_recon_in_result():
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.ai_transformation('fake user input', 'fake version', 'fake prompt', 'fake_completion', "df1.drop(columns=['A'], inplace=True)")
+
+    # Get the final execution data
+    assert len(mito.mito_backend.steps_manager.steps_including_skipped[-1].execution_data['result']['modified_dataframes_recons']) > 0

@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 import json
 
+from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 
@@ -42,6 +43,7 @@ def test_sheet_json_displays_dates_correctly():
     assert get_value_helper(sheet_data, 1, 1) == '2002-10-02 00:00:00'
     assert get_value_helper(sheet_data, 2, 1)== '2001-11-14 00:00:00'
 
+@pandas_post_1_only
 def test_sheet_displays_dates_with_non_standard_dtype():
     mito = create_mito_wrapper_with_data(['2016-01-31T19:29:50.000+0000', '2016-01-31T19:29:50.000+0000'])
     mito.change_column_dtype(0, ['A'], 'datetime')

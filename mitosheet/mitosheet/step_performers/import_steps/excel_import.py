@@ -16,7 +16,7 @@ from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.utils import get_valid_dataframe_name
+from mitosheet.utils import get_valid_dataframe_names
 
 
 class ExcelImportStepPerformer(StepPerformer):
@@ -36,50 +36,43 @@ class ExcelImportStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         file_name: str = get_param(params, 'file_name')
-        sheet_names: List[str] = get_param(params, 'sheet_names')
-        has_headers: bool = get_param(params, 'has_headers')
-        skiprows: int = get_param(params, 'skiprows')
-        decimal: str = get_param(params, 'decimal')
-
-        read_excel_params = build_read_excel_params(sheet_names, has_headers, skiprows, decimal)
-
-        post_state = prev_state.copy()
-        
         if not os.path.exists(file_name):
             raise make_file_not_found_error(file_name)
+        
+        sheet_names: List[str] = get_param(params, 'sheet_names')
+        new_df_names = get_valid_dataframe_names(prev_state.df_names, sheet_names)
 
-        pandas_start_time = perf_counter()
-        df_dictonary = pd.read_excel(file_name, **read_excel_params, engine='openpyxl') 
-        pandas_processing_time = perf_counter() - pandas_start_time
-
-        for sheet_name, df in df_dictonary.items():
-            post_state.add_df_to_state(
-                df, 
-                DATAFRAME_SOURCE_IMPORTED, 
-                df_name=get_valid_dataframe_name(post_state.df_names, sheet_name),
-            )
-
-        return post_state, {
-            'pandas_processing_time': pandas_processing_time
+        execution_data = {
+            'new_df_names': new_df_names
         }
+
+        return cls.execute_through_transpile(
+            prev_state,
+            params,
+            execution_data,
+            new_dataframe_params={
+                'df_source': DATAFRAME_SOURCE_IMPORTED,
+                'new_df_names': new_df_names,
+                'sheet_index_to_overwrite': None
+            }
+        )
 
     @classmethod
     def transpile(
         cls,
         prev_state: State,
-        post_state: State,
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
         return [
             ExcelImportCodeChunk(
                 prev_state, 
-                post_state, 
                 get_param(params, 'file_name'),
                 get_param(params, 'sheet_names'),
                 get_param(params, 'has_headers'),
                 get_param(params, 'skiprows'),
-                get_param(params, 'decimal')
+                get_param(params, 'decimal'),
+                get_param(execution_data if execution_data is not None else {}, 'new_df_names')
             )
         ]
 
