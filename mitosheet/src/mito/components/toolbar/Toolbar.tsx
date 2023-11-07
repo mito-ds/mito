@@ -26,12 +26,13 @@ import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcon
 import { InsertTabContents } from './InsertTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
+import { CodeTabContents } from './CodeTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
-export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas';
+export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas' | 'Code';
 type TabContents = JSX.Element;
 type Tabs = {
     [ tab: string ]: TabContents
@@ -64,7 +65,8 @@ export const Toolbar = (
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>,
         'Data': <DataTabContents {...props}/>,
-        'Formulas': <FormulaTabContents {...props}/>
+        'Formulas': <FormulaTabContents {...props}/>,
+        'Code': <CodeTabContents {...props}/>,
     };
 
     return (

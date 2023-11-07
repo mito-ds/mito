@@ -3,8 +3,7 @@
 
 import React from 'react'
 
-import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
-import { MitoAPI } from '../../api/api';
+import { ActionEnum, UIState } from '../../types';
 import { Actions } from '../../utils/actions';
 import ToolbarButton from './ToolbarButton';
 import Dropdown from '../elements/Dropdown';
@@ -13,21 +12,9 @@ import ImportIcon from '../icons/ImportIcon';
 
 export const DataTabContents = (
     props: {
-        mitoAPI: MitoAPI
-        currStepIdx: number;
-        lastStepIndex: number;
-        highlightPivotTableButton: boolean;
-        highlightAddColButton: boolean;
         actions: Actions;
-        gridState: GridState;
         uiState: UIState;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        sheetData: SheetData;
-        userProfile: UserProfile;
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData,
-        sheetIndex: number,
-        closeOpenEditingPopups: () => void
     }): JSX.Element => {
 
     return (<div className='mito-toolbar-bottom'>
@@ -121,7 +108,5 @@ export const DataTabContents = (
                 />
             </Dropdown>
         </ToolbarButton>
-            
-
     </div>);
 }

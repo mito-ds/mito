@@ -3,29 +3,12 @@
 
 import React from 'react'
 
-import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
-import { MitoAPI } from '../../api/api';
+import { ActionEnum } from '../../types';
 import { Actions } from '../../utils/actions';
 import ToolbarButton from './ToolbarButton';
 
 export const InsertTabContents = (
-    props: {
-        mitoAPI: MitoAPI
-        currStepIdx: number;
-        lastStepIndex: number;
-        highlightPivotTableButton: boolean;
-        highlightAddColButton: boolean;
-        actions: Actions;
-        gridState: GridState;
-        uiState: UIState;
-        setUIState: React.Dispatch<React.SetStateAction<UIState>>;
-        sheetData: SheetData;
-        userProfile: UserProfile;
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
-        analysisData: AnalysisData,
-        sheetIndex: number,
-        closeOpenEditingPopups: () => void
-    }): JSX.Element => {
+    props: { actions: Actions; }): JSX.Element => {
 
     return (<div className='mito-toolbar-bottom'>
         <ToolbarButton
