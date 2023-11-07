@@ -218,4 +218,4 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
 // "withStreamlitConnection" is a wrapper function. It bootstraps the
 // connection between your component and the Streamlit app, and handles
 // passing arguments from Python -> Component.
-export default withStreamlitConnection(MitoStreamlitWrapper)  
+export default withStreamlitConnection(MitoStreamlitWrapper) as any;

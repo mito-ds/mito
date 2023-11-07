@@ -25,8 +25,8 @@
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyterlab/application": "^3.5.0",
-    "@jupyterlab/notebook": "^3.0.6",
+    "@jupyterlab/application": "^4.0.8",
+    "@jupyterlab/notebook": "^3.0.8",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
@@ -79,7 +79,7 @@
     "ipywidgets"
   ],
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
+    "@jupyterlab/builder": "^4.0.0",
     "@types/expect.js": "^0.3.29",
     "@types/node": "^18.11.18",
     "@types/react": "^17.0.26",
@@ -105,6 +105,9 @@
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {
-    "@types/react": "^17.0.2"
+    "@types/react": "^17.0.26"
+  },
+  "overrides": {
+    "@types/react": "^17.0.26"
   }
 }

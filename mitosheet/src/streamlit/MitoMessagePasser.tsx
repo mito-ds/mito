@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import {
     Streamlit,
     StreamlitComponentBase,
@@ -48,7 +48,7 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
     }
 
 
-    public render = (): ReactNode => {
+    public render = (): React.ReactNode => {
         return <div/>
     }
 
@@ -125,4 +125,4 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
     };
 }
   
-export default withStreamlitConnection(MitoMessagePasser);
+export default withStreamlitConnection(MitoMessagePasser) as any;

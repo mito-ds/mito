@@ -412,7 +412,7 @@ function activateMitosheetExtension(
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mitosheet:plugin',
-    requires: [INotebookTracker],
+    requires: [INotebookTracker as any],
     activate: activateMitosheetExtension,
     autoStart: true,
 };
