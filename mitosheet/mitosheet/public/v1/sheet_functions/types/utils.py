@@ -100,7 +100,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     # trying all of the formats below for performance.
 
     # Then we try a bunch of other formats it could be
-    sample_string_datetime = string_series[string_series.first_valid_index()]
+    sample_string_datetime = str(string_series[string_series.first_valid_index()])
     FORMATS = [
         '%m{s}%d{s}%Y', 
         '%d{s}%m{s}%Y', 
