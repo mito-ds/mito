@@ -370,3 +370,21 @@ def test_change_dtype_to_datetime_mixed_string_type():
             ]
         })
     )
+
+def test_change_dtype_to_datetime_finds_first_string():
+    df = pd.DataFrame({'Date': [pd.to_datetime('1648784800000', unit='ms'), pd.to_datetime('1648784800000', unit='ms'), '12/22/2023']})
+    mito = create_mito_wrapper(df)
+
+    mito.change_column_dtype(0, ['Date'], 'datetime')
+
+    print(mito.dfs[0])
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({
+            'Date': [
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.to_datetime('12/22/2023')
+            ]
+        })
+    )
