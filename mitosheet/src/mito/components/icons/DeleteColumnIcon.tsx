@@ -6,10 +6,10 @@ const DeleteColumnIcon = (): JSX.Element => {
 
     return (
         <svg width="25" height="18" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="16.6567" y1="1.07031" x2="16.6567" y2="16.0703" stroke="#797775"/>
-            <line x1="8.65674" y1="1.07031" x2="8.65674" y2="16.0703" stroke="#797775"/>
-            <rect x="4.65674" y="5.57031" width="14" height="6" fill="#9D6CFF" stroke="#6229AB"/>
-            <line x1="11.6567" y1="6.07031" x2="11.6567" y2="12.0703" stroke="#6229AB"/>
+            <line x1="16.6567" y1="1.07031" x2="16.6567" y2="16.0703" stroke="var(--mito-highlight)"/>
+            <line x1="8.65674" y1="1.07031" x2="8.65674" y2="16.0703" stroke="var(--mito-highlight)"/>
+            <rect x="4.65674" y="5.57031" width="14" height="6" fill="var(--mito-highlight-light)" stroke="var(--mito-highlight)"/>
+            <line x1="11.6567" y1="6.07031" x2="11.6567" y2="12.0703" stroke="var(--mito-highlight)"/>
             <line x1="0.156738" y1="11.5703" x2="4.15674" y2="11.5703" stroke="var(--mito-text)"/>
             <line x1="0.156738" y1="5.57031" x2="4.15674" y2="5.57031" stroke="var(--mito-text)"/>
             <line x1="19.1567" y1="5.57031" x2="23.1567" y2="5.57031" stroke="var(--mito-text)"/>
