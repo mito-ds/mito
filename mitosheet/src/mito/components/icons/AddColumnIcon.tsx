@@ -6,8 +6,8 @@ import React from 'react';
 const AddColumnIcon = (): JSX.Element => {
     return (
         <svg width="32" height="18" viewBox="0 0 32 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4.82837" y="0.570312" width="23" height="16" fill="white" stroke="var(--mito-text)"/>
-            <rect x="4.82837" y="5.57031" width="23" height="6" fill="white" stroke="var(--mito-text-medium)"/>
+            <rect x="4.82837" y="0.570312" width="23" height="16" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <rect x="4.82837" y="5.57031" width="23" height="6" fill="var(--mito-background-off)" stroke="var(--mito-text-medium)"/>
             <rect x="4.82837" y="0.570312" width="23" height="16" stroke="var(--mito-text)"/>
             <rect x="4.82837" y="5.57031" width="23" height="6" stroke="var(--mito-text-medium)"/>
             <rect x="4.82837" y="0.570312" width="23" height="16" stroke="var(--mito-text)"/>

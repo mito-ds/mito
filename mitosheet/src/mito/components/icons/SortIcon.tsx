@@ -8,9 +8,9 @@ import React from 'react';
 const SortIcon = (): JSX.Element => {
     return (
         <svg width="26" height="30" viewBox="2 2 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4.5" y="6.57031" width="16.6071" height="16" fill="#D9D9D9" stroke="var(--mito-text)"/>
-            <rect x="4.5" y="9" width="16.6071" height="13.5714" fill="white" stroke="var(--mito-text)"/>
-            <rect x="4.5" y="6.57031" width="16.6071" height="2.03571" fill="#D9D9D9" stroke="var(--mito-text)"/>
+            <rect x="4.5" y="6.57031" width="16.6071" height="16" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <rect x="4.5" y="9" width="16.6071" height="13.5714" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <rect x="4.5" y="6.57031" width="16.6071" height="2.03571" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
             <line x1="13" y1="9.10547" x2="13" y2="22.4626" stroke="var(--mito-text)"/>
             <path d="M10.4155 14.8604V15.3203H7.52686V14.8604H10.4155ZM10.3218 11.4648L7.66162 15.3203H7.31299V14.8984L9.97021 11.0547H10.3218V11.4648ZM10.0815 11.0547V11.5176H7.35107V11.0547H10.0815Z" fill="var(--mito-text)"/>
             <path d="M8.97412 16.4326L7.56201 20.3203H6.98486L8.61084 16.0547H8.98291L8.97412 16.4326ZM10.1577 20.3203L8.74268 16.4326L8.73389 16.0547H9.10596L10.7378 20.3203H10.1577ZM10.0845 18.7412V19.2041H7.68799V18.7412H10.0845Z" fill="var(--mito-highlight)"/>

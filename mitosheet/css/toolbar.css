@@ -182,6 +182,7 @@
   justify-content: center;
   padding: 1px 5px;
   border-radius: 5px;
+  align-items: center;
 }
 
 .mito-toolbar-button-label {

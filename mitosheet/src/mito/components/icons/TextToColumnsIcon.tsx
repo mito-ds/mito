@@ -5,11 +5,11 @@ import React from 'react';
 const TextToColumnsIcon = (): JSX.Element => {
     return (
         <svg width="31" height="30" viewBox="5 3 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="19.771" y="6.57031" width="5.95455" height="5.18182" fill="white" stroke="var(--mito-text)"/>
+            <rect x="19.771" y="6.57031" width="5.95455" height="5.18182" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
             <line x1="20.8169" y1="8.66016" x2="24.6805" y2="8.66016" stroke="var(--mito-highlight)"/>
-            <rect x="19.7715" y="11.9766" width="5.95455" height="5.18182" fill="white" stroke="var(--mito-text)"/>
+            <rect x="19.7715" y="11.9766" width="5.95455" height="5.18182" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
             <line x1="20.8169" y1="14.0664" x2="24.6805" y2="14.0664" stroke="var(--mito-highlight)"/>
-            <rect x="19.7715" y="17.3906" width="5.95455" height="5.18182" fill="white" stroke="var(--mito-text)"/>
+            <rect x="19.7715" y="17.3906" width="5.95455" height="5.18182" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
             <line x1="20.8169" y1="19.4805" x2="24.6805" y2="19.4805" stroke="var(--mito-highlight)"/>
             <line x1="7.68018" y1="8.66406" x2="16.1802" y2="8.66406" stroke="var(--mito-text)"/>
             <line x1="9.99805" y1="13.3008" x2="16.1799" y2="13.3008" stroke="var(--mito-text)"/>
