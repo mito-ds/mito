@@ -72,6 +72,10 @@ function generateSiteMap(glossarySlugs: string[], blogPostSlugs: string[]) {
     `;
 }
 
+function SiteMap() {
+  // getServerSideProps will do the heavy lifting
+  // TODO: Understand why this function is needed for the build to succeed
+}
 
 export const getServerSideProps = async ({res}: any) => {
     // Get the glossary pages
@@ -106,3 +110,6 @@ export const getServerSideProps = async ({res}: any) => {
     };
     
 }
+
+
+export default SiteMap;
