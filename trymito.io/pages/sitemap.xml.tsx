@@ -1,9 +1,10 @@
 //pages/sitemap.xml.js
+// Dynamically generate a sitemap.xml file for our site following
+// https://nextjs.org/learn-pages-router/seo/crawling-and-indexing/xml-sitemaps
 
 import { getGlossaryPageInfo, getPageContentJsonArray } from '../utils/excel-to-python';
 import { getPosts } from '../utils/posts';
 import { SLUG_REDIRECTS } from './blog';
-
 
 const WEBSITE_HOST_URL = 'https://trymito.io';
 
@@ -97,7 +98,6 @@ export const getServerSideProps = async ({res}: any) => {
 
     // We generate the XML sitemap with the posts data
     const sitemap = generateSiteMap(glossarySlugs, blogPostSlugs);
-    console.log(sitemap)
 
     res.setHeader('Content-Type', 'text/xml');
     // we send the XML to the browser
