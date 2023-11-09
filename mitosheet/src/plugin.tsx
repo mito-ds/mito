@@ -8,7 +8,6 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { LabComm } from './jupyter/comm';
@@ -23,7 +22,6 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
     tracker.widgetAdded.connect((_, newNotebook) => {
         const button = new ToolbarButton({
             className: 'toolbar-mito-button-class',
-            icon: mitoJLabIcon,
             onClick: (): void => {
                 window.commands?.execute('mitosheet:create-empty-mitosheet');
             },
@@ -56,10 +54,8 @@ function activateMitosheetExtension(
         label: 'Create Comm',
         execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
 
-            console.log("MAKING COMM!");
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
-
 
             let currentKernel = undefined;
             if (kernelID === 'kernel-00000000-0000-0000-0000-000000000000') {
