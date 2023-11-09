@@ -12,10 +12,46 @@ function generateSiteMap(glossarySlugs: string[], blogPostSlugs: string[]) {
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
             <!--We manually set the two URLs we know already-->
             <url>
-                <loc>https://jsonplaceholder.typicode.com</loc>
+                <loc>https://www.trymito.io/</loc>
             </url>
             <url>
-                <loc>https://jsonplaceholder.typicode.com/guide</loc>
+                <loc>https://www.trymito.io/plans</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/spreadsheet-automation</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/python-ai-tools</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/low-code-sql</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/data-app</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/infrastructure-integration-python-tool</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/industries/financial-services</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/industries/life-sciences</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/customers</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/security</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/blog</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/excel-to-python</loc>
+            </url>
+            <url>
+                <loc>https://www.trymito.io/teams</loc>
             </url>
             ${glossarySlugs.map(glossarySlug => {
                 return `
@@ -53,6 +89,8 @@ export const getServerSideProps = async ({res}: any) => {
         posts.forEach(post => {
             if (SLUG_REDIRECTS[post.slug]) {
                 blogPostSlugs.push(SLUG_REDIRECTS[post.slug])
+            } else {
+                blogPostSlugs.push(post.slug)
             }
         })
     }
