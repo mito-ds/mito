@@ -92,7 +92,7 @@ export const FormulaTabContents = (
                             }
                         })
                     }
-                    width={'medium'}
+                    width={category === 'DATE' ? 'large' : 'medium'}
                 >
                     {getFormulaDropdownItems(category)}
                 </Dropdown>

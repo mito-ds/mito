@@ -153,6 +153,7 @@
 
 .mito-toolbar-tabbar-tabname span {
   font-size: 14px;
+  user-select: none;
 }
 
 .mito-toolbar-tabbar-tabname:hover span {
