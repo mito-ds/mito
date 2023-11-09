@@ -39,7 +39,7 @@ function SiteMap() {
   // getServerSideProps will do the heavy lifting
 }
 
-export const getStaticProps = async ({res}: any) => {
+export const getServerSideProps = async ({res}: any) => {
     // Get the glossary pages
     const pageContentsJsonArray = await getPageContentJsonArray()
     const glossaryPageInfo = await getGlossaryPageInfo(pageContentsJsonArray)
