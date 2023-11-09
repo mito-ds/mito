@@ -5,9 +5,11 @@
 // only our package.json, we can change what packages we import, without 
 // having to change what we import in code. This allows us to support 
 // jlab2 and jlab3
-import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
-import { ToolbarButton } from '@jupyterlab/apputils';
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+
+
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from 'jupyterlab-application-4';
+import { ToolbarButton } from 'jupyterlab-apputils-4';
+import { INotebookTracker, NotebookActions } from 'jupyterlab-notebook-4';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { LabComm } from './jupyter/comm';
@@ -410,7 +412,7 @@ function activateMitosheetExtension(
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mitosheet:plugin',
-    requires: [INotebookTracker as any],
+    requires: [INotebookTracker],
     activate: activateMitosheetExtension,
     autoStart: true,
 };

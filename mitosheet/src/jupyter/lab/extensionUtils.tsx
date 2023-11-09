@@ -1,9 +1,9 @@
 // Copyright (c) Mito
-import { ICellModel } from "@jupyterlab/cells";
+import { ICellModel } from "jupyterlab-cells-4";
 import {
     CellList,
     INotebookTracker,
-} from '@jupyterlab/notebook';
+} from 'jupyterlab-notebook-4';
 import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 

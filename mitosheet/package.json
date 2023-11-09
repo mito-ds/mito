@@ -25,13 +25,14 @@
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyterlab/application": "^4.0.8",
-    "@jupyterlab/notebook": "^4.0.8",
-    "@jupyterlab/cells": "^4.0.8",
-    "@jupyterlab/apputils": "^4.0.8",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
+    "jupyterlab-application-3": "npm:@jupyterlab/application@^3.5.0",
+    "jupyterlab-application-4": "npm:@jupyterlab/application@^4.0.8",
+    "jupyterlab-apputils-4": "npm:@jupyterlab/apputils@^4.1.8",
+    "jupyterlab-cells-4": "npm:@jupyterlab/cells@^4.0.8",
+    "jupyterlab-notebook-4": "npm:@jupyterlab/notebook@^4.0.8",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "streamlit-component-lib": "^2.0.0"
