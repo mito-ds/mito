@@ -26,7 +26,7 @@
   "version": "0.3.131",
   "dependencies": {
     "@jupyterlab/application": "^4.0.8",
-    "@jupyterlab/notebook": "^3.0.8",
+    "@jupyterlab/notebook": "^4.0.8",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
