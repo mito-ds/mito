@@ -152,7 +152,7 @@
 }
 
 .mito-toolbar-tabbar-tabname:hover span {
-  color: var(--mito-text);
+  font-weight: bold;
 }
 
 .mito-toolbar-number-format .mito-toolbar-button-icon-container {
@@ -246,11 +246,13 @@
 .mito-toolbar-tabbar-tabname {
   border: none;
   background: none;
-  color: var(--mito-text-medium);
+  color: var(--mito-text);
   margin-bottom: 2px;
   height: max-content;
   display: flex;
   align-self: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .mito-toolbar-tabbar-tabname-selected {
@@ -258,6 +260,7 @@
   flex-direction: column;
   color: var(--mito-text);
   margin-bottom: 0;
+  justify-items: center;
 }
 
 .mito-toolbar-tabbar {

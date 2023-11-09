@@ -70,8 +70,8 @@ export const Toolbar = (
         <div className='mito-toolbar-container'>
             <div className='mito-toolbar-top'>
                 <div className='mito-toolbar-top-left'>
-                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Undo]} />
-                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Redo]} />
+                    <ToolbarButton id={MITO_TOOLBAR_UNDO_ID} action={props.actions.buildTimeActions[ActionEnum.Undo]} />
+                    <ToolbarButton id={MITO_TOOLBAR_REDO_ID} action={props.actions.buildTimeActions[ActionEnum.Redo]} />
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Clear]} />
                 </div>
                 <div className='mito-toolbar-top-right'>
@@ -90,6 +90,7 @@ export const Toolbar = (
                     {Object.keys(tabs).map((tab) => {
                         return <button
                             key={tab}
+                            style={{ width: `${tab.length+2}ch` }}
                             onClick={() => {
                                 if (currentTab === tab) {
                                     props.setUIState(prevUIState => {
