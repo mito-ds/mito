@@ -94,14 +94,14 @@
   /* Keep items evenly spaced */
   display: flex;
   width: fit-content;
-  height: min-content;
+  height: 100%;
 
   margin: 0px 1px;
 
   border-radius: 3px;
 
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
 
   /* Make input blend in with formula bar */
   background-color: inherit;
@@ -147,12 +147,17 @@
   white-space: nowrap;
 }
 
+.horizontal-align-content.mito-toolbar-button-container {
+  height: min-content;
+}
+
 .mito-toolbar-tabbar-tabname span {
   font-size: 14px;
+  user-select: none;
 }
 
 .mito-toolbar-tabbar-tabname:hover span {
-  font-weight: 550;
+  font-weight: bold;
 }
 
 .mito-toolbar-number-format .mito-toolbar-button-icon-container {
@@ -182,6 +187,7 @@
   justify-content: center;
   padding: 1px 5px;
   border-radius: 5px;
+  align-items: center;
 }
 
 .mito-toolbar-button-label {
@@ -245,11 +251,13 @@
 .mito-toolbar-tabbar-tabname {
   border: none;
   background: none;
-  color: var(--mito-text-medium);
+  color: var(--mito-text);
   margin-bottom: 2px;
   height: max-content;
   display: flex;
   align-self: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .mito-toolbar-tabbar-tabname-selected {
@@ -257,6 +265,7 @@
   flex-direction: column;
   color: var(--mito-text);
   margin-bottom: 0;
+  justify-items: center;
 }
 
 .mito-toolbar-tabbar {
@@ -283,6 +292,10 @@
 .mito-toolbar-top svg path {
   stroke: var(--mito-very-light-gray);
   stroke-width: 0.78x;
+}
+
+.mito-toolbar-top .mito-toolbar-button-icon-container {
+  align-items: center;
 }
 
 .mito-toolbar-tabbar-selected-underline {
