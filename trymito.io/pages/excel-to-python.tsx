@@ -9,37 +9,13 @@ import excelToPythonStyles from '../styles/ExcelToPython.module.css';
 
 // Import Icons & Background Grid
 import { classNames } from '../utils/classNames';
-import { getPageContentJsonArray } from '../utils/excel-to-python';
+import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../utils/excel-to-python';
 import Link from 'next/link';
 import PageTOC from '../components/Glossary/PageTOC/PageTOC';
 import TextButton from '../components/TextButton/TextButton';
 import { PageContent } from '../excel-to-python-page-contents/types';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
-
-export type GlossaryPageInfo = {
-    functionNameShort: string,
-    purpose: string,
-    slug: string[],
-}
-
-export const getGlossaryPageInfoForSection = (glossaryPageInfo: GlossaryPageInfo[], section: string) => {
-    return glossaryPageInfo.filter((glossaryPageInfo) => {
-        return glossaryPageInfo.slug[1] === section
-    })
-}
-
-export const getGlossaryPageInfo = async (pageContentsJsonArray: PageContent[]): Promise<GlossaryPageInfo[]> => {
-  
-    // Get information about each glossay page
-    return pageContentsJsonArray.map((pageContentsJson) => {
-      return {
-        functionNameShort: pageContentsJson.functionNameShort,
-        purpose: pageContentsJson.purpose,
-        slug: [...pageContentsJson.slug]
-      }
-    })
-}
 
 export const getStaticProps: GetStaticProps<{glossaryPageInfo: GlossaryPageInfo[]}> = async () => {
     const pageContentsJsonArray = await getPageContentJsonArray()
@@ -49,6 +25,12 @@ export const getStaticProps: GetStaticProps<{glossaryPageInfo: GlossaryPageInfo[
         props: { glossaryPageInfo },
         revalidate: 60, // Revalidate every 1 minute
     }
+}
+
+export const getGlossaryPageInfoForSection = (glossaryPageInfo: GlossaryPageInfo[], section: string) => {
+    return glossaryPageInfo.filter((glossaryPageInfo) => {
+        return glossaryPageInfo.slug[1] === section
+    })
 }
 
 const GlossaryPageCard = (props: {glossaryPageInfo: GlossaryPageInfo}) => {
