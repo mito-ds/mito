@@ -94,14 +94,14 @@
   /* Keep items evenly spaced */
   display: flex;
   width: fit-content;
-  height: min-content;
+  height: 100%;
 
   margin: 0px 1px;
 
   border-radius: 3px;
 
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
 
   /* Make input blend in with formula bar */
   background-color: inherit;
@@ -145,6 +145,10 @@
 
 .horizontal-align-content .mito-toolbar-button-label {
   white-space: nowrap;
+}
+
+.horizontal-align-content.mito-toolbar-button-container {
+  height: min-content;
 }
 
 .mito-toolbar-tabbar-tabname span {
