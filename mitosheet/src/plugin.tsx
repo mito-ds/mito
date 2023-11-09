@@ -55,6 +55,8 @@ function activateMitosheetExtension(
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
         execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
+
+            console.log("MAKING COMM!");
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
 
