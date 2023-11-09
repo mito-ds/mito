@@ -21,13 +21,12 @@ import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import { useRouter } from 'next/router';
 import { GetStaticProps } from 'next';
 
-import { getPageContentJsonArray } from '../../utils/excel-to-python';
+import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../../utils/excel-to-python';
 import { PageContent } from '../../excel-to-python-page-contents/types';
 
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
-import { getGlossaryPageInfo, GlossaryPageInfo } from '../excel-to-python';
 import Link from 'next/link';
 require('prismjs/components/prism-python');
 
