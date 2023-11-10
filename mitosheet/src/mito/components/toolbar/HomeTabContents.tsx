@@ -189,13 +189,12 @@ export const HomeTabContents = (
         />
         <div className='toolbar-vertical-line'/>
         <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Filter]}
+        />
+        <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
             toolbarTitle='Find & Replace'
         />
-        <ToolbarButton
-            action={props.actions.buildTimeActions[ActionEnum.Filter]}
-        />
-
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
         >  
