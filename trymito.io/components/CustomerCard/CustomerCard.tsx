@@ -21,7 +21,8 @@ const CustomerCard = (props: {
                 <Image 
                     height={58} // Use the same height in every card for uniformity
                     width={props.width} // Set the propper width for the image given the 58px height
-                    src={props.imageSrc}            
+                    src={props.imageSrc}     
+                    alt={props.customerName}       
                 />
             </div>
             <p className={customerCardStyles.customer_name}>{props.customerName}</p>
