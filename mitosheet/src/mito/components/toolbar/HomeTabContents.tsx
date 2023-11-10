@@ -178,7 +178,7 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format]}
         />
 
-        <div className="toolbar-vertical-line" style={{ marginLeft: '5px'}}></div>
+        <div className="toolbar-vertical-line"/>
 
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
@@ -187,6 +187,7 @@ export const HomeTabContents = (
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Delete]}
         />
+        <div className='toolbar-vertical-line'/>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
             toolbarTitle='Find & Replace'
