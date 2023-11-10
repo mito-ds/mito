@@ -74,6 +74,7 @@
   flex-direction: row;
   overflow-x: scroll;
   margin-bottom: 4px;
+  min-height: 60px;
 }
 
 .mito-toolbar-bottom-left-half {
