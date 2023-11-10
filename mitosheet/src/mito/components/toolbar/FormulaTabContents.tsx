@@ -26,12 +26,12 @@ export const FormulaTabContents = (
      * Maps the formula categories to the corresponding action enum
      */
     const formulaCategories: { [category in FunctionCategory]: ActionEnum } = {
-        'MATH': ActionEnum.Formulas_Dropdown_Math,
-        'LOGIC': ActionEnum.Formulas_Dropdown_Logic,
         'FINANCE': ActionEnum.Formulas_Dropdown_Finance,
+        'LOGIC': ActionEnum.Formulas_Dropdown_Logic,
         'TEXT': ActionEnum.Formulas_Dropdown_Text,
         'DATE': ActionEnum.Formulas_Dropdown_DateTime,
         'REFERENCE': ActionEnum.Formulas_Dropdown_Reference,
+        'MATH': ActionEnum.Formulas_Dropdown_Math,
     };
 
     const getFormulaDropdownItems = (category?: string): JSX.Element[] => {

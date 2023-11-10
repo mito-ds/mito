@@ -663,7 +663,7 @@ export const getActions = (
             staticType: ActionEnum.Formulas_Dropdown_Math,
             icon: MathFunctionsIcon,
             longTitle: 'Math Formulas',
-            toolbarTitle: 'Math & Trig',
+            toolbarTitle: 'Math',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
