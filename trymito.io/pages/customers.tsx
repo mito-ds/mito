@@ -21,7 +21,7 @@ const Customers: NextPage = () => {
       <Head>
         <title>Join the world&apos;s largest banks, asset managers, and insurance firms using Mito | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Mito is used by the world&apos;s largest banks, asset managers, insurance firms, and private equity companies to help non-technical analysts automate Excel reports" />
+        <meta name="description" content="Analysts at the world&apos;s largest banks and insurance firms use Mito to automate Excel reports" />
       </Head>
       
       <Header/>
