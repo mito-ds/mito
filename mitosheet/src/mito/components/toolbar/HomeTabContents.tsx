@@ -161,10 +161,10 @@ export const HomeTabContents = (
                     action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
                 />
                 <ToolbarButton
-                    action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
+                    action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
                 />
                 <ToolbarButton
-                    action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
+                    action={props.actions.buildTimeActions[ActionEnum.Precision_Decrease]}
                 />
             </div>
         </div>
