@@ -4,10 +4,15 @@ import React from 'react';
 
 const UnpivotIcon = (): JSX.Element => {
     return (
-        <svg width="15" height="15" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.13939 1.29046V8.80908M1.14394 3.28045H8.66878M4.7103 5.28418H5.6307L6.90303 5.26621V7.04481M5.26378 5.86944L4.65433 5.26621L5.2389 4.67542M7.5 6.89055L6.89055 7.5L6.30598 6.91543M1 1.09766H8.80469V8.90234H1V1.09766Z" stroke="#494650" strokeWidth="0.600361" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0.5" y="0.570312" width="8.16667" height="4.83333" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <line x1="0.833252" y1="2.90234" x2="8.33325" y2="2.90234" stroke="var(--mito-text)"/>
+            <rect x="0.833252" y="0.90625" width="7.5" height="1.66667" fill="var(--mito-highlight)"/>
+            <rect x="9.66675" y="14.5703" width="8.16667" height="4.83333" transform="rotate(-90 9.66675 14.5703)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <line x1="12" y1="14.2344" x2="12" y2="6.73438" stroke="var(--mito-text)"/>
+            <rect x="10" y="14.2344" width="7.5" height="1.66667" transform="rotate(-90 10 14.2344)" fill="var(--mito-highlight)"/>
+            <path d="M3.01878 7.57031V12.0915H7.49974M3.01878 7.57031L4.41257 8.97294M3.01878 7.57031L1.66667 8.97294M7.49974 12.0915L6.2092 13.4036M7.49974 12.0915L6.2092 10.8939" stroke="var(--mito-highlight)" strokeMiterlimit="10" strokeLinecap="round"/>
         </svg>
-
     )
 }
 

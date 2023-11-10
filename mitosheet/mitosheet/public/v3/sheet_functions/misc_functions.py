@@ -159,6 +159,7 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         "function": "VLOOKUP",
         "description": "Looks up a value in a range and returns the value in the same row from a column you specify.",
         "search_terms": ["vlookup", "merge", "join", "search", "lookup"],
+        "category": "REFERENCE",
         "examples": [
             "VLOOKUP(Names0, Ids:Ages, 1)",
             "VLOOKUP('John Smith', Names:Ages, 2)",

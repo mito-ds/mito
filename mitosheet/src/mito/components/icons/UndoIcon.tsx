@@ -4,9 +4,8 @@ import React from 'react';
 
 const UndoIcon = (): JSX.Element => {
     return (
-        <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1.32422 4.71448L4.08798 8.82064L8.19415 6.05688" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M10.6103 13.9999C14.2098 13.9999 17.1249 11.0848 17.1249 7.48529C17.1249 3.88582 14.2098 0.970703 10.6103 0.970703C7.01082 0.970703 4.0957 3.88582 4.0957 7.48529" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 6.07072C4.5 2.57031 8.5 -1.92969 12 2.57072C13.6518 4.69468 13 7.07031 11.4222 8.57031L6 13.0703M1 6.07072V0.0703125M1 6.07072L6.5 6.07031" stroke="var(--mito-text)" strokeMiterlimit={10} strokeLinecap='round'/>
         </svg>
     )
 }

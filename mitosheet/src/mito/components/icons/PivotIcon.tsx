@@ -4,13 +4,12 @@ import React from 'react';
 
 const PivotIcon = (): JSX.Element => {
     return (
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 1.39062H1V14.3906H14V1.39062Z" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M4.56445 1.71179V14.2353" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M1.24023 5.02649H13.7741" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M10.7165 7.89587V10.962H7.75391" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M9.74219 8.81775L10.747 7.80261L11.731 8.77632" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M8.01123 11.9564L6.99609 10.9412L7.9698 9.96753" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.43689" y="0.570312" width="16" height="16" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <rect x="3.18689" y="2.32031" width="2.5" height="2.5" fill="var(--mito-text-medium)" stroke="var(--mito-text)" strokeWidth="0.5"/>
+            <rect x="7.18689" y="2.32031" width="8.5" height="2.5" fill="var(--mito-text-medium)" stroke="var(--mito-text)" strokeWidth="0.5"/>
+            <rect x="3.18689" y="6.32031" width="2.5" height="8.5" fill="var(--mito-text-medium)" stroke="var(--mito-text)" strokeWidth="0.5"/>
+            <path d="M13.5526 7.07031V12.4957H8.17548M13.5526 7.07031L11.8801 8.75347M13.5526 7.07031L15.1752 8.75347M8.17548 12.4957L9.72413 14.0703M8.17548 12.4957L9.72413 11.0586" stroke="var(--mito-highlight)" strokeMiterlimit="10" strokeLinecap="round"/>
         </svg>
     )
 }

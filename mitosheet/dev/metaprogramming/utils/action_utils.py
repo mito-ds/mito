@@ -27,7 +27,7 @@ def get_action_code(action_name: str, enum_name: str, create_taskpane: bool) -> 
 
     return f"""[ActionEnum.{enum_name}]: {OPEN_BRACKET}
             type: ActionEnum.{enum_name},
-            shortTitle: '{action_name}',
+            toolbarTitle: '{action_name}',
             longTitle: '{action_name}',
             actionFunction: () => {OPEN_BRACKET}
                 {action_function_code}

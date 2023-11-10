@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { clickToolbarButton, createNewMitosheetOnlyTest, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
+import { clickToolbarButton, createNewMitosheetOnlyTest, createNewNotebook, dfCreationCode, getNumberOfColumns, selectColumn, waitForCodeToBeWritten, waitForIdle } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -24,7 +24,7 @@ test.describe('Mitosheet functionality', () => {
   test('delete a col', async ({ page, tmpPath }) => {
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
-    await clickToolbarButton(page, 'Del Col');
+    await clickToolbarButton(page, 'Delete');
 
     await waitForIdle(page);
     await waitForCodeToBeWritten(page, 1);

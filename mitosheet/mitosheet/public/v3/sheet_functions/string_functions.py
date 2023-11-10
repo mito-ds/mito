@@ -28,6 +28,7 @@ def CLEAN(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "CLEAN",
         "description": "Returns the text with the non-printable ASCII characters removed.",
         "search_terms": ["clean", "trim", "remove"],
+        "category": "TEXT",
         "examples": [
             "CLEAN(A)"
         ],
@@ -55,6 +56,7 @@ def CONCAT(*argv: StringInputType) -> StringFunctionReturnType:
         "function": "CONCAT",
         "description": "Returns the passed strings and series appended together.",
         "search_terms": ["&", "concatenate", "append", "combine"],
+        "category": "TEXT",
         "examples": [
             "CONCAT('Bite', 'the bullet')",
             "CONCAT(A, B)"
@@ -89,6 +91,7 @@ def FIND(string: StringRestrictedInputType, substrings: StringRestrictedInputTyp
         "function": "FIND",
         "description": "Returns the position at which a string is first found within text, case-sensitive. Returns 0 if not found.",
         "search_terms": ["find", "search"],
+        "category": "TEXT",
         "examples": [
             "FIND(A, 'Jack')",
             "FIND('Ben has a friend Jack', 'Jack')"
@@ -132,6 +135,7 @@ def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInp
         "function": "LEFT",
         "description": "Returns a substring from the beginning of a specified string.",
         "search_terms": ["left"],
+        "category": "TEXT",
         "examples": [
             "LEFT(A, 2)",
             "LEFT('The first character!')"
@@ -177,6 +181,7 @@ def LEN(arg: StringRestrictedInputType) -> IntFunctionReturnType:
         "function": "LEN",
         "description": "Returns the length of a string.",
         "search_terms": ["length", "size"],
+        "category": "TEXT",
         "examples": [
             "LEN(A)",
             "LEN('This is 21 characters')"
@@ -203,6 +208,7 @@ def LOWER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "LOWER",
         "description": "Converts a given string to lowercase.",
         "search_terms": ["lowercase", "uppercase"],
+        "category": "TEXT",
         "examples": [
             "=LOWER('ABC')",
             "=LOWER(A)",
@@ -233,6 +239,7 @@ def MID(string: StringRestrictedInputType, start_loc: IntRestrictedInputType, nu
         "function": "MID",
         "description": "Returns a segment of a string.",
         "search_terms": ["middle"],
+        "category": "TEXT",
         "examples": [
             "MID(A, 2, 2)",
             "MID('Some middle characters!', 3, 4)"
@@ -277,6 +284,7 @@ def PROPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "PROPER",
         "description": "Capitalizes the first letter of each word in a specified string.",
         "search_terms": ["proper", "capitalize"],
+        "category": "TEXT",
         "examples": [
             "=PROPER('nate nush')",
             "=PROPER(A)"
@@ -305,6 +313,7 @@ def RIGHT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedIn
         "function": "RIGHT",
         "description": "Returns a substring from the beginning of a specified string.",
         "search_terms": [],
+        "category": "TEXT",
         "examples": [
             "RIGHT(A, 2)",
             "RIGHT('The last character!')"
@@ -350,6 +359,7 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
         "function": "SUBSTITUTE",
         "description": "Replaces existing text with new text in a string.",
         "search_terms": ["replace", "find and replace"],
+        "category": "TEXT",
         "examples": [
             "SUBSTITUTE('Better great than never', 'great', 'late')",
             "SUBSTITUTE(A, 'dog', 'cat')"
@@ -401,6 +411,7 @@ def TEXT(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "TEXT",
         "description": "Turns the passed series into a string.",
         "search_terms": ["string", "dtype"],
+        "category": "TEXT",
         "examples": [
             "=TEXT(Product_Number)",
             "=TEXT(Start_Date)"
@@ -426,6 +437,7 @@ def TRIM(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "TRIM",
         "description": "Returns a string with the leading and trailing whitespace removed.",
         "search_terms": ["trim", "whitespace", "spaces"],
+        "category": "TEXT",
         "examples": [
             "=TRIM('  ABC')",
             "=TRIM('  ABC  ')",
@@ -453,6 +465,7 @@ def UPPER(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         "function": "UPPER",
         "description": "Converts a given string to uppercase.",
         "search_terms": ["uppercase", "capitalize"],
+        "category": "TEXT",
         "examples": [
             "=UPPER('abc')",
             "=UPPER(A)",
