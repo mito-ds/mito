@@ -43,7 +43,7 @@ export const DataTabContents = (
         
         <div className='toolbar-vertical-line' />
 
-        <div>
+        <div className='mito-toolbar-icon-buttons'>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.SortAscending]}
             />

@@ -38,7 +38,7 @@ export const InsertTabContents = (
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
         />
-        <div>
+        <div className='mito-toolbar-icon-buttons'>
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.Graph_Scatter]}
             />
