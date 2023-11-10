@@ -1020,6 +1020,28 @@ export const getActions = (
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
+        [ActionEnum.Merge_Dropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.Merge_Dropdown,
+            icon: MergeIcon,
+            toolbarTitle: 'Merge',
+            longTitle: 'Merge dataframes',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'merge',
+                    }
+                })
+            },
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
+            searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
+            tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
+        },
         [ActionEnum.AntiMerge]: {
             type: 'build-time',
             staticType: ActionEnum.AntiMerge,

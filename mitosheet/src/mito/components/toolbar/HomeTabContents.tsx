@@ -232,6 +232,45 @@ export const HomeTabContents = (
             highlightToolbarButton={props.highlightPivotTableButton}
         />
         <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Merge_Dropdown]}
+        >
+            <Dropdown
+                display={props.uiState.toolbarDropdown === 'merge'}
+                closeDropdown={() => 
+                    props.setUIState(prevUIState => {
+                        if (prevUIState.toolbarDropdown !== 'merge') {
+                            return prevUIState;
+                        }
+
+                        return {
+                            ...prevUIState,
+                            toolbarDropdown: undefined
+                        }
+                    })
+                }
+                width='medium'
+            >
+                <DropdownItem
+                    title="Merge (horizontal)"
+                    onClick={() => {
+                        props.actions.buildTimeActions[ActionEnum.Merge].actionFunction();
+                    }}
+                />
+                <DropdownItem
+                    title="Concat (vertical)"
+                    onClick={() => {
+                        props.actions.buildTimeActions[ActionEnum.Concat_Dataframes].actionFunction();
+                    }}
+                />
+                <DropdownItem
+                    title="Anti Merge (unique)"
+                    onClick={() => {
+                        props.actions.buildTimeActions[ActionEnum.AntiMerge].actionFunction();
+                    }}
+                />
+            </Dropdown>
+        </ToolbarButton>
+        <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
         />
         {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 

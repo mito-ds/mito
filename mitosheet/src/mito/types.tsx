@@ -892,7 +892,7 @@ export interface UIState {
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -959,6 +959,7 @@ export enum ActionEnum {
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',
     Merge = 'merge',
+    Merge_Dropdown = 'merge dropdown',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
     Formulas_Dropdown_DateTime = 'date time formulas dropdown',
     Formulas_Dropdown_Finance = 'finance formulas dropdown',
