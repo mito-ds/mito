@@ -5,19 +5,19 @@ import React from 'react';
 
 const AddColumnIcon = (): JSX.Element => {
     return (
-        <svg width="32" height="18" viewBox="0 0 32 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4.82837" y="0.570312" width="23" height="16" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
-            <rect x="4.82837" y="5.57031" width="23" height="6" fill="var(--mito-background-off)" stroke="var(--mito-text-medium)"/>
-            <rect x="4.82837" y="0.570312" width="23" height="16" stroke="var(--mito-text)"/>
-            <rect x="4.82837" y="5.57031" width="23" height="6" stroke="var(--mito-text-medium)"/>
-            <rect x="4.82837" y="0.570312" width="23" height="16" stroke="var(--mito-text)"/>
-            <line x1="20.8284" y1="1.07031" x2="20.8284" y2="16.0703" stroke="var(--mito-text-medium)"/>
-            <line x1="12.8284" y1="1.07031" x2="12.8284" y2="16.0703" stroke="var(--mito-text-medium)"/>
-            <rect x="4.82837" y="5.57031" width="26" height="6" fill="var(--mito-highlight-medium)" stroke="var(--mito-highlight)"/>
-            <path d="M6.42463 5.06938L2.32837 8.58938M2.32837 8.58938L6.42463 12.1094M2.32837 8.58938H9.82837" stroke="white" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M6.42463 5.06938L2.32837 8.58938M2.32837 8.58938L6.42463 12.1094M2.32837 8.58938H9.82837" stroke="var(--mito-highlight-medium)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <line x1="22.8284" y1="6.07031" x2="22.8284" y2="11.0703" stroke="var(--mito-highlight)"/>
-            <line x1="14.8284" y1="6.07031" x2="14.8284" y2="12.0703" stroke="var(--mito-highlight)"/>
+        <svg width="19" height="28" viewBox="0 0 19 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0.678955" y="26.6406" width="23" height="16" transform="rotate(-90 0.678955 26.6406)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <rect x="5.67896" y="26.6406" width="23" height="6" transform="rotate(-90 5.67896 26.6406)" fill="var(--mito-background-off)" stroke="#797774"/>
+            <rect x="0.678955" y="26.6406" width="23" height="16" transform="rotate(-90 0.678955 26.6406)" stroke="var(--mito-text)"/>
+            <rect x="5.67896" y="26.6406" width="23" height="6" transform="rotate(-90 5.67896 26.6406)" stroke="var(--mito-text)"/>
+            <rect x="0.678955" y="26.6406" width="23" height="16" transform="rotate(-90 0.678955 26.6406)" stroke="var(--mito-text)"/>
+            <line x1="1.17896" y1="10.6406" x2="16.179" y2="10.6406" stroke="var(--mito-text)"/>
+            <line x1="1.17896" y1="18.6406" x2="16.179" y2="18.6406" stroke="var(--mito-text)"/>
+            <path d="M5.5 25.9297L5.5 0.575022L12 0.635957L12 13.5L12 25.9297L5.5 25.9297Z" fill="var(--mito-highlight-medium)" stroke="var(--mito-highlight)"/>
+            <path d="M5.17896 8.64062L11.5 8.64062" stroke="var(--mito-highlight)"/>
+            <path d="M5.17896 16.6406L12 16.6406" stroke="var(--mito-highlight)"/>
+            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-background-off)" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round"/>
+            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-highlight-medium)" stroke-miterlimit="10" stroke-linecap="round"/>
         </svg>
     )
 }
