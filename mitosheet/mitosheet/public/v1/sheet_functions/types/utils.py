@@ -87,6 +87,9 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     # Import log function here to avoid circular import
     from mitosheet.telemetry.telemetry_utils import log
 
+    # Filter to only the strings, as this is all we're trying to convert really
+    string_series = string_series[string_series.apply(lambda x: isinstance(x, str))]
+
     # If we can convert all non null inputs, then we assume we guessed correctly
     non_null_inputs = string_series[~string_series.isna()]
 
