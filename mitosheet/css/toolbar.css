@@ -137,12 +137,9 @@
   font-family: Roboto;
 }
 
-.mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container {
-  background-color: var(--mito-light-gray);
-}
-
+.mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container,
 .mito-toolbar-button-container-enabled.horizontal-align-content:hover {
-  background-color: var(--mito-light-gray);
+  background-color: var(--mito-toolbar-hover);
 }
 
 .horizontal-align-content .mito-toolbar-button-label {
