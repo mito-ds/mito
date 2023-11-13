@@ -16,6 +16,8 @@ import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
 import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
+import CheckmarkIcon from '../icons/CheckmarkIcon';
+import LoadingDots from '../elements/LoadingDots';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -65,6 +67,16 @@ export const Toolbar = (
         'Formulas': <FormulaTabContents {...props}/>,
         'Code': <CodeTabContents {...props}/>,
     };
+    const isLoading = () => {
+        if (props.uiState.loading.length > 0) {
+            for (const loadingInfo of props.uiState.loading) {
+                if (loadingInfo[1] !== undefined) {
+                    return true
+                }
+            }
+        }
+        return false;
+    }
 
     return (
         <div className='mito-toolbar-container'>
@@ -75,6 +87,18 @@ export const Toolbar = (
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Clear]} />
                 </div>
                 <div className='mito-toolbar-top-right'>
+                    {isLoading() ? 
+                        <div className='mito-toolbar-save-indicator' style={{ justifyContent: 'center'}}>
+                            <p>Saving</p>
+                            <div style={{ width: '10px' }}>
+                                <LoadingDots />
+                            </div>
+                        </div> :
+                        <div className='mito-toolbar-save-indicator' title='All changes are saved automatically.'>
+                            <p>Saved</p>
+                            <CheckmarkIcon />
+                        </div>
+                    }
                     <ToolbarButton
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}

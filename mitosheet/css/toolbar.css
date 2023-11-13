@@ -332,3 +332,13 @@
 .mito-toolbar-icon-buttons .mito-toolbar-button-container {
   height: min-content;
 }
+
+.mito-toolbar-save-indicator {
+  color: var(--mito-very-light-gray);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  width: 88px;
+  justify-content: space-evenly;
+}
