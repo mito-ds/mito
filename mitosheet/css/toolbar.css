@@ -21,7 +21,8 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: var(--mito-highlight);
+  background-color: var(--mito-background-highlight);
+  border-bottom: 1px solid var(--mito-text-light);
 }
 
 .mito-toolbar-top-left {
@@ -291,7 +292,7 @@
 }
 
 .mito-toolbar-top svg path {
-  stroke: var(--mito-very-light-gray);
+  stroke: var(--mito-text);
   stroke-width: 0.78x;
 }
 
@@ -334,11 +335,17 @@
 }
 
 .mito-toolbar-save-indicator {
-  color: var(--mito-very-light-gray);
+  color: var(--mito-text-medium);
   height: 100%;
   display: flex;
   align-items: center;
   font-size: 12px;
-  width: 88px;
+  width: 56px;
   justify-content: space-evenly;
+  margin-right: 5px;
+}
+
+.mito-toolbar-save-indicator path {
+  stroke: var(--mito-text-medium)!important;
+  stroke-width: 0.75px;
 }
