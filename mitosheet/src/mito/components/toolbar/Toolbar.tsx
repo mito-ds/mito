@@ -79,6 +79,7 @@ export const Toolbar = (
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
                     />
+                    <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Steps]} />
                     <ToolbarButton
                         iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
                         action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}

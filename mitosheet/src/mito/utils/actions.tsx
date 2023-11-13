@@ -1508,7 +1508,6 @@ export const getActions = (
         [ActionEnum.Steps]: {
             type: 'build-time',
             staticType: ActionEnum.Steps,
-            toolbarTitle: 'Steps',
             longTitle: 'Step history',
             actionFunction: () => {
                 void mitoAPI.log('click_open_steps')
