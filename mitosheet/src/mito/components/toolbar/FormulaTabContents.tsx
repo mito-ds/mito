@@ -43,6 +43,7 @@ export const FormulaTabContents = (
                 <DropdownItem
                     title={functionObject.function}
                     key={functionObject.function}
+                    supressFocusSettingOnClose
                     onClick={(e) => {
                         e?.stopPropagation();
                         // If the user is currently editing a cell, we only want to update the formula
