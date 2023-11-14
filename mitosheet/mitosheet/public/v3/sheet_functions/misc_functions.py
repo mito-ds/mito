@@ -62,7 +62,6 @@ def TYPE(series: pd.Series) -> pd.Series:
 
     def get_element_type(element):
         # Start with bool!
-        print(element)
         if isinstance(element, bool):
             return 'bool'
         elif isinstance(element, int):
