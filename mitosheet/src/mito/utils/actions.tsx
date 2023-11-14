@@ -162,7 +162,7 @@ export const getActions = (
             icon: AddColumnIcon,
             toolbarTitle: 'Insert',
             longTitle: 'Add column',
-            actionFunction: () => {
+            actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
                     return;
                 }
@@ -177,11 +177,33 @@ export const getActions = (
                 // The new column should be placed 1 position to the right of the last selected column
                 const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
 
-                void mitoAPI.editAddColumn(
+                await mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
-                );
+                )
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            sheetIndex: sheetIndex,
+                            startingRowIndex: -1,
+                            startingColumnIndex: newColumnHeaderIndex,
+                            endingRowIndex: -1,
+                            endingColumnIndex: newColumnHeaderIndex
+                        }]
+                    }
+                })
+                setEditorState({
+                    rowIndex: 0,
+                    columnIndex: newColumnHeaderIndex,
+                    formula: '=',
+                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
+                    editorLocation: 'cell',
+                    editingMode: 'entire_column',
+                    sheetIndex: sheetIndex,
+                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
