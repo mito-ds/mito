@@ -38,6 +38,7 @@
                     "Just like in Excel, you can Pandas pivot tables can perform multiple aggregations. You can specify the aggregation function using the `aggfunc` parameter."
                 ],
                 "codeLines": [
+                    "# Create a pivot table",
                     "pivot = df.pivot_table(index=['Column1'], values=['Column2', 'Column3'], aggfunc=['count']).reset_index()",
                     "",
                     "# Flatten column headers so they are not tuples",
@@ -85,6 +86,7 @@
                     "Just like in Excel, you can aggregate the same attribute with multiple aggregation techniques. For example, you might want to calculate the sum and count of the same column."
                 ],
                 "codeLines": [
+                    "# Create a pivot table",
                     "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc=['sum', 'count']).reset_index()",
                     "",
                     "# Flatten column headers so they are easier to work with",
