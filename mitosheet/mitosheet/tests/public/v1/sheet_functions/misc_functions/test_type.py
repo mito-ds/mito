@@ -54,5 +54,5 @@ def test_TYPE_works_on_timedeltas():
 
     mito.set_formula('=TYPE(dob - dob2)', 0, 'type_of_time_deltas', True)
 
-    assert mito.get_column(0, 'type_of_time_deltas', as_list=False).equals(pd.Series(['timedelta', 'timedelta', 'timedelta', 'datetime']))
+    assert mito.get_column(0, 'type_of_time_deltas', as_list=False).equals(pd.Series(['timedelta', 'timedelta', 'timedelta', 'NaN']))
     

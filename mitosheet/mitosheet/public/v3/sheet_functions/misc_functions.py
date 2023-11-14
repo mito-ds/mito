@@ -62,6 +62,7 @@ def TYPE(series: pd.Series) -> pd.Series:
 
     def get_element_type(element):
         # Start with bool!
+        print(element)
         if isinstance(element, bool):
             return 'bool'
         elif isinstance(element, int):
@@ -70,7 +71,7 @@ def TYPE(series: pd.Series) -> pd.Series:
             if np.isnan(element):
                 return 'NaN'
             return 'number'
-        elif element is None:
+        elif element is None or element is pd.NaT:
             return 'NaN'
         elif isinstance(element, str):
             return 'string'
